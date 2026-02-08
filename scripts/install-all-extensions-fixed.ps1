@@ -9,7 +9,7 @@
 <# ║                                                                  ║
 <# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 <# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-<# ║  FILE: scripts/install-all-extensions.ps1                                                    ║
+<# ║  FILE: scripts/install-all-extensions-fixed.ps1                                                    ║
 <# ║  LAYER: automation                                                  ║
 <# ╚══════════════════════════════════════════════════════════════════╝
 <# HEADY_BRAND:END
@@ -38,12 +38,15 @@ $ErrorActionPreference = "Stop"
 # ───────────────────────────────────────────────────────────────────────────────
 # CONFIGURATION LOADING
 # ───────────────────────────────────────────────────────────────────────────────
-function Load-Config {
+function Import-HeadyConfig {
     param([string]$Path)
     
     if (!(Test-Path $Path)) {
-        Write-Error "Configuration file not found: $Path"
-        exit 1
+        Write-Warning "Configuration file not found: $Path"
+        return @{
+            Browsers = @{}
+            IDEs = @{}
+        }
     }
     
     # Parse YAML (using simple regex for this implementation)
@@ -170,7 +173,7 @@ function Install-ChromeExtensions {
 function Install-FirefoxExtensions {
     param([switch]$WhatIf)
     
-    Write-Host "`n🔶 Mozilla Firefox Extensions" -ForegroundColor Orange
+    Write-Host "`n🔶 Mozilla Firefox Extensions" -ForegroundColor DarkYellow
     
     $extensions = @(
         @{ 
@@ -558,7 +561,7 @@ Show-Header
 
 try {
     # Load configuration
-    $config = Load-Config -Path $ConfigPath
+    $config = Import-HeadyConfig -Path $ConfigPath
     
     # Install Browser Extensions
     if (!$IDEOnly) {

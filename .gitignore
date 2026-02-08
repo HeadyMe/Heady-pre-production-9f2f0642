@@ -31,8 +31,21 @@ logs/
 Thumbs.db
 
 # Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.venv/
+env/
+venv/
 .pytest_cache/
 *.egg-info/
+.ipynb_checkpoints/
+
+# Data (raw and external, to avoid huge files in git)
+data/raw/
+data/external/
 
 # Generated
 heady-manifest.json

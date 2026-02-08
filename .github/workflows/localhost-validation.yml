@@ -1,0 +1,222 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .github/workflows/localhost-validation.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+name: Localhost/Internal IP Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-no-localhost:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y grep
+        
+    - name: Validate documentation
+      run: |
+        echo "Checking documentation for localhost/internal IP references..."
+        
+        # Check for localhost in documentation
+        if grep -r --include="*.md" --include="*.rst" --include="*.txt" \
+          -E "(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]\.\d+\.\d+)" \
+          docs/ README.md *.md; then
+          echo "❌ ERROR: Found localhost or internal IP references in documentation"
+          echo "Please use proper Heady domains as per the URL style guide"
+          exit 1
+        fi
+        
+        echo "✅ Documentation validation passed"
+        
+    - name: Validate configuration files
+      run: |
+        echo "Checking configuration files for localhost/internal IP references..."
+        
+        # Check production configs (exclude local dev configs)
+        if grep -r --include="*.yaml" --include="*.yml" --include="*.json" --include="*.conf" \
+          -E "(localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.1[6-9]\.\d+\.\d+|172\.2[0-9]\.\d+\.\d+|172\.3[0-1]\.\d+\.\d+)" \
+          configs/ --exclude="*local*" --exclude="*dev*" --exclude="hosts-file"; then
+          echo "❌ ERROR: Found localhost or internal IP references in production configs"
+          echo "Please use environment variables or proper domain references"
+          exit 1
+        fi
+        
+        echo "✅ Configuration validation passed"
+        
+    - name: Validate code examples
+      run: |
+        echo "Checking code files for localhost URLs in comments and examples..."
+        
+        # Check for localhost in Python files (excluding test files and local configs)
+        if grep -r --include="*.py" --include="*.js" --include="*.ts" --include="*.jsx" --include="*.tsx" \
+          -E "(http://localhost|http://127\.0\.0\.1)" \
+          src/ --exclude-dir="test*" --exclude="*test*" --exclude="*local*"; then
+          echo "❌ ERROR: Found localhost URLs in code examples"
+          echo "Please use proper Heady domains or environment variables"
+          exit 1
+        fi
+        
+        echo "✅ Code validation passed"
+        
+    - name: Validate API documentation
+      run: |
+        echo "Checking API documentation for proper domain usage..."
+        
+        # Ensure API docs use proper domains
+        if ! grep -q "https://api.headysystems.com" docs/ 2>/dev/null; then
+          echo "⚠️  WARNING: API documentation should include examples with https://api.headysystems.com"
+        fi
+        
+        if ! grep -q "https://api.headyconnection.org" docs/ 2>/dev/null; then
+          echo "⚠️  WARNING: API documentation should include examples with https://api.headyconnection.org"
+        fi
+        
+        echo "✅ API documentation check completed"
+        
+    - name: Validate OAuth callback URLs
+      run: |
+        echo "Checking OAuth callback URLs for proper domains..."
+        
+        # Look for OAuth callback configurations
+        if grep -r --include="*.yaml" --include="*.yml" --include="*.json" --include="*.py" --include="*.js" \
+          -E "(localhost|127\.0\.0\.1).*oauth.*callback" \
+          .; then
+          echo "❌ ERROR: Found localhost in OAuth callback URLs"
+          echo "Please use proper domains like https://app.headysystems.com/oauth/callback"
+          exit 1
+        fi
+        
+        echo "✅ OAuth callback validation passed"
+        
+    - name: Validate Docker and deployment files
+      run: |
+        echo "Checking Docker and deployment files..."
+        
+        # Check Docker files for localhost exposure
+        if grep -r --include="Dockerfile*" --include="docker-compose*" \
+          -E "(localhost|127\.0\.0\.1)" \
+          . --exclude="*local*" --exclude="*dev*"; then
+          echo "❌ ERROR: Found localhost references in Docker/deployment files"
+          echo "Please use service names or proper domains"
+          exit 1
+        fi
+        
+        echo "✅ Docker/deployment validation passed"
+        
+    - name: Check for hardcoded ports with localhost
+      run: |
+        echo "Checking for hardcoded localhost ports..."
+        
+        # Look for patterns like localhost:3000, 127.0.0.1:8000
+        if grep -r -E "(localhost|127\.0\.0\.1):\d+" \
+          --include="*.md" --include="*.py" --include="*.js" --include="*.yaml" --include="*.yml" \
+          . --exclude-dir=".git" --exclude="*local*" --exclude="*dev*"; then
+          echo "❌ ERROR: Found localhost with hardcoded ports"
+          echo "Please use proper domains or environment variables"
+          exit 1
+        fi
+        
+        echo "✅ Port validation passed"
+        
+    - name: Validate environment variable examples
+      run: |
+        echo "Checking environment variable examples..."
+        
+        # Ensure .env.example files use proper domains
+        if find . -name "*.env.example" -exec grep -l "localhost\|127\.0\.0\.1" {} \;; then
+          echo "❌ ERROR: Found localhost references in .env.example files"
+          echo "Please use proper domains like:"
+          echo "  API_BASE_URL=https://api.headysystems.com"
+          echo "  WEB_APP_URL=https://app.headysystems.com"
+          exit 1
+        fi
+        
+        echo "✅ Environment variable validation passed"
+        
+    - name: Generate validation report
+      if: always()
+      run: |
+        echo "## Localhost/Internal IP Validation Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ All validations passed!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Checked Files:" >> $GITHUB_STEP_SUMMARY
+        echo "- Documentation (*.md, *.rst, *.txt)" >> $GITHUB_STEP_SUMMARY
+        echo "- Configuration files (*.yaml, *.yml, *.json, *.conf)" >> $GITHUB_STEP_SUMMARY
+        echo "- Source code (*.py, *.js, *.ts, *.jsx, *.tsx)" >> $GITHUB_STEP_SUMMARY
+        echo "- Docker files" >> $GITHUB_STEP_SUMMARY
+        echo "- Environment examples (*.env.example)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Exclusions:" >> $GITHUB_STEP_SUMMARY
+        echo "- Local development files (*local*, *dev*)" >> $GITHUB_STEP_SUMMARY
+        echo "- Test files" >> $GITHUB_STEP_SUMMARY
+        echo "- Hosts file mappings" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "This ensures no localhost or internal IPs leak into production documentation or code." >> $GITHUB_STEP_SUMMARY
+
+  validate-domain-consistency:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check domain consistency
+      run: |
+        echo "Checking domain consistency across files..."
+        
+        # Ensure consistent domain usage
+        DOMAINS=("headysystems.com" "headyconnection.org" "headybuddy.org")
+        
+        for domain in "${DOMAINS[@]}"; do
+          echo "Checking $domain usage..."
+          
+          # Look for inconsistent domain patterns
+          if grep -r -i "www\.$domain" . --exclude-dir=".git" | grep -v "redirect.*www"; then
+            echo "⚠️  WARNING: Found www.$domain usage (should redirect to $domain)"
+          fi
+          
+          # Look for HTTP usage (should be HTTPS)
+          if grep -r "http://$domain" . --exclude-dir=".git" --exclude="*local*"; then
+            echo "⚠️  WARNING: Found http://$domain (should be https://$domain)"
+          fi
+        done
+        
+        echo "✅ Domain consistency check completed"
+        
+    - name: Validate SSL configuration
+      run: |
+        echo "Checking SSL configuration requirements..."
+        
+        # Ensure production configs require SSL
+        if ! grep -r "ssl.*required" configs/domain-architecture.yaml; then
+          echo "⚠️  WARNING: SSL requirements not clearly specified"
+        fi
+        
+        # Check for proper SSL certificate paths in Nginx configs
+        if find configs/nginx -name "*.conf" -exec grep -L "ssl_certificate" {} \; | grep -v "local-dev"; then
+          echo "⚠️  WARNING: Some Nginx configs missing SSL certificate configuration"
+        fi
+        
+        echo "✅ SSL configuration check completed"

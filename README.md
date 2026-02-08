@@ -105,6 +105,45 @@ Colab notebooks are stored under `notebooks/` and validated in CI:
 | `docs/heady-services-manual.md` | Comprehensive services manual |
 | `CLAUDE.md` | Claude Code integration protocol |
 
+## Python & Colab Development
+
+This project supports Python development with PyCharm and Google Colab integration.
+
+### Project Structure
+
+```
+data/                    # Data directories
+├── raw/                # Raw data files (git-ignored)
+├── processed/          # Processed data
+└── external/           # External data (git-ignored)
+
+notebooks/              # Jupyter notebooks
+├── exploratory/        # Scratch, EDA, experiments
+├── reports/            # Clean, final notebooks
+├── archive/            # Retired notebooks
+└── figures/            # Exported plots/images
+
+src/                    # Reusable Python code
+tests/                  # Unit tests
+```
+
+### Setup
+
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# For PyCharm: Open as Python project
+# For Colab: See COLAB_WORKFLOW.md
+```
+
+### Key Files
+
+- `requirements.txt` - Python dependencies
+- `NOTEBOOK_TEMPLATE.md` - Template for new notebooks
+- `COLAB_WORKFLOW.md` - Google Colab workflow guide
+- `.env.example` - Environment variables template
+
 ## Deployment
 
 Deployed via [Render.com](https://render.com) using `render.yaml`.

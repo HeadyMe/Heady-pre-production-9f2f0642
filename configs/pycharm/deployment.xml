@@ -1,0 +1,199 @@
+<!-- Heady Systems PyCharm Deployment Configuration -->
+<!-- Production-ready deployment settings for PyCharm -->
+
+<component name="Deployment">
+  <deploymentOptions defaultName="HeadySystems Production">
+    <!-- Production Server Configuration -->
+    <serverData>
+      <server name="HeadySystems Production">
+        <deploymentData>
+          <connection type="ssh">
+            <host>headysystems.com</host>
+            <port>22</port>
+            <username>deploy</username>
+            <privateKeyPath>C:\Users\erich\.ssh\heady_deploy_key</privateKeyPath>
+            <authMethod>PUBLIC_KEY</authMethod>
+          </connection>
+          <fileTransfer type="sftp">
+            <rootFolder>/var/www/headysystems.com</rootFolder>
+            <advancedOptions>
+              <advancedOption name="preserveTimestamps" value="true" />
+              <advancedOption name="useSudo" value="true" />
+            </advancedOptions>
+          </fileTransfer>
+        </deploymentData>
+      </server>
+      
+      <!-- Staging Server Configuration -->
+      <server name="HeadySystems Staging">
+        <deploymentData>
+          <connection type="ssh">
+            <host>staging.headysystems.com</host>
+            <port>22</port>
+            <username>deploy</username>
+            <privateKeyPath>C:\Users\erich\.ssh\heady_deploy_key</privateKeyPath>
+            <authMethod>PUBLIC_KEY</authMethod>
+          </connection>
+          <fileTransfer type="sftp">
+            <rootFolder>/var/www/staging.headysystems.com</rootFolder>
+            <advancedOptions>
+              <advancedOption name="preserveTimestamps" value="true" />
+              <advancedOption name="useSudo" value="false" />
+            </advancedOptions>
+          </fileTransfer>
+        </deploymentData>
+      </server>
+      
+      <!-- Local Development Configuration -->
+      <server name="HeadySystems Local">
+        <deploymentData>
+          <connection type="local">
+            <localPath>C:\Users\erich\Heady</localPath>
+          </connection>
+          <fileTransfer type="local">
+            <rootFolder>C:\Users\erich\Heady</rootFolder>
+          </fileTransfer>
+        </deploymentData>
+      </server>
+    </serverData>
+    
+    <!-- Deployment Mappings -->
+    <deploymentMappings>
+      <!-- Main application code -->
+      <mapping local="C:\Users\erich\Heady\src" remote="/var/www/headysystems.com/src" />
+      
+      <!-- Configuration files -->
+      <mapping local="C:\Users\erich\Heady\configs" remote="/var/www/headysystems.com/configs" />
+      
+      <!-- Static assets -->
+      <mapping local="C:\Users\erich\Heady\public" remote="/var/www/headysystems.com/public" />
+      
+      <!-- Requirements and dependencies -->
+      <mapping local="C:\Users\erich\Heady\requirements.txt" remote="/var/www/headysystems.com/requirements.txt" />
+      <mapping local="C:\Users\erich\Heady\package.json" remote="/var/www/headysystems.com/package.json" />
+      
+      <!-- Nginx configurations -->
+      <mapping local="C:\Users\erich\Heady\configs\nginx" remote="/etc/nginx/sites-available" />
+      
+      <!-- Systemd service files -->
+      <mapping local="C:\Users\erich\Heady\configs\systemd" remote="/etc/systemd/system" />
+    </deploymentMappings>
+    
+    <!-- Excluded Files and Directories -->
+    <excludedPaths>
+      <path>__pycache__</path>
+      <path>node_modules</path>
+      <path>.git</path>
+      <path>.pytest_cache</path>
+      <path>venv</path>
+      <path>.env</path>
+      <path>logs</path>
+      <path>.DS_Store</path>
+      <path>Thumbs.db</path>
+      <path>*.pyc</path>
+      <path>*.pyo</path>
+      <path>.coverage</path>
+      <path>htmlcov</path>
+    </excludedPaths>
+  </deploymentOptions>
+  
+  <!-- Remote Interpreter Configuration -->
+  <component name="RemoteInterpreters">
+    <remoteInterpreter name="HeadySystems Production Python">
+      <options>
+        <option name="sshCredentials">
+          <host>headysystems.com</host>
+          <port>22</port>
+          <username>deploy</username>
+          <privateKeyPath>C:\Users\erich\.ssh\heady_deploy_key</privateKeyPath>
+        </option>
+        <option name="pythonPath">/usr/bin/python3</option>
+        <option name="virtualEnvPath">/var/www/headysystems.com/venv</option>
+        <option name="helpersPath">/var/www/headysystems.com/.pycharm_helpers</option>
+      </options>
+    </remoteInterpreter>
+    
+    <remoteInterpreter name="HeadySystems Staging Python">
+      <options>
+        <option name="sshCredentials">
+          <host>staging.headysystems.com</host>
+          <port>22</port>
+          <username>deploy</username>
+          <privateKeyPath>C:\Users\erich\.ssh\heady_deploy_key</privateKeyPath>
+        </option>
+        <option name="pythonPath">/usr/bin/python3</option>
+        <option name="virtualEnvPath">/var/www/staging.headysystems.com/venv</option>
+        <option name="helpersPath">/var/www/staging.headysystems.com/.pycharm_helpers</option>
+      </options>
+    </remoteInterpreter>
+  </component>
+  
+  <!-- Run/Debug Configurations -->
+  <component name="RunManager">
+    <configuration name="HeadySystems Production" type="Python.DjangoServer">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DJANGO_SETTINGS_MODULE" value="heady.settings.production" />
+        <env name="DATABASE_URL" value="postgresql://user:pass@headysystems.com:5432/heady_prod" />
+        <env name="SECRET_KEY" value="$SECRET_KEY$" />
+        <env name="DEBUG" value="False" />
+        <env name="ALLOWED_HOSTS" value="headysystems.com,www.headysystems.com" />
+      </envs>
+      <option name="SDK_HOME" value="HeadySystems Production Python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Heady" />
+      <option name="DJANGO_SETTINGS_MODULE" value="heady.settings.production" />
+      <option name="HOST" value="127.0.0.1" />
+      <option name="PORT" value="8000" />
+      <option name="BROWSER_URL" value="https://headysystems.com" />
+    </configuration>
+    
+    <configuration name="HeadySystems Staging" type="Python.DjangoServer">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DJANGO_SETTINGS_MODULE" value="heady.settings.staging" />
+        <env name="DATABASE_URL" value="postgresql://user:pass@staging.headysystems.com:5432/heady_staging" />
+        <env name="SECRET_KEY" value="$SECRET_KEY$" />
+        <env name="DEBUG" value="True" />
+        <env name="ALLOWED_HOSTS" value="staging.headysystems.com,*.heady.local" />
+      </envs>
+      <option name="SDK_HOME" value="HeadySystems Staging Python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Heady" />
+      <option name="DJANGO_SETTINGS_MODULE" value="heady.settings.staging" />
+      <option name="HOST" value="127.0.0.1" />
+      <option name="PORT" value="8000" />
+      <option name="BROWSER_URL" value="https://staging.headysystems.com" />
+    </configuration>
+    
+    <configuration name="HeadySystems Local" type="Python.DjangoServer">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="DJANGO_SETTINGS_MODULE" value="heady.settings.local" />
+        <env name="DATABASE_URL" value="sqlite:///./db.sqlite3" />
+        <env name="SECRET_KEY" value="local-dev-secret-key" />
+        <env name="DEBUG" value="True" />
+        <env name="ALLOWED_HOSTS" value="*.heady.local,localhost,127.0.0.1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/Scripts/python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Heady" />
+      <option name="DJANGO_SETTINGS_MODULE" value="heady.settings.local" />
+      <option name="HOST" value="127.0.0.1" />
+      <option name="PORT" value="8000" />
+      <option name="BROWSER_URL" value="http://app.heady.local" />
+    </configuration>
+  </component>
+</component>

@@ -159,7 +159,7 @@ if (Test-Path $docOwnersPath) {
     }
 } else {
     $issues += "docs/DOC_OWNERS.yaml not found"
-    Write-Warning-Msg "DOC_OWNERS.yaml not found — cannot check freshness"
+    Write-Warning-Msg "DOC_OWNERS.yaml not found - cannot check freshness"
 }
 
 # ═══════════════════════════════════════════════════════════════════════════
