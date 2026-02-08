@@ -7,32 +7,6 @@
     "status": "ongoing",
     "timeline": [
       {
-        "id": "432e197f-3216-42be-919d-5c49ead41d7e",
-        "timestamp": "2026-02-07T21:28:05.489Z",
-        "type": "RESOURCE_CRITICAL",
-        "description": "Resources critical: RAM at 93%. pending.",
-        "refs": {
-          "resourceType": "RAM",
-          "percent": 93,
-          "mitigation": "pending"
-        },
-        "severity": "notable",
-        "source": "resource_manager"
-      },
-      {
-        "id": "9c029bf0-62c2-4cb1-95bb-85f30e1ddbd8",
-        "timestamp": "2026-02-07T21:28:11.836Z",
-        "type": "RESOURCE_CRITICAL",
-        "description": "Resources critical: RAM at 94%. pending.",
-        "refs": {
-          "resourceType": "RAM",
-          "percent": 94,
-          "mitigation": "pending"
-        },
-        "severity": "notable",
-        "source": "resource_manager"
-      },
-      {
         "id": "2965aaf9-f6a6-4e2b-9d28-852608cc90cb",
         "timestamp": "2026-02-07T21:28:18.011Z",
         "type": "RESOURCE_CRITICAL",
@@ -6505,12 +6479,38 @@
         },
         "severity": "notable",
         "source": "resource_manager"
+      },
+      {
+        "id": "2b7af949-2ad7-446b-9b91-c9687b7d32a5",
+        "timestamp": "2026-02-08T11:41:20.390Z",
+        "type": "RESOURCE_CRITICAL",
+        "description": "Resources critical: RAM at 92%. pending.",
+        "refs": {
+          "resourceType": "RAM",
+          "percent": 92,
+          "mitigation": "pending"
+        },
+        "severity": "notable",
+        "source": "resource_manager"
+      },
+      {
+        "id": "c9e199c5-39d0-41d1-ba61-37635c480b82",
+        "timestamp": "2026-02-08T11:41:26.264Z",
+        "type": "RESOURCE_CRITICAL",
+        "description": "Resources critical: RAM at 93%. pending.",
+        "refs": {
+          "resourceType": "RAM",
+          "percent": 93,
+          "mitigation": "pending"
+        },
+        "severity": "notable",
+        "source": "resource_manager"
       }
     ],
     "links": {},
     "pinnedEvents": [],
     "createdAt": "2026-02-07T07:12:44.806Z",
-    "updatedAt": "2026-02-08T11:41:14.471Z"
+    "updatedAt": "2026-02-08T11:41:26.264Z"
   },
   "0aadf5c9-d3c1-4938-b79b-22e09c1af1cd": {
     "id": "0aadf5c9-d3c1-4938-b79b-22e09c1af1cd",
