@@ -14,9 +14,9 @@
 <# ╚══════════════════════════════════════════════════════════════════╝
 <# HEADY_BRAND:END
 #>
-@echo off
-REM HCFP Clean Build with Error Handling - Windows PowerShell Script
-REM Performs full clean build on every change with intelligent error recovery
+
+# HCFP Clean Build with Error Handling - Windows PowerShell Script
+# Performs full clean build on every change with intelligent error recovery
 
 param(
     [switch]$FullRebuild = $true,
@@ -29,13 +29,24 @@ param(
 $ErrorActionPreference = "Stop"
 $ProgressPreference = "Continue"
 
-# Color definitions
+# Define color mapping
 $Colors = @{
-    Red = "Red"
-    Green = "Green"
-    Yellow = "Yellow"
-    Cyan = "Cyan"
-    Magenta = "Magenta"
+    'Black' = 'Black'
+    'DarkBlue' = 'DarkBlue'
+    'DarkGreen' = 'DarkGreen'
+    'DarkCyan' = 'DarkCyan'
+    'DarkRed' = 'DarkRed'
+    'DarkMagenta' = 'DarkMagenta'
+    'DarkYellow' = 'DarkYellow'
+    'Gray' = 'Gray'
+    'DarkGray' = 'DarkGray'
+    'Blue' = 'Blue'
+    'Green' = 'Green'
+    'Cyan' = 'Cyan'
+    'Red' = 'Red'
+    'Magenta' = 'Magenta'
+    'Yellow' = 'Yellow'
+    'White' = 'White'
 }
 
 function Write-Status {
