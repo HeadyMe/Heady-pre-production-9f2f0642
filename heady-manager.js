@@ -30,6 +30,7 @@ const fs = require("fs");
 const compression = require("compression");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const { execSync } = require("child_process");
 
 // ─── Imagination Engine ─────────────────────────────────────────────
 let imaginationRoutes = null;
@@ -961,6 +962,13 @@ app.post("/api/buddy/pipeline/continuous", (req, res) => {
       continuousPipeline.exitReason = "gate_failed";
       if (continuousPipeline.intervalId) clearInterval(continuousPipeline.intervalId);
     }
+
+    // Add checkpoint validation call to maintenance cycle
+    if (fs.existsSync('../scripts/checkpoint-validation.ps1')) {
+      execSync('pwsh ../scripts/checkpoint-validation.ps1', { stdio: 'inherit' });
+    } else {
+      console.warn('Checkpoint validation script not found. Skipping...');
+    }
   };
 
   runCycle();
@@ -1221,3 +1229,8 @@ app.listen(PORT, () => {
   console.log(`  ∞ Health: http://localhost:${PORT}/api/health`);
   console.log(`  ∞ Environment: ${process.env.NODE_ENV || "development"}\n`);
 });
+
+const { startBrandingMonitor } = require('./src/self-awareness');
+
+// Start services
+startBrandingMonitor();

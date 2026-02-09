@@ -33,7 +33,7 @@ const config = {
     { from: 'https://app.headysystems.com', to: 'https://app.headysystems.com' },
     { from: 'https://api.headysystems.com', to: 'https://api.headysystems.com' },
     // Enhanced Windows path replacement
-    { from: /C:\\\\.*?\\Heady\\/g, to: '<HEADY_PROJECT_ROOT>' },
+    { from: /<HEADY_PROJECT_ROOT>/g, to: '<HEADY_PROJECT_ROOT>' },
     ...bannedDomains.map(domain => ({
       from: new RegExp(`https?://[a-zA-Z0-9-]+\.${domain}`, 'g'),
       to: 'https://app.headysystems.com'

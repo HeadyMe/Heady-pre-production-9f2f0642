@@ -102,7 +102,7 @@ This system transforms Heady from a localhost-centric development setup to a pro
 ### GitHub Actions Workflow
 
 ```yaml
-# .github/workflows/clean-build.yml
+# configs/workflows/clean-build.yml
 on:
   push:
     branches: [main, develop]

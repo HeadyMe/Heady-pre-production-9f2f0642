@@ -2,6 +2,7 @@
   "registryVersion": "3.2.0",
   "updatedAt": "2026-02-08T04:12:40.416Z",
   "description": "HeadyRegistry — Central catalog and control point for the Heady ecosystem",
+  "last_deployment": "2026-02-08T21:30:00Z",
 
   "components": [
     {
@@ -578,7 +579,7 @@
       "name": "AlohaProtocol",
       "type": "governance",
       "version": "1.0.0",
-      "sourceOfTruth": "configs/aloha-protocol.yaml",
+      "sourceOfTruth": "configs/protocols/aloha-protocol.yaml",
       "responsibilities": ["alohaModeEnforcement", "priorityStack", "noAssistGuard", "webBaseline", "resourcePhilosophy", "crewRoleDefinitions"],
       "ownership": "core",
       "status": "active",
@@ -608,7 +609,7 @@
         "script": "scripts/hc-infrastructure-setup.ps1",
         "config": "configs/service-domains.yaml",
         "deviceConfig": "configs/device-management.yaml",
-        "ciWorkflow": ".github/workflows/clean-build.yml",
+        "ciWorkflow": "configs/workflows/clean-build.yml",
         "workflow": ".windsurf/workflows/hcip-infrastructure-setup.md"
       },
       "serviceDomains": [
@@ -668,7 +669,7 @@
       "sourceOfTruth": ".windsurf/workflows/hcfp-localhost-domain-migration.md",
       "responsibilities": ["localhostReplacement", "domainMapping", "serviceDiscovery", "dnsConfiguration"],
       "script": "scripts/migrate-localhost-to-domains.js",
-      "config": "configs/service-discovery.yaml",
+      "config": "configs/domains/service-discovery.yaml",
       "serviceDomains": [
         "manager.dev.local.heady.internal:3300",
         "app-web.dev.local.heady.internal:3000",
@@ -1303,6 +1304,20 @@
       "type": "infrastructure",
       "status": "current",
       "lastUpdated": "2026-02-07"
+    },
+    {
+      "id": "arena-mode-spec",
+      "name": "Arena Mode Specification",
+      "type": "documentation",
+      "path": "docs/ARENA_MODE_SPEC.md",
+      "description": "Complete specification for intelligent squash merging in HeadyAutoIDE"
+    },
+    {
+      "id": "arena-mode-roadmap",
+      "name": "Arena Mode IDE Fusion Roadmap",
+      "type": "documentation",
+      "path": "docs/ARENA_MODE_IDE_FUSION_ROADMAP.md",
+      "description": "ASAP implementation roadmap for Arena Mode IDE integration"
     }
   ],
 

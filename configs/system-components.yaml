@@ -106,6 +106,14 @@ services:
       - internal-domains-configured
       - proxy-bypass-active
 
+  - name: sync-server
+    type: websocket
+    role: Cross-device state synchronization
+    location: src/sync-server.js
+    port: 3306
+    criticality: high
+    healthCheck: { method: http, path: /health }
+
 # ─── APPS ─────────────────────────────────────────────────────────────────
 apps:
   - name: heady-frontend

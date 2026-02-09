@@ -34,7 +34,7 @@ Successfully integrated comprehensive HCFP (HCFullPipeline) system with:
 **Files Created:**
 - `scripts/migrate-localhost-to-domains.js` - Automated migration script
 - `.windsurf/workflows/hcfp-localhost-domain-migration.md` - Step-by-step workflow
-- `configs/service-discovery.yaml` - Service domain mappings (already existed)
+- `configs/domains/service-discovery.yaml` - Service domain mappings (already existed)
 
 **Service Mappings (14 total):**
 ```
@@ -70,7 +70,7 @@ node scripts/migrate-localhost-to-domains.js --verify-only
 
 **Files Created:**
 - `.windsurf/workflows/hcfp-error-recovery.md` - Error classification and recovery protocol
-- `.github/workflows/clean-build.yml` - CI/CD pipeline (already existed, enhanced)
+- `configs/workflows/clean-build.yml` - CI/CD pipeline (already existed, enhanced)
 
 **Error Classification:**
 - **Transient** (Auto-Retry): Network timeouts, registry issues, flaky tests

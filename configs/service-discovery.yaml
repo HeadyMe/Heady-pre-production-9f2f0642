@@ -17,7 +17,7 @@
 # Replaces all localhost references with proper internal domains
 # Root Domain: heady.internal
 
-root_domain: heady.internal
+root_domain: internal.headyio.com
 environment: dev  # dev, staging, prod
 region: local
 
@@ -25,25 +25,25 @@ region: local
 services:
   # Manager/Orchestrator
   manager:
-    host: manager.dev.local.heady.internal
+    host: manager.internal.headyio.com
     port: 3300
     protocol: http
     aliases:
-      - api.dev.local.heady.internal
-      - orchestrator.dev.local.heady.internal
+      - api.dev.local.headyio.com
+      - orchestrator.dev.local.headyio.com
     purpose: Central API and orchestration hub
     security_level: internal
     
   # Database Layer
   postgres:
-    host: db-postgres.dev.local.heady.internal
+    host: db-postgres.dev.local.headyio.com
     port: 5432
     protocol: postgresql
     purpose: Primary PostgreSQL with pgvector
     security_level: database
     
   redis:
-    host: db-redis.dev.local.heady.internal
+    host: db-redis.dev.local.headyio.com
     port: 6379
     protocol: redis
     purpose: Caching and session storage
@@ -51,7 +51,7 @@ services:
     
   # AI/ML Services
   ollama:
-    host: ai-ollama.dev.local.heady.internal
+    host: ai-ollama.dev.local.headyio.com
     port: 11434
     protocol: http
     purpose: Local LLM inference (Llama, Mistral)
@@ -59,7 +59,7 @@ services:
     
   # RAG/Vector Services
   rag:
-    host: ai-rag.dev.local.heady.internal
+    host: ai-rag.dev.local.headyio.com
     port: 8080
     protocol: http
     purpose: Retrieval Augmented Generation service
@@ -67,7 +67,7 @@ services:
     
   # MCP Gateway
   mcp-gateway:
-    host: tools-mcp.dev.local.heady.internal
+    host: mcp.internal.headyio.com
     port: 3001
     protocol: http
     purpose: Model Context Protocol tool gateway
@@ -75,7 +75,7 @@ services:
     
   # Web Frontend
   web:
-    host: app-web.dev.local.heady.internal
+    host: app-web.dev.local.headyio.com
     port: 3000
     protocol: http
     purpose: Heady web dashboard
@@ -83,7 +83,7 @@ services:
     
   # HeadyBuddy Desktop
   buddy:
-    host: app-buddy.dev.local.heady.internal
+    host: app-buddy.dev.local.headyio.com
     port: 3301
     protocol: http
     purpose: Desktop overlay assistant
@@ -91,7 +91,7 @@ services:
     
   # Browser Extension Bridge
   browser-bridge:
-    host: bridge-browser.dev.local.heady.internal
+    host: bridge-browser.dev.local.headyio.com
     port: 3302
     protocol: http
     purpose: Browser extension communication
@@ -99,7 +99,7 @@ services:
     
   # Voice I/O Service
   voice:
-    host: io-voice.dev.local.heady.internal
+    host: io-voice.dev.local.headyio.com
     port: 3303
     protocol: http
     purpose: Voice input/output processing
@@ -107,14 +107,14 @@ services:
     
   # Billing/Telemetry
   billing:
-    host: svc-billing.dev.local.heady.internal
+    host: svc-billing.dev.local.headyio.com
     port: 3304
     protocol: http
     purpose: Payment and usage tracking
     security_level: internal
     
   telemetry:
-    host: svc-telemetry.dev.local.heady.internal
+    host: svc-telemetry.dev.local.headyio.com
     port: 3305
     protocol: http
     purpose: Metrics and observability
@@ -123,21 +123,21 @@ services:
 # Admin/Debug Interfaces (Restricted Access)
 admin:
   postgres-admin:
-    host: admin-postgres.dev.local.heady.internal
+    host: admin-postgres.dev.local.headyio.com
     port: 8080
     protocol: http
     purpose: PostgreSQL admin interface
     security_level: admin
     
   redis-admin:
-    host: admin-redis.dev.local.heady.internal
+    host: admin-redis.dev.local.headyio.com
     port: 8081
     protocol: http
     purpose: Redis management UI
     security_level: admin
     
   manager-debug:
-    host: debug-manager.dev.local.heady.internal
+    host: debug-manager.dev.local.headyio.com
     port: 9090
     protocol: http
     purpose: Debug and profiling endpoints
@@ -146,14 +146,14 @@ admin:
 # Service Mesh / Discovery
 discovery:
   registry:
-    host: discovery.dev.local.heady.internal
+    host: discovery.dev.local.headyio.com
     port: 8600
     protocol: http
     purpose: Service registry and health checks
     security_level: internal
     
   dns-internal:
-    host: dns.dev.local.heady.internal
+    host: dns.dev.local.headyio.com
     port: 53
     protocol: dns
     purpose: Internal DNS resolution
@@ -185,23 +185,23 @@ integrations:
 
 # Reverse Proxy / Gateway Routes
 gateway:
-  domain: gateway.dev.local.heady.internal
+  domain: gateway.dev.local.headyio.com
   port: 80
   routes:
     - path: /api
-      upstream: manager.dev.local.heady.internal:3300
+      upstream: manager.dev.local.headyio.com:3300
       
     - path: /app
-      upstream: app-web.dev.local.heady.internal:3000
+      upstream: app-web.dev.local.headyio.com:3000
       
     - path: /mcp
-      upstream: tools-mcp.dev.local.heady.internal:3001
+      upstream: tools-mcp.dev.local.headyio.com:3001
       
     - path: /ai
-      upstream: ai-ollama.dev.local.heady.internal:11434
+      upstream: ai-ollama.dev.local.headyio.com:11434
       
     - path: /db
-      upstream: admin-postgres.dev.local.heady.internal:8080
+      upstream: admin-postgres.dev.local.headyio.com:8080
       restrict: admin-only
 
 # mTLS and Security
@@ -214,73 +214,73 @@ security:
   network_policies:
     default_deny: true
     allow_rules:
-      - from: app-web.dev.local.heady.internal
-        to: manager.dev.local.heady.internal
+      - from: app-web.dev.local.headyio.com
+        to: manager.dev.local.headyio.com
         ports: [3300]
         
-      - from: bridge-browser.dev.local.heady.internal
-        to: manager.dev.local.heady.internal
+      - from: bridge-browser.dev.local.headyio.com
+        to: manager.dev.local.headyio.com
         ports: [3300]
         
-      - from: manager.dev.local.heady.internal
-        to: db-postgres.dev.local.heady.internal
+      - from: manager.dev.local.headyio.com
+        to: db-postgres.dev.local.headyio.com
         ports: [5432]
         
-      - from: manager.dev.local.heady.internal
-        to: db-redis.dev.local.heady.internal
+      - from: manager.dev.local.headyio.com
+        to: db-redis.dev.local.headyio.com
         ports: [6379]
         
-      - from: tools-mcp.dev.local.heady.internal
-        to: ai-ollama.dev.local.heady.internal
+      - from: tools-mcp.dev.local.headyio.com
+        to: ai-ollama.dev.local.headyio.com
         ports: [11434]
         
-      - from: ai-rag.dev.local.heady.internal
-        to: db-postgres.dev.local.heady.internal
+      - from: ai-rag.dev.local.headyio.com
+        to: db-postgres.dev.local.headyio.com
         ports: [5432]
 
 # Localhost Replacement Mappings
 # Maps old localhost references to new domain names
 localhost_mappings:
   - old: "localhost:3300"
-    new: "manager.dev.local.heady.internal:3300"
+    new: "manager.dev.local.headyio.com:3300"
     service: manager
     
   - old: "127.0.0.1:3300"
-    new: "manager.dev.local.heady.internal:3300"
+    new: "manager.dev.local.headyio.com:3300"
     service: manager
     
   - old: "localhost:5432"
-    new: "db-postgres.dev.local.heady.internal:5432"
+    new: "db-postgres.dev.local.headyio.com:5432"
     service: postgres
     
   - old: "localhost:6379"
-    new: "db-redis.dev.local.heady.internal:6379"
+    new: "db-redis.dev.local.headyio.com:6379"
     service: redis
     
   - old: "localhost:3000"
-    new: "app-web.dev.local.heady.internal:3000"
+    new: "app-web.dev.local.headyio.com:3000"
     service: web
     
   - old: "localhost:3001"
-    new: "tools-mcp.dev.local.heady.internal:3001"
+    new: "tools-mcp.dev.local.headyio.com:3001"
     service: mcp-gateway
     
   - old: "localhost:11434"
-    new: "ai-ollama.dev.local.heady.internal:11434"
+    new: "ai-ollama.dev.local.headyio.com:11434"
     service: ollama
     
   - old: "0.0.0.0:3300"
-    new: "manager.dev.local.heady.internal:3300"
+    new: "manager.dev.local.headyio.com:3300"
     service: manager
     
   - old: "::1:3300"
-    new: "manager.dev.local.heady.internal:3300"
+    new: "manager.dev.local.headyio.com:3300"
     service: manager
 
 # Environment-specific overrides
 environments:
   dev:
-    suffix: dev.local.heady.internal
+    suffix: dev.local.headyio.com
     tls: false
     auth: basic
     
@@ -295,7 +295,7 @@ environments:
     auth: mtls+oauth
     
   local-offline:
-    suffix: local.heady.internal
+    suffix: local.headyio.com
     tls: false
     auth: none
     localhost_fallback: true

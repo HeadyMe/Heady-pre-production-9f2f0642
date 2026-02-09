@@ -36,7 +36,7 @@ This document certifies completion of the comprehensive localhost-to-domain migr
 - **Domain Scheme**: `{service-role}.{service}.{env}.heady.internal`
 - **Root Domain**: `heady.internal`
 - **Service Count**: 17 core services mapped
-- **Configuration**: `configs/service-discovery.yaml`
+- **Configuration**: `configs/domains/service-discovery.yaml`
 
 **Examples**:
 - Manager: `manager.dev.local.heady.internal:3300`

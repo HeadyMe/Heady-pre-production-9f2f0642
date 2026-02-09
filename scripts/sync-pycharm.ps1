@@ -1,3 +1,19 @@
+<# HEADY_BRAND:BEGIN
+<# ╔══════════════════════════════════════════════════════════════════╗
+<# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+<# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+<# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+<# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+<# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+<# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+<# ║                                                                  ║
+<# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+<# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+<# ║  FILE: scripts/sync-pycharm.ps1                                                    ║
+<# ║  LAYER: automation                                                  ║
+<# ╚══════════════════════════════════════════════════════════════════╝
+<# HEADY_BRAND:END
+#>
 # Sync PyCharm settings across devices
 $sourceDir = "c:\Users\erich\Heady\configs\pycharm\"
 $extensionSource = "c:\Users\erich\Heady\extensions\pycharm\"

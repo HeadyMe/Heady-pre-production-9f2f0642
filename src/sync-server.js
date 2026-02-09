@@ -9,30 +9,20 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: src/routes/headybuddy-config.js                                                    ║
+// ║  FILE: src/sync-server.js                                                    ║
 // ║  LAYER: backend/src                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
-const express = require('express');
-const router = express.Router();
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 3306 });
 
-// HeadyBuddy shared configuration
-const config = {
-  theme: {
-    primaryColor: '#4F46E5',
-    secondaryColor: '#10B981',
-    fontFamily: 'Inter, sans-serif'
-  },
-  features: {
-    voiceCommands: true,
-    crossDeviceSync: true,
-    adaptiveCards: true
-  },
-  syncEndpoint: 'https://api.heady.internal/sync'
-};
-
-router.get('/', (req, res) => {
-  res.json(config);
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    // Broadcast to all devices for this user
+    wss.clients.forEach(client => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  });
 });
-
-module.exports = router;

@@ -9,30 +9,19 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: src/routes/headybuddy-config.js                                                    ║
-// ║  LAYER: backend/src                                                  ║
+// ║  FILE: eslint.config.js                                                    ║
+// ║  LAYER: root                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
-const express = require('express');
-const router = express.Router();
-
-// HeadyBuddy shared configuration
-const config = {
-  theme: {
-    primaryColor: '#4F46E5',
-    secondaryColor: '#10B981',
-    fontFamily: 'Inter, sans-serif'
+// ESLint configuration for Heady ecosystem
+module.exports = {
+  rules: {
+    // Add rules here
   },
-  features: {
-    voiceCommands: true,
-    crossDeviceSync: true,
-    adaptiveCards: true
-  },
-  syncEndpoint: 'https://api.heady.internal/sync'
+  ignores: [
+    // Ignore patterns
+    "!.*",
+    "dist",
+    "node_modules"
+  ]
 };
-
-router.get('/', (req, res) => {
-  res.json(config);
-});
-
-module.exports = router;

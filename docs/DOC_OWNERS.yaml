@@ -280,7 +280,7 @@ liveDocuments:
     reviewBy: "2026-05-06"
     description: Heady Buddy cross-device companion — launch modes, channels, sync
 
-  - path: configs/aloha-protocol.yaml
+  - path: configs/protocols/aloha-protocol.yaml
     type: governance
     owner: system
     reviewCadence: on_pipeline_run

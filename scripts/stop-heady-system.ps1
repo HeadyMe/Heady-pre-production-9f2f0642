@@ -9,17 +9,20 @@
 <# ║                                                                  ║
 <# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 <# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-<# ║  FILE: scripts/kill-port.ps1                                                    ║
+<# ║  FILE: scripts/stop-heady-system.ps1                                                    ║
 <# ║  LAYER: automation                                                  ║
 <# ╚══════════════════════════════════════════════════════════════════╝
 <# HEADY_BRAND:END
 #>
-param([int]$Port = 3300)
+# Stop Heady System Services
 
-$Process = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue | Select-Object OwningProcess
-if ($Process) {
-  Stop-Process -Id $Process.OwningProcess -Force
-  Write-Host "Killed process on port $Port"
-} else {
-  Write-Host "No process found on port $Port"
-}
+# Stop Node processes
+Get-Process -Name "node" | Where-Object { $_.MainWindowTitle -match "heady" } | Stop-Process -Force
+
+# Stop Python workers
+Get-Process -Name "python" | Where-Object { $_.MainWindowTitle -match "heady" } | Stop-Process -Force
+
+# Stop any other Heady-related processes
+# Add additional stop commands as needed
+
+Write-Host "Heady system services stopped"

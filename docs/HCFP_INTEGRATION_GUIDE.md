@@ -163,12 +163,12 @@ Commit → Pre-flight → Clean Build → Tests → Security Scan → Deploy
 ## Configuration Files
 
 ### Service Discovery
-- **File**: `configs/service-discovery.yaml`
+- **File**: `configs/domains/service-discovery.yaml`
 - **Purpose**: Maps all localhost references to internal domains
 - **Usage**: Referenced by all services for DNS resolution
 
 ### Clean Build CI
-- **File**: `.github/workflows/clean-build.yml`
+- **File**: `configs/workflows/clean-build.yml`
 - **Purpose**: Full clean build on every change
 - **Triggers**: Push, PR, nightly schedule
 

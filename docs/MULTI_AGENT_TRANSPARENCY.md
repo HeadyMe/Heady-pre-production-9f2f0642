@@ -101,7 +101,7 @@ Windsurf Arena's behavior — multiple, consistently different agents on the sam
 | `heady-manager.js` | Must not claim single-model responses when multi-agent routing is active |
 | `hc-supervisor` | Fan-out to multiple agents is the documented, expected behavior |
 | `configs/connection-integrity.yaml` | Channel routing must reflect actual agent diversity |
-| `configs/aloha-protocol.yaml` | Transparency is part of the Aloha priority stack (safety > clarity > story > speed) |
+| `configs/protocols/aloha-protocol.yaml` | Transparency is part of the Aloha priority stack (safety > clarity > story > speed) |
 | Arena Mode (Windsurf) | Primary evidence source; behavior is the proof |
 
 ---

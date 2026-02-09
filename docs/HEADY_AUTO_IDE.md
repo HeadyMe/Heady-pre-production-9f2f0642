@@ -18,7 +18,7 @@
 
 > **Status:** Active | **Type:** System Prompt / Governance | **Owner:** system
 > **Source of Truth:** `docs/HEADY_AUTO_IDE.md`
-> **Version:** 1.0.0 | **Last Updated:** 2026-02-06
+> **Version:** 1.1.0 | **Last Updated:** 2026-02-08
 
 ---
 
@@ -396,10 +396,10 @@ HeadyAutoIDE reuses the same pattern across verticals:
 ### 14.1 Generic Two-Base Fusion Steps
 
 1. **Map Base A and Base B** — Extract subsystems, strengths, weaknesses.
-2. **Define the fused mission and user** — One-sentence problem, primary user, top-3 outcomes.
-3. **Design the fused architecture** — Which base dominates each layer (UI, data, logic, orchestration, security).
-4. **Squash museum** — Single source of truth per capability; drop or merge redundancies.
-5. **Phase the delivery** — Joint MVP proving the fusion, then iterate.
+2. **Define the fused mission and user** — One mission sentence, one user persona, three success metrics.
+3. **Design the fused architecture** — Layers (UI, logic, data, integration, security). Ownership (which base dominates each layer).
+4. **Squash museum** — Table of capabilities vs source of truth; explicitly drop or merge features.
+5. **Phase the delivery** — For each phase: goals, features, technical tasks, acceptance tests, risk notes.
 
 ### 14.2 Example Vertical Pairings
 
@@ -689,8 +689,17 @@ Every major response must:
 
 ---
 
+## 25. Arena Mode: Intelligent Squash Merging
+
+The complete specification for Arena Mode is now available in [ARENA_MODE_SPEC.md](ARENA_MODE_SPEC.md).
+
+This document covers Sections 25–35 of the HeadyAutoIDE specification.
+
+---
+
 ## Revision History
 
 | Date | Version | Change |
 |---|---|---|
+| 2026-02-08 | 1.1.0 | Added Arena Mode specification (Sections 25-35) |
 | 2026-02-06 | 1.0.0 | Initial master instruction set created — all 24 sections |

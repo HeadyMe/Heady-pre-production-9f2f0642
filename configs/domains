@@ -2,7 +2,7 @@ tunnel: YOUR_ACTUAL_TUNNEL_ID  # Replace with your Cloudflare Tunnel ID
 credentials-file: /etc/cloudflare/credentials.json
 ingress:
   - hostname: api.headyio.com
-    service: http://localhost:3300
+    service: http://manager.eadyio.com:3300
   - hostname: mcp.headymcp.com
-    service: http://localhost:3001
+    service: http://tero.com:3001
   - service: http_status:404

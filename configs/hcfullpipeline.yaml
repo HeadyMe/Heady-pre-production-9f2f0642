@@ -427,7 +427,7 @@ pipeline:
         - ide
         - cli
       priority: highest
-      routing: .windsurf/workflows/heady-intent-routing.md
+      routing: configs/workflows/heady-intent-routing.md
       logging:
         registry_flag: founder-intent
       deployment_rules: configs/founder-intent-policy.yaml

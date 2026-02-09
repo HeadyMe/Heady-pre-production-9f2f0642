@@ -175,7 +175,7 @@ open https://metrics.lens.local.heady.internal
 
 | File | Purpose |
 |------|---------|
-| `configs/service-discovery.yaml` | Domain mappings, no more localhost |
+| `configs/domains/service-discovery.yaml` | Domain mappings, no more localhost |
 | `configs/device-management.yaml` | MDM, zero-touch deployment |
 | `configs/observability.yaml` | Monitoring & alerting |
 | `configs/hcfullpipeline.yaml` | Complete CI/CD workflow |

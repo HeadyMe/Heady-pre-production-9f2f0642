@@ -37,7 +37,7 @@ import SacredAvatar from "./SacredAvatar";
 import ChatMessage from "./ChatMessage";
 import ResourceHealthBar from "./ResourceHealthBar";
 
-const HEADY_API = process.env.VITE_HEADY_API || "http://localhost:3300";
+const HEADY_API = process.env.VITE_HEADY_API || "http://api.heady.io:3300";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },

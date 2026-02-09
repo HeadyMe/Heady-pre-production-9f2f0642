@@ -45,7 +45,7 @@
   ],
   
   "host_permissions": [
-    "http://localhost:3300/*",
+    "http://api.heady.io:3300/*",
     "http://manager.dev.local.heady.internal:3300/*",
     "https://cloud-me.heady.io/*",
     "https://cloud-sys.heady.io/*",
@@ -78,7 +78,7 @@
   "options_page": "options.html",
   
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://localhost:3300 http://manager.dev.local.heady.internal:3300 https://cloud-me.heady.io https://cloud-sys.heady.io https://cloud-conn.heady.io"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' http://api.heady.io:3300 http://manager.dev.local.heady.internal:3300 https://cloud-me.heady.io https://cloud-sys.heady.io https://cloud-conn.heady.io"
   },
   
   "web_accessible_resources": [

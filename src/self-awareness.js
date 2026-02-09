@@ -9,30 +9,28 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: src/routes/headybuddy-config.js                                                    ║
+// ║  FILE: src/self-awareness.js                                                    ║
 // ║  LAYER: backend/src                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
-const express = require('express');
-const router = express.Router();
+const { validateBranding } = require('./validate-branding');
+const { fixBrandingViolations } = require('./migrate-localhost-to-domains');
 
-// HeadyBuddy shared configuration
-const config = {
-  theme: {
-    primaryColor: '#4F46E5',
-    secondaryColor: '#10B981',
-    fontFamily: 'Inter, sans-serif'
-  },
-  features: {
-    voiceCommands: true,
-    crossDeviceSync: true,
-    adaptiveCards: true
-  },
-  syncEndpoint: 'https://api.heady.internal/sync'
-};
+function startBrandingMonitor() {
+  setInterval(() => {
+    try {
+      const violations = validateBranding();
+      if (violations.length > 0) {
+        console.warn(`Found ${violations.length} branding violations`);
+        if (process.env.AUTO_FIX_BRANDING === 'true') {
+          fixBrandingViolations();
+          console.log('Fixed branding violations');
+        }
+      }
+    } catch (error) {
+      console.error('Branding monitor error:', error);
+    }
+  }, 60 * 60 * 1000); // Hourly
+}
 
-router.get('/', (req, res) => {
-  res.json(config);
-});
-
-module.exports = router;
+module.exports = { startBrandingMonitor };

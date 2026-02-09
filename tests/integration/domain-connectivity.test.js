@@ -27,7 +27,7 @@ const glob = require('glob');
 const dns = require('dns').promises;
 
 // Load service discovery config
-const serviceDiscoveryPath = path.join(__dirname, '../../configs/service-discovery.yaml');
+const serviceDiscoveryPath = path.join(__dirname, '../../configs/domains/service-discovery.yaml');
 const serviceDiscovery = yaml.load(fs.readFileSync(serviceDiscoveryPath, 'utf8'));
 
 // Helper function to make HTTP request

@@ -33,7 +33,7 @@ su - "${USER}" -c "vncserver ${DISPLAY} \
   -geometry ${VNC_RESOLUTION:-1920x1080} \
   -depth ${VNC_DEPTH:-24} \
   -SecurityTypes VncAuth \
-  -localhost no"
+  -internal.headyio.com no"
 
 echo "[HeadyDesktop] VNC server running. noVNC on port ${NOVNC_PORT:-6080}."
 echo "[HeadyDesktop] HeadyBuddy overlay will autostart with the desktop session."
@@ -46,7 +46,7 @@ echo "  ██╔══██║██╔══╝  ██╔══██║█�
 echo "  ██║  ██║███████╗██║  ██║██████╔╝   ██║   "
 echo "  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝   "
 echo ""
-echo "  ∞ Desktop ready — open http://localhost:${NOVNC_PORT:-6080}"
+echo "  ∞ Desktop ready — open http://internal.headyio.com:${NOVNC_PORT:-6080}"
 echo ""
 
 # Keep container alive

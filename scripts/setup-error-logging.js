@@ -9,30 +9,22 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: src/routes/headybuddy-config.js                                                    ║
-// ║  LAYER: backend/src                                                  ║
+// ║  FILE: scripts/setup-error-logging.js                                                    ║
+// ║  LAYER: automation                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
-const express = require('express');
-const router = express.Router();
+const fs = require('fs');
+const path = require('path');
 
-// HeadyBuddy shared configuration
-const config = {
-  theme: {
-    primaryColor: '#4F46E5',
-    secondaryColor: '#10B981',
-    fontFamily: 'Inter, sans-serif'
-  },
-  features: {
-    voiceCommands: true,
-    crossDeviceSync: true,
-    adaptiveCards: true
-  },
-  syncEndpoint: 'https://api.heady.internal/sync'
-};
+// Ensure .windsurf directory exists
+const logDir = path.join(__dirname, '../.windsurf');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
 
-router.get('/', (req, res) => {
-  res.json(config);
-});
+// Create error log with initial entry
+const logFile = path.join(logDir, 'error.log');
+const initMessage = `[${new Date().toISOString()}] Error logging initialized\n`;
+fs.writeFileSync(logFile, initMessage);
 
-module.exports = router;
+console.log('Error logging setup complete');

@@ -68,8 +68,9 @@ All SDKs use the same authentication:
 | Environment | URL |
 |-------------|-----|
 | Local | `http://manager.dev.local.heady.internal:3300` |
-| Cloud (HeadySystems) | `https://api.heady.systems` |
-| Cloud (HeadyMe) | `https://api.heady.me` |
+| Cloud (HeadySystems) | `https://api.headyio.com` |
+| Cloud (HeadyMe) | `https://api.headyio.com` |
 
 ---
 *HeadySystems / HeadyConnection — Sacred Geometry Architecture*
+ 

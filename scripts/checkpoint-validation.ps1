@@ -9,17 +9,22 @@
 <# ║                                                                  ║
 <# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 <# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-<# ║  FILE: scripts/kill-port.ps1                                                    ║
+<# ║  FILE: scripts/checkpoint-validation.ps1                                                    ║
 <# ║  LAYER: automation                                                  ║
 <# ╚══════════════════════════════════════════════════════════════════╝
 <# HEADY_BRAND:END
 #>
-param([int]$Port = 3300)
+# Validate checkpoint integrity
 
-$Process = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue | Select-Object OwningProcess
-if ($Process) {
-  Stop-Process -Id $Process.OwningProcess -Force
-  Write-Host "Killed process on port $Port"
-} else {
-  Write-Host "No process found on port $Port"
-}
+# Check registry consistency
+node scripts/validate-registry.js
+
+# Verify documentation alignment
+node scripts/verify-docs.js
+
+# Test notebook references
+node scripts/test-notebooks.js
+
+# Add additional validation steps
+
+Write-Host "Checkpoint validation complete"

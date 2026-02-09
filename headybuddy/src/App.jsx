@@ -28,7 +28,7 @@ import CollapsedPill from "./components/CollapsedPill";
 import MainWidget from "./components/MainWidget";
 import ExpandedView from "./components/ExpandedView";
 
-const HEADY_API = import.meta.env.VITE_HEADY_API || "http://localhost:3300";
+const HEADY_API = import.meta.env.VITE_HEADY_API || "http://api.heady.io:3300";
 const RESOURCE_POLL_MS = 5000;
 const ORCHESTRATOR_POLL_MS = 8000;
 
