@@ -14,14 +14,29 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
 // ESLint configuration for Heady ecosystem
-module.exports = {
-  rules: {
-    // Add rules here
+const tsEslint = require('@typescript-eslint/eslint-plugin');
+
+module.exports = [
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    plugins: {
+      '@typescript-eslint': tsEslint
+    },
+    rules: {
+      ...tsEslint.configs.recommended.rules,
+      // Additional TypeScript rules
+    }
   },
-  ignores: [
-    // Ignore patterns
-    "!.*",
-    "dist",
-    "node_modules"
-  ]
-};
+  {
+    rules: {
+      // Common rules for all files
+    }
+  },
+  {
+    ignores: [
+      "!.*",
+      "dist",
+      "node_modules"
+    ]
+  }
+];
