@@ -15,92 +15,92 @@
 # HEADY_BRAND:END
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  HEADY SYSTEMS — SUBDOMAIN ARCHITECTURE                                         ║
-# ║  Uses headyme.onrender.com + subdomains for every component                  ║
+# ║  Uses app.headysystems.com + subdomains for every component                  ║
 # ║  NO localhost • NO 127.0.0.1 • NO internal • NO .local                       ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# RENDER CLOUD — headyme.onrender.com subdomains
+# RENDER CLOUD — app.headysystems.com subdomains
 # ═══════════════════════════════════════════════════════════════════════════════
 cloud_me:
-  base: headyme.onrender.com
+  base: app.headysystems.com
   
   services:
-    manager: api.headyme.onrender.com
-    buddy: buddy.headyme.onrender.com
-    web: app.headyme.onrender.com
+    manager: api.app.headysystems.com
+    buddy: buddy.app.headysystems.com
+    web: app.app.headysystems.com
     
     # AI Nodes
-    jules: jules.headyme.onrender.com
-    observer: observer.headyme.onrender.com
-    builder: builder.headyme.onrender.com
-    atlas: atlas.headyme.onrender.com
-    pythia: pythia.headyme.onrender.com
+    jules: jules.app.headysystems.com
+    observer: observer.app.headysystems.com
+    builder: builder.app.headysystems.com
+    atlas: atlas.app.headysystems.com
+    pythia: pythia.app.headysystems.com
     
     # Intelligence
-    monte-carlo: montecarlo.headyme.onrender.com
-    patterns: patterns.headyme.onrender.com
-    critique: critique.headyme.onrender.com
-    imagination: imagine.headyme.onrender.com
-    stories: stories.headyme.onrender.com
+    monte-carlo: montecarlo.app.headysystems.com
+    patterns: patterns.app.headysystems.com
+    critique: critique.app.headysystems.com
+    imagination: imagine.app.headysystems.com
+    stories: stories.app.headysystems.com
     
     # Data
-    postgres: db.headyme.onrender.com
-    redis: cache.headyme.onrender.com
-    events: events.headyme.onrender.com
+    postgres: db.app.headysystems.com
+    redis: cache.app.headysystems.com
+    events: events.app.headysystems.com
     
     # Observability
-    lens: lens.headyme.onrender.com
-    metrics: metrics.headyme.onrender.com
-    logs: logs.headyme.onrender.com
-    traces: traces.headyme.onrender.com
-    alerts: alerts.headyme.onrender.com
+    lens: lens.app.headysystems.com
+    metrics: metrics.app.headysystems.com
+    logs: logs.app.headysystems.com
+    traces: traces.app.headysystems.com
+    alerts: alerts.app.headysystems.com
     
     # Browsers
-    chrome: chrome.headyme.onrender.com
-    firefox: firefox.headyme.onrender.com
-    edge: edge.headyme.onrender.com
-    safari: safari.headyme.onrender.com
-    bridge: bridge.headyme.onrender.com
+    chrome: chrome.app.headysystems.com
+    firefox: firefox.app.headysystems.com
+    edge: edge.app.headysystems.com
+    safari: safari.app.headysystems.com
+    bridge: bridge.app.headysystems.com
     
     # IDEs
-    vscode: vscode.headyme.onrender.com
-    jetbrains: jetbrains.headyme.onrender.com
-    neovim: neovim.headyme.onrender.com
-    sublime: sublime.headyme.onrender.com
-    emacs: emacs.headyme.onrender.com
+    vscode: vscode.app.headysystems.com
+    jetbrains: jetbrains.app.headysystems.com
+    neovim: neovim.app.headysystems.com
+    sublime: sublime.app.headysystems.com
+    emacs: emacs.app.headysystems.com
     
     # Integrations
-    slack: slack.headyme.onrender.com
-    discord: discord.headyme.onrender.com
-    teams: teams.headyme.onrender.com
-    email: mail.headyme.onrender.com
-    calendar: calendar.headyme.onrender.com
-    github: github.headyme.onrender.com
-    notion: notion.headyme.onrender.com
+    slack: slack.app.headysystems.com
+    discord: discord.app.headysystems.com
+    teams: teams.app.headysystems.com
+    email: mail.app.headysystems.com
+    calendar: calendar.app.headysystems.com
+    github: github.app.headysystems.com
+    notion: notion.app.headysystems.com
     
     # MCP
-    mcp: mcp.headyme.onrender.com
-    fs: fs.headyme.onrender.com
-    shell: shell.headyme.onrender.com
-    browser-tools: browser.headyme.onrender.com
-    search: search.headyme.onrender.com
+    mcp: mcp.app.headysystems.com
+    fs: fs.app.headysystems.com
+    shell: shell.app.headysystems.com
+    browser-tools: browser.app.headysystems.com
+    search: search.app.headysystems.com
     
     # Business
-    billing: billing.headyme.onrender.com
-    telemetry: telemetry.headyme.onrender.com
+    billing: billing.app.headysystems.com
+    telemetry: telemetry.app.headysystems.com
     
     # HeadyOS
-    docker: docker.headyme.onrender.com
-    metal: metal.headyme.onrender.com
-    linux: linux.headyme.onrender.com
-    android: android.headyme.onrender.com
-    embedded: embedded.headyme.onrender.com
+    docker: docker.app.headysystems.com
+    metal: metal.app.headysystems.com
+    linux: linux.app.headysystems.com
+    android: android.app.headysystems.com
+    embedded: embedded.app.headysystems.com
     
     # Security
-    vault: vault.headyme.onrender.com
-    cdn: cdn.headyme.onrender.com
-    dns: dns.headyme.onrender.com
+    vault: vault.app.headysystems.com
+    cdn: cdn.app.headysystems.com
+    dns: dns.app.headysystems.com
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # RENDER SETUP — Add these as custom domains in Render dashboard
@@ -112,14 +112,14 @@ render_setup: |
   4. Add each subdomain:
      
      CNAME Records:
-     jules.headyme.onrender.com → heady-manager-headyme.onrender.com
-     observer.headyme.onrender.com → heady-manager-headyme.onrender.com
-     builder.headyme.onrender.com → heady-manager-headyme.onrender.com
-     atlas.headyme.onrender.com → heady-manager-headyme.onrender.com
-     pythia.headyme.onrender.com → heady-manager-headyme.onrender.com
-     buddy.headyme.onrender.com → heady-manager-headyme.onrender.com
-     api.headyme.onrender.com → heady-manager-headyme.onrender.com
-     app.headyme.onrender.com → heady-manager-headyme.onrender.com
+     jules.app.headysystems.com → app.headysystems.com
+     observer.app.headysystems.com → app.headysystems.com
+     builder.app.headysystems.com → app.headysystems.com
+     atlas.app.headysystems.com → app.headysystems.com
+     pythia.app.headysystems.com → app.headysystems.com
+     buddy.app.headysystems.com → app.headysystems.com
+     api.app.headysystems.com → app.headysystems.com
+     app.app.headysystems.com → app.headysystems.com
      ... (all 50+ subdomains)
      
   5. Render will verify each domain
@@ -133,34 +133,34 @@ routing:
   strategy: host_header
   
   rules:
-    - host: api.headyme.onrender.com
+    - host: api.app.headysystems.com
       service: heady-manager
       port: 3300
       
-    - host: jules.headyme.onrender.com
+    - host: jules.app.headysystems.com
       service: ai-node
       node: jules
       port: 8001
       
-    - host: observer.headyme.onrender.com
+    - host: observer.app.headysystems.com
       service: ai-node
       node: observer
       port: 8002
       
-    - host: buddy.headyme.onrender.com
+    - host: buddy.app.headysystems.com
       service: heady-buddy
       port: 5174
       
-    - host: app.headyme.onrender.com
+    - host: app.app.headysystems.com
       service: frontend
       port: 5173
       
-    - host: db.headyme.onrender.com
+    - host: db.app.headysystems.com
       service: postgres
       port: 5432
       protocol: postgresql
       
-    - host: cache.headyme.onrender.com
+    - host: cache.app.headysystems.com
       service: redis
       port: 6379
       protocol: redis
@@ -168,16 +168,16 @@ routing:
 # ═══════════════════════════════════════════════════════════════════════════════
 # TOTAL: 50+ Custom Branded Subdomains
 # ═══════════════════════════════════════════════════════════════════════════════
-# Every component gets: {component}.headyme.onrender.com
+# Every component gets: {component}.app.headysystems.com
 # 
 # Examples:
-#   - jules.headyme.onrender.com → 🔪 Code Surgeon
-#   - observer.headyme.onrender.com → 👁️ All-Seeing Eye
-#   - buddy.headyme.onrender.com → 💜 Perfect Day AI
-#   - api.headyme.onrender.com → 🎛️ Sacred Gateway
-#   - app.headyme.onrender.com → 🌐 Sacred Portal
-#   - chrome.headyme.onrender.com → 🌟 Chrome Companion
-#   - vscode.headyme.onrender.com → 💙 VS Code Soul
-#   - slack.headyme.onrender.com → 💬 Slack Sage
+#   - jules.app.headysystems.com → 🔪 Code Surgeon
+#   - observer.app.headysystems.com → 👁️ All-Seeing Eye
+#   - buddy.app.headysystems.com → 💜 Perfect Day AI
+#   - api.app.headysystems.com → 🎛️ Sacred Gateway
+#   - app.app.headysystems.com → 🌐 Sacred Portal
+#   - chrome.app.headysystems.com → 🌟 Chrome Companion
+#   - vscode.app.headysystems.com → 💙 VS Code Soul
+#   - slack.app.headysystems.com → 💬 Slack Sage
 # 
 # NO localhost • NO 127.0.0.1 • NO .local • NO .internal

@@ -13,12 +13,6 @@
 // ║  LAYER: automation                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
-#!/usr/bin/env node
-/**
- * Localhost-to-Domain Migration Tool
- * Replaces all localhost references with proper internal domain names
- * per service-discovery.yaml
- */
 
 const fs = require('fs');
 const path = require('path');
@@ -88,7 +82,7 @@ function buildReplacements() {
       'localhost:6379': 'db-redis.dev.local.heady.internal:6379',
       '127.0.0.1:6379': 'db-redis.dev.local.heady.internal:6379',
       'localhost:3000': 'app-web.dev.local.heady.internal:3000',
-      '127.0.0.1:3000': 'app-web.dev.local.heady.internal:3000',
+      'https://app.headysystems.com': 'app-web.dev.local.heady.internal:3000',
       'localhost:3001': 'tools-mcp.dev.local.heady.internal:3001',
       'localhost:11434': 'ai-ollama.dev.local.heady.internal:11434',
       'localhost:3301': 'app-buddy.dev.local.heady.internal:3301',

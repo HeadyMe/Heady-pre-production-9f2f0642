@@ -1,0 +1,19 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Validate naming standards
+echo "Checking for banned patterns..."
+
+# Fail if any localhost/raw IPs are found
+if grep -r "localhost" . --exclude-dir={node_modules,dist,build,.git,.husky}; then
+  echo "❌ Commit rejected: Found localhost references"
+  exit 1
+fi
+
+# Fail if any Windows paths are found
+if grep -r "C:\\\\" . --exclude-dir={node_modules,dist,build,.git,.husky}; then
+  echo "❌ Commit rejected: Found C:\\ references"
+  exit 1
+fi
+
+echo "✅ Naming standards validated"

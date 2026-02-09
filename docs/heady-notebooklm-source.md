@@ -27,7 +27,7 @@ Organic Systems (natural growth), Breathing Interfaces (responsive Sacred Geomet
 Primary: github.com/HeadySystems/Heady. Mirror: github.com/HeadyMe/Heady. Connection: github.com/HeadySystems/HeadyConnection. Sandbox: github.com/HeadySystems/sandbox.
 
 ## Environments
-Local Dev (localhost:3300), Cloud HeadyMe (heady-manager-headyme.onrender.com), Cloud HeadySystems (heady-manager-headysystems.onrender.com), Cloud HeadyConnection (heady-manager-headyconnection.onrender.com), Hybrid Local+Cloud.
+Local Dev (localhost:3300), Cloud HeadyMe (app.headysystems.com), Cloud HeadySystems (app.headysystems.com), Cloud HeadyConnection (app.headysystems.com), Hybrid Local+Cloud.
 
 ---
 

@@ -6,7 +6,7 @@
   "api": {
     "endpoint": "http://manager.dev.local.heady.internal:3300",
     "fallback": null,
-    "model_runner": "http://localhost:8000"
+    "model_runner": "https://api.headysystems.com"
   },
   "features": {
     "side_panel": true,

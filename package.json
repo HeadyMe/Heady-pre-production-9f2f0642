@@ -15,7 +15,9 @@
     "pipeline:config": "node -e \"const {pipeline}=require('./src/hc_pipeline');console.log(JSON.stringify(pipeline.getConfigSummary(),null,2))\"",
     "sync": "powershell -File ./scripts/Heady-Sync.ps1",
     "brand:check": "node scripts/brand_headers.js --check",
-    "brand:fix": "node scripts/brand_headers.js --fix"
+    "brand:fix": "node scripts/brand_headers.js --fix",
+    "test:domains": "node scripts/domain-connectivity-test.js",
+    "test:branding": "node scripts/validate-branding.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.1",
@@ -26,7 +28,8 @@
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "js-yaml": "^4.1.1",
-    "node-cron": "^3.0.2"
+    "node-cron": "^3.0.2",
+    "replace-in-file": "^8.4.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

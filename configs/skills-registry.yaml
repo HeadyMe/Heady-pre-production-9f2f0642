@@ -509,6 +509,27 @@ skills:
     auto_run: false
     requires: ["ide-extensions", "config-manager"]
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NAMING & DOMAIN MANAGEMENT SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  naming-audit:
+    description: Scan codebase for naming standard violations
+    triggers: [naming_standardization, docs_regeneration]
+    risk_level: low
+  naming-migration:
+    description: Execute bulk naming standard updates
+    triggers: [naming_standardization]
+    risk_level: medium
+  localhost-to-domain:
+    description: Replace localhost references with canonical domains
+    triggers: [localhost_replacement]
+    risk_level: medium
+  heady-docs-sync:
+    description: Update documentation to reflect naming standards
+    triggers: [docs_regeneration]
+    risk_level: low
+
 # ═══════════════════════════════════════════════════════════════════════════
 # SKILL EXECUTION ENGINE
 # ═══════════════════════════════════════════════════════════════════════════

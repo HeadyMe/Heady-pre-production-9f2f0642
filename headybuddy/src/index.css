@@ -29,4 +29,31 @@
   .glow-amber {
     box-shadow: 0 0 16px rgba(251, 191, 36, 0.2);
   }
+
+  /* Device Status Styles */
+  .device-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+  }
+
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .status-dot.connected { background: #10B981; }
+  .status-dot.syncing { background: #FBBF24; }
+  .status-dot.error { background: #EF4444; }
+
+  .bg-heady-emerald { background-color: #10B981; }
+  .bg-heady-amber { background-color: #FBBF24; }
+  .bg-heady-error { background-color: #EF4444; }
+  .bg-status-connected { background-color: #10B981; }
+  .bg-status-syncing { background-color: #FBBF24; }
+  .bg-status-error { background-color: #EF4444; }
 }

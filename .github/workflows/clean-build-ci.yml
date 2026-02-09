@@ -1,3 +1,18 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .github/workflows/clean-build-ci.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
 # ═══════════════════════════════════════════════════════════════════════════════
 # HEADY SYSTEMS — CLEAN BUILD CI WORKFLOW
 # Error-Handling + Full Rebuild on Every Change
@@ -538,6 +553,10 @@ jobs:
           echo "Error: Build failed at ${{ github.run_id }}"
           echo "Commit: ${{ github.sha }}"
           echo "Ref: ${{ github.ref }}"
+
+  naming-compliance:
+    needs: build-core
+    uses: ./.github/workflows/naming-compliance.yml
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # WORKFLOW CONFIGURATION NOTES

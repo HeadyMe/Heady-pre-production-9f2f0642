@@ -106,6 +106,18 @@ securityAndPrivacy:
     - avoidCollectingMoreSensitiveDataThanNecessary
     - redactOrAnonymizeWhenAppropriate
 
+task_schema:
+  properties:
+    priority:
+      enum: [critical, high, medium, low]
+      default: medium
+    isChangeTask:
+      type: boolean
+      default: false
+  rules:
+    - when: isChangeTask == true
+      then: priority = high
+
 exampleWorkflow:
   name: Build a New Microservice from Scratch
   steps:

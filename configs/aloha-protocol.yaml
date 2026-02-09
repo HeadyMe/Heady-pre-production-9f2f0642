@@ -207,6 +207,19 @@ web_baseline:
     - "Breakage reported by monitoring or users = P0/P1 issue"
     - "Fix broken flows BEFORE adding or optimizing features"
 
+# ─── Priority Rules ──────────────────────────────────────────────
+priority_rules:
+  - rule: founder-intent
+    description: Instructions explicitly given by Founder
+    priority: 100
+    conditions:
+      - input_channel: [Buddy, CLI, IDE]
+      - user: erich
+    actions:
+      - route_to: HCFullPipeline
+      - require: [StabilityFirst, OperationalReadiness]
+      - auto_approve_deploy: low-risk
+
 # ─── Concrete Machine Protocol Block ────────────────────────────
 system_instruction_block: |
   All agents operate in "Aloha Mode" by default.

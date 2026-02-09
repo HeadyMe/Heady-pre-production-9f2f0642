@@ -502,6 +502,12 @@ async function executeStage(stage, state, configs, circuitBreakers) {
 async function executeSingleTask(taskName, context, state, circuitBreakers) {
   state.metrics.totalTasks++;
 
+  // Auto-prioritize change-related tasks
+  if (taskName.includes('change_request') || taskName.includes('change')) {
+    taskName.priority = 'high';
+    taskName.tags.push('automated_priority');
+  }
+
   // Check circuit breaker for this task's endpoint category
   const breaker = circuitBreakers ? findBreakerForTask(taskName, circuitBreakers) : null;
   if (breaker && !breaker.canExecute()) {

@@ -325,6 +325,15 @@ const TASK_HANDLERS = {
   log_run_config_hash: logRunConfigHash,
 };
 
+async function handleAutomatedFlow(task) {
+  // Apply priority to change tasks
+  if (task.isChangeTask) {
+    task.priority = 'high';
+    addSystemNote(task, 'Auto-prioritized per user request');
+  }
+  // Existing flow handling logic
+}
+
 /**
  * Register all task handlers with the pipeline engine.
  * Call this during startup after pipeline.load().
@@ -347,4 +356,5 @@ module.exports = {
   initializeSubsystems,
   getSubsystems,
   TASK_HANDLERS,
+  handleAutomatedFlow,
 };

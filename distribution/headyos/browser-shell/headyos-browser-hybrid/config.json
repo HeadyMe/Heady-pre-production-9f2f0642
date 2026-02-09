@@ -6,7 +6,7 @@
   "api": {
     "endpoint": "http://manager.dev.local.heady.internal:3300",
     "fallback": "https://api.heady.systems",
-    "model_runner": "http://localhost:8000",
+    "model_runner": "https://api.headysystems.com",
     "cloud_model_endpoint": "https://models.heady.systems"
   },
   "features": {

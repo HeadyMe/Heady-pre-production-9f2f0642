@@ -24,17 +24,17 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 cloud:
   me:
-    domain: heady-manager-headyme.onrender.com
+    domain: app.headysystems.com
     provider: render
     layer: cyan
     
   sys:
-    domain: heady-manager-headysystems.onrender.com
+    domain: app.headysystems.com
     provider: render
     layer: magenta
     
   conn:
-    domain: heady-manager-headyconnection.onrender.com
+    domain: app.headysystems.com
     provider: render
     layer: yellow
 

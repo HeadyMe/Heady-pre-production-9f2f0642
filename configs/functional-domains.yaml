@@ -23,17 +23,17 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 cloud:
   me:
-    domain: heady-manager-headyme.onrender.com
+    domain: app.headysystems.com
     layer: cyan
     git_remote: heady-me
     
   sys:
-    domain: heady-manager-headysystems.onrender.com
+    domain: app.headysystems.com
     layer: magenta
     git_remote: origin
     
   conn:
-    domain: heady-manager-headyconnection.onrender.com
+    domain: app.headysystems.com
     layer: yellow
     git_remote: connection
 
@@ -98,6 +98,6 @@ usage:
        
   cloud_deploy: |
     The cloud domains above work automatically on Render:
-       - https://heady-manager-headyme.onrender.com
-       - https://heady-manager-headysystems.onrender.com
-       - https://heady-manager-headyconnection.onrender.com
+       - https://app.headysystems.com
+       - https://app.headysystems.com
+       - https://app.headysystems.com

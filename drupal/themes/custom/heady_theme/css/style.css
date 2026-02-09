@@ -1,0 +1,25 @@
+/* Sacred Geometry Theme */
+:root {
+  --heady-primary: #0ea5e9;
+  --heady-secondary: #8b5cf6;
+  --heady-accent: #ec4899;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+}
+
+.header {
+  background: var(--heady-primary);
+  color: white;
+  padding: 1rem;
+  border-radius: 0 0 2rem 2rem;
+}
+
+.footer {
+  background: var(--heady-secondary);
+  color: white;
+  padding: 1rem;
+  border-radius: 2rem 2rem 0 0;
+}

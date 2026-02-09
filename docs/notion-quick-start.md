@@ -129,9 +129,9 @@ Switch between environments using the Heady Layer Switcher:
 | Layer | Endpoint | Color |
 |-------|----------|-------|
 | `local` | localhost:3300 | Green |
-| `cloud-me` | heady-manager-headyme.onrender.com | Cyan |
-| `cloud-sys` | heady-manager-headysystems.onrender.com | Magenta |
-| `cloud-conn` | heady-manager-headyconnection.onrender.com | Yellow |
+| `cloud-me` | app.headysystems.com | Cyan |
+| `cloud-sys` | app.headysystems.com | Magenta |
+| `cloud-conn` | app.headysystems.com | Yellow |
 | `hybrid` | Local + Cloud | White |
 
 ```powershell

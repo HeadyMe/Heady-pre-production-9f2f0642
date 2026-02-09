@@ -118,7 +118,7 @@ npm run dev
 ### Option F: Connect to Cloud (No Local Setup)
 
 ```bash
-curl https://heady-manager-headysystems.onrender.com/api/health
+curl https://app.headysystems.com/api/health
 ```
 
 No local install needed — all API endpoints are available at the cloud URLs listed in [Section 5](#5-cloud-layers--switching).
@@ -165,9 +165,9 @@ http://localhost:3300/api/{endpoint}
 
 **Cloud (pick your layer):**
 ```
-https://heady-manager-headysystems.onrender.com/api/{endpoint}
-https://heady-manager-headyme.onrender.com/api/{endpoint}
-https://heady-manager-headyconnection.onrender.com/api/{endpoint}
+https://app.headysystems.com/api/{endpoint}
+https://app.headysystems.com/api/{endpoint}
+https://app.headysystems.com/api/{endpoint}
 ```
 
 ### 3.2 MCP (Model Context Protocol)
@@ -360,9 +360,9 @@ Heady supports **5 deployment layers**, switchable at runtime:
 | Layer ID | Name | Endpoint | Color | Git Remote |
 |----------|------|----------|-------|------------|
 | `local` | Local Dev | `http://localhost:3300` | Green | — |
-| `cloud-me` | Cloud HeadyMe | `https://heady-manager-headyme.onrender.com` | Cyan | `heady-me` |
-| `cloud-sys` | Cloud HeadySystems | `https://heady-manager-headysystems.onrender.com` | Magenta | `origin` |
-| `cloud-conn` | Cloud HeadyConnection | `https://heady-manager-headyconnection.onrender.com` | Yellow | `connection` |
+| `cloud-me` | Cloud HeadyMe | `https://app.headysystems.com` | Cyan | `heady-me` |
+| `cloud-sys` | Cloud HeadySystems | `https://app.headysystems.com` | Magenta | `origin` |
+| `cloud-conn` | Cloud HeadyConnection | `https://app.headysystems.com` | Yellow | `connection` |
 | `hybrid` | Hybrid Local+Cloud | `http://localhost:3300` (with cloud sync) | White | — |
 
 ### CLI Usage
@@ -755,9 +755,9 @@ services:
 
 | Service | URL |
 |---------|-----|
-| HeadySystems | `https://heady-manager-headysystems.onrender.com` |
-| HeadyMe | `https://heady-manager-headyme.onrender.com` |
-| HeadyConnection | `https://heady-manager-headyconnection.onrender.com` |
+| HeadySystems | `https://app.headysystems.com` |
+| HeadyMe | `https://app.headysystems.com` |
+| HeadyConnection | `https://app.headysystems.com` |
 
 ### Deploy via MCP
 
@@ -787,7 +787,7 @@ git push heady-me main  # Triggers HeadyMe deploy
 | heady-frontend | HTTP | `localhost:3300/` | High | 300s |
 | heady-admin | HTTP | `localhost:3300/api/registry` | Medium | 300s |
 | postgres-connection | TCP | `$DATABASE_URL` | Low | 120s |
-| render-deployment | HTTP | `heady-manager-headysystems.onrender.com/api/health` | High | 300s |
+| render-deployment | HTTP | `app.headysystems.com/api/health` | High | 300s |
 | headybuddy-api | HTTP | `localhost:3300/api/buddy/health` | High | 60s |
 | headybuddy-widget | HTTP | `localhost:3400` | Medium | 300s |
 | headybuddy-suggestions | HTTP | `localhost:3300/api/buddy/suggestions` | Low | 120s |
@@ -873,9 +873,9 @@ The nuclear option: archives all repos to `*-pre-production` variants and scaffo
 | `HEADY_PYTHON_BIN` | Python binary | `python` |
 | `RENDER_API_KEY` | Render.com API key (for MCP server) | — |
 | `ALLOWED_ORIGINS` | CORS allowed origins (comma-separated) | `*` |
-| `CLOUD_HEADYME_URL` | HeadyMe cloud endpoint | `https://heady-manager-headyme.onrender.com` |
-| `CLOUD_HEADYSYSTEMS_URL` | HeadySystems cloud endpoint | `https://heady-manager-headysystems.onrender.com` |
-| `CLOUD_HEADYCONNECTION_URL` | HeadyConnection cloud endpoint | `https://heady-manager-headyconnection.onrender.com` |
+| `CLOUD_HEADYME_URL` | HeadyMe cloud endpoint | `https://app.headysystems.com` |
+| `CLOUD_HEADYSYSTEMS_URL` | HeadySystems cloud endpoint | `https://app.headysystems.com` |
+| `CLOUD_HEADYCONNECTION_URL` | HeadyConnection cloud endpoint | `https://app.headysystems.com` |
 
 ### Render Secret Group (`heady-shared-secrets`)
 
@@ -925,7 +925,7 @@ test -f .env && echo "OK" || echo "Missing — run: cp .env.example .env"
 .\scripts\heady-layer.ps1 health
 
 # Check specific endpoint
-curl -s https://heady-manager-headysystems.onrender.com/api/health
+curl -s https://app.headysystems.com/api/health
 ```
 
 Render free-tier services spin down after 15 minutes of inactivity. First request after spin-down takes ~30 seconds.
@@ -1162,7 +1162,7 @@ For every feature branch that goes through Arena Mode or significant refactors:
   A: Active layer state file, env vars, and the Cascade proxy endpoint.
 
 - **Q: True/False: You need a local install to use Heady.**
-  A: False. Cloud endpoints are available at `heady-manager-headysystems.onrender.com`.
+  A: False. Cloud endpoints are available at `app.headysystems.com`.
 
 ### Pipeline
 

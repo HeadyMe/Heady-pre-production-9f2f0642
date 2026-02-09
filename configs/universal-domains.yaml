@@ -562,21 +562,21 @@ cloud:
   render-me:
     domain: me.heady.io
     alt_domains:
-      - headyme.onrender.com
+      - app.headysystems.com
     port: 443
     branding: "🌟 HeadyMe Cloud"
     
   render-sys:
     domain: sys.heady.io
     alt_domains:
-      - headysystems.onrender.com
+      - app.headysystems.com
     port: 443
     branding: "💜 HeadySystems Cloud"
     
   render-conn:
     domain: conn.heady.io
     alt_domains:
-      - headyconnection.onrender.com
+      - app.headysystems.com
     port: 443
     branding: "💛 HeadyConnection Cloud"
 

@@ -754,53 +754,11 @@ app.post("/api/buddy/chat", (req, res) => {
   } else if (lowerMsg.includes("diagnos") || lowerMsg.includes("why slow") || lowerMsg.includes("bottleneck") || lowerMsg.includes("fix resource")) {
     if (resourceDiagnostics) {
       const diag = resourceDiagnostics.diagnose();
-      const topFindings = diag.findings.slice(0, 3).map(f => `• ${f.severity.toUpperCase()}: ${f.title}`).join("\n");
-      const winsText = diag.quickWins.length > 0
-        ? `\n\nQuick wins:\n${diag.quickWins.map(w => `→ ${w.title}`).join("\n")}`
-        : "";
-      reply = `Diagnostic scan complete — ${diag.totalFindings} findings (${diag.critical} critical, ${diag.high} high).\n\n${topFindings}${winsText}\n\nExpand to Resources tab for full report or say "apply quick wins".`;
-    } else {
-      reply = "Resource Diagnostics module not loaded. Check the Resources tab for basic health data.";
-    }
-  } else if (lowerMsg.includes("apply quick win") || lowerMsg.includes("fix it") || lowerMsg.includes("apply fix")) {
-    if (resourceDiagnostics) {
-      const diag = resourceDiagnostics.lastDiagnosis || resourceDiagnostics.diagnose();
-      const applied = [];
-      for (const win of diag.quickWins) {
-        if (win.configChange && taskScheduler) {
-          const { endpoint, body } = win.configChange;
-          if (endpoint.includes("concurrency") && body.taskClass && body.limit != null) {
-            taskScheduler.adjustConcurrency(body.taskClass, body.limit);
-            applied.push(win.title);
-          } else if (endpoint.includes("safe-mode") && body.enabled) {
-            taskScheduler.enterSafeMode();
-            applied.push(win.title);
-          }
-        }
-      }
-      reply = applied.length > 0
-        ? `Applied ${applied.length} quick wins:\n${applied.map(a => `✓ ${a}`).join("\n")}\n\nMonitoring for improvement.`
-        : "No auto-applicable quick wins right now. Check the Resources tab for manual options.";
-    } else {
-      reply = "Diagnostics module not available.";
-    }
-  } else if (lowerMsg.includes("scheduler") || lowerMsg.includes("queue") || lowerMsg.includes("task")) {
-    if (taskScheduler) {
-      const st = taskScheduler.getStatus();
-      const totalQ = st.queues.interactive + st.queues.batch + st.queues.training;
-      const totalR = st.running.interactive + st.running.batch + st.running.training;
-      reply = `Scheduler: ${totalQ} queued, ${totalR} running. Completed: ${st.stats.totalCompleted}. Avg wait: ${st.stats.avgWaitMs}ms, avg exec: ${st.stats.avgExecMs}ms. Safe mode: ${st.safeModeActive ? "ON" : "off"}. ${st.paused ? "⏸ PAUSED" : "▶ Active"}.`;
-    } else {
-      reply = "Task Scheduler not loaded. Submit tasks via /api/scheduler/submit.";
-    }
-  } else if (lowerMsg.includes("slow") || lowerMsg.includes("taking so long") || (lowerMsg.includes("explain") && lowerMsg.includes("slowdown"))) {
-    if (resourceDiagnostics) {
-      const diag = resourceDiagnostics.diagnose();
       const snap = resourceManager ? resourceManager.getSnapshot() : {};
       const cpuPct = snap.cpu?.currentPercent || 0;
       const ramPct = snap.ram?.currentPercent || 0;
       const topIssue = diag.findings[0];
-      reply = `CPU: ${cpuPct}%, RAM: ${ramPct}%. ${diag.totalFindings} diagnostic findings. ${topIssue ? `Top issue: ${topIssue.title} (${topIssue.severity}).` : "No critical issues."} Say "diagnose" for full report or "apply quick wins" for fast fixes.`;
+      reply = `Diagnostic scan complete — ${diag.totalFindings} findings (${diag.critical} critical, ${diag.high} high).\n\n${topIssue ? `Top issue: ${topIssue.title} (${topIssue.severity}).` : "No critical issues."} Say "diagnose" for full report or "apply quick wins" for fast fixes.`;
     } else if (resourceManager) {
       const snap = resourceManager.getSnapshot();
       const events = resourceManager.getRecentEvents(5);
@@ -988,6 +946,59 @@ app.post("/api/buddy/pipeline/continuous", (req, res) => {
     cycleCount: continuousPipeline.cycleCount, gates: continuousPipeline.gateResults,
     ts: new Date().toISOString(),
   });
+});
+
+// ─── HeadyBuddy State Sync Endpoints ─────────────────────────────────
+let buddyState = {
+  conversation: [],
+  viewState: 'pill',
+  pipelineState: {},
+  config: null
+};
+
+app.post('/api/buddy/state', (req, res) => {
+  try {
+    // Validate and update state
+    if (req.body.conversation) buddyState.conversation = req.body.conversation;
+    if (req.body.viewState) buddyState.viewState = req.body.viewState;
+    if (req.body.pipelineState) buddyState.pipelineState = req.body.pipelineState;
+    if (req.body.config) buddyState.config = req.body.config;
+    
+    res.json({ 
+      ok: true, 
+      message: 'State updated successfully',
+      ts: new Date().toISOString() 
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      error: 'State update failed', 
+      message: err.message 
+    });
+  }
+});
+
+app.get('/api/buddy/state', (req, res) => {
+  res.json({ 
+    ...buddyState,
+    ts: new Date().toISOString() 
+  });
+});
+
+// ─── Sync Events Endpoint ────────────────────────────────────────────
+app.get('/api/buddy/sync-events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  
+  // Send initial status
+  res.write(`data: ${JSON.stringify({ status: 'connected' })}\n\n`);
+  
+  // Simulate status updates
+  const interval = setInterval(() => {
+    res.write(`data: ${JSON.stringify({ status: Math.random() > 0.2 ? 'connected' : 'syncing' })}\n\n`);
+  }, 10000);
+  
+  req.on('close', () => clearInterval(interval));
 });
 
 // ─── Secrets & Cloudflare Routes ─────────────────────────────────────

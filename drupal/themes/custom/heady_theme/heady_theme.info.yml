@@ -1,0 +1,30 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: drupal/themes/custom/heady_theme/heady_theme.info.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+name: Heady Theme
+description: 'Sacred Geometry theme for Heady Systems'
+type: theme
+core_version_requirement: ^9 || ^10
+base theme: false
+
+libraries:
+  - heady_theme/global-styling
+
+regions:
+  header: Header
+  content: Content
+  sidebar_first: 'Sidebar first'
+  sidebar_second: 'Sidebar second'
+  footer: Footer

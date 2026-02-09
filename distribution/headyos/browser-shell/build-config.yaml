@@ -43,7 +43,7 @@ variants:
     description: "Local AI with cloud fallback"
     mode: hybrid
     api_endpoint: "http://manager.dev.local.heady.internal:3300"
-    fallback_endpoint: "https://heady-manager-headysystems.onrender.com"
+    fallback_endpoint: "https://app.headysystems.com"
     features:
       - local_priority
       - cloud_fallback
@@ -55,7 +55,7 @@ variants:
     name: "Heady Browser (Cloud)"
     description: "Thin client, all processing remote"
     mode: cloud
-    api_endpoint: "https://heady-manager-headysystems.onrender.com"
+    api_endpoint: "https://app.headysystems.com"
     features:
       - minimal_local_processing
       - fast_sync

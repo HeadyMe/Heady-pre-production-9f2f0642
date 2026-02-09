@@ -90,6 +90,51 @@ function usePipelineState(enabled) {
   return pipelineState;
 }
 
+// ─── State Synchronization ──────────────────────────────────────────────
+const syncState = useCallback(async (state) => {
+  try {
+    await fetch(`${HEADY_API}/api/buddy/state`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state)
+    });
+  } catch (err) {
+    console.error('State sync failed:', err);
+  }
+}, []);
+
+// On state changes, sync to server
+useEffect(() => {
+  if (viewState === 'pill') return; // Don't sync in minimal state
+  
+  syncState({
+    messages,
+    viewState,
+    pipelineState,
+    config
+  });
+}, [messages, viewState, pipelineState, config, syncState]);
+
+// On startup, fetch state from server
+useEffect(() => {
+  async function fetchState() {
+    try {
+      const res = await fetch(`${HEADY_API}/api/buddy/state`);
+      if (!res.ok) return;
+      
+      const remoteState = await res.json();
+      if (remoteState.messages) setMessages(remoteState.messages);
+      if (remoteState.viewState) setViewState(remoteState.viewState);
+      if (remoteState.pipelineState) setPipelineState(remoteState.pipelineState);
+      if (remoteState.config) setConfig(remoteState.config);
+    } catch (err) {
+      console.error('Failed to fetch state:', err);
+    }
+  }
+  
+  fetchState();
+}, []);
+
 // ─── App ───────────────────────────────────────────────────────────────────
 
 export default function App() {

@@ -1,0 +1,59 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .github/workflows/naming-checks.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+name: Naming Standards Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  check-naming-standards:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Check for banned references
+        run: |
+          $bannedDomains = @('onrender.com', 'vercel.app', 'netlify.app', 'herokuapp.com', 'firebaseapp.com')
+          $patterns = @('localhost', '127.0.0.1', 'C:\\') + $bannedDomains
+          $files = Get-ChildItem -Recurse -Include *.js,*.json,*.yaml,*.md,*.html
+          $violations = 0
+          
+          foreach ($file in $files) {
+            $content = Get-Content $file.FullName -Raw
+            foreach ($pattern in $patterns) {
+              if ($content -match $pattern) {
+                Write-Host "Found '$pattern' in $($file.FullName)"
+                $violations++
+              }
+            }
+          }
+          
+          # Additional domain format check
+          $domainPattern = 'https?:\/\/(?!.*(headysystems\.com|headyconnection\.org|headybuddy\.org|heady\.internal))[a-zA-Z0-9-]+\.[a-zA-Z]{2,}'
+          $domainMatches = Select-String -Path $files -Pattern $domainPattern -AllMatches
+          if ($domainMatches) {
+            Write-Host "::error::Found non-branded domains"
+            exit 1
+          }
+          
+          if ($violations -gt 0) {
+            Write-Host "::error::Found $violations naming standard violations"
+            exit 1
+          }

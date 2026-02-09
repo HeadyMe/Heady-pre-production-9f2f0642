@@ -56,6 +56,8 @@ const DEFAULT_TIER_ROUTING = {
   "planning":            { defaultTier: "M", maxTier: "L", minTier: "M" },
   "monte_carlo_trial":   { defaultTier: "M", maxTier: "L", minTier: "S" },
   "pipeline_stage":      { defaultTier: "M", maxTier: "L", minTier: "M" },
+  "hcfullpipeline":      { defaultTier: "M", maxTier: "L", minTier: "S" },
+  "user_defined":        { defaultTier: "M", maxTier: "L", minTier: "S" },
 };
 
 // ─── TASK OBJECT ────────────────────────────────────────────────────────
@@ -416,6 +418,49 @@ function registerSchedulerRoutes(app, scheduler) {
     try {
       const task = scheduler.submit(req.body);
       res.json({ ok: true, task: { id: task.id, type: task.type, tier: task.resourceTier, status: task.status } });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/scheduler/submit/hcfp', (req, res) => {
+    try {
+      const task = scheduler.submit({
+        ...req.body,
+        type: 'hcfullpipeline',
+        priority: TASK_PRIORITY.HIGH,
+        constraints: { queue: 'hcfp' }
+      });
+      res.json({ 
+        ok: true, 
+        task: { 
+          id: task.id, 
+          type: task.type,
+          priority: task.priority,
+          status: task.status 
+        } 
+      });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+
+  app.post('/api/scheduler/submit/user', (req, res) => {
+    try {
+      const task = scheduler.submit({
+        ...req.body,
+        type: 'user_defined',
+        constraints: { queue: 'user' }
+      });
+      res.json({ 
+        ok: true, 
+        task: { 
+          id: task.id, 
+          type: task.type,
+          priority: task.priority,
+          status: task.status 
+        } 
+      });
     } catch (err) {
       res.status(400).json({ error: err.message });
     }

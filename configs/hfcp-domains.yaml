@@ -326,7 +326,7 @@ deployment:
   cloudflare:
     dns_records:
       type: CNAME
-      target: heady-manager-headysystems.onrender.com
+      target: app.headysystems.com
       ttl: 1
       proxied: true
       
@@ -340,8 +340,8 @@ deployment:
           security_level: "high"
           
   load_balancing:
-    primary: heady-manager-headysystems.onrender.com
-    fallback: heady-manager-headyme.onrender.com
+    primary: app.headysystems.com
+    fallback: app.headysystems.com
     
   health_checks:
     path: /api/health

@@ -37,6 +37,8 @@ import SacredAvatar from "./SacredAvatar";
 import ChatMessage from "./ChatMessage";
 import ResourceHealthBar from "./ResourceHealthBar";
 
+const HEADY_API = process.env.VITE_HEADY_API || "http://localhost:3300";
+
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "steps", label: "Steps", icon: ListChecks },
@@ -51,6 +53,7 @@ export default function ExpandedView({
   onCollapse,
   resourceData,
   pipelineState,
+  syncStatus,
 }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [input, setInput] = useState("");
@@ -58,20 +61,22 @@ export default function ExpandedView({
   const inputRef = useRef(null);
 
   useEffect(() => {
+    const syncEvents = new EventSource(`${HEADY_API}/api/buddy/sync-events`);
+    
+    syncEvents.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setSyncStatus(data.status);
+    };
+    
+    return () => syncEvents.close();
+  }, []);
+
+  useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, activeTab]);
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-    onSend(input.trim());
-    setInput("");
-  };
-
-  return (
-    <div
       className="
         fixed bottom-6 right-6 z-[9999]
         w-[420px] max-h-[680px]
@@ -136,6 +141,7 @@ export default function ExpandedView({
           <OverviewTab
             pipelineState={pipelineState}
             resourceData={resourceData}
+            syncStatus={syncStatus}
           />
         )}
         {activeTab === "steps" && (
@@ -150,10 +156,7 @@ export default function ExpandedView({
       </div>
 
       {/* ── Input ───────────────────────────────────────────────── */}
-      <form
-        onSubmit={handleSubmit}
-        className="flex items-center gap-2 px-4 py-3 border-t border-heady-border/60"
-      >
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 px-4 py-3 border-t border-heady-border/60">
         <input
           ref={inputRef}
           type="text"
@@ -179,17 +182,26 @@ export default function ExpandedView({
         >
           <Send size={16} />
         </button>
-      </form>
+      </div>
     </div>
   );
 }
 
 // ─── TAB: OVERVIEW ─────────────────────────────────────────────────────────
 
-function OverviewTab({ pipelineState, resourceData }) {
+function OverviewTab({ pipelineState, resourceData, syncStatus }) {
   const ps = pipelineState || {};
   return (
     <div className="space-y-4">
+      {/* Device Status Section */}
+      <div className="flex items-center gap-2 p-2 bg-heady-bg-secondary rounded-lg">
+        <div className={`w-3 h-3 rounded-full ${syncStatus === 'connected' ? 'bg-heady-emerald' : syncStatus === 'syncing' ? 'bg-heady-amber' : 'bg-heady-error'}`} />
+        <span className="text-xs">
+          {syncStatus === 'connected' ? 'All devices in sync' : 
+           syncStatus === 'syncing' ? 'Syncing across devices...' : 
+           'Connection issues'}
+        </span>
+      </div>
       <div className="space-y-2">
         <h3 className="text-[10px] font-bold text-heady-text/70 uppercase tracking-wider">
           Pipeline Status

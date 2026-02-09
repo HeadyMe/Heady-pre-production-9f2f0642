@@ -1,0 +1,46 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .github/workflows/naming-compliance.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+name: Naming Standards Compliance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  naming-audit:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run naming audit
+      run: heady skill run naming-audit --scope=repo
+
+  localhost-check:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check for localhost references
+      run: |
+        $violations = Select-String -Path . -Pattern "localhost|127.0.0.1" -Exclude "*.md"
+        if ($violations) {
+          Write-Error "Found localhost references in files: $($violations.FileName)"
+          exit 1
+        }

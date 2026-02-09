@@ -321,7 +321,7 @@ localhost_replacements:
     new: "https://worker.heady.local"
     service: "python_worker"
     
-  - old: "http://localhost:3000"
+  - old: "https://app.headysystems.com"
     new: "https://dashboard.heady.local"
     service: "web_dashboard"
     

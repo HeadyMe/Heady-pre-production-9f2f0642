@@ -43,10 +43,10 @@ headyos_forms:
       hybrid:
         description: "Local orchestrator + remote models"
         default_endpoint: "http://manager.dev.local.heady.internal:3300"
-        fallback_endpoints: ["https://heady-manager-headysystems.onrender.com"]
+        fallback_endpoints: ["https://app.headysystems.com"]
       cloud:
         description: "Cloud-only mode"
-        default_endpoint: "https://heady-manager-headysystems.onrender.com"
+        default_endpoint: "https://app.headysystems.com"
     
   web_shell:
     name: "HeadyOS Web Shell"

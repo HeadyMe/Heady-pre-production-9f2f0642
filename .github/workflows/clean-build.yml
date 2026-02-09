@@ -6,13 +6,13 @@
 # 3. Deterministic builds with pinned dependencies
 # 4. Automatic alerts when human intervention needed
 
-name: Heady Clean Build & Deploy
+name: Heady Clean Build and Enforce Standards
 
 on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
   schedule:
     # Nightly clean build to catch drift
     - cron: '0 3 * * *'
@@ -143,6 +143,23 @@ jobs:
           npm run build 2>&1 | tee build-output.txt
         timeout-minutes: 10
         
+      - name: Validate naming standards
+        run: |
+          # Fail if any localhost/raw IPs remain
+          if grep -r "localhost" . --exclude-dir={node_modules,dist,build,.git}; then
+            echo "❌ Found localhost references"
+            exit 1
+          fi
+          
+          # Fail if any Windows paths remain
+          if grep -r "C:\\\\" . --exclude-dir={node_modules,dist,build,.git}; then
+            echo "❌ Found C:\\ references"
+            exit 1
+          fi
+        
+      - name: Validate branding
+        run: node scripts/validate-branding.js
+        
       - name: Verify build artifacts
         run: |
           echo "Verifying build artifacts..."
@@ -159,6 +176,18 @@ jobs:
           path: dist/
           retention-days: 7
           
+      # NEW STANDARDS ENFORCEMENT CHECKS
+      - name: Enforce naming standards
+        run: |
+          echo "Checking for banned patterns..."
+          ! grep -rE "localhost|127.0.0.1|10\.[0-9]+\.[0-9]+\.[0-9]+|192\.168\.[0-9]+\.[0-9]+|172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]+\.[0-9]+|C:\\\\|E:\\\\" --exclude="*E-README.md" docs src configs
+
+      - name: Domain connectivity test
+        run: npm run test:domains
+
+      - name: Branding validation
+        run: npm run test:branding
+
       # Error handling and classification
       - name: Handle failures
         if: failure()

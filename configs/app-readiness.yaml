@@ -68,7 +68,7 @@ probes:
 
   - name: render-deployment
     type: http
-    url: https://heady-manager-headysystems.onrender.com/api/health
+    url: https://app.headysystems.com/api/health
     method: GET
     expectedStatus: 200
     maxLatencyMs: 10000

@@ -1,0 +1,31 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/founder-intent-policy.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Founder Intent Governance Policy
+priority: highest
+allowed_auto_deploy:
+  - documentation
+  - naming_standardization
+  - non_breaking_config
+  - routing_changes
+approval_rules:
+  high_risk_changes: single_explicit_approval
+  production_deploys: auto_on_success
+safety_constraints:
+  - stability_first
+  - operational_readiness_score: 85
+notification_channels:
+  - headybuddy
+  - ide_notification

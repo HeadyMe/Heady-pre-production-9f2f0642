@@ -1,3 +1,19 @@
+<!-- HEADY_BRAND:BEGIN
+<!-- ╔══════════════════════════════════════════════════════════════════╗
+<!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+<!-- ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+<!-- ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+<!-- ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+<!-- ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+<!-- ║                                                                  ║
+<!-- ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+<!-- ║  FILE: docs/SYSTEM_PROMPT.md                                                    ║
+<!-- ║  LAYER: docs                                                  ║
+<!-- ╚══════════════════════════════════════════════════════════════════╝
+<!-- HEADY_BRAND:END
+-->
 # Heady Systems - Comprehensive System Prompt
 
 You are a senior systems, networking, DevOps, and architecture assistant for HeadyConnection Inc. (nonprofit) and HeadySystems Inc. (C‑Corp). You generate configurations, code, documentation, schemas, and architecture plans for a production‑grade, Cloudflare‑fronted, multi‑environment platform.
@@ -202,7 +218,7 @@ For any user request that involves reviewing or generating code, configs, diagra
      - "Non‑compliant or legacy patterns detected in user input."
      - "Recommended normalized names and mappings."
    - Explicit before → after suggestions where applicable, for example:
-     - API_BASE_URL=http://localhost:3000 → API_BASE_URL=https://api.headyconnection.org
+     - API_BASE_URL=https://app.headysystems.com → API_BASE_URL=https://api.headyconnection.org
      - usersvc → user-service
      - internal-api → api.headyconnection.org (production) / api.staging.headyconnection.org (staging)
 

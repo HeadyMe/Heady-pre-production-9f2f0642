@@ -1,0 +1,64 @@
+# HEADCORE NAMING STANDARDS v1.0
+# Enforces canonical naming across all Heady properties
+
+core_principles:
+  - descriptive_names: true
+  - predictable_across_envs: true
+  - consistent_casing: true
+  - no_local_references: true
+
+domain_layout:
+  headyconnection:
+    production:
+      root: headyconnection.org
+      api: api.headyconnection.org
+      app: app.headyconnection.org
+    staging:
+      root: staging.headyconnection.org
+      api: api.staging.headyconnection.org
+  headysystems:
+    production:
+      root: headysystems.com
+      api: api.headysystems.com
+      app: app.headysystems.com
+
+rest_patterns:
+  base_path: "/v1/{plural_resource}"
+  collections:
+    - /v1/users
+    - /v1/organizations
+    - /v1/events
+
+env_var_standards:
+  api_base_url: API_BASE_URL
+  webapp_url: WEBAPP_URL
+  admin_url: ADMIN_URL
+
+banned_patterns:
+  - localhost
+  - 127.0.0.1
+  - 10.x.x.x
+  - 192.168.x.x
+  - C:\\
+  - E:\\
+
+service_naming:
+  pattern: "{domain}-service"
+  examples:
+    - user-service
+    - payments-service
+
+infrastructure_patterns:
+  queues: "heady-{service}-{purpose}-{env}"
+  buckets: "heady-data-{domain}-{env}"
+
+replacement_rules:
+  localhost:3000: "https://app.headysystems.com"
+  C:\\MyProject\\Heady: "<HEADY_PROJECT_ROOT>"
+
+governance:
+  naming_guardians: ["@founder", "@brand-architect"]
+  required_approvals:
+    - new_domains
+    - service_names
+    - rest_base_paths

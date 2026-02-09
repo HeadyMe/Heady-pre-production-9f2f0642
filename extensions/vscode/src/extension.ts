@@ -21,13 +21,15 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
 
+const HEADY_MANAGER_ENDPOINT = 'http://manager.dev.local.heady.internal:3300';
+
 let statusBarItem: vscode.StatusBarItem;
 let outputChannel: vscode.OutputChannel;
 let healthCheckInterval: NodeJS.Timeout | undefined;
 
 // API endpoints
 const API_ENDPOINTS = {
-  local: 'http://manager.dev.local.heady.internal:3300',
+  local: HEADY_MANAGER_ENDPOINT,
   'cloud-me': 'https://cloud-me.heady.io',
   'cloud-sys': 'https://cloud-sys.heady.io',
   'cloud-conn': 'https://cloud-conn.heady.io',
@@ -208,5 +210,5 @@ async function viewTasks() {
 // Get active endpoint from config
 function getActiveEndpoint(): string {
   const config = vscode.workspace.getConfiguration('heady');
-  return config.get('endpoint', API_ENDPOINTS.local);
+  return config.get('endpoint', HEADY_MANAGER_ENDPOINT);
 }

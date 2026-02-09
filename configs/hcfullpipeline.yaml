@@ -335,6 +335,47 @@ pipeline:
           - pattern_engine
           - self_critique_engine
 
+    # ── STAGE 9: Cross-Device Sync ──────────────────────────────────────
+    - id: cross-device-sync
+      name: Cross-Device Sync
+      description: Synchronize state across all devices
+      checkpoint: true
+      parallel: true
+      dependsOn: [monitor-feedback]
+      tasks:
+        - run: scripts/sync-state.ps1
+          args: -env production
+        - run: scripts/verify-sync.ps1
+
+    # ── STAGE 10: Sync Priority Changes ──────────────────────────────────
+    - id: sync_priority_changes
+      name: Sync Priority Changes
+      description: Sync priority changes
+      checkpoint: true
+      parallel: true
+      tasks:
+        - run: scripts/sync-priority.ps1
+
+    # ── STAGE 11: Deploy Priority ───────────────────────────────────────
+    - id: deploy_priority
+      name: Deploy Priority
+      description: Deploy priority
+      checkpoint: true
+      parallel: true
+      tasks:
+        - run: scripts/deploy-priority.ps1
+
+  # ─── LANES ──────────────────────────────────────────────────────────────
+  lanes:
+    priority:
+      description: Immediate deployment for urgent changes
+      triggers:
+        - file_change: configs/priority-tasks.yaml
+        - api_call: POST /api/pipeline/priority
+      stages:
+        - sync_priority_changes
+        - deploy_priority
+
   # ─── CHECKPOINT PROTOCOL ────────────────────────────────────────────────
   checkpointProtocol:
     description: >
@@ -377,3 +418,27 @@ pipeline:
       costOverBudget: true
       bottleneckSeverity: "high"
       channelHealthDegraded: true
+
+  # ─── SIGNAL HANDLING ────────────────────────────────────────────────────
+  signals:
+    founder-intent:
+      recognition: 
+        - buddy
+        - ide
+        - cli
+      priority: highest
+      routing: .windsurf/workflows/heady-intent-routing.md
+      logging:
+        registry_flag: founder-intent
+      deployment_rules: configs/founder-intent-policy.yaml
+
+  # ─── DEPLOYMENT HOOKS ────────────────────────────────────────────────────
+  deployment_hooks:
+    pre_deploy:
+      - name: stop_headybuddy
+        command: Stop-Service -Name HeadyBuddy
+    post_deploy:
+      - name: start_headybuddy
+        command: Start-Service -Name HeadyBuddy
+      - name: trigger_state_sync
+        command: Invoke-WebRequest -Uri http://localhost:3300/api/buddy/sync-events

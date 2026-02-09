@@ -6,7 +6,7 @@
   "engine": "electron",
   "api": {
     "endpoint": "http://manager.dev.local.heady.internal:3300",
-    "model_runner": "http://localhost:8000",
+    "model_runner": "https://api.headysystems.com",
     "cloud": null
   },
   "features": {

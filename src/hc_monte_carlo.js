@@ -1081,7 +1081,7 @@ class MCTaskPlanScheduler extends EventEmitter {
 
   getSpeedMode() { return this.speedMode; }
 
-  generatePlans(taskType, taskMeta = {}) {
+  generatePlans(taskType, taskMeta = {}, availableResources) {
     const numCandidates = taskMeta.complex
       ? (this.config.planGeneration || {}).candidatesForComplex || 12
       : (this.config.planGeneration || {}).candidatesPerTask || 6;
@@ -1107,18 +1107,21 @@ class MCTaskPlanScheduler extends EventEmitter {
         ucb1Score: this._getUCB1ForStrategy(taskType, strategy.id),
         fromCache: strategy.modelPreference === "cached",
         speedMode: this.speedMode.label,
+        requiredResources: strategy.requiredResources || [],
       });
     }
 
-    // Sort by composite score: UCB1 weighted by inverse latency (faster plans rank higher)
-    plans.sort((a, b) => {
-      const aComposite = a.ucb1Score * (1 + 1000 / (a.estimatedLatencyMs + 1));
-      const bComposite = b.ucb1Score * (1 + 1000 / (b.estimatedLatencyMs + 1));
-      return bComposite - aComposite;
-    });
+    // Filter plans based on resource availability
+    plans = plans.filter(plan => 
+      plan.requiredResources.every(res => 
+        availableResources[res.type] >= res.amount
+      )
+    );
 
-    this.emit("plans:generated", { taskType, count: plans.length, speedMode: this.speedMode.label });
-    return plans;
+    // Sort plans by estimated duration
+    plans.sort((a, b) => a.estimatedLatencyMs - b.estimatedLatencyMs);
+
+    return plans.slice(0, 5); // Return top 5 plans
   }
 
   // ─── Select the best plan ──────────────────────────────────────────
@@ -1221,8 +1224,8 @@ class MCTaskPlanScheduler extends EventEmitter {
 
   // ─── Full plan-select-execute cycle (convenience) ──────────────────
 
-  planAndSelect(taskType, taskMeta = {}, constraints = {}) {
-    const plans = this.generatePlans(taskType, taskMeta);
+  planAndSelect(taskType, taskMeta = {}, constraints = {}, availableResources) {
+    const plans = this.generatePlans(taskType, taskMeta, availableResources);
     const selected = this.selectPlan(plans, constraints);
     return { plans, selected };
   }
@@ -1426,9 +1429,9 @@ function registerMonteCarloRoutes(app, planScheduler, globalMC) {
   // Plan & select for a task
   app.post("/api/monte-carlo/plan", (req, res) => {
     try {
-      const { taskType, taskMeta, constraints } = req.body;
+      const { taskType, taskMeta, constraints, availableResources } = req.body;
       if (!taskType) return res.status(400).json({ error: "taskType required" });
-      const result = planScheduler.planAndSelect(taskType, taskMeta || {}, constraints || {});
+      const result = planScheduler.planAndSelect(taskType, taskMeta || {}, constraints || {}, availableResources || {});
       res.json({ ok: true, ...result, ts: new Date().toISOString() });
     } catch (err) {
       res.status(500).json({ error: err.message });

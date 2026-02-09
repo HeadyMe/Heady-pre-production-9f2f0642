@@ -68,7 +68,7 @@ https://api.headysystems.com/v1/auth/login
 
 #### Incorrect Examples (NEVER use)
 ```
-http://localhost:8000/api/v1/users
+https://api.headysystems.com/api/v1/users
 http://127.0.0.1:8001/api/v1/donations
 http://10.0.1.50:8000/api/v1/auth/login
 ```
@@ -84,7 +84,7 @@ https://headybuddy.org/connect
 
 #### Incorrect Examples (NEVER use)
 ```
-http://localhost:3000/dashboard
+https://app.headysystems.com/dashboard
 http://127.0.0.1:3002/programs
 http://192.168.1.100:4000/connect
 ```
@@ -106,8 +106,8 @@ https://api.heady.local/oauth/callback
 
 #### Incorrect Examples (NEVER use)
 ```
-http://localhost:3000/oauth/callback
-http://127.0.0.1:8000/oauth/callback
+https://app.headysystems.com/oauth/callback
+http://https://api.headysystems.com/oauth/callback
 ```
 
 ### WebSocket Connections
@@ -157,7 +157,7 @@ curl https://api.headysystems.com/v1/users \
 
 #### Incorrect
 ```bash
-curl http://localhost:8000/api/v1/users \
+curl https://api.headysystems.com/api/v1/users \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json"
 ```
@@ -223,7 +223,7 @@ server {
     server_name api.headysystems.com;
     
     location / {
-        proxy_pass http://127.0.0.1:8000;
+        proxy_pass http://https://api.headysystems.com;
         # ... other config
     }
 }
@@ -348,7 +348,7 @@ When updating existing content:
 1. **Search and Replace**
    - `http://localhost:3000` → `https://app.headysystems.com`
    - `http://localhost:8000` → `https://api.headysystems.com`
-   - `127.0.0.1:3000` → `https://app.headysystems.com`
+   - `https://app.headysystems.com` → `https://app.headysystems.com`
    - `127.0.0.1:8000` → `https://api.headysystems.com`
 
 2. **Update Configuration**
