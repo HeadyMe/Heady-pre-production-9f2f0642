@@ -705,6 +705,33 @@ try {
   console.warn(`  ⚠ Self-Critique Engine not loaded: ${err.message}`);
 }
 
+// NEW AUTO-TASK CONVERSION HOOK
+function setupAutoTaskConversion() {
+  eventBus.on('recommendation', (recommendation) => {
+    const priority = patternEngine.classifyPriority(recommendation);
+    
+    // Call todo_list tool
+    const taskId = `rec-${Date.now()}`;
+    const todoItem = {
+      id: taskId,
+      content: recommendation.text,
+      status: 'pending',
+      priority
+    };
+    
+    // Invoke tool
+    toolCaller.callTool('todo_list', { todos: [todoItem] });
+    
+    // Notify user
+    buddy.sendNotification(`New task created: ${recommendation.text}`);
+    
+    logger.info(`Created task from recommendation: ${recommendation.text}`);
+  });
+}
+
+// Initialize during startup
+setupAutoTaskConversion();
+
 // ─── Bind Pipeline to External Systems ──────────────────────────────
 // Connect HCFullPipeline to MC scheduler, pattern engine, and self-critique
 // so post-run feedback loops (timing → MC, observations → patterns, critique → improvements) work.
