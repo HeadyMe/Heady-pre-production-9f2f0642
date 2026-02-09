@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "heady": {
+      "command": "node",
+      "args": ["c:\\Users\\erich\\Heady\\mcp-servers\\render-mcp-server.js"],
+      "env": {
+        "HEADY_API_URL": "http://manager.dev.local.heady.internal:3300"
+      }
+    }
+  }
+}

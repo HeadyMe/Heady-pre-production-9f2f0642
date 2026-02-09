@@ -1150,6 +1150,16 @@ app.get("/api/aloha/web-baseline", (req, res) => {
   });
 });
 
+// ─── Access Point Configuration Loader ────────────────────────────────
+const accessConfig = require('./configs/access-points.yaml');
+
+app.use('/api/access-points', (req, res) => {
+  res.json(accessConfig);
+});
+
+const headybuddyConfigRouter = require('./src/routes/headybuddy-config');
+app.use('/api/headybuddy-config', headybuddyConfigRouter);
+
 // ─── Error Handler ──────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error("HeadyManager Error:", err);

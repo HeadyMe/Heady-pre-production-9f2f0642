@@ -1,0 +1,16 @@
+access_methods:
+  - name: IDE_Extension
+    type: vscode
+    config: extensions/vscode/package.json
+  - name: Mobile_App
+    type: react-native
+    config: headybrowser-mobile/src/config.js
+  - name: Web_Interface
+    type: web
+    config: frontend/src/config.js
+  - name: API_Gateway
+    type: api
+    config: src/routes/api-routes.js
+
+auth_protocol: oauth2
+sync_interval: 300 # 5 minutes

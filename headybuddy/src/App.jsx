@@ -96,8 +96,15 @@ export default function App() {
   const [viewState, setViewState] = useState("pill"); // pill | main | expanded
   const [messages, setMessages] = useState([]);
   const [status, setStatus] = useState("idle"); // idle | listening | thinking | success | error
+  const [config, setConfig] = useState(null);
   const resourceData = useResourceHealth();
   const pipelineState = usePipelineState(viewState === "expanded");
+
+  useEffect(() => {
+    fetch(`${HEADY_API}/api/headybuddy-config`)
+      .then(response => response.json())
+      .then(data => setConfig(data));
+  }, []);
 
   const handleSend = useCallback(async (text) => {
     if (!text.trim()) return;
@@ -150,6 +157,7 @@ export default function App() {
         onCollapse={() => setViewState("main")}
         resourceData={resourceData}
         pipelineState={pipelineState}
+        config={config}
       />
     );
   }
@@ -164,6 +172,7 @@ export default function App() {
         onExpand={() => setViewState("expanded")}
         onSuggestion={handleSuggestion}
         resourceData={resourceData}
+        config={config}
       />
     );
   }
@@ -174,6 +183,7 @@ export default function App() {
       onExpand={() => setViewState("main")}
       onSuggestion={handleSuggestion}
       resourceData={resourceData}
+      config={config}
     />
   );
 }

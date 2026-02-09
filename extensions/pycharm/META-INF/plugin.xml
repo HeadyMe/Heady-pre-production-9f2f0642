@@ -1,0 +1,19 @@
+<idea-plugin>
+    <id>com.headysystems.pycharm</id>
+    <name>Heady Integration</name>
+    <version>1.0.0</version>
+    <vendor email="support@headysystems.com" url="https://headysystems.com">Heady Systems</vendor>
+    
+    <depends>com.intellij.modules.platform</depends>
+    
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="Heady Notifications" displayType="BALLOON" />
+    </extensions>
+    
+    <actions>
+        <group id="HeadyMenu" text="Heady" description="Heady Integration">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action id="Heady.Connect" class="com.headysystems.pycharm.HeadyPyCharmExtension" text="Connect to Heady"/>
+        </group>
+    </actions>
+</idea-plugin>

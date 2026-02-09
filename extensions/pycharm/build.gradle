@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '1.17.0'
+}
+
+group 'com.headysystems.pycharm'
+version '1.0.0'
+
+sourceCompatibility = 21
+
+targetCompatibility = 21
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+intellij {
+    version = '2023.3.3'
+    plugins = ['java']
+}
+
+test {
+    useJUnitPlatform()
+}
