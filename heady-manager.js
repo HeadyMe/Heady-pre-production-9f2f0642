@@ -368,6 +368,16 @@ app.get("/api/pipeline/state", (req, res) => {
   }
 });
 
+// ─── Temporary Pipeline Status ─────────────────────────────────────
+app.get("/api/pipeline/status", (req, res) => {
+  res.json({
+    status: "idle",
+    lastRun: null,
+    nextRun: null,
+    activeTasks: 0,
+  });
+});
+
 // ─── HeadyAutoIDE & Methodology APIs ────────────────────────────────
 const jsYaml = require("js-yaml");
 
