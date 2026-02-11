@@ -59,7 +59,7 @@ function Send-ErrorAlert {
                 },
                 @{
                     type = "section"
-                    text = @{ type = "mrkdwn"; text = "```$ErrorMessage```" }
+                    text = @{ type = "mrkdwn"; text = "````$ErrorMessage````" }
                 },
                 @{
                     type = "section"
@@ -421,6 +421,34 @@ try {
         Write-Host "  • Manager: http://manager.heady.local:3300" -ForegroundColor Cyan
         Write-Host "  • Dashboard: http://dashboard.heady.local:3000" -ForegroundColor Cyan
         Write-Host "  • API: http://api.heady.local" -ForegroundColor Cyan
+    }
+
+    # ============================================================================
+    # MODE 6: PQC-DEPLOY - Post-Quantum Cryptography Deployment
+    # ============================================================================
+    elseif ($Mode -eq "pqc-deploy") {
+        Write-Host "Starting Post-Quantum Cryptography Deployment" -ForegroundColor Cyan
+        
+        # Initialize PKI
+        if (-not (Test-Path "$PSScriptRoot/../configs/pki/scripts/init-ca.sh")) {
+            throw "PQC initialization script not found"
+        }
+        
+        # Generate certificates
+        $services = @("api", "manager", "nginx", "worker", "db")
+        foreach ($service in $services) {
+            $domain = "$service.headysystems.com"
+            Write-Host "Generating certificate for $domain"
+            & "$PSScriptRoot/../configs/pki/scripts/issue-cert.sh" server $domain
+        }
+        
+        # Deploy configurations
+        Write-Host "Updating Nginx configurations"
+        Copy-Item "$PSScriptRoot/../configs/nginx/mtls.conf" "/etc/nginx/conf.d/" -Force
+        nginx -t
+        systemctl reload nginx
+        
+        Write-Host "PQC deployment complete" -ForegroundColor Green
     }
 
     Write-Host "`nDone!" -ForegroundColor Green

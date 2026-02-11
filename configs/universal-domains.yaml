@@ -24,28 +24,28 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 orchestration:
   heady-manager:
-    domain: api.manager.local.heady.internal
+    domain: api.manager.heady.internal
     alt_domains:
-      - manager.local.heady.internal
-      - orchestrator.local.heady.internal
-      - gateway.local.heady.internal
+      - manager.heady.internal
+      - orchestrator.heady.internal
+      - gateway.heady.internal
     port: 3300
     branding: "🎛️ Sacred Gateway"
     
   heady-buddy:
-    domain: buddy.local.heady.internal
+    domain: buddy.heady.internal
     alt_domains:
-      - companion.local.heady.internal
-      - assistant.local.heady.internal
-      - copilot.local.heady.internal
+      - companion.heady.internal
+      - assistant.heady.internal
+      - copilot.heady.internal
     port: 5174
     branding: "💜 Perfect Day AI"
     
   heady-conductor:
-    domain: conductor.local.heady.internal
+    domain: conductor.heady.internal
     alt_domains:
-      - maestro.local.heady.internal
-      - director.local.heady.internal
+      - maestro.heady.internal
+      - director.heady.internal
     port: 3305
     branding: "🎼 Task Maestro"
 
@@ -54,55 +54,55 @@ orchestration:
 # ═══════════════════════════════════════════════════════════════════════════════
 ai_nodes:
   jules:
-    domain: jules.local.heady.internal
+    domain: jules.heady.internal
     alt_domains:
-      - surgeon.local.heady.internal
-      - optimizer.local.heady.internal
-      - hyper.local.heady.internal
+      - surgeon.heady.internal
+      - optimizer.heady.internal
+      - hyper.heady.internal
     port: 8001
     role: "The Hyper-Surgeon"
     branding: "🔪 Code Surgeon"
     color: "#FF6B6B"
     
   observer:
-    domain: observer.local.heady.internal
+    domain: observer.heady.internal
     alt_domains:
-      - watcher.local.heady.internal
-      - sentinel.local.heady.internal
-      - monitor.local.heady.internal
+      - watcher.heady.internal
+      - sentinel.heady.internal
+      - monitor.heady.internal
     port: 8002
     role: "The Natural Observer"
     branding: "👁️ All-Seeing Eye"
     color: "#4ECDC4"
     
   builder:
-    domain: builder.local.heady.internal
+    domain: builder.heady.internal
     alt_domains:
-      - constructor.local.heady.internal
-      - architect.local.heady.internal
-      - creator.local.heady.internal
+      - constructor.heady.internal
+      - architect.heady.internal
+      - creator.heady.internal
     port: 8003
     role: "The Constructor"
     branding: "🏗️ Master Builder"
     color: "#45B7D1"
     
   atlas:
-    domain: atlas.local.heady.internal
+    domain: atlas.heady.internal
     alt_domains:
-      - archivist.local.heady.internal
-      - librarian.local.heady.internal
-      - memory.local.heady.internal
+      - archivist.heady.internal
+      - librarian.heady.internal
+      - memory.heady.internal
     port: 8004
     role: "The Auto-Archivist"
     branding: "📚 Living Archive"
     color: "#96CEB4"
     
   pythia:
-    domain: pythia.local.heady.internal
+    domain: pythia.heady.internal
     alt_domains:
-      - oracle.local.heady.internal
-      - prophet.local.heady.internal
-      - diviner.local.heady.internal
+      - oracle.heady.internal
+      - prophet.heady.internal
+      - diviner.heady.internal
     port: 8005
     role: "The Oracle"
     branding: "🔮 Sacred Oracle"
@@ -113,47 +113,47 @@ ai_nodes:
 # ═══════════════════════════════════════════════════════════════════════════════
 intelligence:
   monte-carlo:
-    domain: mc.local.heady.internal
+    domain: mc.heady.internal
     alt_domains:
-      - montecarlo.local.heady.internal
-      - optimizer.local.heady.internal
-      - planner.local.heady.internal
+      - montecarlo.heady.internal
+      - optimizer.heady.internal
+      - planner.heady.internal
     port: 8006
     branding: "🎲 Probability Master"
     
   pattern-engine:
-    domain: patterns.local.heady.internal
+    domain: patterns.heady.internal
     alt_domains:
-      - recognition.local.heady.internal
-      - insight.local.heady.internal
-      - discovery.local.heady.internal
+      - recognition.heady.internal
+      - insight.heady.internal
+      - discovery.heady.internal
     port: 8007
     branding: "🧩 Pattern Weaver"
     
   self-critique:
-    domain: critique.local.heady.internal
+    domain: critique.heady.internal
     alt_domains:
-      - reflection.local.heady.internal
-      - improvement.local.heady.internal
-      - growth.local.heady.internal
+      - reflection.heady.internal
+      - improvement.heady.internal
+      - growth.heady.internal
     port: 8008
     branding: "🪞 Mirror of Truth"
     
   imagination:
-    domain: imagine.local.heady.internal
+    domain: imagine.heady.internal
     alt_domains:
-      - creativity.local.heady.internal
-      - dream.local.heady.internal
-      - vision.local.heady.internal
+      - creativity.heady.internal
+      - dream.heady.internal
+      - vision.heady.internal
     port: 8009
     branding: "🌈 Dream Weaver"
     
   story-driver:
-    domain: stories.local.heady.internal
+    domain: stories.heady.internal
     alt_domains:
-      - narrative.local.heady.internal
-      - chronicle.local.heady.internal
-      - saga.local.heady.internal
+      - narrative.heady.internal
+      - chronicle.heady.internal
+      - saga.heady.internal
     port: 8010
     branding: "📖 Living Chronicles"
 
@@ -162,29 +162,29 @@ intelligence:
 # ═══════════════════════════════════════════════════════════════════════════════
 infrastructure:
   postgres:
-    domain: db.postgres.local.heady.internal
+    domain: db.postgres.heady.internal
     alt_domains:
-      - database.local.heady.internal
-      - postgres.local.heady.internal
-      - sql.local.heady.internal
+      - database.heady.internal
+      - postgres.heady.internal
+      - sql.heady.internal
     port: 5432
     branding: "🐘 Sacred Elephant"
     
   redis:
-    domain: cache.redis.local.heady.internal
+    domain: cache.redis.heady.internal
     alt_domains:
-      - redis.local.heady.internal
-      - cache.local.heady.internal
-      - memory.local.heady.internal
+      - redis.heady.internal
+      - cache.heady.internal
+      - memory.heady.internal
     port: 6379
     branding: "⚡ Lightning Memory"
     
   redis-pubsub:
-    domain: pubsub.redis.local.heady.internal
+    domain: pubsub.redis.heady.internal
     alt_domains:
-      - events.local.heady.internal
-      - messages.local.heady.internal
-      - bus.local.heady.internal
+      - events.heady.internal
+      - messages.heady.internal
+      - bus.heady.internal
     port: 6380
     branding: "📡 Event Horizon"
 
@@ -193,45 +193,45 @@ infrastructure:
 # ═══════════════════════════════════════════════════════════════════════════════
 observability:
   heady-lens:
-    domain: lens.local.heady.internal
+    domain: lens.heady.internal
     alt_domains:
-      - observatory.local.heady.internal
-      - scope.local.heady.internal
-      - vision.local.heady.internal
+      - observatory.heady.internal
+      - scope.heady.internal
+      - vision.heady.internal
     port: 9090
     branding: "🔭 Cosmic Observatory"
     
   metrics:
-    domain: metrics.local.heady.internal
+    domain: metrics.heady.internal
     alt_domains:
-      - prometheus.local.heady.internal
-      - stats.local.heady.internal
+      - prometheus.heady.internal
+      - stats.heady.internal
     port: 9091
     branding: "📊 Sacred Metrics"
     
   logs:
-    domain: logs.local.heady.internal
+    domain: logs.heady.internal
     alt_domains:
-      - loki.local.heady.internal
-      - chronicle.local.heady.internal
-      - history.local.heady.internal
+      - loki.heady.internal
+      - chronicle.heady.internal
+      - history.heady.internal
     port: 9200
     branding: "📜 Eternal Scroll"
     
   traces:
-    domain: traces.local.heady.internal
+    domain: traces.heady.internal
     alt_domains:
-      - jaeger.local.heady.internal
-      - journey.local.heady.internal
+      - jaeger.heady.internal
+      - journey.heady.internal
     port: 9411
     branding: "🛤️ Path Finder"
     
   alerts:
-    domain: alerts.local.heady.internal
+    domain: alerts.heady.internal
     alt_domains:
-      - alertmanager.local.heady.internal
-      - notify.local.heady.internal
-      - watchtower.local.heady.internal
+      - alertmanager.heady.internal
+      - notify.heady.internal
+      - watchtower.heady.internal
     port: 9093
     branding: "🚨 Watchtower"
 
@@ -240,27 +240,27 @@ observability:
 # ═══════════════════════════════════════════════════════════════════════════════
 frontend:
   web-app:
-    domain: app.local.heady.internal
+    domain: app.heady.internal
     alt_domains:
-      - web.local.heady.internal
-      - portal.local.heady.internal
-      - ui.local.heady.internal
+      - web.heady.internal
+      - portal.heady.internal
+      - ui.heady.internal
     port: 5173
     branding: "🌐 Sacred Portal"
     
   desktop:
-    domain: desktop.local.heady.internal
+    domain: desktop.heady.internal
     alt_domains:
-      - electron.local.heady.internal
-      - native.local.heady.internal
+      - electron.heady.internal
+      - native.heady.internal
     port: 5175
     branding: "💻 Desktop Companion"
     
   mobile:
-    domain: mobile.local.heady.internal
+    domain: mobile.heady.internal
     alt_domains:
-      - phone.local.heady.internal
-      - handheld.local.heady.internal
+      - phone.heady.internal
+      - handheld.heady.internal
     port: 5176
     branding: "📱 Mobile Oracle"
 
@@ -269,38 +269,38 @@ frontend:
 # ═══════════════════════════════════════════════════════════════════════════════
 browser:
   chrome:
-    domain: chrome.local.heady.internal
+    domain: chrome.heady.internal
     alt_domains:
-      - googlechrome.local.heady.internal
+      - googlechrome.heady.internal
     port: 3302
     branding: "🌟 Chrome Companion"
     
   firefox:
-    domain: firefox.local.heady.internal
+    domain: firefox.heady.internal
     alt_domains:
-      - mozilla.local.heady.internal
+      - mozilla.heady.internal
     port: 3303
     branding: "🦊 Firefox Friend"
     
   edge:
-    domain: edge.local.heady.internal
+    domain: edge.heady.internal
     alt_domains:
-      - microsoft.local.heady.internal
+      - microsoft.heady.internal
     port: 3304
     branding: "🌊 Edge Explorer"
     
   safari:
-    domain: safari.local.heady.internal
+    domain: safari.heady.internal
     alt_domains:
-      - apple.local.heady.internal
+      - apple.heady.internal
     port: 3305
     branding: "🧭 Safari Guide"
     
   browser-bridge:
-    domain: bridge.browser.local.heady.internal
+    domain: bridge.browser.heady.internal
     alt_domains:
-      - extension.local.heady.internal
-      - addon.local.heady.internal
+      - extension.heady.internal
+      - addon.heady.internal
     port: 3306
     branding: "🌉 Extension Bridge"
 
@@ -309,41 +309,41 @@ browser:
 # ═══════════════════════════════════════════════════════════════════════════════
 ides:
   vscode:
-    domain: vscode.local.heady.internal
+    domain: vscode.heady.internal
     alt_domains:
-      - code.local.heady.internal
-      - visualstudio.local.heady.internal
+      - code.heady.internal
+      - visualstudio.heady.internal
     port: 3307
     branding: "💙 VS Code Soul"
     
   jetbrains:
-    domain: jetbrains.local.heady.internal
+    domain: jetbrains.heady.internal
     alt_domains:
-      - intellij.local.heady.internal
-      - pycharm.local.heady.internal
-      - webstorm.local.heady.internal
+      - intellij.heady.internal
+      - pycharm.heady.internal
+      - webstorm.heady.internal
     port: 3308
     branding: "🧠 JetBrains Genius"
     
   neovim:
-    domain: neovim.local.heady.internal
+    domain: neovim.heady.internal
     alt_domains:
-      - vim.local.heady.internal
-      - nvim.local.heady.internal
+      - vim.heady.internal
+      - nvim.heady.internal
     port: 3309
     branding: "🌙 Vim Visionary"
     
   sublime:
-    domain: sublime.local.heady.internal
+    domain: sublime.heady.internal
     alt_domains:
-      - textmate.local.heady.internal
+      - textmate.heady.internal
     port: 3310
     branding: "✨ Sublime Spirit"
     
   emacs:
-    domain: emacs.local.heady.internal
+    domain: emacs.heady.internal
     alt_domains:
-      - gnu.local.heady.internal
+      - gnu.heady.internal
     port: 3311
     branding: "🐂 Emacs Elder"
 
@@ -352,57 +352,57 @@ ides:
 # ═══════════════════════════════════════════════════════════════════════════════
 integrations:
   slack:
-    domain: slack.local.heady.internal
+    domain: slack.heady.internal
     alt_domains:
-      - chat.local.heady.internal
-      - team.local.heady.internal
+      - chat.heady.internal
+      - team.heady.internal
     port: 3312
     branding: "💬 Slack Sage"
     
   discord:
-    domain: discord.local.heady.internal
+    domain: discord.heady.internal
     alt_domains:
-      - community.local.heady.internal
-      - guild.local.heady.internal
+      - community.heady.internal
+      - guild.heady.internal
     port: 3313
     branding: "🎮 Discord Druid"
     
   teams:
-    domain: teams.local.heady.internal
+    domain: teams.heady.internal
     alt_domains:
-      - microsoft.local.heady.internal
+      - microsoft.heady.internal
     port: 3314
     branding: "🏢 Teams Titan"
     
   email:
-    domain: mail.local.heady.internal
+    domain: mail.heady.internal
     alt_domains:
-      - email.local.heady.internal
-      - post.local.heady.internal
+      - email.heady.internal
+      - post.heady.internal
     port: 3315
     branding: "📧 Email Emissary"
     
   calendar:
-    domain: calendar.local.heady.internal
+    domain: calendar.heady.internal
     alt_domains:
-      - schedule.local.heady.internal
-      - time.local.heady.internal
+      - schedule.heady.internal
+      - time.heady.internal
     port: 3316
     branding: "📅 Time Keeper"
     
   github:
-    domain: github.local.heady.internal
+    domain: github.heady.internal
     alt_domains:
-      - git.local.heady.internal
-      - vcs.local.heady.internal
+      - git.heady.internal
+      - vcs.heady.internal
     port: 3317
     branding: "🐙 GitHub Guardian"
     
   notion:
-    domain: notion.local.heady.internal
+    domain: notion.heady.internal
     alt_domains:
-      - wiki.local.heady.internal
-      - docs.local.heady.internal
+      - wiki.heady.internal
+      - docs.heady.internal
     port: 3318
     branding: "📝 Notion Navigator"
 
@@ -411,41 +411,41 @@ integrations:
 # ═══════════════════════════════════════════════════════════════════════════════
 mcp_servers:
   mcp-gateway:
-    domain: mcp.local.heady.internal
+    domain: mcp.heady.internal
     alt_domains:
-      - tools.local.heady.internal
-      - gateway.local.heady.internal
+      - tools.heady.internal
+      - gateway.heady.internal
     port: 3001
     branding: "🔌 MCP Nexus"
     
   filesystem:
-    domain: fs.local.heady.internal
+    domain: fs.heady.internal
     alt_domains:
-      - files.local.heady.internal
-      - storage.local.heady.internal
+      - files.heady.internal
+      - storage.heady.internal
     port: 3002
     branding: "📁 File Keeper"
     
   terminal:
-    domain: shell.local.heady.internal
+    domain: shell.heady.internal
     alt_domains:
-      - terminal.local.heady.internal
-      - bash.local.heady.internal
+      - terminal.heady.internal
+      - bash.heady.internal
     port: 3003
     branding: "💻 Terminal Titan"
     
   browser-mcp:
-    domain: browser.mcp.local.heady.internal
+    domain: browser.mcp.heady.internal
     alt_domains:
-      - web.mcp.local.heady.internal
+      - web.mcp.heady.internal
     port: 3004
     branding: "🌍 Web Wanderer"
     
   search:
-    domain: search.local.heady.internal
+    domain: search.heady.internal
     alt_domains:
-      - find.local.heady.internal
-      - query.local.heady.internal
+      - find.heady.internal
+      - query.heady.internal
     port: 3005
     branding: "🔍 Search Seer"
 
@@ -454,18 +454,18 @@ mcp_servers:
 # ═══════════════════════════════════════════════════════════════════════════════
 distribution:
   billing:
-    domain: billing.local.heady.internal
+    domain: billing.heady.internal
     alt_domains:
-      - payments.local.heady.internal
-      - stripe.local.heady.internal
+      - payments.heady.internal
+      - stripe.heady.internal
     port: 3319
     branding: "💰 Sacred Treasury"
     
   telemetry:
-    domain: telemetry.local.heady.internal
+    domain: telemetry.heady.internal
     alt_domains:
-      - analytics.local.heady.internal
-      - tracking.local.heady.internal
+      - analytics.heady.internal
+      - tracking.heady.internal
     port: 3320
     branding: "📈 Insight Beacon"
 
@@ -474,43 +474,43 @@ distribution:
 # ═══════════════════════════════════════════════════════════════════════════════
 headyos:
   docker:
-    domain: docker.local.heady.internal
+    domain: docker.heady.internal
     alt_domains:
-      - container.local.heady.internal
-      - podman.local.heady.internal
+      - container.heady.internal
+      - podman.heady.internal
     port: 3321
     branding: "🐳 Docker Domain"
     
   bare-metal:
-    domain: metal.local.heady.internal
+    domain: metal.heady.internal
     alt_domains:
-      - kernel.local.heady.internal
-      - os.local.heady.internal
+      - kernel.heady.internal
+      - os.heady.internal
     port: 3322
     branding: "⚙️ Iron Core"
     
   linux-distro:
-    domain: linux.local.heady.internal
+    domain: linux.heady.internal
     alt_domains:
-      - distro.local.heady.internal
-      - buildroot.local.heady.internal
+      - distro.heady.internal
+      - buildroot.heady.internal
     port: 3323
     branding: "🐧 Linux Legacy"
     
   android:
-    domain: android.local.heady.internal
+    domain: android.heady.internal
     alt_domains:
-      - aosp.local.heady.internal
-      - mobile-os.local.heady.internal
+      - aosp.heady.internal
+      - mobile-os.heady.internal
     port: 3324
     branding: "🤖 Android Avatar"
     
   embedded:
-    domain: embedded.local.heady.internal
+    domain: embedded.heady.internal
     alt_domains:
-      - iot.local.heady.internal
-      - rpi.local.heady.internal
-      - yocto.local.heady.internal
+      - iot.heady.internal
+      - rpi.heady.internal
+      - yocto.heady.internal
     port: 3325
     branding: "🔌 Embedded Entity"
 
@@ -519,19 +519,19 @@ headyos:
 # ═══════════════════════════════════════════════════════════════════════════════
 security:
   secrets:
-    domain: secrets.local.heady.internal
+    domain: secrets.heady.internal
     alt_domains:
-      - vault.local.heady.internal
-      - keys.local.heady.internal
-      - passwords.local.heady.internal
+      - vault.heady.internal
+      - keys.heady.internal
+      - passwords.heady.internal
     port: 3326
     branding: "🔐 Secret Sanctuary"
     
   cloudflare:
-    domain: cloudflare.local.heady.internal
+    domain: cloudflare.heady.internal
     alt_domains:
-      - cdn.local.heady.internal
-      - dns.local.heady.internal
+      - cdn.heady.internal
+      - dns.heady.internal
     port: 3327
     branding: "☁️ Cloud Guardian"
 
@@ -540,18 +540,18 @@ security:
 # ═══════════════════════════════════════════════════════════════════════════════
 discovery:
   service-registry:
-    domain: registry.local.heady.internal
+    domain: registry.heady.internal
     alt_domains:
-      - catalog.local.heady.internal
-      - directory.local.heady.internal
+      - catalog.heady.internal
+      - directory.heady.internal
     port: 8600
     branding: "📋 Service Catalog"
     
   dns-internal:
-    domain: dns.local.heady.internal
+    domain: dns.heady.internal
     alt_domains:
-      - nameserver.local.heady.internal
-      - resolver.local.heady.internal
+      - nameserver.heady.internal
+      - resolver.heady.internal
     port: 53
     branding: "🌐 Name Weaver"
 
@@ -587,86 +587,86 @@ hosts_entries: |
   # HEADY SYSTEMS — Universal Domain Architecture
   # Add these to your hosts file for local resolution
   
-  127.0.0.1 api.manager.local.heady.internal
-  127.0.0.1 buddy.local.heady.internal
-  127.0.0.1 conductor.local.heady.internal
+  api.heady.internal api.manager.heady.internal
+  api.heady.internal buddy.heady.internal
+  api.heady.internal conductor.heady.internal
   
   # AI Nodes
-  127.0.0.1 jules.local.heady.internal
-  127.0.0.1 observer.local.heady.internal
-  127.0.0.1 builder.local.heady.internal
-  127.0.0.1 atlas.local.heady.internal
-  127.0.0.1 pythia.local.heady.internal
+  api.heady.internal jules.heady.internal
+  api.heady.internal observer.heady.internal
+  api.heady.internal builder.heady.internal
+  api.heady.internal atlas.heady.internal
+  api.heady.internal pythia.heady.internal
   
   # Intelligence Systems
-  127.0.0.1 mc.local.heady.internal
-  127.0.0.1 patterns.local.heady.internal
-  127.0.0.1 critique.local.heady.internal
-  127.0.0.1 imagine.local.heady.internal
-  127.0.0.1 stories.local.heady.internal
+  api.heady.internal mc.heady.internal
+  api.heady.internal patterns.heady.internal
+  api.heady.internal critique.heady.internal
+  api.heady.internal imagine.heady.internal
+  api.heady.internal stories.heady.internal
   
   # Infrastructure
-  127.0.0.1 db.postgres.local.heady.internal
-  127.0.0.1 cache.redis.local.heady.internal
-  127.0.0.1 pubsub.redis.local.heady.internal
+  api.heady.internal db.postgres.heady.internal
+  api.heady.internal cache.redis.heady.internal
+  api.heady.internal pubsub.redis.heady.internal
   
   # Observability
-  127.0.0.1 lens.local.heady.internal
-  127.0.0.1 metrics.local.heady.internal
-  127.0.0.1 logs.local.heady.internal
-  127.0.0.1 traces.local.heady.internal
-  127.0.0.1 alerts.local.heady.internal
+  api.heady.internal lens.heady.internal
+  api.heady.internal metrics.heady.internal
+  api.heady.internal logs.heady.internal
+  api.heady.internal traces.heady.internal
+  api.heady.internal alerts.heady.internal
   
   # Frontend
-  127.0.0.1 app.local.heady.internal
-  127.0.0.1 desktop.local.heady.internal
-  127.0.0.1 mobile.local.heady.internal
+  api.heady.internal app.heady.internal
+  api.heady.internal desktop.heady.internal
+  api.heady.internal mobile.heady.internal
   
   # Browsers
-  127.0.0.1 chrome.local.heady.internal
-  127.0.0.1 firefox.local.heady.internal
-  127.0.0.1 edge.local.heady.internal
-  127.0.0.1 safari.local.heady.internal
-  127.0.0.1 bridge.browser.local.heady.internal
+  api.heady.internal chrome.heady.internal
+  api.heady.internal firefox.heady.internal
+  api.heady.internal edge.heady.internal
+  api.heady.internal safari.heady.internal
+  api.heady.internal bridge.browser.heady.internal
   
   # IDEs
-  127.0.0.1 vscode.local.heady.internal
-  127.0.0.1 jetbrains.local.heady.internal
-  127.0.0.1 neovim.local.heady.internal
-  127.0.0.1 sublime.local.heady.internal
-  127.0.0.1 emacs.local.heady.internal
+  api.heady.internal vscode.heady.internal
+  api.heady.internal jetbrains.heady.internal
+  api.heady.internal neovim.heady.internal
+  api.heady.internal sublime.heady.internal
+  api.heady.internal emacs.heady.internal
   
   # Integrations
-  127.0.0.1 slack.local.heady.internal
-  127.0.0.1 discord.local.heady.internal
-  127.0.0.1 teams.local.heady.internal
-  127.0.0.1 mail.local.heady.internal
-  127.0.0.1 calendar.local.heady.internal
-  127.0.0.1 github.local.heady.internal
-  127.0.0.1 notion.local.heady.internal
+  api.heady.internal slack.heady.internal
+  api.heady.internal discord.heady.internal
+  api.heady.internal teams.heady.internal
+  api.heady.internal mail.heady.internal
+  api.heady.internal calendar.heady.internal
+  api.heady.internal github.heady.internal
+  api.heady.internal notion.heady.internal
   
   # MCP Servers
-  127.0.0.1 mcp.local.heady.internal
-  127.0.0.1 fs.local.heady.internal
-  127.0.0.1 shell.local.heady.internal
-  127.0.0.1 browser.mcp.local.heady.internal
-  127.0.0.1 search.local.heady.internal
+  api.heady.internal mcp.heady.internal
+  api.heady.internal fs.heady.internal
+  api.heady.internal shell.heady.internal
+  api.heady.internal browser.mcp.heady.internal
+  api.heady.internal search.heady.internal
   
   # Distribution
-  127.0.0.1 billing.local.heady.internal
-  127.0.0.1 telemetry.local.heady.internal
+  api.heady.internal billing.heady.internal
+  api.heady.internal telemetry.heady.internal
   
   # HeadyOS
-  127.0.0.1 docker.local.heady.internal
-  127.0.0.1 metal.local.heady.internal
-  127.0.0.1 linux.local.heady.internal
-  127.0.0.1 android.local.heady.internal
-  127.0.0.1 embedded.local.heady.internal
+  api.heady.internal docker.heady.internal
+  api.heady.internal metal.heady.internal
+  api.heady.internal linux.heady.internal
+  api.heady.internal android.heady.internal
+  api.heady.internal embedded.heady.internal
   
   # Security
-  127.0.0.1 secrets.local.heady.internal
-  127.0.0.1 cloudflare.local.heady.internal
+  api.heady.internal secrets.heady.internal
+  api.heady.internal cloudflare.heady.internal
   
   # Discovery
-  127.0.0.1 registry.local.heady.internal
-  127.0.0.1 dns.local.heady.internal
+  api.heady.internal registry.heady.internal
+  api.heady.internal dns.heady.internal

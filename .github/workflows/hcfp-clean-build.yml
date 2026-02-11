@@ -135,7 +135,7 @@ jobs:
               cd distribution/browser/extensions/chrome && npm run build
               ;;
             mobile)
-              cd headybrowser-mobile && npm install && npm run build 2>/dev/null || echo "Mobile build skipped"
+              cd HeadyWeb-mobile && npm install && npm run build 2>/dev/null || echo "Mobile build skipped"
               ;;
           esac
         continue-on-error: true
@@ -453,3 +453,7 @@ jobs:
           else
             echo "✅ No localhost references found in production code"
           fi
+
+
+
+

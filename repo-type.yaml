@@ -1,0 +1,49 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: repo-type.yaml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ============================================================
+# HEADY SYSTEMS | Repo Type Manifest
+# ============================================================
+# This file declares the identity and operational mode of this
+# repository. Maintenance scripts and CI read this file to
+# enforce correct behaviour per repo class.
+#
+# Valid types: hybrid | offline | cloud
+# ============================================================
+
+type: hybrid
+
+identity:
+  name: HeadyStack
+  entity: HeadySystems          # HeadyConnection | HeadySystems | Personal
+  year: 2026
+  role: canonical               # canonical | clone
+
+defaultDockerProfile: hybrid.yml
+
+allowedProviders:
+  - local
+  - cloud
+
+modelRouterPolicy:
+  privacy: MEDIUM
+  costStrategy: LOCAL_FIRST
+  cloudFallback: true
+
+maintenanceCadence: daily
+
+# Clone-specific overrides (ignored in canonical)
+cloneSource: null
+canonicalTag: null

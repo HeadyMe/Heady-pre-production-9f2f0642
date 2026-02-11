@@ -28,10 +28,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Check for banned references
+      - name: Check for banned patterns
         run: |
+          # Existing checks
+          !grep -rE 'localhost|127\.0\.0\.1|10\.\d+|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.' .
+          
+          # New checks
+          !grep -rE '\.onrender\.com|\.vercel\.app|\.netlify\.app|\.herokuapp\.com|\.firebaseapp\.com' .
+          !grep -rE '[A-Z]:\\' .  # Windows drive letters
+          !grep -rE 'F:\\' .  # Specific drive letter
+          
           $bannedDomains = @('onrender.com', 'vercel.app', 'netlify.app', 'herokuapp.com', 'firebaseapp.com')
-          $patterns = @('localhost', '127.0.0.1', 'C:\\') + $bannedDomains
+          $driveLetters = @('C:\\', 'D:\\', 'E:\\', 'F:\\', 'G:\\', 'H:\\', 'I:\\', 'J:\\', 'K:\\', 'L:\\', 'M:\\', 'N:\\', 'O:\\', 'P:\\', 'Q:\\', 'R:\\', 'S:\\', 'T:\\', 'U:\\', 'V:\\', 'W:\\', 'X:\\', 'Y:\\', 'Z:\\')
+          $patterns = @('localhost', '127.0.0.1') + $driveLetters + $bannedDomains
           $files = Get-ChildItem -Recurse -Include *.js,*.json,*.yaml,*.md,*.html
           $violations = 0
           

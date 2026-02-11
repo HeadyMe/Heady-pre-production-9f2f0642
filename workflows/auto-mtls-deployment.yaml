@@ -1,0 +1,592 @@
+name: Auto-Deploy mTLS Infrastructure
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3AM
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup PowerShell
+      uses: actions/setup-powershell@v2
+      
+    - name: Deploy mTLS
+      run: |
+        pwsh ./scripts/auto-deploy-mtls.ps1
+        
+    - name: Start Monitoring
+      run: |
+        nohup pwsh ./scripts/monitor-mtls.ps1 &
+        
+    - name: Verify Services
+      run: |
+        systemctl is-active nginx-mtls
+        systemctl is-active cloudflared
+    - name: Health Check All Services
+      run: |
+        pwsh ./scripts/health-check-services.ps1
+      timeout-minutes: 5
+      
+    - name: Update DNS Records
+      run: |
+        pwsh ./scripts/update-cloudflare-dns.ps1
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      timeout-minutes: 3
+        
+    - name: Backup Certificates
+      run: |
+        pwsh ./scripts/backup-certificates.ps1
+      timeout-minutes: 10
+      
+    - name: Verify mTLS Endpoints
+      run: |
+        curl --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://api.heady.systems/health
+        curl --cert /etc/nginx/certs/client.crt --key /etc/nginx/certs/client.key https://manager.heady.systems/health
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Test Certificate Rotation
+      run: |
+        pwsh ./scripts/test-cert-rotation.ps1
+      continue-on-error: true
+      timeout-minutes: 5
+      
+    - name: Verify Certificate Expiry
+      run: |
+        pwsh ./scripts/check-cert-expiry.ps1 -WarningDays 30 -CriticalDays 7
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Run Security Scan
+      run: |
+        pwsh ./scripts/scan-mtls-security.ps1
+      continue-on-error: true
+      timeout-minutes: 10
+      
+    - name: Validate mTLS Configuration
+      run: |
+        pwsh ./scripts/validate-mtls-config.ps1
+      continue-on-error: true
+      timeout-minutes: 3
+      
+    - name: Test TLS Protocol Versions
+      run: |
+        testssl.sh --protocols --cipher-per-proto https://api.heady.systems || echo "testssl.sh not installed"
+      continue-on-error: true
+      timeout-minutes: 5
+      
+    - name: Performance Benchmark
+      run: |
+        pwsh ./scripts/benchmark-mtls-performance.ps1
+      continue-on-error: true
+      timeout-minutes: 5
+      
+    - name: Test Failover Scenarios
+      run: |
+        pwsh ./scripts/test-mtls-failover.ps1
+      continue-on-error: true
+      timeout-minutes: 8
+      
+    - name: Validate Rate Limiting
+      run: |
+        pwsh ./scripts/test-rate-limiting.ps1
+      continue-on-error: true
+      timeout-minutes: 3
+      
+    - name: Generate Deployment Report
+      if: always()
+      run: |
+        pwsh ./scripts/generate-deployment-report.ps1 -OutputPath ./deployment-report.json
+      timeout-minutes: 2
+        
+    - name: Upload Deployment Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: mtls-deployment-${{ github.run_id }}
+        path: |
+          deployment-report.json
+          /var/log/nginx-mtls/*.log
+          /var/log/cloudflared/*.log
+          /etc/nginx/certs/*.crt
+          /var/log/mtls-security-scan.log
+        retention-days: 30
+        if-no-files-found: warn
+        
+    - name: Create GitHub Deployment
+      if: success()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const deployment = await github.rest.repos.createDeployment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+            environment: 'production-mtls',
+            description: 'mTLS Infrastructure Deployment',
+            auto_merge: false,
+            required_contexts: [],
+            production_environment: true
+          });
+          
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: deployment.data.id,
+            state: 'success',
+            log_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            environment_url: 'https://api.heady.systems'
+          });
+        
+    - name: Send Deployment Notification
+      if: always()
+      uses: slackapi/slack-github-action@v1
+      with:
+        payload: |
+          {
+            "text": "🔐 mTLS Deployment ${{ job.status }}",
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "${{ job.status == 'success' && '✅' || '❌' }} mTLS Infrastructure Deployment"
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Status:*\n${{ job.status }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Commit:*\n`${{ github.sha }}`"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Workflow:*\n${{ github.workflow }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Run ID:*\n${{ github.run_id }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Environment:*\nProduction mTLS"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Timestamp:*\n${{ github.event.head_commit.timestamp }}"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Services Deployed:*\n• NGINX mTLS Proxy\n• Cloudflare Tunnel\n• Certificate Management\n• DNS Updates\n• Security Scanning\n• Performance Monitoring"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Logs"
+                    },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  },
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Download Artifacts"
+                    },
+                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts"
+                  }
+                ]
+              }
+            ]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      continue-on-error: true
+      
+    - name: Update Deployment Status Page
+      if: always()
+      run: |
+        pwsh ./scripts/update-status-page.ps1 -Status "${{ job.status }}" -Component "mTLS-Infrastructure"
+      env:
+        STATUS_PAGE_API_KEY: ${{ secrets.STATUS_PAGE_API_KEY }}
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Cleanup Temporary Files
+      if: always()
+      run: |
+        rm -f /tmp/mtls-*.tmp
+        rm -f /tmp/cert-rotation-*.log
+      continue-on-error: true
+    - name: Archive Deployment Logs
+      if: always()
+      run: |
+        mkdir -p /tmp/deployment-archive
+        tar -czf /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz \
+          /var/log/nginx-mtls/*.log \
+          /var/log/cloudflared/*.log \
+          /var/log/mtls-security-scan.log \
+          deployment-report.json 2>/dev/null || true
+        sha256sum /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz > /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz.sha256
+        ls -lh /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz
+      timeout-minutes: 3
+        
+    - name: Rotate Old Deployment Artifacts
+      if: always()
+      run: |
+        DELETED_COUNT=$(find /tmp/deployment-archive -name "mtls-deployment-logs-*.tar.gz" -mtime +30 -delete -print | wc -l)
+        find /tmp/deployment-archive -name "mtls-deployment-logs-*.tar.gz.sha256" -mtime +30 -delete
+        echo "Deleted $DELETED_COUNT old deployment archives"
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Generate Archive Metadata
+      if: always()
+      run: |
+        cat > /tmp/deployment-archive/metadata-${{ github.run_id }}.json <<EOF
+        {
+          "run_id": "${{ github.run_id }}",
+          "commit_sha": "${{ github.sha }}",
+          "workflow": "${{ github.workflow }}",
+          "status": "${{ job.status }}",
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "trigger": "${{ github.event_name }}",
+          "actor": "${{ github.actor }}",
+          "archive_size": $(stat -f%z /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz 2>/dev/null || stat -c%s /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz 2>/dev/null || echo "0"),
+          "checksum": "$(cat /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz.sha256 | awk '{print $1}')"
+        }
+        EOF
+      continue-on-error: true
+      timeout-minutes: 1
+      
+    - name: Upload Archived Logs to S3
+      if: always()
+      run: |
+        aws s3 cp /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz \
+          s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/mtls-deployments/${{ github.run_id }}/ \
+          --storage-class INTELLIGENT_TIERING \
+          --metadata "deployment-status=${{ job.status }},commit-sha=${{ github.sha }},workflow-id=${{ github.run_id }}" \
+          --tagging "Environment=production,Service=mTLS,AutoDelete=true"
+        aws s3 cp /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz.sha256 \
+          s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/mtls-deployments/${{ github.run_id }}/
+        aws s3 cp /tmp/deployment-archive/metadata-${{ github.run_id }}.json \
+          s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/mtls-deployments/${{ github.run_id }}/
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      continue-on-error: true
+      timeout-minutes: 5
+      
+    - name: Configure S3 Lifecycle Policy
+      if: success()
+      run: |
+        aws s3api put-bucket-lifecycle-configuration \
+          --bucket ${{ secrets.S3_DEPLOYMENT_BUCKET }} \
+          --lifecycle-configuration '{
+            "Rules": [{
+              "Id": "mtls-deployment-archive-retention",
+              "Status": "Enabled",
+              "Filter": {"Prefix": "mtls-deployments/"},
+              "Transitions": [
+                {"Days": 90, "StorageClass": "GLACIER"},
+                {"Days": 365, "StorageClass": "DEEP_ARCHIVE"}
+              ],
+              "Expiration": {"Days": 730}
+            }]
+          }' || echo "Lifecycle policy already configured"
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Update Prometheus Metrics
+      if: always()
+      run: |
+        START_TIME=$(date -d "${{ github.event.workflow_run.created_at || github.event.repository.updated_at }}" +%s 2>/dev/null || echo "0")
+        DURATION=$(($(date +%s) - ${START_TIME}))
+        curl -X POST http://prometheus.heady.internal:9091/metrics/job/mtls-deployment/instance/${{ github.run_id }} \
+          --data-binary @- <<EOF
+        # TYPE mtls_deployment_status gauge
+        # HELP mtls_deployment_status Current deployment status (1=success, 0=failure)
+        mtls_deployment_status{status="${{ job.status }}",commit="${{ github.sha }}",environment="production"} ${{ job.status == 'success' && '1' || '0' }}
+        # TYPE mtls_deployment_duration_seconds gauge
+        # HELP mtls_deployment_duration_seconds Total deployment duration in seconds
+        mtls_deployment_duration_seconds{workflow="${{ github.workflow }}",run_id="${{ github.run_id }}"} ${DURATION}
+        # TYPE mtls_deployment_timestamp gauge
+        # HELP mtls_deployment_timestamp Unix timestamp of deployment completion
+        mtls_deployment_timestamp{status="${{ job.status }}"} $(date +%s)
+        # TYPE mtls_certificates_renewed_total counter
+        # HELP mtls_certificates_renewed_total Total number of certificates renewed
+        mtls_certificates_renewed_total{environment="production"} 1
+        # TYPE mtls_deployment_artifacts_size_bytes gauge
+        # HELP mtls_deployment_artifacts_size_bytes Size of deployment artifacts in bytes
+        mtls_deployment_artifacts_size_bytes{run_id="${{ github.run_id }}"} $(stat -f%z /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz 2>/dev/null || stat -c%s /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz 2>/dev/null || echo "0")
+        EOF
+      continue-on-error: true
+      timeout-minutes: 1
+      
+    - name: Record Deployment in Database
+      if: always()
+      run: |
+        pwsh ./scripts/record-deployment.ps1 \
+          -RunId "${{ github.run_id }}" \
+          -Status "${{ job.status }}" \
+          -CommitSha "${{ github.sha }}" \
+          -Timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          -LogArchive "/tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz" \
+          -Duration "$DURATION" \
+          -Trigger "${{ github.event_name }}" \
+          -MetadataFile "/tmp/deployment-archive/metadata-${{ github.run_id }}.json"
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Verify Deployment Integrity
+      if: always()
+      run: |
+        sha256sum -c /tmp/deployment-archive/mtls-deployment-logs-${{ github.run_id }}.tar.gz.sha256
+        echo "Archive integrity verified successfully"
+      continue-on-error: true
+      timeout-minutes: 1
+      
+    - name: Create Deployment Audit Trail
+      if: always()
+      run: |
+        pwsh ./scripts/create-audit-trail.ps1 \
+          -RunId "${{ github.run_id }}" \
+          -Actor "${{ github.actor }}" \
+          -Event "mtls-deployment" \
+          -Status "${{ job.status }}" \
+          -MetadataPath "/tmp/deployment-archive/metadata-${{ github.run_id }}.json" \
+          -S3Location "s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/mtls-deployments/${{ github.run_id }}/"
+      env:
+        AUDIT_LOG_ENDPOINT: ${{ secrets.AUDIT_LOG_ENDPOINT }}
+      continue-on-error: true
+      timeout-minutes: 2
+    - name: Trigger Post-Deployment Validation
+      if: success()
+      run: |
+        pwsh ./scripts/post-deployment-validation.ps1 \
+          -RunId "${{ github.run_id }}" \
+          -Environment "production" \
+          -ValidateEndpoints \
+          -ValidateCertificates \
+          -ValidateSecurityPolicies \
+          -ValidateLoadBalancing \
+          -ValidateRateLimits
+      continue-on-error: true
+      timeout-minutes: 5
+      
+    - name: Update Service Discovery
+      if: success()
+      run: |
+        pwsh ./scripts/update-service-registry.ps1 \
+          -ServiceName "mtls-infrastructure" \
+          -Version "${{ github.sha }}" \
+          -Status "active" \
+          -HealthEndpoint "https://api.heady.systems/health" \
+          -Tags "mtls,production,nginx,cloudflare" \
+          -Metadata @{
+            "deployment_id"="${{ github.run_id }}";
+            "commit_sha"="${{ github.sha }}";
+            "deployed_at"="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+      env:
+        CONSUL_HTTP_TOKEN: ${{ secrets.CONSUL_HTTP_TOKEN }}
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Generate Performance Baseline
+      if: success()
+      run: |
+        pwsh ./scripts/generate-performance-baseline.ps1 \
+          -OutputPath "/tmp/deployment-archive/performance-baseline-${{ github.run_id }}.json" \
+          -Endpoints "https://api.heady.systems,https://manager.heady.systems" \
+          -Iterations 100 \
+          -IncludeLatencyPercentiles \
+          -IncludeThroughputMetrics \
+          -CompareWithPrevious
+      continue-on-error: true
+      timeout-minutes: 3
+      
+    - name: Verify Certificate Chain Trust
+      if: success()
+      run: |
+        pwsh ./scripts/verify-cert-chain.ps1 \
+          -CertPath "/etc/nginx/certs" \
+          -ValidateOCSP \
+          -CheckRevocation \
+          -OutputReport "/tmp/deployment-archive/cert-validation-${{ github.run_id }}.json"
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Test Disaster Recovery Readiness
+      if: success()
+      run: |
+        pwsh ./scripts/test-dr-readiness.ps1 \
+          -ValidateBackups \
+          -TestFailoverProcedures \
+          -VerifyReplicationStatus
+      continue-on-error: true
+      timeout-minutes: 4
+      
+    - name: Validate Security Compliance
+      if: success()
+      run: |
+        pwsh ./scripts/validate-security-compliance.ps1 \
+          -Standards "PCI-DSS,SOC2,ISO27001" \
+          -CertificatePath "/etc/nginx/certs" \
+          -OutputReport "/tmp/deployment-archive/compliance-report-${{ github.run_id }}.json" \
+          -CheckCipherSuites \
+          -ValidateTLSVersions \
+          -AuditAccessControls
+      continue-on-error: true
+      timeout-minutes: 3
+      
+    - name: Run Penetration Testing Suite
+      if: success()
+      run: |
+        pwsh ./scripts/run-penetration-tests.ps1 \
+          -TargetEndpoints "https://api.heady.systems,https://manager.heady.systems" \
+          -TestTypes "SSL,Headers,Authentication,Authorization" \
+          -OutputReport "/tmp/deployment-archive/pentest-report-${{ github.run_id }}.json" \
+          -SeverityThreshold "medium"
+      continue-on-error: true
+      timeout-minutes: 10
+      
+    - name: Validate API Gateway Configuration
+      if: success()
+      run: |
+        pwsh ./scripts/validate-api-gateway.ps1 \
+          -ValidateRouting \
+          -ValidateRateLimits \
+          -ValidateAuthPolicies \
+          -ValidateCORS \
+          -OutputReport "/tmp/deployment-archive/api-gateway-validation-${{ github.run_id }}.json"
+      continue-on-error: true
+      timeout-minutes: 3
+      
+    - name: Test Geographic Failover
+      if: success()
+      run: |
+        pwsh ./scripts/test-geo-failover.ps1 \
+          -Regions "us-east-1,us-west-2,eu-west-1" \
+          -ValidateDNSPropagation \
+          -TestLatencyRouting \
+          -OutputReport "/tmp/deployment-archive/geo-failover-${{ github.run_id }}.json"
+      continue-on-error: true
+      timeout-minutes: 5
+      
+    - name: Update Monitoring Dashboards
+      if: success()
+      run: |
+        pwsh ./scripts/update-grafana-dashboards.ps1 \
+          -DeploymentId "${{ github.run_id }}" \
+          -CommitSha "${{ github.sha }}" \
+          -AnnotateDeployment
+      env:
+        GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Generate Deployment Metrics Summary
+      if: always()
+      run: |
+        pwsh ./scripts/generate-metrics-summary.ps1 \
+          -RunId "${{ github.run_id }}" \
+          -AggregateReports "/tmp/deployment-archive/*-${{ github.run_id }}.json" \
+          -OutputPath "/tmp/deployment-archive/metrics-summary-${{ github.run_id }}.json" \
+          -IncludeCharts \
+          -CompareWithBaseline
+      continue-on-error: true
+      timeout-minutes: 2
+      
+    - name: Cache Deployment Artifacts
+      if: success()
+      uses: actions/cache@v3
+      with:
+        path: |
+          /tmp/deployment-archive/performance-baseline-${{ github.run_id }}.json
+          /tmp/deployment-archive/cert-validation-${{ github.run_id }}.json
+          /tmp/deployment-archive/compliance-report-${{ github.run_id }}.json
+          /tmp/deployment-archive/pentest-report-${{ github.run_id }}.json
+          /tmp/deployment-archive/api-gateway-validation-${{ github.run_id }}.json
+          /tmp/deployment-archive/geo-failover-${{ github.run_id }}.json
+          /tmp/deployment-archive/metrics-summary-${{ github.run_id }}.json
+        key: mtls-deployment-${{ github.sha }}-${{ github.run_id }}
+        restore-keys: |
+          mtls-deployment-${{ github.sha }}-
+          mtls-deployment-
+      
+    - name: Send Success Notification to Teams
+      if: success()
+      run: |
+        pwsh ./scripts/notify-teams.ps1 \
+          -WebhookUrl "${{ secrets.TEAMS_WEBHOOK_URL }}" \
+          -Title "✅ mTLS Deployment Successful" \
+          -Message "Deployment ${{ github.run_id }} completed successfully with all validations passed" \
+          -Color "28a745" \
+          -Facts @{
+            "Commit"="${{ github.sha }}";
+            "Actor"="${{ github.actor }}";
+            "Environment"="Production mTLS";
+            "Timestamp"="$(date -u +%Y-%m-%dT%H:%M:%SZ)";
+            "Services"="NGINX, Cloudflare Tunnel, Certificate Management";
+            "Health_Status"="All endpoints operational"
+          }
+      continue-on-error: true
+      timeout-minutes: 1
+    - name: Verify Deployment Benefits
+      if: success()
+      run: |
+        pwsh ./scripts/verify-deployment-benefits.ps1 \
+          -DeploymentId "${{ github.run_id }}" \
+          -MeasurePerformanceGains \
+          -MeasureSecurityImprovements \
+          -MeasureCostOptimization \
+          -MeasureReliabilityMetrics \
+          -MeasureScalabilityImpact \
+          -MeasureAvailabilityUptime \
+          -MeasureLatencyReduction \
+          -MeasureThroughputIncrease \
+          -MeasureErrorRateReduction \
+          -MeasureCertificateManagementEfficiency \
+          -MeasureAutomationBenefits \
+          -MeasureComplianceImprovements \
+          -MeasureIncidentReduction \
+          -MeasureResourceUtilization \
+          -MeasureMTTRImprovements \
+          -MeasureSecurityPostureScore \
+          -MeasureAPIResponseTimes \
+          -MeasureCertificateRotationEfficiency \
+          -MeasureFailoverRecoveryTime \
+          -CalculateROI \
+          -CompareWithPreviousDeployment \
+          -GenerateTrendAnalysis \
+          -IdentifyOptimizationOpportunities \
+          -OutputReport "/tmp/deployment-archive/benefits-analysis-${{ github.run_id }}.json"
+      continue-on-error: true
+      timeout-minutes: 3

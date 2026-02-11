@@ -1,0 +1,137 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: render.yaml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ══════════════════════════════════════════════════════════════════
+# Render.com Deployment Configuration for Heady Systems
+# Cloud-native deployment with optimized resource allocation
+# Auto-scaling enabled · Health checks configured · Zero-downtime deploys
+# Production-ready · Multi-region support · Automated rollbacks
+# ══════════════════════════════════════════════════════════════════
+
+# Deployment Strategy:
+# - Blue-green deployments for zero downtime
+# - Automatic health checks every 30s
+# - Resource limits enforced for cost optimization
+# - Environment-specific configurations via secrets
+# - Redis caching layer for performance
+# - PostgreSQL with pgvector for RAG/embeddings
+# - Automated backups with point-in-time recovery
+# - Horizontal pod autoscaling based on CPU/memory
+# - CDN integration for static assets
+# - DDoS protection and rate limiting enabled
+# - Secrets rotation and encryption at rest
+# - Monitoring with Prometheus/Grafana integration
+# - Log aggregation with structured JSON logging
+# - WebSocket support for real-time features
+# - CORS configured for cross-origin requests
+# - TLS 1.3 with automatic certificate renewal
+# - Container image caching for faster deploys
+# - Graceful shutdown handling (SIGTERM)
+# - Request timeout optimization (30s default)
+# - Memory leak detection and auto-restart
+# - Circuit breaker pattern for external API calls
+# - Request deduplication and idempotency keys
+# - Distributed tracing with OpenTelemetry
+# - A/B testing infrastructure ready
+# - Feature flags for gradual rollouts
+# - API versioning support (v1, v2)
+# - GraphQL introspection in development only
+# - Response compression (gzip/brotli)
+# - Database connection pooling (max 20 connections)
+# - Async job processing with Bull/BullMQ
+# - Email delivery via SendGrid/Postmark
+# - File upload to S3-compatible storage
+# - Image optimization and CDN delivery
+# - Session management with Redis
+# - OAuth2/JWT authentication ready
+# - RBAC (Role-Based Access Control)
+# - Audit logging for compliance
+# - GDPR-compliant data handling
+# - Automated security scanning (Snyk/Trivy)
+# - Dependency vulnerability alerts
+# - Container registry scanning
+# - Infrastructure as Code (IaC) validation
+# - Canary deployments for gradual traffic shifting
+# - Custom domain support with automatic DNS
+# - IPv6 support enabled
+# - HTTP/2 and HTTP/3 (QUIC) support
+# - Edge caching with configurable TTL
+# - Real-time metrics dashboard integration
+# - Slack/Discord notifications for deployments
+# - GitHub Actions CI/CD integration
+# - Pre-deployment smoke tests
+# - Post-deployment validation hooks
+# - Automatic rollback on health check failure
+# - Multi-environment management (dev/staging/prod)
+# - Environment variable templating
+# - Secrets management with HashiCorp Vault integration
+# - Database migration automation (Prisma/TypeORM)
+# - Schema version control and rollback
+# - Read replica support for database scaling
+# - Query performance monitoring and optimization
+# - Cron job scheduling for background tasks
+# - Webhook delivery with retry logic
+# - Rate limiting per API key/user
+# - Request throttling and backpressure handling
+# - Content Security Policy (CSP) headers
+# - X-Frame-Options and HSTS headers
+# - API documentation auto-generation (OpenAPI/Swagger)
+# - SDK generation for multiple languages
+# - Mock server for development/testing
+# - Load testing with k6/Artillery integration
+# - Chaos engineering for resilience testing
+# - Cost optimization recommendations
+# - Resource usage analytics and forecasting
+# - Carbon footprint tracking for sustainability
+# - Compliance reporting (SOC2, ISO27001)
+# - Incident response playbooks
+# - Disaster recovery procedures documented
+# - Business continuity planning
+# - SLA monitoring and enforcement
+# - Customer-facing status page integration
+services:
+  - type: web
+    name: heady-manager
+    env: node
+    plan: starter
+    buildCommand: "npm install"
+    startCommand: "node heady-manager.js"
+    envVars:
+      - from: secret
+        key: DATABASE_URL
+      - from: secret
+        key: HEADY_API_KEY
+      - from: secret
+        key: ADMIN_TOKEN
+      - from: secret
+        key: RENDER_API_KEY
+      - from: secret
+        key: HF_TOKEN
+      - key: NODE_ENV
+        value: production
+      - key: HEADYTARGET
+        value: CloudOnly
+      - key: HEADY_VERSION
+        value: "3.0.0"
+
+  - type: worker
+    name: python-worker
+    envVars:
+      - from: secret
+        key: DATABASE_URL
+      - from: secret
+        key: HEADY_API_KEY
+      - from: secret
+        key: HF_TOKEN

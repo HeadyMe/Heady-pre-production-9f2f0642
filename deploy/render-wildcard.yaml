@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: heady-manager
+    env: production
+    domain:
+      - name: "*.headysystems.com"
+        type: wildcard
+      - name: "headysystems.com"
+    build:
+      command: "npm run build"
+      publish: "/frontend/dist"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HEADYTARGET
+        value: CloudOnly

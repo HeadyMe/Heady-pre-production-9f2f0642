@@ -39,8 +39,9 @@ jobs:
 
     - name: Check for localhost references
       run: |
-        $violations = Select-String -Path . -Pattern "localhost|127.0.0.1" -Exclude "*.md"
-        if ($violations) {
-          Write-Error "Found localhost references in files: $($violations.FileName)"
+        $violations = Select-String -Path . -Pattern "localhost|127.0.0.1|[A-Z]:\\" -Exclude "*.md"
+        $domainViolations = Select-String -Path . -Pattern "onrender\.com|vercel\.app|netlify\.app|herokuapp\.com|firebaseapp\.com"
+        if ($violations -or $domainViolations) {
+          Write-Error "Found banned references in files"
           exit 1
         }

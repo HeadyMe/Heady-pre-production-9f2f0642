@@ -38,3 +38,31 @@ services:
     environment:
       - EMBEDDINGS_LOCAL=true
       - CLOUD_EMBEDDINGS_FALLBACK=true
+
+  # Drupal 11 CMS
+  drupal:
+    build:
+      context: ../../drupal
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ../../drupal:/var/www/html
+      - ../../drupal/settings.php:/sites/default/settings.php
+      - drupal-data:/var/www/html/sites/default/files
+    environment:
+      - DRUPAL_DATABASE_DRIVER=pgsql
+      - DRUPAL_DATABASE_NAME=heady
+      - DRUPAL_DATABASE_USER=heady
+      - DRUPAL_DATABASE_PASSWORD=${POSTGRES_PASSWORD:-heady_dev}
+      - DRUPAL_DATABASE_HOST=postgres
+      - DRUPAL_DATABASE_PORT=5432
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - heady-net
+
+volumes:
+  drupal-data:
+    driver: local

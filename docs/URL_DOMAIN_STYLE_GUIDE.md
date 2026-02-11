@@ -14,6 +14,26 @@
 <!-- ╚══════════════════════════════════════════════════════════════════╝
 <!-- HEADY_BRAND:END
 -->
+---
+file_id: "FMSAP-005"
+title: "URL Domain Style Guide"
+created: 2026-02-10
+last_scan: 2026-02-10T03:39:00Z
+scan_count: 1
+next_scan_due: 2026-02-17
+scan_priority: "high"
+stability: "stable"
+criticality: "core"
+maintenance_notes:
+  - "Initial protocol creation"
+dependencies:
+  - "SYSTEM_PROMPT.md"
+  - "ITERATIVE_REBUILD_PROTOCOL.md"
+learned_insights:
+  - count: 0
+  - last_updated: null
+improvement_backlog: []
+---
 # Heady Systems URL and Domain Style Guide
 # Production-ready standards for all user-facing content
 

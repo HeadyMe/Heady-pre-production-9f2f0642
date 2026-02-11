@@ -14,6 +14,13 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
 /**
+ * Copyright (c) 2026 HeadySystems Inc. (C-Corp)
+ * PROPRIETARY & CONFIDENTIAL.
+ * Patent Pending: Infrastructure & Orchestration Cluster
+ * Implements: Distributed State Mutex, Golden Ratio UI
+ */
+
+/**
  * HeadyOrchestrator - Execution Engine
  * 
  * Executes workflow plans with parallel processing, manages state, and enforces constraints.

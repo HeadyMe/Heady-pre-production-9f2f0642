@@ -1,0 +1,68 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: infra/docker/profiles/minimal.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ============================================================
+# HEADY SYSTEMS | Profile: minimal
+# ============================================================
+# Absolute minimum: API + Postgres only.
+# For smoke tests, CI pipelines, or resource-constrained hosts.
+# ============================================================
+
+services:
+  heady-api:
+    environment:
+      NODE_ENV: production
+
+  heady-postgres:
+    environment:
+      POSTGRES_USER: heady
+
+  # Everything else off
+  heady-redis:
+    deploy:
+      replicas: 0
+  heady-web:
+    deploy:
+      replicas: 0
+  heady-orchestrator:
+    deploy:
+      replicas: 0
+  heady-rag:
+    deploy:
+      replicas: 0
+  model-router:
+    deploy:
+      replicas: 0
+  ollama:
+    deploy:
+      replicas: 0
+  embeddings-service:
+    deploy:
+      replicas: 0
+  auth-service:
+    deploy:
+      replicas: 0
+  billing-service:
+    deploy:
+      replicas: 0
+  mcp-gateway:
+    deploy:
+      replicas: 0
+  telemetry-service:
+    deploy:
+      replicas: 0
+  voice-io:
+    deploy:
+      replicas: 0

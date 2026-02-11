@@ -1,0 +1,58 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: docs/api/openapi.yaml                                                    ║
+# ║  LAYER: docs                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+openapi: 3.0.0
+info:
+  title: HeadySystems API Gateway
+  description: API documentation for HeadySystems services
+  version: 1.0.0
+servers:
+  - url: http://localhost:3300
+    description: Local development server
+  - url: https://headysystems.com/api
+    description: Production server
+paths:
+  /api/health:
+    get:
+      summary: Service health check
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+  /api/buddy/health:
+    get:
+      summary: HeadyBuddy health check
+      responses:
+        '200':
+          description: HeadyBuddy is healthy
+  /api/admin:
+    get:
+      summary: Admin operations
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Successful operation
+securitySchemes:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: X-Heady-API-Key

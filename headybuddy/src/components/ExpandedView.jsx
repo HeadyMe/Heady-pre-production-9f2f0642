@@ -77,6 +77,16 @@ export default function ExpandedView({
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (input.trim()) {
+      onSend(input);
+      setInput("");
+    }
+  };
+
+  return (
+    <div
       className="
         fixed bottom-6 right-6 z-[9999]
         w-[420px] max-h-[680px]
@@ -182,7 +192,7 @@ export default function ExpandedView({
         >
           <Send size={16} />
         </button>
-      </div>
+      </form>
     </div>
   );
 }

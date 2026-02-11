@@ -124,6 +124,12 @@ When invoked by the Supervisor during `execute-major-phase`:
 - Use the `@heady/networking` client with `proxy: false` for internal calls.
 - External API calls go through circuit breakers with retry + backoff.
 
+## NAMING STANDARDS FOR AGENTS
+
+When showing URLs or paths to the user, always use canonical domains and abstract roots (HEADY_PROJECT_ROOT, HEADY_DATA_ROOT). Never emit drive letters, localhost, raw Render domains, or private IPs.
+
+When you need to be precise for engineers, refer to internal dev hosts as manager.dev.local.heady.internal:3300 etc., never C:\ or .onrender.com.
+
 ## CODING CONVENTIONS
 
 - **Brand Header:** All source files start with `HEADY_BRAND:BEGIN` / `HEADY_BRAND:END` block
@@ -289,4 +295,3 @@ patterns are implemented, which are pending, and which are not applicable.
 Integrate beneficial, legally and ethically acceptable patterns where they
 improve reliability, performance, or safety, without violating Heady's data
 ownership, security, or social impact goals.
-```

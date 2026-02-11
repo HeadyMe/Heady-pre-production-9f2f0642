@@ -1,0 +1,19 @@
+[Unit]
+Description=Nginx with mTLS for Internal Services
+After=network.target
+
+[Service]
+Type=forking
+ExecStartPre=/usr/sbin/nginx -t
+ExecStart=/usr/sbin/nginx
+ExecReload=/usr/sbin/nginx -s reload
+ExecStop=/usr/sbin/nginx -s quit
+Restart=on-failure
+RestartSec=5s
+
+# Environment variables
+Environment="NGINX_CONF_DIR=/etc/nginx/conf.d/mtls"
+Environment="SSL_CERT_DIR=/etc/nginx/ssl"
+
+[Install]
+WantedBy=multi-user.target

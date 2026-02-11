@@ -4,6 +4,8 @@
   "description": "Heady Systems - Sacred Geometry :: Organic Systems :: Breathing Interfaces",
   "main": "heady-manager.js",
   "scripts": {
+    "start:mcp": "node backend/app.js",
+    "cli": "python scripts/heady_cli.py",
     "start": "node heady-manager.js",
     "dev": "nodemon heady-manager.js",
     "build": "npm run build --prefix frontend",
@@ -11,32 +13,48 @@
     "backend": "npm start --prefix backend",
     "test": "pwsh ./scripts/kill-port.ps1 && jest",
     "lint": "eslint . --fix",
+    "lint:fix": "eslint . --fix",
     "pipeline": "node -e \"const {pipeline}=require('./src/hc_pipeline');pipeline.run().then(s=>console.log(JSON.stringify({runId:s.runId,status:s.status},null,2))).catch(e=>console.error(e.message))\"",
     "pipeline:config": "node -e \"const {pipeline}=require('./src/hc_pipeline');console.log(JSON.stringify(pipeline.getConfigSummary(),null,2))\"",
     "sync": "powershell -File ./scripts/Heady-Sync.ps1",
     "brand:check": "node scripts/brand_headers.js --check",
     "brand:fix": "node scripts/brand_headers.js --fix",
     "test:domains": "node scripts/domain-connectivity-test.js",
-    "test:branding": "node scripts/validate-branding.js"
+    "test:branding": "node scripts/validate-branding.js",
+    "build-all": "npm run build && npm run build:desktop && npm run build:mobile",
+    "build:desktop": "cd headybrowser-desktop && npm run build",
+    "build:mobile": "cd headybrowser-mobile && npm run build",
+    "deploy": "node scripts/deploy.js",
+    "deploy:auto": "node scripts/deploy.js --auto"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@modelcontextprotocol/sdk": "^1.0.1",
+    "@octokit/auth-app": "^8.2.0",
     "axios": "^1.13.5",
+    "bcrypt": "^5.1.1",
+    "commander": "^14.0.3",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "electron": "40.2.1",
     "express": "^4.21.2",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "js-yaml": "^4.1.1",
+    "jsonwebtoken": "^9.0.3",
     "node-cron": "^3.0.2",
-    "replace-in-file": "^8.4.0"
+    "pg": "^8.18.0",
+    "replace-in-file": "^8.4.0",
+    "swagger-ui-express": "^5.0.1",
+    "yaml": "^2.8.2",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@typescript-eslint/parser": "^8.55.0",
     "concurrently": "^9.1.2",
     "eslint": "^9.18.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
     "jest": "^29.7.0",
     "jest-transform-yaml": "^1.2.0",
     "nodemon": "^3.1.9",
@@ -45,5 +63,9 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "offline": {
+    "nodeModulesPath": "./offline-packages/node_modules",
+    "pythonPackagesPath": "./offline-packages/python-libs"
   }
 }

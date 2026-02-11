@@ -1,0 +1,36 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/resource-thresholds.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Resource Utilization Thresholds
+thresholds:
+  # Local machine - strict limits
+  local:
+    cpu: 60%  # Will request approval if >60%
+    memory: 65%
+    disk_io: 70%
+    network: 80%
+    
+  # Remote/cloud - maximize utilization
+  remote:
+    cpu: 95%  # Will auto-scale up to 95%
+    memory: 98%
+    disk_io: 90%
+    network: 95%
+    
+  # Critical services (always protected)
+  critical:
+    cpu: 50%
+    memory: 55%
+    disk_io: 60%

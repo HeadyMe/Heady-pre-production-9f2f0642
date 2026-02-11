@@ -13,41 +13,102 @@
 # ║  LAYER: root                                                  ║
 # ╚══════════════════════════════════════════════════════════════════╝
 # HEADY_BRAND:END
-version: '3.8'
 
 services:
   heady-manager:
     build: .
-    ports:
-      - "3300:3300"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgres://headyuser:headypass@heady-postgres:5432/headydb
-      - REDIS_URL=redis://heady-redis:6379
-    depends_on:
-      - heady-postgres
-      - heady-redis
+      - DATABASE_URL=postgresql://user:pass@cloud-postgres.heady.io:5432/heady_sys
+      - REDIS_URL=redis://cloud-redis.heady.io:6379
+      - HEADY_API_KEY=${HEADY_API_KEY}
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - RENDER_API_KEY=${RENDER_API_KEY}
+      - HF_TOKEN=${HF_TOKEN}
+      - USE_HEADY_MANAGER=${USE_HEADY_MANAGER:-true}
+      - HEADY_TARGET=CloudOnly
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3300/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://manager.heady.internal:3300/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-
-  heady-postgres:
-    image: postgres:16
-    environment:
-      - POSTGRES_DB=headydb
-      - POSTGRES_USER=headyuser
-      - POSTGRES_PASSWORD=headypass
-    ports:
-      - "5432:5432"
+      start_period: 40s
+    hostname: heady-manager
+    networks:
+      heady-main-network:
+        aliases:
+          - manager.heady.internal
+          - api.heady.internal
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - heady-data:/app/data
+      - heady-logs:/app/logs
+      - heady-cache:/app/.cache
+      - heady-config:/app/config:ro
+      - heady-plugins:/app/plugins:rw
+      - heady-exports:/app/exports:rw
+      - heady-backups:/app/backups:rw
+      - heady-temp:/app/temp:rw
+      - heady-models:/app/models:ro
+      - heady-embeddings:/app/embeddings:rw
+      - heady-sessions:/app/sessions:rw
+      - heady-uploads:/app/uploads:rw
+      - heady-downloads:/app/downloads:rw
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+        labels: "service=heady-manager"
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp:size=100M,mode=1777
 
-  heady-redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
+  heady:
+    image: python:3.11.14-alpine3.23
+    container_name: Heady
+    command: python3 -m http.server 8000
+    networks:
+      - heady-main-network
+
+networks:
+  heady-main-network:
+    external: true
+    name: heady_heady-main-network
 
 volumes:
-  postgres_data:
+  heady-data:
+    driver: local
+  heady-logs:
+    driver: local
+  heady-cache:
+    driver: local
+  heady-config:
+    driver: local
+  heady-plugins:
+    driver: local
+  heady-exports:
+    driver: local
+  heady-backups:
+    driver: local
+  heady-temp:
+    driver: local
+  heady-models:
+    driver: local
+  heady-embeddings:
+    driver: local
+  heady-sessions:
+    driver: local
+  heady-uploads:
+    driver: local
+  heady-downloads:
+    driver: local

@@ -1,0 +1,24 @@
+{
+  "domains": [
+    "headyconnection.org",
+    "headysystems.com"
+  ],
+  "environments": {
+    "production": {
+      "account_id": "YOUR_ACCOUNT_ID",
+      "zone_id": "YOUR_ZONE_ID"
+    },
+    "staging": {
+      "account_id": "YOUR_STAGING_ACCOUNT_ID",
+      "zone_id": "YOUR_STAGING_ZONE_ID"
+    }
+  }
+}
+,
+  "mcpServers": {
+    "beneficial": {
+      "command": "node",
+      "args": ["${MCP_SERVER_PATH}/beneficial-server.js"],
+      "env": {}
+    }
+  }

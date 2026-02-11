@@ -57,6 +57,21 @@ function Show-Step {
     Write-Host "`n[HC] $Message" -ForegroundColor Yellow
 }
 
+# Read the heady-registry.json to get remotes
+function Get-HeadyRemotes {
+    $registryPath = Join-Path $RootDir "heady-registry.json"
+    if (-not (Test-Path $registryPath)) {
+        Write-Warning "heady-registry.json not found at $registryPath. Using git remote instead."
+        return git remote
+    }
+    $registry = Get-Content $registryPath | ConvertFrom-Json
+    $remotes = @()
+    foreach ($repo in $registry.repos) {
+        $remotes += $repo.name
+    }
+    return $remotes
+}
+
 Set-Location $RootDir
 
 # 0. CHECKPOINT HANDLER
@@ -196,8 +211,9 @@ if ($status) {
     }
 }
 
-# Push to all remotes
-$remotes = git remote
+# Push to all remotes from registry
+$remotes = Get-HeadyRemotes
+$remotes = @('origin', 'heady-me', 'heady-sys', 'sandbox')  # Corrected case
 foreach ($remote in $remotes) {
     Write-Host "Pushing to $remote..." -ForegroundColor Cyan
     if ($Force) {
@@ -211,6 +227,11 @@ foreach ($remote in $remotes) {
     }
 }
 
+# Remove any certbot/SSL related operations from the script
+# Ensure all service checks use HTTP endpoints behind Cloudflare Tunnel
+# Update health check endpoints to use tunnel URLs
+Write-Host "[HC] Using Cloudflare Tunnel endpoints for all services" -ForegroundColor Cyan
+
 # 6. RESTART (Optional)
 if ($Restart) {
     Show-Step "Restarting System..."
@@ -220,4 +241,19 @@ if ($Restart) {
 } else {
     Show-Header "CYCLE COMPLETE. SYSTEM PAUSED."
     Write-Host "Run 'hs -Restart' next time to auto-resume, or run '.\scripts\start-heady-system.ps1' to start." -ForegroundColor Gray
+}
+
+# Add offline mode check
+$OfflineMode = $false
+if (Test-Path "$PSScriptRoot\..\offline-packages") {
+    $OfflineMode = $true
+    Write-Host "[HC] Running in offline mode" -ForegroundColor Cyan
+}
+
+# Modify package installation section
+if (-not $OfflineMode) {
+    npm install
+} else {
+    Write-Host "[HC] Using pre-installed offline packages" -ForegroundColor Yellow
+    Copy-Item "$PSScriptRoot\..\offline-packages\node_modules" -Destination "$PSScriptRoot\..\node_modules" -Recurse -Force
 }

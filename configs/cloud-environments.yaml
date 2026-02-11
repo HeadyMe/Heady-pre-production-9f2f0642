@@ -1,0 +1,42 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/cloud-environments.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Heady Cloud Environments Configuration
+# Sacred Geometry v3.0
+
+environments:
+  me:
+    api_endpoint: https://headysystems.com/api
+    manager_endpoint: https://headysystems.com/manager
+    registry_endpoint: https://headysystems.com/registry
+    deployment_strategy: balanced
+    resource_profile: standard
+    scaling_policy: auto
+    
+  sys:
+    api_endpoint: https://headysystems.com/api
+    manager_endpoint: https://headysystems.com/manager
+    registry_endpoint: https://headysystems.com/registry
+    deployment_strategy: fast_parallel
+    resource_profile: high
+    scaling_policy: aggressive
+    
+  conn:
+    api_endpoint: https://headysystems.com/api
+    manager_endpoint: https://headysystems.com/manager
+    registry_endpoint: https://headysystems.com/registry
+    deployment_strategy: thorough
+    resource_profile: standard
+    scaling_policy: conservative

@@ -80,6 +80,16 @@ function initializeSubsystems(configs = {}) {
     },
   });
 
+  // Enforce 100% service utilization
+  function initializeAllServices() {
+    const services = ['jules', 'perplexity', 'observer', 'sync', 'pqc'];
+    services.forEach(service => {
+      enableService(service, true); // Force enable all services
+    });
+  }
+
+  initializeAllServices();
+
   return { supervisor, brain, checkpointAnalyzer, readinessEvaluator, healthRunner };
 }
 

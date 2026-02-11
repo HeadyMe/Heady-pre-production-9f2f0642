@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:basic": "cross-env PROFILE=basic vite build",
+    "build:standard": "cross-env PROFILE=standard vite build",
+    "build:premium": "cross-env PROFILE=premium vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix"
   },
@@ -20,6 +23,9 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
+    "cross-env": "^7.0.3",
+    "electron": "^40.2.1",
+    "electron-builder": "^26.7.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "vite": "^5.3.1"

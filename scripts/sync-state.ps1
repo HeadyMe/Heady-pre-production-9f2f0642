@@ -19,12 +19,25 @@
 Synchronizes HeadyBuddy state across all devices
 #>
 
-$API_URL = "http://localhost:3300/api/buddy/state"
+param (
+    [string]$env = "production"
+)
+
+$API_URL = "https://api.headysystems.com/api/sync"
 $DEVICES = @("WindowsPC", "OnePlusOpen", "LinuxWorkstation")
+$ip = "172.217.0.1"
 
 foreach ($device in $DEVICES) {
     try {
-        $state = Invoke-RestMethod -Uri "$API_URL?device=$device" -Method Get
+        $uri = "https://api.heady.systems/api/sync/$device"
+        try {
+            $state = Invoke-RestMethod -Uri $uri -Method Get
+        }
+        catch {
+            Write-Warning "DNS failed, falling back to IP address"
+            $uri = "https://$ip/api/sync/$device"
+            $state = Invoke-RestMethod -Uri $uri -Method Get
+        }
         Write-Host "Fetched state from $device"
         
         # Merge states (simplified example)
@@ -38,6 +51,8 @@ foreach ($device in $DEVICES) {
             -ContentType "application/json"
     }
     catch {
-        Write-Warning "Failed to sync $device: $_"
+        Write-Warning "Failed to sync ${device}: $_"
     }
 }
+
+Write-Host "State sync completed for environment: $env" -ForegroundColor Green

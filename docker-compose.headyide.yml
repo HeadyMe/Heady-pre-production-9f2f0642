@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  headyide:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3400:3400"
+    environment:
+      - NODE_ENV=production
+      - API_BASE=https://api.headyio.com
+    command: npm run dev
+
+  # For production use:
+  # headyide-prod:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.headyide
+  #   ports:
+  #     - "3400:3400"
+  #   restart: unless-stopped
+networks:
+  heady-net:
+    driver: bridge
+    name: heady-net
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+    driver_opts:
+      com.docker.network.bridge.name: heady-br0
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.driver.mtu: "1500"
+    labels:
+      - "com.heady.network=headyide"
+      - "com.heady.environment=${NODE_ENV:-production}"
+
+volumes:
+  headyide-data:
+    driver: local
+    name: headyide-data
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HEADYIDE_DATA_PATH:-./.headyide-data}
+    labels:
+      - "com.heady.volume=data"
+      - "com.heady.service=headyide"
+      - "com.heady.backup=important"
+  headyide-cache:
+    driver: local
+    name: headyide-cache
+    labels:
+      - "com.heady.volume=cache"
+      - "com.heady.service=headyide"
+  headyide-logs:
+    driver: local
+    name: headyide-logs
+    labels:
+      - "com.heady.volume=logs"
+      - "com.heady.service=headyide"
+  headyide-config:
+    driver: local
+    name: headyide-config
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HEADYIDE_CONFIG_PATH:-./configs/headyide}
+    labels:
+      - "com.heady.volume=config"
+      - "com.heady.service=headyide"
+  headyide-extensions:
+    driver: local
+    name: headyide-extensions
+    labels:
+      - "com.heady.volume=extensions"
+      - "com.heady.service=headyide"
+  headyide-workspace:
+    driver: local
+    name: headyide-workspace
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HEADYIDE_WORKSPACE_PATH:-./workspace}
+    labels:
+      - "com.heady.volume=workspace"
+      - "com.heady.service=headyide"
+      - "com.heady.backup=critical"
+  headyide-node-modules:
+    driver: local
+    name: headyide-node-modules
+    labels:
+      - "com.heady.volume=dependencies"
+      - "com.heady.service=headyide"
+  headyide-build:
+    driver: local
+    name: headyide-build
+    labels:
+      - "com.heady.volume=build"
+      - "com.heady.service=headyide"
+  headyide-tmp:
+    driver: local
+    name: headyide-tmp
+    labels:
+      - "com.heady.volume=temporary"
+      - "com.heady.service=headyide"

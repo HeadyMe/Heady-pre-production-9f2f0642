@@ -35,12 +35,38 @@ Third-party domains are strictly prohibited:
 - `*.herokuapp.com`
 - `*.firebaseapp.com`
 
+## Strictly Banned Patterns
+- Third-party domains: .onrender.com, .vercel.app, .netlify.app
+- Windows drive paths: C:\, F:\, etc.
+- Raw IP addresses
+- .onrender.com
+- Drive letters (e.g. C:, F:)
+
 ## Migration Procedure
 1. Inventory all assets with `scripts/localhost-to-domain.js inventory`
-2. Apply replacements using mapping table
+2. Apply replacements using the [mapping table](#replacement-mapping-table) via `scripts/localhost-to-domain.js migrate`
 3. Validate with `scripts/validate-localhost.sh`
+
+## Replacement Mapping Table
+
+| Original Pattern                          | Replacement                                 | Context               |
+| :---------------------------------------- | :------------------------------------------ | :-------------------- |
+| `C:\Users\eric\...`                       | `HEADY_PROJECT_ROOT`                        | Dev-only docs         |
+| `F:\...`                                  | `HEADY_DATA_ROOT`                           | Dev-only docs         |
+| `heady-manager-headysystems.onrender.com` | `https://api.app.headysystems.com`          | Public/prod docs      |
+| `heady-manager-headyme.onrender.com`      | `https://api.app.headysystems.com/me`       | User personal area    |
+| `heady-manager-headyconnection.onrender.com` | `https://api.app.headyconnection.org`     | Cross-system bridge   |
+
+## Enforcement Rules
+Violations are critical defects that block deployment. Founder-level approval required for exceptions.
 
 ## Enforcement
 - CI blocks builds containing localhost/private IPs
 - Quarterly naming audits
 - Documentation guardians review all naming changes
+
+## Enhanced Enforcement
+
+- Extend CI checks to block builds containing .onrender.com, .vercel.app, etc. and Windows drive paths
+- Update pre-commit hooks to include the new banned patterns
+- Treat any violation as a critical defect that blocks deployment

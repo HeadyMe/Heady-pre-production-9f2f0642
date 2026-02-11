@@ -1,0 +1,12 @@
+[Unit]
+Description=Heady Auto-Deploy Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/pwsh -File /opt/heady/scripts/auto-deploy-mtls.ps1
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

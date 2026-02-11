@@ -55,8 +55,8 @@ cp .env.example .env
 npm start  # or node heady-manager.js
 
 # Access interfaces
-# Main UI: http://localhost:3300
-# Admin UI: http://localhost:3300/admin
+# Main UI: https://app.headysystems.com:3300
+# Admin UI: https://app.headysystems.com:3300/admin
 ```
 
 ### Testing
@@ -202,3 +202,8 @@ git push --force-with-lease
 
 # Or if on main, just push normally
 git push origin main
+
+
+
+
+

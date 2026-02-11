@@ -1,0 +1,178 @@
+name = "heady-auth-gateway-prod-worker"
+main = "src/index.ts"
+compatibility_date = "2026-02-09"
+
+[env.production]
+workers_dev = true
+route = "api.headyconnection.org/*"
+[vars]
+HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}"
+ADMIN_TOKEN = "{{ secrets.ADMIN_TOKEN }}"
+RENDER_API_KEY = "{{ secrets.RENDER_API_KEY }}"
+HF_TOKEN = "{{ secrets.HF_TOKEN }}"
+DATABASE_URL = "{{ secrets.DATABASE_URL }}"
+REDIS_URL = "{{ secrets.REDIS_URL }}"
+REDIS_PASSWORD = "{{ secrets.REDIS_PASSWORD }}"
+NODE_ENV = "production"
+LOG_LEVEL = "warn"
+GATEWAY_VERSION = "3.0.0"
+MAX_REQUEST_SIZE = "10485760"
+CORS_ORIGINS = "*"
+REQUEST_TIMEOUT = "30000"
+ENABLE_METRICS = "true"
+ENABLE_TRACING = "true"
+HEALTH_CHECK_INTERVAL = "60000"
+MAX_CONCURRENT_REQUESTS = "1000"
+CIRCUIT_BREAKER_THRESHOLD = "50"
+CIRCUIT_BREAKER_TIMEOUT = "30000"
+RETRY_ATTEMPTS = "3"
+RETRY_BACKOFF = "exponential"
+CACHE_TTL = "3600"
+ENABLE_COMPRESSION = "true"
+MIN_COMPRESSION_SIZE = "1024"
+ENABLE_WEBSOCKETS = "true"
+WEBSOCKET_TIMEOUT = "300000"
+ENABLE_RATE_LIMITING = "true"
+RATE_LIMIT_WINDOW = "60000"
+RATE_LIMIT_MAX_REQUESTS = "100"
+ENABLE_DDOS_PROTECTION = "true"
+ENABLE_REQUEST_DEDUPLICATION = "true"
+ENABLE_IDEMPOTENCY_KEYS = "true"
+CONNECTION_POOL_MAX = "20"
+GRACEFUL_SHUTDOWN_TIMEOUT = "10000"
+MEMORY_LEAK_DETECTION = "true"
+AUTO_RESTART_ON_LEAK = "true"
+ENABLE_REQUEST_VALIDATION = "true"
+ENABLE_RESPONSE_CACHING = "true"
+ENABLE_API_VERSIONING = "true"
+API_VERSION_HEADER = "X-API-Version"
+ENABLE_AUDIT_LOGGING = "true"
+ENABLE_SECURITY_HEADERS = "true"
+ENABLE_CSRF_PROTECTION = "true"
+JWT_EXPIRY = "3600"
+REFRESH_TOKEN_EXPIRY = "604800"
+ENABLE_2FA = "false"
+PASSWORD_MIN_LENGTH = "8"
+MAX_LOGIN_ATTEMPTS = "5"
+LOCKOUT_DURATION = "900"
+
+[[kv_namespaces]]
+binding = "GATEWAY_CACHE"
+id = "gateway-cache-kv-prod"
+preview_id = "gateway-cache-kv-preview"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "rate-limit-kv-prod"
+preview_id = "rate-limit-kv-preview"
+
+[[kv_namespaces]]
+binding = "SESSION_STORE"
+id = "session-store-kv-prod"
+preview_id = "session-store-kv-preview"
+
+[[kv_namespaces]]
+binding = "FEATURE_FLAGS"
+id = "feature-flags-kv-prod"
+preview_id = "feature-flags-kv-preview"
+
+[[kv_namespaces]]
+binding = "API_KEYS"
+id = "api-keys-kv-prod"
+preview_id = "api-keys-kv-preview"
+
+[[kv_namespaces]]
+binding = "AUDIT_LOGS"
+id = "audit-logs-kv-prod"
+preview_id = "audit-logs-kv-preview"
+
+[[kv_namespaces]]
+binding = "CIRCUIT_BREAKER_STATE"
+id = "circuit-breaker-kv-prod"
+preview_id = "circuit-breaker-kv-preview"
+
+[[kv_namespaces]]
+binding = "USER_SESSIONS"
+id = "user-sessions-kv-prod"
+preview_id = "user-sessions-kv-preview"
+
+[[kv_namespaces]]
+binding = "REQUEST_CACHE"
+id = "request-cache-kv-prod"
+preview_id = "request-cache-kv-preview"
+
+[[r2_buckets]]
+binding = "GATEWAY_LOGS"
+bucket_name = "heady-gateway-logs-prod"
+preview_bucket_name = "heady-gateway-logs-preview"
+
+[[r2_buckets]]
+binding = "GATEWAY_BACKUPS"
+bucket_name = "heady-gateway-backups-prod"
+preview_bucket_name = "heady-gateway-backups-preview"
+
+[[r2_buckets]]
+binding = "STATIC_ASSETS"
+bucket_name = "heady-gateway-assets-prod"
+preview_bucket_name = "heady-gateway-assets-preview"
+
+[[r2_buckets]]
+binding = "UPLOAD_STORAGE"
+bucket_name = "heady-gateway-uploads-prod"
+preview_bucket_name = "heady-gateway-uploads-preview"
+
+[[analytics_engine_datasets]]
+binding = "GATEWAY_ANALYTICS"
+
+[[analytics_engine_datasets]]
+binding = "ERROR_ANALYTICS"
+
+[[analytics_engine_datasets]]
+binding = "PERFORMANCE_METRICS"
+
+[[analytics_engine_datasets]]
+binding = "SECURITY_EVENTS"
+
+[[analytics_engine_datasets]]
+binding = "USER_BEHAVIOR"
+
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+script_name = "heady-auth-gateway-prod-worker"
+
+[[durable_objects.bindings]]
+name = "SESSION_MANAGER"
+class_name = "SessionManager"
+script_name = "heady-auth-gateway-prod-worker"
+
+[[durable_objects.bindings]]
+name = "CIRCUIT_BREAKER"
+class_name = "CircuitBreaker"
+script_name = "heady-auth-gateway-prod-worker"
+
+[[durable_objects.bindings]]
+name = "REQUEST_DEDUPLICATOR"
+class_name = "RequestDeduplicator"
+script_name = "heady-auth-gateway-prod-worker"
+
+[observability]
+enabled = true
+head_sampling_rate = 1.0
+
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "service-worker"
+
+[limits]
+cpu_ms = 50
+
+[triggers]
+crons = ["0 */6 * * *", "*/15 * * * *", "0 0 * * *"]
+
+[unsafe]
+bindings = [
+  { name = "POSTGRES_DB", type = "hyperdrive", id = "heady-postgres-hyperdrive" }
+]

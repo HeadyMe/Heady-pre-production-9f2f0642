@@ -406,7 +406,7 @@ trap {
     # Alert the user
     Write-Host ""
     Write-Status "🔔 ALERT: Build requires manual intervention" "Magenta"
-    Write-Status "Check logs and fix the issue before retrying" "Yellow"
+    Write-Status "Check logs and fix the issue before retrying." "Yellow"
     
     exit 1
 }

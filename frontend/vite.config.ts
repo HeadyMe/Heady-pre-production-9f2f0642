@@ -16,13 +16,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+// Removed vite-plugin-obfuscator due to build errors
+
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 3001,
-    proxy: {
-      "/api": "http://localhost:3300",
-    },
   },
   build: {
     outDir: "dist",

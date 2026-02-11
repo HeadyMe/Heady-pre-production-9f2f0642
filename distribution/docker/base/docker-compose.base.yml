@@ -106,7 +106,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://manager.dev.local.heady.internal:3300}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://api:3300}
     networks:
       - heady-network
     profiles:
@@ -114,8 +114,8 @@ services:
       - saas
       - full
 
-  # Heady Browser
-  heady-browser:
+  # HeadyWeb
+  heady-web-app:
     build:
       context: ../../..
       dockerfile: distribution/docker/base/browser.Dockerfile

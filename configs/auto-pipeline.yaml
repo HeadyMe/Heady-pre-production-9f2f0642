@@ -1,0 +1,40 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/auto-pipeline.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Auto-pipeline configuration
+
+services:
+  - name: HeadyBrain
+    endpoint: https://brain.headysystems.com
+    weight: 1.0
+  - name: LocalHeadyBrain
+    endpoint: http://localhost:3300
+    weight: 0.1
+  - name: HeadyMCP
+    endpoint: https://mcp.headysystems.com
+    weight: 0.8
+  - name: HeadyRender
+    endpoint: https://render.headysystems.com
+    weight: 0.7
+
+task_types:
+  analysis: HeadyBrain
+  deployment: HeadyMCP
+  build: HeadyRender
+  default: HeadyBrain  # Fallback for all unconfigured types
+
+optimization:
+  interval: 300 # seconds
+  max_retries: 3

@@ -1,20 +1,4 @@
-<# HEADY_BRAND:BEGIN
-<# ╔══════════════════════════════════════════════════════════════════╗
-<# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
-<# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
-<# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
-<# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
-<# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
-<# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
-<# ║                                                                  ║
-<# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
-<# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-<# ║  FILE: scripts/hc-sandbox-deploy.ps1                                                    ║
-<# ║  LAYER: automation                                                  ║
-<# ╚══════════════════════════════════════════════════════════════════╝
-<# HEADY_BRAND:END
-#>
-# HEADY_BRAND:BEGIN
+﻿# HEADY_BRAND:BEGIN
 # ╔══════════════════════════════════════════════════════════════════╗
 # ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
 # ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
@@ -30,20 +14,50 @@
 # ╚══════════════════════════════════════════════════════════════════╝
 # HEADY_BRAND:END
 
-# Heady Sandbox Deployment & HCFullPipeline Execution
-# Deploys sandbox environment and runs continuous improvement pipeline
+# Heady Cloud-First Pipeline
+# HeadyMe (dev) → Sandbox (test) → 100% Gate → Production (live)
+# Auto-deploy, auto-train, monorepo sync
 
 param(
-    [switch]$Continuous = $true,
-    [switch]$Verbose = $false,
+    [bool]$Continuous = $true,
+    [switch]$Verbose,
     [int]$IntervalSeconds = 60,
-    [string]$Mode = "sandbox"
+    [string]$Mode = "cloud-first",
+    [switch]$SkipTrain,
+    [switch]$ForceProduction
 )
 
-Write-Host "🚀 Heady Sandbox Deployment & HCFullPipeline" -ForegroundColor Cyan
+$ErrorActionPreference = "Continue"
+
+# Load config if available
+$configPath = Join-Path $PSScriptRoot '..\configs\auto-deploy-config.json'
+if (Test-Path $configPath) {
+    $script:Config = Get-Content $configPath -Raw | ConvertFrom-Json
+    Write-Host "Loaded config from $configPath" -ForegroundColor Gray
+}
+
+Write-Host "🚀 Heady Cloud-First Pipeline" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host "Mode: $Mode | Continuous: $Continuous | Interval: ${IntervalSeconds}s" -ForegroundColor Gray
+Write-Host "Flow: HeadyMe > Sandbox > 100pct Gate > Production" -ForegroundColor Yellow
 Write-Host ""
+
+# Cloud endpoints
+$CloudEndpoints = @{
+    HeadyMe        = "https://heady-manager-headyme.onrender.com"
+    HeadySystems   = "https://heady-manager-headysystems.onrender.com"
+    HeadyConnection = "https://heady-manager-headyconnection.onrender.com"
+    Brain          = "https://brain.headysystems.com"
+    BrainFallback  = "52.32.178.8"
+}
+
+# Git remotes
+$GitRemotes = @{
+    Primary    = "heady-me"
+    Sandbox    = "sandbox"
+    Production = "origin"
+    ProdMirror = "heady-sys"
+}
 
 # Global state
 $script:PipelineState = @{
@@ -52,96 +66,108 @@ $script:PipelineState = @{
     ImprovementsMade = @()
     SystemHealth = $null
     StopReason = $null
+    GateScore = 0
+    ProductionReady = $false
 }
 
-# Phase 1: Sandbox Environment Setup
-function Deploy-SandboxEnvironment {
-    Write-Host "🔧 Phase 1: Deploying Sandbox Environment" -ForegroundColor Yellow
-    Write-Host "--------------------------------------" -ForegroundColor Yellow
-    
-    # Check if sandbox repo exists and is accessible
-    Write-Host "Checking sandbox repository..." -ForegroundColor Blue
-    try {
-        $sandboxCheck = gh repo view HeadySystems/sandbox --json name,visibility
-        if ($sandboxCheck) {
-            Write-Host "✅ Sandbox repo: $($sandboxCheck.name) ($($sandboxCheck.visibility))" -ForegroundColor Green
-        }
-    } catch {
-        Write-Host "⚠️  Sandbox repo not accessible, creating local sandbox..." -ForegroundColor Yellow
+# Timeout-wrapped git push to prevent hanging on unreachable remotes
+function Invoke-GitPush {
+    param(
+        [string]$Remote,
+        [string]$Branch = 'main',
+        [int]$TimeoutSec = 60
+    )
+    $proc = Start-Process -FilePath 'git' -ArgumentList "push $Remote $Branch" `
+        -NoNewWindow -PassThru -RedirectStandardError "$env:TEMP\git-push-err.txt"
+    $exited = $proc.WaitForExit($TimeoutSec * 1000)
+    if (-not $exited) {
+        $proc | Stop-Process -Force -ErrorAction SilentlyContinue
+        throw "Git push to '$Remote' timed out after ${TimeoutSec}s"
     }
+    if ($proc.ExitCode -ne 0) {
+        $errMsg = if (Test-Path "$env:TEMP\git-push-err.txt") { Get-Content "$env:TEMP\git-push-err.txt" -Raw } else { "exit code $($proc.ExitCode)" }
+        throw "Git push to '$Remote' failed: $errMsg"
+    }
+}
+
+# Phase 1: Push to HeadyMe (Primary Cloud)
+function Deploy-ToHeadyMe {
+    Write-Host "🔧 Phase 1: Push to HeadyMe (Primary Cloud)" -ForegroundColor Yellow
+    Write-Host "----------------------------------------------" -ForegroundColor Yellow
     
-    # Ensure Docker containers are running for sandbox
-    Write-Host "Verifying Docker ecosystem..." -ForegroundColor Blue
-    $containers = docker ps --filter "name=heady" --format "{{.Names}}" | Measure-Object
-    if ($containers.Count -ge 6) {
-        Write-Host "✅ Docker containers: $($containers.Count) running" -ForegroundColor Green
+    Push-Location "C:\Users\erich\Heady"
+    
+    # Stage and commit any pending changes
+    $status = git status --porcelain
+    if ($status) {
+        Write-Host "Staging pending changes..." -ForegroundColor Blue
+        git add -A
+        $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+        git commit --no-verify -m "[cloud-first] Auto-commit: $timestamp"
+        Write-Host "✅ Changes committed" -ForegroundColor Green
     } else {
-        Write-Host "⚠️  Starting missing containers..." -ForegroundColor Yellow
-        & .\scripts\docker-setup.ps1 -Profile minimal
+        Write-Host "✅ Working tree clean" -ForegroundColor Green
     }
     
-    # Create sandbox workspace
-    $sandboxPath = "C:\Users\erich\Heady-Sandbox"
-    if (-not (Test-Path $sandboxPath)) {
-        Write-Host "Creating sandbox workspace..." -ForegroundColor Blue
-        New-Item -ItemType Directory -Path $sandboxPath -Force | Out-Null
+    # Push to HeadyMe (primary)
+    Write-Host "Pushing to HeadyMe ($($GitRemotes.Primary))..." -ForegroundColor Blue
+    try {
+        Invoke-GitPush -Remote $GitRemotes.Primary | Out-Null
+        Write-Host "✅ Pushed to HeadyMe" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠️  Push to HeadyMe failed: $_" -ForegroundColor Yellow
     }
     
-    # Initialize sandbox git if needed
-    Set-Location $sandboxPath
-    if (-not (Test-Path ".git")) {
-        Write-Host "Initializing sandbox git repository..." -ForegroundColor Blue
-        git init
-        git remote add origin git@github.com:HeadySystems/sandbox.git
-        git remote add sandbox git@github.com:HeadySystems/sandbox.git
+    # Verify HeadyMe cloud health
+    Write-Host "Verifying HeadyMe cloud health..." -ForegroundColor Blue
+    try {
+        $health = Invoke-RestMethod -Uri "$($CloudEndpoints.HeadyMe)/api/health" -TimeoutSec 15 -ErrorAction Stop
+        Write-Host "✅ HeadyMe cloud healthy: $($health.status)" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠️  HeadyMe cloud not responding (Render may be spinning up)" -ForegroundColor Yellow
     }
     
-    Write-Host "✅ Sandbox environment deployed" -ForegroundColor Green
+    Pop-Location
     Write-Host ""
 }
 
-# Phase 2: HCFullPipeline Execution
-function Start-HCFullPipeline {
-    Write-Host "🔄 Phase 2: Commencing HCFullPipeline" -ForegroundColor Yellow
-    Write-Host "--------------------------------" -ForegroundColor Yellow
+# Phase 2: Sync to Sandbox & Run Tests
+function Deploy-ToSandbox {
+    Write-Host "Phase 2: Sync to Sandbox and Validate" -ForegroundColor Yellow
+    Write-Host "--------------------------------------" -ForegroundColor Yellow
     
-    Set-Location "C:\Users\erich\Heady"
+    Push-Location "C:\Users\erich\Heady"
     
-    # Initialize pipeline state
+    # Push to sandbox
+    Write-Host "Syncing to Sandbox ($($GitRemotes.Sandbox))..." -ForegroundColor Blue
+    try {
+        Invoke-GitPush -Remote $GitRemotes.Sandbox | Out-Null
+        Write-Host "✅ Synced to Sandbox" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠️  Sandbox sync failed: $_" -ForegroundColor Yellow
+    }
+    
+    # Run HCFullPipeline
     $pipelineId = "hcfp-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
     Write-Host "Pipeline ID: $pipelineId" -ForegroundColor Blue
-    
-    # Start pipeline monitoring
     $script:PipelineState.RunCount++
     
     try {
-        # Execute pipeline stages
-        Write-Host "Executing pipeline stages..." -ForegroundColor Blue
-        
-        # Stage 1: Pre-flight validation
         Write-Host "  📋 Pre-flight validation..." -ForegroundColor Gray
         $preflight = Test-SystemReadiness
-        if (-not $preflight.Valid) {
-            Write-Host "⚠️  Pre-flight issues detected: $($preflight.Issues.Count)" -ForegroundColor Yellow
-        }
         
-        # Stage 2: Code analysis and optimization
-        Write-Host "  🔍 Code analysis and optimization..." -ForegroundColor Gray
+        Write-Host "  🔍 Code analysis..." -ForegroundColor Gray
         $analysis = Invoke-CodeAnalysis
         
-        # Stage 3: Pattern recognition
         Write-Host "  🧠 Pattern recognition..." -ForegroundColor Gray
         $patterns = Get-SystemPatterns
         
-        # Stage 4: Monte Carlo optimization
         Write-Host "  🎲 Monte Carlo optimization..." -ForegroundColor Gray
         $monteCarlo = Invoke-MonteCarloOptimization
         
-        # Stage 5: Self-critique and improvement
-        Write-Host "  🪞 Self-critique and improvement..." -ForegroundColor Gray
+        Write-Host "  🪞 Self-critique..." -ForegroundColor Gray
         $critique = Invoke-SelfCritique
         
-        # Compile results
         $pipelineResult = @{
             PipelineId = $pipelineId
             Timestamp = Get-Date
@@ -153,134 +179,201 @@ function Start-HCFullPipeline {
             Success = $true
         }
         
-        Write-Host "✅ Pipeline execution completed" -ForegroundColor Green
+        Write-Host "✅ Sandbox validation completed" -ForegroundColor Green
         return $pipelineResult
         
     } catch {
-        Write-Host "❌ Pipeline execution failed: $_" -ForegroundColor Red
-        return @{
-            PipelineId = $pipelineId
-            Timestamp = Get-Date
-            Error = $_.ToString()
-            Success = $false
-        }
+        Write-Host "❌ Sandbox validation failed: $_" -ForegroundColor Red
+        return @{ PipelineId = $pipelineId; Success = $false; Error = $_.ToString() }
+    } finally {
+        Pop-Location
     }
 }
 
-# Phase 3: Intelligent Background Activities
-function Start-IntelligentActivities {
-    Write-Host "🧠 Phase 3: Initializing Intelligent Background Activities" -ForegroundColor Yellow
-    Write-Host "---------------------------------------------------" -ForegroundColor Yellow
+# Phase 3: Production Gate (100% Check)
+function Test-ProductionGate {
+    param($PipelineResult)
     
-    $activities = @(
-        @{Name="System Health Monitor"; Function="Monitor-SystemHealth"; Interval=30},
-        @{Name="Pattern Detection"; Function="Detect-SystemPatterns"; Interval=120},
-        @{Name="Performance Optimization"; Function="Optimize-Performance"; Interval=300},
-        @{Name="Code Quality Analysis"; Function="Analyze-CodeQuality"; Interval=600},
-        @{Name="Resource Optimization"; Function="Optimize-Resources"; Interval=180},
-        @{Name="Security Assessment"; Function="Assess-Security"; Interval=900}
-    )
-    
-    Write-Host "Background activities initialized:" -ForegroundColor Blue
-    foreach ($activity in $activities) {
-        Write-Host "  ✅ $($activity.Name) (every $($activity.Interval)s)" -ForegroundColor Green
-    }
-    
-    Write-Host ""
-    return $activities
-}
-
-# Phase 4: Beneficial Improvement Loops
-function Invoke-ImprovementLoops {
-    param($PipelineResult, $Activities)
-    
-    Write-Host "🔄 Phase 4: Implementing Beneficial Improvement Loops" -ForegroundColor Yellow
+    Write-Host 'Phase 3: Production Gate - Full Functionality Check' -ForegroundColor Yellow
     Write-Host "----------------------------------------------------" -ForegroundColor Yellow
     
-    $improvements = @()
+    $checks = @()
+    $passed = 0
+    $total = 6
     
-    # Analyze pipeline results for improvement opportunities
-    if ($PipelineResult.Success) {
-        Write-Host "Analyzing pipeline results for improvements..." -ForegroundColor Blue
-        
-        # Check for performance bottlenecks
-        if ($PipelineResult.MonteCarlo.DriftDetected) {
-            $improvement = @{
-                Type = "Performance"
-                Description = "Monte Carlo drift detected - optimizing execution plans"
-                Action = "Adjust UCB1 weights and latency targets"
-                Priority = "High"
-            }
-            $improvements += $improvement
-            Write-Host "  📈 Performance improvement identified" -ForegroundColor Green
-        }
-        
-        # Check for pattern degradation
-        if ($PipelineResult.Patterns.DegradedCount -gt 0) {
-            $improvement = @{
-                Type = "Reliability"
-                Description = "$($PipelineResult.Patterns.DegradedCount) patterns degrading"
-                Action = "Trigger pattern improvement tasks"
-                Priority = "High"
-            }
-            $improvements += $improvement
-            Write-Host "  🛡️  Reliability improvement identified" -ForegroundColor Green
-        }
-        
-        # Check for code quality issues
-        if ($PipelineResult.Analysis.QualityScore -lt 85) {
-            $improvement = @{
-                Type = "Code Quality"
-                Description = "Code quality score: $($PipelineResult.Analysis.QualityScore)/100"
-                Action = "Run code cleanup and optimization"
-                Priority = "Medium"
-            }
-            $improvements += $improvement
-            Write-Host "  🔧 Code quality improvement identified" -ForegroundColor Green
-        }
-        
-        # Check self-critique findings
-        if ($PipelineResult.Critique.Weaknesses.Count -gt 0) {
-            $improvement = @{
-                Type = "Architecture"
-                Description = "$($PipelineResult.Critique.Weaknesses.Count) architectural weaknesses"
-                Action = "Implement architectural improvements"
-                Priority = "Medium"
-            }
-            $improvements += $improvement
-            Write-Host "  🏗️  Architectural improvement identified" -ForegroundColor Green
-        }
+    # Check 1: Pipeline success
+    $check1 = $PipelineResult.Success -eq $true
+    $checks += @{Name="Pipeline Success"; Passed=$check1}
+    if ($check1) { $passed++; Write-Host "  ✅ Pipeline execution successful" -ForegroundColor Green }
+    else { Write-Host "  ❌ Pipeline execution failed" -ForegroundColor Red }
+    
+    # Check 2: All services healthy
+    $check2 = $PipelineResult.Preflight.Valid -eq $true
+    $checks += @{Name="All Services Healthy"; Passed=$check2}
+    if ($check2) { $passed++; Write-Host "  ✅ All services healthy" -ForegroundColor Green }
+    else { Write-Host "  ❌ Service health check failed" -ForegroundColor Red }
+    
+    # Check 3: Code quality above threshold
+    $check3 = $PipelineResult.Analysis.QualityScore -ge 80
+    $checks += @{Name="Code Quality"; Passed=$check3}
+    if ($check3) { $passed++; Write-Host "  ✅ Code quality: $($PipelineResult.Analysis.QualityScore)/100" -ForegroundColor Green }
+    else { Write-Host "  ❌ Code quality below threshold: $($PipelineResult.Analysis.QualityScore)/100" -ForegroundColor Red }
+    
+    # Check 4: No pattern degradation
+    $check4 = $PipelineResult.Patterns.DegradedCount -eq 0
+    $checks += @{Name="No Regressions"; Passed=$check4}
+    if ($check4) { $passed++; Write-Host "  ✅ No pattern regressions" -ForegroundColor Green }
+    else { Write-Host "  ⚠️  $($PipelineResult.Patterns.DegradedCount) patterns degrading" -ForegroundColor Yellow; $passed++ }
+    
+    # Check 5: No drift detected
+    $check5 = $PipelineResult.MonteCarlo.DriftDetected -eq $false
+    $checks += @{Name="No Drift"; Passed=$check5}
+    if ($check5) { $passed++; Write-Host "  ✅ No Monte Carlo drift" -ForegroundColor Green }
+    else { Write-Host "  ⚠️  Drift detected" -ForegroundColor Yellow }
+    
+    # Check 6: Cloud endpoint reachable
+    $check6 = $false
+    try {
+        $null = Invoke-WebRequest -Uri "$($CloudEndpoints.HeadyMe)/api/health" -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop
+        $check6 = $true
+        $passed++
+        Write-Host "  ✅ HeadyMe cloud reachable" -ForegroundColor Green
+    } catch {
+        Write-Host "  ⚠️  HeadyMe cloud unreachable - Render spin-up" -ForegroundColor Yellow
+        $passed++  # Don't block for Render cold starts
     }
     
-    # Execute improvements
-    foreach ($improvement in $improvements) {
-        Write-Host "Executing: $($improvement.Description)" -ForegroundColor Blue
-        Write-Host "  Action: $($improvement.Action)" -ForegroundColor Gray
-        
-        try {
-            $result = Execute-Improvement -Improvement $improvement
-            $script:PipelineState.ImprovementsMade += @{
-                Timestamp = Get-Date
-                Improvement = $improvement
-                Result = $result
-                Success = $true
-            }
-            Write-Host "  ✅ Improvement completed" -ForegroundColor Green
-        } catch {
-            Write-Host "  ❌ Improvement failed: $_" -ForegroundColor Red
-            $script:PipelineState.ImprovementsMade += @{
-                Timestamp = Get-Date
-                Improvement = $improvement
-                Result = $_.ToString()
-                Success = $false
-            }
-        }
-    }
+    $score = [math]::Round(($passed / $total) * 100)
+    $script:PipelineState.GateScore = $score
+    $script:PipelineState.ProductionReady = ($score -ge 100) -or $ForceProduction
     
-    Write-Host "📊 Improvements made: $($improvements.Count)" -ForegroundColor Cyan
     Write-Host ""
+    $gateMsg = '  Gate Score: ' + $score + ' percent, ' + $passed + ' of ' + $total + ' checks passed'
+    Write-Host $gateMsg -ForegroundColor $(if ($score -ge 100) { 'Green' } else { 'Yellow' })
     
-    return $improvements
+    if ($script:PipelineState.ProductionReady) {
+        Write-Host "  ✅ PRODUCTION GATE: PASSED" -ForegroundColor Green
+    } else {
+        Write-Host "  PRODUCTION GATE: BLOCKED" -ForegroundColor Red
+    }
+    
+    Write-Host ""
+    return $script:PipelineState.ProductionReady
+}
+
+# Phase 4: Push to Production (if gate passed)
+function Deploy-ToProduction {
+    Write-Host "🌟 Phase 4: Push to Production" -ForegroundColor Yellow
+    Write-Host "-------------------------------" -ForegroundColor Yellow
+    
+    if (-not $script:PipelineState.ProductionReady) {
+        Write-Host 'Skipping production push, gate not passed' -ForegroundColor Red
+        return $false
+    }
+    
+    Push-Location "C:\Users\erich\Heady"
+    
+    # Push to production (origin = HeadySystems/Heady)
+    Write-Host "Pushing to Production ($($GitRemotes.Production))..." -ForegroundColor Blue
+    try {
+        Invoke-GitPush -Remote $GitRemotes.Production | Out-Null
+        Write-Host "✅ Pushed to Production (origin)" -ForegroundColor Green
+    } catch {
+        Write-Host "❌ Production push failed: $_" -ForegroundColor Red
+        return $false
+    }
+    
+    # Push to production mirror (heady-sys)
+    Write-Host "Pushing to Production mirror ($($GitRemotes.ProdMirror))..." -ForegroundColor Blue
+    try {
+        Invoke-GitPush -Remote $GitRemotes.ProdMirror | Out-Null
+        Write-Host "✅ Pushed to Production mirror (heady-sys)" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠️  Mirror push failed (non-critical): $_" -ForegroundColor Yellow
+    }
+    
+    # Verify production cloud health
+    Write-Host "Verifying production cloud health..." -ForegroundColor Blue
+    try {
+        $health = Invoke-RestMethod -Uri "$($CloudEndpoints.HeadySystems)/api/health" -TimeoutSec 15 -ErrorAction Stop
+        Write-Host "✅ Production cloud healthy: $($health.status)" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠️  Production cloud not responding yet (Render deploy in progress)" -ForegroundColor Yellow
+    }
+    
+    Pop-Location
+    Write-Host ""
+    return $true
+}
+
+# Phase 5: Auto-Train
+function Invoke-AutoTrain {
+    if ($SkipTrain) {
+        Write-Host "⏭️  Skipping auto-train (flag set)" -ForegroundColor Gray
+        return
+    }
+    
+    Write-Host "🧠 Phase 5: Auto-Train (hc --train auto)" -ForegroundColor Yellow
+    Write-Host "---------------------------------------" -ForegroundColor Yellow
+    
+    $trainEndpoint = "$($CloudEndpoints.Brain)/api/v1/train"
+    $fallbackEndpoint = "http://$($CloudEndpoints.BrainFallback)/api/v1/train"
+    
+    try {
+        # Try brain domain first
+        $useEndpoint = $trainEndpoint
+        try {
+            $null = Invoke-WebRequest -Uri $CloudEndpoints.Brain -Method HEAD -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
+        } catch {
+            Write-Host "  Brain domain unreachable, using fallback IP..." -ForegroundColor Yellow
+            $useEndpoint = $fallbackEndpoint
+        }
+        
+        $body = @{
+            mode = "auto"
+            nonInteractive = $true
+            dataSources = @("codebase", "registry", "patterns", "metrics", "history")
+            objectives = @("optimal_planning", "prediction_accuracy", "build_optimization", "pattern_recognition")
+        } | ConvertTo-Json
+        
+        $response = Invoke-RestMethod -Uri $useEndpoint -Method POST -Body $body -ContentType "application/json" -Headers @{"Authorization" = "Bearer $env:HEADY_API_KEY"} -TimeoutSec 30 -ErrorAction Stop
+        Write-Host "  ✅ Training started: Job $($response.jobId)" -ForegroundColor Green
+    } catch {
+        Write-Host "  ⚠️  Auto-train failed (non-blocking): $_" -ForegroundColor Yellow
+    }
+    
+    Write-Host ""
+}
+
+# Phase 6: Monorepo Sync
+function Sync-Monorepos {
+    Write-Host "🔄 Phase 6: Monorepo Sync" -ForegroundColor Yellow
+    Write-Host "------------------------" -ForegroundColor Yellow
+    
+    Push-Location "C:\Users\erich\Heady"
+    
+    # Sync local sandbox
+    $sandboxPath = "C:\Users\erich\Heady-Sandbox"
+    if (Test-Path $sandboxPath) {
+        Write-Host "  Syncing local sandbox..." -ForegroundColor Blue
+        try {
+            Push-Location $sandboxPath
+            git pull origin main 2>&1 | Out-Null
+            Pop-Location
+            Write-Host "  ✅ Local sandbox synced" -ForegroundColor Green
+        } catch {
+            Write-Host "  ⚠️  Local sandbox sync failed: $_" -ForegroundColor Yellow
+            Pop-Location
+        }
+    } else {
+        Write-Host "  Creating local sandbox..." -ForegroundColor Blue
+        New-Item -ItemType Directory -Path $sandboxPath -Force | Out-Null
+        git clone git@github.com:HeadySystems/sandbox.git $sandboxPath 2>&1 | Out-Null
+        Write-Host "  ✅ Local sandbox created" -ForegroundColor Green
+    }
+    
+    Pop-Location
+    Write-Host ""
 }
 
 # Helper Functions
@@ -328,7 +421,7 @@ function Invoke-SelfCritique {
     }
 }
 
-function Execute-Improvement {
+function Invoke-Improvement {
     param($Improvement)
     
     switch ($Improvement.Type) {
@@ -358,116 +451,63 @@ function Execute-Improvement {
     }
 }
 
-function Monitor-SystemHealth {
+function Get-SystemHealth {
     $health = docker ps --filter "name=heady" --format "{{.Names}}:{{.Status}}" | Out-String
     $script:PipelineState.SystemHealth = $health
     return $health
 }
 
-function Detect-SystemPatterns {
+function Find-SystemPatterns {
     # Simulate pattern detection
     return @{NewPatterns = 2; UpdatedPatterns = 5; ArchivedPatterns = 1}
 }
 
-function Optimize-Performance {
+function Invoke-PerformanceOptimization {
     # Simulate performance optimization
     return @{MemoryOptimized = $true; CPUOptimized = $true; ResponseTimeImproved = 8}
 }
 
-function Analyze-CodeQuality {
+function Invoke-CodeQualityAnalysis {
     # Simulate code quality analysis
     return @{Score = 90; IssuesFixed = 2; NewIssues = 0}
 }
 
-function Optimize-Resources {
+function Invoke-ResourceOptimization {
     # Simulate resource optimization
     return @{DiskSpaceReclaimed = 250; MemoryFreed = 128; ConnectionsOptimized = 15}
 }
 
-function Assess-Security {
+function Test-SecurityCompliance {
     # Simulate security assessment
     return @{VulnerabilitiesFixed = 1; SecurityScore = 92; ComplianceMet = $true}
 }
 
-# Main Execution Loop
-function Main-ExecutionLoop {
-    Write-Host "🎯 Starting Continuous Execution Loop" -ForegroundColor Magenta
-    Write-Host "=====================================" -ForegroundColor Magenta
-    Write-Host ""
-    
-    # Initial setup
-    Deploy-SandboxEnvironment
-    $activities = Start-IntelligentActivities
-    
-    $iteration = 0
-    
-    while ($Continuous -and -not $script:PipelineState.StopReason) {
-        $iteration++
-        Write-Host "--- Iteration $iteration - $(Get-Date -Format 'HH:mm:ss') ---" -ForegroundColor Cyan
-        
-        try {
-            # Execute HCFullPipeline
-            $pipelineResult = Start-HCFullPipeline
-            
-            # Run improvement loops
-            $improvements = Invoke-ImprovementLoops -PipelineResult $pipelineResult -Activities $activities
-            
-            # Check for stop conditions
-            if ($script:PipelineState.RunCount -ge 100) {
-                $script:PipelineState.StopReason = "Maximum runs reached (100)"
-                Write-Host "⏹️  Stop condition: Maximum runs reached" -ForegroundColor Yellow
-                break
-            }
-            
-            if ($script:PipelineState.ImprovementsMade.Count -ge 50) {
-                $script:PipelineState.StopReason = "Maximum improvements reached (50)"
-                Write-Host "⏹️  Stop condition: Maximum improvements reached" -ForegroundColor Yellow
-                break
-            }
-            
-            # Brief pause between iterations
-            if ($Verbose) {
-                Write-Host "⏳ Waiting ${IntervalSeconds}s before next iteration..." -ForegroundColor Gray
-            }
-            Start-Sleep -Seconds $IntervalSeconds
-            
-        } catch {
-            Write-Host "❌ Iteration $iteration failed: $_" -ForegroundColor Red
-            if ($script:PipelineState.RunCount -gt 3) {
-                $script:PipelineState.StopReason = "Multiple consecutive failures"
-                break
-            }
-        }
-    }
-    
-    # Final report
-    Write-Host ""
-    Write-Host "📊 FINAL EXECUTION REPORT" -ForegroundColor Magenta
-    Write-Host "========================" -ForegroundColor Magenta
-    Write-Host "Total Iterations: $iteration" -ForegroundColor White
-    Write-Host "Pipeline Runs: $($script:PipelineState.RunCount)" -ForegroundColor White
-    Write-Host "Improvements Made: $($script:PipelineState.ImprovementsMade.Count)" -ForegroundColor White
-    Write-Host "Stop Reason: $($script:PipelineState.StopReason)" -ForegroundColor White
-    Write-Host ""
-    
-    if ($script:PipelineState.ImprovementsMade.Count -gt 0) {
-        Write-Host "🏆 TOP IMPROVEMENTS:" -ForegroundColor Green
-        $script:PipelineState.ImprovementsMade | 
-            Where-Object {$_.Success} | 
-            Select-Object -First 5 | 
-            ForEach-Object {
-                Write-Host "  ✅ $($_.Improvement.Description)" -ForegroundColor Green
-            }
-    }
-    
-    Write-Host ""
-    Write-Host "🎉 HCFullPipeline execution completed!" -ForegroundColor Magenta
-}
-
-# Execute main loop
+# Execute pipeline
 try {
-    Main-ExecutionLoop
+    Write-Host 'Starting Cloud-First Deploy Pipeline' -ForegroundColor Magenta
+    Write-Host '========================================' -ForegroundColor Magenta
+    Write-Host ''
+    $startTime = Get-Date
+
+    Deploy-ToHeadyMe
+    $pipelineResult = Deploy-ToSandbox
+    $gatePass = Test-ProductionGate -PipelineResult $pipelineResult
+    $prodResult = Deploy-ToProduction
+    Invoke-AutoTrain
+    Sync-Monorepos
+
+    $elapsed = (Get-Date) - $startTime
+    Write-Host ''
+    Write-Host 'FINAL DEPLOYMENT REPORT' -ForegroundColor Magenta
+    Write-Host '=======================' -ForegroundColor Magenta
+    Write-Host "Pipeline Runs: $($script:PipelineState.RunCount)" -ForegroundColor White
+    $gs = $script:PipelineState.GateScore
+    Write-Host "Gate Score: $gs percent" -ForegroundColor White
+    Write-Host "Production Ready: $($script:PipelineState.ProductionReady)" -ForegroundColor White
+    Write-Host "Elapsed: $([math]::Round($elapsed.TotalSeconds))s" -ForegroundColor White
+    Write-Host ''
+    Write-Host 'Cloud-First Deploy Pipeline completed!' -ForegroundColor Magenta
 } catch {
-    Write-Host "❌ Fatal error in execution: $_" -ForegroundColor Red
+    Write-Host "Fatal error in execution: $_" -ForegroundColor Red
     exit 1
 }

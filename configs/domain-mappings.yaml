@@ -1,0 +1,42 @@
+# HEADY DOMAIN MAPPING CONFIGURATION
+# Version: 1.0.0
+# Last Updated: 2026-02-09
+
+# Production Domains
+production:
+  headysystems:
+    api: "api.headysystems.com"
+    app: "app.headysystems.com"
+    admin: "admin.headysystems.com"
+  headyconnection:
+    api: "api.headyconnection.org"
+    app: "app.headyconnection.org"
+  headybuddy:
+    api: "api.headybuddy.org"
+    app: "app.headybuddy.org"
+
+# Staging Domains
+staging:
+  headysystems:
+    api: "api.staging.headysystems.com"
+    app: "app.staging.headysystems.com"
+  headyconnection:
+    api: "api.staging.headyconnection.org"
+
+# Development Domains
+development:
+  default: "dev.headysystems.local"
+  headyconnection: "dev.headyconnection.local"
+
+# Render Service Origins (internal only)
+render_origins:
+  heady-manager-headysystems: "heady-manager-headysystems.onrender.com"
+  heady-manager-headyme: "heady-manager-headyme.onrender.com"
+  heady-manager-headyconnection: "heady-manager-headyconnection.onrender.com"
+
+# Domain Governance Rules
+governing_rules:
+  - "No .onrender.com references in user-facing contexts"
+  - "All production traffic must use HTTPS"
+  - "Custom domains must be configured in Cloudflare"
+  - "Render origins should only be used in DNS and backend configs"

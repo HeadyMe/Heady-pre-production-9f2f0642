@@ -1,0 +1,52 @@
+{
+  "Version": "2.0.0",
+  "PrimaryCloud": "HeadyMe",
+  "SandboxCloud": "HeadySystems/Sandbox",
+  "ProductionCloud": "HeadySystems",
+  "CloudEndpoints": {
+    "HeadyMe": "https://heady-manager-headyme.onrender.com",
+    "HeadySystems": "https://heady-manager-headysystems.onrender.com",
+    "HeadyConnection": "https://heady-manager-headyconnection.onrender.com",
+    "Brain": "https://brain.headysystems.com",
+    "BrainFallback": "52.32.178.8"
+  },
+  "GitRemotes": {
+    "primary": "heady-me",
+    "sandbox": "sandbox",
+    "production": "origin",
+    "prodMirror": "heady-sys"
+  },
+  "DeploymentFlow": [
+    "HeadyMe",
+    "Sandbox",
+    "ProductionGate",
+    "Production"
+  ],
+  "DeploymentTargets": [
+    "HeadyMe",
+    "Sandbox",
+    "Windows",
+    "Android",
+    "Linux",
+    "Websites"
+  ],
+  "CriticalTargets": [
+    "HeadyMe",
+    "Windows",
+    "Websites"
+  ],
+  "ProductionGate": {
+    "Threshold": 100,
+    "RequireAllTests": true,
+    "RequireAllServices": true,
+    "RequireCleanBuild": true
+  },
+  "AutoTrain": {
+    "enabled": true,
+    "endpoint": "/api/v1/train",
+    "dataSources": ["codebase", "registry", "patterns", "metrics", "history"],
+    "objectives": ["optimal_planning", "prediction_accuracy", "build_optimization", "pattern_recognition"]
+  },
+  "AutoDeploy": true,
+  "LocalhostAllowed": false
+}

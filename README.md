@@ -30,6 +30,24 @@ Visit http://localhost:3300 for the Sacred Geometry UI, or http://localhost:3300
 
 > Full onboarding guide: `docs/notion-quick-start.md`
 
+## Quickstart Guides
+
+Get started with Heady applications:
+
+- [HeadyBuddy](docs/quickstarts/HEADYBUDDY.md) - Android companion
+- [HeadyIDE](docs/quickstarts/HEADYIDE.md) - Desktop AI assistant
+- [HeadyBrowser](docs/quickstarts/HEADYBROWSER.md) - Web extension
+- [HeadyServices](docs/quickstarts/HEADYSERVICES.md) - Backend system
+- [Heady API](docs/quickstarts/HEADY_API_QUICKSTART.md) - Service interaction
+- [HeadyMCP](docs/quickstarts/HEADYMCP.md) - Manager Control Plane
+
+## Guides and References
+
+Deeper integration and API documentation:
+
+- [Service Integration](docs/guides/SERVICE_INTEGRATION.md) - How Heady services connect
+- [HeadyManager API](docs/api/HEADYMANAGER_API.md) - Service endpoints reference
+
 ## Architecture
 
 ```
@@ -63,6 +81,22 @@ heady-manager.js          # Node.js MCP Server & API Gateway (port 3300)
 | `GET /api/registry/patterns` | List architecture patterns |
 | `GET /api/registry/workflows` | List workflows |
 | `GET /api/registry/ai-nodes` | List AI nodes from registry |
+
+## CLI Interface
+
+The Heady CLI provides command-line access to Heady services:
+
+```bash
+# Set API key (or add to .env)
+export HEADY_API_KEY="your_api_key"
+
+# Run CLI
+npm run cli
+# or directly:
+python scripts/heady_cli.py
+```
+
+See [scripts/heady_cli.md](scripts/heady_cli.md) for full documentation.
 
 ## Checkpoint Protocol
 

@@ -1,0 +1,8 @@
+name = "heady-user-secret-service"
+main = "src/index.ts"
+compatibility_date = "2026-02-09"
+
+[[kv_namespaces]]
+binding = "USER_SECRETS"
+id = "user-secrets-kv"
+preview_id = "user-secrets-preview"

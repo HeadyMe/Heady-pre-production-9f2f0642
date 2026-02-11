@@ -1,0 +1,15 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "rules": {
+    "no-restricted-syntax": ["error", {
+      "selector": "Literal[value=/localhost|127\.0\.0\.1/]",
+      "message": "Use internal.headyio.com or api.headyio.com instead of localhost/127.0.0.1"
+    }]
+  }
+}

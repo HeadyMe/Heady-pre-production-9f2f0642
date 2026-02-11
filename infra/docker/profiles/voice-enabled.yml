@@ -1,0 +1,51 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: infra/docker/profiles/voice-enabled.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ============================================================
+# HEADY SYSTEMS | Profile: voice-enabled
+# ============================================================
+# Full stack plus voice-io service for speech input/output.
+# Requires microphone access on the host machine.
+# ============================================================
+
+services:
+  heady-api:
+    environment:
+      NODE_ENV: production
+
+  heady-orchestrator:
+    environment:
+      VOICE_ENABLED: "true"
+
+  model-router:
+    environment:
+      MODEL_POLICY: LOCAL_FIRST
+      CLOUD_FALLBACK: "true"
+
+  ollama:
+    environment:
+      OLLAMA_NUM_PARALLEL: 2
+
+  voice-io:
+    environment:
+      NODE_ENV: production
+      VOICE_ENGINE: whisper
+      TTS_ENGINE: piper
+    devices:
+      - /dev/snd:/dev/snd
+
+  heady-web:
+    environment:
+      VOICE_ENABLED: "true"

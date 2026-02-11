@@ -29,7 +29,13 @@ module.exports = [
   },
   {
     rules: {
-      // Common rules for all files
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value="localhost"], Literal[value="127.0.0.1"]',
+          message: 'Use internal.headyio.com or api.headyio.com instead of localhost/127.0.0.1'
+        }
+      ]
     }
   },
   {

@@ -1,0 +1,72 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: infra/docker/profiles/full-suite.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ============================================================
+# HEADY SYSTEMS | Profile: full-suite
+# ============================================================
+# Every service enabled. Maximum capability, maximum resources.
+# Use for staging, demos, or fully loaded workstations.
+# ============================================================
+
+services:
+  heady-api:
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+
+  heady-orchestrator:
+    environment:
+      NODE_ENV: production
+
+  heady-rag:
+    environment:
+      NODE_ENV: production
+
+  model-router:
+    environment:
+      MODEL_POLICY: LOCAL_FIRST
+      CLOUD_FALLBACK: "true"
+
+  ollama:
+    environment:
+      OLLAMA_NUM_PARALLEL: 4
+
+  embeddings-service:
+    environment:
+      NODE_ENV: production
+
+  auth-service:
+    environment:
+      NODE_ENV: production
+
+  billing-service:
+    environment:
+      NODE_ENV: production
+
+  mcp-gateway:
+    environment:
+      NODE_ENV: production
+
+  telemetry-service:
+    environment:
+      NODE_ENV: production
+
+  voice-io:
+    environment:
+      NODE_ENV: production
+
+  heady-web:
+    environment:
+      NODE_ENV: production

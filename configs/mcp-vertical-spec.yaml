@@ -1,0 +1,82 @@
+# Heady MCP Web Vertical Specification
+# Version: 1.0.0
+# Last Updated: 2026-02-09
+
+# Core Pillars
+core_pillars:
+  - headyconnection.org: "Nonprofit/social-impact hub"
+  - headysystems.com: "Corporate/infra/product portfolio"
+  - headymcp.com: "MCP and developer hub"
+  - headyio.com: "Umbrella/marketing shell"
+
+# Product Surfaces
+product_surfaces:
+  headybrowser.com: "Browser product marketing"
+  headyweb.com: "HeadyWeb web shell"
+  headymobile.com: "Mobile apps"
+  headyide.com: "IDE integrations"
+
+# Platform/Infra/API
+platform_layer:
+  headyapi.com: "Public API docs"
+  headycloud.com: "Managed cloud offering"
+  headycore.com: "Core platform narrative"
+  headylabs.com: "Labs/experimental"
+
+# AI Capability Brands
+ai_capabilities:
+  headyai.com: "General AI marketing"
+  headyauto.com: "Automation/agents"
+  headybot.com: "Bots"
+  headyvoice.com: "Voice AI"
+  headyvision.com: "Vision/multimodal"
+
+# Implementation Phases
+phases:
+  - phase: "Foundation"
+    tasks:
+      - "Define domain registry"
+      - "Stand up website/web app shell"
+      - "Implement shared auth service"
+    timeline: "2 weeks"
+
+  - phase: "Core Functionality"
+    tasks:
+      - "Implement logged-in web app (Buddy, projects, automations)"
+      - "Integrate billing and social-impact logic"
+      - "Build developer portal"
+    timeline: "3 weeks"
+
+  - phase: "Refinement"
+    tasks:
+      - "Implement environment-specific configurations"
+      - "Set up CI/CD pipelines"
+      - "Conduct security hardening"
+    timeline: "2 weeks"
+
+# Success Metrics
+metrics:
+  - "User signups from web channel"
+  - "API key generation rate"
+  - "Billing conversion rate"
+  - "Social impact contributions"
+
+# Key Endpoints
+endpoints:
+  public:
+    - "/"
+    - "/products"
+    - "/pricing"
+    - "/developers"
+  authenticated:
+    - "/app/chat"
+    - "/app/projects"
+    - "/app/automations"
+    - "/app/developers"
+
+# Dependencies
+dependencies:
+  - "heady-manager.js"
+  - "core-sdk"
+  - "billing-service"
+  - "auth-service"

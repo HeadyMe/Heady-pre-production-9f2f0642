@@ -1,0 +1,10 @@
+name = "heartbeat-worker"
+main = "heartbeat.js"
+compatibility_date = "2024-06-01"
+
+kv_namespaces = [
+  { binding = "HEARTBEAT_KV", id = "heartbeat-kv-store" }
+]
+
+[vars]
+HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}"

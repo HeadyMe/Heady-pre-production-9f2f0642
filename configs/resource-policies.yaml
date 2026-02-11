@@ -128,13 +128,25 @@ resourceManagement:
   engine: src/hc_resource_manager.js
   pollingIntervalMs: 5000
   logDestination: logs/resource-events.jsonl
+  userFirstPolicy:
+    description: "User-initiated tasks have absolute priority. Background tasks run only when user queues are empty and ORS >= maintenance threshold; they must pause when new user work arrives."
+    rules:
+      - condition: "userQueueNotEmpty"
+        action: "pauseBackgroundTasks"
+      - condition: "userQueueEmpty && ORS >= 85"
+        action: "runBackgroundTasksOrdered"
+      - condition: "newUserRequestArrived"
+        action: "immediatelyThrottleBackground"
   userModes:
     - id: performance
       description: Aggressively protect interactivity
       pauseBackgroundOnSoft: true
+      userFirstEnforcement: strict
     - id: throughput
       description: Accept sluggishness for batch/training
       pauseBackgroundOnSoft: false
+      userFirstEnforcement: relaxed
     - id: quiet
       description: Suppress proactive resource suggestions
       suppressChips: true
+      userFirstEnforcement: strict

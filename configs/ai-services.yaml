@@ -1,0 +1,48 @@
+# Heady AI Services Configuration
+# Enabled services will be automatically integrated into the AI service adapter
+
+services:
+  claude:
+    enabled: true
+    default_model: claude-2.1
+    config_path: configs/claude.yaml
+    
+  codex:
+    enabled: true  # Now implemented
+    default_model: code-davinci-002
+    config_path: configs/codex.yaml
+    
+  gemini:
+    enabled: true  # Now implemented
+    default_model: gemini-pro
+    config_path: configs/gemini.yaml
+    
+  llama:
+    enabled: false  # Set to true after implementing
+    default_model: llama-2-70b
+    config_path: configs/llama.yaml
+    
+  gpt4:
+    enabled: true  # Now implemented
+    default_model: gpt-4-turbo
+    config_path: configs/gpt4.yaml
+    
+  palm:
+    enabled: true  # Now implemented
+    default_model: palm-2
+    config_path: configs/palm.yaml
+
+# Auto mode settings
+auto_mode:
+  enabled: true
+  selection_strategy: hybrid  # [performance, cost, hybrid]
+  performance_weights:
+    latency: 0.6
+    accuracy: 0.3
+    cost: 0.1
+  fallback_service: claude
+
+# Default settings
+default_service: claude
+max_concurrent_requests: 5
+log_level: info

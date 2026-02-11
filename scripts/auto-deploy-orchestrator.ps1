@@ -19,13 +19,22 @@
 Orchestrates fully automated deployments with safety checks
 #>
 
-# Import configuration
-$config = Get-Content -Raw -Path "$PSScriptRoot\..\configs\auto-deploy-config.json" | ConvertFrom-Json
-
-# Add priority parameter
-param(
+param (
     [switch]$Priority
 )
+
+# Import configuration
+
+# Check if Docker engine is available
+$dockerAvailable = $true
+try {
+    docker info --format '{{json .}}' | Out-Null
+} catch {
+    $dockerAvailable = $false
+    Write-Warning "Docker engine not detected or not running. Website deployments that require Docker will be skipped."
+}
+
+$config = Get-Content -Raw -Path "$PSScriptRoot\..\configs\auto-deploy-config.json" | ConvertFrom-Json
 
 if ($Priority) {
     Write-Host "Running PRIORITY deployment" -ForegroundColor Magenta
@@ -44,6 +53,17 @@ if ($Priority) {
                 "Windows" { .\scripts\deploy-windows.ps1 }
                 "Android" { .\scripts\deploy-android.ps1 }
                 "Linux" { .\scripts\deploy-linux.ps1 }
+                "Websites" {
+                    if (-not $dockerAvailable) {
+                        Write-Warning "Skipping Websites deployment because Docker engine is unavailable."
+                        break
+                    }
+                    # Run both website deployments simultaneously
+                    $scriptPath = "$PSScriptRoot"
+                    Start-Job -ScriptBlock { & "$using:scriptPath\deploy-1me1.ps1" }
+                    Start-Job -ScriptBlock { & "$using:scriptPath\deploy-headymusic.ps1" }
+                    Get-Job | Wait-Job | Receive-Job
+                }
             }
             
             # Post-deployment verification
@@ -94,6 +114,17 @@ if ($Priority) {
                 "Windows" { .\scripts\deploy-windows.ps1 }
                 "Android" { .\scripts\deploy-android.ps1 }
                 "Linux" { .\scripts\deploy-linux.ps1 }
+                "Websites" {
+                    if (-not $dockerAvailable) {
+                        Write-Warning "Skipping Websites deployment because Docker engine is unavailable."
+                        break
+                    }
+                    # Run both website deployments simultaneously
+                    $scriptPath = "$PSScriptRoot"
+                    Start-Job -ScriptBlock { & "$using:scriptPath\deploy-1me1.ps1" }
+                    Start-Job -ScriptBlock { & "$using:scriptPath\deploy-headymusic.ps1" }
+                    Get-Job | Wait-Job | Receive-Job
+                }
             }
             
             # Post-deployment verification

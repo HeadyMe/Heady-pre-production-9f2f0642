@@ -49,3 +49,30 @@ At every checkpoint (commit, merge, pipeline stage, release), you MUST:
 5. Validate notebooks still reference correct APIs/schemas.
 6. Check `docs/DOC_OWNERS.yaml` for overdue reviews.
 Full protocol: `docs/CHECKPOINT_PROTOCOL.md`
+
+## ERROR REPORTING RULES
+error_reporting:
+  enabled: true
+  log_level: debug
+  max_errors: 100
+  daily_rotation: true
+  capture_stack_traces: true
+
+rules:
+  - name: memory_threshold
+    threshold: 80%
+    action: reduce_concurrency
+  - name: cpu_overload
+    threshold: 90%
+    action: offload_tasks
+  - name: pipeline_timeout
+    threshold: 300s
+    action: abort_and_log
+  - name: dependency_failure
+    pattern: "ERR_MODULE_NOT_FOUND"
+    action: auto_install
+
+auto_recovery:
+  enabled: true
+  max_attempts: 3
+  backoff_strategy: exponential

@@ -16,4 +16,19 @@ if grep -r "C:\\\\" . --exclude-dir={node_modules,dist,build,.git,.husky}; then
   exit 1
 fi
 
+# Validate branding headers for modified files
+echo "Checking file branding..."
+changed_files=$(git diff --cached --name-only --diff-filter=ACMR | grep -vE 'node_modules|dist|build|\.git|\.husky')
+for file in $changed_files; do
+  if ! grep -q "HEADY_BRAND:BEGIN" "$file"; then
+    echo "❌ Commit rejected: Missing branding header in $file"
+    exit 1
+  fi
+  if ! grep -q "HEADY_BRAND:END" "$file"; then
+    echo "❌ Commit rejected: Missing branding footer in $file"
+    exit 1
+  fi
+done
+
 echo "✅ Naming standards validated"
+echo "✅ Branding headers validated"

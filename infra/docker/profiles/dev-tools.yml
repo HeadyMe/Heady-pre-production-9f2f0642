@@ -1,0 +1,61 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: infra/docker/profiles/dev-tools.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ============================================================
+# HEADY SYSTEMS | Profile: dev-tools
+# ============================================================
+# Core services + MCP gateway + telemetry for IDE integrations.
+# Designed for VS Code, JetBrains, Neovim plugin development.
+# ============================================================
+
+services:
+  heady-api:
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+
+  heady-orchestrator:
+    environment:
+      LOG_LEVEL: debug
+
+  model-router:
+    environment:
+      MODEL_POLICY: LOCAL_FIRST
+      CLOUD_FALLBACK: "true"
+      LOG_LEVEL: debug
+
+  mcp-gateway:
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+
+  telemetry-service:
+    environment:
+      NODE_ENV: development
+
+  ollama:
+    environment:
+      OLLAMA_NUM_PARALLEL: 2
+
+  # Disable UI — IDE is the interface
+  heady-web:
+    deploy:
+      replicas: 0
+  voice-io:
+    deploy:
+      replicas: 0
+  billing-service:
+    deploy:
+      replicas: 0

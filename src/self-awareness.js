@@ -13,8 +13,8 @@
 // ║  LAYER: backend/src                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
-const { validateBranding } = require('./validate-branding');
-const { fixBrandingViolations } = require('./migrate-localhost-to-domains');
+const { validateBranding } = require('../scripts/validate-branding');
+const { fixBrandingViolations } = require('../scripts/migrate-localhost-to-domains');
 
 function startBrandingMonitor() {
   setInterval(() => {

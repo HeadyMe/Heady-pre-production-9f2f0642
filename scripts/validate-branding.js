@@ -14,37 +14,34 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
 const axios = require('axios');
-const config = require('../configs/branding-standards.yaml');
+const config = require('../configs/branding/branding-standards.yaml');
+const fs = require('fs');
+const path = require('path');
 
 async function validateBranding() {
   const testResults = [];
   
-  for (const [page, expected] of Object.entries(config.pages)) {
-    try {
-      const response = await axios.get(page);
-      const html = response.data;
-      
-      // Check title
-      if (expected.title && !html.includes(`<title>${expected.title}</title>`)) {
-        testResults.push({ page, check: 'title', passed: false });
-      }
-      
-      // Check logo
-      if (expected.logoPath && !html.includes(`src="${expected.logoPath}"`)) {
-        testResults.push({ page, check: 'logo', passed: false });
-      }
-      
-      // Check CSS class
-      if (expected.brandingClass && !html.includes(`class="${expected.brandingClass}"`)) {
-        testResults.push({ page, check: 'branding-class', passed: false });
-      }
-      
-      // If all checks passed, record success
-      if (testResults.filter(r => r.page === page && !r.passed).length === 0) {
-        testResults.push({ page, passed: true });
-      }
-    } catch (error) {
-      testResults.push({ page, error: error.message });
+  // Check file headers in the project
+  const projectFiles = getAllProjectFiles();
+  for (const file of projectFiles) {
+    const content = fs.readFileSync(file, 'utf8');
+    
+    if (!content.includes('HEADY_BRAND:BEGIN')) {
+      testResults.push({ 
+        file, 
+        check: 'branding-header', 
+        passed: false,
+        message: 'Missing branding header'
+      });
+    }
+    
+    if (!content.includes('HEADY_BRAND:END')) {
+      testResults.push({ 
+        file, 
+        check: 'branding-footer', 
+        passed: false,
+        message: 'Missing branding footer'
+      });
     }
   }
   
@@ -56,6 +53,27 @@ async function validateBranding() {
   }
   
   console.log('All branding checks passed');
+}
+
+function getAllProjectFiles() {
+  const ignoreDirs = ['node_modules', 'dist', 'build', '.git', '.husky'];
+  const files = [];
+  
+  function walk(dir) {
+    fs.readdirSync(dir).forEach(f => {
+      const fullPath = path.join(dir, f);
+      if (ignoreDirs.some(d => fullPath.includes(d))) return;
+      
+      if (fs.statSync(fullPath).isDirectory()) {
+        walk(fullPath);
+      } else if (/\.([jt]sx?|py|ya?ml|json|xml|ps1|conf|txt|md)$/i.test(fullPath)) {
+        files.push(fullPath);
+      }
+    });
+  }
+  
+  walk(process.cwd());
+  return files;
 }
 
 validateBranding();

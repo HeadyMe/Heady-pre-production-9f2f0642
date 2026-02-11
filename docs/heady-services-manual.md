@@ -14,6 +14,27 @@
 <!-- ╚══════════════════════════════════════════════════════════════════╝
 <!-- HEADY_BRAND:END
 -->
+---
+file_id: "FMSAP-003"
+title: "Heady Services Manual"
+created: 2026-02-10
+last_scan: 2026-02-10T03:39:00Z
+scan_count: 1
+next_scan_due: 2026-02-17
+scan_priority: "high"
+stability: "stable"
+criticality: "core"
+maintenance_notes:
+  - "Initial protocol creation"
+dependencies:
+  - "SYSTEM_PROMPT.md"
+  - "ITERATIVE_REBUILD_PROTOCOL.md"
+learned_insights:
+  - count: 0
+  - last_updated: null
+improvement_backlog: []
+---
+
 <!--
     ╭─────────────────────────────────────────────────────────────╮
     │  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                  │
@@ -644,7 +665,7 @@ const state = await pipeline.run();
 | **Heady-Sync (checkpoint)** | — | Generate checkpoint report only | `.\scripts\Heady-Sync.ps1 -Checkpoint` |
 | **Heady-Sync (action)** | — | Run a specific script/command | `.\scripts\Heady-Sync.ps1 -Action "node-health-check.ps1"` |
 | **Layer Switcher** | `scripts/heady-layer.ps1` | Switch between cloud layers | `.\scripts\heady-layer.ps1 switch cloud-me` |
-| **Archive to Pre-Prod** | `scripts/hc-archive-to-preproduction.ps1` | Rename repos to `*-pre-production` | `.\scripts\hc-archive-to-preproduction.ps1` |
+| **Archive to Pre-Prod** | `scripts/hc-archive-to-preproduction.ps1` | Rename repos to `*-pre-production` variants | `.\scripts\hc-archive-to-preproduction.ps1` |
 | **Scaffold Fresh** | `scripts/hc-scaffold-fresh.ps1` | Create clean project from scratch | `.\scripts\hc-scaffold-fresh.ps1 -OutputPath C:\Heady-Fresh` |
 | **Node Health Check** | `scripts/ops/node-health-check.ps1` | Check health of all system nodes | `.\scripts\ops\node-health-check.ps1` |
 | **Profile Node** | `scripts/ops/profile_node.py` | Python-based node profiling | `python scripts/ops/profile_node.py` |
@@ -842,6 +863,62 @@ The nuclear option: archives all repos to `*-pre-production` variants and scaffo
 2. Local `C:\Users\erich\Heady-archived` preserves the full workspace
 3. Tag `pre-production-archive` marks the exact commit
 4. Rename repos back via `gh repo rename`
+
+### 15.3 Global Multi-SOT Rebuild Playbook
+This playbook applies HCFullPipeline Archive Rebuild across all major Heady repositories and clouds in a single coordinated operation.
+
+Target repos
+- HeadySystems/Heady → role: primary (C-Corp)
+- HeadyMe/Heady → role: personal-cloud
+- HeadyConnection/Heady → role: cross-system-bridge
+- HeadySystems/sandbox → role: experimental
+
+1. Clone and archive everything (local)
+```powershell
+# Clone all current remotes into an archive root  
+mkdir C:\Heady-archived-$(Get-Date -Format yyyyMMdd)  
+cd C:\Heady-archived-$(Get-Date -Format yyyyMMdd)  
+git clone git@github.com:HeadySystems/Heady.git HeadySystems-Heady-pre-production  
+git clone git@github.com:HeadyMe/Heady.git HeadyMe-Heady-pre-production  
+git clone https://github.com/HeadySystems/HeadyConnection.git HeadyConnection-Heady-pre-production  
+git clone git@github.com:HeadySystems/sandbox.git HeadySystems-sandbox-pre-production  
+```
+2. Archive remotes (GitHub UI or gh CLI)
+- Rename each repo to *-pre-production or move to an Archive org.
+- Tag current main as pre-production-archive-YYYYMMDD.
+
+3. Create fresh repos (remote)
+- Create new empty repos:
+  - HeadySystems/Heady
+  - HeadyMe/Heady
+  - HeadyConnection/Heady
+  - HeadySystems/sandbox
+- Enable branch protection on main for the three production repos (Systems, Me, Connection).
+
+4. Scaffold from registry
+- Clone the new Sandbox repo locally.
+- Copy in:
+  - heady-registry.json
+  - Core docs listed in the registry (services-manual, iterative-rebuild-protocol, headystack-distribution-protocol, etc.)
+  - Core configs and scripts (Heady-Sync.ps1, checkpoint-sync.ps1, hc-full-pipeline workflow files)
+- Use hc-scaffold-fresh.ps1 to create the standard folder layout and placeholder files.
+
+5. Rebuild minimal deterministic slice
+- Implement heady-manager + health endpoints + registry access.
+- Implement Heady-Sync.ps1 driven by heady-registry.json.repos (no hard-coded remotes).
+- Add tests and GitHub Actions workflows so main cannot advance without a clean build, tests, and ORS above threshold.
+
+6. Promote to other sources of truth
+- From Sandbox, use promotion scripts/skills to push the validated slice into:
+  - HeadySystems/Heady:main
+  - HeadyMe/Heady:main
+  - HeadyConnection/Heady:main
+- Allow Render to auto-deploy based on these branches as configured in render.yaml.
+
+7. Register the new state
+- Update heady-registry.json.repos with correct URLs, roles, and promotion targets.
+- Update environments entries for cloud-me, cloud-sys, cloud-conn with new commit hashes and health status.
+- Log a Story Driver event marking this as "Global Multi-SOT Rebuild vN".
 
 ---
 
@@ -1132,68 +1209,6 @@ For every feature branch that goes through Arena Mode or significant refactors:
 
 ---
 
-## Quiz & Flashcard Review
-
-### Quickstart
-
-- **Q: What is the fastest way to start Heady locally?**
-  A: `npm install && npm start` → `http://localhost:3300`
-
-- **Q: How do you access the full desktop environment via Docker?**
-  A: `docker compose -f docker-compose.desktop.yml up --build` → `http://localhost:6080` (password: `heady`)
-
-### Services
-
-- **Q: How many AI nodes are registered and active?**
-  A: 20 nodes, all active as of Feb 5, 2026.
-
-- **Q: What port does heady-manager run on?**
-  A: 3300 (configurable via `PORT` env var).
-
-- **Q: Name the three Docker compose configurations.**
-  A: `docker-compose.yml` (standard stack), `docker-compose.desktop.yml` (full desktop), standalone `Dockerfile` (manager only).
-
-### Connection
-
-- **Q: How many ways can you connect to Heady services?**
-  A: Eight: HTTP/REST API, MCP Protocol, Docker, Electron, Browser, PowerShell CLI, npm scripts, Git.
-
-- **Q: What does the Layer Switcher update when switching layers?**
-  A: Active layer state file, env vars, and the Cascade proxy endpoint.
-
-- **Q: True/False: You need a local install to use Heady.**
-  A: False. Cloud endpoints are available at `app.headysystems.com`.
-
-### Pipeline
-
-- **Q: What are the three task priority pools?**
-  A: Hot (user-facing, critical latency), Warm (important background), Cold (async ingestion/analytics).
-
-- **Q: What happens when ORS drops below 50?**
-  A: Recovery mode — repair only, escalate to owner.
-
-### Story Driver
-
-- **Q: What are the four story scopes?**
-  A: Project, Feature, Incident, Experiment.
-
-- **Q: What does the Story Driver do?**
-  A: Turns system events (pipeline cycles, builds, arena results, resource incidents, registry changes) into coherent human-readable narratives with timelines.
-
-- **Q: How does HeadyBuddy surface story data?**
-  A: Via chat ("What changed?", "story", "narrative" keywords), the Story tab in Expanded View, and suggestion chips.
-
-- **Q: Name two events that are always included in narratives.**
-  A: BUILD_FAILED and ARENA_WINNER_CHOSEN (also PIPELINE_GATE_FAIL, RESOURCE_CRITICAL, SCHEMA_MIGRATED, USER_DIRECTIVE, USER_PIVOT).
-
-### Services Architecture
-
-- **Q: What services does the full docker-compose.yml stack include?**
-  A: heady-manager, headybuddy-widget, python-worker, mcp-server, postgres, redis.
-
-- **Q: What is the network scoping rule for Docker services?**
-  A: Only heady-manager (3300) and noVNC (6080) exposed externally; Postgres, Redis, MCP Server, Python Worker are internal only.
-
----
-
 *Proprietary — Heady Systems | Sacred Geometry :: Organic Systems :: Breathing Interfaces*
+
+```

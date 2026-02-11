@@ -1,0 +1,91 @@
+# Heady Systems Root CA Configuration
+# Supports hybrid post-quantum cryptography
+
+[ default ]
+name                    = root-ca
+base_url                = https://pki.headysystems.com
+
+[ ca ]
+default_ca              = root_ca
+
+[ root_ca ]
+dir                     = $ENV::HEADY_PKI_ROOT/ca/root
+certificate             = $dir/certs/root-ca.crt
+private_key             = $dir/private/root-ca.key
+new_certs_dir           = $dir/newcerts
+database                = $dir/index.txt
+serial                  = $dir/serial
+crl                     = $dir/crl/root-ca.crl
+RANDFILE                = $dir/private/.rand
+
+# Cryptographic settings (hybrid PQ)
+default_md              = sha384
+name_opt                = utf8,multiline,certopt
+cert_opt                = no_alt_chains,no_pubkey,no_sigdump
+policy                  = policy_strict
+
+# Validity periods
+default_days            = 7300  # 20 years
+
+# CRL settings
+default_crl_days        = 30
+
+[ policy_strict ]
+countryName             = match
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = match
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+default_bits            = 4096
+distinguished_name      = req_distinguished_name
+string_mask             = utf8only
+req_extensions          = req_ext
+
+[ req_distinguished_name ]
+countryName                     = Country Name (2 letter code)
+countryName_default             = US
+countryName_min                 = 2
+countryName_max                 = 2
+
+organizationName                = Organization Name (eg, company)
+organizationName_default        = Heady Systems
+
+commonName                      = Common Name (eg, your name or your server's hostname)
+commonName_max                  = 64
+
+[ req_ext ]
+basicConstraints        = critical,CA:true
+keyUsage                = critical,keyCertSign,cRLSign
+
+[ v3_intermediate_ca ]
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer
+basicConstraints        = critical,CA:true,pathlen:0
+keyUsage                = critical,digitalSignature,keyCertSign,cRLSign
+
+[ v3_server ]
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer
+basicConstraints        = critical,CA:FALSE
+keyUsage                = critical,digitalSignature,keyEncipherment
+extendedKeyUsage        = serverAuth
+
+[ v3_client ]
+subjectKeyIdentifier    = hash
+authorityKeyIdentifier  = keyid:always,issuer
+basicConstraints        = critical,CA:FALSE
+keyUsage                = critical,digitalSignature
+extendedKeyUsage        = clientAuth
+
+# Post-quantum cryptography settings
+[ pqc ]
+# Kyber768 for key exchange
+kem_algorithm           = kyber768
+# Dilithium5 for signatures
+signature_algorithm     = dilithium5
+# Hybrid mode (classical + PQ)
+hybrid_mode             = true

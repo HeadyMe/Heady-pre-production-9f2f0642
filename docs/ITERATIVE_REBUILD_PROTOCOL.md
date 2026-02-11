@@ -14,6 +14,26 @@
 <!-- ╚══════════════════════════════════════════════════════════════════╝
 <!-- HEADY_BRAND:END
 -->
+---
+file_id: "FMSAP-002"
+title: "Iterative Rebuild Protocol"
+created: 2026-02-10
+last_scan: 2026-02-10T03:39:00Z
+scan_count: 1
+next_scan_due: 2026-02-17
+scan_priority: "high"
+stability: "stable"
+criticality: "core"
+maintenance_notes:
+  - "Initial protocol creation"
+dependencies:
+  - "SYSTEM_PROMPT.md"
+  - "HEADY_AUTO_IDE.md"
+learned_insights:
+  - count: 0
+  - last_updated: null
+improvement_backlog: []
+---
 # HEADY SYSTEMS — Iterative Rebuild Protocol
 
 > **Status:** Active | **Type:** Governance | **Owner:** system
@@ -400,6 +420,100 @@ This protocol integrates with the existing Heady ecosystem:
 9. ITERATE    → Apply retro outcomes → return to step 2
 ```
 
+### 15.2 Global Multi-Source-of-Truth Repository Reset
+This phase defines how to perform a full, coordinated reset of all Heady repositories and cloud layers to restore deterministic behavior and eliminate accumulated drift. It is only invoked when incremental fixes are insufficient.
+
+Scope
+
+Repositories:
+- HeadySystems/Heady (C-Corp production source of truth)
+- HeadyMe/Heady (personal cloud source of truth)
+- HeadyConnection/Heady (bridge cloud source of truth)
+- HeadySystems/sandbox (experimental/development source of truth)
+- Any monorepo or legacy repo feeding these systems.
+
+Phases
+
+Archive
+- Rename existing GitHub repos to *-pre-production or move them to an Archive organization.
+- Tag current main as pre-production-archive-YYYYMMDD.
+- Move all local working directories to an archived folder with date stamps.
+
+Scaffold
+- Create fresh, empty repos for each of the four sources of truth.
+- Preserve roles (primary, personal cloud, etc.)
+
+### 15.3 Rebuild Protocol Document
+
+# Iterative Rebuild Protocol
+
+## Production Readiness Check & Auto-Deploy
+- HCFullPipeline runs fully automated with deployment enabled
+- Halts only for core infrastructure/data/security errors (ORS ≤70)
+- Applies Checkpoint Protocol at each stage boundary
+
+## 100% Functionality Checkpoint Criteria
+1. All critical services running with passing health probes
+2. HCFullPipeline completes without entering Recovery mode
+3. ORS ≥70 with no active stop rules
+4. All documented APIs function without breaking discrepancies
+
+## Recon & Inventory Procedure
+1. Invoke full Checkpoint Protocol
+2. Run Heady-Sync in checkpoint mode
+3. Generate checkpoint report with:
+   - Commit hashes for all repos
+   - Registry snapshot (heady-registry.json)
+   - ORS/health check history
+4. Store as "pre-rebuild production snapshot"
+
+## Archive-and-Rebuild Sequence
+### Pre-flight
+- Confirm all commits pushed
+- Create backup tags for production snapshot
+
+### Archive Existing Repos
+- Use archive-to-pre-production workflow
+- Rename to *-pre-production variants
+- Ensure no active CI/deployment pipelines remain
+
+### Create Fresh Repos
+- Provision brand-new empty repositories
+- Preserve roles (primary, personal cloud, etc.)
+
+### Scaffold from Scratch
+- Run hc-scaffold-fresh
+- Embed naming standards/domain conventions
+- Eliminate prohibited patterns
+
+### Selective Migration
+- Copy only essential business logic
+- Re-implement or retire legacy code
+
+### Initialize & Push
+- Commit scaffold + migrated logic
+- Push to all remotes
+- Update registry with new sourceOfTruth locations
+
+### Swap Active Directories
+- Rename old directories to archived names
+- Update tooling/scripts/CI pipelines
+- Update deployment targets and DNS
+
+### Post-Rebuild Verification
+- Run full HCFullPipeline
+- Confirm ORS returns to Normal/Aggressive bands
+
+## Build Order
+1. **Core Services & Internals**: HeadyManager, HCFullPipeline runtime, Registry
+2. **Shared Infrastructure**: Cross-platform tools, CLI, internal dashboards
+3. **Websites & Vertical Applications**: Marketing sites, web apps, partner integrations
+
+## Continuous Enforcement
+- Apply Checkpoint Protocol at every commit/merge/release
+- Treat outdated docs/registry entries as defects
+- Use StoryDriver for rebuild narrative tracking
+
 ---
 
 ## 16. Revision History
@@ -407,3 +521,4 @@ This protocol integrates with the existing Heady ecosystem:
 | Date | Change |
 |---|---|
 | 2026-02-06 | Initial protocol created |
+| 2026-02-10 | Added rebuild protocol document |

@@ -1,0 +1,18 @@
+#!/bin/bash
+# HeadyOS Live Launcher
+
+# Check for persistent storage
+if [ -d /live/persistence ]; then
+  # Mount persistent storage
+  cryptsetup open /dev/sdb1 heady_persist
+  mount /dev/mapper/heady_persist /headyos/persist
+  
+  # Initialize Heady services
+  systemctl start heady-manager heady-buddy
+else
+  # First-run setup
+  /headyos/installer --live-mode
+fi
+
+# Launch desktop interface
+mate-session

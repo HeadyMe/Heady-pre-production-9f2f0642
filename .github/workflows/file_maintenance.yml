@@ -1,0 +1,54 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .github/workflows/file_maintenance.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+name: Weekly File Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Every Monday 2 AM
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup PowerShell
+        uses: actions/setup-powershell@v2
+        with:
+          pwsh: true
+          
+      - name: Run pre-scan check
+        run: |
+          pwsh ./scripts/file_maintenance/pre_scan_check.ps1
+        
+      - name: Run automated scans (Layers 1-4)
+        run: |
+          pwsh ./scripts/file_maintenance/run_automated_scans.ps1
+        
+      - name: Create issues from scan results
+        run: |
+          echo "Issues would be created here based on scan output"
+        # This would be implemented later
+        
+      - name: Commit and push updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "[FMSAP] Weekly scan updates" || echo "No changes to commit"
+          git push

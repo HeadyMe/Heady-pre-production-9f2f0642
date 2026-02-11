@@ -389,6 +389,59 @@ spec:
               access: db
 ```
 
+### Post-Quantum Certificate Deployment
+
+Heady Systems supports hybrid post-quantum cryptography for all internal mTLS communications. This provides protection against "harvest now, decrypt later" attacks.
+
+#### Certificate Hierarchy
+
+```
+Root CA (20 year validity)
+└── Intermediate CA (5 year validity)
+    ├── Server Certificates (1 year validity)
+    └── Client Certificates (1 year validity)
+```
+
+#### Key Algorithms
+- **Key Exchange:** X25519 + Kyber768 (hybrid)
+- **Signatures:** Dilithium5
+- **Encryption:** AES-256-GCM
+
+#### Deployment Steps
+
+1. **Initialize PKI**
+```powershell
+./configs/pki/scripts/init-ca.sh
+```
+
+2. **Issue Certificates**
+```powershell
+# Server certificate
+./configs/pki/scripts/issue-cert.sh server api.heady.internal
+
+# Client certificate
+./configs/pki/scripts/issue-cert.sh client nginx.heady.internal
+```
+
+3. **Configure Services**
+- Nginx: Update `mtls.conf` with new certificate paths
+- Node.js: Use `tls.createSecureContext` with PQ cipher suites
+- Python: Configure SSLContext with PQ support
+
+4. **Rotate Certificates**
+- Server certificates: Annual rotation
+- Intermediate CA: Every 5 years
+- Root CA: Every 20 years
+
+#### Verification
+```powershell
+# Check certificate details
+openssl x509 -in /etc/nginx/ssl/pki/intermediate/certs/server.pem -text -noout
+
+# Verify TLS connection
+openssl s_client -connect api.heady.internal:8443 -showcerts
+```
+
 ## Migration from Localhost
 
 ### Step 1: Inventory

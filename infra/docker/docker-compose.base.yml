@@ -1,0 +1,180 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: infra/docker/docker-compose.base.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ============================================================
+# HEADY SYSTEMS | Base Docker Compose
+# ============================================================
+# All services defined here. Profiles activate subsets.
+# Usage:
+#   docker compose -f docker-compose.base.yml -f profiles/<profile>.yml up
+# ============================================================
+
+services:
+
+  # ---------- Data Layer ----------
+  heady-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: heady
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-heady_dev}
+      POSTGRES_DB: heady
+    volumes:
+      - heady-pg-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heady"]
+      interval: 10s
+      retries: 5
+
+  heady-redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+
+  # ---------- Core Services ----------
+  heady-api:
+    build:
+      context: ../../apps/heady-api
+      dockerfile: Dockerfile
+    ports:
+      - "${API_PORT:-3300}:3300"
+    environment:
+      DATABASE_URL: postgres://heady:${POSTGRES_PASSWORD:-heady_dev}@heady-postgres:5432/heady
+      REDIS_URL: redis://heady-redis:6379
+      NODE_ENV: ${NODE_ENV:-development}
+    depends_on:
+      heady-postgres:
+        condition: service_healthy
+      heady-redis:
+        condition: service_healthy
+
+  heady-orchestrator:
+    build:
+      context: ../../apps/heady-orchestrator
+      dockerfile: Dockerfile
+    ports:
+      - "${ORCHESTRATOR_PORT:-3301}:3301"
+    environment:
+      API_URL: http://heady-api:3300
+      MODEL_ROUTER_URL: http://model-router:3400
+    depends_on:
+      - heady-api
+
+  heady-rag:
+    build:
+      context: ../../apps/heady-rag
+      dockerfile: Dockerfile
+    ports:
+      - "${RAG_PORT:-9000}:9000"
+    environment:
+      DATABASE_URL: postgres://heady:${POSTGRES_PASSWORD:-heady_dev}@heady-postgres:5432/heady
+      EMBEDDINGS_URL: http://embeddings-service:9100
+    depends_on:
+      heady-postgres:
+        condition: service_healthy
+
+  # ---------- Intelligence Layer ----------
+  model-router:
+    build:
+      context: ../../services/model-router
+      dockerfile: Dockerfile
+    ports:
+      - "${MODEL_ROUTER_PORT:-3400}:3400"
+    environment:
+      MODEL_POLICY: ${MODEL_POLICY:-LOCAL_FIRST}
+      OLLAMA_URL: http://ollama:11434
+      CLOUD_FALLBACK: ${CLOUD_FALLBACK:-true}
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - heady-ollama-data:/root/.ollama
+
+  embeddings-service:
+    build:
+      context: ../../services/embeddings-service
+      dockerfile: Dockerfile
+    ports:
+      - "${EMBEDDINGS_PORT:-9100}:9100"
+
+  # ---------- Platform Services ----------
+  auth-service:
+    build:
+      context: ../../services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "${AUTH_PORT:-3500}:3500"
+    environment:
+      DATABASE_URL: postgres://heady:${POSTGRES_PASSWORD:-heady_dev}@heady-postgres:5432/heady
+      JWT_SECRET: ${JWT_SECRET:-dev_secret}
+    depends_on:
+      heady-postgres:
+        condition: service_healthy
+
+  billing-service:
+    build:
+      context: ../../services/billing-service
+      dockerfile: Dockerfile
+    ports:
+      - "${BILLING_PORT:-3600}:3600"
+    environment:
+      STRIPE_KEY: ${STRIPE_KEY:-}
+      DATABASE_URL: postgres://heady:${POSTGRES_PASSWORD:-heady_dev}@heady-postgres:5432/heady
+
+  mcp-gateway:
+    build:
+      context: ../../services/mcp-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "${MCP_PORT:-3700}:3700"
+    environment:
+      API_URL: http://heady-api:3300
+
+  telemetry-service:
+    build:
+      context: ../../services/telemetry-service
+      dockerfile: Dockerfile
+    ports:
+      - "${TELEMETRY_PORT:-3800}:3800"
+
+  voice-io:
+    build:
+      context: ../../services/voice-io
+      dockerfile: Dockerfile
+    ports:
+      - "${VOICE_PORT:-3900}:3900"
+
+  # ---------- Frontend ----------
+  heady-web:
+    build:
+      context: ../../apps/heady-web
+      dockerfile: Dockerfile
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      API_URL: http://heady-api:3300
+    depends_on:
+      - heady-api
+
+volumes:
+  heady-pg-data:
+  heady-ollama-data:

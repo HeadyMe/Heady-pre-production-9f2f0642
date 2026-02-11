@@ -127,13 +127,26 @@ servers:
     args: ["-y", "@modelcontextprotocol/server-filesystem"]
     env:
       ALLOWED_DIRECTORIES: "${HEADY_WORKSPACE:-/home/coder/project}"
+      ALLOWED_EXTENSIONS: ".js,.ts,.py,.yaml,.json,.md"
+      REQUIRE_APPROVAL_FOR: "git_push,delete_file"
+      AUDIT_LOG_PATH: "${HEADY_WORKSPACE}/.heady/audit.log"
     capabilities:
       - read_file
       - write_file
       - list_directory
       - search_files
       - move_file
+      - create_file
     required_plan: free
+    scopes:
+      - path: "${HEADY_WORKSPACE}/src/**"
+        permissions: ["read", "write"]
+      - path: "${HEADY_WORKSPACE}/configs/**"
+        permissions: ["read", "write"]
+      - path: "${HEADY_WORKSPACE}/.git/**"
+        permissions: ["read"]
+      - path: "${HEADY_WORKSPACE}/node_modules/**"
+        permissions: []
 
   web_search:
     name: "Web Search"

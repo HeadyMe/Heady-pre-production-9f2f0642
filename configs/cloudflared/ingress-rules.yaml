@@ -1,0 +1,22 @@
+tunnel: heady-mtls-tunnel
+credentials-file: /etc/cloudflared/heady-mtls-tunnel.json
+
+# Ingress rules for mTLS services
+ingress:
+  - hostname: headyide.headyio.com
+    service: http://localhost:3400
+    originRequest:
+      noTLSVerify: true
+
+  - hostname: api.internal.headymcp.com
+    service: https://localhost:8443
+    originRequest:
+      caPool: /etc/cloudflared/ca.crt
+      clientTLS:
+        cert: /etc/cloudflared/client.pem
+        key: /etc/cloudflared/client.key
+  - hostname: "*.internal.headymcp.com"
+    service: https://localhost:8443
+    originRequest:
+      caPool: /etc/cloudflared/ca.crt
+  - service: http_status:404

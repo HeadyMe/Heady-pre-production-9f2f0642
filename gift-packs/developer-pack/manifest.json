@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "files": [
+    "configs/nginx/mtls.conf",
+    "workers/service-worker/src/index.ts",
+    "scripts/deploy-cloudflare-workers-final.ps1"
+  ],
+  "updated": "2026-02-09T13:45:24Z",
+  "name": "developer-pack",
+  "description": "Full development environment"
+}

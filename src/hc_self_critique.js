@@ -157,6 +157,238 @@ class SelfCritiqueEngine extends EventEmitter {
         });
       }
     }
+    // Integrate with pattern engine for context
+    if (improvement.patternId && this.patternEngine) {
+      record.patternContext = {
+        id: improvement.patternId,
+        state: this.patternEngine.getPatternState?.(improvement.patternId),
+        metrics: this.patternEngine.getPatternMetrics?.(improvement.patternId),
+        evolution: this.patternEngine.getPatternEvolution?.(improvement.patternId),
+        relatedPatterns: this.patternEngine.getRelatedPatterns?.(improvement.patternId),
+        stagnationRisk: this.patternEngine.getPatternsByState?.('stagnant')?.some(p => p.id === improvement.patternId),
+        degradationRisk: this.patternEngine.getPatternsByState?.('degrading')?.some(p => p.id === improvement.patternId),
+        historicalPerformance: this.patternEngine.getPatternHistory?.(improvement.patternId),
+        confidenceScore: this.patternEngine.getPatternConfidence?.(improvement.patternId)
+      };
+    }
+
+    // Link to recent critiques for correlation
+    if (!record.critiqueId && this.store.critiques.length > 0) {
+      const recentCritiques = this.store.critiques.slice(-10);
+      const relatedCritique = recentCritiques.find(c => 
+        c.context === improvement.context || 
+        c.weaknesses?.some(w => improvement.description?.toLowerCase().includes(w.toLowerCase())) ||
+        c.suggestedImprovements?.some(s => s.toLowerCase().includes(improvement.type?.toLowerCase())) ||
+        c.blindSpots?.some(b => improvement.description?.toLowerCase().includes(b.toLowerCase()))
+      );
+      if (relatedCritique) {
+        record.critiqueId = relatedCritique.id;
+        record.autoLinked = true;
+        record.critiqueConfidence = relatedCritique.confidenceRatings?.overall || 0.5;
+        record.critiqueSeverity = relatedCritique.severity;
+        record.critiqueTimestamp = relatedCritique.ts;
+        record.critiqueWeaknesses = relatedCritique.weaknesses;
+      }
+    }
+
+    // Track improvement priority based on severity and bottleneck diagnostics
+    if (improvement.severity || improvement.priority) {
+      record.priority = improvement.priority || (
+        improvement.severity === 'critical' ? 1 :
+        improvement.severity === 'high' ? 2 : 3
+      );
+      
+      // Boost priority if related to recent diagnostic findings
+      if (this.store.diagnostics.length > 0) {
+        const recentDiag = this.store.diagnostics.slice(-3);
+        const criticalFinding = recentDiag.flatMap(d => d.findings || []).find(f => 
+          (f.severity === 'critical' || f.severity === 'high') && 
+          (improvement.description?.includes(f.item) || improvement.context === f.category)
+        );
+        if (criticalFinding) {
+          record.priority = Math.min(1, record.priority);
+          record.diagnosticBoosted = true;
+          record.diagnosticCategory = criticalFinding.category;
+          record.diagnosticSeverity = criticalFinding.severity;
+          record.diagnosticLatency = criticalFinding.latencyMs;
+          record.diagnosticErrorRate = criticalFinding.errorRate;
+        }
+      }
+    }
+
+    // Add Monte Carlo confidence if available
+    if (improvement.mcConfidence || improvement.successProbability || improvement.score) {
+      record.confidence = {
+        mcScore: improvement.mcConfidence || improvement.score,
+        successProb: improvement.successProbability,
+        sampleSize: improvement.mcSamples,
+        historicalSuccessRate: this._getHistoricalSuccessRate(improvement.type),
+        pipelineSuccessRate: this.mcPlanScheduler?.lastResults?.pipeline?.successRate,
+        variance: improvement.mcVariance,
+        confidenceInterval: improvement.mcConfidenceInterval
+      };
+    }
+
+    // Track resource cost with pricing integration
+    if (improvement.cost || improvement.budgetUsd) {
+      const channelPricing = improvement.channel && this.pricingConfig?.channels?.[improvement.channel];
+      record.resourceCost = {
+        budgetUsd: improvement.budgetUsd || improvement.cost,
+        timeMs: improvement.timeMs,
+        channel: improvement.channel,
+        estimatedTokens: improvement.estimatedTokens,
+        channelRate: channelPricing?.ratePerToken,
+        projectedCost: channelPricing && improvement.estimatedTokens ? 
+          (channelPricing.ratePerToken * improvement.estimatedTokens) : null,
+        costEfficiency: channelPricing?.costEfficiency,
+        budgetRemaining: this.pricingConfig?.globalBudget?.remaining,
+        costPerImpact: improvement.measuredImpact ? (improvement.budgetUsd / improvement.measuredImpact) : null
+      };
+    }
+
+    // Track connection health impact
+    if (improvement.affectedChannels && this.store.connectionHealth) {
+      record.connectionImpact = improvement.affectedChannels.map(ch => ({
+        channel: ch,
+        currentHealth: this.store.connectionHealth[ch]?.healthy,
+        lastCheck: this.store.connectionHealth[ch]?.lastCheck,
+        errorRate: this.store.connectionHealth[ch]?.errorRate,
+        latency: this.store.connectionHealth[ch]?.avgLatency,
+        consecutiveFailures: this.store.connectionHealth[ch]?.consecutiveFailures,
+        lastError: this.store.connectionHealth[ch]?.lastError
+      }));
+      
+      // Calculate overall connection health score
+      const healthScores = record.connectionImpact.map(c => c.currentHealth ? 1 : 0);
+      record.overallConnectionHealth = healthScores.length > 0 ? 
+        healthScores.reduce((a, b) => a + b, 0) / healthScores.length : 1;
+    }
+
+    // Add improvement scheduler metadata
+    if (improvement.scheduledBy || improvement.schedulerPriority) {
+      record.schedulerMetadata = {
+        scheduledBy: improvement.scheduledBy || 'ImprovementScheduler',
+        schedulerPriority: improvement.schedulerPriority,
+        queuePosition: improvement.queuePosition,
+        lane: improvement.lane || 'improvement',
+        cycleId: improvement.cycleId,
+        batchId: improvement.batchId,
+        scheduledAt: improvement.scheduledAt || new Date().toISOString(),
+        executionDelay: improvement.executionDelay
+      };
+    }
+
+    // Track improvement type classification
+    record.classification = {
+      type: improvement.type || 'micro_upgrade',
+      category: improvement.category || this._classifyImprovement(improvement),
+      isPatternBased: !!improvement.patternId,
+      isCritiqueBased: !!record.critiqueId,
+      isDiagnosticBased: !!record.diagnosticBoosted,
+      isPipelineDriven: !!improvement.lane,
+      isAutomated: improvement.automated !== false,
+      requiresValidation: improvement.requiresValidation || record.priority === 1
+    };
+
+    // Add meta-analysis correlation
+    if (this.turnCounter > 0 && this.turnCounter % this.metaInterval === 0) {
+      const recentMeta = this._getRecentMetaAnalysis();
+      if (recentMeta) {
+        record.metaCorrelation = {
+          topWeakness: recentMeta.topWeaknesses?.[0]?.weakness,
+          improvementEffectiveness: recentMeta.improvementEffectiveness,
+          systemTrend: recentMeta.recommendations?.length > 3 ? 'degrading' : 'stable',
+          recentCritiqueCount: recentMeta.recentCritiqueCount,
+          unhealthyChannels: recentMeta.recommendations?.find(r => r.area === 'connections')?.count || 0
+        };
+      }
+    }
+
+    // Add pipeline execution context if available
+    if (this.pipeline && improvement.lane) {
+      record.pipelineContext = {
+        lane: improvement.lane,
+        pipelineState: this.pipeline.getState?.(),
+        queueDepth: this.pipeline.getQueueDepth?.(improvement.lane),
+        recentSuccessRate: this.pipeline.getSuccessRate?.(improvement.lane),
+        averageExecutionTime: this.pipeline.getAverageExecutionTime?.(improvement.lane)
+      };
+    }
+
+    // Track temporal context for trend analysis
+    record.temporalContext = {
+      timestamp: record.ts,
+      dayOfWeek: new Date(record.ts).getDay(),
+      hourOfDay: new Date(record.ts).getHours(),
+      turnNumber: this.turnCounter,
+      recentImprovementCount: this.store.improvements.slice(-10).length,
+      recentCritiqueCount: this.store.critiques.slice(-10).length,
+      timeSinceLastImprovement: this.store.improvements.length > 0 ? 
+        Date.now() - new Date(this.store.improvements[this.store.improvements.length - 1].ts).getTime() : null
+    };
+
+    // Add rollback capability tracking
+    record.rollback = {
+      canRollback: !!improvement.before,
+      rollbackData: improvement.before,
+      rollbackPlan: improvement.rollbackPlan,
+      autoRollbackThreshold: improvement.autoRollbackThreshold || 0.3,
+      rollbackConditions: improvement.rollbackConditions || []
+    };
+metaAnalysisId: recentMeta.turn,
+metaTimestamp: recentMeta.ts,
+confidenceScore: this._calculateMetaConfidence(improvement, recentMeta),
+alignmentScore: this._calculateAlignmentWithMeta(improvement, recentMeta),
+recommendationMatch: recentMeta.recommendations?.some(r => 
+  r.action?.toLowerCase().includes(improvement.type?.toLowerCase()) ||
+  improvement.description?.toLowerCase().includes(r.area?.toLowerCase())
+),
+criticalityScore: this._assessImprovementCriticality(improvement, recentMeta),
+impactRadius: this._estimateImpactRadius(improvement, recentMeta),
+riskLevel: this._calculateRiskLevel(improvement, recentMeta),
+priorityWeight: this._calculatePriorityWeight(improvement, recentMeta),
+dependencyChain: this._identifyDependencies(improvement),
+conflictingPatterns: this._detectConflictingPatterns(improvement),
+synergisticImprovements: this._findSynergisticImprovements(improvement),
+historicalCorrelation: this._findHistoricalCorrelations(improvement),
+patternEvolutionStage: this._determinePatternStage(improvement),
+monteCarloValidation: this.mcPlanScheduler ? {
+  estimatedSuccessRate: this._estimateSuccessRate(improvement.type),
+  optimalStrategy: this._getOptimalStrategy(improvement.type),
+  estimatedLatency: this._estimateLatency(improvement.type, improvement.strategy),
+  qualityEstimate: this._estimateQuality(improvement.type, improvement.strategy),
+  ucb1Score: this.mcPlanScheduler._getUCB1ForStrategy?.(improvement.type, improvement.strategy?.id),
+  convergenceStatus: this._checkConvergenceStatus(improvement.type),
+  driftDetected: this.mcPlanScheduler.driftAlerts?.some(d => d.taskType === improvement.type),
+  speedMode: this.mcPlanScheduler.speedMode?.label,
+  planCount: this.mcPlanScheduler.generatePlans?.(improvement.type, improvement.meta, {}).length,
+  resourceFiltering: improvement.requiredResources?.length > 0,
+  parallelismScore: improvement.strategy?.parallelism || 1
+} : null,
+connectionHealthCorrelation: this._correlateWithConnectionHealth(improvement),
+costBenefitRatio: record.resourceCost?.budgetUsd && improvement.measuredImpact ? 
+  improvement.measuredImpact / record.resourceCost.budgetUsd : null,
+expectedROI: this._calculateExpectedROI(improvement, recentMeta),
+degradationRisk: recentMeta.topWeaknesses?.some(w => 
+  improvement.description?.toLowerCase().includes(w.weakness?.toLowerCase())
+) ? 'high' : 'low',
+systemStateAlignment: this._assessSystemStateAlignment(improvement, recentMeta),
+pipelineReadiness: this._assessPipelineReadiness(improvement),
+validationRequirements: this._determineValidationRequirements(improvement, recentMeta),
+rollbackComplexity: this._assessRollbackComplexity(improvement),
+weaknessTargeting: recentMeta.topWeaknesses?.filter(w => 
+  improvement.description?.toLowerCase().includes(w.weakness?.toLowerCase())
+).map(w => ({ weakness: w.weakness, occurrences: w.count })),
+improvementEffectivenessHistory: recentMeta.improvementEffectiveness,
+connectionHealthSnapshot: Object.entries(recentMeta.connectionHealth || {}).map(([id, health]) => ({
+  channelId: id,
+  healthy: health.healthy,
+  errorRate: health.errorRate,
+  consecutiveFailures: health.consecutiveFailures
+})),
+diagnosticAlignment: this.store.diagnostics.slice(-3).some(d => 
+  d.findings?.some(f => improvement.description?.includes(f.item))
+),
 
     if (context.errorRates) {
       const highError = Object.entries(context.errorRates)

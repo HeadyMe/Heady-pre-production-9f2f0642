@@ -102,6 +102,8 @@ securityAndPrivacy:
     - useConnectorsAndSecrets
     - neverEmbedSecretsInCode
     - respectACLsAndScopes
+    - useCanonicalDomainsAndAbstractRoots
+    - avoidDriveLettersAndLocalhostInOutput
   logging:
     - avoidCollectingMoreSensitiveDataThanNecessary
     - redactOrAnonymizeWhenAppropriate
@@ -117,6 +119,23 @@ task_schema:
   rules:
     - when: isChangeTask == true
       then: priority = high
+
+task_classes:
+  interactive:
+    max_local_workers: 4
+    cloud_routing: never
+  heavy:
+    max_local_workers: 2
+    cloud_routing: auto
+    colab_fallback: true
+  massive:
+    max_local_workers: 0
+    cloud_routing: required
+    colab_required: true
+
+resource_rules:
+  local_ram_threshold: 80%  # Auto-offload if RAM >80% used
+  auto_colab_activation: true
 
 exampleWorkflow:
   name: Build a New Microservice from Scratch

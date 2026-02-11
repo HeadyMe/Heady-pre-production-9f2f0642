@@ -46,6 +46,30 @@ pipeline:
     selfCritiqueEnabled: true        # Post-run self-critique loop
     patternEngineEnabled: true       # Feed stage/task timing into pattern engine
     publicDomainMining: true         # Mine best-practice patterns from public tools
+    userFirstPolicy:
+      enabled: true
+      hotPoolTasks: [channel-entry, execute-major-phase, recover, deploy_priority]
+      warmPoolTasks: [self-critique, optimize, finalize]
+      coldPoolTasks: [ingest, plan, monitor-feedback, cross-device-sync]
+
+  # ─── NODE POOLS ───────────────────────────────────────────────────────────
+  nodePools:
+    hot:
+      description: "User-facing tasks, core pipelines"
+      priority: critical
+      reservedConcurrency: 6  # Increase reserved concurrency for user tasks
+      maxLatencyMs: 2000
+      userTaskOnly: true  # Only user tasks can use this pool
+    warm:
+      description: "Important background tasks"
+      priority: high
+      reservedConcurrency: 2
+      maxLatencyMs: 10000
+    cold:
+      description: "Async background tasks"
+      priority: low
+      reservedConcurrency: 0  # Dynamic allocation only when idle
+      maxLatencyMs: 60000
 
   # ─── STOP RULE ──────────────────────────────────────────────────────────
   stopRule:
@@ -68,6 +92,10 @@ pipeline:
       - type: bottleneck_severity
         threshold: "critical"
         action: pause_and_escalate
+      - type: user_queue_not_empty
+        action: throttle_background
+      - type: user_queue_empty
+        action: allow_background
 
   # ─── STAGES ─────────────────────────────────────────────────────────────
   #
@@ -365,8 +393,57 @@ pipeline:
       tasks:
         - run: scripts/deploy-priority.ps1
 
+    # New PQC stage
+    - id: pqc-operations
+      name: Post-Quantum Cryptography
+      description: Handles all PQC key generation, rotation, and validation
+      checkpoint: true
+      parallel: true
+      dependsOn: [plan]
+      tasks:
+        - generate_pqc_keys
+        - rotate_pqc_certificates
+        - validate_pqc_configs
+      pqcConfig:
+        defaultAlgorithm: x25519+kyber768
+        rotationSchedule: weekly
+        validationRules:
+          - minKeyStrength: 128
+          - approvedAlgorithms:
+              - x25519+kyber768
+              - x25519+dilithium5
+
+    # Modified crypto stage
+    - id: crypto
+      name: Cryptography
+      description: Handles all cryptographic operations (now includes PQC)
+      checkpoint: true
+      parallel: true
+      dependsOn: [pqc-operations]
+      tasks:
+        - generate_keys
+        - encrypt_data
+        - decrypt_data
+      cryptoConfig:
+        hybridMode: true
+        fallbackToClassical: true
+
   # ─── LANES ──────────────────────────────────────────────────────────────
   lanes:
+    pqc:
+      description: Post-quantum cryptography certificate deployment and rotation
+      triggers:
+        - schedule: "0 2 * * *"  # 2AM daily
+        - file_change: configs/pki/**
+        - api_call: POST /api/pipeline/pqc
+      stages:
+        - verify_openssl
+        - generate_certs
+        - deploy_configs
+        - validate_connections
+      tasks:
+        - run: ./.windsurf/workflows/pqc-deployment.md
+          args: -mode auto
     priority:
       description: Immediate deployment for urgent changes
       triggers:
@@ -375,6 +452,17 @@ pipeline:
       stages:
         - sync_priority_changes
         - deploy_priority
+    improvement:
+      description: Continuous autonomous improvement tasks (refactoring, optimization, self-healing)
+      triggers:
+        - schedule: "*/15 * * * *"  # Every 15 minutes
+        - api_call: POST /api/pipeline/improvement
+      stages:
+        - apply_pattern_improvements
+        - adjust_mc_strategy_weights
+        - invalidate_stale_caches
+        - adjust_worker_pool_concurrency
+        - update_channel_optimizations
 
   # ─── CHECKPOINT PROTOCOL ────────────────────────────────────────────────
   checkpointProtocol:

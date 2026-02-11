@@ -1,0 +1,7 @@
+# Default Aloha Protocol Configuration
+version: 1.0
+protocols:
+  - name: default
+    enabled: true
+    priority: 1
+    rules: []

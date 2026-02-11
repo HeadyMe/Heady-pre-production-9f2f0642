@@ -967,6 +967,59 @@ class MonteCarloGlobal {
     });
     if (this.eventLog.length > 500) this.eventLog = this.eventLog.slice(-500);
   }
+
+  /**
+   * Prioritize improvement tasks based on:
+   * - Pattern severity
+   * - Self-critique findings
+   * - Historical success rates
+   */
+  prioritizeImprovements(improvements) {
+    if (!improvements || improvements.length === 0) return [];
+    
+    // Score each improvement
+    const scored = improvements.map(imp => {
+      let score = 0;
+      
+      // Base priority
+      score += (4 - imp.priority) * 25; // Higher priority = higher score
+      
+      // Pattern severity boost
+      if (imp.type.includes('pattern') && imp.details?.severity) {
+        score += imp.details.severity === 'critical' ? 50 : 
+                 imp.details.severity === 'high' ? 30 : 10;
+      }
+      
+      // Critique confidence boost
+      if (imp.type === 'self_critique' && imp.details?.confidence) {
+        score += imp.details.confidence * 20;
+      }
+      
+      // Historical success rate (if available)
+      if (this.lastResults.pipeline?.successRate) {
+        score *= this.lastResults.pipeline.successRate;
+      }
+      
+      return { ...imp, score };
+    });
+    
+    // Sort by score
+    return scored.sort((a, b) => b.score - a.score);
+  }
+
+  /**
+   * API: Get recommended improvement plan
+   */
+  getImprovementPlan(improvements) {
+    const prioritized = this.prioritizeImprovements(improvements);
+    const budget = 3; // Max improvements to recommend
+    
+    return {
+      recommendations: prioritized.slice(0, budget),
+      confidence: this.quickReadiness(),
+      timestamp: new Date().toISOString(),
+    };
+  }
 }
 
 // Singleton global MC instance

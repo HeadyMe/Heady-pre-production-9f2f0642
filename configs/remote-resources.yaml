@@ -1,0 +1,13 @@
+# Remote Resources Configuration
+default_critical: false
+services:
+  cloudflare:
+    critical: false
+    fallback: local-certs
+  huggingface:
+    critical: false
+  modelcontext:
+    critical: true # Explicit critical service
+fallbacks:
+  enabled: true
+  timeout_ms: 1000

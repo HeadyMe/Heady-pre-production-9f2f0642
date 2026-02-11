@@ -1,0 +1,55 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: infra/docker/profiles/browser-only.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ============================================================
+# HEADY SYSTEMS | Profile: browser-only
+# ============================================================
+# Web UI + API + data. No local models, no voice, no billing.
+# Lightweight browser-based access to HeadyStack.
+# ============================================================
+
+services:
+  heady-web:
+    environment:
+      NODE_ENV: production
+
+  heady-api:
+    environment:
+      NODE_ENV: production
+
+  heady-postgres:
+    environment:
+      POSTGRES_USER: heady
+
+  heady-redis:
+    environment:
+      REDIS_MAXMEMORY: 64mb
+
+  # Scale down unused services
+  ollama:
+    deploy:
+      replicas: 0
+  voice-io:
+    deploy:
+      replicas: 0
+  billing-service:
+    deploy:
+      replicas: 0
+  telemetry-service:
+    deploy:
+      replicas: 0
+  embeddings-service:
+    deploy:
+      replicas: 0

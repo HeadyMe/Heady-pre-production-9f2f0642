@@ -1,0 +1,45 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: workflows/mint-dev-package.yml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+name: Mint Dev Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      developer_name:
+        description: 'Developer name'
+        required: true
+        type: string
+
+jobs:
+  mint:
+    runs-on: self-hosted-windows
+    steps:
+      - name: Generate Soul Token
+        run: |
+          $Token = [Guid]::NewGuid()
+          echo "SOUL_TOKEN=$Token" >> $env:GITHUB_ENV
+
+      - name: Register in Cloudflare KV
+        run: |
+          curl -X POST https://api.heady.systems/register \
+            -H "Authorization: Bearer ${{ secrets.HEADY_ADMIN_KEY }}" \
+            -d '{"user": "${{ inputs.developer_name }}", "token": "${{ env.SOUL_TOKEN }}"}'
+
+      - name: Inject Identity into Image
+        run: .\scripts\inject-identity.ps1 -Image "Heady-Master.vhdx" -Token ${{ env.SOUL_TOKEN }}
+
+      - name: Upload to Secure Storage
+        run: .\scripts\upload-package.ps1 -Dest "s3://heady-distro/${{ inputs.developer_name }}.7z"

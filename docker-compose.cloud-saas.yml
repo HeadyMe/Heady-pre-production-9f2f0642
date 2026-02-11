@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  heady-manager:
+    image: heady-manager:latest
+    environment:
+      - HEADYTARGET=CloudOnly
+      - CLOUD_HEADYME_URL=https://app.headysystems.com
+      - CLOUD_HEADYSYSTEMS_URL=https://app.headysystems.com
+      - CLOUD_HEADYCONNECTION_URL=https://app.headysystems.com
+    ports:
+      - "3300:3300"
+    depends_on:
+      - heady-proxy
+
+  heady-proxy:
+    image: nginx:alpine
+    volumes:
+      - ./configs/cloud-proxy.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+      - "443:443"

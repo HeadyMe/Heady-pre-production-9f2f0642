@@ -97,6 +97,12 @@ A checkpoint is any of these events:
 - `docs/DOC_OWNERS.yaml` checked: any doc past its `reviewBy` date triggers a task.
 - On release: "doc review" and "config snapshot" step; mark docs as reviewed.
 
+### 3g. User-First Priority Enforcement
+- Verify user-initiated tasks have absolute priority in resource allocation
+- Ensure background tasks only run when user queues are empty and ORS ≥ 85
+- Validate pause/resume behavior for background tasks when new user requests arrive
+- Check that all user-facing endpoints meet latency targets (<2000ms)
+
 ---
 
 ## 4. HeadyRegistry as Central Catalog
@@ -228,6 +234,11 @@ From now on, you must keep all relevant files up to date at every checkpoint:
 
 9. Use HeadyRegistry as the central catalog and control point: services, workflows,
    patterns, configs, docs, environments. Nothing exists off the books.
+
+10. User-initiated tasks have absolute priority. When any user request is active, 
+    allocate resources to minimize latency and maximize quality for that request. 
+    Only run background tasks when no user work is pending, and stop or throttle 
+    them immediately when new user work arrives.
 ```
 
 ---

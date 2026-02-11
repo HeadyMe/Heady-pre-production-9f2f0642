@@ -1,0 +1,33 @@
+# LOCALHOST ELIMINATION PROTOCOL
+# Version: 1.0.0
+# Effective: Immediately
+
+rules:
+  - "No localhost references in any code, configs, or documentation"
+  - "All services must use canonical domains from domain-mappings.yaml"
+  - "Development environments must use 'dev.' prefixed domains"
+  - "Test environments must use 'test.' prefixed domains"
+
+enforcement:
+  scan_patterns:
+    - "localhost"
+    - "127.0.0.1"
+    - ":\d+"  # port numbers
+    - "http://"
+  
+  auto_replacement:
+    development: "dev.headysystems.local"
+    test: "test.headysystems.com"
+    production: "api.headysystems.com"
+
+  verification:
+    - "Included in CI pipeline"
+    - "Runs on every commit"
+    - "Fails build if localhost found"
+
+  exceptions:
+    - "Docker internal networking"
+    - "Kubernetes cluster DNS"
+    - "Loopback interface diagnostics"
+
+compliance_check: "scripts/verify-no-localhost.ps1"

@@ -388,6 +388,78 @@ Proprietary - Heady Systems
 
 Write-Host "  [OK] Root files created" -ForegroundColor Green
 
+# ─── heady-registry.json (new structure) ──────────────────────────────
+$registryContent = @"
+{
+  "registryVersion": "3.2.0",
+  "updatedAt": "$(Get-Date -Format "yyyy-MM-ddTHH:mm:ss.fffZ")",
+  "description": "HeadyRegistry — Central catalog and control point for the Heady ecosystem",
+  "last_deployment": "",
+
+  "components": [
+  ],
+  "repos": [
+    {
+      "id": "heady-sys",
+      "name": "HeadySystems/Heady",
+      "url": "git@github.com:HeadySystems/Heady.git",
+      "role": "primary",
+      "promotionTargets": [],
+      "branchPolicy": {
+        "main": "protected-prod",
+        "release/*": "frozen"
+      }
+    },
+    {
+      "id": "heady-me",
+      "name": "HeadyMe/Heady",
+      "url": "git@github.com:HeadyMe/Heady.git",
+      "role": "personal-cloud",
+      "promotionTargets": ["heady-sys", "heady-conn"],
+      "branchPolicy": {
+        "main": "protected-prod",
+        "personal/*": "local-only"
+      }
+    },
+    {
+      "id": "heady-conn",
+      "name": "HeadyConnection/Heady",
+      "url": "https://github.com/HeadySystems/HeadyConnection.git",
+      "role": "cross-system-bridge",
+      "promotionTargets": ["heady-sys", "heady-me"],
+      "branchPolicy": {
+        "main": "protected-prod",
+        "tenant/*": "env-specific"
+      }
+    },
+    {
+      "id": "sandbox",
+      "name": "HeadySystems/sandbox",
+      "url": "git@github.com:HeadySystems/sandbox.git",
+      "role": "experimental",
+      "promotionTargets": ["heady-sys", "heady-me", "heady-conn"],
+      "branchPolicy": {
+        "main": "dev",
+        "exp/*": "short-lived"
+      }
+    }
+  ],
+  "patterns": [
+    {
+      "id": "multi-sot-protocol",
+      "name": "Multi Source-of-Truth Protocol",
+      "type": "operational",
+      "description": "Sandbox as change origin, controlled promotion to Systems/Me/Connection sources of truth with registry-driven sync and hard gates.",
+      "sourceOfTruth": "docs/ITERATIVE_REBUILD_PROTOCOL.md",
+      "status": "active"
+    }
+  ]
+}
+"@
+Set-Content (Join-Path $OutputPath "heady-registry.json") $registryContent -Encoding UTF8
+
+Write-Host "  [OK] heady-registry.json created" -ForegroundColor Green
+
 # ─── heady-manager.js (clean, modular) ────────────────────────────────
 Write-Host "Creating heady-manager.js..." -ForegroundColor Yellow
 

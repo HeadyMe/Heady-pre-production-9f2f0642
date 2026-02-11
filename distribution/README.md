@@ -14,18 +14,18 @@
 <!-- ╚══════════════════════════════════════════════════════════════════╝
 <!-- HEADY_BRAND:END
 -->
-# Heady Distribution Pack
+# HeadyWeb Distribution Pack
 
-**Every way to use, deploy, sell, and connect to the Heady ecosystem — in one folder.**
+**Every way to use, deploy, sell, and connect to the HeadyWeb ecosystem — in one folder.**
 
 ## What's Inside
 
 | Folder | Contents |
 |--------|----------|
-| `headyos/` | All forms of HeadyOS: Desktop, Browser Shell, Web Shell, Mobile Shell |
-| `browser/` | Heady Browser (local/hybrid/cloud) + extensions for Chrome, Firefox, Edge, Safari |
+| `headyweb/` | All forms of HeadyWeb: Desktop, Browser Shell, Web Shell, Mobile Shell |
+| `browser/` | HeadyWeb Browser (local/hybrid/cloud) + extensions for Chrome, Firefox, Edge, Safari |
 | `ide/` | Extensions for VS Code, JetBrains, Neovim, and others |
-| `mobile/` | Android APKs for Chat, Dev, Voice, Automations, HeadyOS Mobile |
+| `mobile/` | Android APKs for Chat, Dev, Voice, Automations, HeadyWeb Mobile |
 | `mcp/` | MCP server configs and tool definitions (GitHub, Slack, Notion, Drive, Docker, Calendar) |
 | `docker/` | Docker Compose profiles for every deployment combo |
 | `bundles/` | App bundle definitions (Personal, Pro, Dev, Creator, Automations, Enterprise) |

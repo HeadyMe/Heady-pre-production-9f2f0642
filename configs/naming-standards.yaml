@@ -58,10 +58,26 @@ banned_patterns:
   - E:\\
 
 service_naming:
-  pattern: "{domain}-service"
+  pattern: "{domain}-{purpose}-service"
   examples:
-    - user-service
-    - payments-service
+    - "headysystems-api-service"
+    - "headyconnection-auth-service"
+  rules:
+    - "Must include domain prefix"
+    - "Must include purpose descriptor"
+    - "Must end with '-service'"
+
+endpoint_naming:
+  rest_patterns:
+    collections: "/v1/{kebab-case-resource-name}"
+    instances: "/v1/{kebab-case-resource-name}/{id}"
+  graphql_patterns:
+    queries: "{camelCaseResourceName}Query"
+    mutations: "{camelCaseResourceName}Mutation"
+  rules:
+    - "No technical terms in public endpoints"
+    - "Versioned APIs (v1, v2, etc.)"
+    - "Consistent case conventions"
 
 infrastructure_patterns:
   queues: "heady-{service}-{purpose}-{env}"
@@ -71,9 +87,45 @@ replacement_rules:
   localhost:3000: "https://app.headysystems.com"
   C:\\MyProject\\Heady: "<HEADY_PROJECT_ROOT>"
 
+enforcement:
+  automated_checks:
+    - "Run on every commit via CI pipeline"
+    - "Block deployment if violations found"
+    - "Auto-correct fixable violations"
+  
+  verification_scripts:
+    - "scripts/verify-naming-standards.ps1"
+    - "scripts/verify-domain-compliance.ps1"
+    - "scripts/verify-no-localhost.ps1"
+  
+  reporting:
+    - "Real-time violation alerts in IDE"
+    - "Daily compliance reports"
+    - "Auto-generated JIRA tickets for critical violations"
+
 governance:
   naming_guardians: ["@founder", "@brand-architect"]
   required_approvals:
     - new_domains
     - service_names
     - rest_base_paths
+  compliance_workflow:
+    - "Violations create high-priority tasks"
+    - "Auto-assign to domain owners"
+    - "Resolution required within 24 hours"
+  
+  exception_process:
+    - "Submit via pull request"
+    - "Requires architect approval"
+    - "Documented in registry"
+
+integration:
+  ci_cd:
+    - "Run naming checks in pre-commit hook"
+    - "Block PR if violations exist"
+    - "Auto-comment with violations"
+  
+  monitoring:
+    - "Track naming compliance score"
+    - "Alert if score drops below 95%"
+    - "Weekly compliance reports"

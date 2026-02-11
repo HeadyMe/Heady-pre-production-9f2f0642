@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mcp-gateway:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - MCP_GATEWAY_TOKEN=${MCP_GATEWAY_TOKEN}
+    command: npm run start:mcp
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  admin-ui:
+    image: node:18
+    working_dir: /app/frontend
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    command: npm run dev
+    depends_on:
+      - mcp-gateway
+      - redis
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://admin-ui.heady.internal:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+        labels: "service=admin-ui"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - heady-network
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp:size=100M,mode=1777

@@ -133,6 +133,59 @@ protocol_integration:
     - "Track crash frequency as a first-class metric"
     - "Improvement proposals must include stability impact assessment"
 
+# ─── Continuous Improvement Rules ────────────────────────────────
+continuous_improvement:
+  description: >
+    Rules governing autonomous codebase improvements while maintaining stability.
+    Improvements must never compromise system stability.
+  
+  rules:
+    - "Autonomous improvements must pass all tests before being applied"
+    - "No autonomous changes to critical path code during high-load periods"
+    - "Improvement tasks must be reviewed by Monte Carlo scheduler for risk"
+    - "Stagnant patterns must be treated as bugs and addressed"
+    - "Document all autonomous changes in the registry"
+  
+  safety_thresholds:
+    readiness_score_min: 70    # Only run improvements when system is stable
+    error_rate_max: 0.05       # Max 5% error rate to allow improvements
+    resource_usage_max: 80     # Max 80% CPU/RAM usage to allow improvements
+  
+  governance:
+    - "Improvement tasks must be reviewed by Pattern Engine"
+    - "Changes must be small and incremental"
+    - "Critical files require manual approval"
+    - "All changes must be reversible"
+  
+  exempt_files:
+    - "configs/stability-first.yaml"
+    - "heady-registry.json"
+    - "heady-manager.js"
+    - "src/hc_pipeline.js"
+  
+  monitoring:
+    - "Track improvement task success rate"
+    - "Alert if improvement tasks cause stability issues"
+    - "Rollback automatically if error rate increases post-change"
+    - "Limit to 3 concurrent improvement tasks"
+    - "Pause improvements during critical incidents"
+
+# ─── Domain Governance Rules ────────────────────────────────────
+domain_governance:
+  description: "Domain naming and security standards"
+  rules:
+    - "No .onrender.com references in user-facing contexts"
+    - "All production domains must use HTTPS"
+    - "Custom domains must be configured in Cloudflare"
+    - "Render origins should only be used in DNS and backend configs"
+    - "All OAuth/webhook callbacks must use canonical domains"
+  
+  enforcement:
+    - "Domain verification checks run in CI pipeline"
+    - "Violations fail builds"
+    - "Auto-correct scripts attempt fixes where possible"
+    - "Manual review required for new domain registrations"
+
 # ─── Machine Instruction Block ───────────────────────────────────
 system_instruction_block: |
   If the user reports their computer or IDE "always crashing" or

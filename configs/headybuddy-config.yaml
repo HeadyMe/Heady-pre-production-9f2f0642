@@ -1,0 +1,23 @@
+# HeadyBuddy installation configuration
+version: "1.0.0"
+
+# Desktop configuration
+desktop:
+  build_dir: "headybuddy"
+  output_dir: "dist"
+  executable: "HeadyBuddy.exe"
+  npm_commands:
+    - "npm install"
+    - "npm run build"
+
+# Mobile configuration
+android:
+  build_dir: "headybuddy-mobile"
+  output_dir: "app\\build\\outputs\\apk\\release"
+  apk_name: "app-release.apk"
+  gradle_command: "./gradlew assembleRelease"
+
+# Common settings
+common:
+  auto_start: true
+  update_check_interval: 3600

@@ -27,6 +27,8 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import CollapsedPill from "./components/CollapsedPill";
 import MainWidget from "./components/MainWidget";
 import ExpandedView from "./components/ExpandedView";
+import CrossDeviceSync from "./components/CrossDeviceSync";
+import DemoRepos from "./components/DemoRepos";
 
 const HEADY_API = import.meta.env.VITE_HEADY_API || "http://api.heady.io:3300";
 const RESOURCE_POLL_MS = 5000;
@@ -203,7 +205,10 @@ export default function App() {
         resourceData={resourceData}
         pipelineState={pipelineState}
         config={config}
-      />
+      >
+        <CrossDeviceSync userId={config?.user?.id} />
+        <DemoRepos />
+      </ExpandedView>
     );
   }
 

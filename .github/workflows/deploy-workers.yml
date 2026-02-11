@@ -1,0 +1,48 @@
+name: Deploy Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'workers/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install Wrangler
+      run: npm install -g @cloudflare/wrangler
+      
+    - name: Deploy Auth Service Worker
+      working-directory: ./workers/service-worker
+      run: |
+        npm install
+        wrangler publish --env production
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        
+    - name: Deploy Gateway Worker
+      working-directory: ./workers/gateway-worker
+      run: |
+        npm install
+        wrangler publish --env production
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        
+    - name: Update DNS and Routes
+      run: pwsh ./scripts/deploy-cloudflare-workers.ps1
+
+
+
+

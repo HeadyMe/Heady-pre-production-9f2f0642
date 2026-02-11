@@ -37,7 +37,7 @@ sudo bash scripts/setup-production-domain-system.sh --include-local
 Heady Systems uses a **reverse proxy architecture** that completely eliminates localhost and internal IP exposure:
 
 ```
-Internet → Nginx (SSL/TLS) → Backend Applications
+Internet → Cloudflare Tunnel → Backend Applications
     ↓              ↓                ↓
 HTTPS Only    Security Headers    Internal Ports
 ```
@@ -88,76 +88,47 @@ headybuddy.org
 www.headybuddy.org
 ```
 
-## Manual Setup Instructions
+## Cloudflare Tunnel Deployment
 
-### 1. Install Dependencies
+### 1. Install Cloudflared
 ```bash
-sudo apt update
-sudo apt install -y nginx python3-certbot python3-certbot-nginx ufw
+# Download and install cloudflared
+wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -O /usr/local/bin/cloudflared
+chmod +x /usr/local/bin/cloudflared
 ```
 
-### 2. Configure Nginx
+### 2. Configure Tunnel
 ```bash
-# Backup original config
-sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
+# Authenticate and create tunnel
+cloudflared tunnel login
+cloudflared tunnel create heady-tunnel
 
-# Copy Heady configuration
-sudo cp configs/nginx/nginx.conf /etc/nginx/nginx.conf
-sudo cp configs/nginx/security-headers.conf /etc/nginx/conf.d/
-sudo cp configs/nginx/proxy-params.conf /etc/nginx/conf.d/
-sudo cp configs/nginx/upstreams.conf /etc/nginx/conf.d/
+# Configure ingress rules
+cat > ~/.cloudflared/config.yml <<EOL
+tunnel: <TUNNEL-ID>
+credentials-file: ~/.cloudflared/<TUNNEL-ID>.json
 
-# Copy site configurations
-sudo cp configs/nginx/sites-available/heady-systems.com /etc/nginx/sites-available/
-sudo cp configs/nginx/sites-available/api.headysystems.com /etc/nginx/sites-available/
+ingress:
+  - hostname: api.headymcp.com
+    service: http://localhost:3300
+  - hostname: app.headymcp.com
+    service: http://localhost:3000
+  - service: http_status:404
+EOL
 ```
 
-### 3. Set Up SSL Certificates
+### 3. Run Tunnel
 ```bash
-# Get certificates for each domain
-sudo certbot --nginx -d headysystems.com -d www.headysystems.com
-sudo certbot --nginx -d api.headysystems.com
-sudo certbot --nginx -d app.headysystems.com
-sudo certbot --nginx -d admin.headysystems.com
-sudo certbot --nginx -d headyconnection.org -d www.headyconnection.org
-sudo certbot --nginx -d api.headyconnection.org
-sudo certbot --nginx -d headybuddy.org -d www.headybuddy.org
+# Run as systemd service
+cloudflared service install
+systemctl start cloudflared
 ```
 
-### 4. Enable Sites
-```bash
-# Enable production sites
-sudo ln -s /etc/nginx/sites-available/heady-systems.com /etc/nginx/sites-enabled/
-sudo ln -s /etc/nginx/sites-available/api.headysystems.com /etc/nginx/sites-enabled/
-
-# Remove default site
-sudo rm -f /etc/nginx/sites-enabled/default
-
-# Test and reload
-sudo nginx -t
-sudo systemctl reload nginx
+### 4. Update DNS
+In Cloudflare DNS, point your domains to the tunnel:
 ```
-
-### 5. Configure Firewall
-```bash
-sudo ufw --force reset
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow ssh
-sudo ufw allow 'Nginx Full'
-sudo ufw --force enable
-```
-
-### 6. Create Web Directories
-```bash
-sudo mkdir -p /var/www/headysystems.com/public
-sudo mkdir -p /var/www/api.headysystems.com
-sudo mkdir -p /var/www/headyconnection.org/public
-sudo mkdir -p /var/www/api.headyconnection.org
-sudo mkdir -p /var/www/headybuddy.org/public
-
-sudo chown -R www-data:www-data /var/www/
-sudo chmod -R 755 /var/www/
+api.headymcp.com CNAME <TUNNEL-ID>.cfargotunnel.com
+app.headymcp.com CNAME <TUNNEL-ID>.cfargotunnel.com
 ```
 
 ## Application Deployment
@@ -260,6 +231,43 @@ curl http://app.heady.local/health
 curl http://api.heady.local/health
 ```
 
+## Internal mTLS Configuration
+
+For secure internal communication behind Cloudflare Tunnel:
+
+1. **Generate Certificates**:
+```bash
+cd scripts
+./generate-mtls-certs.ps1
+```
+
+2. **Configure Nginx**:
+```bash
+# Copy config and certificates
+sudo cp configs/nginx/mtls.conf /etc/nginx/conf.d/
+sudo mkdir -p /etc/nginx/ssl
+sudo cp configs/nginx/ssl/* /etc/nginx/ssl/
+```
+
+3. **Set Up Cloudflare Tunnel**:
+```bash
+# Install and configure cloudflared
+sudo cp configs/cloudflared/ingress-rules.yaml /etc/cloudflared/config.yaml
+sudo cp configs/nginx/ssl/ca.crt /etc/cloudflared/
+sudo cp configs/nginx/ssl/client.pem /etc/cloudflared/
+sudo cp configs/nginx/ssl/client.key /etc/cloudflared/
+
+# Start services
+sudo systemctl enable nginx-mtls
+sudo systemctl enable cloudflared
+```
+
+4. **Verify Connection**:
+```bash
+curl --cert configs/nginx/ssl/client.pem --key configs/nginx/ssl/client.key \
+    https://api.internal.headymcp.com/health
+```
+
 ## PyCharm Integration
 
 ### 1. Import Deployment Configuration
@@ -296,7 +304,7 @@ All deployments now follow the HCFullPipeline (HCFP) master protocol. Skip ad-ho
 ## Security Configuration
 
 ### SSL/TLS
-- **Certificates**: Let's Encrypt with auto-renewal
+- **Certificates**: Cloudflare-managed
 - **Protocols**: TLS 1.2 and 1.3 only
 - **Ciphers**: Modern, secure cipher suite
 - **HSTS**: Enabled with preload
@@ -311,7 +319,7 @@ All sites include:
 
 ### Firewall Rules
 - **SSH**: Port 22 (restricted to your IP if possible)
-- **HTTP/HTTPS**: Ports 80/443 (Nginx Full)
+- **HTTP/HTTPS**: Ports 80/443 (Cloudflare-managed)
 - **All other ports**: Denied by default
 
 ## Monitoring and Maintenance
@@ -322,24 +330,20 @@ All sites include:
 curl https://headysystems.com/health
 curl https://api.headysystems.com/health
 
-# Check nginx status
-curl http://127.0.0.1:8080/nginx_status
+# Check cloudflared status
+cloudflared tunnel status
 ```
 
 ### Log Locations
-- **Nginx Access**: `/var/log/nginx/headysystems.com-access.log`
-- **Nginx Error**: `/var/log/nginx/headysystems.com-error.log`
+- **Cloudflare Access**: `/var/log/cloudflared/access.log`
+- **Cloudflare Error**: `/var/log/cloudflared/error.log`
 - **Application Logs**: `/var/log/headysystems/`
 
 ### Log Rotation
 Logs are automatically rotated by the configuration in `/etc/logrotate.d/heady-systems`.
 
 ### SSL Certificate Renewal
-Certificates are automatically renewed by cron job:
-```bash
-# View renewal schedule
-sudo crontab -l | grep certbot
-```
+Certificates are automatically renewed by Cloudflare.
 
 ## Troubleshooting
 
@@ -348,13 +352,10 @@ sudo crontab -l | grep certbot
 #### 1. SSL Certificate Issues
 ```bash
 # Check certificate status
-sudo certbot certificates
+cloudflared tunnel certificate
 
-# Force renewal
-sudo certbot renew --force-renewal
-
-# Check nginx SSL config
-sudo nginx -t | grep SSL
+# Check cloudflared SSL config
+cloudflared tunnel config
 ```
 
 #### 2. Application Not Responding
@@ -369,16 +370,16 @@ sudo journalctl -u headysystems-api.service
 sudo systemctl restart headysystems-api.service
 ```
 
-#### 3. Nginx Configuration Errors
+#### 3. Cloudflare Configuration Errors
 ```bash
-# Test nginx configuration
-sudo nginx -t
+# Test cloudflared configuration
+cloudflared tunnel config
 
-# Check nginx error log
-sudo tail -f /var/log/nginx/error.log
+# Check cloudflared error log
+sudo tail -f /var/log/cloudflared/error.log
 
-# Reload nginx
-sudo systemctl reload nginx
+# Reload cloudflared
+sudo systemctl reload cloudflared
 ```
 
 #### 4. Domain Not Resolving
@@ -386,7 +387,7 @@ sudo systemctl reload nginx
 # Check DNS resolution
 nslookup headysystems.com
 
-# Check nginx is listening
+# Check cloudflared is listening
 sudo netstat -tlnp | grep :443
 
 # Check firewall status
@@ -396,22 +397,28 @@ sudo ufw status
 ### Performance Optimization
 
 #### 1. Enable Caching
-```nginx
-# Add to server block
-location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg)$ {
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-}
+```bash
+# Add to cloudflared config
+cat > ~/.cloudflared/config.yml <<EOL
+tunnel: <TUNNEL-ID>
+credentials-file: ~/.cloudflared/<TUNNEL-ID>.json
+
+ingress:
+  - hostname: api.headymcp.com
+    service: http://localhost:3300
+    cache:
+      - cacheTtl: 1h
+        cacheKey: url
+EOL
 ```
 
 #### 2. Enable Gzip Compression
-Already configured in the main nginx.conf.
+Already configured in the main cloudflared.conf.
 
 #### 3. Optimize Worker Connections
-```nginx
-# In nginx.conf
-worker_processes auto;
-worker_connections 1024;
+```bash
+# In cloudflared.conf
+num_workers: 4
 ```
 
 ## Validation and Testing
@@ -447,29 +454,25 @@ ab -n 1000 -c 10 https://headysystems.com/
 
 ### Configuration Backup
 ```bash
-# Backup nginx configuration
-sudo tar -czf nginx-config-backup.tar.gz /etc/nginx/
-
-# Backup SSL certificates
-sudo tar -czf letsencrypt-backup.tar.gz /etc/letsencrypt/
+# Backup cloudflared configuration
+sudo tar -czf cloudflared-config-backup.tar.gz ~/.cloudflared/
 
 # Backup web directories
 sudo tar -czf web-backup.tar.gz /var/www/
 ```
 
 ### Disaster Recovery
-1. Restore nginx configuration
-2. Restore SSL certificates
-3. Restore web directories
-4. Restart services
-5. Test all endpoints
+1. Restore cloudflared configuration
+2. Restore web directories
+3. Restart services
+4. Test all endpoints
 
 ## Scaling Considerations
 
 ### Load Balancing
 For high-traffic deployments, consider:
 - Multiple backend servers
-- Nginx load balancing configuration
+- Cloudflare load balancing configuration
 - Database replication
 - CDN integration
 

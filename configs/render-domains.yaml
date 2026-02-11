@@ -1,0 +1,36 @@
+# RENDER SERVICE DOMAIN CONFIGURATION
+# Version: 1.0.0
+# Last Updated: 2026-02-09
+
+services:
+  # HeadyManager Production
+  heady-manager-headysystems:
+    render_url: "heady-manager-headysystems.onrender.com"
+    custom_domains:
+      - "admin.headysystems.com"
+      - "api.headysystems.com"
+    environment:
+      BASE_URL: "https://api.headysystems.com"
+      ADMIN_URL: "https://admin.headysystems.com"
+
+  # HeadyManager Staging
+  heady-manager-staging-headysystems:
+    render_url: "heady-manager-staging-headysystems.onrender.com"
+    custom_domains:
+      - "api.staging.headysystems.com"
+    environment:
+      BASE_URL: "https://api.staging.headysystems.com"
+
+  # HeadyApp Production
+  heady-app-headysystems:
+    render_url: "heady-app-headysystems.onrender.com"
+    custom_domains:
+      - "app.headysystems.com"
+    environment:
+      BASE_URL: "https://app.headysystems.com"
+
+# Configuration Notes
+# 1. Each service must have custom domains configured in Render dashboard
+# 2. Environment variables should use the canonical domains
+# 3. DNS records must point to the Render service URL
+# 4. SSL certificates will be automatically provisioned by Render

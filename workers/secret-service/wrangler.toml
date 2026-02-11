@@ -1,0 +1,315 @@
+name = "heady-secret-service"
+account_id = "{{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
+workers_dev = true
+route = ""
+
+[build]
+command = "npm install && npm run build"
+upload.format = "service-worker"
+
+[observability]
+enabled = true
+head_sampling_rate = 1.0
+
+[limits]
+cpu_ms = 50
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[[kv_namespaces]]
+binding = "SECRETS_KV"
+id = "secrets-kv-dev"
+
+[[kv_namespaces]]
+binding = "AUDIT_LOG"
+id = "audit-log-kv-dev"
+
+[[kv_namespaces]]
+binding = "ROTATION_SCHEDULE"
+id = "rotation-schedule-kv-dev"
+
+[[kv_namespaces]]
+binding = "DEVICE_REGISTRY"
+id = "device-registry-kv-dev"
+
+[[kv_namespaces]]
+binding = "VAULT_CACHE"
+id = "vault-cache-kv-dev"
+
+[[kv_namespaces]]
+binding = "SECRET_METADATA"
+id = "secret-metadata-kv-dev"
+
+[[r2_buckets]]
+binding = "SECRET_BACKUPS"
+bucket_name = "heady-secret-backups-dev"
+
+[[durable_objects.bindings]]
+name = "SECRET_COORDINATOR"
+class_name = "SecretCoordinator"
+script_name = "heady-secret-service"
+
+[env.dev]
+name = "heady-secret-service-dev"
+workers_dev = true
+
+[env.dev.vars]
+NODE_ENV = "development"
+LOG_LEVEL = "debug"
+SERVICE_VERSION = "1.0.0"
+CHECK_INTERVAL_SECONDS = "30"
+WARN_BEFORE_EXPIRY_MINUTES = "15"
+AUDIT_RETENTION_DAYS = "90"
+ALERT_CHANNELS = "console"
+VAULT_ENABLED = "false"
+DEVICE_BINDING_POLICY = "multi_device"
+MAX_SECRETS_LAPTOP = "50"
+MAX_SECRETS_MOBILE = "20"
+MAX_SECRETS_SERVER = "unlimited"
+ROTATION_REMINDER_RENDER_API_KEY = "90d"
+ROTATION_REMINDER_HEADY_API_KEY = "90d"
+ROTATION_REMINDER_HF_TOKEN = "180d"
+ROTATION_REMINDER_GITHUB_TOKEN = "90d"
+ROTATION_REMINDER_NOTION_TOKEN = "never"
+HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}"
+ADMIN_TOKEN = "{{ secrets.ADMIN_TOKEN }}"
+RENDER_API_KEY = "{{ secrets.RENDER_API_KEY }}"
+DATABASE_URL = "{{ secrets.DATABASE_URL }}"
+HF_TOKEN = "{{ secrets.HF_TOKEN }}"
+GITHUB_TOKEN = "{{ secrets.GITHUB_TOKEN }}"
+NOTION_TOKEN = "{{ secrets.NOTION_TOKEN }}"
+CLOUDFLARE_API_TOKEN = "{{ secrets.CLOUDFLARE_API_TOKEN }}"
+REDIS_URL = "{{ secrets.REDIS_URL }}"
+STRIPE_SECRET_KEY = "{{ secrets.STRIPE_SECRET_KEY }}"
+STRIPE_WEBHOOK_SECRET = "{{ secrets.STRIPE_WEBHOOK_SECRET }}"
+HEADYBROWSER_API_KEY = "{{ secrets.HEADYBROWSER_API_KEY }}"
+HEADYBUDDY_TOKEN = "{{ secrets.HEADYBUDDY_TOKEN }}"
+
+[[env.dev.kv_namespaces]]
+binding = "SECRETS_KV"
+id = "secrets-kv-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "AUDIT_LOG"
+id = "audit-log-kv-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "ROTATION_SCHEDULE"
+id = "rotation-schedule-kv-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "DEVICE_REGISTRY"
+id = "device-registry-kv-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "VAULT_CACHE"
+id = "vault-cache-kv-dev"
+
+[[env.dev.kv_namespaces]]
+binding = "SECRET_METADATA"
+id = "secret-metadata-kv-dev"
+
+[[env.dev.r2_buckets]]
+binding = "SECRET_BACKUPS"
+bucket_name = "heady-secret-backups-dev"
+
+[[env.dev.durable_objects.bindings]]
+name = "SECRET_COORDINATOR"
+class_name = "SecretCoordinator"
+script_name = "heady-secret-service-dev"
+compatibility_date = "2026-02-09"
+main = "src/index.ts"
+
+[vars]
+SERVICE_VERSION = "1.0.0"
+LOG_LEVEL = "info"
+HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}"
+ADMIN_TOKEN = "{{ secrets.ADMIN_TOKEN }}"
+NODE_ENV = "development"
+CHECK_INTERVAL_SECONDS = "60"
+WARN_BEFORE_EXPIRY_MINUTES = "15"
+AUDIT_RETENTION_DAYS = "500"
+ALERT_CHANNELS = "console,api"
+ROTATION_REMINDER_RENDER_API_KEY = "90d"
+ROTATION_REMINDER_HEADY_API_KEY = "90d"
+ROTATION_REMINDER_HF_TOKEN = "180d"
+ROTATION_REMINDER_GITHUB_TOKEN = "90d"
+ROTATION_REMINDER_NOTION_TOKEN = "never"
+VAULT_ENABLED = "false"
+DEVICE_BINDING_POLICY = "multi_device"
+MAX_SECRETS_LAPTOP = "50"
+MAX_SECRETS_MOBILE = "20"
+MAX_SECRETS_SERVER = "unlimited"
+
+[[kv_namespaces]]
+binding = "SECRETS_KV"
+id = "secrets-kv"
+preview_id = "secrets-preview"
+
+[[kv_namespaces]]
+binding = "AUDIT_LOG"
+id = "audit-log-kv"
+preview_id = "audit-log-preview"
+
+[[kv_namespaces]]
+binding = "ROTATION_SCHEDULE"
+id = "rotation-schedule-kv"
+preview_id = "rotation-schedule-preview"
+
+[[kv_namespaces]]
+binding = "DEVICE_REGISTRY"
+id = "device-registry-kv"
+preview_id = "device-registry-preview"
+
+[[kv_namespaces]]
+binding = "VAULT_CACHE"
+id = "vault-cache-kv"
+preview_id = "vault-cache-preview"
+
+[observability]
+enabled = true
+head_sampling_rate = 1.0
+
+[limits]
+cpu_ms = 50
+
+[triggers]
+crons = ["*/5 * * * *"]  # Check secret expiry every 5 minutes
+
+# ─── Production Environment ─────────────────────────────────────────
+[env.production]
+name = "heady-secret-service-prod"
+workers_dev = false
+route = "secrets.headyconnection.org/*"
+
+[env.production.vars]
+NODE_ENV = "production"
+LOG_LEVEL = "warn"
+HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}"
+ADMIN_TOKEN = "{{ secrets.ADMIN_TOKEN }}"
+RENDER_API_KEY = "{{ secrets.RENDER_API_KEY }}"
+DATABASE_URL = "{{ secrets.DATABASE_URL }}"
+HF_TOKEN = "{{ secrets.HF_TOKEN }}"
+GITHUB_TOKEN = "{{ secrets.GITHUB_TOKEN }}"
+NOTION_TOKEN = "{{ secrets.NOTION_TOKEN }}"
+CLOUDFLARE_API_TOKEN = "{{ secrets.CLOUDFLARE_API_TOKEN }}"
+CHECK_INTERVAL_SECONDS = "60"
+WARN_BEFORE_EXPIRY_MINUTES = "15"
+AUDIT_RETENTION_DAYS = "500"
+ALERT_CHANNELS = "console,api,email,slack"
+ROTATION_REMINDER_RENDER_API_KEY = "90d"
+ROTATION_REMINDER_HEADY_API_KEY = "90d"
+ROTATION_REMINDER_HF_TOKEN = "180d"
+ROTATION_REMINDER_GITHUB_TOKEN = "90d"
+ROTATION_REMINDER_NOTION_TOKEN = "never"
+VAULT_ENABLED = "true"
+DEVICE_BINDING_POLICY = "single_device"
+MAX_SECRETS_LAPTOP = "50"
+MAX_SECRETS_MOBILE = "20"
+MAX_SECRETS_SERVER = "unlimited"
+
+[[env.production.kv_namespaces]]
+binding = "SECRETS_KV"
+id = "secrets-kv-prod"
+
+[[env.production.kv_namespaces]]
+binding = "AUDIT_LOG"
+id = "audit-log-kv-prod"
+
+[[env.production.kv_namespaces]]
+binding = "ROTATION_SCHEDULE"
+id = "rotation-schedule-kv-prod"
+
+[[env.production.kv_namespaces]]
+binding = "DEVICE_REGISTRY"
+id = "device-registry-kv-prod"
+
+[[env.production.kv_namespaces]]
+binding = "VAULT_CACHE"
+id = "vault-cache-kv-prod"
+
+# ─── Staging Environment ────────────────────────────────────────────
+[env.staging]
+name = "heady-secret-service-staging"
+workers_dev = true
+route = "secrets-staging.headyconnection.org/*"
+
+[env.staging.vars]
+NODE_ENV = "staging"
+LOG_LEVEL = "debug"
+HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}"
+ADMIN_TOKEN = "{{ secrets.ADMIN_TOKEN }}"
+RENDER_API_KEY = "{{ secrets.RENDER_API_KEY }}"
+DATABASE_URL = "{{ secrets.DATABASE_URL }}"
+HF_TOKEN = "{{ secrets.HF_TOKEN }}"
+GITHUB_TOKEN = "{{ secrets.GITHUB_TOKEN }}"
+NOTION_TOKEN = "{{ secrets.NOTION_TOKEN }}"
+CHECK_INTERVAL_SECONDS = "30"
+WARN_BEFORE_EXPIRY_MINUTES = "15"
+AUDIT_RETENTION_DAYS = "90"
+ALERT_CHANNELS = "console,api"
+ROTATION_REMINDER_RENDER_API_KEY = "90d"
+ROTATION_REMINDER_HEADY_API_KEY = "90d"
+ROTATION_REMINDER_HF_TOKEN = "180d"
+ROTATION_REMINDER_GITHUB_TOKEN = "90d"
+ROTATION_REMINDER_NOTION_TOKEN = "never"
+VAULT_ENABLED = "true"
+DEVICE_BINDING_POLICY = "single_device"
+MAX_SECRETS_LAPTOP = "50"
+MAX_SECRETS_MOBILE = "20"
+MAX_SECRETS_SERVER = "unlimited"
+
+[[env.staging.kv_namespaces]]
+binding = "SECRETS_KV"
+id = "secrets-kv-staging"
+
+[[env.staging.kv_namespaces]]
+binding = "AUDIT_LOG"
+id = "audit-log-kv-staging"
+
+[[env.staging.kv_namespaces]]
+binding = "ROTATION_SCHEDULE"
+id = "rotation-schedule-kv-staging"
+
+[[env.staging.kv_namespaces]]
+binding = "DEVICE_REGISTRY"
+id = "device-registry-kv-staging"
+
+[[env.staging.kv_namespaces]]
+binding = "VAULT_CACHE"
+id = "vault-cache-kv-staging"
+main = "src/index.ts"
+compatibility_date = "2026-02-09"
+
+[vars]
+HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}"
+ADMIN_TOKEN = "{{ secrets.ADMIN_TOKEN }}"
+
+[env.production]
+vars = { HEADY_API_KEY = "{{ secrets.HEADY_API_KEY }}", ADMIN_TOKEN = "{{ secrets.ADMIN_TOKEN }}" }
+NODE_ENV = "development"
+LOG_LEVEL = "debug"
+SERVICE_VERSION = "1.0.0"
+CHECK_INTERVAL_SECONDS = "30"
+WARN_BEFORE_EXPIRY_MINUTES = "15"
+AUDIT_RETENTION_DAYS = "90"
+ALERT_CHANNELS = "console,api"
+VAULT_ENABLED = "true"
+DEVICE_BINDING_POLICY = "single_device"
+MAX_SECRETS_LAPTOP = "50"
+MAX_SECRETS_MOBILE = "20"
+MAX_SECRETS_SERVER = "unlimited"
+ROTATION_REMINDER_RENDER_API_KEY = "90d"
+ROTATION_REMINDER_HEADY_API_KEY = "90d"
+ROTATION_REMINDER_HF_TOKEN = "180d"
+ROTATION_REMINDER_GITHUB_TOKEN = "90d"
+ROTATION_REMINDER_NOTION_TOKEN = "never"
+ROTATION_REMINDER_CLOUDFLARE_API_TOKEN = "90d"
+ROTATION_REMINDER_DATABASE_URL = "180d"
+ROTATION_REMINDER_REDIS_URL = "180d"
+ROTATION_REMINDER_STRIPE_SECRET_KEY = "90d"
+ROTATION_REMINDER_STRIPE_WEBHOOK_SECRET = "90d"
+ROTATION_REMINDER_HEADYBROWSER_API_KEY = "90d"
+ROTATION_REMINDER_HEADYBUDDY_TOKEN = "90d"
+ROTATION_REMINDER_BENEFICIAL = "90d"
