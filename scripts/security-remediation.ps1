@@ -20,9 +20,10 @@ if ($DryRun) {
     Write-Host "[DRY RUN] No files will be modified.`n" -ForegroundColor Yellow
 }
 
-# ─── Phase 1: Replace hardcoded passwords in docker-compose files ───────────
+# ─── Phase 1: Replace hardcoded passwords and localhost references ───────────
 
 $replacements = @(
+    # Docker compose passwords
     @{ File = "docker-compose.full.yml"; Old = "POSTGRES_PASSWORD=heady_secret"; New = 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}' },
     @{ File = "docker-compose.full.yml"; Old = "PGADMIN_DEFAULT_PASSWORD=heady_admin"; New = 'PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}' },
     @{ File = "docker-compose.full.yml"; Old = "GF_SECURITY_ADMIN_PASSWORD=heady_grafana"; New = 'GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}' },
@@ -31,10 +32,20 @@ $replacements = @(
     @{ File = "distribution/docker/base/docker-compose.base.yml"; Old = 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-heady123}'; New = 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}' },
     @{ File = "distribution/docker/profiles/dev-tools.yml"; Old = 'PASSWORD=${HEADY_IDE_PASSWORD:-heady}'; New = 'PASSWORD=${HEADY_IDE_PASSWORD}' },
     @{ File = "distribution/docker/profiles/hybrid.yml"; Old = 'DRUPAL_DATABASE_PASSWORD=${POSTGRES_PASSWORD:-heady_dev}'; New = 'DRUPAL_DATABASE_PASSWORD=${POSTGRES_PASSWORD}' },
-    @{ File = "distribution/docker/profiles/full-suite.yml"; Old = 'PASSWORD=${HEADY_IDE_PASSWORD:-heady}'; New = 'PASSWORD=${HEADY_IDE_PASSWORD}' }
+    @{ File = "distribution/docker/profiles/full-suite.yml"; Old = 'PASSWORD=${HEADY_IDE_PASSWORD:-heady}'; New = 'PASSWORD=${HEADY_IDE_PASSWORD}' },
+    
+    # Localhost to cloud references (CLOUD_ONLY mode)
+    @{ File = "configs/headymcp.json"; Old = "http://localhost:3000"; New = "https://headyio.com" },
+    @{ File = "configs/headymcp.json"; Old = "http://127.0.0.1:3000"; New = "https://headyio.com" },
+    @{ File = "configs/auto-deploy-config.json"; Old = "http://localhost:3300"; New = "https://headyio.com" },
+    @{ File = "configs/auto-deploy-config.json"; Old = "http://127.0.0.1:3300"; New = "https://headyio.com" },
+    @{ File = ".windsurf/admin-config.yaml"; Old = "localhost"; New = "headyio.com" },
+    @{ File = ".windsurf/model_config.yaml"; Old = "localhost"; New = "headyio.com" },
+    @{ File = "heady-manager.js"; Old = "localhost"; New = "headyio.com" },
+    @{ File = "heady-manager.js"; Old = "127.0.0.1"; New = "headyio.com" }
 )
 
-Write-Host "Phase 1: Replacing hardcoded passwords in docker-compose files..." -ForegroundColor Green
+Write-Host "Phase 1: Replacing hardcoded passwords and localhost references..." -ForegroundColor Green
 $fixCount = 0
 
 foreach ($r in $replacements) {
