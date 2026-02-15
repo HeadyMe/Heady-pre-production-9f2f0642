@@ -1,0 +1,385 @@
+# ═══════════════════════════════════════════════════════════
+# Made with 💜 Love by the HeadySystems™ & HeadyConnection™ Team
+# Sacred Geometry :: Organic Systems :: Breathing Interfaces
+# ═══════════════════════════════════════════════════════════
+
+version: "1.0.0"
+last_updated: "2026-02-15"
+
+brand:
+  primary_marks:
+    - name: "HeadySystems Merkaba Fire"
+      file: "heady-systems-merkaba-fire.png"
+      original_ref: "Gemini_Generated_Image_m0751vm0751vm075.jpg"
+      type: "logo"
+      geometry: "Star Tetrahedron (Merkaba)"
+      colors: ["#FF6B00", "#FFD700", "#00D4FF", "#9B59B6"]
+      usage: ["primary brand", "favicon", "loading screens"]
+      dimensions: "1024x1024"
+      alt_text: "HeadySystems Metatron's Cube logo with fiery orange and golden gradients"
+      
+    - name: "HeadyConnection Sacred Eye"
+      file: "heady-connection-sacred-eye.png"
+      original_ref: "Gemini_Generated_Image_c88oh2c88oh2c88o.jpg"
+      type: "logo"
+      geometry: "Flower of Life + All-Seeing Eye"
+      colors: ["#2ECC71", "#F4D03F", "#1ABC9C"]
+      usage: ["HeadyConnection brand", "community platform", "partnership materials"]
+      dimensions: "1024x1024"
+      alt_text: "HeadyConnection Flower of Life with central eye symbol in green and gold"
+
+    - name: "Merkaba Universe Cosmic"
+      file: "merkaba-universe-cosmic.png"
+      original_ref: "Gemini_Generated_Image_c88oh2c88oh2c88o.jpg"
+      type: "hero_background"
+      geometry: "Star Tetrahedron in cosmic space"
+      colors: ["#000033", "#FFD700", "#00FFFF", "#FF1493"]
+      usage: ["hero sections", "splash screens", "loading backgrounds"]
+      dimensions: "1024x1024"
+      alt_text: "Glowing Merkaba suspended in cosmic starfield with radiating sacred geometry"
+
+  brand_variants:
+    - name: "HeadySystems This/That/Here Set"
+      file_prefix: "heady-systems-variant"
+      original_ref: "Gemini_Generated_Image_81t65281t65281t6.jpg"
+      type: "brand_family"
+      count: 3
+      variants:
+        - suffix: "this"
+          context: "Local/Internal Systems"
+          color_scheme: "blue-purple"
+        - suffix: "that"
+          context: "Remote/External Systems"
+          color_scheme: "cyan-magenta"
+        - suffix: "here"
+          context: "Present/Active Systems"
+          color_scheme: "teal-cyan"
+      usage: ["system state indicators", "topology maps", "node status"]
+      
+    - name: "HeadyConnection This/That/Here Set"
+      file_prefix: "heady-connection-variant"
+      original_ref: "Gemini_Generated_Image_81t65281t65281t6.jpg"
+      type: "brand_family"
+      count: 3
+      variants:
+        - suffix: "this"
+          context: "Personal Connections"
+          color_scheme: "gold-green"
+        - suffix: "that"
+          context: "External Partnerships"
+          color_scheme: "gold-amber"
+        - suffix: "here"
+          context: "Active Community"
+          color_scheme: "gold-lime"
+      usage: ["community roles", "connection types", "relationship indicators"]
+
+    - name: "HeadyDirective This/That/Here Set"
+      file_prefix: "heady-directive-variant"
+      original_ref: "Gemini_Generated_Image_81t65281t65281t6.jpg"
+      type: "brand_family"
+      count: 3
+      variants:
+        - suffix: "this"
+          context: "Current Directive"
+          color_scheme: "blue-cyan"
+        - suffix: "that"
+          context: "Queued Directive"
+          color_scheme: "purple-cyan"
+        - suffix: "here"
+          context: "Active Execution"
+          color_scheme: "rainbow-gradient"
+      usage: ["task states", "pipeline stages", "execution context"]
+
+icon_collections:
+  metatrons_cube_variants:
+    name: "Metatron's Cube Color Spectrum"
+    original_ref: "Gemini_Generated_Image_m0751vm0751vm075.jpg"
+    file_prefix: "metatrons-cube"
+    type: "state_indicators"
+    count: 15
+    variants:
+      - color: "fire"
+        hex: "#FF4500"
+        state: "critical"
+        usage: "error states, high priority alerts"
+      - color: "cyan"
+        hex: "#00D4FF"
+        state: "idle"
+        usage: "standby mode, waiting for input"
+      - color: "magenta"
+        hex: "#FF00FF"
+        state: "processing"
+        usage: "active computation, AI thinking"
+      - color: "gold"
+        hex: "#FFD700"
+        state: "success"
+        usage: "completed tasks, optimal performance"
+      - color: "green"
+        hex: "#00FF00"
+        state: "healthy"
+        usage: "system health OK, all services up"
+      - color: "white"
+        hex: "#FFFFFF"
+        state: "pure"
+        usage: "initialization, clean slate"
+      - color: "ice"
+        hex: "#B0E0E6"
+        state: "frozen"
+        usage: "paused operations, suspended state"
+      - color: "rainbow"
+        hex: "gradient"
+        state: "dynamic"
+        usage: "multi-mode, adaptive state"
+      - color: "pink"
+        hex: "#FFB6C1"
+        state: "warm"
+        usage: "user-friendly mode, gentle notifications"
+      - color: "purple"
+        hex: "#9B59B6"
+        state: "mystical"
+        usage: "AI insight mode, pattern discovery"
+    dimensions: "512x512"
+    format: "png"
+    usage: ["system health dashboard", "node status badges", "real-time indicators"]
+
+  sacred_medallions:
+    name: "Sacred Geometry Medallion Collection"
+    original_ref: "Gemini_Generated_Image_iluppbiluppbilup.jpg"
+    file_prefix: "sacred-medallion"
+    type: "service_badges"
+    count: 36
+    categories:
+      tech_stack:
+        - icon: "metatron-cube-blue"
+          service: "HeadyMCP"
+          description: "MCP Server Core"
+        - icon: "merkaba-cyan"
+          service: "HeadyBuddy"
+          description: "AI Companion Service"
+        - icon: "flower-of-life-green"
+          service: "HeadyConnection"
+          description: "Community Platform"
+        - icon: "star-tetrahedron-purple"
+          service: "HeadyVinci"
+          description: "Pattern Recognition"
+        - icon: "torus-gold"
+          service: "HeadyBrowser"
+          description: "Intelligent Browser"
+      nature_wisdom:
+        - icon: "tree-of-life-green"
+          meaning: "Growth, roots, interconnection"
+        - icon: "lotus-yellow"
+          meaning: "Enlightenment, purity"
+        - icon: "butterfly-gold"
+          meaning: "Transformation, evolution"
+        - icon: "water-spiral-cyan"
+          meaning: "Flow, adaptation"
+    dimensions: "256x256"
+    format: "png"
+    usage: ["service node badges", "achievement icons", "skill indicators"]
+
+  discord_channel_icons:
+    name: "Discord Community Channel Icons"
+    original_refs:
+      - "Gemini_Generated_Image_7w2j8u7w2j8u7w2j.jpg"
+      - "Gemini_Generated_Image_f8r2nof8r2nof8r2.jpg"
+      - "Gemini_Generated_Image_hz11sphz11sphz11.jpg"
+      - "Gemini_Generated_Image_sb6v7fsb6v7fsb6v.jpg"
+    file_prefix: "discord-icon"
+    type: "community_channels"
+    channels:
+      infrastructure:
+        - name: "Server Status"
+          icon: "server-metatron-blue.png"
+          channel_id: "server-status"
+        - name: "Code Repository"
+          icon: "git-merkaba-purple.png"
+          channel_id: "code-repo"
+        - name: "Bug Tracking"
+          icon: "bug-sacred-red.png"
+          channel_id: "bug-tracking"
+        - name: "Database Management"
+          icon: "database-flower-cyan.png"
+          channel_id: "database"
+        - name: "API Documentation"
+          icon: "api-docs-gold.png"
+          channel_id: "api-docs"
+      community:
+        - name: "General Chat"
+          icon: "chat-bubble-gold.png"
+          channel_id: "general"
+        - name: "Introductions"
+          icon: "hand-wave-green.png"
+          channel_id: "introductions"
+        - name: "Off-Topic"
+          icon: "jester-hat-purple.png"
+          channel_id: "off-topic"
+        - name: "Events Calendar"
+          icon: "calendar-fol-green.png"
+          channel_id: "events"
+        - name: "Volunteer Ops"
+          icon: "hands-raised-gold.png"
+          channel_id: "volunteers"
+      development:
+        - name: "Project Showcase"
+          icon: "rocket-gear-cyan.png"
+          channel_id: "showcase"
+        - name: "Feedback & Ideas"
+          icon: "lightbulb-gold.png"
+          channel_id: "feedback"
+        - name: "Design & UI/UX"
+          icon: "palette-sacred.png"
+          channel_id: "design"
+        - name: "Research & Dev"
+          icon: "microscope-merkaba.png"
+          channel_id: "research"
+        - name: "Team Sync"
+          icon: "team-network-blue.png"
+          channel_id: "team-sync"
+      social:
+        - name: "Announcements"
+          icon: "megaphone-purple.png"
+          channel_id: "announcements"
+        - name: "Rules & FAQ"
+          icon: "scroll-gold.png"
+          channel_id: "rules"
+        - name: "Resources & Links"
+          icon: "folder-link-green.png"
+          channel_id: "resources"
+        - name: "Partnerships"
+          icon: "handshake-merkaba.png"
+          channel_id: "partnerships"
+        - name: "Social Media"
+          icon: "network-nodes-cyan.png"
+          channel_id: "social"
+      fun:
+        - name: "Gaming Lounge"
+          icon: "gamepad-purple.png"
+          channel_id: "gaming"
+        - name: "Music & Media"
+          icon: "music-note-blue.png"
+          channel_id: "music"
+        - name: "Creative Corner"
+          icon: "paintbrush-gold.png"
+          channel_id: "creative"
+        - name: "Meme Channel"
+          icon: "laugh-emoji-purple.png"
+          channel_id: "memes"
+        - name: "AFK / Idle"
+          icon: "coffee-cup-cyan.png"
+          channel_id: "afk"
+    dimensions: "512x512"
+    format: "png"
+    usage: ["Discord server channels", "community platform badges"]
+
+  tech_dev_badges:
+    name: "Technology & Development Badge Grid"
+    original_refs:
+      - "Gemini_Generated_Image_1yqdc41yqdc41yqd.jpg"
+      - "Gemini_Generated_Image_ywkprwywkprwywkp.jpg"
+    file_prefix: "tech-badge"
+    type: "technology_indicators"
+    count: 56
+    categories:
+      languages:
+        - "python-merkaba-green.png"
+        - "javascript-fol-yellow.png"
+        - "rust-gear-orange.png"
+        - "vue-green-sacred.png"
+        - "react-atom-cyan.png"
+      infrastructure:
+        - "docker-whale-blue.png"
+        - "kubernetes-hexagon-purple.png"
+        - "cloudflare-orange.png"
+        - "render-gear-cyan.png"
+        - "mongodb-leaf-green.png"
+      concepts:
+        - "ai-brain-purple.png"
+        - "neural-net-cyan.png"
+        - "quantum-cube-magenta.png"
+        - "blockchain-chain-gold.png"
+    dimensions: "128x128"
+    format: "png"
+    usage: ["tech stack documentation", "repository shields", "skill badges"]
+
+animated_assets:
+  - name: "Rotating Merkaba"
+    file: "merkaba-rotating.svg"
+    type: "animation"
+    format: "svg"
+    animation: "360° rotation, 12s duration, infinite loop"
+    usage: ["loading spinners", "page transitions", "processing indicators"]
+    
+  - name: "Pulsing Flower of Life"
+    file: "flower-of-life-pulse.svg"
+    type: "animation"
+    format: "svg"
+    animation: "scale 1.0 to 1.1, 3s duration, ease-in-out, infinite"
+    usage: ["background watermarks", "focus indicators", "breathing UI"]
+    
+  - name: "Sacred Geometry Transition"
+    file: "sacred-geometry-morph.svg"
+    type: "animation"
+    format: "svg"
+    animation: "morph between Merkaba → Flower of Life → Metatron's Cube, 20s loop"
+    usage: ["hero sections", "meditation timers", "system initialization"]
+
+color_palette:
+  primary:
+    heady_blue: "#4A90D9"
+    heady_green: "#2ECC71"
+    heady_gold: "#F4D03F"
+    heady_purple: "#9B59B6"
+    heady_cyan: "#00D4FF"
+  
+  gradients:
+    cosmic_fire: ["#FF4500", "#FFD700", "#FF8C00"]
+    ocean_depth: ["#001F3F", "#0074D9", "#7FDBFF"]
+    forest_wisdom: ["#2ECC71", "#27AE60", "#F4D03F"]
+    mystic_purple: ["#9B59B6", "#8E44AD", "#E91E63"]
+    rainbow_spectrum: ["#FF0000", "#FF7F00", "#FFFF00", "#00FF00", "#0000FF", "#4B0082", "#9400D3"]
+
+branding_footer:
+  html: |
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- Made with 💜 Love by the HeadySystems™ & HeadyConnection™ Team -->
+    <!-- Sacred Geometry :: Organic Systems :: Breathing Interfaces -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+  
+  markdown: |
+    ---
+    > ⚡ **Made with 💜 Love by the HeadySystems™ & HeadyConnection™ Team**
+    > *Sacred Geometry :: Organic Systems :: Breathing Interfaces*
+    > [HeadySystems](https://headysystems.com) | [HeadyConnection](https://headyconnection.org)
+    ---
+  
+  comment_block: |
+    # ═══════════════════════════════════════════════════════════
+    # Made with 💜 Love by the HeadySystems™ & HeadyConnection™ Team
+    # Sacred Geometry :: Organic Systems :: Breathing Interfaces
+    # https://headysystems.com | https://headyconnection.org
+    # ═══════════════════════════════════════════════════════════
+
+usage_guidelines:
+  trademark_usage:
+    - Always use ™ symbol after HeadySystems and HeadyConnection
+    - Never separate the sacred geometry from the brand name
+    - Maintain aspect ratio of all logo variants
+    - Minimum clear space: 20% of logo width on all sides
+  
+  color_usage:
+    - HeadySystems: blue/purple/cyan spectrum
+    - HeadyConnection: green/gold/amber spectrum
+    - HeadyDirective: rainbow gradients
+    - System states: match Metatron's Cube color codes
+  
+  accessibility:
+    - All logos must have descriptive alt text
+    - Color combinations must meet WCAG AA contrast standards
+    - Animated assets must respect prefers-reduced-motion
+    - Sacred geometry patterns should not trigger photosensitivity
+
+# ═══════════════════════════════════════════════════════════
+# Made with 💜 Love by the HeadySystems™ & HeadyConnection™ Team
+# Sacred Geometry :: Organic Systems :: Breathing Interfaces
+# ═══════════════════════════════════════════════════════════
