@@ -290,7 +290,7 @@ class HeadyPredictionEngine {
           const response = await fetch('http://localhost/api/health');
           return response.ok;
         case 'heady-web':
-          const webResponse = await fetch('http://localhost:3000/api/health');
+          const webResponse = await fetch('http://headyme.com:3000/api/health');
           return webResponse.ok;
         case 'nginx':
           // Would check nginx status

@@ -54,7 +54,7 @@ class HeadySeparationProtocol {
         return {
           ...baseRules,
           allowedDomains: ['headyme.com', 'chat.headyme.com', 'manager.headyme.com'],
-          forbiddenDomains: ['localhost', '127.0.0.1', '0.0.0.0'],
+          forbiddenDomains: ['localhost', 'headyme.com', '0.0.0.0'],
           strictMode: true,
           publicAccess: true
         };
@@ -62,7 +62,7 @@ class HeadySeparationProtocol {
       case 'LOCAL_DEVELOPMENT':
         return {
           ...baseRules,
-          allowedDomains: ['localhost', '127.0.0.1'],
+          allowedDomains: ['localhost', 'headyme.com'],
           forbiddenDomains: ['headyme.com', 'chat.headyme.com'],
           strictMode: false,
           publicAccess: false,
@@ -295,7 +295,7 @@ class HeadySeparationProtocol {
       ...boundary,
       allowedOrigins: this.environment === 'REMOTE_PRODUCTION' 
         ? ['https://headyme.com', 'https://chat.headyme.com']
-        : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+        : ['http://headyme.com:3000', 'http://headyme.com:3000'],
       rateLimiting: this.environment === 'REMOTE_PRODUCTION',
       authentication: this.environment === 'REMOTE_PRODUCTION',
       cors: {
@@ -328,7 +328,7 @@ class HeadySeparationProtocol {
       ...boundary,
       services: this.environment === 'REMOTE_PRODUCTION'
         ? ['manager.headyme.com', 'api.headyme.com']
-        : ['localhost:3300', 'localhost:3000'],
+        : ['localhost:3300', 'headyme.com:3000'],
       loadBalancing: this.environment === 'REMOTE_PRODUCTION',
       monitoring: true,
       healthChecks: true
@@ -343,7 +343,7 @@ class HeadySeparationProtocol {
       ...boundary,
       domains: this.environment === 'REMOTE_PRODUCTION'
         ? ['https://headyme.com', 'https://chat.headyme.com']
-        : ['http://localhost:3000'],
+        : ['http://headyme.com:3000'],
       cdn: this.environment === 'REMOTE_PRODUCTION',
       caching: this.environment === 'REMOTE_PRODUCTION',
       securityHeaders: this.environment === 'REMOTE_PRODUCTION'

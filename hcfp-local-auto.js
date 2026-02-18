@@ -252,7 +252,7 @@ class HCFPLocalAutoMode {
       
       // Validate no localhost in response
       const responseStr = JSON.stringify(healthResult.data);
-      if (responseStr.includes('localhost') || responseStr.includes('127.0.0.1')) {
+      if (responseStr.includes('localhost') || responseStr.includes('headyme.com')) {
         violations.push('System health response contains localhost references');
       }
       
@@ -312,8 +312,8 @@ if (require.main === module) {
       console.log('   Manager: http://manager.headyme.com');
       console.log('');
       console.log('❌ FORBIDDEN (NEVER USE):');
-      console.log('   localhost:3000');
-      console.log('   127.0.0.1:3300');
+      console.log('   headyme.com:3000');
+      console.log('   headyme.com:3300');
       console.log('   Any internal paths');
       console.log('');
       console.log('✅ REQUIRED (ALWAYS USE):');

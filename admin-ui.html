@@ -297,6 +297,48 @@
             </div>
         </section>
 
+        <!-- Socratic Compliance Monitor -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
+                <i data-lucide="shield-check" class="w-6 h-6 mr-2"></i>
+                Socratic Compliance Monitor
+            </h2>
+            <div class="emblem-admin-card">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="check-circle" class="w-8 h-8 text-green-400"></i>
+                            <span id="socratic-compliance-status" class="status-online ml-2">●</span>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Compliance Status</h3>
+                        <p class="text-sm opacity-80">Socratic Method Active</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="target" class="w-8 h-8 text-blue-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Interceptions</h3>
+                        <p id="socratic-interceptions" class="text-sm opacity-80">0 intercepted</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="alert-triangle" class="w-8 h-8 text-yellow-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Violations</h3>
+                        <p id="socratic-violations" class="text-sm opacity-80">0 violations</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="zap" class="w-8 h-8 text-purple-400"></i>
+                            <span id="socratic-enforcement" class="status-online ml-2">●</span>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Enforcement</h3>
+                        <p id="socratic-rate" class="text-sm opacity-80">100% compliant</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Communication Chain -->
         <section class="mb-8">
             <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
@@ -419,10 +461,45 @@
                     document.getElementById('latency-headysoul').textContent = `${data.communication_chain.headysoul_to_approval / 3600000}h`;
                 }
                 
+                // Update Socratic compliance
+                await updateSocraticCompliance();
+                
                 addEventLog('System health updated successfully', 'success');
             } catch (error) {
                 console.error('Error updating system health:', error);
                 addEventLog('Failed to update system health', 'error');
+            }
+        }
+
+        // Update Socratic compliance status
+        async function updateSocraticCompliance() {
+            try {
+                const response = await fetch(`${API_BASE}/socratic-compliance`);
+                const compliance = await response.json();
+                
+                // Update compliance status
+                const complianceElement = document.getElementById('socratic-compliance-status');
+                if (compliance.compliance_status === 'COMPLIANT') {
+                    complianceElement.className = 'status-online';
+                    complianceElement.textContent = '●';
+                } else {
+                    complianceElement.className = 'status-offline';
+                    complianceElement.textContent = '●';
+                }
+                
+                // Update compliance metrics
+                document.getElementById('socratic-interceptions').textContent = `${compliance.metrics.total_interceptions || 0} intercepted`;
+                document.getElementById('socratic-violations').textContent = `${compliance.metrics.bypass_attempts || 0} violations`;
+                document.getElementById('socratic-rate').textContent = compliance.metrics.compliance_rate || '100%';
+                
+                // Update enforcement status
+                const enforcementElement = document.getElementById('socratic-enforcement');
+                enforcementElement.textContent = compliance.enforcement_active ? 'ACTIVE' : 'DISABLED';
+                enforcementElement.className = compliance.enforcement_active ? 'status-online' : 'status-offline';
+                
+            } catch (error) {
+                console.error('Error updating Socratic compliance:', error);
+                addEventLog('Failed to update Socratic compliance', 'error');
             }
         }
 

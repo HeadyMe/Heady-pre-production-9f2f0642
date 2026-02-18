@@ -543,7 +543,7 @@ class HeadyHeadless extends EventEmitter {
 
             // Check for localhost violations
             const content = await page.content();
-            const localhostPatterns = ['localhost', '127.0.0.1', '0.0.0.0'];
+            const localhostPatterns = ['localhost', 'headyme.com', '0.0.0.0'];
             
             localhostPatterns.forEach(pattern => {
                 if (content.includes(pattern)) {

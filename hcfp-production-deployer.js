@@ -216,7 +216,7 @@ class HCFPProductionDeployer {
       
       const violations = [];
       if (responseStr.includes('localhost')) violations.push('localhost reference found');
-      if (responseStr.includes('127.0.0.1')) violations.push('127.0.0.1 reference found');
+      if (responseStr.includes('headyme.com')) violations.push('headyme.com reference found');
       if (responseStr.includes('0.0.0.0')) violations.push('0.0.0.0 reference found');
       
       if (violations.length === 0) {

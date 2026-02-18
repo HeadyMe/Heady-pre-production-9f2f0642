@@ -17,7 +17,7 @@
 cloud_mode:
   enabled: true
   primary_target: "https://headyio.com"
-  disable_localhost: false
+  disable_localhost: true
   enforce_cloud_first: true
   fallback_to_cloud: true
   local_development: false

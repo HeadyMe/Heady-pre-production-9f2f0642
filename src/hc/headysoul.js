@@ -1,7 +1,8 @@
 /*
  * HeadySoul: Human-AI Alignment Layer
+ * ALL responses use Socratic method by default - no exceptions
  * Routes critical decisions to Eric (HeadySoul) before execution
- * Implements Socratic method for optimal communication
+ * Implements mandatory Socratic questioning for optimal communication
  */
 
 const headyCRITICAL_THRESHOLDS = {
@@ -22,6 +23,9 @@ class HeadySoul {
       brain_to_headysoul: 450, // Email notification
       headysoul_to_approval: 86400000 // 24 hours in ms
     };
+    // MANDATORY: All responses must use Socratic method
+    this.socraticMode = process.env.SOCRATIC_MODE_ENABLED === 'true';
+    this.defaultSocraticMode = process.env.SOCRATIC_DEFAULT_MODE || 'exploratory';
   }
 
   // Socratic question generation
@@ -123,7 +127,39 @@ class HeadySoul {
     return escalationId;
   }
 
-  // Send checkpoint email to HeadySoul
+  // MANDATORY: Apply Socratic method to ALL responses
+  async applySocraticMethodToResponse(response, context = {}) {
+    if (!this.socraticMode) {
+      return response; // Should never happen with SOCRATIC_MODE_ENABLED=true
+    }
+    
+    const socraticResponse = {
+      original_response: response,
+      socratic_enhancement: true,
+      questions: [],
+      reasoning_framework: this.defaultSocraticMode,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Generate contextual Socratic questions
+    const socraticQuestions = await this.generateSocraticQuestions({
+      type: context.type || 'general_inquiry',
+      response: response,
+      mode: this.defaultSocraticMode
+    });
+    
+    socraticResponse.questions = socraticQuestions;
+    
+    // Enhance response with Socratic reasoning
+    socraticResponse.enhanced_response = this.enhanceResponseWithSocraticReasoning(response, socraticQuestions);
+    
+    return socraticResponse;
+  }
+  
+  // Enhance any response with Socratic reasoning
+  enhanceResponseWithSocraticReasoning(response, questions) {
+    return `What assumptions underlie this response?\n\n${questions.map(q => `• ${q}`).join('\n\n')}\n\nHow might we examine this from multiple perspectives?\n\nOriginal response: ${response}`;
+  }
   async sendCheckpointEmail(escalation) {
     const headyEmailContent = {
       to: 'headysoul@headyio.com',

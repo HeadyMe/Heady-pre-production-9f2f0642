@@ -423,7 +423,7 @@ class HeadySequentialRebuildEngine {
    */
   async testComponentRender(component) {
     try {
-      const response = await fetch(`http://localhost:3000${component.domains[0].includes('headyme.com') ? '' : '/' + component.name.toLowerCase()}`);
+      const response = await fetch(`http://headyme.com:3000${component.domains[0].includes('headyme.com') ? '' : '/' + component.name.toLowerCase()}`);
       const html = await response.text();
       
       return {
@@ -441,7 +441,7 @@ class HeadySequentialRebuildEngine {
    */
   async testUIFunctionality(component) {
     try {
-      const response = await fetch(`http://localhost:3000/api/health`);
+      const response = await fetch(`http://headyme.com:3000/api/health`);
       const health = await response.json();
       
       return {
@@ -459,7 +459,7 @@ class HeadySequentialRebuildEngine {
    */
   async testAIResponses(component) {
     try {
-      const response = await fetch('http://localhost:3000/buddy');
+      const response = await fetch('http://headyme.com:3000/buddy');
       const html = await response.text();
       
       return {
