@@ -1,0 +1,9 @@
+name: 'Emblem Design System Detection'
+type: module
+description: 'Drupal 11 custom browser automation for emblem design system validation and error detection.'
+core_version_requirement: ^11
+package: 'Custom'
+dependencies:
+  - drupal:system
+  - drupal:jsonapi
+  - drupal:rest

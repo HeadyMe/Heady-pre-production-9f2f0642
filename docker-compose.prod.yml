@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: heady-tunnel
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+      - /home/headyme/.cloudflared:/home/headyme/.cloudflared
+    networks:
+      - heady-network
+    depends_on:
+      - heady-manager
+      - heady-web
+
+  heady-manager:
+    image: headysystems/manager:latest
+    container_name: heady-manager
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DOMAIN=manager.headysystems.com
+      - PORT=3300
+    ports:
+      - "3300:3300"
+    networks:
+      - heady-network
+    command: node heady-manager.js
+
+  heady-web:
+    image: headysystems/web:latest
+    container_name: heady-web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DOMAIN=headysystems.com
+      - PORT=3000
+      - MANAGER_DOMAIN=https://manager.headysystems.com
+    ports:
+      - "3000:3000"
+    networks:
+      - heady-network
+    command: npm start
+
+networks:
+  heady-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

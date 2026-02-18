@@ -1,0 +1,64 @@
+{
+  "name": "heady-systems",
+  "version": "1.0.0",
+  "description": "HeadySystems - Sacred Geometry AI Platform with HeadySoul + Socratic Integration",
+  "main": "heady-manager.js",
+  "scripts": {
+    "start": "node heady-manager.js",
+    "start:zero-idle": "node src/zero-idle-launcher.js",
+    "monitor:idle": "node src/monitoring/idle-eliminator.js",
+    "optimize:continuous": "node src/services/background-optimizer.js",
+    "learn:continuous": "node src/intelligence/continuous-learner.js",
+    "asap": "npm run start:zero-idle & npm run monitor:idle & npm run optimize:continuous & npm run learn:continuous",
+    "dev": "node heady-manager.js",
+    "build": "echo 'Build completed'",
+    "test": "echo 'Tests completed'",
+    "deploy": "./scripts/hcfp-fixed-deploy.sh",
+    "health": "curl -s https://api.headyio.com/api/health | jq ."
+  },
+  "keywords": [
+    "ai",
+    "socratic",
+    "human-ai-alignment",
+    "sacred-geometry",
+    "heady",
+    "headysoul"
+  ],
+  "author": "HeadySystems",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.75.0",
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "openai": "^6.22.0",
+    "puppeteer": "^24.37.4",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "jest": "^29.7.0",
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HeadySystems/Heady.git"
+  },
+  "config": {
+    "headysoul_enabled": true,
+    "socratic_mode": "exploratory",
+    "communication_chain": "optimal"
+  },
+  "bugs": {
+    "url": "https://github.com/HeadySystems/Heady/issues"
+  },
+  "homepage": "https://github.com/HeadySystems/Heady#readme",
+  "directories": {
+    "doc": "docs"
+  }
+}

@@ -1,0 +1,575 @@
+/* Enhanced Emblem Components - Buttons, Icons & Corner Design Elements */
+
+/* ===== EMBLEM BUTTON VARIANTS ===== */
+
+/* Primary Emblem Buttons */
+.emblem-btn-primary {
+    background: var(--cosmic-gradient);
+    background-size: 400% 400%;
+    animation: cosmicFlow 3s ease-in-out infinite;
+    border: 2px solid var(--sacred-gold);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 25px var(--purple-glow), 0 0 40px var(--blue-glow);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.emblem-btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 35px var(--purple-glow), 0 0 60px var(--blue-glow), 0 0 80px var(--gold-glow);
+    border-color: var(--golden-glow);
+}
+
+.emblem-btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, var(--golden-glow), transparent);
+    transition: all 0.4s ease;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.emblem-btn-primary:hover::before {
+    width: 120%;
+    height: 120%;
+}
+
+.emblem-btn-primary span {
+    position: relative;
+    z-index: 1;
+}
+
+/* Sacred Geometry Buttons */
+.emblem-btn-geometry {
+    background: var(--sacred-geometry-bg);
+    border: 2px solid var(--sacred-gold);
+    color: var(--sacred-gold);
+    padding: 12px 24px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px var(--gold-glow);
+    cursor: pointer;
+}
+
+.emblem-btn-geometry:hover {
+    transform: rotate(180deg) scale(1.1);
+    box-shadow: 0 6px 30px var(--gold-glow), 0 0 50px var(--purple-glow);
+}
+
+.emblem-btn-geometry::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--metatron-cube);
+    opacity: 0.3;
+    animation: geometryRotate 10s linear infinite;
+    pointer-events: none;
+}
+
+/* Lotus Button */
+.emblem-btn-lotus {
+    background: linear-gradient(135deg, var(--nature-green), var(--earth-green));
+    border: 2px solid var(--nature-green);
+    color: white;
+    padding: 14px 28px;
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 25px var(--green-glow);
+    font-weight: 600;
+}
+
+.emblem-btn-lotus:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 35px var(--green-glow), 0 0 50px var(--nature-green);
+}
+
+.emblem-btn-lotus::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: var(--lotus-pattern);
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+}
+
+.emblem-btn-lotus:hover::before {
+    width: 100%;
+    height: 100%;
+}
+
+/* Eye of Providence Button */
+.emblem-btn-eye {
+    background: linear-gradient(135deg, var(--cosmic-purple), var(--deep-purple));
+    border: 2px solid var(--sacred-gold);
+    color: var(--golden-glow);
+    padding: 16px 32px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 25px var(--purple-glow), 0 0 40px var(--gold-glow);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.emblem-btn-eye:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 35px var(--purple-glow), 0 0 60px var(--gold-glow);
+    background: linear-gradient(135deg, var(--deep-purple), var(--cosmic-purple));
+}
+
+.emblem-btn-eye::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    background: var(--eye-providence);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+}
+
+.emblem-btn-eye:hover::before {
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
+}
+
+/* ===== EMBLEM ICON COMPONENTS ===== */
+
+/* Sacred Geometry Icons */
+.emblem-icon-geometry {
+    width: 40px;
+    height: 40px;
+    background: var(--metatron-cube);
+    border-radius: 50%;
+    border: 2px solid var(--sacred-gold);
+    box-shadow: 0 0 20px var(--gold-glow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: geometryRotate 20s linear infinite;
+}
+
+.emblem-icon-geometry::before {
+    content: '⬡';
+    font-size: 20px;
+    color: var(--sacred-gold);
+    text-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* Lotus Icons */
+.emblem-icon-lotus {
+    width: 36px;
+    height: 36px;
+    background: var(--lotus-pattern);
+    border-radius: 50%;
+    border: 2px solid var(--nature-green);
+    box-shadow: 0 0 20px var(--green-glow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.emblem-icon-lotus::before {
+    content: '❋';
+    font-size: 18px;
+    color: var(--nature-green);
+    text-shadow: 0 0 10px var(--green-glow);
+}
+
+/* Eye Icons */
+.emblem-icon-eye {
+    width: 42px;
+    height: 42px;
+    background: var(--eye-providence);
+    border-radius: 8px;
+    border: 2px solid var(--sacred-gold);
+    box-shadow: 0 0 20px var(--gold-glow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.emblem-icon-eye::before {
+    content: '👁';
+    font-size: 20px;
+    color: var(--sacred-gold);
+    text-shadow: 0 0 10px var(--gold-glow);
+}
+
+/* Cosmic Star Icons */
+.emblem-icon-star {
+    width: 38px;
+    height: 38px;
+    background: radial-gradient(circle, var(--golden-glow), transparent);
+    border-radius: 50%;
+    border: 2px solid var(--sacred-gold);
+    box-shadow: 0 0 20px var(--gold-glow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: starPulse 3s ease-in-out infinite;
+}
+
+.emblem-icon-star::before {
+    content: '✦';
+    font-size: 18px;
+    color: var(--sacred-gold);
+    text-shadow: 0 0 10px var(--gold-glow);
+}
+
+@keyframes starPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* ===== CORNER DESIGN ELEMENTS ===== */
+
+/* Bottom Left Corner Design */
+.emblem-corner-bottom-left {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 300px;
+    height: 300px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.8;
+}
+
+.emblem-corner-bottom-left::before {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -150px;
+    width: 300px;
+    height: 300px;
+    background: var(--metatron-cube);
+    opacity: 0.3;
+    animation: geometryRotate 40s linear infinite;
+    filter: blur(2px);
+}
+
+.emblem-corner-bottom-left::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--purple-glow), transparent);
+    opacity: 0.5;
+    animation: cornerGlow 4s ease-in-out infinite;
+}
+
+@keyframes cornerGlow {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* Bottom Right Corner Design */
+.emblem-corner-bottom-right {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.8;
+}
+
+.emblem-corner-bottom-right::before {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    right: -150px;
+    width: 300px;
+    height: 300px;
+    background: var(--lotus-pattern);
+    opacity: 0.3;
+    animation: lotusFloat 30s ease-in-out infinite;
+    filter: blur(2px);
+}
+
+.emblem-corner-bottom-right::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    right: -100px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--green-glow), transparent);
+    opacity: 0.5;
+    animation: cornerGlow 4s ease-in-out infinite reverse;
+}
+
+@keyframes lotusFloat {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(90deg) scale(1.05); }
+    50% { transform: rotate(180deg) scale(1); }
+    75% { transform: rotate(270deg) scale(1.05); }
+}
+
+/* Floating Emblem Elements in Corners */
+.emblem-corner-floats {
+    position: fixed;
+    pointer-events: none;
+    z-index: 11;
+    font-size: 2rem;
+    opacity: 0.6;
+}
+
+.emblem-corner-floats.bottom-left {
+    bottom: 20px;
+    left: 20px;
+    animation: floatCornerLeft 15s ease-in-out infinite;
+}
+
+.emblem-corner-floats.bottom-right {
+    bottom: 20px;
+    right: 20px;
+    animation: floatCornerRight 15s ease-in-out infinite;
+}
+
+@keyframes floatCornerLeft {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(20px, -30px) rotate(45deg); }
+    50% { transform: translate(-10px, -20px) rotate(90deg); }
+    75% { transform: translate(-20px, 10px) rotate(135deg); }
+}
+
+@keyframes floatCornerRight {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-20px, -30px) rotate(-45deg); }
+    50% { transform: translate(10px, -20px) rotate(-90deg); }
+    75% { transform: translate(20px, 10px) rotate(-135deg); }
+}
+
+/* ===== ENHANCED CORNER CARDS ===== */
+
+/* Bottom Left Corner Card */
+.emblem-corner-card-left {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 280px;
+    background: var(--emblem-glass);
+    border: 2px solid var(--sacred-gold);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px var(--purple-glow), 0 0 60px var(--blue-glow);
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    transform-origin: bottom left;
+    animation: cardSlideInLeft 0.8s ease-out;
+}
+
+.emblem-corner-card-left::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--metatron-cube);
+    opacity: 0.05;
+    animation: geometryRotate 60s linear infinite reverse;
+    pointer-events: none;
+}
+
+.emblem-corner-card-left::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: var(--emblem-circle);
+    opacity: 0.5;
+}
+
+@keyframes cardSlideInLeft {
+    from { transform: translateX(-100%) translateY(100%); opacity: 0; }
+    to { transform: translateX(0) translateY(0); opacity: 1; }
+}
+
+/* Bottom Right Corner Card */
+.emblem-corner-card-right {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: var(--emblem-glass);
+    border: 2px solid var(--nature-green);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px var(--green-glow), 0 0 60px var(--nature-green);
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    transform-origin: bottom right;
+    animation: cardSlideInRight 0.8s ease-out;
+}
+
+.emblem-corner-card-right::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--lotus-pattern);
+    opacity: 0.05;
+    animation: lotusFloat 60s ease-in-out infinite reverse;
+    pointer-events: none;
+}
+
+.emblem-corner-card-right::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: var(--emblem-circle);
+    opacity: 0.5;
+}
+
+@keyframes cardSlideInRight {
+    from { transform: translateX(100%) translateY(100%); opacity: 0; }
+    to { transform: translateX(0) translateY(0); opacity: 1; }
+}
+
+/* ===== CORNER NAVIGATION ===== */
+
+/* Bottom Left Navigation */
+.emblem-nav-left {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 25;
+}
+
+.emblem-nav-left .emblem-btn-geometry {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+}
+
+/* Bottom Right Navigation */
+.emblem-nav-right {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 25;
+}
+
+.emblem-nav-right .emblem-btn-lotus {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 20px;
+}
+
+/* ===== RESPONSIVE CORNER DESIGN ===== */
+
+@media (max-width: 768px) {
+    .emblem-corner-bottom-left,
+    .emblem-corner-bottom-right {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .emblem-corner-card-left,
+    .emblem-corner-card-right {
+        width: 220px;
+        padding: 15px;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+    }
+    
+    .emblem-corner-floats {
+        font-size: 1.5rem;
+    }
+    
+    .emblem-nav-left,
+    .emblem-nav-right {
+        bottom: 15px;
+        left: 15px;
+        right: 15px;
+    }
+    
+    .emblem-nav-left .emblem-btn-geometry,
+    .emblem-nav-right .emblem-btn-lotus {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.emblem-glow-heavy { 
+    box-shadow: 0 0 40px var(--purple-glow), 
+               0 0 80px var(--blue-glow), 
+               0 0 120px var(--gold-glow) !important;
+}
+
+.emblem-border-heavy { 
+    border-width: 3px !important;
+    border-color: var(--sacred-gold) !important;
+}
+
+.emblem-curve-heavy {
+    border-radius: 20px !important;
+}
+
+.emblem-text-heavy {
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 2px !important;
+    text-shadow: 0 0 20px currentColor !important;
+}

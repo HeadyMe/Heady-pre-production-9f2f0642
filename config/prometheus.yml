@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+rule_files:
+  - "alert_rules.yml"
+
+scrape_configs:
+  - job_name: 'heady-manager'
+    static_configs:
+      - targets: ['manager.headyme.com']
+    metrics_path: '/api/metrics'
+    
+  - job_name: 'python-worker'
+    static_configs:
+      - targets: ['manager.headyme.com:5000']
+    metrics_path: '/metrics'
+    
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['manager.headyme.com:6379']
+      
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['manager.headyme.com:9100']
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - manager.headyme.com:9093

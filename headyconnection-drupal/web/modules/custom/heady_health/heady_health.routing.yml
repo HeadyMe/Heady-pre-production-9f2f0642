@@ -1,0 +1,17 @@
+heady_health.health:
+  path: '/admin/health'
+  defaults:
+    _controller: '\Drupal\heady_health\Controller\HealthController::check'
+    _title: 'Health Check'
+  requirements:
+    _permission: 'access content'
+    _method: 'GET'
+
+heady_health.detailed:
+  path: '/admin/health/detailed'
+  defaults:
+    _controller: '\Drupal\heady_health\Controller\HealthController::detailed'
+    _title: 'Detailed Health Check'
+  requirements:
+    _permission: 'access content'
+    _method: 'GET'

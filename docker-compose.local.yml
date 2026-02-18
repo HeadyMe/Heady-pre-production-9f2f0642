@@ -1,0 +1,345 @@
+# ═══════════════════════════════════════════════════════════════
+# 🐳 HEADY LOCAL DOCKER COMPOSE WITH CLOUDFLARE TUNNEL
+# ═══════════════════════════════════════════════════════════════
+# Local deployment with 90% baseline / 100% peak resource allocation
+
+version: '3.8'
+
+services:
+  # Cloudflare Tunnel - Single Ingress Point
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: heady-tunnel
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+    networks:
+      - heady-network
+    depends_on:
+      - heady-conductor
+      - heady-soul
+      - heady-mcp
+      - heady-web
+      - heady-buddy
+      - heady-lens
+      - heady-vinci
+
+  # HeadyConductor - Central Orchestrator
+  heady-conductor:
+    image: headysystems/conductor:latest
+    container_name: heady-conductor
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - RESOURCE_MODE=baseline  # 90% by default
+      - PRIORITY_LEVEL=medium
+      - SOUL_ENDPOINT=http://heady-soul:8001
+      - MCP_ENDPOINT=http://heady-mcp:8002
+      - REDIS_URL=redis://heady-redis:6379
+      - DB_URL=postgresql://heady:headypass@heady-db:5432/heady
+      - ATTENTION_TRACKING=enabled
+      - CONTEXT_SWITCH_LIMIT=2
+    ports:
+      - "8000:8000"
+    volumes:
+      - conductor-data:/app/data
+      - ./logs:/app/logs
+    networks:
+      - heady-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.8'  # 90% baseline
+          memory: 3.6G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadySoul - Intelligence Layer
+  heady-soul:
+    image: headysystems/soul:latest
+    container_name: heady-soul
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - LEARNING_MODE=continuous
+      - ATTENTION_TRACKING=enabled
+      - PRIORITY_LEVEL=medium
+      - PREDICTION_MODEL=enabled
+      - RESOURCE_OPTIMIZATION=enabled
+      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+    ports:
+      - "8001:8001"
+    volumes:
+      - soul-data:/app/models
+      - soul-cache:/app/cache
+      - ./logs:/app/logs
+    networks:
+      - heady-network
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '3.6'  # 90% baseline
+          memory: 7.2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadyMCP - Context Protocol
+  heady-mcp:
+    image: headysystems/mcp:latest
+    container_name: heady-mcp
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://heady-redis:6379
+      - DB_URL=postgresql://heady:headypass@heady-db:5432/heady
+      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - PROTOCOL_VERSION=latest
+    ports:
+      - "8002:8002"
+    networks:
+      - heady-network
+    depends_on:
+      - heady-redis
+      - heady-db
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.9'  # 90% baseline
+          memory: 1.8G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadyWeb - User Interface
+  heady-web:
+    image: headysystems/web:latest
+    container_name: heady-web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - API_ENDPOINT=http://heady-conductor:8000
+      - WEBSOCKET_ENABLED=true
+      - ATTENTION_TRACKING=enabled
+      - BUDDY_ENDPOINT=http://heady-buddy:8003
+    ports:
+      - "3000:3000"
+    networks:
+      - heady-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.9'
+          memory: 1.8G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadyBuddy - Interaction Layer
+  heady-buddy:
+    image: headysystems/buddy:latest
+    container_name: heady-buddy
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - SOUL_ENDPOINT=http://heady-soul:8001
+      - ATTENTION_DETECTION=enabled
+      - RESOURCE_ESCALATION=enabled
+      - USER_INTERACTION_MODE=sensitive
+    ports:
+      - "8003:8003"
+    networks:
+      - heady-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.8'  # 90% baseline
+          memory: 3.6G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadyLens - Visual Analysis
+  heady-lens:
+    image: headysystems/lens:latest
+    container_name: heady-lens
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - GPU_ENABLED=true
+      - PRIORITY_LEVEL=medium-low
+      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - VISUAL_PROCESSING_MODE=optimized
+    ports:
+      - "8004:8004"
+    networks:
+      - heady-network
+    deploy:
+      resources:
+        limits:
+          cpus: '3.0'
+          memory: 6G
+        reservations:
+          cpus: '2.7'  # 90% baseline
+          memory: 5.4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadyVinci - Pattern Recognition
+  heady-vinci:
+    image: headysystems/vinci:latest
+    container_name: heady-vinci
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - LEARNING_CONTINUOUS=true
+      - PATTERN_CACHE=redis://heady-redis:6379
+      - PRIORITY_LEVEL=medium-low
+      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - RESOURCE_MODE=baseline
+    ports:
+      - "8005:8005"
+    volumes:
+      - vinci-patterns:/app/patterns
+      - ./logs:/app/logs
+    networks:
+      - heady-network
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '3.6'  # 90% baseline
+          memory: 7.2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis - State Management and Caching
+  heady-redis:
+    image: redis:7-alpine
+    container_name: heady-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - heady-network
+    command: redis-server --maxmemory 2gb --maxmemory-policy allkeys-lru --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL - Persistent Data Storage
+  heady-db:
+    image: postgres:16-alpine
+    container_name: heady-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=heady
+      - POSTGRES_USER=heady
+      - POSTGRES_PASSWORD=headypass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heady"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadyStorage - Static Assets and Files
+  heady-storage:
+    image: minio/minio:latest
+    container_name: heady-storage
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=heady
+      - MINIO_ROOT_PASSWORD=headypass123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - storage-data:/data
+    networks:
+      - heady-network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  heady-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  conductor-data:
+    driver: local
+  soul-data:
+    driver: local
+  soul-cache:
+    driver: local
+  vinci-patterns:
+    driver: local
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+  storage-data:
+    driver: local

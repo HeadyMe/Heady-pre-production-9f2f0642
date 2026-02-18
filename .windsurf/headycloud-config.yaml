@@ -1,0 +1,319 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .windsurf/headycloud-config.yaml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# HeadyCloud Configuration - CLOUD ONLY MODE
+cloud_mode:
+  enabled: true
+  primary_target: "https://headyio.com"
+  disable_localhost: false
+  enforce_cloud_first: true
+  fallback_to_cloud: true
+  local_development: false
+
+version: "3.0.0"
+name: HeadyCloud-Optimal-Dev-Env
+
+# ─── HEADCLOUD SERVICES CONFIGURATION ───────────────────────────────────
+headycloud:
+  primary_domain: "https://headyio.com"
+  api_base: "https://headyio.com/api"
+  manager_base: "https://headyio.com/manager"
+  registry_base: "https://headyio.com/registry"
+  brain_base: "https://headyio.com/api/brain"
+  
+  # Service endpoints for optimal performance
+  endpoints:
+    health_check: "/health"
+    api_health: "/api/health"
+    brain_train: "/api/v1/train"
+    orchestrator_route: "/api/orchestrator/route"
+    registry_query: "/api/registry"
+    pattern_store: "/api/patterns"
+    
+  # Intelligent routing with failover
+  routing:
+    primary: "headyio.com"
+    fallback: "headyio.com"
+    emergency: "172.67.136.19"
+    circuit_breaker_threshold: 3
+    timeout_ms: 10000
+    retry_attempts: 3
+
+# ─── WINDSURF INTEGRATION ───────────────────────────────────────────────
+windsurf:
+  # Administrative privileges
+  admin_privileges:
+    elevated_permissions: true
+    system_file_access: true
+    registry_editing: true
+    service_management: true
+    network_configuration: true
+    
+  # Optimal workspace settings
+  workspace:
+    auto_save: true
+    parallel_execution: true
+    intelligent_orchestration: true
+    monte_carlo_optimization: true
+    pattern_recognition: true
+    continuous_learning: true
+    
+  # Performance optimization
+  performance:
+    max_parallel_tasks: 20
+    memory_limit_gb: 8
+    cpu_priority: "high"
+    gpu_acceleration: true
+    cache_size_mb: 1024
+    
+  # Heady services integration
+  heady_services:
+    brain_first_policy: true
+    100_percent_compliance: true
+    auto_recovery: true
+    continuous_validation: true
+    usage_enforcement: true
+    dominance_monitoring: true
+    
+  # Model selection — Heady is the only model unless explicitly overridden
+  model_selection:
+    default_model: "heady-brain"
+    display_name: "Heady"
+    selectable_models:
+      - id: "heady-brain"
+        name: "Heady"
+        provider: "headysystems"
+        priority: 200
+        default: true
+        endpoint: "https://headyio.com/api/brain"
+      - id: "heady-conductor"
+        name: "Heady Conductor"
+        provider: "headysystems"
+        priority: 190
+        endpoint: "https://headyio.com/api"
+    policy:
+      strategy: "heady_only"
+      heady_percentage: 100
+      external_models_blocked: true
+      override_requires: "explicit_user_direction"
+      log_all_selections: true
+
+# ─── INTELLIGENT ORCHESTRATION ───────────────────────────────────────────
+orchestration:
+  # Monte Carlo task planning
+  monte_carlo:
+    enabled: true
+    exploration_factor: 0.3
+    ucb1_confidence: 2.0
+    speed_priority: 0.8
+    quality_threshold: 0.9
+    
+  # Parallel execution
+  parallel:
+    max_concurrent_tasks: 10
+    task_queue_size: 100
+    load_balancing: "dynamic"
+    resource_allocation: "intelligent"
+    
+  # Pattern recognition
+  patterns:
+    learning_rate: 0.01
+    pattern_threshold: 0.8
+    adaptation_speed: "fast"
+    prediction_accuracy: 0.95
+    
+  # Self-optimization
+  self_optimization:
+    continuous_improvement: true
+    feedback_loop: "real-time"
+    performance_tracking: true
+    bottleneck_detection: true
+
+# ─── DEVELOPMENT WORKFLOW ────────────────────────────────────────────────
+development:
+  # Code quality
+  code_quality:
+    eslint_integration: true
+    typescript_strict: true
+    auto_formatting: true
+    real_time_validation: true
+    
+  # Testing
+  testing:
+    unit_tests: true
+    integration_tests: true
+    e2e_tests: true
+    performance_tests: true
+    auto_test_on_save: true
+    
+  # Build and deployment
+  build:
+    incremental_builds: true
+    parallel_compilation: true
+    cache_optimization: true
+    auto_deploy_on_success: true
+    
+  # Documentation
+  documentation:
+    auto_generation: true
+    real_time_updates: true
+    interactive_docs: true
+    code_examples: true
+
+# ─── SECURITY AND COMPLIANCE ───────────────────────────────────────────
+security:
+  # Authentication
+  authentication:
+    api_key_required: true
+    jwt_tokens: true
+    oauth_integration: true
+    multi_factor_auth: true
+    
+  # Data protection
+  data_protection:
+    encryption_at_rest: true
+    encryption_in_transit: true
+    data_masking: true
+    audit_logging: true
+    
+  # Access control
+  access_control:
+    role_based_access: true
+    principle_of_least_privilege: true
+    session_management: true
+    timeout_policy: 3600
+
+# ─── MONITORING AND OBSERVABILITY ─────────────────────────────────────
+monitoring:
+  # Performance metrics
+  performance:
+    response_time_tracking: true
+    throughput_monitoring: true
+    error_rate_tracking: true
+    resource_utilization: true
+    
+  # Health checks
+  health_checks:
+    endpoint_monitoring: true
+    dependency_tracking: true
+    service_mesh: true
+    auto_healing: true
+    
+  # Logging
+  logging:
+    structured_logging: true
+    log_aggregation: true
+    real_time_analysis: true
+    alerting: true
+    
+  # Analytics
+  analytics:
+    usage_statistics: true
+    performance_analytics: true
+    predictive_analysis: true
+    anomaly_detection: true
+
+# ─── CROSS-PLATFORM SUPPORT ────────────────────────────────────────────
+cross_platform:
+  # Desktop
+  desktop:
+    windows_support: true
+    macos_support: true
+    linux_support: true
+    
+  # Mobile
+  mobile:
+    android_support: true
+    ios_support: true
+    
+  # Web
+  web:
+    browser_support: ["chrome", "firefox", "safari", "edge"]
+    responsive_design: true
+    pwa_support: true
+
+# ─── INTEGRATION POINTS ────────────────────────────────────────────────
+integrations:
+  # Heady services
+  heady_services:
+    headdybrain: true
+    headdybuddy: true
+    headdyide: true
+    headdybrowser: true
+    
+  # External services
+  external:
+    github: true
+    docker: true
+    kubernetes: true
+    aws: true
+    azure: true
+    gcp: true
+    
+  # Development tools
+  dev_tools:
+    git: true
+    npm: true
+    yarn: true
+    webpack: true
+    vite: true
+    eslint: true
+    prettier: true
+
+# ─── OPTIMIZATION SETTINGS ──────────────────────────────────────────────
+optimization:
+  # Performance
+  performance:
+    caching_strategy: "aggressive"
+    compression: true
+    minification: true
+    lazy_loading: true
+    
+  # Resource usage
+  resources:
+    memory_optimization: true
+    cpu_optimization: true
+    network_optimization: true
+    storage_optimization: true
+    
+  # Build optimization
+  build:
+    tree_shaking: true
+    dead_code_elimination: true
+    code_splitting: true
+    bundle_analysis: true
+
+# ─── USER EXPERIENCE ───────────────────────────────────────────────────
+user_experience:
+  # Interface
+  interface:
+    modern_ui: true
+    dark_mode: true
+    customizable_themes: true
+    accessibility: true
+    
+  # Interaction
+  interaction:
+    keyboard_shortcuts: true
+    voice_commands: true
+    gesture_support: true
+    multi_touch: true
+    
+  # Assistance
+  assistance:
+    intelligent_autocomplete: true
+    code_suggestions: true
+    error_prediction: true
+    contextual_help: true

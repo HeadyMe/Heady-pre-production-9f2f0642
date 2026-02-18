@@ -1,0 +1,327 @@
+{
+  "timestamp": "2026-02-18T12:51:10.237Z",
+  "stats": {
+    "totalTasks": 4,
+    "completedTasks": 4,
+    "failedTasks": 0,
+    "startTime": "2026-02-18T12:51:08.429Z"
+  },
+  "tasks": [
+    {
+      "id": "emblem-validation",
+      "name": "Emblem Design System Validation",
+      "startTime": "2026-02-18T12:51:08.429Z",
+      "status": "completed",
+      "attempts": 0,
+      "endTime": "2026-02-18T12:51:08.606Z",
+      "result": {
+        "pages": [
+          {
+            "page": "/chat-fixed-enhanced.html",
+            "url": "https://headyme.com/chat-fixed-enhanced.html",
+            "errors": [
+              {
+                "type": "navigation_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com/chat-fixed-enhanced.html",
+                "timestamp": "2026-02-18T12:51:08.518Z"
+              }
+            ],
+            "warnings": [],
+            "emblemCompliance": 0,
+            "loadTime": 0
+          },
+          {
+            "page": "/admin-ui.html",
+            "url": "https://headyme.com/admin-ui.html",
+            "errors": [
+              {
+                "type": "navigation_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com/admin-ui.html",
+                "timestamp": "2026-02-18T12:51:08.528Z"
+              }
+            ],
+            "warnings": [],
+            "emblemCompliance": 0,
+            "loadTime": 0
+          },
+          {
+            "page": "/index.html",
+            "url": "https://headyme.com/index.html",
+            "errors": [
+              {
+                "type": "navigation_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com/index.html",
+                "timestamp": "2026-02-18T12:51:08.535Z"
+              }
+            ],
+            "warnings": [],
+            "emblemCompliance": 0,
+            "loadTime": 0
+          },
+          {
+            "page": "/index-enhanced.html",
+            "url": "https://headyme.com/index-enhanced.html",
+            "errors": [
+              {
+                "type": "navigation_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com/index-enhanced.html",
+                "timestamp": "2026-02-18T12:51:08.542Z"
+              }
+            ],
+            "warnings": [],
+            "emblemCompliance": 0,
+            "loadTime": 0
+          },
+          {
+            "page": "/chat-enhanced.html",
+            "url": "https://headyme.com/chat-enhanced.html",
+            "errors": [
+              {
+                "type": "navigation_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com/chat-enhanced.html",
+                "timestamp": "2026-02-18T12:51:08.577Z"
+              }
+            ],
+            "warnings": [],
+            "emblemCompliance": 0,
+            "loadTime": 0
+          },
+          {
+            "page": "/admin-ui-enhanced.html",
+            "url": "https://headyme.com/admin-ui-enhanced.html",
+            "errors": [
+              {
+                "type": "navigation_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com/admin-ui-enhanced.html",
+                "timestamp": "2026-02-18T12:51:08.596Z"
+              }
+            ],
+            "warnings": [],
+            "emblemCompliance": 0,
+            "loadTime": 0
+          }
+        ],
+        "summary": {
+          "totalPages": 6,
+          "totalErrors": 6,
+          "totalWarnings": 0,
+          "emblemCompliance": null
+        }
+      }
+    },
+    {
+      "id": "production-deployment",
+      "name": "Production Deployment Verification",
+      "startTime": "2026-02-18T12:51:08.430Z",
+      "status": "completed",
+      "attempts": 0,
+      "endTime": "2026-02-18T12:51:08.729Z",
+      "result": {
+        "domains": [
+          {
+            "domain": "https://headyme.com",
+            "compliant": false,
+            "sslIssues": 0,
+            "performanceIssues": 0,
+            "localhostViolations": 0,
+            "loadTime": 0,
+            "errors": [
+              {
+                "type": "domain_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com",
+                "timestamp": "2026-02-18T12:51:08.521Z"
+              }
+            ]
+          },
+          {
+            "domain": "https://chat.headyme.com",
+            "compliant": false,
+            "sslIssues": 0,
+            "performanceIssues": 0,
+            "localhostViolations": 0,
+            "loadTime": 0,
+            "errors": [
+              {
+                "type": "domain_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://chat.headyme.com",
+                "timestamp": "2026-02-18T12:51:08.620Z"
+              }
+            ]
+          },
+          {
+            "domain": "https://headyme.com/admin-ui.html",
+            "compliant": false,
+            "sslIssues": 0,
+            "performanceIssues": 0,
+            "localhostViolations": 0,
+            "loadTime": 0,
+            "errors": [
+              {
+                "type": "domain_error",
+                "message": "net::ERR_CONNECTION_REFUSED at https://headyme.com/admin-ui.html",
+                "timestamp": "2026-02-18T12:51:08.662Z"
+              }
+            ]
+          },
+          {
+            "domain": "http://manager.headyme.com",
+            "compliant": false,
+            "sslIssues": 0,
+            "performanceIssues": 0,
+            "localhostViolations": 0,
+            "loadTime": 0,
+            "errors": [
+              {
+                "type": "domain_error",
+                "message": "net::ERR_BLOCKED_BY_CLIENT at http://manager.headyme.com",
+                "timestamp": "2026-02-18T12:51:08.708Z"
+              }
+            ]
+          }
+        ],
+        "summary": {
+          "totalDomains": 4,
+          "compliantDomains": 0,
+          "sslIssues": 0,
+          "performanceIssues": 0
+        }
+      }
+    },
+    {
+      "id": "hcfp-automation",
+      "name": "HCFP Auto-Mode Verification",
+      "startTime": "2026-02-18T12:51:08.430Z",
+      "status": "completed",
+      "attempts": 0,
+      "endTime": "2026-02-18T12:51:10.236Z",
+      "result": {
+        "endpoints": [
+          {
+            "endpoint": "/api/health",
+            "healthy": true,
+            "responseTime": 775,
+            "status": 200,
+            "errors": [],
+            "validationActive": true
+          },
+          {
+            "endpoint": "/api/system/production",
+            "healthy": false,
+            "responseTime": 526,
+            "status": 404,
+            "errors": []
+          },
+          {
+            "endpoint": "/api/hcfp/status",
+            "healthy": false,
+            "responseTime": 503,
+            "status": 404,
+            "errors": []
+          }
+        ],
+        "summary": {
+          "totalEndpoints": 3,
+          "healthyEndpoints": 1,
+          "autoDeployActive": false,
+          "validationActive": false
+        }
+      }
+    },
+    {
+      "id": "system-health",
+      "name": "System Health Monitoring",
+      "startTime": "2026-02-18T12:51:08.464Z",
+      "status": "completed",
+      "attempts": 0,
+      "endTime": "2026-02-18T12:51:08.466Z",
+      "result": {
+        "uptime": 0.448256074,
+        "memory": {
+          "rss": 79601664,
+          "heapTotal": 20471808,
+          "heapUsed": 11903360,
+          "external": 3867137,
+          "arrayBuffers": 80353
+        },
+        "performance": {
+          "cpuUsage": {
+            "user": 307499,
+            "system": 39422
+          },
+          "loadAverage": [
+            3.26,
+            3.02,
+            3.02
+          ]
+        },
+        "tasks": {
+          "total": 4,
+          "completed": 0,
+          "failed": 0,
+          "successRate": 0
+        },
+        "timestamp": "2026-02-18T12:51:08.465Z"
+      }
+    }
+  ],
+  "summary": {
+    "totalTasks": 4,
+    "completedTasks": 4,
+    "failedTasks": 0,
+    "successRate": 100,
+    "runtime": 1808
+  },
+  "config": {
+    "domains": {
+      "main": "https://headyme.com",
+      "chat": "https://chat.headyme.com",
+      "admin": "https://headyme.com/admin-ui.html",
+      "manager": "http://manager.headyme.com"
+    },
+    "browser": {
+      "headless": true,
+      "args": [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
+        "--disable-web-security"
+      ]
+    },
+    "tasks": {
+      "timeout": 30000,
+      "retries": 3,
+      "parallel": 5
+    },
+    "emblem": {
+      "cssFiles": [
+        "emblem-design-system.css",
+        "emblem-components.css"
+      ],
+      "elements": [
+        "emblem-corner-bottom-left",
+        "emblem-corner-bottom-right",
+        "emblem-corner-floats",
+        "emblem-btn-primary",
+        "emblem-btn-geometry",
+        "emblem-btn-lotus",
+        "emblem-icon-geometry",
+        "emblem-icon-lotus"
+      ],
+      "cssVars": [
+        "--sacred-geometry-bg",
+        "--cosmic-gradient",
+        "--emblem-glass",
+        "--sacred-gold",
+        "--purple-glow",
+        "--blue-glow",
+        "--green-glow",
+        "--gold-glow"
+      ]
+    }
+  }
+}

@@ -1,0 +1,88 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .windsurf/model_config.yaml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# HeadyBrain Model Configuration — 100% Heady Services
+# All model requests route through HeadyBrain unless explicitly overridden.
+
+default_model: heady-brain
+fallback_chain: [heady-conductor, heady-embeddings]
+
+models:
+  heady-brain:
+    class: heady_project.model.HeadyBrainModel
+    provider: headysystems
+    display_name: "Heady"
+    description: "HeadyBrain — Primary AI model for all tasks"
+    default_params:
+      temperature: 0.7
+      max_tokens: 16384
+      top_p: 0.95
+      version: v4.0
+    priority: 200
+    default: true
+    endpoints:
+      primary: "https://headyio.com/api/brain/generate"
+      chat: "https://headyio.com/api/brain/chat"
+      embed: "https://headyio.com/api/brain/embed"
+      analyze: "https://headyio.com/api/brain/analyze"
+    capabilities:
+      - code_generation
+      - chat_completion
+      - code_analysis
+      - reasoning
+      - multi_modal
+      - embedding
+      - translation
+      - orchestration
+
+  heady-conductor:
+    class: heady_project.model.HeadyConductorModel
+    provider: headysystems
+    display_name: "Heady Conductor"
+    description: "HeadyConductor — Fast tasks and code review"
+    default_params:
+      temperature: 0.5
+      max_tokens: 8192
+      version: v3.2
+    priority: 190
+    endpoints:
+      primary: "https://headyio.com/api"
+    capabilities:
+      - code_generation
+      - quick_tasks
+      - code_review
+
+  heady-embeddings:
+    class: heady_project.model.HeadyEmbeddingsModel
+    provider: headysystems
+    display_name: "Heady Embeddings"
+    description: "HeadyEmbeddings — Vector embeddings for search and retrieval"
+    default_params:
+      dimensions: 1536
+      version: v2.0
+    priority: 180
+    endpoints:
+      primary: "https://headyio.com/api/brain/embed"
+    capabilities:
+      - embedding
+      - semantic_search
+
+# Routing Policy — 100% Heady
+routing_policy:
+  strategy: heady_only
+  heady_percentage: 100
+  external_fallback: false
+  override_requires: explicit_user_direction
+  log_model_switches: true

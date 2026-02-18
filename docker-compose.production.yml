@@ -1,0 +1,130 @@
+# ═══════════════════════════════════════════════════════════════
+# 🐳 HEADY PRODUCTION DOCKER COMPOSE
+# ═══════════════════════════════════════════════════════════════
+# Production deployment with proper domains and SSL
+
+version: '3.8'
+
+services:
+  # Heady Manager - Main Backend Service
+  heady-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: heady-manager
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3300
+      - HEADY_API_KEY=${HEADY_SECRET_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_AI_KEY}
+      - OLLAMA_URL=http://ollama:11434
+    volumes:
+      - ./.heady-memory:/app/.heady-memory
+      - ./logs:/app/logs
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://manager.headyme.com/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Ollama - Local AI Models
+  ollama:
+    image: ollama/ollama:latest
+    container_name: heady-ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx - Reverse Proxy and SSL Termination
+  nginx:
+    image: nginx:alpine
+    container_name: heady-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-config.conf:/etc/nginx/conf.d/default.conf
+      - ./public:/var/www/headyme/public
+      - ./ssl:/etc/ssl
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - heady-network
+    depends_on:
+      - heady-manager
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis - Session Storage and Caching
+  redis:
+    image: redis:7-alpine
+    container_name: heady-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL - Persistent Data Storage
+  postgres:
+    image: postgres:15-alpine
+    container_name: heady-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=heady
+      - POSTGRES_USER=heady
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heady"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ollama-data:
+    driver: local
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+
+networks:
+  heady-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

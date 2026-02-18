@@ -1,0 +1,47 @@
+{
+    "autoflow_enabled": true,
+    "pipeline_mode": "minicomputer_optimized",
+    "target_services": ["headyweb", "heady-manager", "drupal-cms"],
+    "deployment_strategy": "hcfp_auto_mode",
+    "monte_carlo_config": {
+        "exploration_factor": 0.3,
+        "ucb1_confidence": 2.0,
+        "speed_priority": 0.8,
+        "quality_threshold": 0.9,
+        "simulations_per_strategy": 1000,
+        "confidence_threshold": 0.85
+    },
+    "worker_optimization": {
+        "auto_scale": true,
+        "load_balance": "dynamic",
+        "resource_allocation": "intelligent",
+        "ryzen9_optimization": true,
+        "memory_limit": "460MB"
+    },
+    "monitoring": {
+        "real_time_metrics": true,
+        "performance_tracking": true,
+        "bottleneck_detection": true,
+        "health_checks": true,
+        "deployment_verification": true
+    },
+    "integration": {
+        "headysoul": true,
+        "socratic_method": true,
+        "monte_carlo": true,
+        "dual_engine": true,
+        "communication_chain": "optimal"
+    },
+    "domains": {
+        "primary": "headyme.com",
+        "frontend": "app.headyconnection.org",
+        "cms": "cms.headyconnection.org",
+        "manager": "manager.headyme.com"
+    },
+    "auto_deploy": {
+        "trigger_on_git_push": true,
+        "zero_downtime": true,
+        "health_verification": true,
+        "rollback_on_failure": true
+    }
+}

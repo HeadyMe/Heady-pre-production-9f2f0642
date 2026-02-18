@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="discordGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#5865f2;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#303dca;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#discordGrad)"/>
+    <circle cx="20" cy="24" r="4" fill="white"/>
+    <circle cx="44" cy="24" r="4" fill="white"/>
+    <path d="M16 40 Q32 48 48 40" stroke="white" stroke-width="2" fill="none"/>
+    <text x="32" y="56" font-family="Arial, sans-serif" font-size="6" fill="white" text-anchor="middle">DISCORD SERVER</text>
+</svg>

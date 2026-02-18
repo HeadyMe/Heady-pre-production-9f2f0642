@@ -1,0 +1,26 @@
+{
+    "strategy": "hybrid_optimized",
+    "local_services": [
+        "heady-manager",
+        "python-worker", 
+        "redis-cache",
+        "postgresql",
+        "prometheus"
+    ],
+    "cloud_services": [
+        "production-api",
+        "customer-dashboard",
+        "cdn-static-assets"
+    ],
+    "auto_failover": true,
+    "circuit_breaker": {
+        "failure_threshold": 3,
+        "timeout_ms": 5000,
+        "half_open_max_calls": 5
+    },
+    "resource_limits": {
+        "max_memory_percent": 80,
+        "max_cpu_percent": 90,
+        "disk_alert_threshold_gb": 10
+    }
+}

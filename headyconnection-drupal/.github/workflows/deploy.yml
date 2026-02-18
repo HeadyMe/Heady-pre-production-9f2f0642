@@ -1,0 +1,27 @@
+name: HCFP Auto-Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  trigger-hcfp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger HCFullPipeline
+        run: |
+          curl -X POST https://api.headyconnection.org/api/pipeline/run \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.HEADY_API_KEY }}" \
+            -d '{
+              "trigger": "git_push",
+              "repo": "${{ github.repository }}",
+              "branch": "${{ github.ref_name }}",
+              "commit": "${{ github.sha }}"
+            }'
+      
+      - name: Wait for Deployment
+        run: |
+          sleep 30
+          curl https://app.headyconnection.org/api/health

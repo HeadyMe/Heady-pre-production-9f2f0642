@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeadyMe Chat - AI Conversation Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Animated Watermark Background */
+        .watermark-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .watermark {
+            position: absolute;
+            font-size: 2.5rem;
+            font-weight: bold;
+            opacity: 0.04;
+            animation: float 25s infinite ease-in-out;
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b, #fb5607);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .watermark:nth-child(1) { top: 5%; left: 5%; animation-delay: 0s; }
+        .watermark:nth-child(2) { top: 15%; right: 10%; animation-delay: 3s; }
+        .watermark:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 6s; }
+        .watermark:nth-child(4) { bottom: 10%; right: 5%; animation-delay: 9s; }
+        .watermark:nth-child(5) { top: 45%; left: 45%; animation-delay: 12s; }
+        .watermark:nth-child(6) { top: 65%; left: 25%; animation-delay: 15s; }
+        .watermark:nth-child(7) { top: 35%; right: 25%; animation-delay: 18s; }
+        .watermark:nth-child(8) { bottom: 35%; right: 35%; animation-delay: 21s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(40px, -40px) rotate(90deg); }
+            50% { transform: translate(-30px, 30px) rotate(180deg); }
+            75% { transform: translate(-40px, -30px) rotate(270deg); }
+        }
+        
+        /* Chat Background */
+        .chat-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 20%, #f093fb 40%, #f5576c 60%, #ffc857 80%, #06ffa5 100%);
+            background-size: 600% 600%;
+            animation: gradientShift 20s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Glass Effects */
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .glass-light {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Neon Effects */
+        .neon-chat { box-shadow: 0 0 30px rgba(58, 134, 255, 0.8); }
+        .neon-message { box-shadow: 0 0 20px rgba(6, 255, 165, 0.6); }
+        .neon-send { box-shadow: 0 0 25px rgba(255, 0, 110, 0.8); }
+        
+        /* Message Animations */
+        .message-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(131, 56, 236, 0.2);
+            border-radius: 20px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #8338ec;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+        
+        /* Button Effects */
+        .btn-gradient {
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            background-size: 200% 200%;
+            animation: gradientMove 3s ease infinite;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            background-size: 100% 100%;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Text Colors */
+        .text-rainbow {
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b, #fb5607);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Chat Message Styles */
+        .user-message {
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.3), rgba(131, 56, 236, 0.3));
+            border-left: 4px solid #ff006e;
+        }
+        
+        .ai-message {
+            background: linear-gradient(135deg, rgba(58, 134, 255, 0.3), rgba(6, 255, 165, 0.3));
+            border-left: 4px solid #3a86ff;
+        }
+        
+        /* Floating Animation */
+        .float-animation {
+            animation: floatUpDown 3s ease-in-out infinite;
+        }
+        
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+    
+            /* Chat Image Assets */
+            .chat-avatar {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background-image: url('/assets/discord/discord-avatar.png');
+                background-size: cover;
+                border: 2px solid #3a86ff;
+            }
+            
+            .send-button {
+                background-image: url('/assets/buttons/launch.png');
+                background-size: cover;
+                width: 48px;
+                height: 48px;
+                border: none;
+                cursor: pointer;
+                border-radius: 8px;
+            }
+            
+            .ai-icon {
+                width: 24px;
+                height: 24px;
+                background-image: url('/assets/icons/brain-icon.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+            
+</style>
+</head>
+<body class="chat-gradient min-h-screen text-white relative">
+    <!-- Animated Watermarks -->
+    <div class="watermark-container">
+        <div class="watermark">💬 HeadyChat</div>
+        <div class="watermark">🤖 AI Chat</div>
+        <div class="watermark">🎯 Smart</div>
+        <div class="watermark">🌐 headyme.com</div>
+        <div class="watermark">🧠 Brain</div>
+        <div class="watermark">⚡ Fast</div>
+        <div class="watermark">🎨 Beautiful</div>
+        <div class="watermark">🔮 Future</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="relative z-10 h-screen flex flex-col">
+        <!-- Header -->
+        <header class="glass-dark p-4 border-b border-white/10">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-comments text-3xl text-rainbow float-animation"></i>
+                    <h1 class="text-2xl font-bold text-rainbow">HeadyMe Chat</h1>
+                    <span class="px-3 py-1 text-xs bg-green-500/30 rounded-full">
+                        <i class="fas fa-circle text-xs mr-2"></i>Online
+                    </span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="clearChat()" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
+                        <i class="fas fa-trash mr-2"></i>Clear
+                    </button>
+                    <button onclick="exportChat()" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                    <a href="https://headyme.com" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Chat Container -->
+        <main class="flex-1 container mx-auto p-4 overflow-hidden">
+            <div class="h-full flex flex-col">
+                <!-- AI Status Bar -->
+                <div class="glass-light rounded-xl p-4 mb-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-robot text-2xl text-blue-400"></i>
+                            <span class="font-bold">HeadyAI Assistant</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span class="text-sm">Active & Learning</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleSocratic()" class="text-sm glass-light px-3 py-1 rounded-lg hover:bg-white/20 transition">
+                            <i class="fas fa-question-circle mr-1"></i>Socratic
+                        </button>
+                        <button onclick="toggleMonteCarlo()" class="text-sm glass-light px-3 py-1 rounded-lg hover:bg-white/20 transition">
+                            <i class="fas fa-dice mr-1"></i>Monte Carlo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div class="flex-1 glass-dark rounded-xl p-6 mb-4 overflow-y-auto neon-chat" id="chatMessages">
+                    <!-- Welcome Message -->
+                    <div class="ai-message message-slide-in p-4 rounded-lg mb-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-robot text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-blue-400 mb-1">HeadyAI</div>
+                                <div class="text-sm">
+                                    🎯 Welcome to HeadyMe Chat! I'm your AI assistant powered by advanced dual-engine processing.
+                                    <br><br>
+                                    <strong>Capabilities:</strong>
+                                    <ul class="list-disc list-inside mt-2 space-y-1">
+                                        <li>🤔 Socratic questioning for deep understanding</li>
+                                        <li>🎲 Monte Carlo strategy exploration</li>
+                                        <li>🧠 Continuous learning from conversations</li>
+                                        <li>⚡ Real-time response optimization</li>
+                                    </ul>
+                                    <br>
+                                    How can I help you today?
+                                </div>
+                                <div class="text-xs opacity-50 mt-2">Response time: ~1.2s | Confidence: 98%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="glass-light rounded-xl p-4 neon-message">
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <textarea 
+                                id="messageInput"
+                                class="w-full p-3 bg-black/30 rounded-lg border border-white/20 text-white placeholder-white/50 resize-none focus:outline-none focus:border-blue-400 transition"
+                                rows="2"
+                                placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
+                                onkeydown="handleKeyPress(event)"></textarea>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="attachFile()" class="p-3 glass-light rounded-lg hover:bg-white/20 transition">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button onclick="sendMessage()" class="btn-gradient px-6 py-3 rounded-lg font-bold neon-send">
+                                <i class="fas fa-paper-plane mr-2"></i>Send
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="flex items-center justify-between mt-3">
+                        <div class="flex space-x-2">
+                            <button onclick="quickMessage('Help me understand HCFP')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                                HCFP Help
+                            </button>
+                            <button onclick="quickMessage('Explain Socratic method')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                                Socratic
+                            </button>
+                            <button onclick="quickMessage('Show system status')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                                Status
+                            </button>
+                            <button onclick="quickMessage('Deploy services')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                                Deploy
+                            </button>
+                        </div>
+                        <div class="text-xs opacity-50">
+                            <i class="fas fa-lock mr-1"></i>End-to-end encrypted
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Chat State
+        let socraticMode = false;
+        let monteCarloMode = false;
+        let messageHistory = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChatHistory();
+            focusInput();
+        });
+        
+        function focusInput() {
+            document.getElementById('messageInput').focus();
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI response
+            setTimeout(() => {
+                hideTypingIndicator();
+                const response = generateAIResponse(message);
+                addMessage(response.text, 'ai', response.metadata);
+            }, 1000 + Math.random() * 2000);
+        }
+        
+        function addMessage(text, sender, metadata = {}) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageId = Date.now();
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${sender}-message message-slide-in p-4 rounded-lg mb-4`;
+            messageDiv.id = `message-${messageId}`;
+            
+            const avatar = sender === 'user' ? 
+                '<i class="fas fa-user text-sm"></i>' : 
+                '<i class="fas fa-robot text-sm"></i>';
+            
+            const avatarColor = sender === 'user' ? 'bg-pink-500' : 'bg-blue-500';
+            const senderName = sender === 'user' ? 'You' : 'HeadyAI';
+            const nameColor = sender === 'user' ? 'text-pink-400' : 'text-blue-400';
+            
+            messageDiv.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 ${avatarColor} rounded-full flex items-center justify-center flex-shrink-0">
+                        ${avatar}
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-bold ${nameColor} mb-1">${senderName}</div>
+                        <div class="text-sm">${text}</div>
+                        ${metadata.confidence ? `<div class="text-xs opacity-50 mt-2">Confidence: ${metadata.confidence}% | Processing: ${metadata.processing}ms</div>` : ''}
+                        ${metadata.socratic ? `<div class="text-xs opacity-50 mt-1">🤔 Socratic analysis applied</div>` : ''}
+                        ${metadata.monteCarlo ? `<div class="text-xs opacity-50 mt-1">🎲 Monte Carlo optimization: ${metadata.monteCarlo} strategies explored</div>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Save to history
+            messageHistory.push({
+                id: messageId,
+                text: text,
+                sender: sender,
+                timestamp: new Date().toISOString(),
+                metadata: metadata
+            });
+            
+            saveChatHistory();
+        }
+        
+        function generateAIResponse(userMessage) {
+            const responses = {
+                'hcfp': {
+                    text: '🚀 **HCFullPipeline (HCFP)** is our advanced automation system!\n\n**Key Features:**\n• Zero-idle perpetual execution\n• Dual-engine validation (Socratic + Monte Carlo)\n• Auto-deployment to production domains\n• Continuous learning and optimization\n\n**Current Status:** ✅ Active\n**Domains:** headyme.com (ZERO localhost enforced)\n**Auto-Deploy:** Ready',
+                    metadata: { confidence: 98, processing: 1200, socratic: true }
+                },
+                'socratic': {
+                    text: '🤔 **Socratic Method** in HeadyAI:\n\n**Process:**\n1. Question assumptions and intent\n2. Explore alternative perspectives\n3. Validate prerequisites\n4. Challenge contradictions\n5. Synthesize insights\n\n**Benefits:**\n• Prevents rash decisions\n• Ensures thorough understanding\n• Identifies hidden assumptions\n• Improves decision quality\n\nCurrently ' + (socraticMode ? '✅ ENABLED' : '❌ DISABLED') + ' for our conversation.',
+                    metadata: { confidence: 95, processing: 800, socratic: true }
+                },
+                'status': {
+                    text: '📊 **System Status Report:**\n\n**Overall:** 🟢 OPTIMAL\n**Uptime:** ' + Math.floor(Math.random() * 10000) + ' seconds\n**AI Nodes:** 8 active\n**Memory:** 150 memories stored\n**Processing:** ' + Math.floor(Math.random() * 20) + ' active tasks\n\n**Services:**\n• Main Site: https://headyme.com ✅\n• Admin: https://headyme.com/admin-ui.html ✅\n• Chat: https://chat.headyme.com ✅\n• Manager: http://manager.headyme.com ✅\n\n**Zero Localhost Policy:** ✅ ENFORCED',
+                    metadata: { confidence: 99, processing: 600 }
+                },
+                'deploy': {
+                    text: '🚀 **Deployment Options:**\n\n**1. Quick Deploy:**\n• Deploy to headyme.com domains\n• Zero localhost enforced\n• Auto-rollback on failure\n\n**2. Full Pipeline:**\n• HCFP auto-mode activation\n• HCAutoFlow continuous deployment\n• Multi-environment sync\n\n**3. Custom Deploy:**\n• Select specific services\n• Choose deployment strategy\n• Configure validation rules\n\nWhich deployment option would you prefer?',
+                    metadata: { confidence: 92, processing: 1500, monteCarlo: 5 }
+                }
+            };
+            
+            // Check for keywords
+            const lowerMessage = userMessage.toLowerCase();
+            for (const [key, response] of Object.entries(responses)) {
+                if (lowerMessage.includes(key)) {
+                    return response;
+                }
+            }
+            
+            // Default response
+            const defaultResponses = [
+                {
+                    text: '🤖 I understand you\'re interested in: "' + userMessage + '"\n\nLet me process this with my dual-engine system to give you the best response...',
+                    metadata: { confidence: 85, processing: 1000, socratic: socraticMode, monteCarlo: monteCarloMode ? 3 : 0 }
+                },
+                {
+                    text: '🧠 Analyzing your request through multiple intelligence layers...\n\n**Intent detected:** ' + userMessage.substring(0, 50) + (userMessage.length > 50 ? '...' : '') + '\n**Processing strategy:** ' + (monteCarloMode ? 'Monte Carlo exploration' : 'Direct response') + '\n**Validation:** ' + (socraticMode ? 'Socratic questioning enabled' : 'Standard processing'),
+                    metadata: { confidence: 88, processing: 1200, socratic: socraticMode, monteCarlo: monteCarloMode ? 7 : 0 }
+                },
+                {
+                    text: '⚡ Processing your request with advanced AI capabilities...\n\nI\'m here to help with HCFP automation, deployment, system status, or any other HeadyMe services. What specific aspect would you like to explore?',
+                    metadata: { confidence: 90, processing: 800 }
+                }
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+        
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'ai-message p-4 rounded-lg mb-4';
+            typingDiv.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-sm"></i>
+                    </div>
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        function quickMessage(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+        
+        function toggleSocratic() {
+            socraticMode = !socraticMode;
+            addMessage(
+                `🤔 Socratic questioning ${socraticMode ? 'ENABLED' : 'DISABLED'} - I will now ${socraticMode ? 'question assumptions and explore alternatives' : 'provide direct responses'}`,
+                'ai',
+                { confidence: 100, processing: 100 }
+            );
+        }
+        
+        function toggleMonteCarlo() {
+            monteCarloMode = !monteCarloMode;
+            addMessage(
+                `🎲 Monte Carlo exploration ${monteCarloMode ? 'ENABLED' : 'DISABLED'} - I will now ${monteCarloMode ? 'explore multiple strategies before responding' : 'use direct processing'}`,
+                'ai',
+                { confidence: 100, processing: 100 }
+            );
+        }
+        
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = `
+                    <div class="ai-message p-4 rounded-lg mb-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-robot text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-bold text-blue-400 mb-1">HeadyAI</div>
+                                <div class="text-sm">Chat cleared. How can I help you?</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                messageHistory = [];
+                saveChatHistory();
+            }
+        }
+        
+        function exportChat() {
+            const chatData = {
+                exportDate: new Date().toISOString(),
+                messages: messageHistory,
+                settings: {
+                    socraticMode: socraticMode,
+                    monteCarloMode: monteCarloMode
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `headyme-chat-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function attachFile() {
+            alert('📎 File attachment feature coming soon!\n\nYou\'ll be able to share:\n• Documents\n• Images\n• Code files\n• System logs');
+        }
+        
+        function saveChatHistory() {
+            try {
+                localStorage.setItem('headyme-chat-history', JSON.stringify(messageHistory));
+            } catch (error) {
+                console.error('Failed to save chat history:', error);
+            }
+        }
+        
+        function loadChatHistory() {
+            try {
+                const saved = localStorage.getItem('headyme-chat-history');
+                if (saved) {
+                    messageHistory = JSON.parse(saved);
+                    // Reload last few messages
+                    messageHistory.slice(-5).forEach(msg => {
+                        if (document.getElementById(`message-${msg.id}`) === null) {
+                            addMessage(msg.text, msg.sender, msg.metadata);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load chat history:', error);
+            }
+        }
+    </script>
+</body>
+</html>

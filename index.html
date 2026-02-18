@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeadyMe Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="/emblem-design-system.css" rel="stylesheet">
+    <style>
+        /* Enhanced Emblem-based Background */
+        .gradient-bg {
+            background: var(--sacred-geometry-bg);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--metatron-cube);
+            opacity: 0.1;
+            animation: geometryRotate 60s linear infinite;
+            pointer-events: none;
+        }
+        
+        /* Enhanced Emblem Glass Effect */
+        .glass-effect {
+            background: var(--emblem-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(253, 203, 110, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px var(--purple-glow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--metatron-cube);
+            opacity: 0.05;
+            animation: geometryRotate 60s linear infinite reverse;
+            pointer-events: none;
+        }
+        
+        /* Enhanced Emblem Status Colors */
+        .status-online { 
+            color: var(--nature-green);
+            box-shadow: 0 0 10px var(--green-glow);
+        }
+        .status-offline { 
+            color: var(--cosmic-pink);
+            box-shadow: 0 0 10px rgba(253, 121, 168, 0.3);
+        }
+        .status-warning { 
+            color: var(--sacred-gold);
+            box-shadow: 0 0 10px var(--gold-glow);
+        }
+        
+        /* Enhanced Emblem Title */
+        .emblem-title {
+            background: var(--cosmic-gradient);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShimmer 4s ease-in-out infinite;
+        }
+        
+        /* Floating Emblem Symbols */
+        .floating-emblem-main {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.1;
+            animation: floatEmblem 20s ease-in-out infinite;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <!-- Floating Emblem Symbols -->
+    <div class="floating-emblem-main" style="top: 10%; left: 5%; animation-delay: 0s; font-size: 3rem;">⬡</div>
+    <div class="floating-emblem-main" style="top: 20%; right: 10%; animation-delay: 3s; font-size: 2.5rem;">❋</div>
+    <div class="floating-emblem-main" style="bottom: 15%; left: 8%; animation-delay: 6s; font-size: 2.8rem;">✦</div>
+    <div class="floating-emblem-main" style="bottom: 25%; right: 15%; animation-delay: 9s; font-size: 2.2rem;">⬢</div>
+    <div class="floating-emblem-main" style="top: 50%; left: 50%; animation-delay: 12s; font-size: 2.6rem;">🔮</div>
+    
+    <!-- Header -->
+    <header class="glass-effect p-6 mb-8 relative">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="emblem-circle"></div>
+                <h1 class="text-3xl font-bold emblem-title">HeadyMe Admin</h1>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div id="connection-status" class="flex items-center">
+                    <span class="w-3 h-3 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
+                    <span class="emblem-text-gold">Connected</span>
+                </div>
+                <button onclick="refreshData()" class="emblem-btn px-4 py-2 rounded-lg">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6">
+        <!-- System Overview -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-title">
+                <i data-lucide="activity" class="w-6 h-6 mr-2"></i>
+                System Overview
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-effect p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <i data-lucide="server" class="w-8 h-8 text-blue-400"></i>
+                        <span id="manager-status" class="status-online">●</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">HeadyManager</h3>
+                    <p id="manager-uptime" class="text-sm opacity-80">Loading...</p>
+                </div>
+                <div class="glass-effect p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <i data-lucide="brain" class="w-8 h-8 text-purple-400"></i>
+                        <span id="brain-status" class="status-online">●</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">HCBrain</h3>
+                    <p id="brain-decisions" class="text-sm opacity-80">0 decisions</p>
+                </div>
+                <div class="glass-effect p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <i data-lucide="heart" class="w-8 h-8 text-red-400"></i>
+                        <span id="headysoul-status" class="status-online">●</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">HeadySoul</h3>
+                    <p id="headysoul-escalations" class="text-sm opacity-80">0 escalations</p>
+                </div>
+                <div class="glass-effect p-6 rounded-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <i data-lucide="message-circle" class="w-8 h-8 text-green-400"></i>
+                        <span id="socratic-status" class="status-online">●</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Socratic Engine</h3>
+                    <p id="socratic-sessions" class="text-sm opacity-80">0 sessions</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Control Panel -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center">
+                <i data-lucide="settings" class="w-6 h-6 mr-2"></i>
+                Control Panel
+            </h2>
+            <div class="glass-effect p-6 rounded-xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <button onclick="activateProduction()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                        <i data-lucide="rocket" class="w-5 h-5 mr-2"></i>
+                        Activate Production
+                    </button>
+                    <button onclick="pauseSystem()" class="bg-yellow-600 hover:bg-yellow-700 px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                        <i data-lucide="pause" class="w-5 h-5 mr-2"></i>
+                        Pause System
+                    </button>
+                    <button onclick="resumeSystem()" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                        <i data-lucide="play" class="w-5 h-5 mr-2"></i>
+                        Resume System
+                    </button>
+                    <button onclick="startSocratic()" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                        <i data-lucide="message-square" class="w-5 h-5 mr-2"></i>
+                        Start Socratic
+                    </button>
+                    <button onclick="escalateToHeadySoul()" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                        <i data-lucide="arrow-up" class="w-5 h-5 mr-2"></i>
+                        Escalate
+                    </button>
+                    <button onclick="generateReport()" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>
+                        Weekly Report
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Communication Chain -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center">
+                <i data-lucide="link" class="w-6 h-6 mr-2"></i>
+                Communication Chain
+            </h2>
+            <div class="glass-effect p-6 rounded-xl">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            Channel → Conductor
+                        </span>
+                        <span id="latency-channel" class="font-mono">120ms</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            Conductor → Brain
+                        </span>
+                        <span id="latency-conductor" class="font-mono">80ms</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            Brain → HeadySoul
+                        </span>
+                        <span id="latency-brain" class="font-mono">450ms</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="flex items-center">
+                            <i data-lucide="arrow-right" class="w-4 h-4 mr-2"></i>
+                            HeadySoul → Approval
+                        </span>
+                        <span id="latency-headysoul" class="font-mono">24h</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Log -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-6 flex items-center">
+                <i data-lucide="file-text" class="w-6 h-6 mr-2"></i>
+                Event Log
+            </h2>
+            <div class="glass-effect p-6 rounded-xl">
+                <div id="event-log" class="space-y-2 max-h-64 overflow-y-auto">
+                    <div class="text-sm opacity-80">System initialized. Waiting for events...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-effect p-6 mt-12">
+        <div class="container mx-auto text-center">
+            <p class="opacity-80">HeadyMe Admin Dashboard - HCAutoFlow Enabled</p>
+            <p class="text-sm opacity-60 mt-2">Last updated: <span id="last-update">Loading...</span></p>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // API Base URL - Use current domain where deployed
+        const API_BASE = window.location.origin + '/api';
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshData();
+            setInterval(refreshData, 5000); // Refresh every 5 seconds
+        });
+
+        // Refresh all data
+        async function refreshData() {
+            try {
+                await Promise.all([
+                    updateSystemHealth(),
+                    updateLastUpdateTime()
+                ]);
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                addEventLog('Error refreshing data: ' + error.message, 'error');
+            }
+        }
+
+        // Update system health
+        async function updateSystemHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                // Update status indicators
+                updateStatus('manager-status', data.services.heady_manager);
+                updateStatus('brain-status', data.services.hcbrain);
+                updateStatus('headysoul-status', data.services.headysoul);
+                updateStatus('socratic-status', data.services.socratic_engine);
+                
+                // Update metrics
+                document.getElementById('manager-uptime').textContent = `Uptime: ${Math.floor(data.uptime)}s`;
+                document.getElementById('brain-decisions').textContent = `${data.system_metrics.decisions_processed || 0} decisions`;
+                document.getElementById('headysoul-escalations').textContent = `${data.system_metrics.escalations_to_headysoul || 0} escalations`;
+                document.getElementById('socratic-sessions').textContent = `${data.system_metrics.socratic_sessions || 0} sessions`;
+                
+                // Update latency
+                if (data.communication_chain) {
+                    document.getElementById('latency-channel').textContent = `${data.communication_chain.channel_to_conductor}ms`;
+                    document.getElementById('latency-conductor').textContent = `${data.communication_chain.conductor_to_brain}ms`;
+                    document.getElementById('latency-brain').textContent = `${data.communication_chain.brain_to_headysoul}ms`;
+                    document.getElementById('latency-headysoul').textContent = `${data.communication_chain.headysoul_to_approval / 3600000}h`;
+                }
+                
+                addEventLog('System health updated successfully', 'success');
+            } catch (error) {
+                console.error('Error updating system health:', error);
+                addEventLog('Failed to update system health', 'error');
+            }
+        }
+
+        // Update status indicator
+        function updateStatus(elementId, status) {
+            const element = document.getElementById(elementId);
+            if (status === 'RUNNING' || status === 'ACTIVE' || status === 'OPTIMAL' || status === 'READY') {
+                element.className = 'status-online';
+                element.textContent = '●';
+            } else {
+                element.className = 'status-offline';
+                element.textContent = '●';
+            }
+        }
+
+        // Update last update time
+        function updateLastUpdateTime() {
+            document.getElementById('last-update').textContent = new Date().toLocaleString();
+        }
+
+        // Add event to log
+        function addEventLog(message, type = 'info') {
+            const eventLog = document.getElementById('event-log');
+            const eventDiv = document.createElement('div');
+            eventDiv.className = `text-sm ${type === 'error' ? 'text-red-400' : type === 'success' ? 'text-green-400' : 'opacity-80'}`;
+            eventDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            eventLog.insertBefore(eventDiv, eventLog.firstChild);
+            
+            // Keep only last 10 events
+            while (eventLog.children.length > 10) {
+                eventLog.removeChild(eventLog.lastChild);
+            }
+        }
+
+        // Control functions
+        async function activateProduction() {
+            try {
+                const response = await fetch(`${API_BASE}/system/production`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                addEventLog('Production mode activated', 'success');
+                refreshData();
+            } catch (error) {
+                addEventLog('Failed to activate production: ' + error.message, 'error');
+            }
+        }
+
+        async function pauseSystem() {
+            try {
+                const response = await fetch(`${API_BASE}/system/pause`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: 'Manual pause from admin UI' })
+                });
+                const result = await response.json();
+                addEventLog('System paused', 'success');
+                refreshData();
+            } catch (error) {
+                addEventLog('Failed to pause system: ' + error.message, 'error');
+            }
+        }
+
+        async function resumeSystem() {
+            try {
+                const response = await fetch(`${API_BASE}/system/resume`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ headysoul_guidance: 'Manual resume from admin UI' })
+                });
+                const result = await response.json();
+                addEventLog('System resumed', 'success');
+                refreshData();
+            } catch (error) {
+                addEventLog('Failed to resume system: ' + error.message, 'error');
+            }
+        }
+
+        async function startSocratic() {
+            try {
+                const response = await fetch(`${API_BASE}/socratic/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: 'admin',
+                        query: 'System status check from admin UI',
+                        mode: 'exploratory'
+                    })
+                });
+                const result = await response.json();
+                addEventLog('Socratic session started', 'success');
+                refreshData();
+            } catch (error) {
+                addEventLog('Failed to start Socratic: ' + error.message, 'error');
+            }
+        }
+
+        async function escalateToHeadySoul() {
+            try {
+                const response = await fetch(`${API_BASE}/headysoul/escalate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event: {
+                            type: 'critical_decision',
+                            description: 'Manual escalation from admin UI',
+                            severity: 'HIGH'
+                        },
+                        user_id: 'admin'
+                    })
+                });
+                const result = await response.json();
+                addEventLog('Escalated to HeadySoul', 'success');
+                refreshData();
+            } catch (error) {
+                addEventLog('Failed to escalate: ' + error.message, 'error');
+            }
+        }
+
+        async function generateReport() {
+            try {
+                const response = await fetch(`${API_BASE}/reports/weekly`);
+                const result = await response.json();
+                addEventLog('Weekly report generated', 'success');
+                refreshData();
+            } catch (error) {
+                addEventLog('Failed to generate report: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

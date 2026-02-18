@@ -1,0 +1,8 @@
+name: Heady Health
+type: module
+description: 'Health check endpoints for Heady Drupal CMS'
+package: Heady
+core_version_requirement: ^11
+dependencies:
+  - drupal:system
+  - drupal:jsonapi

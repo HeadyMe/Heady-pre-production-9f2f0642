@@ -1,0 +1,35 @@
+tunnel: heady-production
+credentials-file: /home/headyme/.cloudflared/credentials.json
+
+ingress:
+  - hostname: headysystems.com
+    service: http://heady-web:3000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: manager.headysystems.com
+    service: http://heady-manager:3300
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: buddy.headysystems.com
+    service: http://heady-web:3000/buddy
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: ide.headysystems.com
+    service: http://heady-web:3000/ide
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: soul.headysystems.com
+    service: http://heady-web:3000/soul
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - service: http_status:404

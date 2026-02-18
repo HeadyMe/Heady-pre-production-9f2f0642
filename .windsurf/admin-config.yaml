@@ -1,0 +1,531 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: .windsurf/admin-config.yaml                                                    ║
+# ║  LAYER: root                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  HEADING SYSTEMS — Windsurf Optimal Configuration for HeadyVM        ║
+# ║  Version: 3.0.0                                                     ║
+# ║  Target: HeadyVM (Windows Admin Mode)                               ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+# Model Configuration — Priority Order (Heady-First Policy)
+# HeadyBrain is the default and highest-priority model.
+# All other models serve as fallbacks only when explicitly directed.
+models:
+  heady-brain:
+    class: heady
+    provider: headysystems
+    default_params:
+      temperature: 0.7
+      max_tokens: 16384
+      top_p: 0.95
+      top_k: 40
+      timeout: 120000
+    priority: 200
+    default: true
+    capabilities:
+      - code_generation
+      - analysis
+      - reasoning
+      - multi_modal
+      - code_analysis
+      - embedding
+      - image_generation
+      - translation
+      - orchestration
+    endpoints:
+      primary: "https://headyio.com/api/brain"
+      secondary: "https://headyio.com/api/brain-backup"
+      tertiary: "https://headyio.com/api/brain-emergency"
+    routing:
+      brain_first: true
+      fallback_to_external: false
+      100_percent_heady: true
+
+  heady-conductor:
+    class: heady
+    provider: headysystems
+    default_params:
+      temperature: 0.5
+      max_tokens: 8192
+      timeout: 60000
+    priority: 190
+    capabilities:
+      - code_generation
+      - quick_tasks
+      - code_review
+    endpoints:
+      primary: "https://headyio.com/api"
+
+  claude-sonnet-4:
+    class: claude
+    provider: anthropic
+    default_params:
+      temperature: 0.7
+      max_tokens: 8192
+      top_p: 0.95
+      top_k: 40
+      timeout: 120000
+    priority: 100
+    capabilities:
+      - code_generation
+      - analysis
+      - reasoning
+      - multi_modal
+    
+  claude-sonnet-3.5:
+    class: claude
+    provider: anthropic
+    default_params:
+      temperature: 0.7
+      max_tokens: 8192
+      top_p: 0.95
+      timeout: 120000
+    priority: 95
+    capabilities:
+      - code_generation
+      - analysis
+      - reasoning
+      
+  gpt-4o:
+    class: openai
+    provider: openai
+    default_params:
+      temperature: 0.7
+      max_tokens: 8192
+      top_p: 0.95
+      timeout: 120000
+    priority: 90
+    capabilities:
+      - code_generation
+      - analysis
+      - reasoning
+      - multi_modal
+      
+  gpt-4o-mini:
+    class: openai
+    provider: openai
+    default_params:
+      temperature: 0.7
+      max_tokens: 4096
+      timeout: 60000
+    priority: 80
+    capabilities:
+      - code_generation
+      - quick_tasks
+      
+  o1-preview:
+    class: openai
+    provider: openai
+    default_params:
+      temperature: 0.7
+      max_tokens: 32768
+      timeout: 300000
+    priority: 85
+    capabilities:
+      - complex_reasoning
+      - mathematics
+      - science
+      
+  o1-mini:
+    class: openai
+    provider: openai
+    default_params:
+      temperature: 0.7
+      max_tokens: 65536
+      timeout: 180000
+    priority: 75
+    capabilities:
+      - complex_reasoning
+      - coding
+      
+  gemini-1.5-pro:
+    class: gemini
+    provider: google
+    default_params:
+      temperature: 0.7
+      max_tokens: 8192
+      top_p: 0.95
+      timeout: 120000
+    priority: 70
+    capabilities:
+      - code_generation
+      - analysis
+      - multi_modal
+      
+  gemini-1.5-flash:
+    class: gemini
+    provider: google
+    default_params:
+      temperature: 0.7
+      max_tokens: 8192
+      timeout: 60000
+    priority: 65
+    capabilities:
+      - quick_tasks
+      - code_generation
+
+# Default Model Selection — Heady-First Policy
+# HeadyBrain is used 100% of the time unless explicitly overridden.
+default_model: heady-brain
+fallback_model: claude-sonnet-4
+model_selection_policy:
+  strategy: heady_first
+  heady_percentage: 100
+  allow_external_override: true
+  override_requires: "explicit_user_direction"
+  log_all_model_switches: true
+
+# System Configuration
+system:
+  # Performance Settings
+  max_concurrent_requests: 5
+  request_timeout: 120000
+  max_response_size: 104857600  # 100MB
+  
+  # Memory Management
+  max_memory_mb: 8192
+  memory_cleanup_interval: 300000  # 5 minutes
+  cache_size_mb: 2048
+  
+  # File System
+  max_file_size_mb: 100
+  watch_directories:
+    - src
+    - scripts
+    - configs
+    - services
+    - packages
+    - extensions
+    - workers
+    - docs
+  ignore_patterns:
+    - "*.log"
+    - "*.tmp"
+    - "node_modules/**"
+    - ".git/**"
+    - "dist/**"
+    - "build/**"
+    - ".venv/**"
+    - "__pycache__/**"
+    - "*.pyc"
+    - ".DS_Store"
+    - "Thumbs.db"
+  
+  # Security
+  allow_network_requests: true
+  allowed_domains:
+    - "api.headyio.com"
+    - "api.headyconnection.org"
+    - "me.headyio.com"
+    - "headyio.com"
+    - "github.com"
+    - "registry.npmjs.org"
+    - "pypi.org"
+    - "cdn.jsdelivr.net"
+  blocked_domains:
+    - "*.malware.com"
+    - "*.phishing.net"
+
+# Heady Integration
+heady:
+  # API Endpoints
+  manager_url: "https://headyio.com/manager"
+  brain_url: "https://headyio.com/api/brain"
+  mcp_gateway_url: "https://headyio.com/mcp"
+  
+  # Authentication
+  api_key: "${HEADY_API_KEY}"
+  admin_token: "${ADMIN_TOKEN}"
+  
+  # Features
+  auto_sync: true
+  real_time_collaboration: true
+  code_execution: true
+  file_management: true
+  terminal_access: true
+  
+  # Project Paths
+  project_root: "${HEADY_PROJECT_ROOT}"
+  config_dir: "./configs"
+  script_dir: "./scripts"
+  service_dir: "./services"
+  package_dir: "./packages"
+
+# Workspace Settings
+workspace:
+  # Indexing
+  auto_index: true
+  index_interval: 30000  # 30 seconds
+  full_index_interval: 300000  # 5 minutes
+  
+  # Context Window
+  max_context_tokens: 200000
+  context_priority:
+    - open_files
+    - recent_edits
+    - git_status
+    - project_structure
+    - documentation
+    - test_files
+  
+  # Auto-completion
+  enable_snippets: true
+  enable_ai_suggestions: true
+  suggestion_delay: 500
+  max_suggestions: 10
+
+# Development Settings
+development:
+  # Languages
+  languages:
+    javascript:
+      parser: "typescript"
+      linter: "eslint"
+      formatter: "prettier"
+      extensions: [".js", ".jsx", ".mjs"]
+      
+    typescript:
+      parser: "typescript"
+      linter: "eslint"
+      formatter: "prettier"
+      extensions: [".ts", ".tsx"]
+      
+    python:
+      parser: "python"
+      linter: "pylint"
+      formatter: "black"
+      extensions: [".py"]
+      
+    yaml:
+      parser: "yaml"
+      linter: "yamllint"
+      formatter: "prettier"
+      extensions: [".yaml", ".yml"]
+      
+    json:
+      parser: "json"
+      linter: "eslint"
+      formatter: "prettier"
+      extensions: [".json"]
+      
+    powershell:
+      parser: "powershell"
+      linter: "powershell"
+      formatter: "prettier"
+      extensions: [".ps1", ".psm1"]
+      
+    markdown:
+      parser: "markdown"
+      linter: "markdownlint"
+      formatter: "prettier"
+      extensions: [".md"]
+  
+  # Git Integration
+  git:
+    auto_stage: false
+    auto_commit: false
+    show_diff: true
+    blame: true
+    branch_protection: ["main", "master", "develop"]
+  
+  # Testing
+  testing:
+    auto_run: false
+    test_patterns:
+      - "**/*.test.js"
+      - "**/*.test.ts"
+      - "**/*.spec.js"
+      - "**/*.spec.ts"
+      - "**/test_*.py"
+      - "**/*_test.py"
+    coverage_threshold: 80
+
+# UI/UX Settings
+ui:
+  # Theme
+  theme: "heady-dark"
+  custom_css: "./.windsurf/custom.css"
+  
+  # Layout
+  sidebar_width: 300
+  minimap: true
+  line_numbers: true
+  word_wrap: true
+  font_size: 14
+  font_family: "Cascadia Code, Fira Code, Consolas, monospace"
+  
+  # Features
+  breadcrumbs: true
+  outline: true
+  problems_panel: true
+  output_panel: true
+  terminal_panel: true
+  debug_panel: true
+  
+  # Notifications
+  show_notifications: true
+  notification_duration: 5000
+  sound_enabled: false
+
+# Performance Optimization
+performance:
+  # Caching
+  enable_cache: true
+  cache_ttl: 3600000  # 1 hour
+  cache_dir: "./.windsurf/cache"
+  
+  # Lazy Loading
+  lazy_load_modules: true
+  preload_modules:
+    - "heady-core"
+    - "heady-orchestrator"
+    - "heady-brain"
+  
+  # Optimization
+  debounce_time: 300
+  throttle_time: 100
+  batch_size: 50
+  max_queue_size: 1000
+
+# Logging
+logging:
+  level: "info"  # debug, info, warn, error
+  file: "./.windsurf/logs/windsurf.log"
+  max_file_size: 10485760  # 10MB
+  max_files: 5
+  format: "json"
+  
+  # Categories
+  categories:
+    api: true
+    model: true
+    file_system: true
+    git: true
+    performance: false
+    debug: false
+
+# Extensions
+extensions:
+  # Heady Extensions
+  - name: "heady-core"
+    enabled: true
+    config:
+      auto_sync: true
+      real_time: true
+      
+  - name: "heady-orchestrator"
+    enabled: true
+    config:
+      auto_execute: false
+      show_metrics: true
+      
+  - name: "heady-brain"
+    enabled: true
+    config:
+      context_aware: true
+      learning_mode: true
+  
+  # Standard Extensions
+  - name: "eslint"
+    enabled: true
+    
+  - name: "prettier"
+    enabled: true
+    
+  - name: "gitlens"
+    enabled: true
+    
+  - name: "docker"
+    enabled: true
+    
+  - name: "yaml"
+    enabled: true
+    
+  - name: "powershell"
+    enabled: true
+    
+  - name: "python"
+    enabled: true
+
+# Workflow Integration
+workflows:
+  # Auto-run workflows
+  auto_run:
+    - "teaching-coding-protocol"
+    - "scientific-method-pre-build"
+    - "hc-scan-all"
+  
+  # Workflow triggers
+  triggers:
+    on_file_change:
+      - pattern: "**/*.js"
+        workflow: "validate-javascript"
+      - pattern: "**/*.py"
+        workflow: "validate-python"
+      - pattern: "**/*.yaml"
+        workflow: "validate-yaml"
+        
+    on_save:
+      - pattern: "**/*.{js,ts,jsx,tsx}"
+        workflow: "format-code"
+        
+    on_commit:
+      workflow: "pre-commit-checks"
+
+# Security Settings
+security:
+  # Code Execution
+  allow_code_execution: true
+  execution_sandbox: true
+  allowed_commands:
+    - "node"
+    - "npm"
+    - "python"
+    - "pip"
+    - "git"
+    - "docker"
+    - "pwsh"
+    - "bash"
+  
+  # File Access
+  file_access_restrictions: false
+  sensitive_files:
+    - ".env"
+    - "**/.env*"
+    - "**/secrets.yaml"
+    - "**/private.key"
+    - "**/*.pem"
+  
+  # Network
+  tls_verify: true
+  proxy_url: "${HTTP_PROXY}"
+  no_proxy: "manager.headyme.com,manager.headyme.com,.local"
+
+# Backup and Recovery
+backup:
+  enabled: true
+  interval: 3600000  # 1 hour
+  location: "./.windsurf/backups"
+  max_backups: 10
+  include:
+    - ".windsurf/"
+    - "configs/"
+    - "scripts/"
+    - "src/"
+  exclude:
+    - "node_modules/"
+    - ".git/"
+    - "dist/"
+    - "build/"

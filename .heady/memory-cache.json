@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-02-18T13:11:12.778Z",
+  "context": {
+    "operation": "background_scan"
+  },
+  "memories": {
+    "recent": [
+      {
+        "id": 1,
+        "category": "general",
+        "content": "Sample memory 1",
+        "tags": [],
+        "timestamp": "2026-02-18T13:11:12.778Z"
+      },
+      {
+        "id": 2,
+        "category": "general",
+        "content": "Sample memory 2",
+        "tags": [],
+        "timestamp": "2026-02-18T13:11:12.778Z"
+      }
+    ],
+    "total": 150,
+    "byCategory": {
+      "general": 50,
+      "workflows": 30,
+      "nodes": 25,
+      "tools": 20,
+      "services": 25
+    }
+  },
+  "preferences": {
+    "theme": "dark",
+    "language": "en",
+    "notifications": true
+  },
+  "externalSources": [
+    {
+      "name": "GitHub",
+      "type": "code",
+      "last_sync": "2026-02-18T13:11:12.776Z"
+    },
+    {
+      "name": "Documentation",
+      "type": "docs",
+      "last_sync": "2026-02-18T13:11:12.776Z"
+    }
+  ],
+  "statistics": {
+    "total_memories": 150,
+    "by_category": {
+      "general": 50,
+      "workflows": 30,
+      "nodes": 25,
+      "tools": 20,
+      "services": 25
+    },
+    "total_queries": 1000,
+    "total_ingestions": 500
+  },
+  "learningMetrics": {
+    "metrics": {
+      "learning_rate": 0.85,
+      "accuracy": 0.92,
+      "patterns_detected": 45,
+      "optimizations_suggested": 12
+    }
+  },
+  "scanDurationMs": 251
+}

@@ -1,0 +1,29 @@
+{
+    "pools": {
+        "hot": {
+            "workers": 4,
+            "priority": 0,
+            "max_tasks": 100,
+            "timeout_ms": 30000,
+            "description": "Critical AI node operations (PYTHIA, JULES, OBSERVER)"
+        },
+        "warm": {
+            "workers": 2,
+            "priority": 1,
+            "max_tasks": 50,
+            "timeout_ms": 60000,
+            "description": "Normal pipeline tasks (BUILDER, ATLAS, CONDUCTOR)"
+        },
+        "cold": {
+            "workers": 1,
+            "priority": 2,
+            "max_tasks": 25,
+            "timeout_ms": 120000,
+            "description": "Background processing (MEMORY, CLEANUP)"
+        }
+    },
+    "total_workers": 7,
+    "cores_available": 16,
+    "memory_gb": 23,
+    "optimized_for": "minicomputer"
+}

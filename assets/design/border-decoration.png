@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <pattern id="pattern" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+            <circle cx="8" cy="8" r="2" fill="#667eea" opacity="0.3"/>
+        </pattern>
+        <linearGradient id="designGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.8" />
+            <stop offset="50%" style="stop-color:#764ba2;stop-opacity:0.6" />
+            <stop offset="100%" style="stop-color:#f093fb;stop-opacity:0.4" />
+        </linearGradient>
+    </defs>
+    <rect width="128" height="128" fill="url(#designGrad)"/>
+    <rect width="128" height="128" fill="url(#pattern)"/>
+    <text x="64" y="64" font-family="Arial, sans-serif" font-size="8" fill="white" text-anchor="middle" opacity="0.7">BORDER DECORATION</text>
+</svg>

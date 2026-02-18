@@ -1,0 +1,58 @@
+# ═══════════════════════════════════════════════════════════════
+# 🌐 HEADY DRUPAL CMS RENDER CONFIGURATION
+# ═══════════════════════════════════════════════════════════════
+# Production deployment with proper domains and SSL
+
+services:
+  # Drupal 11 CMS Backend
+  - type: web
+    name: heady-drupal-cms
+    runtime: docker
+    repo: https://github.com/HeadyMe/headyconnection-drupal
+    branch: main
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: oregon
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: heady-postgres
+          property: connectionString
+      - key: DRUPAL_HASH_SALT
+        generateValue: true
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: PHP_MEMORY_LIMIT
+        value: 256M
+      - key: PHP_MAX_EXECUTION_TIME
+        value: 60
+      - key: TRUSTED_HOST_PATTERN
+        value: "^.*$"
+      - key: SETTINGS__CONFIG_SYNC_DIRECTORY
+        value: ../config/sync
+    healthCheckPath: /admin/health
+    domains:
+      - cms.headyconnection.org
+    autoDeploy: true
+
+databases:
+  - name: heady-postgres
+    databaseName: heady_drupal
+    user: heady
+    plan: starter
+    region: oregon
+    ipAllowList: []
+
+# Cron jobs for maintenance
+cronJobs:
+  - name: drupal-cron
+    type: web
+    schedule: "0 * * * *"  # Every hour
+    command: cd /var/www/html && drush cron
+    serviceId: heady-drupal-cms
+    
+  - name: drupal-cache-clear
+    type: web
+    schedule: "*/6 * * * *"  # Every 6 hours
+    command: cd /var/www/html && drush cache:rebuild
+    serviceId: heady-drupal-cms
