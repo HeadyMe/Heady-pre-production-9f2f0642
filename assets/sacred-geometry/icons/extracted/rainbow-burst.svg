@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="grad-rainbow-burst" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF0080;stop-opacity:1" />
+      <stop offset="100%" style="stop-color: #00FF80;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sacred Geometry Icon: rainbow-burst -->
+  <!-- Row: 4, Column: 1 -->
+  <!-- Category: Energy Patterns -->
+  
+  <circle cx="50" cy="50" r="40" fill="url(#grad-rainbow-burst)" opacity="0.8"/>
+  
+  <!-- Icon-specific geometry -->
+  <polygon points="50,25 55,40 70,40 58,50 63,65 50,55 37,65 42,50 30,40 45,40" fill="white" opacity="0.3"/>
+  
+</svg>

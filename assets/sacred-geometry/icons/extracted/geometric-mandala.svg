@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="grad-geometric-mandala" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color: #C0C0C0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sacred Geometry Icon: geometric-mandala -->
+  <!-- Row: 6, Column: 5 -->
+  <!-- Category: Dimensional Geometry -->
+  
+  <circle cx="50" cy="50" r="40" fill="url(#grad-geometric-mandala)" opacity="0.8"/>
+  
+  <!-- Icon-specific geometry -->
+  <circle cx="50" cy="50" r="20" fill="white" opacity="0.3"/>
+  
+</svg>

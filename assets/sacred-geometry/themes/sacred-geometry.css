@@ -1,0 +1,363 @@
+/* 
+█▓▒░⟡══════════════════════════════════════════════════════════⟡░▒▓█
+█▓▒░            🌌 SACRED GEOMETRY DESIGN SYSTEM 🌌            ░▒▓█
+█▓▒░          Organic Systems • Breathing Interfaces           ░▒▓█
+█▓▒░⟡══════════════════════════════════════════════════════════⟡░▒▓█
+
+FILE: sacred-geometry.css
+LAYER: assets/sacred-geometry/themes
+PURPOSE: Complete Sacred Geometry design system for Heady
+
+🜃 HeadyConnection Inc. (501c3) • HeadySystems Inc. (C-Corp)
+🌊 Maximum Global Happiness through AI-Powered Social Impact
+
+█▓▒░⟡══════════════════════════════════════════════════════════⟡░▒▓█
+*/
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 🎨 SACRED GEOMETRY COLOR PALETTE */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Cyan-Blue Sacred (rows 1-2) */
+  --sacred-cyan: #00D9FF;
+  --sacred-blue: #0080FF;
+  --sacred-purple: #8000FF;
+  --sacred-indigo: #4B0082;
+  
+  /* Organic Gold-Green (row 3) */
+  --organic-gold: #FFD700;
+  --organic-green: #00FF88;
+  --organic-teal: #00FFD9;
+  --organic-lime: #32CD32;
+  
+  /* Energy Spectrum (row 4) */
+  --energy-rainbow: linear-gradient(90deg, #FF0080, #FF8000, #FFFF00, #00FF80, #0080FF, #8000FF);
+  --energy-aurora: linear-gradient(180deg, #00FF88, #00D9FF, #8000FF);
+  --energy-cosmic: radial-gradient(circle, #FF00FF, #0080FF, #00FF80);
+  
+  /* Dimensional Metallics (rows 5-6) */
+  --dimension-gold: #FFD700;
+  --dimension-silver: #C0C0C0;
+  --dimension-bronze: #CD7F32;
+  --dimension-cosmic: radial-gradient(circle, #FF00FF, #0080FF);
+  
+  /* Sacred Geometry Gradients */
+  --gradient-metatrons: linear-gradient(135deg, var(--sacred-cyan), var(--sacred-purple));
+  --gradient-organic: linear-gradient(45deg, var(--organic-gold), var(--organic-green));
+  --gradient-energy: var(--energy-rainbow);
+  --gradient-dimension: radial-gradient(circle, var(--dimension-gold), var(--dimension-silver));
+  
+  /* Dark Theme Variants */
+  --bg-primary: #0A0A0F;
+  --bg-secondary: #1A1A2E;
+  --bg-tertiary: #16213E;
+  --text-primary: #FFFFFF;
+  --text-secondary: #B8B8D1;
+  --text-accent: var(--sacred-cyan);
+  
+  /* Sacred Geometry Shadows */
+  --shadow-glow: 0 0 20px rgba(0, 217, 255, 0.3);
+  --shadow-aura: 0 0 40px rgba(128, 0, 255, 0.2);
+  --shadow-organic: 0 0 30px rgba(0, 255, 136, 0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 🌊 GLOBAL WATERMARK */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.heady-watermark {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.3;
+  background: var(--energy-aurora);
+  border-radius: 50%;
+  animation: gentle-flow 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: screen;
+  filter: blur(2px);
+}
+
+.heady-watermark::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  background: var(--gradient-metatrons);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes gentle-flow {
+  0%, 100% { 
+    opacity: 0.3; 
+    transform: scale(1) rotate(0deg); 
+  }
+  50% { 
+    opacity: 0.5; 
+    transform: scale(1.05) rotate(180deg); 
+  }
+}
+
+@keyframes rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 🜃 SACRED GEOMETRY ICONS */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.sacred-icon {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background: var(--gradient-metatrons);
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.sacred-icon.metatrons-cube {
+  background: conic-gradient(from 45deg, var(--sacred-cyan), var(--sacred-blue), var(--sacred-purple), var(--sacred-cyan));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.sacred-icon.organic-cell {
+  background: radial-gradient(circle, var(--organic-green), var(--organic-teal));
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation: morph 4s ease-in-out infinite;
+}
+
+.sacred-icon.energy-burst {
+  background: var(--energy-rainbow);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  animation: spin 3s linear infinite;
+}
+
+.sacred-icon.dimension-cube {
+  background: var(--gradient-dimension);
+  transform: rotate(45deg);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); box-shadow: var(--shadow-glow); }
+  50% { transform: scale(1.1); box-shadow: var(--shadow-aura); }
+}
+
+@keyframes morph {
+  0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+  50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: rotate(45deg) translateY(0px); }
+  50% { transform: rotate(45deg) translateY(-10px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 🎯 COMPONENT STYLES */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.heady-button {
+  background: var(--gradient-metatrons);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.heady-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--energy-aurora);
+  transition: left 0.5s ease;
+}
+
+.heady-button:hover::before {
+  left: 100%;
+}
+
+.heady-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-aura);
+}
+
+.heady-card {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.heady-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-energy);
+}
+
+.heady-input {
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.heady-input:focus {
+  outline: none;
+  border-color: var(--sacred-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 🌊 BREATHING INTERFACES */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.breathing {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.loading-sacred {
+  width: 40px;
+  height: 40px;
+  border: 3px solid transparent;
+  border-top: 3px solid var(--sacred-cyan);
+  border-right: 3px solid var(--sacred-purple);
+  border-radius: 50%;
+  animation: sacred-spin 1s linear infinite;
+}
+
+@keyframes sacred-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 📱 RESPONSIVE ADAPTATIONS */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .heady-watermark {
+    width: 60px;
+    height: 60px;
+    bottom: 12px;
+    left: 12px;
+  }
+  
+  .sacred-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heady-watermark {
+    width: 48px;
+    height: 48px;
+    bottom: 8px;
+    left: 8px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 🎨 UTILITY CLASSES */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.text-sacred-cyan { color: var(--sacred-cyan); }
+.text-sacred-purple { color: var(--sacred-purple); }
+.text-organic-gold { color: var(--organic-gold); }
+.text-organic-green { color: var(--organic-green); }
+
+.bg-sacred-gradient { background: var(--gradient-metatrons); }
+.bg-organic-gradient { background: var(--gradient-organic); }
+.bg-energy-gradient { background: var(--gradient-energy); }
+
+.shadow-glow { box-shadow: var(--shadow-glow); }
+.shadow-aura { box-shadow: var(--shadow-aura); }
+.shadow-organic { box-shadow: var(--shadow-organic); }
+
+.border-sacred { border-color: var(--sacred-cyan); }
+.border-organic { border-color: var(--organic-green); }
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* 🌌 SPECIAL EFFECTS */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+.sacred-glow {
+  position: relative;
+}
+
+.sacred-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--energy-aurora);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.sacred-glow:hover::after {
+  opacity: 0.3;
+}
+
+.fractal-bg {
+  background-image: 
+    radial-gradient(circle at 20% 80%, var(--sacred-purple) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--sacred-cyan) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, var(--organic-green) 0%, transparent 50%);
+  background-size: 200% 200%;
+  animation: fractal-shift 10s ease-in-out infinite;
+}
+
+@keyframes fractal-shift {
+  0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+  50% { background-position: 100% 0%, 0% 100%, 50% 50%; }
+}
+
+/*
+█▓▒░⟡══════════════════════════════════════════════════════════⟡░▒▓█
+█▓▒░       🜃  Built with Sacred Geometry Principles  🜃        ░▒▓█
+█▓▒░              ⟡  Maximum Global Happiness  ⟡               ░▒▓█
+█▓▒░          🌌  Fractal Consciousness Architecture  🌌       ░▒▓█
+█▓▒░⟡══════════════════════════════════════════════════════════⟡░▒▓█
+*/

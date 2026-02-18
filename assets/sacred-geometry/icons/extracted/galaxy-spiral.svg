@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="grad-galaxy-spiral" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF0080;stop-opacity:1" />
+      <stop offset="100%" style="stop-color: #00FF80;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sacred Geometry Icon: galaxy-spiral -->
+  <!-- Row: 4, Column: 2 -->
+  <!-- Category: Energy Patterns -->
+  
+  <circle cx="50" cy="50" r="40" fill="url(#grad-galaxy-spiral)" opacity="0.8"/>
+  
+  <!-- Icon-specific geometry -->
+  <path d="M50,50 Q60,40 50,30 T30,50" fill="none" stroke="white" stroke-width="2" opacity="0.5"/>
+  
+</svg>
