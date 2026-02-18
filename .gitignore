@@ -1,1 +1,10 @@
-node_modules
+node_modules/
+*.node
+*.log
+*.pid
+.env
+.DS_Store
+public/_next/
+.next/
+dist/
+build/
