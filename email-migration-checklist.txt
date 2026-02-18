@@ -1,0 +1,86 @@
+Email Migration Checklist: ProtonMail → Cloudflare
+==================================================
+
+Pre-Migration Preparation:
+-------------------------
+□ Backup important emails from ProtonMail
+□ Export contacts from ProtonMail
+□ Note any auto-filters or rules in ProtonMail
+□ Inform contacts of potential email disruption
+□ Choose migration window (low-traffic period)
+
+Day 1: Nameserver Change
+------------------------
+□ Login to domain registrar
+□ Update nameservers to Cloudflare
+□ Save confirmation of changes
+□ Start 24-48 hour propagation timer
+
+Day 1-2: Propagation Period
+---------------------------
+□ Monitor nameserver propagation: dig NS headyconnection.org
+□ Check email continuity (may be interrupted)
+□ Prepare for temporary email disruption
+□ Keep ProtonMail accessible during transition
+
+Day 2-3: Cloudflare Setup
+-------------------------
+□ Verify domain active in Cloudflare Dashboard
+□ Enable Email Routing in Cloudflare
+□ Create forwarding rule: e@headyconnection.com → eric@headyconnection.org
+□ Test email forwarding
+□ Verify MX records are correct
+
+Day 3: Verification
+------------------
+□ Send test emails to e@headyconnection.com
+□ Check delivery to eric@headyconnection.org
+□ Verify email headers show forwarding
+□ Check spam folder
+□ Test from multiple senders
+
+Day 3-7: Monitoring
+------------------
+□ Monitor email delivery for 3-5 days
+□ Check for any missed emails
+□ Update any services using old email
+□ Inform contacts migration complete
+
+Post-Migration:
+--------------
+□ Keep ProtonMail account for 30 days (backup)
+□ Update email signatures
+□ Update website contact information
+□ Document new email setup
+□ Train staff on new system (if applicable)
+
+Rollback Plan:
+-------------
+If issues occur, can revert to ProtonMail:
+1. Change nameservers back to original
+2. Wait 24-48 hours for propagation
+3. Verify ProtonMail working again
+4. Investigate Cloudflare issues
+
+Critical Contacts to Inform:
+---------------------------
+□ Important clients/partners
+□ Service providers (billing, etc.)
+□ Website contact forms
+□ Automated services using email
+□ Personal contacts
+
+Timeline Estimate:
+-----------------
+- Nameserver change: 15 minutes
+- DNS propagation: 24-48 hours
+- Cloudflare setup: 30 minutes
+- Testing period: 3-5 days
+- Total migration: 3-7 days
+
+Risk Assessment:
+---------------
+- Low risk: Cloudflare is reliable
+- Temporary disruption: 24-48 hours possible
+- Backup plan: Can revert to ProtonMail
+- Mitigation: Plan during low-traffic period

@@ -1,0 +1,61 @@
+Alternative Email Forwarding Options
+===================================
+
+Since headyconnection.org may not use Cloudflare nameservers, here are alternatives:
+
+Option 1: Google Workspace/G Suite
+---------------------------------
+1. Add email alias in Google Admin Console
+2. Navigate to Users → eric@headyconnection.org
+3. Click "Add alias"
+4. Alias email: e@headyconnection.org
+5. Click "Add"
+
+Option 2: cPanel/Hosting Provider
+---------------------------------
+1. Login to cPanel
+2. Go to "Forwarders"
+3. Add Forwarder:
+   - Address to Forward: e
+   - Domain: headyconnection.com
+   - Forward to: eric@headyconnection.org
+4. Click "Add Forwarder"
+
+Option 3: Microsoft 365
+----------------------
+1. Login to Microsoft 365 Admin Center
+2. Go to Users → Active users
+3. Select eric@headyconnection.org
+4. Click "Manage email aliases"
+5. Add alias: e@headyconnection.org
+6. Click "Save changes"
+
+Option 4: Self-Hosted Postfix
+-----------------------------
+1. Install Postfix server
+2. Configure virtual alias mapping:
+   /etc/postfix/virtual:
+   e@headyconnection.com    eric@headyconnection.org
+
+3. Enable virtual mapping:
+   postmap /etc/postfix/virtual
+   postconf -e "virtual_alias_maps = hash:/etc/postfix/virtual"
+   postconf -e "virtual_alias_domains = headyconnection.com"
+
+4. Restart Postfix:
+   systemctl restart postfix
+
+Option 5: ProtonMail
+------------------
+1. Login to ProtonMail account
+2. Go to Settings → Addresses and keys
+3. Add address: e@headyconnection.org
+4. Set as alias for eric@headyconnection.org
+
+Recommendation:
+--------------
+If possible, migrate nameservers to Cloudflare for:
+- Free email routing
+- Better DNS management
+- Enhanced security
+- Integration with existing services

@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady Systems Multi-Domain Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="/emblem-design-system.css" rel="stylesheet">
+    <link href="/emblem-components.css" rel="stylesheet">
+    <style>
+        /* Enhanced Emblem-based Background */
+        .gradient-bg {
+            background: var(--sacred-geometry-bg);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--metatron-cube);
+            opacity: 0.1;
+            animation: geometryRotate 60s linear infinite;
+            pointer-events: none;
+        }
+        
+        /* Enhanced Emblem Glass Effect */
+        .glass-effect {
+            background: var(--emblem-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(253, 203, 110, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 40px var(--purple-glow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: var(--metatron-cube);
+            opacity: 0.05;
+            animation: cosmicFlow 3s ease-in-out infinite;
+        }
+        
+        /* Domain Status Indicators */
+        .domain-status {
+            transition: all 0.3s ease;
+        }
+        
+        .domain-status.online {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        .domain-status.offline {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+        
+        .domain-status.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        }
+        
+        /* Error Detection Panel */
+        .error-panel {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .error-item {
+            transition: all 0.2s ease;
+        }
+        
+        .error-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        
+        /* Real-time Metrics */
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Socratic Compliance Indicator */
+        .socratic-compliance {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .socratic-compliance::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(253, 203, 110, 0.4), transparent);
+            animation: socraticScan 2s linear infinite;
+        }
+        
+        @keyframes socraticScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes cosmicFlow {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
+        }
+        
+        @keyframes geometryRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="gradient-bg">
+    <!-- Floating Emblem Symbols -->
+    <div class="floating-emblem-admin" style="top: 10%; left: 5%;">⬡</div>
+    <div class="floating-emblem-admin" style="top: 20%; right: 10%;">⬢</div>
+    <div class="floating-emblem-admin" style="bottom: 15%; left: 8%;">✦</div>
+    <div class="floating-emblem-admin" style="bottom: 25%; right: 5%;">⬟</div>
+
+    <!-- Header -->
+    <header class="glass-effect p-6 mb-8 relative">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="emblem-circle"></div>
+                <div>
+                    <h1 class="text-3xl font-bold emblem-admin-title">Heady Systems Command Center</h1>
+                    <p class="text-sm opacity-80">Multi-Domain Infrastructure & Error Detection</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div id="connection-status" class="flex items-center">
+                    <span class="w-3 h-3 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
+                    <span class="emblem-text-gold">Connected</span>
+                </div>
+                <button onclick="refreshAllData()" class="emblem-btn-geometry">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                </button>
+                <button onclick="runHeadlessValidation()" class="emblem-btn-primary">
+                    <i data-lucide="search" class="w-5 h-5 mr-2"></i>Run Validation
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6">
+        <!-- Domain Overview Dashboard -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
+                <i data-lucide="globe" class="w-6 h-6 mr-2"></i>
+                Multi-Domain Status Overview
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="domain-grid">
+                <!-- Domains will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Real-time Metrics -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
+                <i data-lucide="activity" class="w-6 h-6 mr-2"></i>
+                Real-time System Metrics
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4" id="metrics-grid">
+                <!-- Metrics will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Socratic Compliance Monitor -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
+                <i data-lucide="shield-check" class="w-6 h-6 mr-2"></i>
+                Socratic Method Compliance
+            </h2>
+            <div class="glass-effect p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="check-circle" class="w-8 h-8 text-green-400"></i>
+                            <span id="socratic-compliance-status" class="status-online ml-2">●</span>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Compliance Status</h3>
+                        <p id="socratic-compliance-text" class="text-sm opacity-80">Active</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="target" class="w-8 h-8 text-blue-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Interceptions</h3>
+                        <p id="socratic-interceptions" class="text-sm opacity-80">0 processed</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="alert-triangle" class="w-8 h-8 text-yellow-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Violations</h3>
+                        <p id="socratic-violations" class="text-sm opacity-80">0 detected</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="flex items-center justify-center mb-4">
+                            <i data-lucide="zap" class="w-8 h-8 text-purple-400"></i>
+                            <span id="socratic-enforcement" class="status-online ml-2">●</span>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2 emblem-text-gold">Enforcement</h3>
+                        <p id="socratic-rate" class="text-sm opacity-80">100% compliant</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Detection Panel -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
+                <i data-lucide="alert-octagon" class="w-6 h-6 mr-2"></i>
+                Automated Error Detection
+            </h2>
+            <div class="glass-effect p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-4">
+                        <button onclick="runErrorDetection()" class="emblem-btn-primary">
+                            <i data-lucide="scan" class="w-5 h-5 mr-2"></i>Scan All Domains
+                        </button>
+                        <button onclick="generateErrorReport()" class="emblem-btn-lotus">
+                            <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>Generate Report
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm">Last Scan: <span id="last-scan-time">Never</span></span>
+                        <span class="text-sm">Errors: <span id="error-count" class="text-red-400 font-bold">0</span></span>
+                    </div>
+                </div>
+                <div id="error-panel" class="error-panel space-y-2">
+                    <!-- Errors will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- System Control Panel -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
+                <i data-lucide="settings" class="w-6 h-6 mr-2"></i>
+                System Control Panel
+            </h2>
+            <div class="glass-effect p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <button onclick="activateProductionMode()" class="emblem-btn-primary flex items-center justify-center">
+                        <span><i data-lucide="rocket" class="w-5 h-5 mr-2"></i>Production Mode</span>
+                    </button>
+                    <button onclick="pauseAllServices()" class="emblem-btn-lotus flex items-center justify-center">
+                        <span><i data-lucide="pause" class="w-5 h-5 mr-2"></i>Pause All</span>
+                    </button>
+                    <button onclick="resumeAllServices()" class="emblem-btn-eye flex items-center justify-center">
+                        <span><i data-lucide="play" class="w-5 h-5 mr-2"></i>Resume All</span>
+                    </button>
+                    <button onclick="escalateToHeadySoul()" class="emblem-btn-geometry flex items-center justify-center">
+                        <span><i data-lucide="arrow-up" class="w-5 h-5 mr-2"></i>Escalate</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Log -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center emblem-admin-title">
+                <i data-lucide="scroll-text" class="w-6 h-6 mr-2"></i>
+                System Event Log
+            </h2>
+            <div class="glass-effect p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <button onclick="clearEventLog()" class="text-sm emblem-text-gold hover:opacity-80">Clear Log</button>
+                    <span class="text-sm opacity-80">Auto-refresh: <span id="auto-refresh-status">ON</span></span>
+                </div>
+                <div id="event-log" class="space-y-2 max-h-64 overflow-y-auto">
+                    <!-- Events will be populated here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Configuration
+        const API_BASE = window.location.origin + '/api';
+        
+        // Domain Configuration
+        const DOMAINS = {
+            headysystems: {
+                name: 'HeadySystems.com',
+                plan: 'Pro',
+                status: 'unknown',
+                url: 'https://headysystems.com',
+                services: ['app', 'admin', 'api', 'auth', 'ws']
+            },
+            headyconnection: {
+                name: 'HeadyConnection.org',
+                plan: 'Nonprofit',
+                status: 'unknown',
+                url: 'https://headyconnection.org',
+                services: ['app', 'api', 'wiki']
+            },
+            headyme: {
+                name: 'HeadyMe.com',
+                plan: 'Personal',
+                status: 'unknown',
+                url: 'https://headyme.com',
+                services: ['app', 'api', 'files']
+            },
+            headymcp: {
+                name: 'HeadyMCP.com',
+                plan: 'Developer',
+                status: 'unknown',
+                url: 'https://headymcp.com',
+                services: ['gateway', 'api', 'registry']
+            },
+            headyio: {
+                name: 'HeadyIO.com',
+                plan: 'Developer',
+                status: 'unknown',
+                url: 'https://headyio.com',
+                services: ['portal', 'api', 'sandbox']
+            },
+            headybuddy: {
+                name: 'HeadyBuddy.org',
+                plan: 'AI Assistant',
+                status: 'unknown',
+                url: 'https://headybuddy.org',
+                services: ['app', 'api', 'voice']
+            },
+            headybot: {
+                name: 'HeadyBot.com',
+                plan: 'Automation',
+                status: 'unknown',
+                url: 'https://headybot.com',
+                services: ['dashboard', 'hooks', 'workers']
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+            await initializeDashboard();
+            startAutoRefresh();
+        });
+
+        // Initialize Dashboard
+        async function initializeDashboard() {
+            await renderDomainCards();
+            await updateSystemMetrics();
+            await updateSocraticCompliance();
+            await loadErrorHistory();
+            addEventLog('Command Center initialized', 'success');
+        }
+
+        // Render Domain Cards
+        async function renderDomainCards() {
+            const grid = document.getElementById('domain-grid');
+            grid.innerHTML = '';
+
+            for (const [key, domain] of Object.entries(DOMAINS)) {
+                const status = await checkDomainStatus(domain);
+                domain.status = status;
+
+                const card = document.createElement('div');
+                card.className = 'glass-effect p-6 metric-card';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <i data-lucide="globe" class="w-8 h-8 text-blue-400"></i>
+                        <span class="domain-status ${status.class} px-3 py-1 rounded-full text-xs font-bold">
+                            ${status.text}
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2 emblem-text-gold">${domain.name}</h3>
+                    <p class="text-sm opacity-80 mb-3">${domain.plan} Plan</p>
+                    <div class="space-y-1">
+                        ${domain.services.map(service => `
+                            <div class="flex justify-between text-xs">
+                                <span>${service}</span>
+                                <span class="service-status" data-domain="${key}" data-service="${service}">●</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/10">
+                        <div class="flex justify-between text-xs">
+                            <span>Response Time</span>
+                            <span class="response-time" data-domain="${key}">--ms</span>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1">
+                            <span>Last Check</span>
+                            <span class="last-check" data-domain="${key}">Never</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+
+            lucide.createIcons();
+        }
+
+        // Check Domain Status
+        async function checkDomainStatus(domain) {
+            try {
+                const startTime = Date.now();
+                const response = await fetch(domain.url, { 
+                    method: 'HEAD',
+                    mode: 'no-cors',
+                    cache: 'no-cache'
+                });
+                const responseTime = Date.now() - startTime;
+
+                return {
+                    class: 'online',
+                    text: 'ONLINE',
+                    responseTime: responseTime
+                };
+            } catch (error) {
+                return {
+                    class: 'offline',
+                    text: 'OFFLINE',
+                    error: error.message
+                };
+            }
+        }
+
+        // Update System Metrics
+        async function updateSystemMetrics() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+
+                const metrics = [
+                    { label: 'Uptime', value: `${Math.floor(data.uptime)}s`, icon: 'clock' },
+                    { label: 'Services', value: data.services ? Object.keys(data.services).length : 0, icon: 'server' },
+                    { label: 'Decisions', value: data.system_metrics?.decisions_processed || 0, icon: 'brain' },
+                    { label: 'Escalations', value: data.system_metrics?.escalations_to_headysoul || 0, icon: 'arrow-up' },
+                    { label: 'Socratic', value: data.system_metrics?.socratic_sessions || 0, icon: 'message-circle' },
+                    { label: 'Violations', value: data.violations?.localhost || 0, icon: 'alert-triangle' }
+                ];
+
+                const grid = document.getElementById('metrics-grid');
+                grid.innerHTML = metrics.map(metric => `
+                    <div class="glass-effect p-4 metric-card text-center">
+                        <i data-lucide="${metric.icon}" class="w-6 h-6 mx-auto mb-2 text-purple-400"></i>
+                        <div class="text-2xl font-bold emblem-text-gold">${metric.value}</div>
+                        <div class="text-xs opacity-80">${metric.label}</div>
+                    </div>
+                `).join('');
+
+                lucide.createIcons();
+            } catch (error) {
+                addEventLog('Failed to update system metrics', 'error');
+            }
+        }
+
+        // Update Socratic Compliance
+        async function updateSocraticCompliance() {
+            try {
+                const response = await fetch(`${API_BASE}/socratic-compliance`);
+                const compliance = await response.json();
+
+                document.getElementById('socratic-compliance-status').className = 
+                    compliance.compliance_status === 'COMPLIANT' ? 'status-online' : 'status-offline';
+                document.getElementById('socratic-compliance-text').textContent = 
+                    compliance.compliance_status;
+                document.getElementById('socratic-interceptions').textContent = 
+                    `${compliance.metrics.total_interceptions} processed`;
+                document.getElementById('socratic-violations').textContent = 
+                    `${compliance.metrics.bypass_attempts} detected`;
+                document.getElementById('socratic-rate').textContent = 
+                    compliance.metrics.compliance_rate || '100%';
+                document.getElementById('socratic-enforcement').className = 
+                    compliance.enforcement_active ? 'status-online' : 'status-offline';
+
+            } catch (error) {
+                addEventLog('Failed to update Socratic compliance', 'error');
+            }
+        }
+
+        // Run Error Detection
+        async function runErrorDetection() {
+            addEventLog('Starting comprehensive error detection scan...', 'info');
+            
+            try {
+                // This would call your HeadyHeadless.js error detection
+                const response = await fetch(`${API_BASE}/error-detection/run`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                displayErrors(result.errors);
+                document.getElementById('last-scan-time').textContent = new Date().toLocaleString();
+                document.getElementById('error-count').textContent = result.errors.length;
+                
+                addEventLog(`Error detection completed: ${result.errors.length} errors found`, 'success');
+            } catch (error) {
+                addEventLog('Error detection failed: ' + error.message, 'error');
+            }
+        }
+
+        // Display Errors
+        function displayErrors(errors) {
+            const panel = document.getElementById('error-panel');
+            
+            if (errors.length === 0) {
+                panel.innerHTML = '<div class="text-center text-green-400 py-8">✅ No errors detected across all domains</div>';
+                return;
+            }
+
+            panel.innerHTML = errors.map(error => `
+                <div class="error-item bg-red-900/20 border border-red-500/30 rounded p-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-red-400 font-bold">${error.type.toUpperCase()}</span>
+                            <span class="text-sm ml-2">${error.domain || 'Unknown'}</span>
+                        </div>
+                        <span class="text-xs opacity-60">${error.timestamp}</span>
+                    </div>
+                    <div class="text-sm mt-1">${error.message}</div>
+                    ${error.url ? `<div class="text-xs opacity-60 mt-1">URL: ${error.url}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Run Headless Validation
+        async function runHeadlessValidation() {
+            addEventLog('Starting HeadyHeadless validation...', 'info');
+            
+            try {
+                // This would trigger your HeadyHeadless.js validation
+                const response = await fetch(`${API_BASE}/headless/validate`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                addEventLog(`Validation completed: ${result.summary.totalTasks} tasks, ${result.summary.failedTasks} failed`, 'success');
+                
+                // Update domain statuses based on validation results
+                await renderDomainCards();
+            } catch (error) {
+                addEventLog('Headless validation failed: ' + error.message, 'error');
+            }
+        }
+
+        // System Control Functions
+        async function activateProductionMode() {
+            try {
+                const response = await fetch(`${API_BASE}/system/production`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                addEventLog('Production mode activated', 'success');
+            } catch (error) {
+                addEventLog('Failed to activate production mode: ' + error.message, 'error');
+            }
+        }
+
+        async function pauseAllServices() {
+            try {
+                const response = await fetch(`${API_BASE}/system/pause`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: 'Manual pause from command center' })
+                });
+                addEventLog('All services paused', 'info');
+            } catch (error) {
+                addEventLog('Failed to pause services: ' + error.message, 'error');
+            }
+        }
+
+        async function resumeAllServices() {
+            try {
+                const response = await fetch(`${API_BASE}/system/resume`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ headysoul_guidance: 'Manual resume from command center' })
+                });
+                addEventLog('All services resumed', 'success');
+            } catch (error) {
+                addEventLog('Failed to resume services: ' + error.message, 'error');
+            }
+        }
+
+        async function escalateToHeadySoul() {
+            try {
+                const response = await fetch(`${API_BASE}/headysoul/escalate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: 'Command Center Escalation',
+                        severity: 'HIGH',
+                        description: 'Manual escalation from multi-domain command center',
+                        context: {
+                            domains: Object.keys(DOMAINS).length,
+                            errors: document.getElementById('error-count').textContent,
+                            compliance: document.getElementById('socratic-compliance-text').textContent
+                        }
+                    })
+                });
+                const result = await response.json();
+                addEventLog(`Escalated to HeadySoul: ${result.escalation_id}`, 'warning');
+            } catch (error) {
+                addEventLog('Failed to escalate to HeadySoul: ' + error.message, 'error');
+            }
+        }
+
+        // Generate Error Report
+        async function generateErrorReport() {
+            addEventLog('Generating comprehensive error report...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/reports/errors`);
+                const report = await response.json();
+                
+                // Download the report
+                const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `heady-error-report-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                addEventLog('Error report generated and downloaded', 'success');
+            } catch (error) {
+                addEventLog('Failed to generate error report: ' + error.message, 'error');
+            }
+        }
+
+        // Event Log Functions
+        function addEventLog(message, type = 'info') {
+            const log = document.getElementById('event-log');
+            const event = document.createElement('div');
+            event.className = `flex items-center space-x-2 text-sm p-2 rounded ${
+                type === 'error' ? 'bg-red-900/20 text-red-400' :
+                type === 'success' ? 'bg-green-900/20 text-green-400' :
+                type === 'warning' ? 'bg-yellow-900/20 text-yellow-400' :
+                'bg-blue-900/20 text-blue-400'
+            }`;
+            
+            const icon = type === 'error' ? 'x-circle' : 
+                        type === 'success' ? 'check-circle' : 
+                        type === 'warning' ? 'alert-triangle' : 'info';
+            
+            event.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4"></i>
+                <span>${new Date().toLocaleTimeString()}</span>
+                <span>${message}</span>
+            `;
+            
+            log.insertBefore(event, log.firstChild);
+            
+            // Keep only last 50 events
+            while (log.children.length > 50) {
+                log.removeChild(log.lastChild);
+            }
+            
+            lucide.createIcons();
+        }
+
+        function clearEventLog() {
+            document.getElementById('event-log').innerHTML = '';
+            addEventLog('Event log cleared', 'info');
+        }
+
+        // Load Error History
+        async function loadErrorHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/errors/history`);
+                const errors = await response.json();
+                displayErrors(errors);
+                document.getElementById('error-count').textContent = errors.length;
+            } catch (error) {
+                // Silently fail - errors might not be available yet
+            }
+        }
+
+        // Refresh All Data
+        async function refreshAllData() {
+            addEventLog('Refreshing all dashboard data...', 'info');
+            
+            await Promise.all([
+                renderDomainCards(),
+                updateSystemMetrics(),
+                updateSocraticCompliance(),
+                loadErrorHistory()
+            ]);
+            
+            addEventLog('Dashboard data refreshed', 'success');
+        }
+
+        // Auto Refresh
+        function startAutoRefresh() {
+            setInterval(async () => {
+                await updateSystemMetrics();
+                await updateSocraticCompliance();
+            }, 10000); // Refresh every 10 seconds
+        }
+    </script>
+</body>
+</html>

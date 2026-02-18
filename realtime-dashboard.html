@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady Systems Real-Time Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="/emblem-design-system.css" rel="stylesheet">
+    <style>
+        /* Real-time Dashboard Styles */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(253, 203, 110, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .status-online {
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        .status-offline {
+            color: #ef4444;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .status-warning {
+            color: #f59e0b;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+        }
+        
+        .alert-item {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .update-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Status -->
+    <div class="connection-status glass-card px-4 py-2 rounded-lg">
+        <div class="flex items-center space-x-2">
+            <span id="connection-indicator" class="w-3 h-3 bg-red-500 rounded-full"></span>
+            <span id="connection-text" class="text-sm">Disconnected</span>
+        </div>
+    </div>
+    
+    <!-- Update Indicator -->
+    <div class="update-indicator text-gray-400">
+        Last update: <span id="last-update">Never</span>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-card p-6 m-4">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-yellow-400 mb-2">Heady Systems Real-Time Monitor</h1>
+                <p class="text-gray-400">Sub-second monitoring for all system components</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <div class="text-sm text-gray-400">Update Rate</div>
+                    <div class="text-yellow-400 font-bold">100ms</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-400">Connections</div>
+                    <div class="text-yellow-400 font-bold" id="connection-count">0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="p-4">
+        <!-- System Overview -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-yellow-400 mb-4">System Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- CPU Usage -->
+                <div class="glass-card p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400">CPU Usage</span>
+                        <i data-lucide="cpu" class="w-5 h-5 text-yellow-400"></i>
+                    </div>
+                    <div class="metric-value" id="cpu-usage">0%</div>
+                    <div class="chart-container">
+                        <canvas id="cpu-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Memory Usage -->
+                <div class="glass-card p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400">Memory Usage</span>
+                        <i data-lucide="hard-drive" class="w-5 h-5 text-yellow-400"></i>
+                    </div>
+                    <div class="metric-value" id="memory-usage">0%</div>
+                    <div class="chart-container">
+                        <canvas id="memory-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- System Uptime -->
+                <div class="glass-card p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400">System Uptime</span>
+                        <i data-lucide="clock" class="w-5 h-5 text-yellow-400"></i>
+                    </div>
+                    <div class="metric-value" id="system-uptime">0s</div>
+                    <div class="text-sm text-gray-400 mt-2">
+                        Load: <span id="load-average">0.0</span>
+                    </div>
+                </div>
+                
+                <!-- Active Services -->
+                <div class="glass-card p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400">Active Services</span>
+                        <i data-lucide="server" class="w-5 h-5 text-yellow-400"></i>
+                    </div>
+                    <div class="metric-value" id="active-services">0/0</div>
+                    <div class="text-sm text-gray-400 mt-2">
+                        Response: <span id="avg-response">0ms</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Component Status -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-yellow-400 mb-4">Component Status</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- HeadyManager -->
+                <div class="glass-card p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400">HeadyManager</span>
+                        <span id="heady-manager-status" class="w-3 h-3 bg-gray-500 rounded-full"></span>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        Response: <span id="heady-manager-response">--ms</span>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        Uptime: <span id="heady-manager-uptime">--s</span>
+                    </div>
+                </div>
+                
+                <!-- Static Server -->
+                <div class="glass-card p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400">Static Server</span>
+                        <span id="static-server-status" class="w-3 h-3 bg-gray-500 rounded-full"></span>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        Response: <span id="static-server-response">--ms</span>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        Status: <span id="static-server-status-text">--</span>
+                    </div>
+                </div>
+                
+                <!-- Socratic Engine -->
+                <div class="glass-card p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400">Socratic Engine</span>
+                        <span id="socratic-status" class="w-3 h-3 bg-gray-500 rounded-full"></span>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        Compliance: <span id="socratic-compliance">--</span>
+                    </div>
+                    <div class="text-sm text-gray-400">
+                        Interceptions: <span id="socratic-interceptions">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Domain Monitoring -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-yellow-400 mb-4">Domain Monitoring</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="domain-grid">
+                <!-- Domains will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Real-time Charts -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-yellow-400 mb-4">Real-time Performance</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="glass-card p-4">
+                    <h3 class="text-lg font-semibold text-yellow-400 mb-2">System Performance</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="performance-chart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="glass-card p-4">
+                    <h3 class="text-lg font-semibold text-yellow-400 mb-2">Response Times</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="response-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts Panel -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-yellow-400 mb-4">System Alerts</h2>
+            <div class="glass-card p-4">
+                <div class="max-h-64 overflow-y-auto" id="alerts-container">
+                    <div class="text-gray-400 text-center py-8">No alerts</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // WebSocket connection
+        let ws = null;
+        let reconnectInterval = null;
+        let charts = {};
+        let metrics = {};
+        let alerts = [];
+        
+        // Configuration
+        const WS_URL = `ws://${window.location.hostname}:3301/realtime`;
+        const UPDATE_INTERVAL = 100; // 100ms
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initializeCharts();
+            connectWebSocket();
+        });
+        
+        // WebSocket connection
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket(WS_URL);
+                
+                ws.onopen = () => {
+                    console.log('🔗 Connected to real-time monitor');
+                    updateConnectionStatus(true);
+                    
+                    // Subscribe to all components
+                    ws.send(JSON.stringify({
+                        type: 'subscribe',
+                        components: ['all']
+                    }));
+                    
+                    // Clear reconnect interval
+                    if (reconnectInterval) {
+                        clearInterval(reconnectInterval);
+                        reconnectInterval = null;
+                    }
+                };
+                
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                };
+                
+                ws.onclose = () => {
+                    console.log('🔌 Disconnected from real-time monitor');
+                    updateConnectionStatus(false);
+                    
+                    // Attempt to reconnect
+                    if (!reconnectInterval) {
+                        reconnectInterval = setInterval(() => {
+                            console.log('🔄 Attempting to reconnect...');
+                            connectWebSocket();
+                        }, 5000);
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    console.error('❌ WebSocket error:', error);
+                    updateConnectionStatus(false);
+                };
+                
+            } catch (error) {
+                console.error('❌ Failed to connect WebSocket:', error);
+                updateConnectionStatus(false);
+            }
+        }
+        
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('connection-indicator');
+            const text = document.getElementById('connection-text');
+            
+            if (connected) {
+                indicator.className = 'w-3 h-3 bg-green-500 rounded-full pulse-animation';
+                text.textContent = 'Connected';
+            } else {
+                indicator.className = 'w-3 h-3 bg-red-500 rounded-full';
+                text.textContent = 'Disconnected';
+            }
+        }
+        
+        // Handle WebSocket messages
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'initial':
+                    handleInitialData(data);
+                    break;
+                case 'update':
+                    handleUpdate(data);
+                    break;
+                case 'history':
+                    handleHistory(data);
+                    break;
+                case 'metrics':
+                    handleMetrics(data);
+                    break;
+                case 'alert':
+                    handleAlert(data);
+                    break;
+                default:
+                    console.log('📨 Unknown message type:', data.type);
+            }
+        }
+        
+        // Handle initial data
+        function handleInitialData(data) {
+            metrics = data.metrics || {};
+            alerts = data.alerts || [];
+            
+            updateDashboard();
+            updateCharts();
+            updateAlerts();
+        }
+        
+        // Handle updates
+        function handleUpdate(data) {
+            metrics = data.metrics || {};
+            
+            if (data.alerts && data.alerts.length > 0) {
+                alerts = [...data.alerts, ...alerts].slice(0, 50);
+                updateAlerts();
+            }
+            
+            updateDashboard();
+            updateCharts();
+            updateLastUpdateTime();
+        }
+        
+        // Update dashboard
+        function updateDashboard() {
+            // System metrics
+            if (metrics.system) {
+                document.getElementById('cpu-usage').textContent = `${metrics.system.cpu || 0}%`;
+                document.getElementById('memory-usage').textContent = `${metrics.system.memory || 0}%`;
+                document.getElementById('system-uptime').textContent = formatUptime(metrics.system.uptime || 0);
+                document.getElementById('load-average').textContent = (metrics.system.loadAverage?.[0] || 0).toFixed(2);
+            }
+            
+            // Services
+            if (metrics.services) {
+                const total = metrics.services.totalServices || 0;
+                const running = metrics.services.runningServices || 0;
+                document.getElementById('active-services').textContent = `${running}/${total}`;
+                
+                // HeadyManager
+                if (metrics.services.headyManager) {
+                    const hm = metrics.services.headyManager;
+                    document.getElementById('heady-manager-status').className = 
+                        `w-3 h-3 rounded-full ${hm.status === 'online' ? 'bg-green-500' : 'bg-red-500'}`;
+                    document.getElementById('heady-manager-response').textContent = 
+                        hm.responseTime ? `${hm.responseTime}ms` : '--ms';
+                    document.getElementById('heady-manager-uptime').textContent = 
+                        hm.uptime ? formatUptime(hm.uptime) : '--s';
+                }
+                
+                // Static Server
+                if (metrics.services.staticServer) {
+                    const ss = metrics.services.staticServer;
+                    document.getElementById('static-server-status').className = 
+                        `w-3 h-3 rounded-full ${ss.status === 'online' ? 'bg-green-500' : 'bg-red-500'}`;
+                    document.getElementById('static-server-response').textContent = 
+                        ss.responseTime ? `${ss.responseTime}ms` : '--ms';
+                    document.getElementById('static-server-status-text').textContent = ss.status || '--';
+                }
+                
+                // Average response time
+                const responses = [metrics.services.headyManager?.responseTime, metrics.services.staticServer?.responseTime]
+                    .filter(r => r && r > 0);
+                const avgResponse = responses.length > 0 ? Math.round(responses.reduce((a, b) => a + b, 0) / responses.length) : 0;
+                document.getElementById('avg-response').textContent = `${avgResponse}ms`;
+            }
+            
+            // Socratic
+            if (metrics.socratic) {
+                const socratic = metrics.socratic;
+                document.getElementById('socratic-status').className = 
+                    `w-3 h-3 rounded-full ${
+                        socratic.compliance === 'COMPLIANT' ? 'bg-green-500' : 
+                        socratic.compliance === 'ERROR' ? 'bg-red-500' : 'bg-yellow-500'
+                    }`;
+                document.getElementById('socratic-compliance').textContent = socratic.compliance || '--';
+                document.getElementById('socratic-interceptions').textContent = socratic.interceptions || 0;
+            }
+            
+            // Domains
+            if (metrics.domains) {
+                updateDomainGrid(metrics.domains);
+            }
+        }
+        
+        // Update domain grid
+        function updateDomainGrid(domains) {
+            const grid = document.getElementById('domain-grid');
+            grid.innerHTML = '';
+            
+            for (const [domain, data] of Object.entries(domains.domains || {})) {
+                const card = document.createElement('div');
+                card.className = 'glass-card p-4';
+                
+                const statusClass = data.status === 'online' ? 'status-online' : 'status-offline';
+                const responseTime = data.responseTime ? `${data.responseTime}ms` : '--';
+                
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-400 text-sm">${domain}</span>
+                        <span class="w-3 h-3 rounded-full ${data.status === 'online' ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    </div>
+                    <div class="text-lg font-semibold ${statusClass}">${data.status.toUpperCase()}</div>
+                    <div class="text-sm text-gray-400">Response: ${responseTime}</div>
+                `;
+                
+                grid.appendChild(card);
+            }
+        }
+        
+        // Initialize charts
+        function initializeCharts() {
+            // CPU Chart
+            const cpuCtx = document.getElementById('cpu-chart').getContext('2d');
+            charts.cpu = new Chart(cpuCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'CPU %',
+                        data: [],
+                        borderColor: '#fbbf24',
+                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 100 },
+                        x: { display: false }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+            
+            // Memory Chart
+            const memoryCtx = document.getElementById('memory-chart').getContext('2d');
+            charts.memory = new Chart(memoryCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Memory %',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 100 },
+                        x: { display: false }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+            
+            // Performance Chart
+            const perfCtx = document.getElementById('performance-chart').getContext('2d');
+            charts.performance = new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'CPU %',
+                            data: [],
+                            borderColor: '#fbbf24',
+                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Memory %',
+                            data: [],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 100 }
+                    }
+                }
+            });
+            
+            // Response Time Chart
+            const responseCtx = document.getElementById('response-chart').getContext('2d');
+            charts.response = new Chart(responseCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Response Time (ms)',
+                        data: [],
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0 }
+                    }
+                }
+            });
+        }
+        
+        // Update charts
+        function updateCharts() {
+            if (!metrics.system) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            
+            // Update CPU chart
+            updateChart(charts.cpu, timestamp, metrics.system.cpu || 0);
+            
+            // Update Memory chart
+            updateChart(charts.memory, timestamp, metrics.system.memory || 0);
+            
+            // Update Performance chart
+            updateChart(charts.performance, timestamp, [
+                metrics.system.cpu || 0,
+                metrics.system.memory || 0
+            ]);
+            
+            // Update Response Time chart
+            const avgResponse = getAverageResponseTime();
+            updateChart(charts.response, timestamp, avgResponse);
+        }
+        
+        // Update individual chart
+        function updateChart(chart, label, data) {
+            chart.data.labels.push(label);
+            
+            if (Array.isArray(data)) {
+                data.forEach((value, index) => {
+                    chart.data.datasets[index].data.push(value);
+                });
+            } else {
+                chart.data.datasets[0].data.push(data);
+            }
+            
+            // Keep only last 20 data points
+            if (chart.data.labels.length > 20) {
+                chart.data.labels.shift();
+                chart.data.datasets.forEach(dataset => dataset.data.shift());
+            }
+            
+            chart.update('none'); // Update without animation for real-time
+        }
+        
+        // Get average response time
+        function getAverageResponseTime() {
+            const responses = [
+                metrics.services?.headyManager?.responseTime,
+                metrics.services?.staticServer?.responseTime
+            ].filter(r => r && r > 0);
+            
+            return responses.length > 0 ? Math.round(responses.reduce((a, b) => a + b, 0) / responses.length) : 0;
+        }
+        
+        // Update alerts
+        function updateAlerts() {
+            const container = document.getElementById('alerts-container');
+            
+            if (alerts.length === 0) {
+                container.innerHTML = '<div class="text-gray-400 text-center py-8">No alerts</div>';
+                return;
+            }
+            
+            container.innerHTML = alerts.map(alert => `
+                <div class="alert-item flex items-center justify-between p-3 rounded-lg mb-2 ${
+                    alert.severity === 'critical' ? 'bg-red-900/20 border border-red-500/30' :
+                    alert.severity === 'warning' ? 'bg-yellow-900/20 border border-yellow-500/30' :
+                    'bg-blue-900/20 border border-blue-500/30'
+                }">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="${
+                            alert.severity === 'critical' ? 'alert-triangle' :
+                            alert.severity === 'warning' ? 'alert-circle' : 'info'
+                        }" class="w-5 h-5 ${
+                            alert.severity === 'critical' ? 'text-red-400' :
+                            alert.severity === 'warning' ? 'text-yellow-400' : 'text-blue-400'
+                        }"></i>
+                        <div>
+                            <div class="font-semibold ${
+                                alert.severity === 'critical' ? 'text-red-400' :
+                                alert.severity === 'warning' ? 'text-yellow-400' : 'text-blue-400'
+                            }">${alert.component}</div>
+                            <div class="text-sm text-gray-400">${alert.message}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-400">
+                        ${new Date(alert.timestamp).toLocaleTimeString()}
+                    </div>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+        
+        // Update last update time
+        function updateLastUpdateTime() {
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Format uptime
+        function formatUptime(seconds) {
+            if (seconds < 60) return `${Math.round(seconds)}s`;
+            if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
+            if (seconds < 86400) return `${Math.round(seconds / 3600)}h`;
+            return `${Math.round(seconds / 86400)}d`;
+        }
+    </script>
+</body>
+</html>

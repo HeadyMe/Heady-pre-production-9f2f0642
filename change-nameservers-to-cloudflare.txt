@@ -1,0 +1,67 @@
+Cloudflare Nameserver Change Instructions
+========================================
+
+Current Domain: headyconnection.org
+Target: Cloudflare Nameservers
+
+Step 1: Get Cloudflare Nameservers
+----------------------------------
+1. Login to Cloudflare Dashboard: https://dash.cloudflare.com
+2. Add site: headyconnection.org
+3. Cloudflare will assign nameservers like:
+   - dina.ns.cloudflare.com
+   - josh.ns.cloudflare.com
+4. Note your assigned nameservers
+
+Step 2: Update Nameservers at Registrar
+-------------------------------------
+Find your domain registrar (where you bought headyconnection.org):
+
+Common registrars:
+- Namecheap: https://www.namecheap.com
+- GoDaddy: https://www.godaddy.com
+- Google Domains: https://domains.google.com
+- Network Solutions: https://www.networksolutions.com
+
+Login to your registrar and:
+1. Go to DNS management
+2. Select "Custom nameservers" or "Nameservers"
+3. Replace current nameservers with Cloudflare's nameservers
+4. Save changes
+
+Step 3: Wait for Propagation
+---------------------------
+Nameserver changes take 24-48 hours to propagate worldwide.
+You can check progress with: dig NS headyconnection.org
+
+Step 4: Verify Cloudflare Setup
+-------------------------------
+1. Return to Cloudflare Dashboard
+2. Wait for site to show "Active"
+3. DNS should show green checkmarks
+
+Step 5: Set Up Email Routing
+---------------------------
+1. In Cloudflare Dashboard, go to "Email" → "Email Routing"
+2. Click "Enable Email Routing"
+3. Create forwarding rule:
+   - Address: e@headyconnection.com
+   - Forward to: eric@headyconnection.org
+
+Important Notes:
+---------------
+- During propagation, email may be interrupted
+- Plan the change during low-traffic period
+- Backup important emails before making changes
+- Update any services that use headyconnection.org email
+
+Troubleshooting:
+---------------
+- If nameservers don't update, contact registrar support
+- Check for domain locks at registrar
+- Verify WHOIS information is correct
+- Use Cloudflare's DNS checker tool
+
+Cloudflare Support:
+- Help Center: https://support.cloudflare.com
+- Community: https://community.cloudflare.com
