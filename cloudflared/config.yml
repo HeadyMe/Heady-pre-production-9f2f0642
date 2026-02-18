@@ -2,34 +2,139 @@ tunnel: heady-production
 credentials-file: /home/headyme/.cloudflared/credentials.json
 
 ingress:
+  # === HeadySystems.com (Primary Platform) ===
   - hostname: headysystems.com
-    service: http://heady-web:3000
+    service: http://localhost:3000
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
   
-  - hostname: manager.headysystems.com
-    service: http://heady-manager:3300
+  - hostname: api.headysystems.com
+    service: http://localhost:3300
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
   
+  - hostname: admin.headysystems.com
+    service: http://localhost:3001
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: app.headysystems.com
+    service: http://localhost:3000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  # === HeadyMe.com (Personal Cloud) ===
+  - hostname: headyme.com
+    service: http://localhost:4000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: api.headyme.com
+    service: http://localhost:4300
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  # === HeadyBuddy.org (AI Assistant) ===
+  - hostname: headybuddy.org
+    service: http://localhost:7000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: api.headybuddy.org
+    service: http://localhost:7300
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  # === HeadyMCP.com (Developer Tools) ===
+  - hostname: headymcp.com
+    service: http://localhost:5000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: api.headymcp.com
+    service: http://localhost:5300
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: registry.headymcp.com
+    service: http://localhost:5301
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  # === HeadyIO.com (Developer Portal) ===
+  - hostname: headyio.com
+    service: http://localhost:6000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: api.headyio.com
+    service: http://localhost:6300
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: sandbox.headyio.com
+    service: http://localhost:6001
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  # === HeadyBot.com (Automation) ===
+  - hostname: headybot.com
+    service: http://localhost:8000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: hooks.headybot.com
+    service: http://localhost:8300
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  # === HeadyConnection.org (Nonprofit) ===
+  - hostname: headyconnection.org
+    service: http://localhost:9000
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  - hostname: api.headyconnection.org
+    service: http://localhost:9300
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+  
+  # === Legacy Routes (for compatibility) ===
   - hostname: buddy.headysystems.com
-    service: http://heady-web:3000/buddy
+    service: http://localhost:3000/buddy
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
   
   - hostname: ide.headysystems.com
-    service: http://heady-web:3000/ide
+    service: http://localhost:3000/ide
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
   
   - hostname: soul.headysystems.com
-    service: http://heady-web:3000/soul
+    service: http://localhost:3000/soul
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
   
+  # === Catch-all for unmatched routes ===
   - service: http_status:404
