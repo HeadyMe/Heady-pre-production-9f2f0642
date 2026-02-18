@@ -176,7 +176,7 @@ configure_cloudflare_tunnels() {
     
     cat > "$tunnel_config" << EOF
 tunnel: heady-systems-tunnel
-credentials-file: /root/.cloudflared/${TUNNEL_ID}.json
+credentials-file: /root/.cloudflared/tunnel-credentials.json
 
 ingress:
   # HeadyManager API
