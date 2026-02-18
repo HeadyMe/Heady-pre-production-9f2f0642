@@ -35,7 +35,7 @@ class HeadySoul {
     // Core Socratic questions based on context
     switch (context.type) {
       case 'budget_decision':
-        questions.push(
+        headyQuestions.push(
           `What assumption are we making about the ROI of this ${context.operation}?`,
           `How might we achieve the same outcome with 50% of the cost?`,
           `What's the opportunity cost if we proceed with this spending?`
@@ -43,7 +43,7 @@ class HeadySoul {
         break;
         
       case 'system_failure':
-        questions.push(
+        headyQuestions.push(
           `What underlying pattern caused this failure in ${context.component}?`,
           `How could we design this system to be immune to such failures?`,
           `What early warning signs did we miss that could prevent this?`
@@ -51,22 +51,24 @@ class HeadySoul {
         break;
         
       case 'new_integration':
-        questions.push(
-          `What core problem does ${context.service} solve that isn't already addressed?`,
-          `How might integrating ${context.service} complicate our current architecture?`,
-          `What's the simplest version of this integration we could.com first?`
+        headyQuestions.push(
+          `What value does this integration bring to the overall system?`,
+          `How might this integration affect existing workflows?`,
+          `What are the potential risks and mitigation strategies?`
         );
         break;
         
       default:
-        questions.push(
-          `What's the most important assumption we're making about this decision?`,
-          `How might we view this situation from a completely different perspective?`,
-          `What would we do if we had twice the resources or half the resources?`
+        // Default Socratic questions for general inquiries
+        headyQuestions.push(
+          `What assumptions underlie this response?`,
+          `How might we examine this from multiple perspectives?`,
+          `What evidence supports these claims?`,
+          `What alternative approaches should we consider?`
         );
     }
     
-    return questions;
+    return headyQuestions;
   }
 
   // Determine if escalation to HeadySoul is needed

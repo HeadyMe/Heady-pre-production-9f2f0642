@@ -31,7 +31,7 @@ class HCBrain {
     try {
       // Step 1: Apply Socratic questioning to complex decisions
       if (this.requiresSocraticAnalysis(decision)) {
-        const headySocraticAnalysis = await this.applySocraticMethod(decision);
+        const socraticAnalysis = await this.applySocraticMethod(decision);
         decision.socratic_insights = socraticAnalysis;
         this.performanceMetrics.socratic_sessions++;
       }
@@ -44,7 +44,7 @@ class HCBrain {
         // Return escalation status
         return {
           status: 'ESCALATED_TO_HEADYSOUL',
-          escalation_id: escalationId,
+          escalation_id: headyEscalationId,
           message: 'Decision escalated to HeadySoul for human guidance',
           socratic_questions: decision.socratic_insights?.questions || []
         };
@@ -54,12 +54,12 @@ class HCBrain {
       const headyResult = await this.executeDecision(decision);
       
       // Step 4: Log decision for learning
-      this.logDecision(decision, result, Date.now() - startTime);
+      this.logDecision(decision, headyResult, Date.now() - headyStartTime);
       
       return {
         status: 'EXECUTED',
-        result: result,
-        processing_time: Date.now() - startTime,
+        result: headyResult,
+        processing_time: Date.now() - headyStartTime,
         socratic_insights: decision.socratic_insights
       };
       
@@ -75,12 +75,12 @@ class HCBrain {
         original_decision: decision
       };
       
-      await this.headySoul.notifyHeadySoul(errorEscalation);
+      await this.headySoul.notifyHeadySoul(headyErrorEscalation);
       
       return {
         status: 'ERROR_ESCALATED',
         error: error.message,
-        escalation_id: errorEscalation.id
+        escalation_id: headyErrorEscalation.id
       };
     }
   }
@@ -95,7 +95,7 @@ class HCBrain {
       decision.long_term_impact === true // Long-term consequences
     ];
     
-    return socraticTriggers.some(trigger => trigger);
+    return headySocraticTriggers.some(trigger => trigger);
   }
 
   // Apply Socratic method to decision

@@ -35,15 +35,15 @@ class HeadyConductor {
     // Create optimal worker pool based on CPU cores
     const headyNumWorkers = Math.max(2, Math.floor(this.resourcePool.cpu / 2));
     
-    for (let headyI = 0; i < numWorkers; i++) {
-      await this.createWorker(i);
+    for (let headyI = 0; headyI < headyNumWorkers; headyI++) {
+      await this.createWorker(headyI);
     }
     
     this.isRunning = true;
     this.startResourceMonitoring();
     this.startTaskScheduler();
     
-    console.log(`🎼 HeadyConductor: Initialized with ${numWorkers} parallel workers`);
+    console.log(`🎼 HeadyConductor: Initialized with ${headyNumWorkers} parallel workers`);
     return this.getStatus();
   }
 
