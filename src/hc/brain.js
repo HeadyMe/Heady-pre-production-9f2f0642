@@ -21,6 +21,7 @@ class HCBrain {
       socratic_sessions: 0,
       average_decision_time: 0
     };
+    this.isContinuousProcessing = false;
   }
 
   // Enhanced decision processing with HeadySoul integration
@@ -360,6 +361,18 @@ class HCBrain {
     this.decisionHistory.set(`tuning_${Date.now()}`, tuningResult);
     
     return tuningResult;
+  }
+
+  // Enable continuous processing for HCFP Full Auto Mode
+  enableContinuousProcessing() {
+    this.isContinuousProcessing = true;
+    console.log('🧠 HCBrain: Continuous processing enabled for HCFP Full Auto Mode');
+  }
+
+  // Disable continuous processing
+  disableContinuousProcessing() {
+    this.isContinuousProcessing = false;
+    console.log('🧠 HCBrain: Continuous processing disabled');
   }
 }
 

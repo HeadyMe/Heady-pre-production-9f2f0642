@@ -12,6 +12,7 @@ class SocraticInterceptor {
     this.interceptionCount = 0;
     this.bypassAttempts = 0;
     this.enforcementMode = process.env.SOCRATIC_MODE_ENABLED === 'true';
+    this.isContinuousValidation = false;
     
     if (!this.enforcementMode) {
       console.error('🚨 CRITICAL: SOCRATIC_MODE_ENABLED must be true for all responses');
@@ -141,6 +142,18 @@ class SocraticInterceptor {
     
     console.log('✅ System fully compliant with Socratic method requirements');
     return true;
+  }
+
+  // Enable continuous validation for HCFP Full Auto Mode
+  enableContinuousValidation() {
+    this.isContinuousValidation = true;
+    console.log('🤔 SocraticInterceptor: Continuous validation enabled for HCFP Full Auto Mode');
+  }
+
+  // Disable continuous validation
+  disableContinuousValidation() {
+    this.isContinuousValidation = false;
+    console.log('🤔 SocraticInterceptor: Continuous validation disabled');
   }
 }
 

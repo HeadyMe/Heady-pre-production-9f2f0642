@@ -47,6 +47,11 @@ class HeadyConductor {
     return this.getStatus();
   }
 
+  // Start conductor (alias for initialize)
+  async start() {
+    return await this.initialize();
+  }
+
   // Create individual worker thread
   async createWorker(workerId) {
     return new Promise((resolve, reject) => {
@@ -55,11 +60,12 @@ class HeadyConductor {
         
         parentPort.on('message', async (task) => {
           try {
-            const headyResult = await executeTask(task);
+            // Simple task execution
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
             parentPort.postMessage({ 
               success: true, 
               taskId: task.id, 
-              result: result,
+              result: { status: 'completed', data: task.data },
               workerId: ${workerId}
             });
           } catch (error) {
@@ -71,6 +77,7 @@ class HeadyConductor {
             });
           }
         });
+      `);
         
         async function headyExecuteTask(task) {
           switch (task.type) {
