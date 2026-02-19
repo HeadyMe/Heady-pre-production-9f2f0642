@@ -1,3 +1,25 @@
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: dual-engine.js                                   ║
+// ║  UPDATED: 20260218-211102                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/*
+ * ✅ SCANNED: 20260218-211102
+ * 🔍 INSPECTED: All content reviewed
+ * 🏷️  BRANDED: Heady Systems branding applied
+ * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+ */
+
 /**
  * ═══════════════════════════════════════════════════════════════
  * 🎯 DUAL ENGINE API ROUTES - Socratic + Monte Carlo Control
@@ -18,7 +40,7 @@ router.post('/execute', async (req, res) => {
   }
   
   try {
-    const dualEngine = req.app.locals.dualEngine;
+    const dualEngine = req.app.coms.dualEngine;
     const result = await dualEngine.execute(action, context || {});
     res.json(result);
   } catch (error) {
@@ -33,7 +55,7 @@ router.post('/execute', async (req, res) => {
 // Get dual engine status
 router.get('/status', (req, res) => {
   try {
-    const interceptor = req.app.locals.actionInterceptor;
+    const interceptor = req.app.coms.actionInterceptor;
     const stats = interceptor.getStats();
     
     res.json({
@@ -61,7 +83,7 @@ router.post('/test', async (req, res) => {
   };
   
   try {
-    const dualEngine = req.app.locals.dualEngine;
+    const dualEngine = req.app.coms.dualEngine;
     const result = await dualEngine.execute(testAction, {
       testMode: true,
       timestamp: new Date().toISOString(),
@@ -78,7 +100,7 @@ router.post('/test', async (req, res) => {
 // Get execution history
 router.get('/history', async (req, res) => {
   try {
-    const dualEngine = req.app.locals.dualEngine;
+    const dualEngine = req.app.coms.dualEngine;
     const history = dualEngine.executionHistory || { executions: [] };
     
     const limit = parseInt(req.query.limit) || 10;

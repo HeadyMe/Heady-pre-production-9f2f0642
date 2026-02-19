@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  drupal:
+    build: ./docker/drupal
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=postgres
+      - DB_NAME=headysystems
+      - DB_USER=postgres
+      - DB_PASS=postgres
+    volumes:
+      - ./drupal/web:/var/www/html/web
+      - ./drupal/config:/var/www/html/config
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=headysystems
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./drupal/web:/var/www/html/web
+    depends_on:
+      - drupal
+
+volumes:
+  postgres_data:

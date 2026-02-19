@@ -1,0 +1,14 @@
+# API-optimized services configuration
+services:
+  cache.backend.redis:
+    class: Drupal\Core\Cache\RedisCacheFactory
+    
+  # JSON:API optimizations
+  jsonapi.normalizer.field_item.denormalizer:
+    class: Drupal\jsonapi\Normalizer\FieldItemNormalizer
+    
+  # Performance optimizations
+  http_middleware.negotiation:
+    class: Drupal\Core\StackMiddleware\NegotiationMiddleware
+    tags:
+      - { name: http_middleware, priority: 400 }

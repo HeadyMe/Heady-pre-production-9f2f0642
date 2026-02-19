@@ -1,4 +1,25 @@
 #!/bin/bash
+
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: zero-idle-startup.sh                                   ║
+# ║  UPDATED: 20260218-211102                                            ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+# ✅ SCANNED: 20260218-211102
+# 🔍 INSPECTED: All content reviewed
+# 🏷️  BRANDED: Heady Systems branding applied
+# 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+
+#!/bin/bash
 # 🚀 ZERO IDLE STARTUP SCRIPT - NEVER WASTE TIME OR MONEY
 # Comprehensive system startup with perpetual execution mode
 

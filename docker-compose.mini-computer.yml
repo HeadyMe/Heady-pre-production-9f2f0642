@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: heady-postgres
+    environment:
+      POSTGRES_DB: headysystems
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: heady-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: heady-api
+    ports:
+      - "3300:3300"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./.heady:/app/.heady
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: heady-web
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://headysystems.com.com:3300
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  cms:
+    build:
+      context: ./drupal
+      dockerfile: Dockerfile
+    container_name: heady-cms
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=postgres
+    depends_on:
+      - postgres
+    volumes:
+      - ./drupal/web:/var/www/html/web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -295,25 +295,25 @@
     
     <!-- Corner Navigation -->
     <div class="emblem-nav-left">
-        <button class="emblem-btn-geometry" onclick="toggleGeometryMode()" title="Sacred Geometry Mode">
+        <button type="button" class="emblem-btn-geometry" onclick="toggleGeometryMode()" title="Sacred Geometry Mode">
             ⬡
         </button>
-        <button class="emblem-btn-geometry" onclick="toggleStarMode()" title="Star Mode">
+        <button type="button" class="emblem-btn-geometry" onclick="toggleStarMode()" title="Star Mode">
             ✦
         </button>
-        <button class="emblem-btn-geometry" onclick="toggleEyeMode()" title="Eye Mode">
+        <button type="button" class="emblem-btn-geometry" onclick="toggleEyeMode()" title="Eye Mode">
             👁
         </button>
     </div>
     
     <div class="emblem-nav-right">
-        <button class="emblem-btn-lotus" onclick="toggleLotusMode()" title="Lotus Mode">
+        <button type="button" class="emblem-btn-lotus" onclick="toggleLotusMode()" title="Lotus Mode">
             ❋
         </button>
-        <button class="emblem-btn-lotus" onclick="toggleNatureMode()" title="Nature Mode">
+        <button type="button" class="emblem-btn-lotus" onclick="toggleNatureMode()" title="Nature Mode">
             🌿
         </button>
-        <button class="emblem-btn-lotus" onclick="toggleRootMode()" title="Root Mode">
+        <button type="button" class="emblem-btn-lotus" onclick="toggleRootMode()" title="Root Mode">
             🌳
         </button>
     </div>
@@ -368,10 +368,10 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="clearChat()" class="emblem-btn-primary">
+                    <button type="button" onclick="clearChat()" class="emblem-btn-primary">
                         <span><i class="fas fa-trash mr-2"></i>Clear</span>
                     </button>
-                    <button onclick="exportChat()" class="emblem-btn-lotus">
+                    <button type="button" onclick="exportChat()" class="emblem-btn-lotus">
                         <span><i class="fas fa-download mr-2"></i>Export</span>
                     </button>
                     <a href="https://headyme.com" class="emblem-btn-eye">
@@ -397,10 +397,10 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <button onclick="toggleSocratic()" class="emblem-btn-primary">
+                        <button type="button" onclick="toggleSocratic()" class="emblem-btn-primary">
                             <span><i class="fas fa-question-circle mr-1"></i>Socratic</span>
                         </button>
-                        <button onclick="toggleMonteCarlo()" class="emblem-btn-eye">
+                        <button type="button" onclick="toggleMonteCarlo()" class="emblem-btn-eye">
                             <span><i class="fas fa-dice mr-1"></i>Monte Carlo</span>
                         </button>
                     </div>
@@ -456,10 +456,10 @@
                                 onkeydown="handleKeyPress(event)"></textarea>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="attachFile()" class="emblem-btn-geometry">
+                            <button type="button" onclick="attachFile()" class="emblem-btn-geometry">
                                 <i class="fas fa-paperclip"></i>
                             </button>
-                            <button onclick="sendMessage()" class="emblem-btn-primary emblem-glow-heavy">
+                            <button type="button" onclick="sendMessage()" class="emblem-btn-primary emblem-glow-heavy">
                                 <span><i class="fas fa-paper-plane mr-2"></i>Send</span>
                             </button>
                         </div>
@@ -468,16 +468,16 @@
                     <!-- Quick Actions -->
                     <div class="flex items-center justify-between mt-3">
                         <div class="flex space-x-2">
-                            <button onclick="quickMessage('Help me understand HCFP')" class="emblem-btn-lotus">
+                            <button type="button" onclick="quickMessage('Help me understand HCFP')" class="emblem-btn-lotus">
                                 HCFP Help
                             </button>
-                            <button onclick="quickMessage('Explain Socratic method')" class="emblem-btn-eye">
+                            <button type="button" onclick="quickMessage('Explain Socratic method')" class="emblem-btn-eye">
                                 Socratic
                             </button>
-                            <button onclick="quickMessage('Show system status')" class="emblem-btn-primary">
+                            <button type="button" onclick="quickMessage('Show system status')" class="emblem-btn-primary">
                                 Status
                             </button>
-                            <button onclick="quickMessage('Test the emblem design')" class="emblem-btn-geometry">
+                            <button type="button" onclick="quickMessage('Test the emblem design')" class="emblem-btn-geometry">
                                 Test Design
                             </button>
                         </div>

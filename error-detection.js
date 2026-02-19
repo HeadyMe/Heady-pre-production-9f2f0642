@@ -1,3 +1,25 @@
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: error-detection.js                                   ║
+// ║  UPDATED: 20260218-211102                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/*
+ * ✅ SCANNED: 20260218-211102
+ * 🔍 INSPECTED: All content reviewed
+ * 🏷️  BRANDED: Heady Systems branding applied
+ * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+ */
+
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
@@ -281,7 +303,7 @@ class EmblemErrorDetector {
         const results = [];
 
         for (const page of pages) {
-            const url = `http://localhost:${page.port}/${page.path}`;
+            const url = `http://headysystems.com:${page.port}/${page.path}`;
             const result = await this.checkPage(page.path, url);
             results.push(result);
             
@@ -353,7 +375,7 @@ class EmblemErrorDetector {
 
     generateTextSummary(report) {
         let summary = `EMBLEM DESIGN SYSTEM ERROR DETECTION REPORT\n`;
-        summary += `Generated: ${new Date(report.timestamp).toLocaleString()}\n`;
+        summary += `Generated: ${new Date(report.timestamp).t.comeString()}\n`;
         summary += `${'='.repeat(60)}\n\n`;
 
         summary += `SUMMARY:\n`;

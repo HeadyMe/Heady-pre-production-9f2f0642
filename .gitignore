@@ -3,6 +3,11 @@ node_modules/
 *.log
 *.pid
 .env
+.env.*
+*.env
+.env.local
+.env.development
+.env.production
 .DS_Store
 public/_next/
 .next/

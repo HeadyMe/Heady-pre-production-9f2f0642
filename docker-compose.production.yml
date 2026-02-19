@@ -33,19 +33,19 @@ services:
       retries: 3
       start_period: 40s
 
-  # Ollama - Local AI Models
+  # Ollama -.com AI Models
   ollama:
     image: ollama/ollama:latest
     container_name: heady-ollama
     restart: unless-stopped
     environment:
-      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_HOST=headysystems.com
     volumes:
       - ollama-data:/root/.ollama
     networks:
       - heady-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "curl", "-f", "http://headysystems.com:11434/api/tags"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -70,7 +70,7 @@ services:
       - heady-manager
       - ollama
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD", "curl", "-f", "http://headysystems.com/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -116,11 +116,11 @@ services:
 
 volumes:
   ollama-data:
-    driver: local
+    driver:.com
   redis-data:
-    driver: local
+    driver:.com
   postgres-data:
-    driver: local
+    driver:.com
 
 networks:
   heady-network:

@@ -167,6 +167,39 @@
                 background-size: cover;
             }
             
+
+            /* Image Assets */
+            .asset-button {
+                background-image: url('/assets/buttons/launch.png');
+                background-size: cover;
+                background-position: center;
+                border: none;
+                width: 64px;
+                height: 64px;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            
+            .asset-button:hover {
+                transform: scale(1.1);
+            }
+            
+            .asset-icon {
+                width: 48px;
+                height: 48px;
+                background-image: url('/assets/icons/heady-icon.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+            
+            .discord-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-image: url('/assets/discord/discord-avatar.png');
+                background-size: cover;
+            }
+            
 </style>
 </head>
 <body class="rainbow-gradient min-h-screen text-white relative">
@@ -199,7 +232,7 @@
                     <a href="#services" class="hover:text-rainbow transition">Services</a>
                     <a href="#ai" class="hover:text-rainbow transition">AI Tools</a>
                     <a href="https://headyme.com/admin-ui.html" class="hover:text-rainbow transition">Admin</a>
-                    <button onclick="deploySystem()" class="btn-gradient px-6 py-2 rounded-full font-bold">
+                    <button type="button" onclick="deploySystem()" class="btn-gradient px-6 py-2 rounded-full font-bold">
                         <i class="fas fa-rocket mr-2"></i>Deploy Now
                     </button>
                 </nav>
@@ -216,10 +249,10 @@
                     Advanced AI-Powered Platform with Sacred Geometry Design
                 </p>
                 <div class="flex justify-center space-x-4">
-                    <button onclick="startHCFP()" class="asset-button" title="Launch HCFP">
+                    <button type="button" onclick="startHCFP()" class="asset-button" title="Launch HCFP">
                         <i class="fas fa-play mr-2"></i>Start HCFP
                     </button>
-                    <button onclick="viewDashboard()" class="glass px-8 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition">
+                    <button type="button" onclick="viewDashboard()" class="glass px-8 py-4 rounded-full text-lg font-bold hover:bg-white/20 transition">
                         <i class="fas fa-chart-line mr-2"></i>View Dashboard
                     </button>
                 </div>
@@ -272,17 +305,17 @@
             <div class="glass rounded-xl p-8 mb-12">
                 <h3 class="text-2xl font-bold text-rainbow mb-6">Quick Actions</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <button onclick="activateHCAutoFlow()" class="p-6 glass rounded-lg hover:bg-white/20 transition text-left">
+                    <button type="button" onclick="activateHCAutoFlow()" class="p-6 glass rounded-lg hover:bg-white/20 transition text-left">
                         <i class="fas fa-sync-alt text-3xl text-rainbow mb-4"></i>
                         <h4 class="text-lg font-bold mb-2">HCAutoFlow</h4>
                         <p class="text-sm opacity-75">Activate continuous automation</p>
                     </button>
-                    <button onclick="startSocratic()" class="p-6 glass rounded-lg hover:bg-white/20 transition text-left">
+                    <button type="button" onclick="startSocratic()" class="p-6 glass rounded-lg hover:bg-white/20 transition text-left">
                         <i class="fas fa-comments text-3xl text-rainbow mb-4"></i>
                         <h4 class="text-lg font-bold mb-2">Socratic AI</h4>
                         <p class="text-sm opacity-75">Start intelligent questioning</p>
                     </button>
-                    <button onclick="deployAll()" class="p-6 glass rounded-lg hover:bg-white/20 transition text-left">
+                    <button type="button" onclick="deployAll()" class="p-6 glass rounded-lg hover:bg-white/20 transition text-left">
                         <i class="fas fa-rocket text-3xl text-rainbow mb-4"></i>
                         <h4 class="text-lg font-bold mb-2">Deploy All</h4>
                         <p class="text-sm opacity-75">Full system deployment</p>

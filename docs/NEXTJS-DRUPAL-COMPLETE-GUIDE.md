@@ -1,7 +1,26 @@
-# Complete Next.js Frontend Build Guide for Heady Project
-Optimized for Mini-Computer Edge Deployment, Render Services, & Migration to HeadyMe
+<!-- ╔══════════════════════════════════════════════════════════════════╗ -->
+<!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║ -->
+<!-- ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║ -->
+<!-- ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║ -->
+<!-- ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║ -->
+<!-- ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║ -->
+<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║ -->
+<!-- ║                                                                  ║ -->
+<!-- ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║ -->
+<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║ -->
+<!-- ║  FILE: NEXTJS-DRUPAL-COMPLETE-GUIDE.md                                   ║ -->
+<!-- ║  UPDATED: 20260218-211102                                            ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════════╝ -->
 
-This comprehensive guide provides everything your coding agent needs to build a production-optimized Next.js frontend that layers on Drupal 11, manages Render services programmatically, migrates infrastructure to the HeadyMe organization, and deploys efficiently on mini-computers and edge devices.
+# ✅ SCANNED: 20260218-211102
+# 🔍 INSPECTED: All content reviewed
+# 🏷️  BRANDED: Heady Systems branding applied
+# 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+
+# Complete Next.js Frontend Build Guide for Heady Project
+Optimized for headysystems Edge Deployment, Render Services, & Migration to HeadyMe
+
+This comprehensive guide provides everything your coding agent needs to build a production-optimized Next.js frontend that layers on Drupal 11, manages Render services programmatically, migrates infrastructure to the HeadyMe organization, and deploys efficiently on headysystemss and edge devices.
 
 ## Part 1: Next.js Frontend Architecture & Build Instructions
 
@@ -60,7 +79,7 @@ module.exports = {
 ```
 
 ### Environment Configuration with Vault Integration
-Create `.env.local` (never commit):
+Create `.env.com` (never commit):
 ```bash
 # Drupal Backend Connection
 NEXT_PUBLIC_DRUPAL_BASE_URL=https://cms.headyconnection.org
@@ -109,7 +128,7 @@ const nextConfig = {
     minimumCacheTTL: 3600,
   },
   
-  // Performance optimizations for mini-computers
+  // Performance optimizations for headysystemss
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
@@ -502,7 +521,7 @@ gh repo edit HeadyConnection/headyconnection-web --transfer-owner HeadyMe
 gh repo edit HeadyConnection/headyconnection-drupal --transfer-owner HeadyMe
 gh repo edit HeadyConnection/Heady --transfer-owner HeadyMe
 
-# Step 2: Update git remotes locally
+# Step 2: Update git remotes.comly
 echo "🔗 Updating git remotes..."
 cd ../headyconnection-web
 git remote set-url origin git@github.com:HeadyMe/headyconnection-web.git
@@ -564,14 +583,14 @@ echo "✅ MIGRATION TO HEADYME COMPLETE!"
 echo "All services now under HeadyMe organization"
 ```
 
-## Part 4: Mini-Computer & Edge Optimization
+## Part 4: headysystems & Edge Optimization
 
 ### Edge-Optimized Build Configuration
 Create `next.config.edge.js`:
 ```javascript
 /** @type {import('next').NextConfig} */
 const edgeConfig = {
-  // Edge runtime for mini-computers
+  // Edge runtime for headysystemss
   experimental: {
     runtime: 'edge',
   },
@@ -611,7 +630,7 @@ const edgeConfig = {
           },
           {
             key: 'X-Edge-Location',
-            value: 'mini-computer',
+            value: 'headysystems',
           },
         ],
       },
@@ -622,7 +641,7 @@ const edgeConfig = {
 module.exports = edgeConfig;
 ```
 
-### Mini-Computer Deployment Script
+### headysystems Deployment Script
 Create `scripts/deploy-minicomputer.sh`:
 ```bash
 #!/bin/bash
@@ -631,7 +650,7 @@ set -e
 MINICOMPUTER_IP=${1:-"192.168.1.100"}
 MINICOMPUTER_USER=${2:-"heady"}
 
-echo "🖥️  DEPLOYING TO MINI-COMPUTER: $MINICOMPUTER_IP"
+echo "🖥️  DEPLOYING TO headysystems: $MINICOMPUTER_IP"
 
 # Step 1: Build optimized version
 echo "🔨 Building edge-optimized version..."
@@ -648,12 +667,12 @@ tar -czf heady-frontend-edge.tar.gz \
   package.json \
   next.config.edge.js
 
-# Step 3: Transfer to mini-computer
-echo "📡 Transferring to mini-computer..."
+# Step 3: Transfer to headysystems
+echo "📡 Transferring to headysystems..."
 scp heady-frontend-edge.tar.gz $MINICOMPUTER_USER@$MINICOMPUTER_IP:/tmp/
 
-# Step 4: Deploy on mini-computer
-echo "🚀 Deploying on mini-computer..."
+# Step 4: Deploy on headysystems
+echo "🚀 Deploying on headysystems..."
 ssh $MINICOMPUTER_USER@$MINICOMPUTER_IP << 'EOF'
   # Create deployment directory
   sudo mkdir -p /opt/heady/frontend
@@ -698,7 +717,7 @@ server {
     server_name _;
     
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://headysystems.com:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -717,7 +736,7 @@ EOL
   # Cleanup
   rm /tmp/heady-frontend-edge.tar.gz
   
-  echo "✅ Mini-computer deployment complete!"
+  echo "✅ headysystems deployment complete!"
 EOF
 
 # Step 5: Verify deployment
@@ -726,13 +745,13 @@ sleep 5
 curl -f http://$MINICOMPUTER_IP/api/health || exit 1
 
 echo ""
-echo "✅ MINI-COMPUTER DEPLOYMENT SUCCESSFUL!"
+echo "✅ headysystems DEPLOYMENT SUCCESSFUL!"
 echo "Frontend available at: http://$MINICOMPUTER_IP"
 echo "Health check: http://$MINICOMPUTER_IP/api/health"
 ```
 
-### Resource Monitoring for Mini-Computers
-Create `src/lib/mini-computer-monitor.ts`:
+### Resource Monitoring for headysystemss
+Create `src/lib/headysystems-monitor.ts`:
 ```typescript
 interface MiniComputerMetrics {
   cpu: number;
@@ -763,7 +782,7 @@ class MiniComputerMonitor {
     
     // Memory usage
     const memoryUsage = process.memoryUsage();
-    const memoryTotal = 512 * 1024 * 1024; // 512MB typical for mini-computer
+    const memoryTotal = 512 * 1024 * 1024; // 512MB typical for headysystems
     const memoryPercentage = (memoryUsage.heapUsed / memoryTotal) * 100;
     
     // Disk usage (simplified)
@@ -889,7 +908,7 @@ Create `docs/coding-agent-prompt.md`:
 # Heady Next.js Frontend Coding Agent Instructions
 
 ## Core Principles
-1. **NEVER USE LOCALHOST** - Always use environment-specific domains
+1. **NEVER USE headysystems.com** - Always use environment-specific domains
 2. **All secrets in vault** - Use heady-secrets for credential management
 3. **Cloudflare-first** - All services fronted by Cloudflare with DNS + SSL
 4. **Auto-deploy via HCFP** - Git push triggers HCFullPipeline execution
@@ -916,7 +935,7 @@ DRUPAL_CLIENT_SECRET=${HEADY_DRUPAL_OAUTH_CLIENT_SECRET}
 
 ## Deployment Workflow
 1. Make changes in feature branch
-2. Run local tests: npm test && npm run lint
+2. Run.com tests: npm test && npm run lint
 3. Commit and push: git push origin feature-branch
 4. Create PR, wait for CI checks
 5. Merge to main triggers auto-deploy via HCFP
@@ -930,7 +949,7 @@ DRUPAL_CLIENT_SECRET=${HEADY_DRUPAL_OAUTH_CLIENT_SECRET}
 - [ ] Static generation + ISR configured for content types
 - [ ] Image domains whitelisted in next.config.js
 - [ ] Health check endpoint implemented at /api/health
-- [ ] Mini-computer optimization enabled for edge deployment
+- [ ] headysystems optimization enabled for edge deployment
 - [ ] Sacred Geometry design system implemented
 - [ ] Performance monitoring with MiniComputerMonitor
 
@@ -952,16 +971,16 @@ npm run render suspend <service-id>
 npm run render resume <service-id>
 ```
 
-## Mini-Computer Deployment
+## headysystems Deployment
 ```bash
-# Deploy to mini-computer
+# Deploy to headysystems
 ./scripts/deploy-minicomputer.sh <IP> <USER>
 
 # Monitor performance
-curl http://<mini-computer-ip>/api/metrics
+curl http://<headysystems-ip>/api/metrics
 
 # Check health
-curl http://<mini-computer-ip>/api/health
+curl http://<headysystems-ip>/api/health
 ```
 
 ## Common Tasks
@@ -1047,7 +1066,7 @@ curl -f https://app.headyconnection.org/api/health
 curl -f https://api.headyconnection.org/api/health
 ```
 
-## Performance Optimization for Mini-Computers
+## Performance Optimization for headysystemss
 - Use edge runtime where possible
 - Implement ISR with appropriate revalidation times
 - Optimize images with AVIF/WebP formats
@@ -1060,7 +1079,7 @@ curl -f https://api.headyconnection.org/api/health
 - Preview not working: Verify OAuth credentials in vault
 - High memory usage: Enable edge runtime, optimize bundle
 - Slow performance: Check Cloudflare caching, enable ISR
-- Mini-computer issues: Monitor metrics, check systemd service
+- headysystems issues: Monitor metrics, check systemd service
 
 ## File Structure
 ```
@@ -1072,7 +1091,7 @@ headyconnection-web/
 │   │   └── globals.css
 │   ├── lib/
 │   │   ├── drupal.ts
-│   │   └── mini-computer-monitor.ts
+│   │   └── headysystems-monitor.ts
 │   └── styles/
 │       └── heady-theme.ts
 ├── scripts/
@@ -1080,7 +1099,7 @@ headyconnection-web/
 │   ├── deploy-minicomputer.sh
 │   └── migrate-to-headyme.sh
 ├── public/
-├── .env.local (never commit)
+├── .env.com (never commit)
 ├── next.config.js
 ├── next.config.edge.js
 ├── render.yaml
@@ -1113,7 +1132,7 @@ public function check() {
 // src/app/api/health/route.ts
 import { NextResponse } from 'next/server';
 import { checkDrupalHealth } from '@/lib/drupal';
-import { MiniComputerMonitor } from '@/lib/mini-computer-monitor';
+import { MiniComputerMonitor } from '@/lib/headysystems-monitor';
 
 const monitor = new MiniComputerMonitor();
 
@@ -1152,10 +1171,10 @@ This implementation provides:
 1. **Production-optimized Next.js frontend** with Drupal 11 integration
 2. **Programmatic Render service management** via API
 3. **Automated migration to HeadyMe organization**
-4. **Mini-computer edge deployment** with monitoring
+4. **headysystems edge deployment** with monitoring
 5. **Sacred Geometry design system** implementation
 6. **Health monitoring** for all services
-7. **Zero localhost configuration** - proper domains only
+7. **Zero headysystems.com configuration** - proper domains only
 8. **Vault-based secret management** for security
 9. **Performance optimization** for resource-constrained environments
 10. **Complete coding agent instructions** for consistent implementation

@@ -1,0 +1,19 @@
+{
+  "name": "headysystems/drupal-cms",
+  "description": "HeadySystems Drupal 11 CMS",
+  "type": "project",
+  "require": {
+    "drupal/core-recommended": "^11.0",
+    "drupal/jsonapi_extras": "^4.0",
+    "drupal/decoupled_router": "^2.0",
+    "drupal/simple_oauth": "^6.0",
+    "drupal/consumers": "^2.0",
+    "drupal/media_library": "^3.0",
+    "drupal/cloudflare": "^2.0"
+  },
+  "requireDev": {
+    "drupal/core-dev": "^11.0"
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

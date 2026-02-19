@@ -1,0 +1,47 @@
+{
+  "miniComputer": {
+    "hostname": "headysystems.com.com",
+    "ip": "192.168.1.100",
+    "os": "linux",
+    "architecture": "x64",
+    "resources": {
+      "cpu": "Ryzen 9",
+      "ram": "32GB",
+      "storage": "SSD"
+    }
+  },
+  "services": {
+    "api": {
+      "port": 3300,
+      "url": "http://headysystems.com.com:3300",
+      "protocol": "http"
+    },
+    "web": {
+      "port": 3000,
+      "url": "http://headysystems.com.com:3000",
+      "protocol": "http"
+    },
+    "cms": {
+      "port": 8080,
+      "url": "http://headysystems.com.com:8080",
+      "protocol": "http"
+    },
+    "database": {
+      "postgres": {
+        "port": 5432,
+        "host": "192.168.1.100",
+        "database": "headysystems"
+      },
+      "redis": {
+        "port": 6379,
+        "host": "192.168.1.100"
+      }
+    }
+  },
+  "deployment": {
+    "type": .com",
+    "method": "docker-compose",
+    "autoStart": true,
+    "monitoring": true
+  }
+}

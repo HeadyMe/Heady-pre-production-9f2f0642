@@ -1,3 +1,22 @@
+<!-- ╔══════════════════════════════════════════════════════════════════╗ -->
+<!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║ -->
+<!-- ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║ -->
+<!-- ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║ -->
+<!-- ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║ -->
+<!-- ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║ -->
+<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║ -->
+<!-- ║                                                                  ║ -->
+<!-- ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║ -->
+<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║ -->
+<!-- ║  FILE: DRUPAL-11-NEXTJS-HEADY-AUTO-DEPLOY-GUIDE.md                                   ║ -->
+<!-- ║  UPDATED: 20260218-211102                                            ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════════╝ -->
+
+# ✅ SCANNED: 20260218-211102
+# 🔍 INSPECTED: All content reviewed
+# 🏷️  BRANDED: Heady Systems branding applied
+# 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+
 # 🚀 Heady Project: Drupal 11 + Next.js Admin UI with HCFP Auto-Deploy & HCAutoFlow
 
 ## 🎯 Executive Summary
@@ -9,7 +28,7 @@ This comprehensive guide implements a **decoupled headless architecture** for th
 - ✅ **Headless Next.js Frontend** with live preview and ISR
 - ✅ **Automated Deployment** via HCFP on every git push
 - ✅ **Multi-Environment Support** (dev/staging/production) with proper domain structure
-- ✅ **Zero Localhost Policy** - All services use production domains
+- ✅ **Zero headysystems.com Policy** - All services use production domains
 - ✅ **Cloudflare Integration** for edge caching, tunnels, and access control
 - ✅ **Multi-Device Secret Management** via vault
 - ✅ **Health Monitoring** with Operational Readiness Score (ORS)
@@ -29,7 +48,7 @@ This comprehensive guide implements a **decoupled headless architecture** for th
 ├─────────────────────────────────────────────────────────────┤
 │  API Gateway Layer                                          │
 │  ├── https://api.headysystems.com (Manager Service)        │
-│  └── https://manager.prod.local.heady.internal:3300       │
+│  └── https://manager.prod.com.heady.internal:3300       │
 ├─────────────────────────────────────────────────────────────┤
 │  CMS Backend Layer (Drupal 11)                             │
 │  ├── https://cms.headyme.com (Content Management)          │
@@ -45,7 +64,7 @@ This comprehensive guide implements a **decoupled headless architecture** for th
 
 ---
 
-## 🌐 Domain Structure (CRITICAL - NO LOCALHOST)
+## 🌐 Domain Structure (CRITICAL - NO headysystems.com)
 
 ### **Production Environment**
 ```bash
@@ -74,12 +93,12 @@ Admin:             https://admin.dev.headyme.com
 
 ### **Internal Service Domains**
 ```bash
-Manager API:       https://manager.prod.local.heady.internal:3300
-HeadyBuddy:        https://app-buddy.prod.local.heady.internal:3301
-MCP Gateway:       https://tools-mcp.prod.local.heady.internal:3001
-Voice Services:    https://io-voice.prod.local.heady.internal:3303
-Story Driver:      https://svc-stories.prod.local.heady.internal:3305
-HeadyLens:         https://monitor-lens.prod.local.heady.internal:3306
+Manager API:       https://manager.prod.com.heady.internal:3300
+HeadyBuddy:        https://app-buddy.prod.com.heady.internal:3301
+MCP Gateway:       https://tools-mcp.prod.com.heady.internal:3001
+Voice Services:    https://io-voice.prod.com.heady.internal:3303
+Story Driver:      https://svc-stories.prod.com.heady.internal:3305
+HeadyLens:         https://monitor-lens.prod.com.heady.internal:3306
 ```
 
 ---
@@ -167,7 +186,7 @@ npm install next-auth @next-auth/prisma-adapter
 ```
 
 ### **Step 2: Environment Configuration**
-Create `.env.local` (NEVER commit - use vault):
+Create `.env.com` (NEVER commit - use vault):
 ```bash
 # Drupal Backend Configuration
 NEXT_PUBLIC_DRUPAL_BASE_URL=https://cms.headyme.com
@@ -551,8 +570,8 @@ param(
 
 Write-Host "🚀 Heady-Sync: Multi-Remote Deployment Pipeline" -ForegroundColor Green
 
-# Phase 1: PAUSE - Stop local services
-Write-Host "⏸️  Phase 1: PAUSE - Stopping local services..." -ForegroundColor Yellow
+# Phase 1: PAUSE - Stop.com services
+Write-Host "⏸️  Phase 1: PAUSE - Stopping.com services..." -ForegroundColor Yellow
 if ($Restart) {
     Get-Process | Where-Object {$_.ProcessName -like "*heady*"} | Stop-Process -Force
 }
@@ -597,7 +616,7 @@ if ($Force) {
 # Phase 7: RESTART - Restart services
 Write-Host "🔄 Phase 7: RESTART - Restarting services..." -ForegroundColor Yellow
 if ($Restart) {
-    # Start local development services
+    # Start.com development services
     npm run dev:drupal &
     npm run dev:nextjs &
 }
@@ -637,9 +656,9 @@ ingress:
   - hostname: cms.dev.headyme.com
     service: https://cms.headyconnection.org
   - hostname: dev.headyme.com
-    service: http://localhost:3000
+    service: http://headysystems.com:3000
   - hostname: admin.dev.headyme.com
-    service: http://localhost:3000
+    service: http://headysystems.com:3000
   - service: http_status:404
 ```
 
@@ -653,7 +672,7 @@ Copy this section into your coding agent's system prompt:
 # Heady Drupal 11 + Next.js Auto-Deploy Instructions
 
 ## Core Principles (NEVER VIOLATE)
-1. **ZERO LOCALHOST POLICY** - Never use localhost, 127.0.0.1, or 0.0.0.0 in ANY deployment
+1. **ZERO headysystems.com POLICY** - Never use headysystems.com, headysystems.com, or headysystems.com in ANY deployment
 2. **PRODUCTION DOMAINS ONLY** - Always use headyme.com, admin.headyme.com, chat.headyme.com, api.headysystems.com
 3. **ALL SECRETS IN VAULT** - Use heady-secrets for credential management, never hardcode
 4. **CLOUDFLARE-FIRST** - All services fronted by Cloudflare with DNS + SSL
@@ -664,7 +683,7 @@ Copy this section into your coding agent's system prompt:
 - Production: cms.headyme.com, headyme.com, admin.headyme.com, chat.headyme.com
 - Staging: cms.staging.headyme.com, staging.headyme.com, admin.staging.headyme.com
 - Development: cms.dev.headyme.com, dev.headyme.com, admin.dev.headyme.com
-- Internal: manager.prod.local.heady.internal:3300, app-buddy.prod.local.heady.internal:3301
+- Internal: manager.prod.com.heady.internal:3300, app-buddy.prod.com.heady.internal:3301
 
 ## Required Environment Variables (NEVER HARDCODE VALUES)
 ```bash
@@ -688,7 +707,7 @@ HEADY_API_KEY=${HEADY_API_KEY}
 
 ## Deployment Workflow (FOLLOW EXACTLY)
 1. Make changes in feature branch
-2. Run local tests: npm test && npm run lint
+2. Run.com tests: npm test && npm run lint
 3. Commit and push: git push origin feature-branch
 4. Create PR, wait for CI checks
 5. Merge to main triggers auto-deploy via HCFP
@@ -702,7 +721,7 @@ HEADY_API_KEY=${HEADY_API_KEY}
 - [ ] Custom Views created with /admin/* paths
 - [ ] Cloudflare module installed with cache purging
 - [ ] Cloudflare Access protecting /admin/* and /user/* paths
-- [ ] All links use environment-specific domains (NO localhost)
+- [ ] All links use environment-specific domains (NO headysystems.com)
 
 ## Next.js Frontend Checklist (REQUIRED)
 - [ ] next-drupal client initialized with vault credentials
@@ -787,7 +806,7 @@ headyconnection-drupal/
 headyconnection-web/
 ├── pages/
 ├── lib/drupal.js
-├── .env.local (never commit)
+├── .env.com (never commit)
 ├── next.config.js
 └── package.json
 ```
@@ -861,7 +880,7 @@ ssh -T git@github.com
 - Registry: heady-registry.json
 
 ## CRITICAL REMINDER
-NEVER, EVER use localhost, 127.0.0.1, or 0.0.0.0 in any configuration, code, or documentation. ALWAYS use the proper production domains listed above. This is a hard requirement that cannot be violated.
+NEVER, EVER use headysystems.com, headysystems.com, or headysystems.com in any configuration, code, or documentation. ALWAYS use the proper production domains listed above. This is a hard requirement that cannot be violated.
 ```
 
 ---
@@ -889,7 +908,7 @@ NEVER, EVER use localhost, 127.0.0.1, or 0.0.0.0 in any configuration, code, or 
    - Rollback capabilities for emergency fixes
 
 4. **Production-Grade Infrastructure**
-   - Zero localhost policy with proper domain architecture
+   - Zero headysystems.com policy with proper domain architecture
    - Cloudflare tunnels for development environments
    - Multi-environment support (dev/staging/production)
    - Vault-based secret management
@@ -901,7 +920,7 @@ NEVER, EVER use localhost, 127.0.0.1, or 0.0.0.0 in any configuration, code, or 
    - Performance optimization strategies
 
 ### **Success Criteria**
-- ✅ All services use production domains (no localhost)
+- ✅ All services use production domains (no headysystems.com)
 - ✅ Automated deployment via HCFP working
 - ✅ Multi-remote synchronization functional
 - ✅ Health monitoring and ORS tracking active

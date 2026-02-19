@@ -264,6 +264,39 @@
                 background-size: contain;
             }
             
+
+            /* Admin Image Assets */
+            .admin-button {
+                background-image: url('/assets/buttons/admin.png');
+                background-size: cover;
+                width: 80px;
+                height: 80px;
+                border: 2px solid #667eea;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+            
+            .admin-button:hover {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            }
+            
+            .status-icon {
+                width: 32px;
+                height: 32px;
+                background-image: url('/assets/icons/monitor.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+            
+            .discord-status {
+                width: 24px;
+                height: 24px;
+                background-image: url('/assets/discord/discord-status.png');
+                background-size: contain;
+            }
+            
 </style>
 </head>
 <body class="rainbow-gradient min-h-screen text-white relative">
@@ -294,10 +327,10 @@
                     </span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="deployAll()" class="btn-rainbow px-6 py-3 rounded-full font-bold neon-rainbow">
+                    <button type="button" onclick="deployAll()" class="btn-rainbow px-6 py-3 rounded-full font-bold neon-rainbow">
                         <i class="fas fa-rocket mr-2"></i>Deploy All
                     </button>
-                    <button onclick="refreshAll()" class="glass-enhanced px-6 py-3 rounded-full font-bold hover:bg-white/20 transition">
+                    <button type="button" onclick="refreshAll()" class="glass-enhanced px-6 py-3 rounded-full font-bold hover:bg-white/20 transition">
                         <i class="fas fa-sync-alt mr-2"></i>Refresh
                     </button>
                     <a href="https://headyme.com" class="glass-enhanced px-6 py-3 rounded-full font-bold hover:bg-white/20 transition">
@@ -378,10 +411,10 @@
                             </span>
                         </div>
                         <div class="mt-4 space-y-2">
-                            <button onclick="activateHCFP()" class="w-full btn-rainbow px-4 py-3 rounded-lg font-bold">
+                            <button type="button" onclick="activateHCFP()" class="w-full btn-rainbow px-4 py-3 rounded-lg font-bold">
                                 <i class="fas fa-play mr-2"></i>Activate HCFP
                             </button>
-                            <button onclick="deployServices()" class="w-full glass-enhanced px-4 py-3 rounded-lg font-bold hover:bg-white/20 transition">
+                            <button type="button" onclick="deployServices()" class="w-full glass-enhanced px-4 py-3 rounded-lg font-bold hover:bg-white/20 transition">
                                 <i class="fas fa-server mr-2"></i>Deploy Services
                             </button>
                         </div>
@@ -410,10 +443,10 @@
                             <span id="last-deploy">Never</span>
                         </div>
                         <div class="mt-4 space-y-2">
-                            <button onclick="enableAutoFlow()" class="w-full btn-rainbow px-4 py-3 rounded-lg font-bold">
+                            <button type="button" onclick="enableAutoFlow()" class="w-full btn-rainbow px-4 py-3 rounded-lg font-bold">
                                 <i class="fas fa-toggle-on mr-2"></i>Enable AutoFlow
                             </button>
-                            <button onclick="triggerAutoDeploy()" class="w-full glass-enhanced px-4 py-3 rounded-lg font-bold hover:bg-white/20 transition">
+                            <button type="button" onclick="triggerAutoDeploy()" class="w-full glass-enhanced px-4 py-3 rounded-lg font-bold hover:bg-white/20 transition">
                                 <i class="fas fa-rocket mr-2"></i>Auto-Deploy Now
                             </button>
                         </div>
@@ -445,7 +478,7 @@
                                       class="w-full p-3 bg-white/10 rounded-lg border border-white/20 text-white placeholder-white/50"
                                       rows="3" 
                                       placeholder="Ask SOCRATES a question..."></textarea>
-                            <button onclick="askSocratic()" 
+                            <button type="button" onclick="askSocratic()" 
                                     class="mt-2 w-full btn-rainbow px-4 py-3 rounded-lg font-bold">
                                 <i class="fas fa-comments mr-2"></i>Ask SOCRATES
                             </button>
@@ -482,7 +515,7 @@
                                       class="w-full p-3 bg-white/10 rounded-lg border border-white/20 text-white placeholder-white/50"
                                       rows="3" 
                                       placeholder="Task for Monte Carlo exploration..."></textarea>
-                            <button onclick="runMonteCarlo()" 
+                            <button type="button" onclick="runMonteCarlo()" 
                                     class="mt-2 w-full btn-rainbow px-4 py-3 rounded-lg font-bold">
                                 <i class="fas fa-dice-d20 mr-2"></i>Run Monte Carlo
                             </button>

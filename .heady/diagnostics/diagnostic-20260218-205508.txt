@@ -1,0 +1,347 @@
+=== SYSTEM DIAGNOSTIC REPORT ===
+Timestamp: Wed Feb 18 08:55:08 PM MST 2026
+
+=== MEMORY SYSTEM ===
+/home/headyme/CascadeProjects/Heady/.windsurf/memory-enforcer.json
+/home/headyme/CascadeProjects/Heady/scripts/fix-memory-system.js
+/home/headyme/CascadeProjects/Heady/src/intelligence/continuous-learner.js
+/home/headyme/CascadeProjects/Heady/src/heady-memory-wrapper.js
+/home/headyme/CascadeProjects/Heady/src/heady-persistent-memory.js
+/home/headyme/CascadeProjects/Heady/src/core/execution-memory.js
+/home/headyme/CascadeProjects/Heady/src/memory
+/home/headyme/CascadeProjects/Heady/src/memory/execution-memory.js
+/home/headyme/CascadeProjects/Heady/node_modules/caniuse-lite/data/features/wasm-bulk-memory.js
+/home/headyme/CascadeProjects/Heady/node_modules/caniuse-lite/data/features/wasm-multi-memory.js
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.d.mts
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.d.mts.map
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.d.ts
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.d.ts.map
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.js
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.js.map
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.mjs
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/helpers/beta/memory.mjs.map
+/home/headyme/CascadeProjects/Heady/node_modules/@anthropic-ai/sdk/src/helpers/beta/memory.ts
+/home/headyme/CascadeProjects/Heady/node_modules/@tootallnate/quickjs-emscripten/dist/memory.js
+/home/headyme/CascadeProjects/Heady/node_modules/@tootallnate/quickjs-emscripten/dist/memory.js.map
+/home/headyme/CascadeProjects/Heady/node_modules/@tootallnate/quickjs-emscripten/dist/memory.d.ts
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/lucide-react/dist/esm/icons/memory-stick.js
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/lucide-react/dist/esm/icons/memory-stick.js.map
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/typescript/lib/lib.es2020.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/typescript/lib/lib.es2024.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/typescript/lib/lib.esnext.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/caniuse-lite/data/features/wasm-bulk-memory.js
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/caniuse-lite/data/features/wasm-multi-memory.js
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/next/dist/esm/build/webpack/plugins/memory-with-gc-cache-plugin.js
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/next/dist/esm/build/webpack/plugins/memory-with-gc-cache-plugin.js.map
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/next/dist/esm/lib/memory
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/next/dist/build/webpack/plugins/memory-with-gc-cache-plugin.js
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/next/dist/build/webpack/plugins/memory-with-gc-cache-plugin.js.map
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/next/dist/build/webpack/plugins/memory-with-gc-cache-plugin.d.ts
+/home/headyme/CascadeProjects/Heady/admin-ui/node_modules/next/dist/lib/memory
+/home/headyme/CascadeProjects/Heady/initialize-memory.js
+/home/headyme/CascadeProjects/Heady/.heady-memory
+/home/headyme/CascadeProjects/Heady/.heady/memory-cache.json
+/home/headyme/CascadeProjects/Heady/.heady/memory-cache.json.backup
+/home/headyme/CascadeProjects/Heady/venv/lib/python3.13/site-packages/anyio/streams/memory.py
+/home/headyme/CascadeProjects/Heady/venv/lib/python3.13/site-packages/anyio/streams/__pycache__/memory.cpython-313.pyc
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/es2017.sharedmemory.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/es2020.sharedmemory.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/es2024.sharedmemory.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/esnext.sharedmemory.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/es2017.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/es2020.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/es2024.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@typescript-eslint/scope-manager/dist/lib/esnext.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@tybys/wasm-util/lib/cjs/memory.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/@tybys/wasm-util/lib/mjs/memory.mjs
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/typescript/lib/lib.es2017.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/typescript/lib/lib.es2020.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/typescript/lib/lib.es2024.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/typescript/lib/lib.esnext.sharedmemory.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/caniuse-lite/data/features/wasm-bulk-memory.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/caniuse-lite/data/features/wasm-multi-memory.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/esm/server/lib/incremental-cache/memory-cache.external.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/esm/server/lib/incremental-cache/memory-cache.external.js.map
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/esm/build/webpack/plugins/memory-with-gc-cache-plugin.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/esm/build/webpack/plugins/memory-with-gc-cache-plugin.js.map
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/esm/lib/memory
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/server/lib/incremental-cache/memory-cache.external.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/server/lib/incremental-cache/memory-cache.external.js.map
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/server/lib/incremental-cache/memory-cache.external.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/build/webpack/plugins/memory-with-gc-cache-plugin.js
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/build/webpack/plugins/memory-with-gc-cache-plugin.js.map
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/build/webpack/plugins/memory-with-gc-cache-plugin.d.ts
+/home/headyme/CascadeProjects/Heady/headyconnection-web/node_modules/next/dist/lib/memory
+8.0K	/home/headyme/CascadeProjects/Heady/.heady/diagnostics
+8.0K	/home/headyme/CascadeProjects/Heady/.heady/memory-cache.json
+4.0K	/home/headyme/CascadeProjects/Heady/.heady/memory-cache.json.backup
+
+=== LOCALHOST REFERENCES ===
+103
+69
+
+=== RUNNING SERVICES ===
+tcp        0      0 0.0.0.0:3300            0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:35633         0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:20241         0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:6379            0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:5432          0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:8080            0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:38057         0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:42087         0.0.0.0:*               LISTEN     
+tcp        0      0 0.0.0.0:9000            0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:44027         0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:45737         0.0.0.0:*               LISTEN     
+tcp        0      0 127.0.0.1:46641         0.0.0.0:*               LISTEN     
+tcp6       0      0 :::3000                 :::*                    LISTEN     
+tcp6       0      0 :::3301                 :::*                    LISTEN     
+tcp6       0      0 :::6379                 :::*                    LISTEN     
+tcp6       0      0 :::9090                 :::*                    LISTEN     
+tcp6       0      0 ::1:5432                :::*                    LISTEN     
+root        1182  0.0  0.0  46152 22344 ?        Ss   Feb17   0:00 /usr/bin/python3 /usr/lib/x86_64-linux-gnu/cpupower-gui/cpupower-gui-helper
+headyme     1752  0.0  0.1 606028 36980 ?        Sl   Feb17   0:12 /usr/bin/python3 /usr/bin/blueman-applet
+headyme     1793  0.0  0.1  68368 28120 ?        S    Feb17   0:00 /usr/bin/python3 /usr/share/system-config-printer/applet.py
+root        1843  0.0  0.0   2588  2004 ?        Ss   Feb17   0:00 fusermount3 -o rw,nosuid,nodev,fsname=portal,auto_unmount,subtype=portal -- /run/user/1000/doc
+headyme     1929  0.0  0.1 461496 34472 ?        Sl   Feb17   1:37 /usr/bin/python3 /usr/bin/blueman-tray
+headyme     2055  0.0  0.1  48612 31316 ?        S    Feb17   0:04 python3 /usr/bin/wsdd --no-host --discovery --listen /run/user/1000/gvfsd/wsdd
+headyme   823293  0.0  0.0   7092  2028 ?        S    15:01   0:00 /bin/bash -c cd headyconnection-web && nohup npm start -- -p 3000 > ../heady-web-production.log 2>&1 &
+headyme   823294  0.0  0.2 1117888 70128 ?       Sl   15:01   0:00 npm start -p 3000
+headyme   830476  0.0  0.4 1461347904 119756 ?   Sl   17:04   0:07 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --host-resolver-rules=MAP a.localhost 127.0.0.1, MAP b.localhost 127.0.0.1, MAP c.localhost 127.0.0.1, MAP d.localhost 127.0.0.1, MAP e.localhost 127.0.0.1, MAP f.localhost 127.0.0.1, MAP g.localhost 127.0.0.1, MAP h.localhost 127.0.0.1, MAP i.localhost 127.0.0.1, MAP j.localhost 127.0.0.1, MAP k.localhost 127.0.0.1, MAP l.localhost 127.0.0.1, MAP m.localhost 127.0.0.1, MAP n.localhost 127.0.0.1, MAP o.localhost 127.0.0.1, MAP p.localhost 127.0.0.1, MAP q.localhost 127.0.0.1, MAP r.localhost 127.0.0.1, MAP s.localhost 127.0.0.1, MAP t.localhost 127.0.0.1, MAP u.localhost 127.0.0.1, MAP v.localhost 127.0.0.1, MAP w.localhost 127.0.0.1, MAP x.localhost 127.0.0.1, MAP y.localhost 127.0.0.1, MAP z.localhost 127.0.0.1 --crashpad-handler-pid=830320 --enable-crash-reporter=4cbe10cc-fe47-46cf-ac76-6519e45b7c75,no_channel --user-data-dir=/home/headyme/.config/Windsurf - Next --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,15337104606534157828,14551992145178249633,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708990997080739
+headyme   830477  2.6  2.1 1461367116 513460 ?   Sl   17:04   6:03 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --host-resolver-rules=MAP a.localhost 127.0.0.1, MAP b.localhost 127.0.0.1, MAP c.localhost 127.0.0.1, MAP d.localhost 127.0.0.1, MAP e.localhost 127.0.0.1, MAP f.localhost 127.0.0.1, MAP g.localhost 127.0.0.1, MAP h.localhost 127.0.0.1, MAP i.localhost 127.0.0.1, MAP j.localhost 127.0.0.1, MAP k.localhost 127.0.0.1, MAP l.localhost 127.0.0.1, MAP m.localhost 127.0.0.1, MAP n.localhost 127.0.0.1, MAP o.localhost 127.0.0.1, MAP p.localhost 127.0.0.1, MAP q.localhost 127.0.0.1, MAP r.localhost 127.0.0.1, MAP s.localhost 127.0.0.1, MAP t.localhost 127.0.0.1, MAP u.localhost 127.0.0.1, MAP v.localhost 127.0.0.1, MAP w.localhost 127.0.0.1, MAP x.localhost 127.0.0.1, MAP y.localhost 127.0.0.1, MAP z.localhost 127.0.0.1 --crashpad-handler-pid=830320 --enable-crash-reporter=4cbe10cc-fe47-46cf-ac76-6519e45b7c75,no_channel --user-data-dir=/home/headyme/.config/Windsurf - Next --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,15337104606534157828,14551992145178249633,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708991934122588
+headyme   830508  1.5  1.0 1461343060 255180 ?   Sl   17:04   3:30 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --host-resolver-rules=MAP a.localhost 127.0.0.1, MAP b.localhost 127.0.0.1, MAP c.localhost 127.0.0.1, MAP d.localhost 127.0.0.1, MAP e.localhost 127.0.0.1, MAP f.localhost 127.0.0.1, MAP g.localhost 127.0.0.1, MAP h.localhost 127.0.0.1, MAP i.localhost 127.0.0.1, MAP j.localhost 127.0.0.1, MAP k.localhost 127.0.0.1, MAP l.localhost 127.0.0.1, MAP m.localhost 127.0.0.1, MAP n.localhost 127.0.0.1, MAP o.localhost 127.0.0.1, MAP p.localhost 127.0.0.1, MAP q.localhost 127.0.0.1, MAP r.localhost 127.0.0.1, MAP s.localhost 127.0.0.1, MAP t.localhost 127.0.0.1, MAP u.localhost 127.0.0.1, MAP v.localhost 127.0.0.1, MAP w.localhost 127.0.0.1, MAP x.localhost 127.0.0.1, MAP y.localhost 127.0.0.1, MAP z.localhost 127.0.0.1 --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --crashpad-handler-pid=830320 --enable-crash-reporter=4cbe10cc-fe47-46cf-ac76-6519e45b7c75,no_channel --user-data-dir=/home/headyme/.config/Windsurf - Next --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,15337104606534157828,14551992145178249633,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708992871164437
+headyme   830539  0.2  0.3 1461391884 84988 ?    Sl   17:04   0:32 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --host-resolver-rules=MAP a.localhost 127.0.0.1, MAP b.localhost 127.0.0.1, MAP c.localhost 127.0.0.1, MAP d.localhost 127.0.0.1, MAP e.localhost 127.0.0.1, MAP f.localhost 127.0.0.1, MAP g.localhost 127.0.0.1, MAP h.localhost 127.0.0.1, MAP i.localhost 127.0.0.1, MAP j.localhost 127.0.0.1, MAP k.localhost 127.0.0.1, MAP l.localhost 127.0.0.1, MAP m.localhost 127.0.0.1, MAP n.localhost 127.0.0.1, MAP o.localhost 127.0.0.1, MAP p.localhost 127.0.0.1, MAP q.localhost 127.0.0.1, MAP r.localhost 127.0.0.1, MAP s.localhost 127.0.0.1, MAP t.localhost 127.0.0.1, MAP u.localhost 127.0.0.1, MAP v.localhost 127.0.0.1, MAP w.localhost 127.0.0.1, MAP x.localhost 127.0.0.1, MAP y.localhost 127.0.0.1, MAP z.localhost 127.0.0.1 --crashpad-handler-pid=830320 --enable-crash-reporter=4cbe10cc-fe47-46cf-ac76-6519e45b7c75,no_channel --user-data-dir=/home/headyme/.config/Windsurf - Next --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,15337104606534157828,14551992145178249633,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190708993808206286
+headyme   830572  0.0  0.3 1476307736 80212 ?    Sl   17:04   0:01 /usr/share/windsurf-next/windsurf-next --max-old-space-size=3072 /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/tsserver.js --serverMode partialSemantic --useInferredProjectPerProjectRoot --disableAutomaticTypingAcquisition --cancellationPipeName /tmp/vscode-typescript1000/57e65dc8fd6874d6b231/tscancellation-342129a437b27ab89c4b.tmp* --locale en --noGetErrOnBackgroundUpdate --canUseWatchEvents --validateDefaultNpmLocation --useNodeIpc
+headyme   830573  0.0  0.6 1459530584 165772 ?   Sl   17:04   0:07 /usr/share/windsurf-next/windsurf-next --max-old-space-size=3072 /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/tsserver.js --useInferredProjectPerProjectRoot --enableTelemetry --cancellationPipeName /tmp/vscode-typescript1000/57e65dc8fd6874d6b231/tscancellation-4c0eb011d06969bd51f9.tmp* --locale en --noGetErrOnBackgroundUpdate --canUseWatchEvents --validateDefaultNpmLocation --useNodeIpc
+headyme   830607  0.0  0.3 1459530584 79152 ?    Sl   17:04   0:00 /usr/share/windsurf-next/windsurf-next /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/typingsInstaller.js --globalTypingsCacheLocation /home/headyme/.cache/typescript/5.9 --enableTelemetry --typesMapLocation /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/typesMap.json --validateDefaultNpmLocation
+headyme   831142  0.0  0.3 1459563304 96464 ?    Sl   17:04   0:01 /usr/share/windsurf-next/windsurf-next /usr/share/windsurf-next/resources/app/extensions/json-language-features/server/dist/node/jsonServerMain --node-ipc --clientProcessId=830508
+headyme   831150  0.0  0.2 1476307736 70080 ?    Sl   17:04   0:01 /usr/share/windsurf-next/windsurf-next /usr/share/windsurf-next/resources/app/extensions/markdown-language-features/dist/serverWorkerMain --node-ipc --clientProcessId=830508
+headyme   836308  0.0  0.3 1459530520 89200 ?    Sl   18:51   0:01 /usr/share/windsurf-next/windsurf-next /usr/share/windsurf-next/resources/app/extensions/html-language-features/server/dist/node/htmlServerMain --node-ipc --clientProcessId=830508
+headyme   838850 19.9  4.6 17605248 1141716 ?    Sl   19:08  21:21 node heady-manager.js
+headyme   838891  0.3  0.0 2295008 23468 ?       S    19:08   0:22 python3 -m http.server 8080
+headyme   839895  0.0  0.0 181420 22368 ?        S    19:12   0:00 python3 -m http.server 9000 --bind 0.0.0.0
+headyme   852523  3.4  0.4 1461367180 118852 ?   Sl   20:11   1:28 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --host-resolver-rules=MAP a.localhost 127.0.0.1, MAP b.localhost 127.0.0.1, MAP c.localhost 127.0.0.1, MAP d.localhost 127.0.0.1, MAP e.localhost 127.0.0.1, MAP f.localhost 127.0.0.1, MAP g.localhost 127.0.0.1, MAP h.localhost 127.0.0.1, MAP i.localhost 127.0.0.1, MAP j.localhost 127.0.0.1, MAP k.localhost 127.0.0.1, MAP l.localhost 127.0.0.1, MAP m.localhost 127.0.0.1, MAP n.localhost 127.0.0.1, MAP o.localhost 127.0.0.1, MAP p.localhost 127.0.0.1, MAP q.localhost 127.0.0.1, MAP r.localhost 127.0.0.1, MAP s.localhost 127.0.0.1, MAP t.localhost 127.0.0.1, MAP u.localhost 127.0.0.1, MAP v.localhost 127.0.0.1, MAP w.localhost 127.0.0.1, MAP x.localhost 127.0.0.1, MAP y.localhost 127.0.0.1, MAP z.localhost 127.0.0.1 --crashpad-handler-pid=830320 --enable-crash-reporter=4cbe10cc-fe47-46cf-ac76-6519e45b7c75,no_channel --user-data-dir=/home/headyme/.config/Windsurf - Next --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,15337104606534157828,14551992145178249633,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709005989750323
+headyme   853196  2.0  0.9 1461351320 220144 ?   Sl   20:12   0:52 /proc/self/exe --type=utility --utility-sub-type=node.mojom.NodeService --lang=en-US --service-sandbox-type=none --host-resolver-rules=MAP a.localhost 127.0.0.1, MAP b.localhost 127.0.0.1, MAP c.localhost 127.0.0.1, MAP d.localhost 127.0.0.1, MAP e.localhost 127.0.0.1, MAP f.localhost 127.0.0.1, MAP g.localhost 127.0.0.1, MAP h.localhost 127.0.0.1, MAP i.localhost 127.0.0.1, MAP j.localhost 127.0.0.1, MAP k.localhost 127.0.0.1, MAP l.localhost 127.0.0.1, MAP m.localhost 127.0.0.1, MAP n.localhost 127.0.0.1, MAP o.localhost 127.0.0.1, MAP p.localhost 127.0.0.1, MAP q.localhost 127.0.0.1, MAP r.localhost 127.0.0.1, MAP s.localhost 127.0.0.1, MAP t.localhost 127.0.0.1, MAP u.localhost 127.0.0.1, MAP v.localhost 127.0.0.1, MAP w.localhost 127.0.0.1, MAP x.localhost 127.0.0.1, MAP y.localhost 127.0.0.1, MAP z.localhost 127.0.0.1 --dns-result-order=ipv4first --experimental-network-inspection --inspect-port=0 --crashpad-handler-pid=830320 --enable-crash-reporter=4cbe10cc-fe47-46cf-ac76-6519e45b7c75,no_channel --user-data-dir=/home/headyme/.config/Windsurf - Next --standard-schemes=vscode-webview,vscode-file --enable-sandbox --secure-schemes=vscode-webview,vscode-file --cors-schemes=vscode-webview,vscode-file --fetch-schemes=vscode-webview,vscode-file --service-worker-schemes=vscode-webview --code-cache-schemes=vscode-webview,vscode-file --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,15337104606534157828,14551992145178249633,262144 --enable-features=DocumentPolicyIncludeJSCallStacksInCrashReports,EarlyEstablishGpuChannel,EstablishGpuChannelAsync,PdfUseShowSaveFilePicker --disable-features=CalculateNativeWinOcclusion,LocalNetworkAccessChecks,ScreenAIOCREnabled,SpareRendererForSitePerProcess,TraceSiteInstanceGetProcessCreation --variations-seed-version --trace-process-track-uuid=3190709007863834021
+headyme   853233  0.0  0.3 1459530584 91628 ?    Sl   20:12   0:00 /usr/share/windsurf-next/windsurf-next /usr/share/windsurf-next/resources/app/extensions/markdown-language-features/dist/serverWorkerMain --node-ipc --clientProcessId=853196
+headyme   853268  0.0  0.3 1476307736 93064 ?    Sl   20:12   0:00 /usr/share/windsurf-next/windsurf-next /usr/share/windsurf-next/resources/app/extensions/json-language-features/server/dist/node/jsonServerMain --node-ipc --clientProcessId=853196
+headyme   878756  0.1  0.5 1459530520 131668 ?   Sl   20:41   0:01 /usr/share/windsurf-next/windsurf-next --max-old-space-size=3072 /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/tsserver.js --serverMode partialSemantic --useInferredProjectPerProjectRoot --disableAutomaticTypingAcquisition --cancellationPipeName /tmp/vscode-typescript1000/e2657ae0db81b64465ca/tscancellation-a0488885029607b1344a.tmp* --locale en --noGetErrOnBackgroundUpdate --canUseWatchEvents --validateDefaultNpmLocation --useNodeIpc
+headyme   878757  0.4  0.7 1459530520 180744 ?   Sl   20:41   0:03 /usr/share/windsurf-next/windsurf-next --max-old-space-size=3072 /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/tsserver.js --useInferredProjectPerProjectRoot --enableTelemetry --cancellationPipeName /tmp/vscode-typescript1000/e2657ae0db81b64465ca/tscancellation-7a620e7f453fff42bd55.tmp* --locale en --noGetErrOnBackgroundUpdate --canUseWatchEvents --validateDefaultNpmLocation --useNodeIpc
+headyme   878772  0.0  0.4 1459530520 120548 ?   Sl   20:41   0:00 /usr/share/windsurf-next/windsurf-next /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/typingsInstaller.js --globalTypingsCacheLocation /home/headyme/.cache/typescript/5.9 --enableTelemetry --typesMapLocation /usr/share/windsurf-next/resources/app/extensions/node_modules/typescript/lib/typesMap.json --validateDefaultNpmLocation
+headyme   888480  0.0  0.0   7208  3484 ?        S    20:55   0:00 /bin/bash -c mkdir -p .heady/diagnostics && cd .heady/diagnostics && echo "=== SYSTEM DIAGNOSTIC REPORT ===" > diagnostic-$(date +%Y%m%d-%H%M%S).txt && echo "Timestamp: $(date)" >> diagnostic-*.txt && echo "" >> diagnostic-*.txt && echo "=== MEMORY SYSTEM ===" >> diagnostic-*.txt && find /home/headyme/CascadeProjects/Heady -name "*memor*" -o -name "*learn*" -o -name "*.db" >> diagnostic-*.txt && du -sh /home/headyme/CascadeProjects/Heady/.heady/* >> diagnostic-*.txt 2>&1 && echo "" >> diagnostic-*.txt && echo "=== LOCALHOST REFERENCES ===" >> diagnostic-*.txt && grep -r "localhost" /home/headyme/CascadeProjects/Heady --include="*.js" --include="*.ts" --include="*.json" --include="*.env*" | wc -l >> diagnostic-*.txt && grep -r "127.0.0.1" /home/headyme/CascadeProjects/Heady --include="*.js" --include="*.ts" --include="*.json" | wc -l >> diagnostic-*.txt && echo "" >> diagnostic-*.txt && echo "=== RUNNING SERVICES ===" >> diagnostic-*.txt && netstat -tuln | grep LISTEN >> diagnostic-*.txt 2>&1 && ps aux | grep -E 'node|python|npm|docker' >> diagnostic-*.txt 2>&1 && echo "" >> diagnostic-*.txt && echo "=== RECENT ERRORS ===" >> diagnostic-*.txt && find /home/headyme/CascadeProjects/Heady -name "*.log" -mtime -1 -exec tail -20 {} \; >> diagnostic-*.txt 2>&1 && cat diagnostic-*.txt
+headyme   888504  0.0  0.0   6532  2352 ?        S    20:55   0:00 grep -E node|python|npm|docker
+
+=== RECENT ERRORS ===
+   Compliance Rate: 100.00%
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+🤔 Socratic Interception #98561: Applying mandatory Socratic method
+🤔 Socratic Interception #98562: Applying mandatory Socratic method
+🔍 Socratic Compliance Validation:
+   Total Interceptions: 98562
+   Bypass Attempts: 0
+   Compliance Rate: 100.00%
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+🤔 Socratic Interception #98563: Applying mandatory Socratic method
+🤔 Socratic Interception #98564: Applying mandatory Socratic method
+🔍 Socratic Compliance Validation:
+   Total Interceptions: 98564
+   Bypass Attempts: 0
+   Compliance Rate: 100.00%
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+🤔 Socratic Interception #98565: Applying mandatory Socratic method
+nohup: ignoring input
+🚀 Starting HCFullPipeline Production Deployment...
+This will deploy enhanced websites with colorful watermarks and full functionality.
+
+🚀 HCFullPipeline PRODUCTION DEPLOYMENT
+=========================================
+🔒 ZERO LOCALHOST POLICY: ENFORCED
+🌐 PRODUCTION DOMAINS: headyme.com ONLY
+🎨 FEATURES: Colorful watermarks, animations, full functionality
+
+🔍 Checking System Health...
+❌ Health check failed: 
+❌ System health check failed. Aborting deployment.
+🚨 Socratic interceptor error: questions is not defined
+🔄 HCFP Deployment Process Started...
+📦 Deploying all AI services...
+☁️ Configuring Cloudflare Enterprise...
+🐙 Setting up GitHub Enterprise...
+🏛️ Initializing Drupal CMS...
+🤔 Socratic Interception #10: Applying mandatory Socratic method
+🚨 Socratic interceptor error: questions is not defined
+🤔 Socratic Interception #11: Applying mandatory Socratic method
+🚨 Socratic interceptor error: questions is not defined
+🚀 HCFP Auto-Mode Triggered: undefined
+📦 HCAutoFlow: true
+🌳 Worktrees: all
+🤔 Socratic Interception #12: Applying mandatory Socratic method
+🚨 Socratic interceptor error: questions is not defined
+🔄 HCFP Deployment Process Started...
+📦 Deploying all AI services...
+☁️ Configuring Cloudflare Enterprise...
+🐙 Setting up GitHub Enterprise...
+🏛️ Initializing Drupal CMS...
+🤖 Jules AI: ACTIVE
+🤗 HuggingFace: ACTIVE
+🪿 Goose AI: ACTIVE
+🇷🇺 Yandex AI: ACTIVE
+🤖 OpenAI: ACTIVE
+🐙 GitHub Copilot: ACTIVE
+🧪 Google Colab: ACTIVE
+☁️ Cloudflare Enterprise: ACTIVE
+🐙 GitHub Enterprise: ACTIVE
+🏛️ Drupal CMS: ACTIVE
+🔍 Socratic Compliance Validation:
+   Total Interceptions: 0
+   Bypass Attempts: 0
+   Compliance Rate: N/A
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+✅ SOCRATIC METHOD COMPLIANCE: VERIFIED
+⏰ 2026-02-18T17:31:57.945Z
+🤔 Socratic Interception #1: Applying mandatory Socratic method
+🚨 Socratic interceptor error: questions is not defined
+node:events:502
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use 0.0.0.0:3300
+    at Server.setupListenHandle [as _listen2] (node:net:1902:16)
+    at listenInCluster (node:net:1959:12)
+    at doListen (node:net:2133:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1938:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 3300
+}
+
+Node.js v20.19.2
+   Bypass Attempts: 0
+   Compliance Rate: N/A
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+✅ SOCRATIC METHOD COMPLIANCE: VERIFIED
+⏰ 2026-02-18T18:10:46.371Z
+🤔 Socratic Interception #1: Applying mandatory Socratic method
+🤔 Socratic Interception #2: Applying mandatory Socratic method
+🤔 Socratic Interception #3: Applying mandatory Socratic method
+🤔 Socratic Interception #4: Applying mandatory Socratic method
+🚀 HCFP Auto-Mode Triggered: undefined
+📦 HCAutoFlow: true
+🌳 Worktrees: all
+🤔 Socratic Interception #5: Applying mandatory Socratic method
+🔄 HCFP Deployment Process Started...
+📦 Deploying all AI services...
+☁️ Configuring Cloudflare Enterprise...
+🐙 Setting up GitHub Enterprise...
+🏛️ Initializing Drupal CMS...
+🤔 Socratic Interception #6: Applying mandatory Socratic method
+
+✓ Starting...
+⚠ Turbopack's filesystem cache has been deleted because we previously detected an internal error in Turbopack. Builds or page loads may be slower as a result.
+✓ Ready in 406ms
+⚠ Found a change in next.config.js. Restarting the server to apply the changes...
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/headyme/CascadeProjects/Heady/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /home/headyme/CascadeProjects/Heady/headyconnection-web/package-lock.json
+
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://10.1.5.65:3001
+
+✓ Starting...
+⨯ Unable to acquire lock at /home/headyme/CascadeProjects/Heady/headyconnection-web/.next/dev/lock, is another instance of next dev running?
+  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+[?25h
+        protocol=args.protocol,
+        ^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/python3.13/http/server.py", line 1270, in test
+    with ServerClass(addr, HandlerClass) as httpd:
+         ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/socketserver.py", line 457, in __init__
+    self.server_bind()
+    ~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/server.py", line 1317, in server_bind
+    return super().server_bind()
+           ~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/http/server.py", line 136, in server_bind
+    socketserver.TCPServer.server_bind(self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/socketserver.py", line 478, in server_bind
+    self.socket.bind(self.server_address)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 98] Address already in use
+127.0.0.1 - - [18/Feb/2026 20:55:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:07] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:08] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [18/Feb/2026 20:55:09] "GET / HTTP/1.1" 200 -
+   Compliance Rate: 100.00%
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+🤔 Socratic Interception #3174: Applying mandatory Socratic method
+🤔 Socratic Interception #3175: Applying mandatory Socratic method
+🔍 Socratic Compliance Validation:
+   Total Interceptions: 3175
+   Bypass Attempts: 0
+   Compliance Rate: 100.00%
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+🤔 Socratic Interception #3176: Applying mandatory Socratic method
+🤔 Socratic Interception #3177: Applying mandatory Socratic method
+🔍 Socratic Compliance Validation:
+   Total Interceptions: 3177
+   Bypass Attempts: 0
+   Compliance Rate: 100.00%
+   Status: COMPLIANT
+✅ System fully compliant with Socratic method requirements
+🤔 Socratic Interception #3178: Applying mandatory Socratic method
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 443
+}
+Failed to proxy https://api.headysystems.com/api/routes Error: connect ECONNREFUSED 127.0.0.1:443
+    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:443) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 443
+}
+Error: connect ECONNREFUSED 127.0.0.1:443
+    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:443) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 443
+}

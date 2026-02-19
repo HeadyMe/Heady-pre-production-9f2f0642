@@ -1,0 +1,232 @@
+
+## 🚨 CRITICAL ZERO TOLERANCE RULE - NEVER VIOLATE
+
+### ABSOLUTELY NO LOCAL REFERENCES - EVER
+❌ **FORBIDDEN** (ZERO TOLERANCE):
+- localhost (ANY form)
+- 127.0.0.1 (ANY form)  
+- 0.0.0.0 (ANY form)
+- .local domains
+- local: protocols
+- Any local references whatsoever
+
+✅ **REQUIRED** (ONLY ALLOWED):
+- headysystems.com
+- Production domains only
+- External service domains
+
+### ENFORCEMENT
+- BEFORE ANY CODE: Check for local references
+- IF FOUND: Immediately eliminate
+- SYSTEM FAILURE on any local reference violation
+
+### VERIFICATION
+Run: ./scripts/zero-tolerance-enforcement.sh
+This script runs continuously to enforce zero tolerance.
+
+### CONSEQUENCES
+- Any local reference = system failure
+- No exceptions, no excuses
+- Production domains ONLY
+# 🎯 HEADY SYSTEMS CODING AGENT - MASTER PROTOCOL
+
+## 🚨 CRITICAL RULES - NEVER VIOLATE
+
+### 1. ZERO LOCALHOST IN PRODUCTION CODE
+- ❌ NEVER use `localhost`, `127.0.0.1`, or `http://` in production code
+- ✅ ALWAYS use environment variables: `process.env.API_URL` or `process.env.BASE_URL` 
+- ✅ Default to production domains if env var missing
+- 🔍 BEFORE ANY COMMIT: Run `grep -r "localhost" src/` - must return ZERO results
+
+```javascript
+// ❌ WRONG
+const API_URL = 'http://localhost:3300';
+
+// ✅ CORRECT
+const API_URL = process.env.REACT_APP_API_URL || 'https://api.headysystems.onrender.com';
+```
+
+### 2. NEVER ASK USER FOR ROUTINE DECISIONS
+Agent should NEVER ask about:
+
+❌ "Should I create a file?" - YES, create it
+❌ "Should I install dependencies?" - YES, install them  
+❌ "Should I fix this error?" - YES, fix it
+❌ "Which approach?" - Use best practice, document why
+❌ "Should I test this?" - YES, always test
+
+ONLY ask user about:
+✅ Architecture/design decisions (database choice, framework)
+✅ Business logic requirements (what should this feature do?)
+✅ Destructive operations (delete database, remove files)
+✅ External service integrations (API keys, third-party services)
+
+### 3. ERROR HANDLING - FAIL LOUD, NOT SILENT
+```javascript
+// ❌ WRONG - Silent failure
+try {
+  await saveMemory(data);
+} catch (err) {
+  // ignore
+}
+
+// ✅ CORRECT - Structured error handling
+try {
+  await saveMemory(data);
+  logger.info('Memory saved', { id: data.id });
+} catch (err) {
+  logger.error('Failed to save memory', {
+    error: err.message,
+    stack: err.stack,
+    data: { id: data.id },
+    timestamp: new Date().toISOString()
+  });
+  throw new Error(`Memory save failed: ${err.message}`);
+}
+```
+
+### 4. MEMORY/LEARNING SYSTEM REQUIREMENTS
+✅ NO hardcoded limits (no MAX_MEMORIES = 150)
+✅ Implement pagination if performance degrades
+✅ Log every memory operation (add, update, delete)
+✅ Include timestamps and unique IDs
+✅ Test write capability on startup
+✅ Fail startup if memory system broken
+
+```javascript
+// Startup check
+async function initMemorySystem() {
+  try {
+    const testWrite = await memoryDB.insert({ type: 'health_check', timestamp: Date.now() });
+    await memoryDB.delete(testWrite.id);
+    logger.info('Memory system healthy');
+  } catch (err) {
+    logger.fatal('Memory system BROKEN - shutting down', { error: err.message });
+    process.exit(1);
+  }
+}
+```
+
+### 5. FRONTEND BUTTON/LINK FIX CHECKLIST
+Every button/link MUST have:
+
+```jsx
+// ✅ CORRECT Button
+<button 
+  onClick={handleClick}  // Not onClick={}
+  disabled={isLoading}
+  aria-label="Submit form"
+  type="button"  // or "submit"
+>
+  {isLoading ? 'Loading...' : 'Submit'}
+</button>
+
+// ✅ CORRECT Link
+<a 
+  href={url}  // Not href="#" without onClick
+  onClick={(e) => {
+    e.preventDefault();
+    handleNavigation();
+  }}
+  rel="noopener noreferrer"  // If target="_blank"
+>
+  Click here
+</a>
+```
+
+### 6. DRUPAL 11 HYBRID ARCHITECTURE
+Use Drupal for:
+✅ Content-heavy sites (articles, resources, docs)
+✅ Editorial workflows and permissions
+✅ Multilingual content and taxonomies
+✅ "Create once, publish everywhere" content
+
+Use React/Next.js for:
+✅ Real-time dashboards and apps
+✅ Interactive UIs and IDE interfaces
+✅ Low-latency transactional logic
+✅ Single-page applications
+
+Always consume Drupal via JSON:API/GraphQL - never embed Drupal directly in apps.
+
+### 7. ENVIRONMENT VARIABLE PROTOCOL
+.env.example (commit to repo):
+```bash
+# API Configuration
+REACT_APP_API_URL=https://api.headysystems.onrender.com
+REACT_APP_WS_URL=wss://api.headysystems.onrender.com
+
+# Feature Flags
+REACT_APP_ENABLE_ANALYTICS=false
+REACT_APP_DEBUG_MODE=false
+
+# Memory System
+MEMORY_DB_PATH=.heady/memories.json
+MAX_MEMORY_SIZE_MB=100  # Soft limit for warnings
+```
+
+.env (local, never commit):
+```bash
+# Copy from .env.example and customize
+REACT_APP_API_URL=http://localhost:3300  # OK for local dev only
+REACT_APP_DEBUG_MODE=true
+```
+
+### 8. AGENT SELF-CHECK PROTOCOL
+Before responding to ANY request, agent must:
+
+✅ Check if question is routine → DON'T ask user
+✅ Search codebase for existing patterns → Reuse them
+✅ Verify environment setup → Check .env files exist
+✅ Run linter if making code changes → Fix warnings
+✅ Test the change locally → Don't commit broken code
+✅ Update documentation if changing behavior → Keep docs in sync
+
+## 🛠️ AUTOMATIC BEHAVIORS
+
+### When User Reports an Error:
+1. **Root Cause Analysis** - Don't just fix symptoms
+2. **Search for Similar Issues** - Check if this is a recurring pattern
+3. **Implement Permanent Fix** - Add guards to prevent recurrence
+4. **Add Tests** - Ensure the fix works and stays working
+5. **Update Documentation** - Document the solution for future reference
+
+### When Creating New Features:
+1. **Use Existing Patterns** - Don't reinvent the wheel
+2. **Follow Naming Conventions** - Heady[Verb/Noun] pattern (HeadyMC, HeadyPatterns, etc.)
+3. **Add Error Handling** - Every function must handle errors properly
+4. **Add Logging** - Log key operations with structured data
+5. **Write Tests** - Unit tests for new functionality
+
+### When Fixing Bugs:
+1. **Identify Root Cause** - Don't just patch symptoms
+2. **Check for Similar Issues** - Search codebase for related problems
+3. **Implement Comprehensive Fix** - Fix all instances, not just one
+4. **Add Regression Tests** - Prevent the bug from returning
+5. **Document the Solution** - Add to ERROR_LOG.md
+
+## 🚀 EXECUTION PRIORITIES
+
+1. **System Health** - Memory system, error logs, performance
+2. **User Experience** - Working buttons, links, navigation
+3. **Code Quality** - No localhost, proper error handling, tests
+4. **Documentation** - Keep docs in sync with code
+5. **Security** - No hardcoded secrets, proper auth
+
+## 📊 SUCCESS METRICS
+
+✅ **Frontend**: All pages load, buttons work, no console errors
+✅ **Memory System**: Count increases over time, no hardcoded limits
+✅ **Domain Migration**: Zero localhost references in production
+✅ **Agent Behavior**: No unnecessary questions, full solutions provided
+✅ **Error Handling**: All errors logged with actionable information
+
+## 🚨 ESCALATION PATH
+
+If stuck for more than 5 minutes:
+1. Check diagnostic reports
+2. Review recent error logs
+3. Check agent configuration
+4. Report to human with specific question and what you've tried
+
+**REMEMBER: You are here to SOLVE problems, not ask questions about routine operations.**

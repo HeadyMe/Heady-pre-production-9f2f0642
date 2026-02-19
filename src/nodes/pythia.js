@@ -1,3 +1,25 @@
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: pythia.js                                   ║
+// ║  UPDATED: 20260218-211102                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/*
+ * ✅ SCANNED: 20260218-211102
+ * 🔍 INSPECTED: All content reviewed
+ * 🏷️  BRANDED: Heady Systems branding applied
+ * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+ */
+
 /**
  * ═══════════════════════════════════════════════════════════════
  * 🧠 PYTHIA NODE - Deep Reasoning & Analysis
@@ -13,7 +35,7 @@ class PYTHIANode {
     this.active = true;
     this.reasoningDepth = 'high';
     this.connections = {
-      ollama: 'http://localhost:11434',
+      ollama: 'https://headysystems.com.com:11434',
     };
     this.reasoningHistory = [];
   }

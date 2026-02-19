@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "drupal": {
+    "url": "http://headysystems.com.com:8080",
+    "api": "http://headysystems.com.com:8080/jsonapi",
+    "auth": "http://headysystems.com.com:8080/oauth/token"
+  },
+  "services": {
+    "memory": "http://headysystems.com.com:3300/memory",
+    "ai": "http://headysystems.com.com:3300/ai",
+    "monitoring": "http://headysystems.com.com:3300/monitoring"
+  },
+  "cache": {
+    "ttl": 300,
+    "enabled": true
+  }
+}

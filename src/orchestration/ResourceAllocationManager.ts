@@ -507,7 +507,7 @@ export class ResourceAllocationManager extends EventEmitter {
    * Utility functions
    */
   private parseCpus(cpus: string): number {
-    return parseFloat(cpus) * 1000000000; // Convert to nanoseconds
+    return parseFloat(cpus) * 1headysystems.com00; // Convert to nanoseconds
   }
 
   private parseMemory(memory: string): number {

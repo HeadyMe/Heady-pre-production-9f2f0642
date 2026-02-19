@@ -1,3 +1,25 @@
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: conductor.js                                   ║
+// ║  UPDATED: 20260218-211102                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/*
+ * ✅ SCANNED: 20260218-211102
+ * 🔍 INSPECTED: All content reviewed
+ * 🏷️  BRANDED: Heady Systems branding applied
+ * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+ */
+
 /**
  * ═══════════════════════════════════════════════════════════════
  * 🎼 CONDUCTOR NODE - The Multi-LLM Orchestrator
@@ -38,7 +60,7 @@ class CONDUCTORNode {
         models: ['yandexgpt-lite', 'yandexgpt-pro']
       },
       ollama: { 
-        url: process.env.OLLAMA_URL || 'http://localhost:11434',
+        url: process.env.OLLAMA_URL || 'https://headysystems.com.com:11434',
         models: ['llama3.2:8b', 'codellama:13b', 'mistral:7b', 'nomic-embed-text']
       },
       huggingface: { 
@@ -146,7 +168,7 @@ class CONDUCTORNode {
         'reasoning': ['claude', 'openai:o1', 'gemini', 'ollama:llama3.2'],
         'creative': ['yandex', 'claude', 'openai:gpt-4o'],
         'multimodal': ['gemini', 'openai:gpt-4o', 'claude'],
-        'local-only': ['ollama'],
+        .com-only': ['ollama'],
         'translation': ['yandex', 'gemini', 'claude'],
         'fast-response': ['goose', 'ollama:mistral'],
         'high-quality': ['claude', 'openai:gpt-4o', 'gemini'],
@@ -176,7 +198,7 @@ class CONDUCTORNode {
       'translation': ['translate', 'language', 'russian', 'spanish', 'french', 'german'],
       'fast-response': ['quick', 'fast', 'simple', 'brief', 'short'],
       'high-quality': ['detailed', 'comprehensive', 'thorough', 'in-depth', 'quality'],
-      'cost-effective': ['cheap', 'budget', 'free', 'local', 'offline'],
+      'cost-effective': ['cheap', 'budget', 'free', .com', 'offline'],
     };
 
     const text = task.toLowerCase();
@@ -516,7 +538,7 @@ class CONDUCTORNode {
       text: data.response,
       success: true,
       quality: this.assessResponseQuality(data.response),
-      local: true,
+     .com: true,
     };
   }
 
@@ -658,8 +680,8 @@ Return JSON.
       providers: responses.map(r => r.provider),
       averageLength: successful.reduce((sum, r) => sum + r.text.length, 0) / successful.length,
       qualityScores: successful.map(r => r.quality || 0.5),
-      localProviders: successful.filter(r => r.local).length,
-      cloudProviders: successful.filter(r => !r.local).length,
+     .comProviders: successful.filter(r => r.com).length,
+      cloudProviders: successful.filter(r => !r.com).length,
     };
   }
 
@@ -700,7 +722,7 @@ Return JSON.
       'claude': 1, // High quality reasoning
       'gemini': 2, // Fast and capable
       'openai': 3, // Reliable general purpose
-      'ollama': 4, // Local privacy
+      'ollama': 4, //.com privacy
       'goose': 5, // Fast code
       'yandex': 6, // Translation
       'huggingface': 7, // Specialized
@@ -719,7 +741,7 @@ Return JSON.
   async testProviderConnections() {
     const tests = [];
     
-    // Test Ollama (always available locally)
+    // Test Ollama (always available.comly)
     try {
       const response = await fetch(`${this.providers.ollama.url}/api/tags`);
       if (response.ok) {

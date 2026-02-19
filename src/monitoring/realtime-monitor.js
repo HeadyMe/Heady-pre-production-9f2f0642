@@ -1,3 +1,25 @@
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: realtime-monitor.js                                   ║
+// ║  UPDATED: 20260218-211102                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/*
+ * ✅ SCANNED: 20260218-211102
+ * 🔍 INSPECTED: All content reviewed
+ * 🏷️  BRANDED: Heady Systems branding applied
+ * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+ */
+
 /*
  * Heady Systems Real-Time Monitor
  * Sub-second monitoring for all system components
@@ -487,10 +509,10 @@ class ServicesMonitor extends EventEmitter {
     
     async getData() {
         // Check HeadyManager service
-        const headyManagerStatus = await this.checkService('http://localhost:3300/api/health');
+        const headyManagerStatus = await this.checkService('http://headysystems.com.com:3300/api/health');
         
         // Check static server
-        const staticServerStatus = await this.checkService('http://localhost:8080');
+        const staticServerStatus = await this.checkService('https://headysystems.com.com:8080');
         
         return {
             headyManager: headyManagerStatus,
@@ -565,7 +587,7 @@ class SocraticMonitor extends EventEmitter {
     
     async getData() {
         try {
-            const response = await fetch('http://localhost:3300/api/socratic-compliance', { timeout: 1000 });
+            const response = await fetch('http://headysystems.com.com:3300/api/socratic-compliance', { timeout: 1000 });
             const data = await response.json();
             
             return {

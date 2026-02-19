@@ -1,0 +1,44 @@
+# Qdrant Configuration for Heady Systems
+service:
+  http_port: 6333
+  grpc_port: 6334
+  cors:
+    allow_origin: "https://vector.headysystems.com"
+    allow_methods: "GET,POST,PUT,DELETE,OPTIONS"
+    allow_headers: "*"
+
+storage:
+  # Performance settings
+  performance:
+    search_speed: 0.1  # Faster search for real-time
+    insert_speed: 0.1   # Faster inserts for memory growth
+    
+  # Memory settings
+  optimizers:
+    deleted_segment_threshold: 0.2
+    vacuum_min_vector_number: 1000
+    default_segment_number: 2
+
+  # Collection settings
+  default_segment_number: 2
+  max_segment_size: 200000
+  vector_size: 1536
+  distance: Cosine
+
+logging:
+  level: INFO
+  
+# Security settings
+service:
+  api_key: ${QDRANT_API_KEY}
+  
+# Performance tuning
+cluster:
+  enabled: false  # Single node for now
+  
+# Memory management
+storage:
+  on_disk_vector:
+    enabled: true  # Persist to disk
+  optimizers:
+    max_optimization_threads: 2

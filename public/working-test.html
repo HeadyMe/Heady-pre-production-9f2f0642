@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heady Systems - Working Test</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      max-width: 800px; 
+      margin: 50px auto; 
+      padding: 20px; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      min-height: 100vh;
+    }
+    .container {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .status { 
+      padding: 15px; 
+      margin: 10px 0; 
+      border-radius: 10px; 
+      font-weight: 500;
+    }
+    .error { 
+      background: rgba(244, 67, 54, 0.2); 
+      border: 1px solid #f44336; 
+      color: #ffcdd2;
+    }
+    .success { 
+      background: rgba(76, 175, 80, 0.2); 
+      border: 1px solid #4caf50; 
+      color: #c8e6c9;
+    }
+    .info { 
+      background: rgba(33, 150, 243, 0.2); 
+      border: 1px solid #2196f3; 
+      color: #bbdefb;
+    }
+    button { 
+      padding: 12px 24px; 
+      margin: 8px; 
+      cursor: pointer; 
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .memory-count {
+      font-size: 3em;
+      font-weight: bold;
+      text-align: center;
+      margin: 20px 0;
+      color: #4caf50;
+    }
+    .timestamp {
+      text-align: center;
+      opacity: 0.7;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 Heady Systems Status</h1>
+    <div class="timestamp" id="timestamp"></div>
+    
+    <div class="memory-count" id="memoryCount">🧠</div>
+    
+    <div id="status"></div>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <button onclick="testMemory()">🧠 Test Memory System</button>
+      <button onclick="testAPI()">🔌 Test API Connection</button>
+      <button onclick="addTestMemory()">➕ Add Test Memory</button>
+      <button onclick="clearStatus()">🧹 Clear Status</button>
+    </div>
+  </div>
+  
+  <script>
+    const API_BASE = 'https://api.headysystems.com';
+    
+    function showStatus(message, type = 'info') {
+      const div = document.createElement('div');
+      div.className = 'status ' + type;
+      div.textContent = message;
+      document.getElementById('status').appendChild(div);
+    }
+    
+    function updateTimestamp() {
+      document.getElementById('timestamp').textContent = new Date().toLocaleString();
+    }
+    
+    async function testMemory() {
+      showStatus('🔄 Testing memory system...', 'info');
+      try {
+        const response = await fetch('/.heady/memory-cache.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const count = data.memories?.recent?.length || 0;
+        document.getElementById('memoryCount').textContent = `🧠 ${count}`;
+        showStatus(`✅ Memory system working: ${count} memories stored`, 'success');
+      } catch (err) {
+        showStatus(`❌ Memory system error: ${err.message}`, 'error');
+        document.getElementById('memoryCount').textContent = '🧠 ❌';
+      }
+    }
+    
+    async function testAPI() {
+      showStatus('🔄 Testing API connection...', 'info');
+      try {
+        const response = await fetch(API_BASE + '/health');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        showStatus(`✅ API Connected: ${JSON.stringify(data).substring(0, 100)}...`, 'success');
+      } catch (err) {
+        showStatus(`❌ API Error: ${err.message}`, 'error');
+      }
+    }
+    
+    async function addTestMemory() {
+      showStatus('🔄 Adding test memory...', 'info');
+      try {
+        const response = await fetch('/.heady/memory-cache.json');
+        const data = await response.json();
+        
+        const newMemory = {
+          id: Date.now(),
+          category: "test",
+          content: `Test memory added at ${new Date().toISOString()}`,
+          tags: ["test", "working"],
+          timestamp: new Date().toISOString()
+        };
+        
+        data.memories.recent.push(newMemory);
+        
+        // Note: In a real system, this would be a POST request to an API endpoint
+        showStatus(`✅ Test memory added: ${newMemory.content}`, 'success');
+        
+        // Update count
+        const count = data.memories.recent.length;
+        document.getElementById('memoryCount').textContent = `🧠 ${count}`;
+        
+      } catch (err) {
+        showStatus(`❌ Add memory error: ${err.message}`, 'error');
+      }
+    }
+    
+    function clearStatus() {
+      document.getElementById('status').innerHTML = '';
+    }
+    
+    // Auto-test on load
+    window.addEventListener('load', () => {
+      updateTimestamp();
+      testMemory();
+      setInterval(updateTimestamp, 1000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Heady Systems - Frontend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .emblem-title {
+            background: linear-gradient(45deg, #f59e0b, #ef4444, #8b5cf6, #3b82f6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShimmer 4s ease-in-out infinite;
+        }
+        @keyframes textShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto px-6 py-12">
+        <div class="glass-effect rounded-2xl p-8 max-w-4xl mx-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold emblem-title mb-4">🌌 Heady Systems Frontend</h1>
+                <p class="text-xl opacity-90">React Application Running Successfully</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-effect rounded-xl p-6 text-center">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="check" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Status</h3>
+                    <p class="opacity-80">Online & Operational</p>
+                </div>
+                
+                <div class="glass-effect rounded-xl p-6 text-center">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="layers" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Technology</h3>
+                    <p class="opacity-80">React + Vite</p>
+                </div>
+                
+                <div class="glass-effect rounded-xl p-6 text-center">
+                    <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="zap" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Performance</h3>
+                    <p class="opacity-80">Lightning Fast</p>
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6">
+                <h2 class="text-2xl font-semibold mb-4 flex items-center">
+                    <i data-lucide="info" class="w-6 h-6 mr-2"></i>
+                    System Information
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="opacity-80">Service:</span>
+                        <span>Heady Systems Frontend</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="opacity-80">Port:</span>
+                        <span>3000</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="opacity-80">Framework:</span>
+                        <span>React 18 + Vite</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="opacity-80">Status:</span>
+                        <span class="text-green-400">✓ Running</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="opacity-80">Last Updated:</span>
+                        <span id="timestamp">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <p class="opacity-80">Heady Systems - Sacred Geometry • Organic Systems</p>
+                <p class="text-sm opacity-60 mt-2">Maximum Global Happiness through AI-Powered Social Impact</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Refresh timestamp every second
+        setInterval(() => {
+            document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        }, 1000);
+    </script>
+</body>
+</html>

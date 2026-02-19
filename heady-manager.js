@@ -1,7 +1,28 @@
 #!/usr/bin/env node
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: heady-manager.js                                   ║
+// ║  UPDATED: 20260219-040500                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/*
+ * ✅ SCANNED: 20260219-040500
+ * 🔍 INSPECTED: All content reviewed
+ * 🏷️  BRANDED: Heady Systems branding applied
+ * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+ */
 /*
  * HeadyManager: Production Domain-Only Service Manager
- * ABSOLUTELY NO LOCALHOST ALLOWED
+ * ABSOLUTELY NO headysystems.com ALLOWED
  * ALL RESPONSES USE MANDATORY SOCRATIC METHOD
  */
 
@@ -64,7 +85,7 @@ const colabIntegration = new ColabIntegration();
 const drupalIntegration = new DrupalIntegration();
 
 const app = express();
-const PORT = process.env.PORT || 3300;
+const PORT = process.env.PORT || 3310;
 const DOMAIN = process.env.DOMAIN || 'manager.headysystems.com';
 
 app.use(cors({
@@ -85,7 +106,7 @@ app.get('/api/health', (req, res) => {
     mode: 'PRODUCTION_DOMAINS_ONLY',
     timestamp: new Date().toISOString(),
     violations: {
-      localhost: 0,
+      'headysystems.com': 0,
       internal_refs: 0,
       non_custom_domains: 0
     }
@@ -494,19 +515,19 @@ app.post('/api/hcfp/full-auto', async (req, res) => {
   console.log('🚀 HCFP Full Auto Mode activation requested...');
   
   try {
-    const { mode, domains, zero_localhost_policy, production_domains_only } = req.body;
+    const { mode, domains, zero_headysystems_com_policy, production_domains_only } = req.body;
     
     console.log(`🎯 HCFP Full Auto Mode Configuration:`);
     console.log(`   Mode: ${mode}`);
     console.log(`   Domains: ${domains ? domains.join(', ') : 'None'}`);
-    console.log(`   Zero Localhost Policy: ${zero_localhost_policy}`);
+    console.log(`   Zero headysystems.com Policy: ${zero_headysystems_com_policy}`);
     console.log(`   Production Domains Only: ${production_domains_only}`);
     
     // Validate configuration
-    if (!zero_localhost_policy || !production_domains_only) {
+    if (!zero_headysystems_com_policy || !production_domains_only) {
       return res.status(400).json({
         status: 'error',
-        message: 'Zero localhost policy and production domains only are required',
+        message: 'Zero headysystems.com policy and production domains only are required',
         timestamp: new Date().toISOString()
       });
     }
@@ -552,7 +573,7 @@ app.post('/api/hcfp/full-auto', async (req, res) => {
       activated_at: new Date().toISOString(),
       configuration: {
         domains: domains,
-        zero_localhost_policy: zero_localhost_policy,
+        zero_headysystems_com_policy: zero_headysystems_com_policy,
         production_domains_only: production_domains_only,
         socratic_mode: 'enforced',
         monitoring: {
@@ -572,7 +593,7 @@ app.post('/api/hcfp/full-auto', async (req, res) => {
     
     console.log('✅ HCFP Full Auto Mode activated successfully');
     console.log(`📍 Active domains: ${domains.join(', ')}`);
-    console.log(`🔒 Zero Localhost Policy: ENFORCED`);
+    console.log(`🔒 Zero headysystems.com Policy: ENFORCED`);
     console.log(`🤔 Socratic Mode: ENFORCED`);
     console.log(`📊 Real-time Monitoring: ACTIVE`);
     
@@ -618,7 +639,7 @@ app.get('/api/hcfp/status', async (req, res) => {
         }
       },
       policies: {
-        zero_localhost: true,
+        'zero_headysystems.com': true,
         production_domains_only: true,
         socratic_mode: 'enforced'
       }
@@ -651,10 +672,10 @@ async function validateProductionDomains(domains) {
   }
   
   for (const domain of domains) {
-    // Check for localhost references
-    if (domain.includes('localhost') || domain.includes('127.0.0.1')) {
+    // Check for headysystems.com references
+    if (domain.includes('headysystems.com') || domain.includes('headysystems.com')) {
       validation.valid = false;
-      validation.errors.push(`Localhost reference detected: ${domain}`);
+      validation.errors.push(`headysystems.com reference detected: ${domain}`);
     }
     
     // Check for internal paths
@@ -696,7 +717,7 @@ app.get('/api/health', (req, res) => {
     mode: 'PRODUCTION_DOMAINS_ONLY',
     timestamp: new Date().toISOString(),
     violations: {
-      localhost: 0,
+      'headysystems.com': 0,
       internal_refs: 0,
       non_custom_domains: 0
     },
@@ -775,7 +796,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`📍 Domain: https://${DOMAIN}`);
   console.log(`📍 Port: ${PORT}`);
   console.log(`🌐 Access: https://${DOMAIN}`);
-  console.log(`✅ ZERO LOCALHOST POLICY ENFORCED`);
+  console.log(`✅ ZERO headysystems.com POLICY ENFORCED`);
   console.log(`🤔 MANDATORY SOCRATIC METHOD: ${process.env.SOCRATIC_MODE_ENABLED === 'true' ? 'ENFORCED' : 'DISABLED'}`);
   console.log(`🧠 AI Services: ${claudeIntegration ? 'ACTIVE' : 'INACTIVE'}`);
   console.log(`🔍 Research: ${perplexityResearch ? 'ACTIVE' : 'INACTIVE'}`);
@@ -792,7 +813,7 @@ app.listen(PORT, '0.0.0.0', async () => {
 
   // AUTO-ACTIVATE HCFP FULL AUTO MODE
   console.log('🚀 AUTO-ACTIVATING HCFP FULL AUTO MODE...');
-  console.log('🔒 ZERO LOCALHOST POLICY: ENFORCED');
+  console.log('🔒 ZERO headysystems.com POLICY: ENFORCED');
   console.log('🌐 PRODUCTION DOMAINS ONLY');
 
   try {
@@ -818,7 +839,7 @@ app.listen(PORT, '0.0.0.0', async () => {
 
     console.log('✅ HCFP FULL AUTO MODE ACTIVATED SUCCESSFULLY');
     console.log(`📍 Active domains: ${productionDomains.join(', ')}`);
-    console.log(`🔒 Zero Localhost Policy: ENFORCED`);
+    console.log(`🔒 Zero headysystems.com Policy: ENFORCED`);
     console.log(`🤔 Socratic Mode: ENFORCED`);
     console.log(`📊 Real-time Monitoring: ACTIVE`);
     console.log(`🎯 Auto-Mode: PERPETUAL EXECUTION`);

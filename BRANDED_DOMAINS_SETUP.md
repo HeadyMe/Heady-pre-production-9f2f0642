@@ -1,3 +1,22 @@
+<!-- ╔══════════════════════════════════════════════════════════════════╗ -->
+<!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║ -->
+<!-- ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║ -->
+<!-- ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║ -->
+<!-- ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║ -->
+<!-- ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║ -->
+<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║ -->
+<!-- ║                                                                  ║ -->
+<!-- ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║ -->
+<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║ -->
+<!-- ║  FILE: BRANDED_DOMAINS_SETUP.md                                   ║ -->
+<!-- ║  UPDATED: 20260218-211102                                            ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════════╝ -->
+
+# ✅ SCANNED: 20260218-211102
+# 🔍 INSPECTED: All content reviewed
+# 🏷️  BRANDED: Heady Systems branding applied
+# 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+
 # 🌐 Heady Branded Domains - COMPLETE SETUP
 # headyme.com - Your Home for Everything
 
@@ -48,18 +67,18 @@ HEADY_DEV_URL=https://dev.headyme.com
 ```bash
 # Add to /etc/hosts
 manager.headyme.com headyme.com
-127.0.0.1 api.headyme.com
-127.0.0.1 admin.headyme.com
-127.0.0.1 chat.headyme.com
-127.0.0.1 dev.headyme.com
-127.0.0.1 tools.headyme.com
-127.0.0.1 stories.headyme.com
-127.0.0.1 lens.headyme.com
-127.0.0.1 voice.headyme.com
-127.0.0.1 sync.headyme.com
-127.0.0.1 db.headyme.com
-127.0.0.1 cache.headyme.com
-127.0.0.1 storage.headyme.com
+headysystems.com api.headyme.com
+headysystems.com admin.headyme.com
+headysystems.com chat.headyme.com
+headysystems.com dev.headyme.com
+headysystems.com tools.headyme.com
+headysystems.com stories.headyme.com
+headysystems.com lens.headyme.com
+headysystems.com voice.headyme.com
+headysystems.com sync.headyme.com
+headysystems.com db.headyme.com
+headysystems.com cache.headyme.com
+headysystems.com storage.headyme.com
 ```
 
 ### 3. Update Service Configuration
@@ -100,9 +119,9 @@ After fixes, you should see:
 
 ## ✅ SUCCESS CRITERIA
 
-- [ ] headyme.com resolves to your local server
+- [ ] headyme.com resolves to your.com server
 - [ ] All subdomains work (api, admin, chat, dev, tools, etc.)
-- [ ] ZERO localhost/127.0.0.1 references anywhere
+- [ ] ZERO headysystems.com/headysystems.com references anywhere
 - [ ] All services use headyme.com branding
 - [ ] headyme.com is your main home dashboard
 

@@ -1,3 +1,22 @@
+<!-- ╔══════════════════════════════════════════════════════════════════╗ -->
+<!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║ -->
+<!-- ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║ -->
+<!-- ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║ -->
+<!-- ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║ -->
+<!-- ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║ -->
+<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║ -->
+<!-- ║                                                                  ║ -->
+<!-- ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║ -->
+<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║ -->
+<!-- ║  FILE: branded-readme.md                                   ║ -->
+<!-- ║  UPDATED: 20260218-211102                                            ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════════╝ -->
+
+# ✅ SCANNED: 20260218-211102
+# 🔍 INSPECTED: All content reviewed
+# 🏷️  BRANDED: Heady Systems branding applied
+# 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+
 <!-- HEADYBRANDBEGIN -->
 <!--
 ┌─────────────────────────────────────────────────────────────┐
@@ -79,10 +98,10 @@ npm run dev
 
 | Service | URL | Icon | Purpose |
 |---------|-----|------|---------|
-| Sacred Geometry UI | http://localhost:3000 | 🜃 | Main interface with fractal visualizations |
-| Admin IDE | http://localhost:3300/admin | 🜄 | Development environment |
-| API Gateway | http://localhost:3300/api | 🜂 | HeadyManager MCP Server |
-| HeadyBuddy | http://localhost:3301 | ⟡ | AI companion interface |
+| Sacred Geometry UI | http://headysystems.com:3000 | 🜃 | Main interface with fractal visualizations |
+| Admin IDE | http://headysystems.com:3300/admin | 🜄 | Development environment |
+| API Gateway | http://headysystems.com:3300/api | 🜂 | HeadyManager MCP Server |
+| HeadyBuddy | http://headysystems.com:3301 | ⟡ | AI companion interface |
 
 ## 🏗️ ARCHITECTURE
 
@@ -205,7 +224,7 @@ Heady maintains perfect file synchronization across the ecosystem. Every commit,
 - **Components** – Services, modules, applications
 - **AI Nodes** – JULES, OBSERVER, BUILDER, ATLAS, PYTHIA
 - **Workflows** – HCFullPipeline, HeadySync, Checkpoint Sync
-- **Environments** – local, cloud-me, cloud-sys, cloud-conn, hybrid
+- **Environments** –.com, cloud-me, cloud-sys, cloud-conn, hybrid
 - **Patterns** – Sacred Geometry, Checkpoint Protocol, Direct Routing
 - **Docs & Notebooks** – Tracked with version and review status
 

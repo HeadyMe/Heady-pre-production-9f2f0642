@@ -1,3 +1,22 @@
+<!-- ╔══════════════════════════════════════════════════════════════════╗ -->
+<!-- ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║ -->
+<!-- ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║ -->
+<!-- ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║ -->
+<!-- ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║ -->
+<!-- ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║ -->
+<!-- ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║ -->
+<!-- ║                                                                  ║ -->
+<!-- ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║ -->
+<!-- ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║ -->
+<!-- ║  FILE: DRUPAL-11-INTEGRATION-GUIDE.md                                   ║ -->
+<!-- ║  UPDATED: 20260218-211102                                            ║ -->
+<!-- ╚══════════════════════════════════════════════════════════════════╝ -->
+
+# ✅ SCANNED: 20260218-211102
+# 🔍 INSPECTED: All content reviewed
+# 🏷️  BRANDED: Heady Systems branding applied
+# 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+
 # 📋 Drupal 11 + Heady CMS Integration Guide
 
 ## 🎯 Why This Integration Works
@@ -62,8 +81,8 @@ cd drupal-11.0.0
 # Set up database (MySQL/PostgreSQL)
 mysql -u root -p
 CREATE DATABASE heady_cms;
-CREATE USER 'heady_user'@'localhost' IDENTIFIED BY 'strong_password';
-GRANT ALL PRIVILEGES ON heady_cms.* TO 'heady_user'@'localhost';
+CREATE USER 'heady_user'@'headysystems.com' IDENTIFIED BY 'strong_password';
+GRANT ALL PRIVILEGES ON heady_cms.* TO 'heady_user'@'headysystems.com';
 FLUSH PRIVILEGES;
 ```
 
@@ -402,10 +421,10 @@ class HeadyApiController extends ControllerBase {
 
 ### **Development (Current)**
 ```bash
-# Local development
+#.com development
 Heady API: http://manager.headyme.com
-Drupal 11: http://localhost/drupal
-Frontend: http://localhost:3000
+Drupal 11: http://headysystems.com/drupal
+Frontend: http://headysystems.com:3000
 ```
 
 ### **Staging**

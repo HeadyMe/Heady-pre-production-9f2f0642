@@ -198,6 +198,35 @@
                 background-repeat: no-repeat;
             }
             
+
+            /* Chat Image Assets */
+            .chat-avatar {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background-image: url('/assets/discord/discord-avatar.png');
+                background-size: cover;
+                border: 2px solid #3a86ff;
+            }
+            
+            .send-button {
+                background-image: url('/assets/buttons/launch.png');
+                background-size: cover;
+                width: 48px;
+                height: 48px;
+                border: none;
+                cursor: pointer;
+                border-radius: 8px;
+            }
+            
+            .ai-icon {
+                width: 24px;
+                height: 24px;
+                background-image: url('/assets/icons/brain-icon.png');
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+            
 </style>
 </head>
 <body class="chat-gradient min-h-screen text-white relative">
@@ -226,10 +255,10 @@
                     </span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="clearChat()" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
+                    <button type="button" onclick="clearChat()" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
                         <i class="fas fa-trash mr-2"></i>Clear
                     </button>
-                    <button onclick="exportChat()" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
+                    <button type="button" onclick="exportChat()" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
                         <i class="fas fa-download mr-2"></i>Export
                     </button>
                     <a href="https://headyme.com" class="glass-light px-4 py-2 rounded-lg hover:bg-white/20 transition">
@@ -255,10 +284,10 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <button onclick="toggleSocratic()" class="text-sm glass-light px-3 py-1 rounded-lg hover:bg-white/20 transition">
+                        <button type="button" onclick="toggleSocratic()" class="text-sm glass-light px-3 py-1 rounded-lg hover:bg-white/20 transition">
                             <i class="fas fa-question-circle mr-1"></i>Socratic
                         </button>
-                        <button onclick="toggleMonteCarlo()" class="text-sm glass-light px-3 py-1 rounded-lg hover:bg-white/20 transition">
+                        <button type="button" onclick="toggleMonteCarlo()" class="text-sm glass-light px-3 py-1 rounded-lg hover:bg-white/20 transition">
                             <i class="fas fa-dice mr-1"></i>Monte Carlo
                         </button>
                     </div>
@@ -305,10 +334,10 @@
                                 onkeydown="handleKeyPress(event)"></textarea>
                         </div>
                         <div class="flex space-x-2">
-                            <button onclick="attachFile()" class="p-3 glass-light rounded-lg hover:bg-white/20 transition">
+                            <button type="button" onclick="attachFile()" class="p-3 glass-light rounded-lg hover:bg-white/20 transition">
                                 <i class="fas fa-paperclip"></i>
                             </button>
-                            <button onclick="sendMessage()" class="btn-gradient px-6 py-3 rounded-lg font-bold neon-send">
+                            <button type="button" onclick="sendMessage()" class="btn-gradient px-6 py-3 rounded-lg font-bold neon-send">
                                 <i class="fas fa-paper-plane mr-2"></i>Send
                             </button>
                         </div>
@@ -317,16 +346,16 @@
                     <!-- Quick Actions -->
                     <div class="flex items-center justify-between mt-3">
                         <div class="flex space-x-2">
-                            <button onclick="quickMessage('Help me understand HCFP')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                            <button type="button" onclick="quickMessage('Help me understand HCFP')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
                                 HCFP Help
                             </button>
-                            <button onclick="quickMessage('Explain Socratic method')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                            <button type="button" onclick="quickMessage('Explain Socratic method')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
                                 Socratic
                             </button>
-                            <button onclick="quickMessage('Show system status')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                            <button type="button" onclick="quickMessage('Show system status')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
                                 Status
                             </button>
-                            <button onclick="quickMessage('Deploy services')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
+                            <button type="button" onclick="quickMessage('Deploy services')" class="text-xs glass-light px-3 py-1 rounded-full hover:bg-white/20 transition">
                                 Deploy
                             </button>
                         </div>
