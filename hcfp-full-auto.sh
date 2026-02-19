@@ -56,10 +56,11 @@ activate_hcfp_full_auto() {
     log "🌐 Production Domains: ${DOMAINS[*]}"
     
     # Prepare activation data
+    local domains_json='"headyme.com", "headysystems.com", "headyconnection.org", "headymcp.com", "headyio.com", "headybuddy.org", "headybot.com"'
     local activation_data=$(cat << EOF
 {
     "mode": "full-auto",
-    "domains": $(printf '%s\n' "${DOMAINS[@]}" | jq -R . | jq -s .),
+    "domains": [$domains_json],
     "zero_localhost_policy": true,
     "production_domains_only": true,
     "socratic_mode": "enforced",
@@ -84,7 +85,7 @@ EOF
         -H "Content-Type: application/json" \
         -d "$activation_data" 2>/dev/null || echo '{"status":"error","message":"Connection failed"}')
     
-    echo "$response" | jq . 2>/dev/null || echo "$response"
+    echo "$response" | node -e "try { console.log(JSON.stringify(JSON.parse(require('fs').readFileSync(0, 'utf8')), null, 2)); } catch(e) { console.log(require('fs').readFileSync(0, 'utf8')); }" 2>/dev/null || echo "$response"
     
     # Check response
     if echo "$response" | grep -q '"status":"success"'; then
@@ -121,14 +122,14 @@ show_system_status() {
     
     # HeadyManager status
     local health=$(curl -s "$API_BASE/api/health" 2>/dev/null || echo '{}')
-    echo "HeadyManager: $(echo "$health" | jq -r '.status // "Unknown"')"
-    echo "Uptime: $(echo "$health" | jq -r '.uptime // "Unknown"')s"
-    echo "Memory: $(echo "$health" | jq -r '.memory.heapUsed // "Unknown"') bytes"
+    echo "HeadyManager: $(node -e "try { const data = JSON.parse('$health'); console.log(data.status || 'Unknown'); } catch(e) { console.log('Unknown'); }")"
+    echo "Uptime: $(node -e "try { const data = JSON.parse('$health'); console.log(data.uptime || 'Unknown'); } catch(e) { console.log('Unknown'); }")s"
+    echo "Memory: $(node -e "try { const data = JSON.parse('$health'); console.log(data.memory && data.memory.heapUsed || 'Unknown'); } catch(e) { console.log('Unknown'); }") bytes"
     
     # Real-time monitor status
     local monitoring=$(curl -s "$API_BASE/api/monitoring/status" 2>/dev/null || echo '{}')
-    echo "Real-time Monitor: $(echo "$monitoring" | jq -r '.isRunning // "Unknown"')"
-    echo "WebSocket Connections: $(echo "$monitoring" | jq -r '.connections // "Unknown"')"
+    echo "Real-time Monitor: $(node -e "try { const data = JSON.parse('$monitoring'); console.log(data.isRunning || 'Unknown'); } catch(e) { console.log('Unknown'); }")"
+    echo "WebSocket Connections: $(node -e "try { const data = JSON.parse('$monitoring'); console.log(data.connections || 'Unknown'); } catch(e) { console.log('Unknown'); }")"
     
     # Domain status
     log ""
