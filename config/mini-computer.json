@@ -1,6 +1,6 @@
 {
   "miniComputer": {
-    "hostname": "headysystems.com.com",
+    "hostname": "heady-mini",
     "ip": "192.168.1.100",
     "os": "linux",
     "architecture": "x64",
@@ -13,17 +13,17 @@
   "services": {
     "api": {
       "port": 3300,
-      "url": "http://headysystems.com.com:3300",
+      "url": "https://manager.headysystems.com",
       "protocol": "http"
     },
     "web": {
       "port": 3000,
-      "url": "http://headysystems.com.com:3000",
+      "url": "https://headyme.com",
       "protocol": "http"
     },
     "cms": {
       "port": 8080,
-      "url": "http://headysystems.com.com:8080",
+      "url": "https://cms.headyme.com",
       "protocol": "http"
     },
     "database": {
@@ -39,7 +39,7 @@
     }
   },
   "deployment": {
-    "type": .com",
+    "type": "production",
     "method": "docker-compose",
     "autoStart": true,
     "monitoring": true

@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - PORT=3300
+      - PORT=3310
       - HEADY_API_KEY=${HEADY_SECRET_API_KEY}
       - OPENAI_API_KEY=${OPENAI_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
@@ -27,7 +27,7 @@ services:
     networks:
       - heady-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://manager.headyme.com/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3310/api/health/basic"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -39,13 +39,13 @@ services:
     container_name: heady-ollama
     restart: unless-stopped
     environment:
-      - OLLAMA_HOST=headysystems.com
+      - OLLAMA_HOST=0.0.0.0
     volumes:
       - ollama-data:/root/.ollama
     networks:
       - heady-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:11434/api/tags"]
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -70,7 +70,7 @@ services:
       - heady-manager
       - ollama
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com/health"]
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -116,11 +116,11 @@ services:
 
 volumes:
   ollama-data:
-    driver:.com
+    driver: local
   redis-data:
-    driver:.com
+    driver: local
   postgres-data:
-    driver:.com
+    driver: local
 
 networks:
   heady-network:

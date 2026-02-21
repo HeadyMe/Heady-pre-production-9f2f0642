@@ -24,7 +24,7 @@
 #!/usr/bin/env node
 /**
  * 🚀 Heady Manager with Universal Dual-Engine Execution
- * Every action passes through Socratic + Monte Carlo before execution
+ * Every action passes through HeadyBattle + HeadySims before execution
  */
 
 const express = require('express');
@@ -78,7 +78,7 @@ app.get('/api/health', async (req, res) => {
 
 // Example API endpoint with dual engine validation
 app.post('/api/deploy', async (req, res) => {
-  // This automatically goes through Socratic + Monte Carlo
+  // This automatically goes through HeadyBattle + HeadySims
   const { project, environment } = req.body;
   
   if (!project || !environment) {
@@ -168,7 +168,7 @@ app.get('/api/dual-engine/stats', async (req, res) => {
       totalSimulations: dualEngine.monteCarloEngine.totalSimulations,
       strategyCount: dualEngine.monteCarloEngine.strategyDatabase.size,
     },
-    socratic: {
+    HeadyBattle: {
       active: true,
       questionsAsked: 0, // Would be tracked in actual implementation
     },
@@ -214,8 +214,8 @@ app.listen(PORT, () => {
   console.log(`   🌐 Server running on port ${PORT}`);
   console.log('');
   console.log('🎯 DUAL ENGINE FEATURES:');
-  console.log('   ✅ Socratic questioning: Every action challenged');
-  console.log('   ✅ Monte Carlo exploration: Every strategy simulated');
+  console.log('   ✅ HeadyBattle questioning: Every action challenged');
+  console.log('   ✅ HeadySims exploration: Every strategy simulated');
   console.log('   ✅ Universal interception: 100% of actions validated');
   console.log('   ✅ Continuous learning: Every outcome recorded');
   console.log('   ✅ Zero blind execution: No action without exploration');

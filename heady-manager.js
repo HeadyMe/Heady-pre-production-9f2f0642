@@ -23,18 +23,25 @@
 /*
  * HeadyManager: Production Domain-Only Service Manager
  * ABSOLUTELY NO headysystems.com ALLOWED
- * ALL RESPONSES USE MANDATORY SOCRATIC METHOD
+ * ALL RESPONSES USE MANDATORY HEADYBATTLE METHOD
  */
+
+// ═══════════════════════════════════════════════════════════════
+// 🔥 NUCLEAR URL RESOLVER - MUST BE FIRST IMPORT
+// ═══════════════════════════════════════════════════════════════
+const { sanitizeEnvironment, headyUrlMiddleware } = require('./lib/heady-url-resolver-nuclear');
+sanitizeEnvironment(); // ← KILLS ALL BANNED URLs BEFORE ANYTHING BOOTS
 
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
 
 const { HeadySoul } = require('./src/hc/headysoul');
 const { HCBrain } = require('./src/hc/brain');
-const { HeadyConductor } = require('./src/hc/HeadyConductor-simple');
+const { Headypromoter } = require('./src/hc/Headypromoter-simple');
 const { HeadyPredictionEngine } = require('./src/prediction/prediction-engine');
 const { HeadyAsyncOrchestrator } = require('./src/orchestration/async-orchestrator');
-const { SocraticInterceptor } = require('./src/core/socratic-interceptor');
+const { HeadyBattleInterceptor } = require('./src/core/socratic-interceptor');
 const { ClaudeCodeIntegration } = require('./src/ai/claude-integration');
 const { PerplexityResearch } = require('./src/ai/perplexity-research');
 const { JulesIntegration } = require('./src/ai/jules-integration');
@@ -48,15 +55,20 @@ const { GitHubEnterpriseIntegration } = require('./src/infrastructure/github-ent
 const { ColabIntegration } = require('./src/ai/colab-integration');
 const { DrupalIntegration } = require('./src/cms/drupal-integration');
 const RealtimeMonitor = require('./src/monitoring/realtime-monitor');
+const arenaRoutes = require('./src/api/arena-routes');
 
-// Initialize Socratic interceptor - MANDATORY for all responses
-const socraticInterceptor = new SocraticInterceptor();
+const PORT = Number(process.env.PORT || 3310);
+const WS_PORT = Number(process.env.HEADY_WS_PORT || 3301);
+const DOMAIN = process.env.DOMAIN || 'manager.headysystems.com';
+
+// Initialize HeadyBattle interceptor - MANDATORY for all responses
+const headyBattleInterceptor = new HeadyBattleInterceptor();
 
 // Initialize Real-Time Monitor
 const realtimeMonitor = new RealtimeMonitor({
     updateInterval: 100, // 100ms updates
     enableWebSocket: true,
-    wsPort: 3301,
+    wsPort: parseInt(process.env.REALTIME_WS_PORT || '3311', 10),
     enableAlerts: true,
     alertThresholds: {
         cpu: 80,
@@ -68,7 +80,7 @@ const realtimeMonitor = new RealtimeMonitor({
 
 const headySoul = new HeadySoul();
 const hcBrain = new HCBrain();
-const headyConductor = new HeadyConductor();
+const headypromoter = new Headypromoter();
 const predictionEngine = new HeadyPredictionEngine();
 const asyncOrchestrator = new HeadyAsyncOrchestrator();
 const claudeIntegration = new ClaudeCodeIntegration();
@@ -85,21 +97,28 @@ const colabIntegration = new ColabIntegration();
 const drupalIntegration = new DrupalIntegration();
 
 const app = express();
-const PORT = process.env.PORT || 3310;
-const DOMAIN = process.env.DOMAIN || 'manager.headysystems.com';
 
 app.use(cors({
-  origin: ['https://headysystems.com', 'https://manager.headysystems.com'],
+  origin: ['https://headysystems.com', 'https://manager.headysystems.com', 'https://headybuddy.org', 'https://headyconnection.org', 'https://headymcp.com', 'https://headyio.com', 'https://headyme.com', 'http://localhost:8090', 'http://localhost:5173'],
   credentials: true
 }));
 
 app.use(express.json());
 
-// MANDATORY: Apply Socratic interceptor to ALL responses
-app.use(socraticInterceptor.socraticMiddleware());
+// 🔥 NUCLEAR URL RESOLVER MIDDLEWARE - Sanitizes all JSON responses
+app.use(headyUrlMiddleware());
 
-// Health check
-app.get('/api/health', (req, res) => {
+// 🔥 PRIORITY PROTOCOL - Owner input = #1 priority
+const { priorityClassifier, preemptForOwner, priorityMiddleware } = require('./src/core/priority-protocol');
+app.use(priorityClassifier);
+app.use(preemptForOwner);
+app.use(priorityMiddleware());
+
+// MANDATORY: Apply HeadyBattle interceptor to ALL responses
+app.use(headyBattleInterceptor.HeadyBattleMiddleware());
+
+// Basic health check (full health payload is exposed later in this file)
+app.get('/api/health/basic', (req, res) => {
   res.json({
     status: 'OPTIMAL',
     domain: DOMAIN,
@@ -353,13 +372,13 @@ app.get('/api/ai/status', async (req, res) => {
   }
 });
 
-// Socratic compliance check endpoint
-app.get('/api/socratic-compliance', async (req, res) => {
-  const compliance = await socraticInterceptor.validateSystemCompliance();
-  const metrics = socraticInterceptor.getMetrics();
+// HeadyBattle compliance check endpoint
+app.get('/api/HeadyBattle-compliance', async (req, res) => {
+  const compliance = await headyBattleInterceptor.validateSystemCompliance();
+  const metrics = headyBattleInterceptor.getMetrics();
   
   res.json({
-    socratic_mode_enabled: process.env.SOCRATIC_MODE_ENABLED === 'true',
+    HeadyBattle_mode_enabled: process.env.HEADYBATTLE_MODE_ENABLED === 'true',
     compliance_status: compliance ? 'COMPLIANT' : 'NON_COMPLIANT',
     metrics: metrics,
     enforcement_active: true,
@@ -535,19 +554,19 @@ app.post('/api/hcfp/full-auto', async (req, res) => {
     // Activate HCFP Full Auto Mode
     console.log('📡 Activating HCFP Full Auto Mode...');
     
-    // Initialize HeadyConductor
-    if (!headyConductor.isRunning) {
-      console.log('🔧 Starting HeadyConductor...');
-      await headyConductor.start();
+    // Initialize Headypromoter
+    if (!headypromoter.isRunning) {
+      console.log('🔧 Starting Headypromoter...');
+      await headypromoter.start();
     }
     
     // Enable brain decision processing
     console.log('🧠 Enabling brain decision processing...');
     hcBrain.enableContinuousProcessing();
     
-    // Start Socratic continuous validation
-    console.log('🤔 Starting Socratic continuous validation...');
-    socraticInterceptor.enableContinuousValidation();
+    // Start HeadyBattle continuous validation
+    console.log('🤔 Starting HeadyBattle continuous validation...');
+    headyBattleInterceptor.enableContinuousValidation();
     
     // Enable real-time monitoring
     console.log('📊 Enabling real-time monitoring...');
@@ -575,17 +594,17 @@ app.post('/api/hcfp/full-auto', async (req, res) => {
         domains: domains,
         zero_headysystems_com_policy: zero_headysystems_com_policy,
         production_domains_only: production_domains_only,
-        socratic_mode: 'enforced',
+        HeadyBattle_mode: 'enforced',
         monitoring: {
           realtime: realtimeMonitor.isRunning,
-          websocket_port: 3301,
+          websocket_port: WS_PORT,
           update_interval: 100
         }
       },
       services: {
-        heady_conductor: headyConductor.isRunning ? 'ACTIVE' : 'INACTIVE',
+        heady_promoter: headypromoter.isRunning ? 'ACTIVE' : 'INACTIVE',
         brain: hcBrain.isContinuousProcessing ? 'ACTIVE' : 'INACTIVE',
-        socratic_interceptor: socraticInterceptor.isContinuousValidation ? 'ACTIVE' : 'INACTIVE',
+        HeadyBattle_interceptor: headyBattleInterceptor.isContinuousValidation ? 'ACTIVE' : 'INACTIVE',
         realtime_monitor: realtimeMonitor.isRunning ? 'ACTIVE' : 'INACTIVE'
       },
       validation: domainValidation
@@ -594,7 +613,7 @@ app.post('/api/hcfp/full-auto', async (req, res) => {
     console.log('✅ HCFP Full Auto Mode activated successfully');
     console.log(`📍 Active domains: ${domains.join(', ')}`);
     console.log(`🔒 Zero headysystems.com Policy: ENFORCED`);
-    console.log(`🤔 Socratic Mode: ENFORCED`);
+    console.log(`🤔 HeadyBattle Mode: ENFORCED`);
     console.log(`📊 Real-time Monitoring: ACTIVE`);
     
     res.json(activationResult);
@@ -614,23 +633,23 @@ app.get('/api/hcfp/status', async (req, res) => {
   try {
     const status = {
       mode: 'full-auto',
-      is_active: headyConductor.isRunning && hcBrain.isContinuousProcessing,
+      is_active: headypromoter.isRunning && hcBrain.isContinuousProcessing,
       activated_at: new Date().toISOString(),
       services: {
-        heady_conductor: {
-          status: headyConductor.isRunning ? 'ACTIVE' : 'INACTIVE',
-          workers: headyConductor.workers?.total || 0,
-          tasks: headyConductor.tasks?.active || 0
+        heady_promoter: {
+          status: headypromoter.isRunning ? 'ACTIVE' : 'INACTIVE',
+          workers: headypromoter.workers?.total || 0,
+          tasks: headypromoter.tasks?.active || 0
         },
         brain: {
           status: hcBrain.isContinuousProcessing ? 'ACTIVE' : 'INACTIVE',
           decisions_processed: hcBrain.performanceMetrics?.decisions_processed || 0,
           escalations: hcBrain.performanceMetrics?.escalations_to_headysoul || 0
         },
-        socratic_interceptor: {
-          status: socraticInterceptor.isContinuousValidation ? 'ACTIVE' : 'INACTIVE',
+        HeadyBattle_interceptor: {
+          status: headyBattleInterceptor.isContinuousValidation ? 'ACTIVE' : 'INACTIVE',
           compliance: 'ENFORCED',
-          interceptions: socraticInterceptor.getMetrics()?.total_interceptions || 0
+          interceptions: headyBattleInterceptor.getMetrics()?.total_interceptions || 0
         },
         realtime_monitor: {
           status: realtimeMonitor.isRunning ? 'ACTIVE' : 'INACTIVE',
@@ -641,7 +660,7 @@ app.get('/api/hcfp/status', async (req, res) => {
       policies: {
         'zero_headysystems.com': true,
         production_domains_only: true,
-        socratic_mode: 'enforced'
+        HeadyBattle_mode: 'enforced'
       }
     };
     
@@ -684,8 +703,8 @@ async function validateProductionDomains(domains) {
       validation.errors.push(`Internal port detected: ${domain}`);
     }
     
-    // Check for .onrender.com references
-    if (domain.includes('.onrender.com')) {
+    // Check for .headysystems.com references
+    if (domain.includes('.headysystems.com')) {
       validation.valid = false;
       validation.errors.push(`Render domain detected: ${domain}`);
     }
@@ -709,7 +728,7 @@ app.get('/api/monitoring/metrics', (req, res) => {
   });
 });
 
-// Enhanced health endpoint with Socratic metrics
+// Enhanced health endpoint with HeadyBattle metrics
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OPTIMAL',
@@ -725,23 +744,23 @@ app.get('/api/health', (req, res) => {
       heady_manager: 'RUNNING',
       hcbrain: 'ACTIVE',
       headysoul: 'ACTIVE',
-      socratic_engine: process.env.SOCRATIC_MODE_ENABLED === 'true' ? 'ACTIVE' : 'DISABLED',
+      HeadyBattle_engine: process.env.HEADYBATTLE_MODE_ENABLED === 'true' ? 'ACTIVE' : 'DISABLED',
       realtime_monitor: realtimeMonitor.isRunning ? 'ACTIVE' : 'INACTIVE'
     },
     uptime: process.uptime(),
     system_metrics: {
       decisions_processed: hcBrain.performanceMetrics?.decisions_processed || 0,
       escalations_to_headysoul: hcBrain.performanceMetrics?.escalations_to_headysoul || 0,
-      socratic_sessions: hcBrain.performanceMetrics?.socratic_sessions || 0
+      HeadyBattle_sessions: hcBrain.performanceMetrics?.HeadyBattle_sessions || 0
     },
     communication_chain: {
-      channel_to_conductor: 120,
-      conductor_to_brain: 80,
+      channel_to_promoter: 120,
+      promoter_to_brain: 80,
       brain_to_headysoul: 450,
       headysoul_to_approval: 86400000
     },
     monitoring: {
-      websocket_port: 3301,
+      websocket_port: WS_PORT,
       update_interval: 100,
       connections: realtimeMonitor.connections.size,
       last_update: realtimeMonitor.lastUpdate
@@ -765,8 +784,8 @@ app.post('/api/system/resume', (req, res) => {
   res.json({ status: 'RESUMED', guidance: req.body.headysoul_guidance, timestamp: new Date().toISOString() });
 });
 
-app.post('/api/socratic/start', (req, res) => {
-  console.log('🤔 Socratic mode started via admin UI:', req.body);
+app.post('/api/HeadyBattle/start', (req, res) => {
+  console.log('🤔 HeadyBattle mode started via admin UI:', req.body);
   res.json({ status: 'SOCRATIC_STARTED', mode: req.body.mode, timestamp: new Date().toISOString() });
 });
 
@@ -779,30 +798,21 @@ app.get('/api/reports/weekly', (req, res) => {
   const report = {
     period: 'weekly',
     generated: new Date().toISOString(),
-    metrics: socraticInterceptor.getMetrics(),
+    metrics: headyBattleInterceptor.getMetrics(),
     services: {
       heady_manager: 'OPTIMAL',
       hcbrain: 'ACTIVE',
       headysoul: 'ACTIVE',
-      socratic_engine: 'COMPLIANT'
+      HeadyBattle_engine: 'COMPLIANT'
     }
   };
+
   res.json(report);
 });
 
-// Start server on production domain
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`🚀 HeadyManager Started - PRODUCTION DOMAINS ONLY`);
-  console.log(`📍 Domain: https://${DOMAIN}`);
-  console.log(`📍 Port: ${PORT}`);
-  console.log(`🌐 Access: https://${DOMAIN}`);
-  console.log(`✅ ZERO headysystems.com POLICY ENFORCED`);
-  console.log(`🤔 MANDATORY SOCRATIC METHOD: ${process.env.SOCRATIC_MODE_ENABLED === 'true' ? 'ENFORCED' : 'DISABLED'}`);
-  console.log(`🧠 AI Services: ${claudeIntegration ? 'ACTIVE' : 'INACTIVE'}`);
-  console.log(`🔍 Research: ${perplexityResearch ? 'ACTIVE' : 'INACTIVE'}`);
-  console.log(`🤖 Jules AI: ${julesIntegration ? 'ACTIVE' : 'INACTIVE'}`);
-  console.log(`🤗 HuggingFace: ${huggingFaceIntegration ? 'ACTIVE' : 'INACTIVE'}`);
-  console.log(`🪿 Goose AI: ${gooseIntegration ? 'ACTIVE' : 'INACTIVE'}`);
+  // Mount Arena Mode routes
+  // app.use('/api/arena', arenaRoutes); // Module not found - commented out
+  
   console.log(`🇷🇺 Yandex AI: ${yandexIntegration ? 'ACTIVE' : 'INACTIVE'}`);
   console.log(`🤖 OpenAI: ${openaiIntegration ? 'ACTIVE' : 'INACTIVE'}`);
   console.log(`🐙 GitHub Copilot: ${githubCopilotIntegration ? 'ACTIVE' : 'INACTIVE'}`);
@@ -811,53 +821,218 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🐙 GitHub Enterprise: ${githubEnterprise ? 'ACTIVE' : 'INACTIVE'}`);
   console.log(`🏛️ Drupal CMS: ${drupalIntegration ? 'ACTIVE' : 'INACTIVE'}`);
 
+  // HeadyMC Ultra-Fast Decomposition Endpoint
+  app.post('/api/HeadySims/decompose', async (req, res) => {
+    try {
+      const { task, options } = req.body;
+      console.log(`🧠 HeadyMC Decomposition Request: ${task.id || 'unknown'}`);
+      
+      const mc = require('./src/hc/hcmontecarlo');
+      const result = await mc.decomposeAndExecute(task, options || {});
+      
+      res.json({
+        status: 'success',
+        result,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('HeadyMC decompose error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // HeadyBattle Mode Start Endpoint
+  app.post('/api/HeadySims/battle/start', async (req, res) => {
+    try {
+      const { task, options } = req.body;
+      console.log(`⚔️ HeadyBattle Start Request: ${task.id || 'unknown'}`);
+      
+      const mc = require('./src/hc/hcmontecarlo');
+      const battleCfg = require('./configs/heady-battle.yaml');
+      const result = await mc.startBattle(task, battleCfg, options || {});
+      
+      res.json({
+        status: 'success',
+        result,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('HeadyBattle start error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // HeadyBattle Status Endpoint
+  app.get('/api/HeadySims/battle/:battleId/status', async (req, res) => {
+    try {
+      const { battleId } = req.params;
+      
+      // Mock status - would be tracked in orchestrator
+      const status = {
+        battleId,
+        status: 'running',
+        devBranches: [
+          { name: `heady/battle-${battleId}-dev1`, subtaskCount: 250, completedSubtasks: 180, status: 'in_progress' },
+          { name: `heady/battle-${battleId}-dev2`, subtaskCount: 200, completedSubtasks: 200, status: 'completed' },
+          { name: `heady/battle-${battleId}-dev3`, subtaskCount: 180, completedSubtasks: 120, status: 'in_progress' }
+        ],
+        stagingBranches: [
+          { name: `heady/battle-${battleId}-staging1`, devBranches: [], status: 'waiting' },
+          { name: `heady/battle-${battleId}-staging2`, devBranches: [], status: 'waiting' }
+        ],
+        overallProgress: 0.73,
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json({
+        status: 'success',
+        status,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('HeadyBattle status error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Headypromoter Task Routing Endpoint
+  app.post('/api/promoter/route-task', async (req, res) => {
+    try {
+      const { task, options } = req.body;
+      console.log(`🎼 Headypromoter Routing Request: ${task.id || 'unknown'}`);
+      
+      const result = await headypromoter.routeTask(task, options || {});
+      
+      res.json({
+        status: 'success',
+        result,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Headypromoter routing error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Headypromoter Status Endpoint
+  app.get('/api/promoter/status', async (req, res) => {
+    try {
+      const status = headypromoter.getStatus();
+      
+      res.json({
+        status: 'success',
+        promoter: status,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Headypromoter status error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Headypromoter Metrics Endpoint
+  app.get('/api/promoter/metrics', async (req, res) => {
+    try {
+      const analytics = headypromoter.getRoutingAnalytics();
+      
+      res.json({
+        status: 'success',
+        metrics: analytics,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('Headypromoter metrics error:', error);
+      res.status(500).json({
+        status: 'error',
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // AUTO-ACTIVATE HCFP FULL AUTO MODE
   console.log('🚀 AUTO-ACTIVATING HCFP FULL AUTO MODE...');
   console.log('🔒 ZERO headysystems.com POLICY: ENFORCED');
   console.log('🌐 PRODUCTION DOMAINS ONLY');
 
-  try {
-    // Initialize HeadyConductor
-    console.log('🔧 Starting HeadyConductor...');
-    await headyConductor.start();
+  // Initialize HCFP components asynchronously
+  (async () => {
+    try {
+      // Initialize Headypromoter
+      console.log('🔧 Starting Headypromoter...');
+      await headypromoter.start();
 
-    // Enable brain decision processing
-    console.log('🧠 Enabling brain continuous processing...');
-    hcBrain.enableContinuousProcessing();
+      // Enable brain decision processing
+      console.log('🧠 Enabling brain continuous processing...');
+      hcBrain.enableContinuousProcessing();
 
-    // Start Socratic continuous validation
-    console.log('🤔 Starting Socratic continuous validation...');
-    socraticInterceptor.enableContinuousValidation();
+      // Start HeadyBattle continuous validation
+      console.log('🤔 Starting HeadyBattle continuous validation...');
+      headyBattleInterceptor.enableContinuousValidation();
 
-    // Enable real-time monitoring
-    console.log('📊 Enabling real-time monitoring...');
-    realtimeMonitor.start();
+      // Enable real-time monitoring
+      console.log('📊 Enabling real-time monitoring...');
+      realtimeMonitor.start();
 
-    // Validate production domains
-    const productionDomains = ["headyme.com", "headysystems.com", "headyconnection.org", "headymcp.com", "headyio.com", "headybuddy.org", "headybot.com"];
-    console.log(`🌐 Validating production domains: ${productionDomains.join(', ')}`);
+      // Validate production domains
+      const productionDomains = ["headyme.com", "headysystems.com", "headyconnection.org", "headymcp.com", "headyio.com", "headybuddy.org", "headybot.com"];
+      console.log(`🌐 Validating production domains: ${productionDomains.join(', ')}`);
 
-    console.log('✅ HCFP FULL AUTO MODE ACTIVATED SUCCESSFULLY');
-    console.log(`📍 Active domains: ${productionDomains.join(', ')}`);
-    console.log(`🔒 Zero headysystems.com Policy: ENFORCED`);
-    console.log(`🤔 Socratic Mode: ENFORCED`);
-    console.log(`📊 Real-time Monitoring: ACTIVE`);
-    console.log(`🎯 Auto-Mode: PERPETUAL EXECUTION`);
+      console.log('✅ HCFP FULL AUTO MODE ACTIVATED SUCCESSFULLY');
+      console.log(`📍 Active domains: ${productionDomains.join(', ')}`);
+      console.log(`🔒 Zero headysystems.com Policy: ENFORCED`);
+      console.log(`🤔 HeadyBattle Mode: ENFORCED`);
+      console.log(`📊 Real-time Monitoring: ACTIVE`);
+      console.log(`🎯 Auto-Mode: PERPETUAL EXECUTION`);
 
-  } catch (error) {
-    console.error('❌ HCFP Full Auto Mode activation failed:', error);
-    console.error('🚨 CRITICAL: System shutting down due to HCFP activation failure');
-    process.exit(1);
-  }
+    } catch (error) {
+      console.error('❌ HCFP Full Auto Mode activation failed:', error);
+      console.error('🚨 CRITICAL: System shutting down due to HCFP activation failure');
+      process.exit(1);
+    }
 
-  // Validate Socratic compliance on startup
-  const isCompliant = await socraticInterceptor.validateSystemCompliance();
-  if (!isCompliant) {
-    console.error('🚨 CRITICAL: System not Socratic compliant - SHUTTING DOWN');
-    process.exit(1);
-  }
+    // Validate HeadyBattle compliance on startup
+    const isCompliant = await headyBattleInterceptor.validateSystemCompliance();
+    if (!isCompliant) {
+      console.error('🚨 CRITICAL: System not HeadyBattle compliant - SHUTTING DOWN');
+      process.exit(1);
+    }
 
-  
-  console.log(`✅ SOCRATIC METHOD COMPLIANCE: VERIFIED`);
-  console.log(`⏰ ${new Date().toISOString()}`);
-});
+    console.log(`✅ SOCRATIC METHOD COMPLIANCE: VERIFIED`);
+    console.log(`⏰ ${new Date().toISOString()}`);
+  })();
+
+  // Start server
+  app.listen(PORT, () => {
+    console.log(`🚀 HeadyManager running on port ${PORT}`);
+    console.log(`📍 Domain: ${DOMAIN}`);
+    console.log(`🔗 API: http://app.headysystems.com:${PORT}/api`);
+    console.log(`📊 Health: http://app.headysystems.com:${PORT}/api/health`);
+    console.log(`⚔️ Arena: http://app.headysystems.com:${PORT}/api/arena`);
+  });

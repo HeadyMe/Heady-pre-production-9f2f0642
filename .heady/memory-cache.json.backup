@@ -1,164 +1,18 @@
 {
-  "timestamp": "2026-02-18T13:11:12.778Z",
-  "context": {
-    "operation": "background_scan"
-  },
-  "memories": {
-    "recent": [
-      {
-        "id": 1,
-        "category": "general",
-        "content": "Sample memory 1",
-        "tags": [],
-        "timestamp": "2026-02-18T13:11:12.778Z"
-      },
-      {
-        "id": 2,
-        "category": "general",
-        "content": "Sample memory 2",
-        "tags": [],
-        "timestamp": "2026-02-18T13:11:12.778Z"
-      },
-      {
-        "id": 1771472513036,
-        "category": "system_fix",
-        "content": "Memory system unblocked - hardcoded 150 limit removed",
-        "tags": [
-          "fix",
-          "memory",
-          "unblock"
-        ],
-        "timestamp": "2026-02-19T03:41:53.036Z",
-        "operation": "write_test"
-      },
-      {
-        "id": 1771472942000,
-        "category": "user_observation",
-        "content": "User just saw onrender.com domain reference - important for deployment strategy",
-        "tags": [
-          "onrender",
-          "deployment",
-          "user_input",
-          "domain_strategy"
-        ],
-        "timestamp": "2026-02-19T03:49:02.000Z",
-        "context": "User noticed onrender.com references during system fixes",
-        "priority": "high"
-      },
-      {
-        "id": 1771473000000,
-        "category": "deployment_strategy",
-        "content": "Render services should now be on user's mini computer - local deployment preference",
-        "tags": [
-          "render",
-          "mini_computer",
-          "local_deployment",
-          "infrastructure"
-        ],
-        "timestamp": "2026-02-19T03:50:00.000Z",
-        "context": "User wants Render services running locally on mini computer instead of cloud",
-        "priority": "high",
-        "action_required": "Update domain mappings from onrender.com to local mini computer"
-      },
-      {
-        "id": 1771473100000,
-        "category": "critical_rule",
-        "content": "GOD DAMN IT. NO LOCAL REFERENCES OF ANY KIND EVER!!!!!!!!!!!!!!!!!!!!!!!!!!! PLEASE REMEMBER THAT",
-        "tags": [
-          "critical",
-          "no_local",
-          "zero_tolerance",
-          "production_only",
-          "domain_rule"
-        ],
-        "timestamp": "2026-02-19T03:51:40.000Z",
-        "context": "User extremely frustrated - absolutely NO local references allowed ever",
-        "priority": "critical",
-        "enforcement": "immediate",
-        "zero_tolerance": true,
-        "rule": "NEVER use localhost, 127.0.0.1, local, .local, or any local references in production code",
-        "violation_consequence": "system_failure"
-      },
-      {
-        "id": 1771473200000,
-        "category": "agent_instructions",
-        "content": "Comprehensive coding agent instruction set for HeadySystems - emergency protocols, zero tolerance rules, Drupal 11 hybrid architecture, memory system requirements, error handling, monitoring, deployment, and success criteria",
-        "tags": [
-          "agent_protocol",
-          "coding_instructions",
-          "emergency_fixes",
-          "drupal_hybrid",
-          "memory_system",
-          "zero_tolerance",
-          "error_handling",
-          "monitoring",
-          "deployment"
-        ],
-        "timestamp": "2026-02-19T03:53:20.000Z",
-        "context": "User provided extensive instruction set for coding agent covering all critical issues and system requirements",
-        "priority": "critical",
-        "sections": [
-          "emergency_protocols",
-          "zero_tolerance_rules",
-          "drupal_11_hybrid",
-          "memory_system_requirements",
-          "error_handling",
-          "monitoring_observability",
-          "deployment_checklist",
-          "success_criteria"
-        ]
+  "version": "4.0.0",
+  "created": "2026-02-19T21:36:14.630Z",
+  "lastUpdated": "2026-02-19T21:36:14.630Z",
+  "memories": [
+    {
+      "id": "system-recovery",
+      "type": "system",
+      "content": "Memory system recovered from error",
+      "timestamp": "2026-02-19T21:36:14.630Z",
+      "metadata": {
+        "error": "memoryData.memories.push is not a function",
+        "recovered": true,
+        "system": "HeadyConnection"
       }
-    ],
-    "total": null,
-    "byCategory": {
-      "general": 50,
-      "workflows": 30,
-      "nodes": 25,
-      "tools": 20,
-      "services": 25
-    },
-    "limit": null,
-    "growth_enabled": true,
-    "max_soft_limit": 10000
-  },
-  "preferences": {
-    "theme": "dark",
-    "language": "en",
-    "notifications": true
-  },
-  "externalSources": [
-    {
-      "name": "GitHub",
-      "type": "code",
-      "last_sync": "2026-02-18T13:11:12.776Z"
-    },
-    {
-      "name": "Documentation",
-      "type": "docs",
-      "last_sync": "2026-02-18T13:11:12.776Z"
     }
-  ],
-  "statistics": {
-    "total_memories": 2,
-    "by_category": {
-      "general": 50,
-      "workflows": 30,
-      "nodes": 25,
-      "tools": 20,
-      "services": 25
-    },
-    "total_queries": 1000,
-    "total_ingestions": 500,
-    "limit_removed": true,
-    "dynamic_growth": true
-  },
-  "learningMetrics": {
-    "metrics": {
-      "learning_rate": 0.85,
-      "accuracy": 0.92,
-      "patterns_detected": 45,
-      "optimizations_suggested": 12
-    }
-  },
-  "scanDurationMs": 251
+  ]
 }

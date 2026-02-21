@@ -159,7 +159,7 @@ class HeadyWorker {
         console.log(`[${this.workerId}] 🧠 AI Processing: ${task.operation}`);
         
         switch (task.operation) {
-            case 'monte_carlo_simulation':
+            case 'heady_sims_simulation':
                 return await this.monteCarloSimulation(task.data);
                 
             case 'pattern_recognition':
@@ -168,8 +168,8 @@ class HeadyWorker {
             case 'decision_optimization':
                 return await this.decisionOptimization(task.data);
                 
-            case 'socratic_analysis':
-                return await this.socraticAnalysis(task.data);
+            case 'HeadyBattle_analysis':
+                return await this.HeadyBattleAnalysis(task.data);
                 
             default:
                 throw new Error(`Unknown AI operation: ${task.operation}`);
@@ -261,10 +261,10 @@ class HeadyWorker {
         const simulations = data.simulations || 1000;
         const results = [];
         
-        console.log(`[${this.workerId}] 🎲 Running ${simulations} Monte Carlo simulations...`);
+        console.log(`[${this.workerId}] 🎲 Running ${simulations} HeadySims simulations...`);
         
         for (let i = 0; i < simulations; i++) {
-            // Simulate Monte Carlo calculation
+            // Simulate HeadySims calculation
             const result = Math.random() * data.max_value || 100;
             results.push(result);
             
@@ -278,7 +278,7 @@ class HeadyWorker {
         const variance = results.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / results.length;
         
         return {
-            type: 'monte_carlo_simulation',
+            type: 'heady_sims_simulation',
             simulations: simulations,
             results: {
                 mean: mean,
@@ -328,19 +328,19 @@ class HeadyWorker {
         };
     }
 
-    async socraticAnalysis(data) {
+    async HeadyBattleAnalysis(data) {
         await this.simulateWork(1000, 3000);
         
-        // Generate Socratic questions
-        const questions = await this.headySoul.generateSocraticQuestions({
+        // Generate HeadyBattle questions
+        const questions = await this.headySoul.generateHeadyBattleQuestions({
             type: 'decision_analysis',
             query: data.query,
             context: data.context
         });
         
         return {
-            type: 'socratic_analysis',
-            socratic_questions: questions,
+            type: 'HeadyBattle_analysis',
+            HeadyBattle_questions: questions,
             analysis_depth: 'exploratory',
             key_insights: [
                 'Multiple perspectives identified',

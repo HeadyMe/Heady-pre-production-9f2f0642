@@ -1,0 +1,13 @@
+name: 'Heady MCP Engine'
+type: module
+description: 'Exposes Drupal 11 as a Model Context Protocol server with vector storage, priority execution, and Heady integration.'
+core_version_requirement: ^11
+package: Heady
+dependencies:
+  - drupal:jsonapi
+  - drupal:user
+  - drupal:mcp
+  - drupal:ai
+  - drupal:search_api_postgresql
+version: '1.0.0'
+project: 'heady_mcp'

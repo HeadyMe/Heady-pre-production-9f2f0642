@@ -9,7 +9,7 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: socratic.js                                   ║
+// ║  FILE: HeadyBattle.js                                   ║
 // ║  UPDATED: 20260218-211102                                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -22,7 +22,7 @@
 
 /**
  * ═══════════════════════════════════════════════════════════════
- * 🧠 SOCRATIC API ROUTES - Question Everything
+ * 🧠 HEADYBATTLE API ROUTES - Question Everything
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -49,7 +49,7 @@ router.post('/initialize', async (req, res) => {
   }
 });
 
-// Main Socratic questioning endpoint
+// Main HeadyBattle questioning endpoint
 router.post('/question', async (req, res) => {
   const { request, context } = req.body;
   
@@ -63,7 +63,7 @@ router.post('/question', async (req, res) => {
     const response = await socrates.processRequest(request, context || {});
     res.json(response);
   } catch (error) {
-    console.error('[SOCRATIC API] Question processing failed:', error);
+    console.error('[HEADYBATTLE API] Question processing failed:', error);
     res.status(500).json({
       success: false,
       error: error.message,
@@ -99,12 +99,12 @@ router.get('/history', (req, res) => {
   }
 });
 
-// Clarify user response to Socratic questions
+// Clarify user response to HeadyBattle questions
 router.post('/clarify', async (req, res) => {
   const { originalRequest, questions, answers } = req.body;
   
   try {
-    // Process user's answers to Socratic questions
+    // Process user's answers to HeadyBattle questions
     const clarifiedIntent = await socrates.processClarification(
       originalRequest,
       questions,

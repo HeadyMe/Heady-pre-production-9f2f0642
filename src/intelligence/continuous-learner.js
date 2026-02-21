@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -21,7 +20,6 @@
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  */
 
-#!/usr/bin/env node
 /*
  * CONTINUOUS LEARNER
  * Always learning and improving system intelligence
@@ -81,22 +79,22 @@ class HeadyContinuousLearner {
       const headyFiles = await this.getAllCodeFiles();
       
       // Process only 5 files per cycle to prevent memory overload
-      for (const headyFile of files.slice(0, 5)) {
-        const headyPatterns = await this.extractPatterns(file);
-        this.knowledgeBase.set(`code_patterns_${file}`, patterns);
+      for (const headyFile of headyFiles.slice(0, 5)) {
+        const headyPatterns = await this.extractPatterns(headyFile);
+        this.knowledgeBase.set(`code_patterns_${headyFile}`, headyPatterns);
         this.learningMetrics.knowledgeItems++;
         
         // Suggest optimizations
-        const headyOptimizations = await this.suggestOptimizations(patterns);
-        if (optimizations.length > 0) {
-          this.learningMetrics.optimizationsSuggested += optimizations.length;
+        const headyOptimizations = await this.suggestOptimizations(headyPatterns);
+        if (headyOptimizations.length > 0) {
+          this.learningMetrics.optimizationsSuggested += headyOptimizations.length;
           
           // Queue optimization tasks
-          for (const headyOpt of optimizations) {
+          for (const headyOpt of headyOptimizations) {
             this.queueTask({
               type: 'code_optimization',
-              file,
-              suggestion: opt,
+              file: headyFile,
+              suggestion: headyOpt,
               priority: 'high'
             });
           }
@@ -115,11 +113,11 @@ class HeadyContinuousLearner {
       
       // Analyze API call patterns
       const headyApiPatterns = await this.analyzeAPIPatterns();
-      this.knowledgeBase.set('api_patterns', apiPatterns);
+      this.knowledgeBase.set('api_patterns', headyApiPatterns);
       
       // Learn performance characteristics
       const headyPerformanceInsights = await this.analyzeAPIPerformance();
-      this.knowledgeBase.set('api_performance', performanceInsights);
+      this.knowledgeBase.set('api_performance', headyPerformanceInsights);
       
       this.learningMetrics.knowledgeItems += 2;
       
@@ -134,9 +132,9 @@ class HeadyContinuousLearner {
       console.log('📖 Learning from documentation...');
       
       const headyDocs = await this.scanDocumentation();
-      const headyInsights = await this.extractDocumentationInsights(docs);
+      const headyInsights = await this.extractDocumentationInsights(headyDocs);
       
-      this.knowledgeBase.set('documentation_insights', insights);
+      this.knowledgeBase.set('documentation_insights', headyInsights);
       this.learningMetrics.knowledgeItems++;
       
       console.log('✅ Documentation learning completed');
@@ -151,14 +149,14 @@ class HeadyContinuousLearner {
       
       // Analyze user behavior to predict next actions
       const headyPatterns = await this.analyzeUserHistory();
-      const headyPredictions = await this.predictNextUserActions(patterns);
+      const headyPredictions = await this.predictNextUserActions(headyPatterns);
       
-      this.learningMetrics.predictionsMade += predictions.length;
+      this.learningMetrics.predictionsMade += headyPredictions.length;
       
       // Pre-execute likely next actions
-      for (const headyPrediction of predictions) {
-        if (prediction.confidence > 0.7) {
-          await this.preExecuteAction(prediction);
+      for (const headyPrediction of headyPredictions) {
+        if (headyPrediction.confidence > 0.7) {
+          await this.preExecuteAction(headyPrediction);
         }
       }
       
@@ -184,13 +182,13 @@ class HeadyContinuousLearner {
       ];
       
       // Research one topic per cycle
-      const headyTopic = topics[Math.floor(Math.random() * topics.length)];
-      const headyInsights = await this.research(topic);
+      const headyTopic = headyTopics[Math.floor(Math.random() * headyTopics.length)];
+      const headyInsights = await this.research(headyTopic);
       
-      await this.applyInsights(insights);
+      await this.applyInsights(headyInsights);
       this.learningMetrics.knowledgeItems++;
       
-      console.log(`✅ External learning completed: ${topic}`);
+      console.log(`✅ External learning completed: ${headyTopic}`);
     } catch (error) {
       console.error('⚠️  External learning error:', error.message);
     }
@@ -201,17 +199,17 @@ class HeadyContinuousLearner {
       console.log('📊 Learning from system metrics...');
       
       const headyMetrics = await this.collectSystemMetrics();
-      const headyInsights = await this.analyzeMetricPatterns(metrics);
+      const headyInsights = await this.analyzeMetricPatterns(headyMetrics);
       
-      this.knowledgeBase.set('system_metric_insights', insights);
+      this.knowledgeBase.set('system_metric_insights', headyInsights);
       this.learningMetrics.knowledgeItems++;
       
       // Queue optimization tasks based on metrics
-      if (insights.performanceIssues.length > 0) {
-        for (const headyIssue of insights.performanceIssues) {
+      if (headyInsights.performanceIssues?.length > 0) {
+        for (const headyIssue of headyInsights.performanceIssues) {
           this.queueTask({
             type: 'performance_optimization',
-            issue,
+            issue: headyIssue,
             priority: 'high'
           });
         }
@@ -228,9 +226,9 @@ class HeadyContinuousLearner {
       console.log('🚨 Learning from error logs...');
       
       const headyErrorPatterns = await this.analyzeErrorPatterns();
-      const headyPreventionStrategies = await this.developPreventionStrategies(errorPatterns);
+      const headyPreventionStrategies = await this.developPreventionStrategies(headyErrorPatterns);
       
-      this.knowledgeBase.set('error_prevention', preventionStrategies);
+      this.knowledgeBase.set('error_prevention', headyPreventionStrategies);
       this.learningMetrics.knowledgeItems++;
       
       console.log('✅ Error log learning completed');
@@ -245,38 +243,39 @@ class HeadyContinuousLearner {
     const headyFiles = [];
     
     async function headyScanDirectory(dir) {
-      const headyItems = await fs.readdir(dir, { withFileTypes: true });
+      const headyItems = await headyFs.readdir(dir, { withFileTypes: true });
       
-      for (const headyItem of items) {
-        const headyFullPath = path.join(dir, item.name);
+      for (const headyItem of headyItems) {
+        const headyFullPath = headyPath.join(dir, headyItem.name);
         
-        if (item.isDirectory() && !item.name.startsWith('.') && item.name !== 'node_modules') {
-          await scanDirectory(fullPath);
-        } else if (item.isFile() && extensions.some(ext => item.name.endsWith(ext))) {
-          files.push(fullPath);
+        if (headyItem.isDirectory() && !headyItem.name.startsWith('.') && headyItem.name !== 'node_modules') {
+          await headyScanDirectory(headyFullPath);
+        } else if (headyItem.isFile() && headyExtensions.some(ext => headyItem.name.endsWith(ext))) {
+          headyFiles.push(headyFullPath);
         }
       }
     }
     
-    await scanDirectory(process.cwd());
-    return files;
+    await headyScanDirectory(process.cwd());
+    return headyFiles;
   }
 
   async extractPatterns(filePath) {
     try {
-      const headyContent = await fs.readFile(filePath, 'utf8');
-      const headyLines = content.split('\n');
+      const headyContent = await headyFs.readFile(filePath, 'utf8');
+      const headyLines = headyContent.split('\n');
       
       const headyPatterns = {
-        complexity: this.calculateComplexity(content),
-        dependencies: this.extractDependencies(content),
-        functions: this.extractFunctions(content),
-        imports: this.extractImports(content),
-        patterns: this.detectDesignPatterns(content),
-        smells: this.detectCodeSmells(content)
+        complexity: this.calculateComplexity(headyContent),
+        dependencies: this.extractDependencies(headyContent),
+        functions: this.extractFunctions(headyContent),
+        imports: this.extractImports(headyContent),
+        patterns: this.detectDesignPatterns(headyContent),
+        smells: this.detectCodeSmells(headyContent),
+        lineCount: headyLines.length
       };
       
-      return patterns;
+      return headyPatterns;
     } catch (error) {
       return { error: error.message };
     }
@@ -288,20 +287,20 @@ class HeadyContinuousLearner {
     const headyLinesOfCode = content.split('\n').length;
     
     return {
-      cyclomatic: cyclomaticComplexity,
-      loc: linesOfCode,
-      complexity: cyclomaticComplexity / linesOfCode
+      cyclomatic: headyCyclomaticComplexity,
+      loc: headyLinesOfCode,
+      complexity: headyLinesOfCode > 0 ? headyCyclomaticComplexity / headyLinesOfCode : 0
     };
   }
 
   extractDependencies(content) {
-    const headyImports = content.match(/(?:import|require)\s+.*?from\s+['"`]([^'"`]+)['"`]/g) || [];
-    return imports.map(imp => imp.match(/from\s+['"`]([^'"`]+)['"`]/)[1]);
+    const headyImports = content.match(/(?:import|require)\s+.*?from\s+['"` ]([^'"` ]+)['"` ]/g) || [];
+    return headyImports.map(imp => { const m = imp.match(/from\s+['"` ]([^'"` ]+)['"` ]/); return m ? m[1] : imp; });
   }
 
   extractFunctions(content) {
     const headyFunctions = content.match(/(?:function\s+(\w+)|(\w+)\s*=\s*(?:function|\([^)]*\)\s*=>))/g) || [];
-    return functions.map(fn => fn.match(/\w+/)[0]);
+    return headyFunctions.map(fn => fn.match(/\w+/)?.[0] || fn);
   }
 
   extractImports(content) {
@@ -312,68 +311,68 @@ class HeadyContinuousLearner {
     const headyPatterns = [];
     
     if (content.includes('class') && content.includes('extends')) {
-      patterns.push('inheritance');
+      headyPatterns.push('inheritance');
     }
     if (content.includes('singleton') || content.includes('getInstance')) {
-      patterns.push('singleton');
+      headyPatterns.push('singleton');
     }
     if (content.includes('observer') || content.includes('addEventListener')) {
-      patterns.push('observer');
+      headyPatterns.push('observer');
     }
     
-    return patterns;
+    return headyPatterns;
   }
 
   detectCodeSmells(content) {
     const headySmells = [];
     
     if (content.length > 1000) {
-      smells.push('long_file');
+      headySmells.push('long_file');
     }
     if ((content.match(/function\s+\w+\s*\([^)]*\)/g) || []).length > 10) {
-      smells.push('too_many_functions');
+      headySmells.push('too_many_functions');
     }
     if (content.includes('TODO') || content.includes('FIXME')) {
-      smells.push('technical_debt');
+      headySmells.push('technical_debt');
     }
     
-    return smells;
+    return headySmells;
   }
 
   async suggestOptimizations(patterns) {
     const headyOptimizations = [];
     
     if (patterns.complexity && patterns.complexity.complexity > 0.1) {
-      optimizations.push({
+      headyOptimizations.push({
         type: 'reduce_complexity',
         suggestion: 'Consider breaking down complex functions',
         priority: 'high'
       });
     }
     
-    if (patterns.smells.includes('long_file')) {
-      optimizations.push({
+    if (patterns.smells?.includes('long_file')) {
+      headyOptimizations.push({
         type: 'split_file',
         suggestion: 'Consider splitting into smaller modules',
         priority: 'medium'
       });
     }
     
-    if (patterns.smells.includes('technical_debt')) {
-      optimizations.push({
+    if (patterns.smells?.includes('technical_debt')) {
+      headyOptimizations.push({
         type: 'address_technical_debt',
         suggestion: 'Address TODO and FIXME comments',
         priority: 'low'
       });
     }
     
-    return optimizations;
+    return headyOptimizations;
   }
 
   async analyzeAPIPatterns() {
     // Simulate API pattern analysis
     return {
-      commonEndpoints: ['/api/health', '/api/context/scan', '/api/conductor/status'],
+      commonEndpoints: ['/api/health', '/api/context/scan', '/api/promoter/status'],
       averageResponseTime: 150,
       errorRate: 0.02,
       usagePatterns: {
@@ -469,7 +468,7 @@ class HeadyContinuousLearner {
       confidence: 0.85
     };
     
-    return insights;
+    return headyInsights;
   }
 
   async applyInsights(insights) {
@@ -526,7 +525,7 @@ class HeadyContinuousLearner {
     
     for (const [error, data] of Object.entries(errorPatterns.frequency)) {
       if (data > 0.1) {
-        strategies[error] = {
+        headyStrategies[error] = {
           prevention: `Implement retry mechanism for ${error}`,
           monitoring: `Add alerts for ${error}`,
           priority: errorPatterns.severity[error]
@@ -534,7 +533,7 @@ class HeadyContinuousLearner {
       }
     }
     
-    return strategies;
+    return headyStrategies;
   }
 
   queueTask(task) {
@@ -559,7 +558,7 @@ class HeadyContinuousLearner {
       this.knowledgeBase.clear();
       
       // Keep only the most recent 100 entries
-      entries.slice(-100).forEach(([key, value]) => {
+      headyEntries.slice(-100).forEach(([key, value]) => {
         this.knowledgeBase.set(key, value);
       });
     }
@@ -583,7 +582,7 @@ class HeadyContinuousLearner {
     
     // Save knowledge base
     const headyKnowledgeData = JSON.stringify(Object.fromEntries(this.knowledgeBase));
-    await fs.writeFile('knowledge_base.json', knowledgeData);
+    await headyFs.writeFile('knowledge_base.json', headyKnowledgeData);
     
     console.log('✅ Continuous Learner shutdown complete');
   }

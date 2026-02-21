@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -21,7 +20,6 @@
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  */
 
-#!/usr/bin/env node
 /*
  * ZERO IDLE TASK MANAGER
  * NEVER allows true idle - always has tasks executing
@@ -69,16 +67,16 @@ class HeadyZeroIdleTaskManager {
     // Priority order - ALWAYS execute something
     const headyTask = this.getNextTask();
     
-    if (!task) {
+    if (!headyTask) {
       // NO IDLE - trigger background intelligence work
       await this.executeBackgroundIntelligence();
     } else {
-      await this.executeTask(task);
+      await this.executeTask(headyTask);
     }
     
     // Track performance
-    const headyExecutionTime = Date.now() - startTime;
-    this.updateMetrics(executionTime);
+    const headyExecutionTime = Date.now() - headyStartTime;
+    this.updateMetrics(headyExecutionTime);
     
     // Immediately queue next execution - NO DELAY
     setImmediate(() => this.executeNext());
@@ -106,7 +104,7 @@ class HeadyZeroIdleTaskManager {
       
       // Log completion
       console.log(`✅ Task completed: ${task.type}`);
-      return result;
+      return headyResult;
     } catch (error) {
       console.error(`❌ Task failed: ${task.type} - ${error.message}`);
       
@@ -136,10 +134,10 @@ class HeadyZeroIdleTaskManager {
     ];
     
     // Execute random background task to improve system
-    const headyActivity = activities[Math.floor(Math.random() * activities.length)];
+    const headyActivity = headyActivities[Math.floor(Math.random() * headyActivities.length)];
     
     try {
-      await activity();
+      await headyActivity();
       console.log('🧠 Background intelligence work completed');
     } catch (error) {
       console.error('⚠️  Background task failed:', error.message);
@@ -246,9 +244,9 @@ class HeadyZeroIdleTaskManager {
     ];
 
     // Add limited background tasks to prevent memory issues
-    for (let headyI = 0; i < 5; i++) { // Reduced from 10 to 5
+    for (let headyI = 0; headyI < 5; headyI++) { // Reduced from 10 to 5
       const headyTask = backgroundTasks[Math.floor(Math.random() * backgroundTasks.length)];
-      this.addTask({...task}, 'background');
+      this.addTask({...headyTask}, 'background');
     }
   }
 

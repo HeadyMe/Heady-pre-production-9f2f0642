@@ -52,7 +52,7 @@ const.com_PATTERNS = [
   '://headysystems.com',
   '://headysystems.com',
   '://headysystems.com',
-  'headysystems.com.com',
+  'localhost',
   'headysystems.com',
   'headysystems',
   'headysystems'
@@ -64,7 +64,7 @@ const PRODUCTION_REPLACEMENTS = {
   'headysystems.com': 'headysystems.com',
   'headysystems.com': 'headysystems.com',
   '.com': '.com',
-  'headysystems.com.com': 'headysystems.com',
+  'localhost': 'headysystems.com',
   'headysystems.com': 'headysystems.com',
   'headysystems': 'headysystems',
   'headysystems': 'headysystems'

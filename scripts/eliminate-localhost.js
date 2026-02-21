@@ -1,32 +1,11 @@
 #!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
-// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
-// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
-// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
-// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
-// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
-// ║                                                                  ║
-// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
-// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: eliminate-localhost.js                                   ║
-// ║  UPDATED: 20260218-211102                                            ║
-// ╚══════════════════════════════════════════════════════════════════╝
-
-/*
- * ✅ SCANNED: 20260218-211102
- * 🔍 INSPECTED: All content reviewed
- * 🏷️  BRANDED: Heady Systems branding applied
- * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
- */
-
-#!/usr/bin/env node
 
 /**
  * 🌐 headysystems.com ELIMINATION - PRODUCTION DOMAIN MIGRATION
  * 
- * This script removes all headysystems.com.com references and replaces with production domains
+ * This script removes all localhost references and replaces with production domains
  * following the heady.systems domain architecture.
  */
 
@@ -34,36 +13,34 @@ const fs = require('fs').promises;
 const path = require('path');
 const glob = require('glob');
 
-console.log('🌐 headysystems.com ELIMINATION - PRODUCTION MIGRATION');
-console.log('============================================\n');
+console.log('🌐 LOCALHOST ELIMINATION - PRODUCTION DOMAIN MIGRATION');
+console.log('===============================================\n');
 
 const DOMAIN_MAPPINGS = {
-  // API mappings
-  'http://headysystems.com.com:3300': 'http://headysystems.com.com:3300',
-  'http://headysystems.com.com:3300': 'http://headysystems.com.com:3300',
-  'ws://headysystems.com.com:3300': 'ws://headysystems.com.com:3300',
-  'api.headysystems.com.com': 'api.headysystems.com.com',
+  // API mappings - app.headysystems.com to production domains
+  'http://api.headysystems.com:3300': 'http://api.headysystems.com:3300',
+  'https://api.headysystems.com:3300': 'https://api.headysystems.com:3300',
+  'wss://api.headysystems.com:3300': 'wss://api.headysystems.com:3300',
+  'api.headysystems.com:3300': 'api.headysystems.com:3300',
   
-  // Web mappings
-  'http://headysystems.com.com:3000': 'http://headysystems.com.com:3000',
-  'http://headysystems.com.com:3000': 'http://headysystems.com.com:3000',
-  'app.headysystems.com.com': 'app.headysystems.com.com',
+  // Web mappings - app.headysystems.com to production domains
+  'http://app.headysystems.com:3000': 'http://app.headysystems.com:3000',
+  'https://app.headysystems.com:3000': 'https://app.headysystems.com:3000',
+  'app.headysystems.com:3000': 'app.headysystems.com:3000',
   
-  // Database mappings
-  '192.168.1.100:5432': '192.168.1.100:5432',
-  '192.168.1.100:5432': '192.168.1.100:5432',
-  '192.168.1.100:6379': '192.168.1.100:6379',
-  '192.168.1.100:6379': '192.168.1.100:6379',
+  // Database mappings - app.headysystems.com to internal domains
+  'db.headysystems.com:5432': 'db.headysystems.com:5432',
+  'cache.headysystems.com:6379': 'cache.headysystems.com:6379',
   
-  // Generic headysystems.com.com cleanup
-  'https://headysystems.com.com': 'https://headysystems.com.com',
-  'https://headysystems.com.com': 'https://headysystems.com.com',
-  'headysystems.com.com': 'headysystems.com.com'
+  // Generic app.headysystems.com cleanup
+  'http://app.headysystems.com': 'http://app.headysystems.com',
+  'https://app.headysystems.com': 'https://app.headysystems.com',
+  'app.headysystems.com': 'app.headysystems.com'
 };
 
-async function eliminateheadysystems.com() {
+async function eliminateLocalhost() {
   try {
-    console.log('🔍 Scanning for headysystems.com.com references...');
+    console.log('🔍 Scanning for app.headysystems.com references...');
     
     // Get all relevant files
     const filePatterns = [
@@ -82,7 +59,7 @@ async function eliminateheadysystems.com() {
     ];
     
     let totalFiles = 0;
-    let filesWithheadysystems.com = 0;
+    let filesWithLocalhost = 0;
     let totalReplacements = 0;
     
     for (const pattern of filePatterns) {
@@ -110,7 +87,7 @@ async function eliminateheadysystems.com() {
           if (fileReplacements > 0) {
             await fs.writeFile(file, modifiedContent);
             console.log(`  ✅ ${file}: ${fileReplacements} replacements`);
-            filesWithheadysystems.com++;
+            filesWithLocalhost++;
           }
           
         } catch (error) {
@@ -121,14 +98,14 @@ async function eliminateheadysystems.com() {
     
     console.log(`\n📊 MIGRATION SUMMARY:`);
     console.log(`  Files scanned: ${totalFiles}`);
-    console.log(`  Files modified: ${filesWithheadysystems.com}`);
+    console.log(`  Files modified: ${filesWithLocalhost}`);
     console.log(`  Total replacements: ${totalReplacements}`);
     
     // Create verification script
     const verificationScript = `#!/bin/bash
 # 🌐 headysystems.com VERIFICATION SCRIPT
-echo "🔍 Checking for remaining headysystems.com.com references..."
-if grep -r "headysystems.com.com" src/ --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx" 2>/dev/null; then
+echo "🔍 Checking for remaining localhost references..."
+if grep -r "localhost" src/ --include="*.js" --include="*.jsx" --include="*.ts" --include="*.tsx" 2>/dev/null; then
   echo "❌ headysystems.com STILL FOUND - MANUAL CLEANUP REQUIRED"
   exit 1
 else
@@ -146,12 +123,12 @@ fi
 echo "🎉 PRODUCTION DOMAIN MIGRATION COMPLETE"
 `;
     
-    await fs.writeFile('scripts/verify-no-headysystems.com.com.sh', verificationScript);
-    await fs.chmod('scripts/verify-no-headysystems.com.com.sh', '755');
+    await fs.writeFile('scripts/verify-no-localhost.sh', verificationScript);
+    await fs.chmod('scripts/verify-no-localhost.sh', '755');
     
-    console.log(`\n✅ Created verification script: scripts/verify-no-headysystems.com.com.sh`);
+    console.log(`\n✅ Created verification script: scripts/verify-no-localhost.sh`);
     console.log(`\n🚀 headysystems.com ELIMINATION COMPLETE`);
-    console.log(`📝 Next: Run ./scripts/verify-no-headysystems.com.com.sh to verify`);
+    console.log(`📝 Next: Run ./scripts/verify-no-localhost.sh to verify`);
     
     return totalReplacements > 0;
     
@@ -167,7 +144,7 @@ function escapeRegExp(string) {
 }
 
 // Execute the migration
-eliminateheadysystems.com().then(success => {
+eliminateLocalhost().then(success => {
   if (success) {
     console.log('\n🌐 READY FOR PRODUCTION DEPLOYMENT');
   } else {

@@ -22,21 +22,21 @@
 
 /**
  * ═══════════════════════════════════════════════════════════════
- * 🎯 DUAL ENGINE EXECUTOR - 100% Socratic + 100% Monte Carlo
+ * 🎯 DUAL ENGINE EXECUTOR - 100% HeadyBattle + 100% HeadySims
  * ═══════════════════════════════════════════════════════════════
  * Every single action passes through both engines
  * Never executes without exploration + questioning
  */
 
 const SOCRATESNode = require('../nodes/socrates');
-const MonteCarloEngine = require('./monte-carlo-engine');
+const HeadySimsEngine = require('./monte-carlo-engine');
 const ExecutionMemory = require('./execution-memory');
 
 class DualEngineExecutor {
   constructor() {
     this.name = 'DUAL_ENGINE';
-    this.monteCarloEngine = new MonteCarloEngine();
-    this.socraticEngine = new SOCRATESNode();
+    this.monteCarloEngine = new HeadySimsEngine();
+    this.HeadyBattleEngine = new SOCRATESNode();
     this.executionHistory = new ExecutionMemory();
     this.confidenceThreshold = 0.85;
   }
@@ -51,22 +51,22 @@ class DualEngineExecutor {
     console.log(`\n🎯 DUAL ENGINE EXECUTION: ${action.type}`);
     console.log('═══════════════════════════════════════════════════');
     
-    // STAGE 1: SOCRATIC QUESTIONING (Challenge the intent)
-    const socraticAnalysis = await this.socraticPhase(action, context);
+    // STAGE 1: HEADYBATTLE QUESTIONING (Challenge the intent)
+    const HeadyBattleAnalysis = await this.HeadyBattlePhase(action, context);
     
-    // If Socratic engine needs clarification, halt and ask user
-    if (socraticAnalysis.needsClarification) {
+    // If HeadyBattle engine needs clarification, halt and ask user
+    if (HeadyBattleAnalysis.needsClarification) {
       return {
         status: 'CLARIFICATION_NEEDED',
-        questions: socraticAnalysis.questions,
-        suggestedAnswers: socraticAnalysis.suggestedAnswers,
-        reasoning: socraticAnalysis.reasoning,
+        questions: HeadyBattleAnalysis.questions,
+        suggestedAnswers: HeadyBattleAnalysis.suggestedAnswers,
+        reasoning: HeadyBattleAnalysis.reasoning,
       };
     }
     
     // STAGE 2: MONTE CARLO EXPLORATION (Find optimal strategy)
     const monteCarloStrategy = await this.monteCarloPhase(
-      socraticAnalysis.validatedAction,
+      HeadyBattleAnalysis.validatedAction,
       context
     );
     
@@ -81,10 +81,10 @@ class DualEngineExecutor {
       };
     }
     
-    // STAGE 3: FINAL SOCRATIC VALIDATION (Confirm optimal strategy)
-    const finalValidation = await this.socraticValidation(
+    // STAGE 3: FINAL HEADYBATTLE VALIDATION (Confirm optimal strategy)
+    const finalValidation = await this.HeadyBattleValidation(
       monteCarloStrategy.bestStrategy,
-      socraticAnalysis
+      HeadyBattleAnalysis
     );
     
     if (!finalValidation.approved) {
@@ -104,7 +104,7 @@ class DualEngineExecutor {
     // STAGE 5: LEARN (Feed back to both engines)
     await this.learningPhase(
       action,
-      socraticAnalysis,
+      HeadyBattleAnalysis,
       monteCarloStrategy,
       executionResult
     );
@@ -113,7 +113,7 @@ class DualEngineExecutor {
       status: 'SUCCESS',
       result: executionResult,
       metadata: {
-        socraticScore: socraticAnalysis.validityScore,
+        HeadyBattleScore: HeadyBattleAnalysis.validityScore,
         monteCarloConfidence: monteCarloStrategy.confidence,
         strategyExplored: monteCarloStrategy.strategies.length,
         executionTime: executionResult.duration,
@@ -123,17 +123,17 @@ class DualEngineExecutor {
   }
 
   /**
-   * SOCRATIC PHASE: Question everything about this action
+   * HEADYBATTLE PHASE: Question everything about this action
    */
-  async socraticPhase(action, context) {
-    console.log('🤔 SOCRATIC PHASE: Questioning intent and assumptions...');
+  async HeadyBattlePhase(action, context) {
+    console.log('🤔 HEADYBATTLE PHASE: Questioning intent and assumptions...');
     
-    const analysis = await this.socraticEngine.processRequest(
+    const analysis = await this.HeadyBattleEngine.processRequest(
       this.actionToQuery(action),
       context
     );
 
-    // Generate Socratic questions
+    // Generate HeadyBattle questions
     const questions = [];
     
     // Question 1: Is the goal clear?
@@ -214,7 +214,7 @@ class DualEngineExecutor {
     
     console.log(`   Generated ${strategies.length} candidate strategies`);
     
-    // Simulate each strategy using Monte Carlo
+    // Simulate each strategy using HeadySims
     const simulations = [];
     
     for (const strategy of strategies) {
@@ -263,31 +263,31 @@ class DualEngineExecutor {
   }
 
   /**
-   * FINAL SOCRATIC VALIDATION: One last check before execution
+   * FINAL HEADYBATTLE VALIDATION: One last check before execution
    */
-  async socraticValidation(strategy, socraticAnalysis) {
-    console.log('✓ FINAL VALIDATION: Socratic review of chosen strategy...');
+  async HeadyBattleValidation(strategy, HeadyBattleAnalysis) {
+    console.log('✓ FINAL VALIDATION: HeadyBattle review of chosen strategy...');
     
     const validationPrompt = `
-I've chosen this strategy through Monte Carlo exploration:
+I've chosen this strategy through HeadySims exploration:
 
 Strategy: ${strategy.name}
 Expected outcome: ${strategy.description}
 Confidence: ${strategy.confidence}
 
 Original intent analysis:
-${JSON.stringify(socraticAnalysis.reasoning, null, 2)}
+${JSON.stringify(HeadyBattleAnalysis.reasoning, null, 2)}
 
 Final validation questions:
 1. Does this strategy truly address the original intent?
-2. Are all critical questions from Socratic phase resolved?
+2. Are all critical questions from HeadyBattle phase resolved?
 3. Are the risks acceptable?
 4. Is there any reason NOT to proceed?
 
 Answer with: approved (true/false), concerns (list), alternatives (if not approved)
 `;
 
-    const validation = await this.socraticEngine.callPYTHIA(validationPrompt, {
+    const validation = await this.HeadyBattleEngine.callPYTHIA(validationPrompt, {
       temperature: 0.2, // Low temperature for validation
     });
 
@@ -346,27 +346,27 @@ Answer with: approved (true/false), concerns (list), alternatives (if not approv
   /**
    * LEARNING PHASE: Feed results back to improve future decisions
    */
-  async learningPhase(originalAction, socraticAnalysis, monteCarloStrategy, executionResult) {
+  async learningPhase(originalAction, HeadyBattleAnalysis, monteCarloStrategy, executionResult) {
     console.log('🧠 LEARNING PHASE: Recording insights...');
     
-    // Update Monte Carlo engine with actual outcome
+    // Update HeadySims engine with actual outcome
     await this.monteCarloEngine.updateStrategy({
       strategy: monteCarloStrategy.bestStrategy,
       actualReward: executionResult.success ? 1.0 : 0.0,
       actualTime: executionResult.duration,
     });
     
-    // Update Socratic engine with validation accuracy
-    await this.socraticEngine.updateValidation({
-      analysis: socraticAnalysis,
+    // Update HeadyBattle engine with validation accuracy
+    await this.HeadyBattleEngine.updateValidation({
+      analysis: HeadyBattleAnalysis,
       actualOutcome: executionResult,
-      correctnessScore: this.calculateCorrectnessScore(socraticAnalysis, executionResult),
+      correctnessScore: this.calculateCorrectnessScore(HeadyBattleAnalysis, executionResult),
     });
     
     // Store execution in memory
     await this.executionHistory.record({
       action: originalAction,
-      socraticAnalysis: socraticAnalysis,
+      HeadyBattleAnalysis: HeadyBattleAnalysis,
       monteCarloStrategy: monteCarloStrategy,
       result: executionResult,
       timestamp: new Date().toISOString(),

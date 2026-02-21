@@ -25,7 +25,7 @@
  * 🔗 ALL-NODE ORCHESTRATOR - Complete AI Collaboration
  * ═══════════════════════════════════════════════════════════════
  * Coordinates all 20+ AI nodes for comprehensive processing
- * Socratic questioning → Multi-LLM consensus → All-node execution
+ * HeadyBattle questioning → Multi-LLM consensus → All-node execution
  */
 
 class AllNodeOrchestrator {
@@ -63,7 +63,7 @@ class AllNodeOrchestrator {
     const nodeModules = [
       // Core orchestration nodes
       { name: 'SOCRATES', path: '../nodes/socrates' },
-      { name: 'CONDUCTOR', path: '../nodes/conductor' },
+      { name: 'CONDUCTOR', path: '../nodes/promoter' },
       { name: 'PYTHIA', path: '../nodes/pythia' },
       
       // Specialized AI nodes
@@ -108,23 +108,23 @@ class AllNodeOrchestrator {
     
     try {
       // Phase 1: SOCRATES questions the request
-      const socraticAnalysis = await this.executeNode('SOCRATES', 'processRequest', [
+      const HeadyBattleAnalysis = await this.executeNode('SOCRATES', 'processRequest', [
         userRequest, 
         options.context || {}
       ]);
 
       // If clarification needed, return questions to user
-      if (socraticAnalysis.type === 'clarification_needed') {
+      if (HeadyBattleAnalysis.type === 'clarification_needed') {
         return {
           stage: 'clarification',
-          socraticAnalysis: socraticAnalysis,
+          HeadyBattleAnalysis: HeadyBattleAnalysis,
           nextAction: 'awaiting_user_response',
         };
       }
 
       // Phase 2: CONDUCTOR routes to multi-LLM consensus
       const llmConsensus = await this.executeNode('CONDUCTOR', 'orchestrate', [
-        socraticAnalysis.intent.intent || userRequest,
+        HeadyBattleAnalysis.intent.intent || userRequest,
         {
           strategy: options.llmStrategy || 'consensus',
           providers: options.providers || ['auto'],
@@ -135,7 +135,7 @@ class AllNodeOrchestrator {
 
       // Phase 3: Invoke all relevant nodes in parallel
       const nodeInvocations = await this.invokeRelevantNodes(
-        socraticAnalysis.intent,
+        HeadyBattleAnalysis.intent,
         llmConsensus,
         options
       );
@@ -143,7 +143,7 @@ class AllNodeOrchestrator {
       // Phase 4: OBSERVER monitors execution
       await this.executeNode('OBSERVER', 'logExecution', [{
         request: userRequest,
-        socraticAnalysis: socraticAnalysis,
+        HeadyBattleAnalysis: HeadyBattleAnalysis,
         llmConsensus: llmConsensus,
         nodeResults: nodeInvocations,
         timestamp: new Date().toISOString(),
@@ -161,7 +161,7 @@ class AllNodeOrchestrator {
       // Phase 6: Synthesize final response
       const synthesis = await this.synthesizeResults({
         originalRequest: userRequest,
-        socraticAnalysis: socraticAnalysis,
+        HeadyBattleAnalysis: HeadyBattleAnalysis,
         llmConsensus: llmConsensus,
         nodeResults: nodeInvocations,
       });
@@ -172,7 +172,7 @@ class AllNodeOrchestrator {
       return {
         stage: 'complete',
         original_request: userRequest,
-        socratic_analysis: socraticAnalysis,
+        HeadyBattle_analysis: HeadyBattleAnalysis,
         llm_consensus: llmConsensus,
         node_results: nodeInvocations,
         synthesis: synthesis,
@@ -435,7 +435,7 @@ You are synthesizing results from a comprehensive AI analysis across multiple sp
 
 Original Request: "${components.originalRequest}"
 
-Socratic Analysis: ${JSON.stringify(components.socraticAnalysis, null, 2)}
+HeadyBattle Analysis: ${JSON.stringify(components.HeadyBattleAnalysis, null, 2)}
 
 LLM Consensus: ${JSON.stringify(components.llmConsensus, null, 2)}
 
@@ -443,7 +443,7 @@ Node Results: ${components.nodeResults.summary}
 
 Create a comprehensive synthesis that:
 1. Addresses the original request directly
-2. Incorporates insights from Socratic questioning
+2. Incorporates insights from HeadyBattle questioning
 3. Integrates the multi-LLM consensus
 4. Summarizes key contributions from each specialized node
 5. Provides actionable next steps

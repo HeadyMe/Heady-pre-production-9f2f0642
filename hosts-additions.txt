@@ -1,0 +1,11 @@
+# Heady Local Development Domains - Required for INFRASTRUCTURE_SETUP.md
+127.0.0.1 manager.heady.local
+127.0.0.1 dashboard.heady.local
+127.0.0.1 api.heady.local
+127.0.0.1 app.heady.local
+
+# Heady Internal Development Domains - Required for HCFP_INTEGRATION_GUIDE.md  
+127.0.0.1 manager.dev.local.heady.internal
+127.0.0.1 app-web.dev.local.heady.internal
+127.0.0.1 db-postgres.dev.local.heady.internal
+127.0.0.1 db-redis.dev.local.heady.internal

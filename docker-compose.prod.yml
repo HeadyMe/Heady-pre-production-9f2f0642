@@ -22,11 +22,18 @@ services:
     environment:
       - NODE_ENV=production
       - DOMAIN=manager.headysystems.com
-      - PORT=3300
+      - PORT=3310
+      - HEADY_MANAGER_URL=http://heady-manager:3310
     ports:
-      - "3300:3300"
+      - "3310:3310"
     networks:
       - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3310/api/health/basic"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     command: node heady-manager.js
 
   heady-web:
@@ -38,10 +45,17 @@ services:
       - DOMAIN=headysystems.com
       - PORT=3000
       - MANAGER_DOMAIN=https://manager.headysystems.com
+      - HEADY_MANAGER_URL=http://heady-manager:3310
     ports:
       - "3000:3000"
     networks:
       - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     command: npm start
 
 networks:

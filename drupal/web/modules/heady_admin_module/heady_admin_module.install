@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Heady Admin module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function heady_admin_module_schema() {
+  $schema['heady_domains'] = [
+    'description' => 'Stores Heady Systems domain information.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique domain ID.',
+      ],
+      'domain_name' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Domain name.',
+      ],
+      'display_name' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Display name for the domain.',
+      ],
+      'description' => [
+        'type' => 'text',
+        'description' => 'Domain description.',
+      ],
+      'status' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+        'description' => 'Domain status (1=active, 0=inactive).',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Timestamp when the domain was created.',
+      ],
+      'updated' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Timestamp when the domain was last updated.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'domain_name' => ['domain_name'],
+      'status' => ['status'],
+    ],
+  ];
+
+  $schema['heady_tasks'] = [
+    'description' => 'Stores HeadyBuddy task information.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique task ID.',
+      ],
+      'title' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'Task title.',
+      ],
+      'description' => [
+        'type' => 'text',
+        'description' => 'Task description.',
+      ],
+      'completed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Task completion status (1=completed, 0=pending).',
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Timestamp when the task was created.',
+      ],
+      'updated' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Timestamp when the task was last updated.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'completed' => ['completed'],
+      'created' => ['created'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function heady_admin_module_install() {
+  // Create default entries
+  \Drupal::database()->insert('heady_domains')
+    ->fields([
+      'domain_name' => 'headysystems.com',
+      'display_name' => 'Heady Systems Main',
+      'description' => 'Main Heady Systems corporate website',
+      'status' => 1,
+      'created' => time(),
+      'updated' => time(),
+    ])
+    ->execute();
+
+  \Drupal::database()->insert('heady_domains')
+    ->fields([
+      'domain_name' => 'headyme.com',
+      'display_name' => 'HeadyMe Personal',
+      'description' => 'Personal portfolio and services website',
+      'status' => 1,
+      'created' => time(),
+      'updated' => time(),
+    ])
+    ->execute();
+}

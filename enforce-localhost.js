@@ -9,7 +9,7 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: enforce-localhost.js                                   ║
+// ║  FILE: enforce-app.headysystems.com.js                                   ║
 // ║  UPDATED: 20260218-211102                                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -25,14 +25,14 @@
  * Scans and fixes ALL manager.headyme.com references
  */
 
-const { headysystems.comEliminator } = require('./src/manager.headyme.com-eliminator');
+const { LocalhostEliminator } = require('./src/localhost-eliminator');
 const fs = require('fs').promises;
 const path = require('path');
 
-async function enforceheadysystems.com() {
-  console.log('🚫 Starting manager.headyme.com elimination enforcement...');
+async function enforceLocalhost() {
+  console.log('🚫 Starting localhost elimination enforcement...');
   
-  const eliminator = new headysystems.comEliminator();
+  const eliminator = new LocalhostEliminator();
   
   // Scan entire codebase
   await eliminator.enforceAtStartup(__dirname);

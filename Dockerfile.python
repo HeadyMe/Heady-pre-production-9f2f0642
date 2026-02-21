@@ -9,8 +9,13 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements.txt .
+# Create requirements file with pinned versions
+RUN echo "fastapi==0.104.1" > requirements.txt && \
+    echo "uvicorn==0.24.0" >> requirements.txt && \
+    echo "redis==5.0.1" >> requirements.txt && \
+    echo "pydantic==2.5.0" >> requirements.txt && \
+    echo "httpx==0.25.2" >> requirements.txt && \
+    echo "python-multipart==0.0.6" >> requirements.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -21,22 +26,15 @@ COPY HeadyAcademy/ ./academy/
 # Create logs directory
 RUN mkdir -p logs
 
-# Create requirements file if it doesn't exist
-RUN echo "fastapi==0.104.1" > requirements.txt && \
-    echo "uvicorn==0.24.0" >> requirements.txt && \
-    echo "redis==5.0.1" >> requirements.txt && \
-    echo "pydantic==2.5.0" >> requirements.txt && \
-    echo "asyncio" >> requirements.txt && \
-    echo "json" >> requirements.txt && \
-    echo "uuid" >> requirements.txt && \
-    echo "datetime" >> requirements.txt
+# Set environment
+ENV HEADY_MANAGER_URL=http://heady-manager:3310
 
 # Expose port
 EXPOSE 5000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f https://manager.headyme.com:5000/health || exit 1
+  CMD curl -f http://localhost:5000/health || exit 1
 
 # Start the worker
 CMD ["python", "-m", "uvicorn", "academy.main:app", "--host", "0.0.0.0", "--port", "5000"]

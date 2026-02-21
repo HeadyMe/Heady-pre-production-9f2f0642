@@ -30,7 +30,7 @@ This comprehensive guide transforms Heady into a self-optimizing, async orchestr
 ### **Zero headysystems.com Rule - CRITICAL**
 ```
 ❌ FORBIDDEN: headysystems.com, headysystems.com, headysystems.com, .onrender.com, internal paths
-✅ REQUIRED: Custom domains only - headyme.com, conductor.headysystems.com
+✅ REQUIRED: Custom domains only - headyme.com, promoter.headysystems.com
 ```
 
 ### **90/100 Resource Allocation Model**
@@ -56,9 +56,9 @@ tunnel: heady-main-tunnel
 credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
-  # HeadyConductor - Orchestration Engine
-  - hostname: conductor.headysystems.com
-    service: http://heady-conductor:8000
+  # Headypromoter - Orchestration Engine
+  - hostname: promoter.headysystems.com
+    service: http://heady-promoter:8000
     originRequest:
       connectTimeout: 30s
       noTLSVerify: true
@@ -143,7 +143,7 @@ services:
     networks:
       - heady-network
     depends_on:
-      - heady-conductor
+      - heady-promoter
       - heady-soul
       - heady-mcp
       - heady-web
@@ -151,10 +151,10 @@ services:
       - heady-lens
       - heady-vinci
 
-  # HeadyConductor - Central Orchestrator
-  heady-conductor:
-    image: headysystems/conductor:latest
-    container_name: heady-conductor
+  # Headypromoter - Central Orchestrator
+  heady-promoter:
+    image: headysystems/promoter:latest
+    container_name: heady-promoter
     restart: unless-stopped
     environment:
       - RESOURCE_MODE=baseline  # 90% by default
@@ -164,7 +164,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - conductor-data:/app/data
+      - promoter-data:/app/data
     networks:
       - heady-network
     deploy:
@@ -231,7 +231,7 @@ services:
     container_name: heady-web
     restart: unless-stopped
     environment:
-      - API_ENDPOINT=http://heady-conductor:8000
+      - API_ENDPOINT=http://heady-promoter:8000
       - WEBSOCKET_ENABLED=true
     ports:
       - "3000:3000"
@@ -252,7 +252,7 @@ services:
     container_name: heady-buddy
     restart: unless-stopped
     environment:
-      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - CONDUCTOR_ENDPOINT=http://heady-promoter:8000
       - SOUL_ENDPOINT=http://heady-soul:8001
     ports:
       - "8003:8003"
@@ -349,7 +349,7 @@ networks:
         - subnet: 172.20.0.0/16
 
 volumes:
-  conductor-data:
+  promoter-data:
   soul-data:
   soul-cache:
   vinci-patterns:
@@ -461,9 +461,9 @@ class SemanticResourceAllocator {
 
 ## 🎭 MULTI-AGENT COORDINATION FRAMEWORK
 
-### **HeadyConductor + HeadySoul Architecture**
+### **Headypromoter + HeadySoul Architecture**
 ```typescript
-interface HeadyConductor {
+interface Headypromoter {
   // Centralized orchestration using BPMN patterns
   orchestrateWorkflow(workflow: WorkflowDefinition): WorkflowExecution;
   
@@ -498,8 +498,8 @@ class MultiAgentCoordinator {
     // HeadySoul analyzes task and determines optimal agent composition
     const strategy = await this.headySoul.analyzeTask(task);
     
-    // HeadyConductor orchestrates agent coordination
-    const workflow = await this.headyConductor.createWorkflow(strategy);
+    // Headypromoter orchestrates agent coordination
+    const workflow = await this.headypromoter.createWorkflow(strategy);
     
     // Execute with dynamic resource allocation
     return await this.executeWorkflow(workflow);
@@ -897,7 +897,7 @@ class TelemetryCollector {
   async collectMetrics(): Promise<SystemMetrics> {
     // Collect from all Heady components
     const metrics = await Promise.all([
-      this.collectConductorMetrics(),
+      this.collectpromoterMetrics(),
       this.collectSoulMetrics(),
       this.collectMCPMetrics(),
       this.collectWebMetrics(),
@@ -909,7 +909,7 @@ class TelemetryCollector {
     return this.aggregateMetrics(metrics);
   }
   
-  private async collectConductorMetrics(): Promise<ConductorMetrics> {
+  private async collectpromoterMetrics(): Promise<promoterMetrics> {
     return {
       activeWorkflows: await this.getActiveWorkflows(),
       resourceUtilization: await this.getResourceUtilization(),
@@ -980,9 +980,9 @@ class PerformanceOptimizer {
 class ZeroTrustAccessManager {
   async configureAccessPolicies(): Promise<AccessPolicy[]> {
     return [
-      // conductor.headysystems.com - Admin only
+      // promoter.headysystems.com - Admin only
       {
-        hostname: 'conductor.headysystems.com',
+        hostname: 'promoter.headysystems.com',
         policy: {
           include: [
             { email: { domain: '@headysystems.com' } },
@@ -1048,8 +1048,8 @@ class HeadyRequestProcessor {
       await this.escalateToPeak('heady-buddy');
     }
     
-    // 9. HeadyBuddy calls HeadyConductor for orchestration
-    const workflow = await this.headyConductor.createWorkflow(request);
+    // 9. HeadyBuddy calls Headypromoter for orchestration
+    const workflow = await this.headypromoter.createWorkflow(request);
     
     // 10. Execute workflow with optimal resource allocation
     const result = await this.executeWorkflow(workflow);
@@ -1118,7 +1118,7 @@ cloudflared tunnel login
 cloudflared tunnel create heady-main-tunnel
 
 # 4. Configure DNS records
-cloudflared tunnel route dns heady-main-tunnel conductor.headysystems.com
+cloudflared tunnel route dns heady-main-tunnel promoter.headysystems.com
 cloudflared tunnel route dns heady-main-tunnel soul.headysystems.com
 cloudflared tunnel route dns heady-main-tunnel mcp.headysystems.com
 # ... add all other domains
@@ -1127,7 +1127,7 @@ cloudflared tunnel route dns heady-main-tunnel mcp.headysystems.com
 docker-compose -f docker-compose.com.yml up -d
 
 # 6. Verify deployment
-curl https://conductor.headysystems.com/health
+curl https://promoter.headysystems.com/health
 curl https://soul.headysystems.com/health
 curl https://buddy.headysystems.com/health
 

@@ -1,0 +1,424 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: hcfullpipeline-full-auto.yaml                           ║
+# ║  UPDATED: 20260219-154500                                            ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+# HCFullPipeline Full Auto Profile
+# Continuous, beneficial, self-improving work until significant reason to stop
+
+profiles:
+  full_auto:
+    description: >
+      Continuous HCFullPipeline execution with intelligent, remote-first
+      resource allocation and strict stop rules. Always learning, fixing,
+      improving until measurable reason to pause.
+    mode: continuous
+    loop_interval_seconds: 60          # run main loop every 60s
+    max_parallel_runs: 3
+    allow_background_tasks: true
+    require_cloud_first: true          # forbid localhost/.onrender in prod
+    determinism_seed: 42
+    config_hash_required: true
+    trace_all_decisions: true
+
+    # ORS Thresholds for intelligent behavior adaptation
+    ors_thresholds:
+      aggressive_build_min: 85         # ORS >= 85 → allow heavy optimization
+      normal_min: 70                   # ORS 70–84 → normal improvements
+      maintenance_min: 50              # ORS 50–69 → repair-only
+      recovery_min: 0                  # ORS < 50 → stop most tasks
+
+    # Stop Conditions - When to pause or throttle
+    stop_conditions:
+      - name: low_ors_recovery
+        when: "ors < 50"
+        action: "halt_non_critical"    # only health checks + recovery
+        cooldown_minutes: 30
+        
+      - name: repeated_critical_errors
+        when: "error.repeated_critical_count >= 3"
+        action: "pause_related_stages"
+        window_minutes: 10
+        cooldown_minutes: 15
+        
+      - name: policy_violation
+        when: "detected_banned_host == true"
+        action: "fail_run_and_raise_incident"
+        severity: "critical"
+        
+      - name: local_resource_stress
+        when: "system.cpu_percent > 85 or system.mem_percent > 85"
+        action: "reduce_local_concurrency"
+        threshold_duration_seconds: 30
+        
+      - name: cloud_quota_stress
+        when: "cloud.usage_percent > 90"
+        action: "reduce_remote_concurrency_and_queue"
+        providers: ["openai", "anthropic", "google"]
+        
+      - name: frontend_error_spike
+        when: "frontend.error_rate > 0.1"
+        action: "pause_ui_deployments"
+        window_minutes: 5
+
+    # Pipeline Stages with ORS-based parallelism
+    stages:
+      ingest:
+        enabled: true
+        parallelism: 4
+        timeout_seconds: 30
+        retry_attempts: 3
+        
+      plan:
+        enabled: true
+        parallelism: 4
+        timeout_seconds: 60
+        use_ai_router: true
+        heady_sims_enabled: true
+        
+      execute:
+        enabled: true
+        parallelism:
+          normal: 8
+          aggressive: 16
+          maintenance: 2
+          recovery: 1
+        timeout_seconds: 300
+        require_health_checks: true
+        
+      recover:
+        enabled: true
+        parallelism: 4
+        timeout_seconds: 120
+        auto_retry: true
+        max_retry_attempts: 5
+        
+      self_critique:
+        enabled: true
+        run_every_n_loops: 3
+        parallelism: 2
+        analyze_performance: true
+        suggest_improvements: true
+        
+      optimize:
+        enabled_if: "ors >= 70"
+        run_every_n_loops: 5
+        parallelism: 2
+        heady_sims_simulations: 10
+        apply_safe_changes: true
+        
+      finalize:
+        enabled: true
+        parallelism: 2
+        checkpoint_protocol: true
+        config_versioning: true
+        
+      monitor_feedback:
+        enabled: true
+        run_every_n_loops: 1
+        collect_metrics: true
+        update_ors: true
+        health_checks: true
+
+    # Background Tasks - Always-on beneficial work
+    background_tasks:
+      # Error and Reliability Jobs
+      error_clustering:
+        enabled: true
+        interval_minutes: 5
+        analyze_patterns: true
+        auto_create_tests: true
+        suggest_fixes: true
+        
+      reliability_monitoring:
+        enabled: true
+        interval_seconds: 30
+        check_endpoints: true
+        measure_performance: true
+        update_ors: true
+        
+      # Performance Jobs
+      performance_sampling:
+        enabled: true
+        interval_minutes: 2
+        sample_endpoints: true
+        measure_latency: true
+        optimize_concurrency: true
+        
+      cache_optimization:
+        enabled_if: "ors >= 70"
+        interval_minutes: 15
+        analyze_hit_rates: true
+        adjust_ttl: true
+        purge_stale: true
+        
+      # Resource Routing Jobs
+      ai_router_tuning:
+        enabled: true
+        interval_minutes: 10
+        analyze_provider_performance: true
+        adjust_routing: true
+        balance_costs: true
+        
+      load_balancing:
+        enabled: true
+        interval_seconds: 60
+        monitor_node_load: true
+        redistribute_tasks: true
+        prevent_overload: true
+        
+      # Architecture & Code Quality Jobs
+      code_analysis:
+        enabled: true
+        interval_hours: 1
+        static_analysis: true
+        complexity_detection: true
+        suggest_refactors: true
+        
+      security_scanning:
+        enabled: true
+        interval_hours: 2
+        vulnerability_scan: true
+        policy_compliance: true
+        secret_detection: true
+        
+      # Knowledge & Documentation Jobs
+      checkpoint_protocol:
+        enabled: true
+        interval_hours: 4
+        verify_configs: true
+        detect_drift: true
+        sync_documentation: true
+        
+      knowledge_sync:
+        enabled: true
+        interval_hours: 6
+        update_registries: true
+        sync_knowledge_base: true
+        validate_integrations: true
+
+    # AI Router Integration
+    ai_router:
+      enabled: true
+      config_path: "configs/ai-routing.yaml"
+      enforce_usage: true
+      log_decisions: true
+      deterministic_routing: true
+      
+      # Task Categories for Routing
+      task_categories:
+        health_checks:
+          kind: "general_chat"
+          latency_sensitivity: "high"
+          importance: "background"
+          
+        error_analysis:
+          kind: "error_analysis"
+          latency_sensitivity: "high"
+          importance: "background"
+          
+        performance_optimization:
+          kind: "system_optimization"
+          latency_sensitivity: "medium"
+          importance: "background"
+          
+        code_generation:
+          kind: "code_generation"
+          latency_sensitivity: "medium"
+          importance: "user_facing"
+          
+        architecture_planning:
+          kind: "deep_reasoning"
+          latency_sensitivity: "low"
+          importance: "user_facing"
+
+    # Health Check Configuration
+    health_checks:
+      # Critical endpoints that must work
+      critical_endpoints:
+        - url: "https://headyme.com/health"
+          name: "headyme_public"
+          expected_status: 200
+          timeout_seconds: 10
+          content_check: "ok"
+          
+        - url: "https://api.headyme.com/health"
+          name: "headyme_api"
+          expected_status: 200
+          timeout_seconds: 5
+          content_check: "healthy"
+          
+        - url: "https://admin.headyme.com/health"
+          name: "headyme_admin"
+          expected_status: 200
+          timeout_seconds: 10
+          content_check: "admin_ok"
+          
+        - url: "https://app.headysystems.com/health"
+          name: "headysystems_app"
+          expected_status: 200
+          timeout_seconds: 10
+          content_check: "systems_ok"
+          
+        - url: "https://api.headysystems.com/health"
+          name: "headysystems_api"
+          expected_status: 200
+          timeout_seconds: 5
+          content_check: "api_healthy"
+          
+        - url: "https://app.headyconnection.org/health"
+          name: "headyconnection_app"
+          expected_status: 200
+          timeout_seconds: 10
+          content_check: "connection_ok"
+          
+        - url: "https://api.headyconnection.org/health"
+          name: "headyconnection_api"
+          expected_status: 200
+          timeout_seconds: 5
+          content_check: "connection_api_healthy"
+
+      # Health Check Behavior
+      check_interval_seconds: 30
+      failure_threshold: 3
+      recovery_threshold: 2
+      alert_on_failure: true
+      block_deploy_on_failure: true
+      
+      # Synthetic Tests
+      synthetic_tests:
+        enabled: true
+        run_interval_hours: 1
+        test_critical_paths: true
+        simulate_user_actions: true
+        validate_functionality: true
+
+    # Frontend Error Collection
+    frontend_error_collection:
+      enabled: true
+      endpoint: "/api/frontend-errors"
+      collect_client_errors: true
+      collect_network_errors: true
+      collect_performance_metrics: true
+      
+      # Error Rate Thresholds
+      thresholds:
+        warning_rate: 0.05      # 5% error rate warning
+        critical_rate: 0.1      # 10% error rate critical
+        block_deploy_rate: 0.15  # 15% error rate blocks deploys
+        
+      # Aggregation Windows
+      aggregation_windows:
+        short: 300        # 5 minutes
+        medium: 1800      # 30 minutes
+        long: 3600        # 1 hour
+
+    # HeadySims Configuration
+    monte_carlo:
+      enabled: true
+      simulations_per_run: 100
+      confidence_threshold: 0.8
+      explore_safe_changes: true
+      apply_best_performers: true
+      
+      # Experiment Types
+      experiment_types:
+        concurrency_tuning:
+          enabled: true
+          min_concurrency: 1
+          max_concurrency: 32
+          step_size: 2
+          
+        cache_ttl_optimization:
+          enabled: true
+          min_ttl: 60
+          max_ttl: 3600
+          step_size: 300
+          
+        provider_switching:
+          enabled: true
+          allow_experimental: false
+          require_quality_threshold: 0.8
+
+    # Self-Awareness Configuration
+    self_awareness:
+      enabled: true
+      maintain_self_model: true
+      track_bottlenecks: true
+      learn_from_history: true
+      
+      # Self-Model Components
+      self_model:
+        active_services: true
+        endpoints: true
+        models: true
+        resources: true
+        ors_history: true
+        bottlenecks: true
+        experiments: true
+        
+      # Learning Loop
+      learning_loop:
+        analyze_performance: true
+        identify_bottlenecks: true
+        propose_experiments: true
+        validate_hypotheses: true
+        update_policies: true
+
+    # Determinism and Reproducibility
+    determinism:
+      seed_all_randomness: true
+      log_config_hashes: true
+      trace_all_decisions: true
+      version_all_configs: true
+      enable_rollback: true
+      
+      # Reproducibility
+      reproducible_runs: true
+      save_execution_trace: true
+      deterministic_ai_routing: true
+      consistent_seeding: true
+
+    # Policy Enforcement
+    policy_enforcement:
+      forbid_localhost: true
+      forbid_onrender: true
+      require_https: true
+      audit_all_actions: true
+      enforce_rate_limits: true
+      
+      # Violation Handling
+      violation_actions:
+        policy_breach: "fail_and_incident"
+        security_violation: "immediate_stop"
+        performance_violation: "throttle_and_alert"
+        cost_violation: "block_and_review"
+
+    # Cost Management
+    cost_management:
+      enabled: true
+      track_all_costs: true
+      budget_alerts: true
+      cost_optimization: true
+      
+      # Budget Thresholds
+      budgets:
+        daily_limit: 100.0
+        hourly_limit: 10.0
+        per_task_limit: 1.0
+        
+      # Optimization Strategies
+      optimization:
+        prefer_local_when_possible: true
+        batch_small_requests: true
+        cache_expensive_results: true
+        use_cheaper_providers_for_background: true

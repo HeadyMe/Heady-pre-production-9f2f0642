@@ -1,0 +1,53 @@
+{
+  "name": "@headysystems/hc-ai-router",
+  "version": "1.0.0",
+  "description": "Intelligent, self-aware AI routing for Heady Systems",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "ai",
+    "routing",
+    "resource-allocation",
+    "heady-systems",
+    "hcfp",
+    "deterministic",
+    "self-aware"
+  ],
+  "author": "Heady Systems",
+  "license": "MIT",
+  "dependencies": {
+    "yaml": "^2.3.4",
+    "winston": "^3.11.0",
+    "openai": "^4.20.1",
+    "@anthropic-ai/sdk": "^0.24.3",
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/jest": "^29.5.8",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/headysystems/hc-ai-router.git"
+  },
+  "bugs": {
+    "url": "https://github.com/headysystems/hc-ai-router/issues"
+  },
+  "homepage": "https://headysystems.com"
+}

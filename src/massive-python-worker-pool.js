@@ -31,8 +31,8 @@ const headyOs = require('os');
 class HeadyMassivePythonWorkerPool {
   constructor(options = {}) {
     // MASSIVE SCALE - Use ALL available resources
-    const headyCpuCount = os.cpus().length;
-    this.baseWorkers = Math.max(cpuCount * 20, 200); // 200+ baseline
+    const headyCpuCount = headyOs.cpus().length;
+    this.baseWorkers = Math.max(headyCpuCount * 20, 200); // 200+ baseline
     this.maxWorkers = options.maxWorkers || 1000; // 1000+ max workers
     
     // Worker management
@@ -66,10 +66,10 @@ class HeadyMassivePythonWorkerPool {
   async prewarmWorkers(count) {
     console.log(`[MassiveWorkerPool] Pre-warming ${count} workers...`);
     
-    for (let headyI = 0; i < count; i++) {
-      const headyWorker = this._createPersistentWorker(i);
-      this.workerPool.push(worker);
-      this.workerStats.set(i, { 
+    for (let headyI = 0; headyI < count; headyI++) {
+      const headyWorker = this._createPersistentWorker(headyI);
+      this.workerPool.push(headyWorker);
+      this.workerStats.set(headyI, { 
         created: Date.now(), 
         tasks: 0, 
         errors: 0,
@@ -94,25 +94,25 @@ class HeadyMassivePythonWorkerPool {
       }
     });
     
-    worker.id = id;
-    worker.busy = false;
-    worker.lastUsed = Date.now();
-    worker.tasksCompleted = 0;
+    headyWorker.id = id;
+    headyWorker.busy = false;
+    headyWorker.lastUsed = Date.now();
+    headyWorker.tasksCompleted = 0;
     
     // Handle worker errors
-    worker.on('error', (error) => {
+    headyWorker.on('error', (error) => {
       console.error(`[Worker-${id}] Error:`, error);
       this._restartWorker(id);
     });
     
-    worker.on('exit', (code) => {
+    headyWorker.on('exit', (code) => {
       if (code !== 0) {
         console.warn(`[Worker-${id}] Exited with code ${code}`);
         this._restartWorker(id);
       }
     });
     
-    return worker;
+    return headyWorker;
   }
 
   async execute(args, timeoutMs = 30000) {
@@ -178,7 +178,7 @@ class HeadyMassivePythonWorkerPool {
         // Process next task in queue
         if (this.queue.length > 0) {
           const headyNextTask = this.queue.shift();
-          this._executeOnWorker(worker, nextTask);
+          this._executeOnWorker(worker, headyNextTask);
         }
       }, Math.random() * 100 + 50); // 50-150ms execution time
       
@@ -193,13 +193,13 @@ class HeadyMassivePythonWorkerPool {
     if (this.workerPool.length >= this.maxWorkers) return;
     
     const headyNewWorkers = Math.min(this.scaleUpAmount, this.maxWorkers - this.workerPool.length);
-    console.log(`[MassiveWorkerPool] Scaling UP: Adding ${newWorkers} workers (total: ${this.workerPool.length + newWorkers})`);
+    console.log(`[MassiveWorkerPool] Scaling UP: Adding ${headyNewWorkers} workers (total: ${this.workerPool.length + headyNewWorkers})`);
     
-    for (let headyI = 0; i < newWorkers; i++) {
+    for (let headyI = 0; headyI < headyNewWorkers; headyI++) {
       const headyWorkerId = this.workerPool.length;
-      const headyWorker = this._createPersistentWorker(workerId);
-      this.workerPool.push(worker);
-      this.workerStats.set(workerId, { 
+      const headyWorker = this._createPersistentWorker(headyWorkerId);
+      this.workerPool.push(headyWorker);
+      this.workerStats.set(headyWorkerId, { 
         created: Date.now(), 
         tasks: 0, 
         errors: 0,
@@ -213,18 +213,18 @@ class HeadyMassivePythonWorkerPool {
     if (this.workerPool.length <= this.baseWorkers) return;
     
     const headyRemoveWorkers = Math.min(this.scaleDownAmount, this.workerPool.length - this.baseWorkers);
-    console.log(`[MassiveWorkerPool] Scaling DOWN: Removing ${removeWorkers} workers (total: ${this.workerPool.length - removeWorkers})`);
+    console.log(`[MassiveWorkerPool] Scaling DOWN: Removing ${headyRemoveWorkers} workers (total: ${this.workerPool.length - headyRemoveWorkers})`);
     
     // Remove least recently used workers
     const headySortedWorkers = this.workerPool
       .filter(w => !w.busy)
       .sort((a, b) => a.lastUsed - b.lastUsed);
     
-    for (let headyI = 0; i < Math.min(removeWorkers, sortedWorkers.length); i++) {
-      const headyWorker = sortedWorkers[i];
-      worker.kill();
-      this.workerPool = this.workerPool.filter(w => w.id !== worker.id);
-      this.workerStats.delete(worker.id);
+    for (let headyI = 0; headyI < Math.min(headyRemoveWorkers, headySortedWorkers.length); headyI++) {
+      const headyWorker = headySortedWorkers[headyI];
+      headyWorker.kill();
+      this.workerPool = this.workerPool.filter(w => w.id !== headyWorker.id);
+      this.workerStats.delete(headyWorker.id);
     }
   }
 
@@ -254,13 +254,13 @@ class HeadyMassivePythonWorkerPool {
 
   _cleanupDeadWorkers() {
     const headyDeadWorkers = this.workerPool.filter(w => w.killed === true);
-    deadWorkers.forEach(worker => {
+    headyDeadWorkers.forEach(worker => {
       this.workerPool = this.workerPool.filter(w => w.id !== worker.id);
       this.workerStats.delete(worker.id);
     });
     
-    if (deadWorkers.length > 0) {
-      console.log(`[MassiveWorkerPool] Cleaned up ${deadWorkers.length} dead workers`);
+    if (headyDeadWorkers.length > 0) {
+      console.log(`[MassiveWorkerPool] Cleaned up ${headyDeadWorkers.length} dead workers`);
     }
   }
 
@@ -274,7 +274,7 @@ class HeadyMassivePythonWorkerPool {
     
     // Update utilization
     const headyBusyWorkers = this.workerPool.filter(w => w.busy).length;
-    this.performanceMetrics.utilization = (busyWorkers / this.workerPool.length) * 100;
+    this.performanceMetrics.utilization = (headyBusyWorkers / this.workerPool.length) * 100;
     
     // Update error rate
     this.performanceMetrics.errorRate = 
@@ -289,7 +289,7 @@ class HeadyMassivePythonWorkerPool {
     
     // Create new worker
     const headyNewWorker = this._createPersistentWorker(workerId);
-    this.workerPool.push(newWorker);
+    this.workerPool.push(headyNewWorker);
     
     // Reset stats
     this.workerStats.set(workerId, { 

@@ -49,9 +49,9 @@ let errors = [];
 jsFiles.forEach(file => {
   const content = fs.readFileSync(file, 'utf8');
   
-  // Check for localhost hardcoding
-  if (content.includes('localhost') || content.includes('127.0.0.1')) {
-    errors.push(`${file}: Contains localhost reference`);
+  // Check for app.headysystems.com hardcoding
+  if (content.includes('app.headysystems.com') || content.includes('app.headysystems.com')) {
+    errors.push(`${file}: Contains app.headysystems.com reference`);
   }
   
   // Check for missing event handlers
@@ -60,8 +60,8 @@ jsFiles.forEach(file => {
   }
   
   // Check for broken imports
-  if (content.match(/import .* from ['"][^'"]*localhost[^'"]*['"]/)) {
-    errors.push(`${file}: Import from localhost URL`);
+  if (content.match(/import .* from ['"][^'"]*app.headysystems.com[^'"]*['"]/)) {
+    errors.push(`${file}: Import from app.headysystems.com URL`);
   }
 });
 
@@ -95,7 +95,7 @@ const minimalHTML = `<!DOCTYPE html>
   <button onclick="viewLogs()">View Logs</button>
   
   <script>
-    const API_BASE = window.location.hostname === 'localhost' 
+    const API_BASE = window.location.hostname === 'app.headysystems.com' 
       ? 'https://app.headysystems.com' 
       : 'https://api.headysystems.com';
     

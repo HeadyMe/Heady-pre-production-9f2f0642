@@ -120,7 +120,7 @@ class HCFPProductionDeployer {
       zero_headysystems.com: true,
       continuous_validation: true,
       monte_carlo: true,
-      socratic: true,
+      HeadyBattle: true,
       domains: this.productionDomains,
       deployment_target: "production",
       validation_level: "strict",

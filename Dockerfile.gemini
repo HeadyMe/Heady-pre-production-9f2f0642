@@ -1,0 +1,42 @@
+# HeadyGemini Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    python3
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+COPY configs/ ./configs/
+
+# Create Gemini directories
+RUN mkdir -p /app/data /app/models /app/multimodal /app/vision
+
+# Set environment
+ENV NODE_ENV=production
+ENV GEMINI_MODE=enhanced
+ENV MODEL=gemini-3.1-pro
+ENV MULTIMODAL=enabled
+ENV VISION_CAPABILITIES=enabled
+ENV CODE_GENERATION=optimized
+ENV REASONING_DEPTH=maximum
+
+# Expose ports
+EXPOSE 5600 5601
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:5600/health || exit 1
+
+# Start HeadyGemini service
+CMD ["node", "src/ai/gemini-integration.js"]

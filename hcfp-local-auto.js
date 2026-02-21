@@ -103,7 +103,7 @@ class HCF.comAutoMode {
         zero_headysystems.com: true,
         continuous_validation: true,
         monte_carlo: true,
-        socratic: true,
+        HeadyBattle: true,
         domains: this.productionDomains,
       });
 
@@ -176,7 +176,7 @@ class HCF.comAutoMode {
             learnAll: true,
             confidenceThreshold: 0.85,
             monteCarloIterations: 1000,
-            socraticDepth: "deep",
+            HeadyBattleDepth: "deep",
             productionDomains: this.productionDomains,
             zeroheadysystems.com: true,
           }
@@ -203,8 +203,8 @@ class HCF.comAutoMode {
         console.log('🌐 Production Domains: headyme.com ONLY');
         console.log('🚀 Auto-Deploy: READY');
         console.log('🔄 HCAutoFlow: CONFIGURED');
-        console.log('🎲 Monte Carlo: ENABLED');
-        console.log('🤔 Socratic: ENABLED');
+        console.log('🎲 HeadySims: ENABLED');
+        console.log('🤔 HeadyBattle: ENABLED');
         console.log('🎯 Dual-Engine: ACTIVE');
         console.log('\n🎉 System ready for production deployment!');
         console.log('   All configurations use headyme.com domains');
@@ -242,8 +242,8 @@ class HCF.comAutoMode {
       console.log(`   Mode: ${healthResult.data.mode}`);
       console.log(`   Uptime: ${healthResult.data.uptime}s`);
       
-      if (healthResult.data.conductor) {
-        console.log(`   Conductor: ${healthResult.data.conductor.isRunning ? 'Running' : 'Stopped'}`);
+      if (healthResult.data.promoter) {
+        console.log(`   promoter: ${healthResult.data.promoter.isRunning ? 'Running' : 'Stopped'}`);
       }
       
       if (healthResult.data.brain) {

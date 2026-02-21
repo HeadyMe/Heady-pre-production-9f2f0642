@@ -1,0 +1,12 @@
+name: 'Heady Systems Admin'
+type: module
+description: 'Provides admin interface for Heady Systems services management'
+core_version_requirement: ^11
+package: 'Heady Systems'
+
+dependencies:
+  - drupal:system
+  - drupal:user
+  - drupal:node
+
+configure: heady_admin.settings

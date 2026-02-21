@@ -198,7 +198,7 @@ For each file F, the node must ask:
 ### Utilization vs Design Intent Assessment
 - For each critical or high priority component (HCBrain, HCSupervisor, HCCheckpoint, HeadyLens, Story Driver, HeadyAcademy tools, etc.), do we have metrics or logs that show real-world usage frequency?
 - Are some tools over-used (e.g., the default LLM) while more specialized or paid tools (like Claude, SecurityAudit, GapScanner, HuggingFaceTool) almost never run?
-- Do Monte Carlo planning and self-critique stages actually consider "which tool/model to call" as part of their plan choices, or do they always pick the same default?
+- Do HeadySims planning and self-critique stages actually consider "which tool/model to call" as part of their plan choices, or do they always pick the same default?
 - Are there any "paid" or higher-quality tools that are never selected due to conservative cost or missing configuration, even when they would materially improve outcomes?
 
 ### Configuration Completeness and Drift
@@ -214,7 +214,7 @@ For each file F, the node must ask:
 
 ### Actionability and Gap Closure
 - For each under-used tool, what minimal change would cause it to be exercised in a safe, low-risk way (e.g., enable as an alternate plan in Plan stage, or as a self-critique helper)?
-- Do we have A/B or multi-arm experiments in Monte Carlo planning that compare default tools vs Claude or others so we can justify subscriptions by impact?
+- Do we have A/B or multi-arm experiments in HeadySims planning that compare default tools vs Claude or others so we can justify subscriptions by impact?
 - Is there a clear owner (DOCOWNERS / registry) responsible for periodically reviewing tool usage and pruning or re-wiring under-used tools?
 
 ## 8. Wealth Redistribution and Social Impact Integration
@@ -268,7 +268,7 @@ If you had to change only 3 things in this file to make the system more robust a
 - Where is the global "model routing" logic defined (e.g., which code or config decides when to use Claude vs HuggingFaceTool vs any default LLM)? Is this logic documented and testable?
 - Does HCFullPipeline's Plan stage explicitly consider model choice as a decision variable (e.g., multiple candidate plans that differ only in which model is used)?
 - Do we have any per-task or per-domain routing rules (e.g., Claude for code-heavy refactors, PYTHIA/HuggingFace for lightweight inference,.com models for low-stakes tasks), or is every request funneled through a single provider?
-- Are cost, latency, and quality metrics for each model provider tracked and fed back into Monte Carlo plan selection so the system can "learn" to use your Claude subscription when it is actually better?
+- Are cost, latency, and quality metrics for each model provider tracked and fed back into HeadySims plan selection so the system can "learn" to use your Claude subscription when it is actually better?
 - Do we have feature flags or config toggles (by environment or tenant) that may be unintentionally disabling Claude or other paid providers in production?
 
 ### Channel-Level Tool Usage
@@ -297,7 +297,7 @@ If you had to change only 3 things in this file to make the system more robust a
 ### Paid Provider Management
 - For each paid provider (Claude, cloud GPUs, premium APIs), do you track monthly spend and map it to concrete impact metrics (bugs fixed, hours saved, grants drafted, etc.)?
 - Are there governance policies that automatically scale down or disable low-ROI tools, or at least surface "you pay for X but usage is effectively zero"?
-- Do Monte Carlo planning and Self-Critique stages ever propose "route more of these tasks to Claude because quality/latency is better in this domain", or "route less to Claude because improvements are marginal"?
+- Do HeadySims planning and Self-Critique stages ever propose "route more of these tasks to Claude because quality/latency is better in this domain", or "route less to Claude because improvements are marginal"?
 - Is there a documented "sunset or repurpose" path for tools that remain unused for a long period, including re-allocating saved budget toward social-impact workloads?
 
 ## 13. Incident Response and Tool-Specific Failures

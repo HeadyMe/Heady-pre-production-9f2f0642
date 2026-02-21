@@ -1,0 +1,35 @@
+# Heady MCP Engine Routes
+heady_mcp.dashboard:
+  path: '/heady'
+  defaults:
+    _controller: '\Drupal\heady_mcp\Controller\DashboardController::content'
+    _title: 'Heady Engine Status'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_mcp.gateway:
+  path: '/mcp/v1'
+  defaults:
+    _controller: '\Drupal\heady_mcp\Controller\McpGatewayController::handle'
+    _title: 'MCP Gateway'
+  methods: [POST]
+  requirements:
+    _access: 'TRUE' # TODO: Add API key middleware for production
+
+heady_mcp.vector_search:
+  path: '/api/vector/search'
+  defaults:
+    _controller: '\Drupal\heady_mcp\Controller\VectorController::search'
+    _title: 'Vector Semantic Search'
+  methods: [POST]
+  requirements:
+    _permission: 'access content'
+
+heady_mcp.vector_index:
+  path: '/api/vector/index/{entity_type}/{entity_id}'
+  defaults:
+    _controller: '\Drupal\heady_mcp\Controller\VectorController::indexEntity'
+    _title: 'Index Entity for Vector Search'
+  methods: [POST]
+  requirements:
+    _permission: 'administer nodes'

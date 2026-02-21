@@ -2,7 +2,7 @@
  * ╔══════════════════════════════════════════════════════════════════╗
  * ║  🧠 HEADY VECTOR MEMORY SERVICE - Production Implementation       ║
  * ║  🚀 Qdrant Integration • Infinite Memory • Semantic Search       ║
- * ║  🎨 Zero Localhost • Production Domains • HCFP Compliant         ║
+ * ║  🎨 Zero app.headysystems.com • Production Domains • HCFP Compliant         ║
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 
@@ -11,7 +11,7 @@ const crypto = require('crypto');
 
 class HeadyVectorMemoryService {
   constructor() {
-    this.qdrantUrl = process.env.QDRANT_URL || 'http://localhost:6333';
+    this.qdrantUrl = process.env.QDRANT_URL || 'https://vector.headysystems.com';
     this.collectionName = process.env.QDRANT_COLLECTION || 'heady_memories';
     this.embeddingDimension = parseInt(process.env.EMBEDDING_DIMENSION) || 1536;
     this.apiKey = process.env.QDRANT_API_KEY;

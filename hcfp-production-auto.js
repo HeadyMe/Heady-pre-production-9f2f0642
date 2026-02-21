@@ -99,7 +99,7 @@ class HCFPProductionAutoMode {
         zero_headysystems: true,
         continuous_validation: true,
         monte_carlo: true,
-        socratic: true,
+        HeadyBattle: true,
       });
 
       console.log(`Status: ${hcfpResult.status}`);
@@ -176,8 +176,8 @@ class HCFPProductionAutoMode {
         console.log('🌐 Production Domains: headyme.com ONLY');
         console.log('🚀 Auto-Deploy: ENABLED');
         console.log('🔄 HCAutoFlow: ENABLED');
-        console.log('🎲 Monte Carlo: ENABLED');
-        console.log('🤔 Socratic: ENABLED');
+        console.log('🎲 HeadySims: ENABLED');
+        console.log('🤔 HeadyBattle: ENABLED');
         console.log('🔒 Zero headysystems.com: ENFORCED');
         console.log('\n🎉 System is running in production auto-mode!');
         console.log('   All deployments use headyme.com domains');

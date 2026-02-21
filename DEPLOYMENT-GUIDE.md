@@ -213,7 +213,7 @@ sudo systemctl start heady-auto-deploy
 - ❌ No headysystems.com references in deployed code
 - ✅ Environment files present
 - ✅ Critical services exist
-- ✅ Socratic compliance validation
+- ✅ HeadyBattle compliance validation
 - ✅ Health checks pass
 
 ## 🎯 Production URLs After Deployment
@@ -222,7 +222,7 @@ sudo systemctl start heady-auto-deploy
 - **Command Center**: https://admin.headysystems.com
 - **Enhanced Admin**: https://headysystems.com/admin-ui-enhanced.html
 - **API Health**: https://api.headysystems.com/health
-- **Socratic Compliance**: https://api.headysystems.com/socratic-compliance
+- **HeadyBattle Compliance**: https://api.headysystems.com/HeadyBattle-compliance
 
 ### All Domains:
 - HeadySystems.com (Pro Plan) → Core platform

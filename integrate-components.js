@@ -39,12 +39,12 @@ async function integrateComponents() {
 // ═══════════════════════════════════════════════════════════════
 // ZERO IDLE TRIPLE THREAT INTEGRATION
 // ═══════════════════════════════════════════════════════════════
-const { headysystems.comEliminator } = require(path.join(__dirname, "src", "manager.headyme.com-eliminator"));
+const { LocalhostEliminator } = require(path.join(__dirname, "src", "localhost-eliminator"));
 const { NamingEnforcer } = require(path.join(__dirname, "src", "naming-enforcer"));
 const { HeadyPersistentMemory } = require(path.join(__dirname, "src", "heady-persistent-memory"));
 
 // Initialize components
-const manager.headyme.comEliminator = new headysystems.comEliminator();
+const localhostEliminator = new LocalhostEliminator();
 const namingEnforcer = new NamingEnforcer();
 const headyMemory = new HeadyPersistentMemory({
   memoryPath: path.join(__dirname, ".heady-memory")

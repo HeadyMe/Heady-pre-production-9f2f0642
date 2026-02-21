@@ -80,9 +80,9 @@ class HCFPAutoMode {
     console.log('=====================================');
     
     try {
-      // Step 1: Initialize conductor
-      console.log('📡 Step 1: Initializing HeadyConductor...');
-      const conductorResult = await this.makeRequest('/api/conductor/submit', {
+      // Step 1: Initialize promoter
+      console.log('📡 Step 1: Initializing Headypromoter...');
+      const promoterResult = await this.makeRequest('/api/promoter/submit', {
         task: {
           type: "hcfp_perpetual_init",
           action: "Initialize perpetual execution mode",
@@ -96,11 +96,11 @@ class HCFPAutoMode {
         priority: "high"
       });
 
-      console.log(`Status: ${conductorResult.status}`);
-      if (conductorResult.data.success) {
-        console.log('✅ HeadyConductor initialized');
+      console.log(`Status: ${promoterResult.status}`);
+      if (promoterResult.data.success) {
+        console.log('✅ Headypromoter initialized');
       } else {
-        console.log('⚠️  Conductor initialization issue:', conductorResult.data.error);
+        console.log('⚠️  promoter initialization issue:', promoterResult.data.error);
       }
 
       // Step 2: Enable brain decision processing
@@ -112,7 +112,7 @@ class HCFPAutoMode {
           parameters: {
             dualEngine: true,
             monteCarlo: true,
-            socratic: true,
+            HeadyBattle: true,
             learning: true,
             confidenceThreshold: 0.85,
           }
@@ -127,11 +127,11 @@ class HCFPAutoMode {
         console.log('⚠️  Brain processing issue:', brainResult.data.error);
       }
 
-      // Step 3: Start Socratic continuous validation
-      console.log('\n🤔 Step 3: Starting Socratic continuous validation...');
-      const socraticResult = await this.makeRequest('/api/socratic/start', {
+      // Step 3: Start HeadyBattle continuous validation
+      console.log('\n🤔 Step 3: Starting HeadyBattle continuous validation...');
+      const HeadyBattleResult = await this.makeRequest('/api/HeadyBattle/start', {
         user_id: "hcfp_system",
-        query: "Initialize continuous Socratic validation for all system actions",
+        query: "Initialize continuous HeadyBattle validation for all system actions",
         mode: "continuous_validation",
         parameters: {
           depth: "deep",
@@ -141,12 +141,12 @@ class HCFPAutoMode {
         }
       });
 
-      console.log(`Status: ${socraticResult.status}`);
-      if (socraticResult.data.success) {
-        console.log('✅ Socratic validation started');
-        console.log(`Session ID: ${socraticResult.data.session_id}`);
+      console.log(`Status: ${HeadyBattleResult.status}`);
+      if (HeadyBattleResult.data.success) {
+        console.log('✅ HeadyBattle validation started');
+        console.log(`Session ID: ${HeadyBattleResult.data.session_id}`);
       } else {
-        console.log('⚠️  Socratic validation issue:', socraticResult.data.error);
+        console.log('⚠️  HeadyBattle validation issue:', HeadyBattleResult.data.error);
       }
 
       // Step 4: Enable system monitoring
@@ -167,15 +167,15 @@ class HCFPAutoMode {
       console.log('\n🎯 HCFP PERPETUAL MODE STATUS');
       console.log('==============================');
       
-      const overallSuccess = conductorResult.data.success || 
+      const overallSuccess = promoterResult.data.success || 
                            brainResult.data.success || 
-                           socraticResult.data.success || 
+                           HeadyBattleResult.data.success || 
                            monitoringResult.data.success;
 
       if (overallSuccess) {
         console.log('✅ HCFP Perpetual Mode ACTIVATED');
-        console.log('🎲 Monte Carlo: ENABLED');
-        console.log('🤔 Socratic Validation: ENABLED');
+        console.log('🎲 HeadySims: ENABLED');
+        console.log('🤔 HeadyBattle Validation: ENABLED');
         console.log('🧠 Brain Processing: ENABLED');
         console.log('📊 System Monitoring: ENABLED');
         console.log('🔄 Continuous Learning: ENABLED');

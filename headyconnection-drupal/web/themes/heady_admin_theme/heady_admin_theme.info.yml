@@ -1,0 +1,19 @@
+name: "Heady Systems Admin"
+type: drupal_theme
+description: "Professional admin interface for Heady Systems"
+core_version_requirement: "^11"
+base_theme: claro
+libraries:
+  heady_admin/global: []
+regions:
+  header: Header
+  primary_menu: Primary menu
+  secondary_menu: Secondary menu
+  page_top: Page top
+  page_bottom: Page bottom
+  highlighted: Highlighted
+  breadcrumb: Breadcrumb
+  content: Content
+  sidebar_first: Left sidebar
+  sidebar_second: Right sidebar
+  footer: Footer

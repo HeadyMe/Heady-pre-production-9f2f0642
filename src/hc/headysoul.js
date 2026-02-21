@@ -22,9 +22,9 @@
 
 /*
  * HeadySoul: Human-AI Alignment Layer
- * ALL responses use Socratic method by default - no exceptions
+ * ALL responses use HeadyBattle by default - no exceptions
  * Routes critical decisions to Eric (HeadySoul) before execution
- * Implements mandatory Socratic questioning for optimal communication
+ * Implements mandatory HeadyBattle questioning for optimal communication
  */
 
 const headyCRITICAL_THRESHOLDS = {
@@ -38,23 +38,23 @@ const headyCRITICAL_THRESHOLDS = {
 class HeadySoul {
   constructor() {
     this.escalationHistory = new Map();
-    this.socraticQuestions = new Map();
+    this.HeadyBattleQuestions = new Map();
     this.communicationLatency = {
-      channel_to_conductor: 120, // ms
-      conductor_to_brain: 80, // ms
+      channel_to_promoter: 120, // ms
+      promoter_to_brain: 80, // ms
       brain_to_headysoul: 450, // Email notification
       headysoul_to_approval: 86400000 // 24 hours in ms
     };
-    // MANDATORY: All responses must use Socratic method
-    this.socraticMode = process.env.SOCRATIC_MODE_ENABLED === 'true';
-    this.defaultSocraticMode = process.env.SOCRATIC_DEFAULT_MODE || 'exploratory';
+    // MANDATORY: All responses must use HeadyBattle
+    this.HeadyBattleMode = process.env.HEADYBATTLE_MODE_ENABLED === 'true';
+    this.defaultHeadyBattleMode = process.env.HEADYBATTLE_DEFAULT_MODE || 'exploratory';
   }
 
-  // Socratic question generation
-  async generateSocraticQuestions(context) {
+  // HeadyBattle question generation
+  async generateHeadyBattleQuestions(context) {
     const headyQuestions = [];
     
-    // Core Socratic questions based on context
+    // Core HeadyBattle questions based on context
     switch (context.type) {
       case 'budget_decision':
         headyQuestions.push(
@@ -81,7 +81,7 @@ class HeadySoul {
         break;
         
       default:
-        // Default Socratic questions for general inquiries
+        // Default HeadyBattle questions for general inquiries
         headyQuestions.push(
           `What assumptions underlie this response?`,
           `How might we examine this from multiple perspectives?`,
@@ -95,8 +95,8 @@ class HeadySoul {
 
   // Determine if escalation to HeadySoul is needed
   async shouldEscalateToHuman(event) {
-    // Monte Carlo planner failed 3x
-    if (event.type === 'MONTE_CARLO_EXHAUSTED') return true;
+    // HeadySims planner failed 3x
+    if (event.type === 'HEADY_SIMS_EXHAUSTED') return true;
     
     // Self-Critique found cultural blocker
     if (event.critique_category === 'cultural_blockers') return true;
@@ -116,72 +116,72 @@ class HeadySoul {
     return false;
   }
 
-  // Notify HeadySoul with Socratic questions
+  // Notify HeadySoul with HeadyBattle questions
   async notifyHeadySoul(event) {
     const headyEscalationId = `escalation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Generate Socratic questions
-    const headyQuestions = await this.generateSocraticQuestions(event);
-    this.socraticQuestions.set(escalationId, questions);
+    // Generate HeadyBattle questions
+    const headyQuestions = await this.generateHeadyBattleQuestions(event);
+    this.HeadyBattleQuestions.set(headyEscalationId, headyQuestions);
     
     // Create escalation record
     const headyEscalation = {
-      id: escalationId,
+      id: headyEscalationId,
       timestamp: new Date().toISOString(),
       event: event,
-      questions: questions,
+      questions: headyQuestions,
       status: 'PENDING_HUMAN_GUIDANCE',
       communication_chain_latency: this.communicationLatency
     };
     
-    this.escalationHistory.set(escalationId, escalation);
+    this.escalationHistory.set(headyEscalationId, headyEscalation);
     
     // Send checkpoint email
-    await this.sendCheckpointEmail(escalation);
+    await this.sendCheckpointEmail(headyEscalation);
     
     // Post to Story Driver for narrative
-    await this.postToStoryDriver(escalation);
+    await this.postToStoryDriver(headyEscalation);
     
     // Log to HeadyLens dashboard
-    await this.logToHeadyLens(escalation);
+    await this.logToHeadyLens(headyEscalation);
     
     // Pause pipeline until human approval
-    await this.pausePipelineUntilApproval(escalationId);
+    await this.pausePipelineUntilApproval(headyEscalationId);
     
-    return escalationId;
+    return headyEscalationId;
   }
 
-  // MANDATORY: Apply Socratic method to ALL responses
-  async applySocraticMethodToResponse(response, context = {}) {
-    if (!this.socraticMode) {
-      return response; // Should never happen with SOCRATIC_MODE_ENABLED=true
+  // MANDATORY: Apply HeadyBattle to ALL responses
+  async applyHeadyBattleMethodToResponse(response, context = {}) {
+    if (!this.HeadyBattleMode) {
+      return response; // Should never happen with HEADYBATTLE_MODE_ENABLED=true
     }
     
-    const socraticResponse = {
+    const HeadyBattleResponse = {
       original_response: response,
-      socratic_enhancement: true,
+      HeadyBattle_enhancement: true,
       questions: [],
-      reasoning_framework: this.defaultSocraticMode,
+      reasoning_framework: this.defaultHeadyBattleMode,
       timestamp: new Date().toISOString()
     };
     
-    // Generate contextual Socratic questions
-    const socraticQuestions = await this.generateSocraticQuestions({
+    // Generate contextual HeadyBattle questions
+    const HeadyBattleQuestions = await this.generateHeadyBattleQuestions({
       type: context.type || 'general_inquiry',
       response: response,
-      mode: this.defaultSocraticMode
+      mode: this.defaultHeadyBattleMode
     });
     
-    socraticResponse.questions = socraticQuestions;
+    HeadyBattleResponse.questions = HeadyBattleQuestions;
     
-    // Enhance response with Socratic reasoning
-    socraticResponse.enhanced_response = this.enhanceResponseWithSocraticReasoning(response, socraticQuestions);
+    // Enhance response with HeadyBattle reasoning
+    HeadyBattleResponse.enhanced_response = this.enhanceResponseWithHeadyBattleReasoning(response, HeadyBattleQuestions);
     
-    return socraticResponse;
+    return HeadyBattleResponse;
   }
   
-  // Enhance any response with Socratic reasoning
-  enhanceResponseWithSocraticReasoning(response, questions) {
+  // Enhance any response with HeadyBattle reasoning
+  enhanceResponseWithHeadyBattleReasoning(response, questions) {
     return `What assumptions underlie this response?\n\n${questions.map(q => `• ${q}`).join('\n\n')}\n\nHow might we examine this from multiple perspectives?\n\nOriginal response: ${response}`;
   }
   async sendCheckpointEmail(escalation) {
@@ -195,7 +195,7 @@ class HeadySoul {
 **Severity**: ${escalation.event.severity || 'HIGH'}
 **Escalation ID**: ${escalation.id}
 
-### Socratic Questions for Your Wisdom:
+### HeadyBattle Questions for Your Wisdom:
 ${escalation.questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 ### Context:
@@ -207,8 +207,8 @@ Please provide guidance on the questions above and approve/reject this escalatio
 Reply with: "APPROVE:${escalation.id}" or "REJECT:${escalation.id}:reason"
 
 ### Communication Chain Latency:
-- Channel → Conductor: ${this.communicationLatency.channel_to_conductor}ms
-- Conductor → Brain: ${this.communicationLatency.conductor_to_brain}ms  
+- Channel → promoter: ${this.communicationLatency.channel_to_promoter}ms
+- promoter → Brain: ${this.communicationLatency.promoter_to_brain}ms  
 - Brain → HeadySoul: ${this.communicationLatency.brain_to_headysoul}ms
 - HeadySoul → Approval: ${this.communicationLatency.headysoul_to_approval}ms
 
@@ -231,24 +231,24 @@ Heady Systems
       timeline: [{
         timestamp: escalation.timestamp,
         type: 'headysoul_escalation',
-        description: `Critical decision escalated to HeadySoul with ${escalation.questions.length} Socratic questions`
+        description: `Critical decision escalated to HeadySoul with ${escalation.questions.length} HeadyBattle questions`
       }],
       refs: {
         escalation_id: escalation.id,
         event_type: escalation.event.type,
-        socratic_questions: escalation.questions
+        HeadyBattle_questions: escalation.questions
       }
     };
     
     try {
-      const headyResponse = await fetch('https://manager.prod.com.heady.manager.api/stories', {
+      const headyResponse = await fetch('https://api.headyme.com/stories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(story)
       });
       
-      if (!response.ok) {
-        console.error('Failed to post to Story Driver:', response.statusText);
+      if (!headyResponse.ok) {
+        console.error('Failed to post to Story Driver:', headyResponse.statusText);
       }
     } catch (error) {
       console.error('Error posting to Story Driver:', error);
@@ -270,7 +270,7 @@ Heady Systems
       }
     };
     
-    console.log('🔍 HeadyLens log:', logEntry);
+    console.log('🔍 HeadyLens log:', headyLogEntry);
     // Integration with HeadyLens monitoring system
   }
 
@@ -283,14 +283,14 @@ Heady Systems
     };
     
     try {
-      const headyResponse = await fetch('https://manager.prod.com.heady.manager.api/system/pause', {
+      const headyResponse = await fetch('https://api.headyme.com/system/pause', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(pauseCommand)
+        body: JSON.stringify(headyPauseCommand)
       });
       
-      if (!response.ok) {
-        console.error('Failed to pause pipeline:', response.statusText);
+      if (!headyResponse.ok) {
+        console.error('Failed to pause pipeline:', headyResponse.statusText);
       }
     } catch (error) {
       console.error('Error pausing pipeline:', error);
@@ -300,7 +300,7 @@ Heady Systems
   // Process HeadySoul response
   async processHeadySoulResponse(escalationId, response) {
     const headyEscalation = this.escalationHistory.get(escalationId);
-    if (!escalation) {
+    if (!headyEscalation) {
       throw new Error(`Escalation ${escalationId} not found`);
     }
 
@@ -309,15 +309,15 @@ Heady Systems
 
     switch (action.toUpperCase()) {
       case 'APPROVE':
-        escalation.status = 'APPROVED';
-        escalation.headysoul_guidance = reason;
+        headyEscalation.status = 'APPROVED';
+        headyEscalation.headysoul_guidance = headyReason;
         await this.resumePipeline(escalationId);
         break;
         
       case 'REJECT':
-        escalation.status = 'REJECTED';
-        escalation.rejection_reason = reason;
-        await this.handleRejection(escalationId, reason);
+        headyEscalation.status = 'REJECTED';
+        headyEscalation.rejection_reason = headyReason;
+        await this.handleRejection(escalationId, headyReason);
         break;
         
       default:
@@ -325,9 +325,9 @@ Heady Systems
     }
 
     // Update Story Driver with resolution
-    await this.upd.comoryDriver(escalation);
+    await this.updateStoryDriver(headyEscalation);
     
-    return escalation;
+    return headyEscalation;
   }
 
   // Resume pipeline after approval
@@ -339,14 +339,14 @@ Heady Systems
     };
     
     try {
-      const headyResponse = await fetch('https://manager.prod.com.heady.manager.api/system/resume', {
+      const headyResponse = await fetch('https://api.headyme.com/system/resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resumeCommand)
+        body: JSON.stringify(headyResumeCommand)
       });
       
-      if (!response.ok) {
-        console.error('Failed to resume pipeline:', response.statusText);
+      if (!headyResponse.ok) {
+        console.error('Failed to resume pipeline:', headyResponse.statusText);
       }
     } catch (error) {
       console.error('Error resuming pipeline:', error);
@@ -366,11 +366,11 @@ Heady Systems
     };
     
     // Store for pattern learning
-    this.escalationHistory.set(`${escalationId}_rejection`, rejectionLog);
+    this.escalationHistory.set(`${escalationId}_rejection`, headyRejectionLog);
   }
 
   // Update Story Driver with resolution
-  async updateMemoryDriver(escalation) {
+  async updateStoryDriver(escalation) {
     const headyUpdate = {
       escalation_id: escalation.id,
       status: escalation.status,
@@ -379,14 +379,14 @@ Heady Systems
     };
     
     try {
-      const headyResponse = await fetch(`https://manager.prod.com.heady.manager.api/stories/${escalation.id}/resolve`, {
+      const headyResponse = await fetch(`https://api.headyme.com/stories/${escalation.id}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(update)
+        body: JSON.stringify(headyUpdate)
       });
       
-      if (!response.ok) {
-        console.error('Failed to update Story Driver:', response.statusText);
+      if (!headyResponse.ok) {
+        console.error('Failed to update Story Driver:', headyResponse.statusText);
       }
     } catch (error) {
       console.error('Error updating Story Driver:', error);
@@ -396,26 +396,63 @@ Heady Systems
   // Generate weekly HeadySoul digest
   async generateWeeklyDigest() {
     const headyWeekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - 7);
+    headyWeekStart.setDate(headyWeekStart.getDate() - 7);
     
     const headyWeeklyEscalations = Array.from(this.escalationHistory.values())
-      .filter(e => new Date(e.timestamp) >= weekStart);
+      .filter(e => new Date(e.timestamp) >= headyWeekStart);
     
     const headyDigest = {
       subject: '🧠 HeadySoul Weekly: System Evolution',
-      escalations_count: weeklyEscalations.length,
-      approval_rate: weeklyEscalations.filter(e => e.status === 'APPROVED').length / weeklyEscalations.length,
-      socratic_questions_asked: weeklyEscalations.reduce((sum, e) => sum + (e.questions?.length || 0), 0),
+      escalations_count: headyWeeklyEscalations.length,
+      approval_rate: headyWeeklyEscalations.filter(e => e.status === 'APPROVED').length / (headyWeeklyEscalations.length || 1),
+      HeadyBattle_questions_asked: headyWeeklyEscalations.reduce((sum, e) => sum + (e.questions?.length || 0), 0),
       communication_chain_health: this.communicationLatency,
       questions_for_headysoul: [
-        `What pattern emerges from the ${weeklyEscalations.length} escalations this week?`,
+        `What pattern emerges from the ${headyWeeklyEscalations.length} escalations this week?`,
         `Are we maximizing global happiness with our current decision trajectory?`,
         `Which bottleneck feels most urgent to address in the coming week?`,
         `What new fractal patterns are emerging in the system's behavior?`
       ]
     };
     
-    return digest;
+    return headyDigest;
+  }
+
+  // Apply HeadyBattle to ANY response - MANDATORY
+  async applyHeadyBattleMethodToResponse(response, context = {}) {
+    if (!this.HeadyBattleMode) {
+      return { original_response: response, HeadyBattle_enhancement: false };
+    }
+
+    const questions = [
+      'What assumptions underlie this response?',
+      'How might we examine this from multiple perspectives?',
+      'What evidence supports these claims?',
+      'What are the potential consequences of this approach?',
+      'How could this be improved or refined?'
+    ];
+
+    const enhancedResponse = `
+🤔 **HEADYBATTLE ENHANCEMENT APPLIED**
+
+${questions.map(q => `**${q}**`).join('\n\n')}
+
+---
+**Original Response:**
+${response}
+---
+**Reasoning Framework:** Exploratory dialogue
+**Timestamp:** ${new Date().toISOString()}
+    `.trim();
+
+    return {
+      original_response: response,
+      HeadyBattle_enhancement: true,
+      enhanced_response: enhancedResponse,
+      questions: questions,
+      reasoning_framework: 'exploratory',
+      timestamp: new Date().toISOString()
+    };
   }
 
   // Get communication health metrics
@@ -427,8 +464,8 @@ Heady Systems
       escalations_this_week: headyPendingEscalations.length,
       average_response_time: this.communicationLatency.headysoul_to_approval,
       approval_rate: 0.85, // Calculate from history
-      guidance_requests: this.socraticQuestions.size,
-      socratic_sessions_active: headyPendingEscalations.length,
+      guidance_requests: this.HeadyBattleQuestions.size,
+      HeadyBattle_sessions_active: headyPendingEscalations.length,
       communication_chain_latency: this.communicationLatency,
       system_health: 'OPTIMAL' // Calculate based on various metrics
     };

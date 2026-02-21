@@ -72,9 +72,9 @@ fi
 echo "⚙️  Creating environment configuration..."
 cat > .env.ultimate << 'EOF'
 # ===== HEADY CORE =====
-PORT=3300
+PORT=3310
 NODE_ENV=production
-DATABASE_URL=postgresql://heady:${DB_PASSWORD}@localhost:5432/heady
+DATABASE_URL=postgresql://heady:${DB_PASSWORD}@db.headysystems.com:5432/heady
 HEADY_API_KEY=${HEADY_SECRET_API_KEY}
 
 # ===== SOCRATIC MODE =====
@@ -104,7 +104,7 @@ YANDEX_FOLDER_ID=${YANDEX_FOLDER}
 HF_TOKEN=${HEADY_HF_TOKEN}
 
 # Ollama (Local)
-OLLAMA_URL=http://localhost:11434
+OLLAMA_URL=https://ollama.headysystems.com
 
 # ===== CONDUCTOR ORCHESTRATION =====
 CONDUCTOR_DEFAULT_STRATEGY=consensus

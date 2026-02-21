@@ -22,7 +22,7 @@
 
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://headysystems.com.com:3300';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3300';
 
 // Create axios instance with Drupal headers
 const api = axios.create({

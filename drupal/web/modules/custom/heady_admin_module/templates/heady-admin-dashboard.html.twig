@@ -1,0 +1,144 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the Heady Systems dashboard.
+ *
+ * Available variables:
+ * - stats: Array of system statistics.
+ * - services: Array of service information.
+ */
+#}
+
+<div class="heady-dashboard-grid">
+  <div class="heady-card">
+    <div class="heady-card-header">
+      <div>
+        <div class="heady-stat-label">Total Services</div>
+        <div class="heady-stat-value">{{ stats.total_services }}</div>
+        <div class="heady-stat-change change-positive">
+          <span>↑</span>
+          <span>2 new this week</span>
+        </div>
+      </div>
+      <div class="heady-card-icon icon-blue">🚀</div>
+    </div>
+  </div>
+
+  <div class="heady-card">
+    <div class="heady-card-header">
+      <div>
+        <div class="heady-stat-label">Active Domains</div>
+        <div class="heady-stat-value">{{ stats.active_domains }}</div>
+        <div class="heady-stat-change change-positive">
+          <span>↑</span>
+          <span>1 added today</span>
+        </div>
+      </div>
+      <div class="heady-card-icon icon-green">🌐</div>
+    </div>
+  </div>
+
+  <div class="heady-card">
+    <div class="heady-card-header">
+      <div>
+        <div class="heady-stat-label">Active Tunnels</div>
+        <div class="heady-stat-value">{{ stats.active_tunnels }}</div>
+        <div class="heady-stat-change change-negative">
+          <span>↓</span>
+          <span>1 connection lost</span>
+        </div>
+      </div>
+      <div class="heady-card-icon icon-yellow">🚇</div>
+    </div>
+  </div>
+
+  <div class="heady-card">
+    <div class="heady-card-header">
+      <div>
+        <div class="heady-stat-label">System Health</div>
+        <div class="heady-stat-value">{{ stats.system_health }}%</div>
+        <div class="heady-stat-change change-positive">
+          <span>↑</span>
+          <span>5% improvement</span>
+        </div>
+      </div>
+      <div class="heady-card-icon icon-red">💚</div>
+    </div>
+  </div>
+</div>
+
+<!-- Services Table -->
+<div class="heady-table-container">
+  <div class="heady-table-header">
+    <h2 class="heady-card-title">Active Services</h2>
+    <div class="heady-search-box">
+      <span class="heady-search-icon">🔍</span>
+      <input type="text" class="heady-search-input" placeholder="Search services...">
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Service Name</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Domain</th>
+        <th>Port</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for service in services %}
+        <tr>
+          <td><strong>{{ service.name }}</strong></td>
+          <td>{{ service.type }}</td>
+          <td><span class="heady-status-badge status-{{ service.status }}">● {{ service.status|capitalize }}</span></td>
+          <td>{{ service.domain }}</td>
+          <td>{{ service.port }}</td>
+          <td>
+            <button class="heady-btn heady-btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Edit</button>
+            <button class="heady-btn heady-btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Stop</button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Add Service Modal -->
+<div class="heady-modal" id="serviceModal">
+  <div class="heady-modal-content">
+    <div class="heady-modal-header">
+      <h2 class="heady-modal-title">Add New Service</h2>
+      <button class="heady-modal-close" onclick="closeModal('serviceModal')">×</button>
+    </div>
+    <div class="heady-modal-body">
+      <div class="heady-form-group">
+        <label class="heady-form-label">Service Name</label>
+        <input type="text" class="heady-form-input" placeholder="Enter service name">
+      </div>
+      <div class="heady-form-group">
+        <label class="heady-form-label">Service Type</label>
+        <select class="heady-form-select">
+          <option>Frontend</option>
+          <option>Backend</option>
+          <option>Database</option>
+          <option>API</option>
+          <option>CMS</option>
+        </select>
+      </div>
+      <div class="heady-form-group">
+        <label class="heady-form-label">Domain</label>
+        <input type="text" class="heady-form-input" placeholder="example.headysystems.com">
+      </div>
+      <div class="heady-form-group">
+        <label class="heady-form-label">Port</label>
+        <input type="number" class="heady-form-input" placeholder="3000">
+      </div>
+    </div>
+    <div class="heady-modal-footer">
+      <button class="heady-btn heady-btn-secondary" onclick="closeModal('serviceModal')">Cancel</button>
+      <button class="heady-btn heady-btn-primary" onclick="addService()">Add Service</button>
+    </div>
+  </div>
+</div>

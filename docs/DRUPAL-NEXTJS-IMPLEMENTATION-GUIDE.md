@@ -89,8 +89,8 @@ This guide implements a complete headless Drupal 11 + Next.js system with HCFP a
 - [x] Multi-remote sync configuration
 
 ### Phase 4: Dual-Engine Integration ✅
-- [x] Socratic questioning engine
-- [x] Monte Carlo exploration engine
+- [x] HeadyBattle questioning engine
+- [x] HeadySims exploration engine
 - [x] Action interceptor for 100% validation
 - [x] Render service management APIs
 - [x] Learning and memory systems
@@ -167,12 +167,12 @@ curl https://api.headyconnection.org/api/health
 
 ### API Endpoints
 ```bash
-# Socratic questioning
-curl -X POST https://api.headyconnection.org/api/socratic/question \
+# HeadyBattle questioning
+curl -X POST https://api.headyconnection.org/api/HeadyBattle/question \
   -H "Content-Type: application/json" \
   -d '{"request": "Hello"}'
 
-# Monte Carlo strategy
+# HeadySims strategy
 curl -X POST https://api.headyconnection.org/api/dual-engine/test \
   -H "Content-Type: application/json" \
   -d '{"test": "dual engine"}'
@@ -248,8 +248,8 @@ npm run render update <service-id> '{"KEY": "value"}'
 
 ### Validation
 - Dual-engine coverage: 100%
-- Socratic clarification rate: <20%
-- Monte Carlo confidence: >0.85
+- HeadyBattle clarification rate: <20%
+- HeadySims confidence: >0.85
 - Learning system updates: 100%
 
 ## 🛠️ Troubleshooting
@@ -315,4 +315,4 @@ Your Heady Drupal 11 + Next.js system is now fully operational with:
 ✅ **Comprehensive monitoring**
 ✅ **Security best practices**
 
-The system will automatically deploy on every git push, validate every action through Socratic + Monte Carlo engines, and continuously learn from all outcomes.
+The system will automatically deploy on every git push, validate every action through HeadyBattle + HeadySims engines, and continuously learn from all outcomes.

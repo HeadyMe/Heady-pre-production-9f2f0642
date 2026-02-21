@@ -1,0 +1,38 @@
+# HeadyPatterns Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    python3
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+COPY configs/ ./configs/
+
+# Create patterns directories
+RUN mkdir -p /app/data /app/models /app/insights /app/library
+
+# Set environment
+ENV NODE_ENV=production
+ENV PATTERNS_MODE=enhanced
+ENV RECOGNITION_DEPTH=maximum
+
+# Expose ports
+EXPOSE 4000 4001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:4000/health || exit 1
+
+# Start HeadyPatterns engine
+CMD ["node", "src/hc/heady-patterns.js"]

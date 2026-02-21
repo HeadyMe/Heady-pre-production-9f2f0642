@@ -9,7 +9,7 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: HeadyConductor-simple.js                                   ║
+// ║  FILE: Headypromoter-simple.js                                   ║
 // ║  UPDATED: 20260218-211102                                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -21,14 +21,14 @@
  */
 
 /*
- * HeadyConductor: Simplified Intelligent Resource Allocation
+ * Headypromoter: Simplified Intelligent Resource Allocation
  * Optimizes task distribution and resource management
  */
 
 const { Worker } = require('worker_threads');
 const os = require('os');
 
-class HeadyConductor {
+class Headypromoter {
   constructor() {
     this.workers = new Map();
     this.taskQueue = [];
@@ -49,9 +49,9 @@ class HeadyConductor {
     this.taskPriorities = new Map();
   }
 
-  // Initialize conductor with optimal worker pool
+  // Initialize promoter with optimal worker pool
   async initialize() {
-    console.log('🎼 HeadyConductor: Initializing intelligent resource allocation...');
+    console.log('🎼 Headypromoter: Initializing intelligent resource allocation...');
     
     // Create optimal worker pool based on CPU cores
     const numWorkers = Math.max(2, Math.floor(this.resourcePool.cpu / 2));
@@ -64,11 +64,11 @@ class HeadyConductor {
     this.startResourceMonitoring();
     this.startTaskScheduler();
     
-    console.log(`🎼 HeadyConductor: Initialized with ${numWorkers} parallel workers`);
+    console.log(`🎼 Headypromoter: Initialized with ${numWorkers} parallel workers`);
     return this.getStatus();
   }
 
-  // Start conductor (alias for initialize)
+  // Start promoter (alias for initialize)
   async start() {
     return await this.initialize();
   }
@@ -104,13 +104,13 @@ parentPort.on('message', async (task) => {
       const worker = new Worker(workerCode, { eval: true });
       
       worker.on('online', () => {
-        console.log(`🎼 HeadyConductor: Worker ${workerId} online`);
+        console.log(`🎼 Headypromoter: Worker ${workerId} online`);
         this.workers.set(workerId, worker);
         resolve(worker);
       });
       
       worker.on('error', (error) => {
-        console.error(`🎼 HeadyConductor: Worker ${workerId} error:`, error);
+        console.error(`🎼 Headypromoter: Worker ${workerId} error:`, error);
         reject(error);
       });
       
@@ -120,7 +120,7 @@ parentPort.on('message', async (task) => {
       
       worker.on('exit', (code) => {
         if (code !== 0) {
-          console.error(`🎼 HeadyConductor: Worker ${workerId} stopped with exit code ${code}`);
+          console.error(`🎼 Headypromoter: Worker ${workerId} stopped with exit code ${code}`);
         }
         this.workers.delete(workerId);
       });
@@ -133,7 +133,7 @@ parentPort.on('message', async (task) => {
       this.performanceMetrics.tasksCompleted++;
       this.activeTasks.delete(result.taskId);
     } else {
-      console.error(`🎼 HeadyConductor: Task ${result.taskId} failed:`, result.error);
+      console.error(`🎼 Headypromoter: Task ${result.taskId} failed:`, result.error);
     }
   }
 
@@ -196,7 +196,7 @@ parentPort.on('message', async (task) => {
     return taskWithId.id;
   }
 
-  // Get conductor status
+  // Get promoter status
   getStatus() {
     return {
       isRunning: this.isRunning,
@@ -215,9 +215,9 @@ parentPort.on('message', async (task) => {
     };
   }
 
-  // Stop conductor
+  // Stop promoter
   async stop() {
-    console.log('🎼 HeadyConductor: Stopping all workers...');
+    console.log('🎼 Headypromoter: Stopping all workers...');
     
     for (const [workerId, worker] of this.workers) {
       worker.terminate();
@@ -227,8 +227,8 @@ parentPort.on('message', async (task) => {
     this.activeTasks.clear();
     this.isRunning = false;
     
-    console.log('🎼 HeadyConductor: Stopped');
+    console.log('🎼 Headypromoter: Stopped');
   }
 }
 
-module.exports = { HeadyConductor };
+module.exports = { Headypromoter };

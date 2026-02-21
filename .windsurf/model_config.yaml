@@ -17,7 +17,7 @@
 # All model requests route through HeadyBrain unless explicitly overridden.
 
 default_model: heady-brain
-fallback_chain: [heady-conductor, heady-embeddings]
+fallback_chain: [heady-promoter, heady-embeddings]
 
 models:
   heady-brain:
@@ -47,11 +47,11 @@ models:
       - translation
       - orchestration
 
-  heady-conductor:
-    class: heady_project.model.HeadyConductorModel
+  heady-promoter:
+    class: heady_project.model.HeadypromoterModel
     provider: headysystems
-    display_name: "Heady Conductor"
-    description: "HeadyConductor — Fast tasks and code review"
+    display_name: "Heady promoter"
+    description: "Headypromoter — Fast tasks and code review"
     default_params:
       temperature: 0.5
       max_tokens: 8192

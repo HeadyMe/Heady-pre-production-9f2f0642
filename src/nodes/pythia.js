@@ -1,3 +1,4 @@
+const { getAiRouter, routeTask } = require('../packages/hc-ai-router');
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -35,7 +36,7 @@ class PYTHIANode {
     this.active = true;
     this.reasoningDepth = 'high';
     this.connections = {
-      ollama: 'https://headysystems.com.com:11434',
+      ollama: process.env.OLLAMA_URL || 'https://ollama.headysystems.com',
     };
     this.reasoningHistory = [];
   }
@@ -191,6 +192,38 @@ Apply deep reasoning to analyze this situation and provide insights.
       connections: this.connections,
     };
   }
+
+  /**
+   * 🧠 Get routing context for AI tasks
+   */
+  getRoutingContext(taskKind, options = {}) {
+    return {
+      kind: taskKind,
+      nodeId: 'PYTHIA',
+      ors: this.getORS() || 85,
+      estTokens: options.tokens || 1000,
+      latencySensitivity: options.latency || 'medium',
+      importance: options.importance || 'user_facing',
+      traceId: this.generateTraceId(),
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  /**
+   * 📊 Get current ORS (Operational Readiness Score)
+   */
+  getORS() {
+    // This would integrate with your ORS monitoring system
+    return 85; // Default for now
+  }
+
+  /**
+   * 🏷️ Generate trace ID for routing
+   */
+  generateTraceId() {
+    return `trace_1771541848824_9uypum49h`;
+  }
+
 }
 
 module.exports = PYTHIANode;

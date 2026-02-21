@@ -122,7 +122,7 @@ mcp.headysystems.com     → tools-mcp.prod.com.heady.internal:3001
 |-----------|----------------|-----------------|-------------|
 | API Response | 150-300ms | 5-15ms | **20x faster** |
 | Database Query | 50-100ms | 1-5ms | **20x faster** |
-| Monte Carlo | 2-5 seconds | 200-500ms | **10x faster** |
+| HeadySims | 2-5 seconds | 200-500ms | **10x faster** |
 | Pipeline Run | 30-60 seconds | 3-6 seconds | **10x faster** |
 
 ---
@@ -181,7 +181,7 @@ redis-cli -h db-redis.prod.com.heady.internal ping
 1. **Execute deployment**: `./scripts/hcfp-immediate-deploy.sh`
 2. **Verify health**: Check all service endpoints
 3. **Activate production**: POST `/api/system/production`
-4. **Test Socratic mode**: POST `/api/buddy/chat` with `mode: "socratic"`
+4. **Test HeadyBattle mode**: POST `/api/buddy/chat` with `mode: "HeadyBattle"`
 
 ### **Configuration Updates**
 1. **Update API keys** in `.env` file

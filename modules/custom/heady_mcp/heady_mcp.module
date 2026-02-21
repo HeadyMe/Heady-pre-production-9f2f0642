@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @file
+ * Heady MCP Engine module
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function heady_mcp_theme($existing, $type, $theme, $path) {
+  return [
+    'heady_dashboard' => [
+      'variables' => [
+        'jsonapi_status' => NULL,
+        'mcp_status' => NULL,
+        'node_count' => 0,
+        'vector_status' => NULL,
+        'vector_count' => 0,
+        'vector_ext_status' => NULL,
+        'embed_model' => NULL,
+        'embed_endpoint' => NULL,
+        'priority_count' => 0,
+        'api_endpoint' => NULL,
+        'mcp_endpoint' => NULL,
+        'vector_endpoint' => NULL,
+        'timestamp' => NULL,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_ENTITY_insert().
+ */
+function heady_mcp_node_insert($node) {
+  // Auto-index new nodes for vector search
+  if ($node->isPublished()) {
+    try {
+      $vectorEmbedder = \Drupal::service('heady_mcp.vector_embedder');
+      
+      // Extract text content
+      $text = $node->getTitle();
+      if ($node->hasField('body') && !$node->get('body')->isEmpty()) {
+        $text .= ' ' . $node->get('body')->value;
+      }
+      
+      $vectorEmbedder->indexNode($node->id(), $node->bundle(), $text);
+      
+      \Drupal::logger('heady_mcp')->notice('Auto-indexed new node @nid', ['@nid' => $node->id()]);
+      
+    } catch (\Exception $e) {
+      \Drupal::logger('heady_mcp')->error('Failed to auto-index node @nid: @message', [
+        '@nid' => $node->id(),
+        '@message' => $e->getMessage(),
+      ]);
+    }
+  }
+}
+
+/**
+ * Implements hook_ENTITY_update().
+ */
+function heady_mcp_node_update($node) {
+  // Re-index updated nodes
+  if ($node->isPublished()) {
+    heady_mcp_node_insert($node);
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function heady_mcp_preprocess_heady_dashboard(&$variables) {
+  // Add CSS for terminal-style dashboard
+  $variables['#attached']['library'][] = 'heady_mcp/dashboard';
+}

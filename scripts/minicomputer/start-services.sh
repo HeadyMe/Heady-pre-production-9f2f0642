@@ -64,5 +64,5 @@ fi
 log "✅ All services started"
 log "🌐 Access points:"
 log "  HeadyManager: http://manager.headyme.com/api/health"
-log "  Web Dashboard: http://localhost:3000"
-log "  Prometheus: http://localhost:9090"
+log "  Web Dashboard: https://headyme.com"
+log "  Prometheus: https://prometheus.headysystems.com"

@@ -1,0 +1,10 @@
+name: 'Heady Admin Module'
+type: module
+description: 'Provides admin functionality for Heady Systems including task management, domain builder, and system controls'
+core_version_requirement: ^11
+package: 'Heady Systems'
+configure: heady_admin.settings
+dependencies:
+  - drupal:node
+  - drupal:user
+  - drupal:system

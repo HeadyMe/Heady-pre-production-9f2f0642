@@ -9,7 +9,7 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: conductor.js                                   ║
+// ║  FILE: promoter.js                                   ║
 // ║  UPDATED: 20260218-211102                                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -32,6 +32,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const OpenAI = require('openai');
 const fetch = require('node-fetch');
+const { HCAiRouter } = require('../ai-router/hc-ai-router-simple');
 
 class CONDUCTORNode {
   constructor() {
@@ -39,7 +40,11 @@ class CONDUCTORNode {
     this.codename = 'The Orchestrator';
     this.role = 'Multi-LLM routing, consensus building, quality validation';
     
-    // Initialize all providers
+    // Initialize AI Router for intelligent provider selection
+    this.aiRouter = new HCAiRouter();
+    this.nodeId = 'promoter';
+    
+    // Initialize all providers (managed by AI Router)
     this.anthropic = process.env.ANTHROPIC_API_KEY ? 
       new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
     this.google = process.env.GOOGLE_API_KEY ? 
@@ -60,7 +65,7 @@ class CONDUCTORNode {
         models: ['yandexgpt-lite', 'yandexgpt-pro']
       },
       ollama: { 
-        url: process.env.OLLAMA_URL || 'https://headysystems.com.com:11434',
+        url: process.env.OLLAMA_URL || 'https://ollama.headysystems.com',
         models: ['llama3.2:8b', 'codellama:13b', 'mistral:7b', 'nomic-embed-text']
       },
       huggingface: { 
@@ -168,7 +173,7 @@ class CONDUCTORNode {
         'reasoning': ['claude', 'openai:o1', 'gemini', 'ollama:llama3.2'],
         'creative': ['yandex', 'claude', 'openai:gpt-4o'],
         'multimodal': ['gemini', 'openai:gpt-4o', 'claude'],
-        .com-only': ['ollama'],
+        'local-only': ['ollama'],
         'translation': ['yandex', 'gemini', 'claude'],
         'fast-response': ['goose', 'ollama:mistral'],
         'high-quality': ['claude', 'openai:gpt-4o', 'gemini'],
@@ -198,7 +203,7 @@ class CONDUCTORNode {
       'translation': ['translate', 'language', 'russian', 'spanish', 'french', 'german'],
       'fast-response': ['quick', 'fast', 'simple', 'brief', 'short'],
       'high-quality': ['detailed', 'comprehensive', 'thorough', 'in-depth', 'quality'],
-      'cost-effective': ['cheap', 'budget', 'free', .com', 'offline'],
+      'cost-effective': ['cheap', 'budget', 'free', 'local', 'offline'],
     };
 
     const text = task.toLowerCase();
@@ -380,7 +385,16 @@ class CONDUCTORNode {
       throw new Error('Anthropic API key not configured');
     }
 
-    const response = await this.anthropic.messages.create({
+    const response = await this.aiRouter.runTask({
+      kind: 'deep_reasoning',
+      nodeId: this.nodeId,
+      ors: 85, // Would get from system telemetry
+      estTokens: 4000,
+      latencySensitivity: 'medium',
+      importance: 'user_facing',
+      traceId: generateTraceId(),
+      timestamp: new Date().toISOString()
+    }, {
       model: model,
       max_tokens: options.maxTokens || 2000,
       temperature: options.temperature || 0.7,
@@ -405,7 +419,16 @@ class CONDUCTORNode {
       throw new Error('OpenAI API key not configured');
     }
 
-    const response = await this.openai.chat.completions.create({
+    const response = await this.aiRouter.runTask({
+      kind: 'code_generation',
+      nodeId: this.nodeId,
+      ors: 85,
+      estTokens: 4000,
+      latencySensitivity: 'medium',
+      importance: 'user_facing',
+      traceId: generateTraceId(),
+      timestamp: new Date().toISOString()
+    }, {
       model: model,
       messages: [{ role: 'user', content: task }],
       temperature: options.temperature || 0.7,
@@ -538,7 +561,7 @@ class CONDUCTORNode {
       text: data.response,
       success: true,
       quality: this.assessResponseQuality(data.response),
-     .com: true,
+      local: true,
     };
   }
 
@@ -680,8 +703,8 @@ Return JSON.
       providers: responses.map(r => r.provider),
       averageLength: successful.reduce((sum, r) => sum + r.text.length, 0) / successful.length,
       qualityScores: successful.map(r => r.quality || 0.5),
-     .comProviders: successful.filter(r => r.com).length,
-      cloudProviders: successful.filter(r => !r.com).length,
+      localProviders: successful.filter(r => r.local).length,
+      cloudProviders: successful.filter(r => !r.local).length,
     };
   }
 
@@ -826,6 +849,38 @@ Return JSON.
       timestamp: new Date().toISOString(),
     };
   }
+
+  /**
+   * 🧠 Get routing context for AI tasks
+   */
+  getRoutingContext(taskKind, options = {}) {
+    return {
+      kind: taskKind,
+      nodeId: 'CONDUCTOR',
+      ors: this.getORS() || 85,
+      estTokens: options.tokens || 1000,
+      latencySensitivity: options.latency || 'medium',
+      importance: options.importance || 'user_facing',
+      traceId: this.generateTraceId(),
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  /**
+   * 📊 Get current ORS (Operational Readiness Score)
+   */
+  getORS() {
+    // This would integrate with your ORS monitoring system
+    return 85; // Default for now
+  }
+
+  /**
+   * 🏷️ Generate trace ID for routing
+   */
+  generateTraceId() {
+    return `trace_1771541848823_u8kzsgtqi`;
+  }
+
 }
 
 module.exports = CONDUCTORNode;

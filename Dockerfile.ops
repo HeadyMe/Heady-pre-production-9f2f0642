@@ -1,0 +1,41 @@
+# HeadyOps Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    python3 \
+    docker-cli \
+    kubectl \
+    helm
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+COPY configs/ ./configs/
+
+# Create ops directories
+RUN mkdir -p /app/data /app/deployments /app/infrastructure /app/monitoring
+
+# Set environment
+ENV NODE_ENV=production
+ENV OPS_MODE=enhanced
+ENV DEPLOYMENT_AUTOMATION=enabled
+
+# Expose ports
+EXPOSE 5300 5301
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:5300/health || exit 1
+
+# Start HeadyOps service
+CMD ["node", "src/hc/heady-ops.js"]

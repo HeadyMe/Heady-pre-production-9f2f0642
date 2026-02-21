@@ -110,7 +110,7 @@ class HeadyPredictionEngine {
   async getSystemHealth() {
     try {
       // Get system metrics from HeadyManager
-      const response = await fetch('https://headysystems.com.com/api/health');
+      const response = await fetch(`${process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com'}/api/health`);
       const health = await response.json();
       
       return {
@@ -271,7 +271,7 @@ class HeadyPredictionEngine {
    */
   checkServiceStatus(health) {
     const services = [];
-    if (health.conductor) services.push('conductor');
+    if (health.promoter) services.push('promoter');
     if (health.brain) services.push('brain');
     if (health.headyMemory) services.push('memory');
     
@@ -309,10 +309,10 @@ class HeadyPredictionEngine {
         case 'npm':
           return true; // Assume npm is available
         case 'heady-manager':
-          const response = await fetch('https://headysystems.com.com/api/health');
+          const response = await fetch(`${process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com'}/api/health`);
           return response.ok;
         case 'heady-web':
-          const webResponse = await fetch('http://headyme.com:3000/api/health');
+          const webResponse = await fetch('https://headyme.com/api/health');
           return webResponse.ok;
         case 'nginx':
           // Would check nginx status

@@ -1,0 +1,311 @@
+<div class="heady-control-dashboard">
+  <header class="dashboard-header">
+    <h1>🚀 Heady Systems Control Center</h1>
+    <div class="real-time-indicator">
+      <span class="pulse"></span>
+      <span>Live Monitoring</span>
+    </div>
+  </header>
+
+  <!-- System Overview -->
+  <section class="overview-section">
+    <div class="overview-grid">
+      <div class="overview-card">
+        <h3>System Health</h3>
+        <div class="overview-value">{{ system_health }}%</div>
+        <div class="overview-label">Overall Status</div>
+      </div>
+      <div class="overview-card">
+        <h3>Active Services</h3>
+        <div class="overview-value">{{ active_services }}</div>
+        <div class="overview-label">Running Now</div>
+      </div>
+      <div class="overview-card">
+        <h3>WARP Devices</h3>
+        <div class="overview-value">{{ warp_devices }}</div>
+        <div class="overview-label">Connected</div>
+      </div>
+      <div class="overview-card">
+        <h3>Domain Uptime</h3>
+        <div class="overview-value">{{ domain_uptime }}%</div>
+        <div class="overview-label">24 Hours</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Status -->
+  <section class="services-section">
+    <div class="section-header">
+      <h2>🔧 Core Services</h2>
+      <button class="btn btn-primary" onclick="HeadyControl.executeQuickAction('restart-services')">
+        <span>🔄</span>
+        <span>Restart All</span>
+      </button>
+    </div>
+    
+    <div class="services-grid">
+      {% for service_name, service in services %}
+        <div class="service-card {{ service.online ? 'online' : 'offline' }}">
+          <div class="service-header">
+            <div class="service-info">
+              <h4>{{ service_name }}</h4>
+              <div class="service-type">{{ service.type }}</div>
+            </div>
+            <div class="service-status {{ service.online ? 'online' : 'offline' }}">
+              {{ service.online ? '● Online' : '● Offline' }}
+            </div>
+          </div>
+          
+          <div class="service-metrics">
+            <div class="metric">
+              <div class="metric-label">Response Time</div>
+              <div class="metric-value">{{ service.response_time }}ms</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Uptime</div>
+              <div class="metric-value">{{ service.uptime }}%</div>
+            </div>
+          </div>
+          
+          <div class="service-actions">
+            <button class="btn btn-secondary service-action" data-action="logs" data-service="{{ service_name }}">
+              <span>📋</span>
+              <span>Logs</span>
+            </button>
+            {% if service.online %}
+              <button class="btn btn-warning service-action" data-action="restart" data-service="{{ service_name }}">
+                <span>🔄</span>
+                <span>Restart</span>
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Domain Status -->
+  <section class="domains-section">
+    <div class="section-header">
+      <h2>🌐 Domain Status</h2>
+      <button class="btn btn-primary" onclick="HeadyControl.executeQuickAction('deploy-all')">
+        <span>🚀</span>
+        <span>Deploy All</span>
+      </button>
+    </div>
+    
+    <div class="domains-grid">
+      {% for domain, status in domains %}
+        <div class="domain-card {{ status.online ? 'online' : 'offline' }}">
+          <div class="domain-header">
+            <div class="domain-name">{{ domain }}</div>
+            <div class="domain-type">{{ status.type }}</div>
+          </div>
+          
+          <div class="domain-metrics">
+            <div class="metric">
+              <div class="metric-label">Response Time</div>
+              <div class="metric-value">{{ status.response_time }}ms</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Uptime (24h)</div>
+              <div class="metric-value">{{ status.uptime_24h }}%</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">SSL Status</div>
+              <div class="ssl-status {{ status.ssl_valid ? 'ssl-valid' : 'ssl-invalid' }}">
+                {{ status.ssl_valid ? '✓ Valid' : '✗ Invalid' }}
+              </div>
+            </div>
+          </div>
+          
+          <div class="domain-actions">
+            {% if status.online %}
+              <button class="btn btn-secondary domain-action" data-action="open" data-domain="{{ domain }}">
+                <span>🌐</span>
+                <span>Open</span>
+              </button>
+            {% endif %}
+            <button class="btn btn-primary domain-action" data-action="deploy" data-domain="{{ domain }}">
+              <span>🚀</span>
+              <span>Deploy</span>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- WARP Dashboard -->
+  <section class="warp-section">
+    <div class="section-header">
+      <h2>🔐 WARP Network Status</h2>
+      <button class="btn btn-secondary" onclick="HeadyControl.executeQuickAction('warp-status')">
+        <span>🔄</span>
+        <span>Check Status</span>
+      </button>
+    </div>
+    
+    <div class="warp-overview">
+      <div class="warp-stat-card">
+        <div class="warp-stat-value">{{ warp_stats.connected_devices }}</div>
+        <div class="warp-stat-label">Connected Devices</div>
+      </div>
+      <div class="warp-stat-card">
+        <div class="warp-stat-value">{{ warp_stats.total_bandwidth }} Mbps</div>
+        <div class="warp-stat-label">Total Bandwidth</div>
+      </div>
+      <div class="warp-stat-card">
+        <div class="warp-stat-value">{{ warp_stats.latency_reduction }}%</div>
+        <div class="warp-stat-label">Latency Reduction</div>
+      </div>
+      <div class="warp-stat-card">
+        <div class="warp-stat-value">{{ warp_stats.security_events }}</div>
+        <div class="warp-stat-label">Security Events</div>
+      </div>
+    </div>
+    
+    <div class="warp-devices">
+      <h3>Connected Devices</h3>
+      <div class="device-list">
+        {% for device in buddy_devices %}
+          <div class="device-item">
+            <div class="device-info">
+              <h5>{{ device.name }}</h5>
+              <div class="device-meta">{{ device.type }} • {{ device.platform }}</div>
+            </div>
+            <div class="device-status">
+              {% if device.warp_enabled %}
+                <span class="warp-badge">🔐 WARP</span>
+              {% endif %}
+              <span class="status-indicator {{ device.status }}"></span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- HeadyBuddy Control -->
+  <section class="buddy-section">
+    <div class="section-header">
+      <h2>🤖 HeadyBuddy Control</h2>
+      <button class="btn btn-primary" onclick="HeadyControl.executeQuickAction('buddy-sync')">
+        <span>🔄</span>
+        <span>Force Sync</span>
+      </button>
+    </div>
+    
+    <div class="buddy-panel">
+      <div class="buddy-stats">
+        <div class="metric">
+          <div class="metric-label">Active Sessions</div>
+          <div class="metric-value">{{ buddy_devices|length }}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Cross-Device Sync</div>
+          <div class="metric-value">Active</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Last Sync</div>
+          <div class="metric-value">{{ last_sync_time }}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Sync Status</div>
+          <div class="metric-value">Healthy</div>
+        </div>
+      </div>
+      
+      <div class="buddy-actions">
+        <button class="btn btn-secondary" onclick="HeadyControl.executeQuickAction('buddy-sync')">
+          <span>🔄</span>
+          <span>Force Sync</span>
+        </button>
+        <button class="btn btn-warning">
+          <span>🗑️</span>
+          <span>Clear Cache</span>
+        </button>
+        <button class="btn btn-success">
+          <span>🔗</span>
+          <span>Test Connection</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <h2>⚡ Quick Actions</h2>
+    <div class="actions-grid">
+      <div class="action-btn quick-action" data-action="full-sync">
+        <div class="action-icon">🔄</div>
+        <div class="action-label">Full System Sync</div>
+        <div class="action-description">Synchronize all systems</div>
+      </div>
+      <div class="action-btn quick-action" data-action="clean-build">
+        <div class="action-icon">🔨</div>
+        <div class="action-label">Clean Build All</div>
+        <div class="action-description">Rebuild all services</div>
+      </div>
+      <div class="action-btn quick-action" data-action="restart-services">
+        <div class="action-icon">🔄</div>
+        <div class="action-label">Restart Services</div>
+        <div class="action-description">Restart all services</div>
+      </div>
+      <div class="action-btn quick-action" data-action="view-logs">
+        <div class="action-icon">📋</div>
+        <div class="action-label">View Logs</div>
+        <div class="action-description">System logs viewer</div>
+      </div>
+      <div class="action-btn quick-action" data-action="health-check">
+        <div class="action-icon">🏥</div>
+        <div class="action-label">Health Check</div>
+        <div class="action-description">Run diagnostics</div>
+      </div>
+      <div class="action-btn quick-action" data-action="deploy-all">
+        <div class="action-icon">🚀</div>
+        <div class="action-label">Deploy All</div>
+        <div class="action-description">Deploy all domains</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- System Logs -->
+  <section class="logs-section">
+    <div class="section-header">
+      <h2>📋 System Logs</h2>
+      <button class="btn btn-secondary" onclick="HeadyControl.executeQuickAction('view-logs')">
+        <span>🔄</span>
+        <span>Refresh</span>
+      </button>
+    </div>
+    
+    <div class="logs-container">
+      <div class="log-entry info">
+        <span class="log-timestamp">{{ "now"|date("H:i:s") }}</span>
+        <span class="log-level">info</span>
+        <span class="log-message">Heady Systems Control Dashboard loaded</span>
+      </div>
+      <div class="log-entry success">
+        <span class="log-timestamp">{{ "now"|date("H:i:s") }}</span>
+        <span class="log-level">success</span>
+        <span class="log-message">WARP tunnel connection established</span>
+      </div>
+      <div class="log-entry info">
+        <span class="log-timestamp">{{ "now"|date("H:i:s") }}</span>
+        <span class="log-level">info</span>
+        <span class="log-message">Health check completed - All systems operational</span>
+      </div>
+      <div class="log-entry warning">
+        <span class="log-timestamp">{{ "now"|date("H:i:s") }}</span>
+        <span class="log-level">warning</span>
+        <span class="log-message">High memory usage detected on HeadyManager service</span>
+      </div>
+      <div class="log-entry info">
+        <span class="log-timestamp">{{ "now"|date("H:i:s") }}</span>
+        <span class="log-level">info</span>
+        <span class="log-message">HeadyBuddy cross-device sync active</span>
+      </div>
+    </div>
+  </section>
+</div>

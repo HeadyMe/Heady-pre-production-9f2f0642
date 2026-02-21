@@ -1,0 +1,17 @@
+{
+  "sync_enabled": true,
+  "warp_tunnel": {
+    "endpoint": "https://buddy-sync.headysystems.com",
+    "auth_token": "headybuddy-sync-token-2024"
+  },
+  "task_sync": {
+    "interval": 30,
+    "auto_sync": true,
+    "cross_device": true
+  },
+  "browser": {
+    "headless": true,
+    "port": 9222,
+    "auto_start": false
+  }
+}

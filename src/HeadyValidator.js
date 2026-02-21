@@ -31,9 +31,9 @@ const headyFs = require('fs').promises;
 const headyPath = require('path');
 
 class HeadyValidator {
-  constructor(registry, conductor) {
+  constructor(registry, promoter) {
     this.registry = registry;
-    this.conductor = conductor;
+    this.promoter = promoter;
     this.validationCache = new Map();
     this.errorPatterns = [];
     this.autoCorrectionEnabled = true;
@@ -43,16 +43,16 @@ class HeadyValidator {
   }
 
   /**
-   * Validate entire execution plan before conductor proceeds
+   * Validate entire execution plan before promoter proceeds
    */
   async validateExecutionPlan(executionPlan) {
     const headyValidationKey = JSON.stringify(executionPlan);
     
     // Check cache first
-    if (this.validationCache.has(validationKey)) {
-      const headyCached = this.validationCache.get(validationKey);
+    if (this.validationCache.has(headyValidationKey)) {
+      const headyCached = this.validationCache.get(headyValidationKey);
       console.log('[HeadyValidator] Using cached validation result');
-      return cached;
+      return headyCached;
     }
 
     const headyValidationResult = {
@@ -71,10 +71,10 @@ class HeadyValidator {
     // 1. Validate nodes exist and are available
     if (executionPlan.nodes_to_invoke) {
       for (const headyNodeInfo of executionPlan.nodes_to_invoke) {
-        const headyNodeValidation = await this.validateNode(nodeInfo.name);
-        if (!nodeValidation.valid) {
-          validationResult.errors.push(...nodeValidation.errors);
-          validationResult.valid = false;
+        const headyNodeValidation = await this.validateNode(headyNodeInfo.name);
+        if (!headyNodeValidation.valid) {
+          headyValidationResult.errors.push(...headyNodeValidation.errors);
+          headyValidationResult.valid = false;
         }
       }
     }
@@ -82,10 +82,10 @@ class HeadyValidator {
     // 2. Validate workflows are executable
     if (executionPlan.workflows_to_execute) {
       for (const headyWorkflowInfo of executionPlan.workflows_to_execute) {
-        const headyWorkflowValidation = await this.validateWorkflow(workflowInfo.name);
-        if (!workflowValidation.valid) {
-          validationResult.errors.push(...workflowValidation.errors);
-          validationResult.valid = false;
+        const headyWorkflowValidation = await this.validateWorkflow(headyWorkflowInfo.name);
+        if (!headyWorkflowValidation.valid) {
+          headyValidationResult.errors.push(...headyWorkflowValidation.errors);
+          headyValidationResult.valid = false;
         }
       }
     }
@@ -93,10 +93,10 @@ class HeadyValidator {
     // 3. Validate tools are available
     if (executionPlan.tools_to_use) {
       for (const headyToolInfo of executionPlan.tools_to_use) {
-        const headyToolValidation = await this.validateTool(toolInfo.name);
-        if (!toolValidation.valid) {
-          validationResult.errors.push(...toolValidation.errors);
-          validationResult.valid = false;
+        const headyToolValidation = await this.validateTool(headyToolInfo.name);
+        if (!headyToolValidation.valid) {
+          headyValidationResult.errors.push(...headyToolValidation.errors);
+          headyValidationResult.valid = false;
         }
       }
     }
@@ -104,44 +104,44 @@ class HeadyValidator {
     // 4. Validate service endpoints are reachable
     if (executionPlan.services_required) {
       for (const headyServiceInfo of executionPlan.services_required) {
-        const headyServiceValidation = await this.validateService(serviceInfo.name);
-        if (!serviceValidation.valid) {
-          validationResult.warnings.push(...serviceValidation.warnings);
+        const headyServiceValidation = await this.validateService(headyServiceInfo.name);
+        if (!headyServiceValidation.valid) {
+          headyValidationResult.warnings.push(...headyServiceValidation.warnings);
         }
       }
     }
 
-    // 5. Validate HeadyConductor workflow understanding
-    await this.validateConductorWorkflow(executionPlan, validationResult);
+    // 5. Validate Headypromoter workflow understanding
+    await this.validatepromoterWorkflow(executionPlan, headyValidationResult);
 
     // 6. Validate HeadySoul integration
-    await this.validateHeadySoulIntegration(executionPlan, validationResult);
+    await this.validateHeadySoulIntegration(executionPlan, headyValidationResult);
 
     // Auto-correction if enabled
-    if (!validationResult.valid && this.autoCorrectionEnabled) {
+    if (!headyValidationResult.valid && this.autoCorrectionEnabled) {
       console.log('[HeadyValidator] Attempting auto-correction...');
-      validationResult.correctedPlan = await this.autoCorrectPlan(
+      headyValidationResult.correctedPlan = await this.autoCorrectPlan(
         executionPlan, 
-        validationResult.errors
+        headyValidationResult.errors
       );
       
       // Re-validate corrected plan
-      if (JSON.stringify(validationResult.correctedPlan) !== JSON.stringify(executionPlan)) {
+      if (JSON.stringify(headyValidationResult.correctedPlan) !== JSON.stringify(executionPlan)) {
         console.log('[HeadyValidator] Re-validating corrected plan...');
-        const headyRevalidation = await this.validateExecutionPlan(validationResult.correctedPlan);
-        validationResult.correctedPlan = revalidation.correctedPlan;
-        validationResult.valid = revalidation.valid;
-        validationResult.errors = revalidation.errors;
+        const headyRevalidation = await this.validateExecutionPlan(headyValidationResult.correctedPlan);
+        headyValidationResult.correctedPlan = headyRevalidation.correctedPlan;
+        headyValidationResult.valid = headyRevalidation.valid;
+        headyValidationResult.errors = headyRevalidation.errors;
       }
     }
 
     // Cache result
-    this.validationCache.set(validationKey, validationResult);
+    this.validationCache.set(headyValidationKey, headyValidationResult);
 
     // Log results
-    this.logValidationResults(validationResult);
+    this.logValidationResults(headyValidationResult);
 
-    return validationResult;
+    return headyValidationResult;
   }
 
   /**
@@ -161,18 +161,18 @@ class HeadyValidator {
     const headyNode = this.registry.nodes[nodeName];
 
     // Check if node's primary tool is available
-    if (node.primary_tool && (!this.registry.tools || !this.registry.tools[node.primary_tool])) {
+    if (headyNode.primary_tool && (!this.registry.tools || !this.registry.tools[headyNode.primary_tool])) {
       return {
         valid: false,
-        errors: [`Node '${nodeName}' requires tool '${node.primary_tool}' which is not available`]
+        errors: [`Node '${nodeName}' requires tool '${headyNode.primary_tool}' which is not available`]
       };
     }
 
     // Check node status
-    if (node.status !== 'active') {
+    if (headyNode.status !== 'active') {
       return {
         valid: false,
-        errors: [`Node '${nodeName}' is not active (status: ${node.status})`]
+        errors: [`Node '${nodeName}' is not active (status: ${headyNode.status})`]
       };
     }
 
@@ -197,13 +197,14 @@ class HeadyValidator {
     const headyWorkflow = this.registry.workflows[workflowName];
 
     // Validate file path exists
-    if (workflow.file_path) {
+    if (headyWorkflow.file_path) {
       try {
-        await fs.access(workflow.file_path);
+        const headyFs = require('fs').promises;
+        await headyFs.access(headyWorkflow.file_path);
       } catch (err) {
         return {
           valid: false,
-          errors: [`Workflow file '${workflow.file_path}' does not exist or is not accessible`]
+          errors: [`Workflow file '${headyWorkflow.file_path}' does not exist or is not accessible`]
         };
       }
     }
@@ -229,13 +230,14 @@ class HeadyValidator {
     const headyTool = this.registry.tools[toolName];
 
     // Check tool is executable
-    if (tool.executable_path) {
+    if (headyTool.executable_path) {
       try {
-        await fs.access(tool.executable_path, fs.constants.X_OK);
+        const headyFs = require('fs');
+        await headyFs.promises.access(headyTool.executable_path, headyFs.constants.X_OK);
       } catch (err) {
         return {
           valid: false,
-          errors: [`Tool executable '${tool.executable_path}' is not executable`]
+          errors: [`Tool executable '${headyTool.executable_path}' is not executable`]
         };
       }
     }
@@ -254,47 +256,47 @@ class HeadyValidator {
 
     // Check if service exists in registry
     if (!this.registry.services || !this.registry.services[serviceName]) {
-      validation.warnings.push(`Service '${serviceName}' not yet registered`);
-      return validation;
+      headyValidation.warnings.push(`Service '${serviceName}' not yet registered`);
+      return headyValidation;
     }
 
     const headyService = this.registry.services[serviceName];
 
     // Check service has endpoint
-    if (!service.endpoint && !service.health_check_url) {
-      validation.warnings.push(`Service '${serviceName}' has no configured endpoint`);
+    if (!headyService.endpoint && !headyService.health_check_url) {
+      headyValidation.warnings.push(`Service '${serviceName}' has no configured endpoint`);
     }
 
     // Check service status
-    if (service.status === 'unknown' || service.status === 'error') {
-      validation.warnings.push(`Service '${serviceName}' status is '${service.status}'`);
+    if (headyService.status === 'unknown' || headyService.status === 'error') {
+      headyValidation.warnings.push(`Service '${serviceName}' status is '${headyService.status}'`);
     }
 
     console.log(`[HeadyValidator] ✅ Service '${serviceName}' validated`);
-    return validation;
+    return headyValidation;
   }
 
   /**
-   * Validate HeadyConductor workflow understanding
+   * Validate Headypromoter workflow understanding
    */
-  async validateConductorWorkflow(executionPlan, validationResult) {
-    console.log('[HeadyValidator] Validating HeadyConductor workflow understanding...');
+  async validatepromoterWorkflow(executionPlan, validationResult) {
+    console.log('[HeadyValidator] Validating Headypromoter workflow understanding...');
 
-    // Check if execution plan follows conductor patterns
+    // Check if execution plan follows promoter patterns
     if (!executionPlan.execution_strategy) {
-      validationResult.warnings.push('No execution strategy specified for conductor');
+      validationResult.warnings.push('No execution strategy specified for promoter');
     }
 
-    // Validate conductor authority chain
+    // Validate promoter authority chain
     const headyRequiredComponents = ['brain', 'registry', 'lens', 'memory'];
-    for (const headyComponent of requiredComponents) {
-      if (!this.conductor[component]) {
-        validationResult.errors.push(`HeadyConductor missing required component: ${component}`);
+    for (const headyComponent of headyRequiredComponents) {
+      if (!this.promoter[headyComponent]) {
+        validationResult.errors.push(`Headypromoter missing required component: ${headyComponent}`);
         validationResult.valid = false;
       }
     }
 
-    console.log('[HeadyValidator] ✅ HeadyConductor workflow validated');
+    console.log('[HeadyValidator] ✅ Headypromoter workflow validated');
   }
 
   /**
@@ -305,7 +307,7 @@ class HeadyValidator {
 
     // Check if HeadySoul is registered as a node
     if (!this.registry.nodes || !this.registry.nodes['HeadySoul']) {
-      validationResult.warnings.push('HeadySoul node not registered in conductor');
+      validationResult.warnings.push('HeadySoul node not registered in promoter');
     }
 
     // Check if HeadySoul service is available
@@ -318,9 +320,9 @@ class HeadyValidator {
     if (headySoulNode && headySoulNode.dependencies) {
       for (const headyDep of headySoulNode.dependencies) {
         try {
-          require.resolve(dep);
+          require.resolve(headyDep);
         } catch (err) {
-          validationResult.errors.push(`HeadySoul dependency '${dep}' not available`);
+          validationResult.errors.push(`HeadySoul dependency '${headyDep}' not available`);
           validationResult.valid = false;
         }
       }
@@ -333,23 +335,23 @@ class HeadyValidator {
    * Attempt to auto-correct execution plan based on errors
    */
   async autoCorrectPlan(executionPlan, errors) {
-    const headyCorrected = JSON.parse(JSON.stringify(executionPlan));
+    let headyCorrected = JSON.parse(JSON.stringify(executionPlan));
     
     console.log('[HeadyValidator] Auto-correction attempts:');
 
     for (const headyError of errors) {
-      if (error.includes('not found in registry')) {
-        const headyMissingItem = error.split("'")[1];
-        const headySuggestions = await this.findSimilarItems(missingItem);
+      if (headyError.includes('not found in registry')) {
+        const headyMissingItem = headyError.split("'")[1];
+        const headySuggestions = await this.findSimilarItems(headyMissingItem);
         
-        if (suggestions.length > 0) {
-          console.log(`  🔧 Auto-correcting: ${missingItem} → ${suggestions[0]}`);
-          corrected = this.replaceInPlan(corrected, missingItem, suggestions[0]);
+        if (headySuggestions.length > 0) {
+          console.log(`  🔧 Auto-correcting: ${headyMissingItem} → ${headySuggestions[0]}`);
+          headyCorrected = this.replaceInPlan(headyCorrected, headyMissingItem, headySuggestions[0]);
         }
       }
     }
 
-    return corrected;
+    return headyCorrected;
   }
 
   /**
@@ -358,19 +360,19 @@ class HeadyValidator {
   async findSimilarItems(itemName) {
     const headyAllItems = [];
     
-    if (this.registry.nodes) allItems.push(...Object.keys(this.registry.nodes));
-    if (this.registry.workflows) allItems.push(...Object.keys(this.registry.workflows));
-    if (this.registry.tools) allItems.push(...Object.keys(this.registry.tools));
+    if (this.registry.nodes) headyAllItems.push(...Object.keys(this.registry.nodes));
+    if (this.registry.workflows) headyAllItems.push(...Object.keys(this.registry.workflows));
+    if (this.registry.tools) headyAllItems.push(...Object.keys(this.registry.tools));
 
     const headySimilarities = [];
-    for (const headyAvailable of allItems) {
-      const headyRatio = this.similarityRatio(itemName.toLowerCase(), available.toLowerCase());
-      if (ratio > 0.7) {
-        similarities.push([available, ratio]);
+    for (const headyAvailable of headyAllItems) {
+      const headyRatio = this.similarityRatio(itemName.toLowerCase(), headyAvailable.toLowerCase());
+      if (headyRatio > 0.7) {
+        headySimilarities.push([headyAvailable, headyRatio]);
       }
     }
 
-    return similarities
+    return headySimilarities
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
       .map(([item]) => item);
@@ -381,7 +383,7 @@ class HeadyValidator {
    */
   similarityRatio(a, b) {
     const headyMatches = Array.from(a).filter((char, i) => i < b.length && char === b[i]).length;
-    return matches / Math.max(a.length, b.length);
+    return headyMatches / Math.max(a.length, b.length);
   }
 
   /**
@@ -389,8 +391,8 @@ class HeadyValidator {
    */
   replaceInPlan(plan, oldItem, newItem) {
     const headyPlanStr = JSON.stringify(plan);
-    const headyCorrectedStr = planStr.replace(new RegExp(`"${oldItem}"`, 'g'), `"${newItem}"`);
-    return JSON.parse(correctedStr);
+    const headyCorrectedStr = headyPlanStr.replace(new RegExp(`"${oldItem}"`, 'g'), `"${newItem}"`);
+    return JSON.parse(headyCorrectedStr);
   }
 
   /**

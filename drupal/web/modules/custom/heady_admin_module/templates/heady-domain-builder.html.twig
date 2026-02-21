@@ -1,0 +1,79 @@
+{#
+/**
+ * @file
+ * Domain builder template for Heady Admin.
+ */
+#}
+<div class="domain-builder-interface">
+  <h2>Domain Builder</h2>
+  <p>Create and configure websites for your domains and subdomains.</p>
+  
+  <div class="domain-form">
+    <form id="domain-builder-form">
+      <div class="form-group">
+        <label for="domain-name">Domain Name:</label>
+        <input type="text" id="domain-name" name="domain_name" placeholder="example.com" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="display-name">Display Name:</label>
+        <input type="text" id="display-name" name="display_name" placeholder="My Website" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="domain-type">Domain Type:</label>
+        <select id="domain-type" name="domain_type">
+          <option value="static">Static Site</option>
+          <option value="drupal">Drupal CMS</option>
+          <option value="nextjs">Next.js App</option>
+          <option value="redirect">Redirect</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="template">Template:</label>
+        <select id="template" name="template">
+          <option value="business">Business</option>
+          <option value="portfolio">Portfolio</option>
+          <option value="blog">Blog</option>
+          <option value="ecommerce">E-commerce</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="3"></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="button button--primary">Create Domain</button>
+        <button type="button" class="button" id="preview-btn">Preview</button>
+      </div>
+    </form>
+  </div>
+  
+  <div class="domain-preview" id="domain-preview" style="display: none;">
+    <h3>Preview</h3>
+    <div id="preview-content"></div>
+  </div>
+  
+  <div class="existing-domains">
+    <h3>Existing Domains</h3>
+    <div class="domain-list">
+      {% for domain in domains %}
+        <div class="domain-item">
+          <div class="domain-info">
+            <h4>{{ domain.display_name }}</h4>
+            <p>{{ domain.domain_name }}</p>
+            <p>{{ domain.description }}</p>
+          </div>
+          <div class="domain-actions">
+            <a href="/admin/domains/{{ domain.id }}/edit" class="button">Edit</a>
+            <a href="{{ domain.domain_name }}" target="_blank" class="button">Visit</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

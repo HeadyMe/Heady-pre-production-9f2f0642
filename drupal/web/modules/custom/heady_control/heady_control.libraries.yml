@@ -1,0 +1,12 @@
+global:
+  version: VERSION
+  css:
+    theme:
+      css/heady-control.css: {}
+  js:
+    js/heady-control.js: {}
+    js/warp-dashboard.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/drupal.ajax

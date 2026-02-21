@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -10,7 +9,7 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: monte-carlo-engine.js                                   ║
+// ║  FILE: HeadySims-engine.js                                   ║
 // ║  UPDATED: 20260218-211102                                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -21,13 +20,12 @@
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  */
 
-#!/usr/bin/env node
 /**
  * 🎲 MONTE CARLO ENGINE: Strategy Exploration & Simulation
  * Explores multiple strategies, simulates outcomes, chooses optimal
  */
 
-class MonteCarloEngine {
+class HeadySimsEngine {
   constructor() {
     this.name = 'MONTE_CARLO';
     this.strategyDatabase = new Map();
@@ -50,7 +48,7 @@ class MonteCarloEngine {
     
     const strategyData = this.strategyDatabase.get(strategy.name);
     
-    // Run Monte Carlo simulations
+    // Run HeadySims simulations
     const outcomes = [];
     
     for (let i = 0; i < iterations; i++) {
@@ -222,4 +220,4 @@ class MonteCarloEngine {
   }
 }
 
-module.exports = MonteCarloEngine;
+module.exports = HeadySimsEngine;

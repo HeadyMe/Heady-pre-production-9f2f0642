@@ -26,23 +26,23 @@
 
 ## 🤖 AI DEMO COMMANDS
 
-### 1. Socratic Questioning Demo
+### 1. HeadyBattle Questioning Demo
 ```bash
-curl -X POST https://manager.headyme.com/api/socratic/question \
+curl -X POST https://manager.headyme.com/api/HeadyBattle/question \
   -H "Content-Type: application/json" \
   -d '{"request": "Should we optimize our database for better performance?"}'
 ```
 
-### 2. Monte Carlo Strategy Demo  
+### 2. HeadySims Strategy Demo  
 ```bash
 curl -X POST https://manager.headyme.com/api/dual-engine/test \
   -H "Content-Type: application/json" \
   -d '{"test": "investment portfolio optimization"}'
 ```
 
-### 3. Conductor Multi-LLM Demo
+### 3. promoter Multi-LLM Demo
 ```bash
-curl -s https://manager.headyme.com/api/conductor/status
+curl -s https://manager.headyme.com/api/promoter/status
 ```
 
 ### 4. All-Nodes Orchestration Demo
@@ -72,20 +72,20 @@ curl -s https://manager.headyme.com/api/memory/stats
 ### Opening - Show Admin Dashboard
 1. **Open**: https://headyme.com/admin-ui.html
 2. **Say**: "This is our Heady admin dashboard - real-time AI system monitoring"
-3. **Point**: "Dual-engine status shows both Socratic and Monte Carlo are ACTIVE"
+3. **Point**: "Dual-engine status shows both HeadyBattle and HeadySims are ACTIVE"
 4. **Highlight**: "100% validation coverage on every single action"
 
 ### AI Intelligence Demo
 ```bash
 # Run this command and show the response
-curl -X POST https://manager.headyme.com/api/socratic/question \
+curl -X POST https://manager.headyme.com/api/HeadyBattle/question \
   -H "Content-Type: application/json" \
   -d '{"request": "Should we optimize our database for better performance?"}'
 ```
 
-**Say**: "Notice how the Socratic engine questions the intent - it's challenging assumptions before acting"
+**Say**: "Notice how the HeadyBattle engine questions the intent - it's challenging assumptions before acting"
 
-### Monte Carlo Strategy Demo
+### HeadySims Strategy Demo
 ```bash
 # Run this command to show strategy exploration
 curl -X POST https://manager.headyme.com/api/dual-engine/test \
@@ -93,7 +93,7 @@ curl -X POST https://manager.headyme.com/api/dual-engine/test \
   -d '{"test": "investment portfolio optimization"}'
 ```
 
-**Say**: "The Monte Carlo engine explored 5 strategies with 1000+ simulations each - it only proceeds with 85%+ confidence"
+**Say**: "The HeadySims engine explored 5 strategies with 1000+ simulations each - it only proceeds with 85%+ confidence"
 
 ### System Health Demo
 ```bash
@@ -114,7 +114,7 @@ curl -s https://manager.headyme.com/api/health
 "Companies lose millions to bad IT decisions. Our system saves 20-30% on operations by preventing mistakes through AI validation."
 
 ### Competitive Advantage
-- **Proprietary dual-engine AI** (Socratic + Monte Carlo)
+- **Proprietary dual-engine AI** (HeadyBattle + HeadySims)
 - **100% validation coverage** (zero blind execution)
 - **Auto-deploy pipeline** (zero-touch updates)
 - **Enterprise-ready architecture** (Drupal + Next.js)

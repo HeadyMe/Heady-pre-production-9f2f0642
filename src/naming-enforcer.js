@@ -117,16 +117,16 @@ class HeadyNamingEnforcer {
 
   enforceUrlStructure(url) {
     // Enforce proper Heady domain structure
-    if (url.includes('headyme.com')) {
+    if (url.includes('headyme.com') && url.includes('/admin') && !url.includes('admin-ui.html')) {
       this.violations.push({ type: 'url', url, reason: 'Admin UI should be at headyme.com/admin-ui.html' });
       this.autoFixed++;
-      return url.replace('headyme.com', 'headyme.com');
+      return url.replace(/\/admin.*$/, '/admin-ui.html');
     }
     
-    if (url.includes('manager.headyme.com') && !url.includes('manager')) {
-      this.violations.push({ type: 'url', url, reason: 'API should use manager.headyme.com' });
+    if (url.includes('api.headyme.com') && !url.startsWith('https://')) {
+      this.violations.push({ type: 'url', url, reason: 'API should use https://api.headyme.com' });
       this.autoFixed++;
-      return url.replace('manager.headyme.com', 'manager.headyme.com');
+      return 'https://api.headyme.com' + (url.split('api.headyme.com')[1] || '');
     }
     
     return url;
@@ -146,24 +146,24 @@ class HeadyNamingEnforcer {
     let headyFixedCode = code;
     
     // Fix class Headynames
-    fixedCode = fixedCode.replace(/class\s+(\w+)/g, (match, className) => {
+    headyFixedCode = headyFixedCode.replace(/class\s+(\w+)/g, (match, className) => {
       const headyFixed = this.enforceClassName(className);
-      return match.replace(className, fixed);
+      return match.replace(className, headyFixed);
     });
     
     // Fix function headyNames
-    fixedCode = fixedCode.replace(/function\s+(\w+)/g, (match, funcName) => {
+    headyFixedCode = headyFixedCode.replace(/function\s+(\w+)/g, (match, funcName) => {
       const headyFixed = this.enforceFunctionName(funcName);
-      return match.replace(funcName, fixed);
+      return match.replace(funcName, headyFixed);
     });
     
     // Fix variable declarations
-    fixedCode = fixedCode.replace(/(?:const|let|var)\s+(\w+)/g, (match, varName) => {
+    headyFixedCode = headyFixedCode.replace(/(?:const|let|var)\s+(\w+)/g, (match, varName) => {
       const headyFixed = this.enforceVariableName(varName);
-      return match.replace(varName, fixed);
+      return match.replace(varName, headyFixed);
     });
     
-    return fixedCode;
+    return headyFixedCode;
   }
 
   getReport() {
@@ -192,15 +192,15 @@ class HeadyNamingEnforcer {
     const headyPath = require('path');
     
     try {
-      const headyEntries = await fs.readdir(dir, { withFileTypes: true });
+      const headyEntries = await headyFs.readdir(dir, { withFileTypes: true });
       
-      for (const headyEntry of entries) {
-        const headyFullPath = path.join(dir, entry.name);
+      for (const headyEntry of headyEntries) {
+        const headyFullPath = headyPath.join(dir, headyEntry.name);
         
-        if (entry.isDirectory()) {
-          await this.scanDirectory(fullPath);
-        } else if (entry.name.match(/\.(js|ts|jsx|tsx)$/)) {
-          await this.scanFile(fullPath);
+        if (headyEntry.isDirectory()) {
+          await this.scanDirectory(headyFullPath);
+        } else if (headyEntry.name.match(/\.(js|ts|jsx|tsx)$/)) {
+          await this.scanFile(headyFullPath);
         }
       }
     } catch (err) {
@@ -212,11 +212,11 @@ class HeadyNamingEnforcer {
     const headyFs = require('fs').promises;
     
     try {
-      const headyContent = await fs.readFile(filePath, 'utf8');
-      const headyFixed = this.scanAndFixCode(content, filePath);
+      const headyContent = await headyFs.readFile(filePath, 'utf8');
+      const headyFixed = this.scanAndFixCode(headyContent, filePath);
       
-      if (content !== fixed) {
-        await fs.writeFile(filePath, fixed, 'utf8');
+      if (headyContent !== headyFixed) {
+        await headyFs.writeFile(filePath, headyFixed, 'utf8');
         console.log(`[NamingEnforcer] Auto-fixed file: ${filePath}`);
       }
     } catch (err) {

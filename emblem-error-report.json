@@ -1,0 +1,1399 @@
+{
+  "timestamp": "2026-02-20T19:27:43.908Z",
+  "summary": {
+    "total_pages": 6,
+    "total_errors": 101,
+    "total_warnings": 36,
+    "pages_with_errors": 6,
+    "pages_with_warnings": 6
+  },
+  "pages": [
+    {
+      "page": "chat-fixed-enhanced.html",
+      "url": "http://headysystems.com:8080/chat-fixed-enhanced.html",
+      "errors": [
+        {
+          "type": "js_missing",
+          "file": "https://performance.radar.cloudflare.com/beacon.js",
+          "error": null
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-geometry-bg",
+          "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--cosmic-gradient",
+          "message": "CSS variable \"--cosmic-gradient\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--emblem-glass",
+          "message": "CSS variable \"--emblem-glass\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-gold",
+          "message": "CSS variable \"--sacred-gold\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--purple-glow",
+          "message": "CSS variable \"--purple-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--blue-glow",
+          "message": "CSS variable \"--blue-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--green-glow",
+          "message": "CSS variable \"--green-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--gold-glow",
+          "message": "CSS variable \"--gold-glow\" not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleGeometryMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleLotusMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleEyeMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleNatureMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleStarMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleRootMode",
+          "error": "Function not defined"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemDesignSystem",
+          "message": "Emblem element \"emblemDesignSystem\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemComponents",
+          "message": "Emblem element \"emblemComponents\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "cornerElements",
+          "message": "Emblem element \"cornerElements\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "floatingEmblems",
+          "message": "Emblem element \"floatingEmblems\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemButtons",
+          "message": "Emblem element \"emblemButtons\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemIcons",
+          "message": "Emblem element \"emblemIcons\" not found"
+        }
+      ]
+    },
+    {
+      "page": "admin-ui.html",
+      "url": "http://headysystems.com:8080/admin-ui.html",
+      "errors": [
+        {
+          "type": "js_missing",
+          "file": "https://performance.radar.cloudflare.com/beacon.js",
+          "error": null
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-geometry-bg",
+          "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--cosmic-gradient",
+          "message": "CSS variable \"--cosmic-gradient\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--emblem-glass",
+          "message": "CSS variable \"--emblem-glass\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-gold",
+          "message": "CSS variable \"--sacred-gold\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--purple-glow",
+          "message": "CSS variable \"--purple-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--blue-glow",
+          "message": "CSS variable \"--blue-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--green-glow",
+          "message": "CSS variable \"--green-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--gold-glow",
+          "message": "CSS variable \"--gold-glow\" not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleGeometryMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleLotusMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleEyeMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleNatureMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleStarMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleRootMode",
+          "error": "Function not defined"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemDesignSystem",
+          "message": "Emblem element \"emblemDesignSystem\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemComponents",
+          "message": "Emblem element \"emblemComponents\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "cornerElements",
+          "message": "Emblem element \"cornerElements\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "floatingEmblems",
+          "message": "Emblem element \"floatingEmblems\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemButtons",
+          "message": "Emblem element \"emblemButtons\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemIcons",
+          "message": "Emblem element \"emblemIcons\" not found"
+        }
+      ]
+    },
+    {
+      "page": "index.html",
+      "url": "http://headysystems.com:8080/index.html",
+      "errors": [
+        {
+          "type": "js_missing",
+          "file": "https://performance.radar.cloudflare.com/beacon.js",
+          "error": null
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-geometry-bg",
+          "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--cosmic-gradient",
+          "message": "CSS variable \"--cosmic-gradient\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--emblem-glass",
+          "message": "CSS variable \"--emblem-glass\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-gold",
+          "message": "CSS variable \"--sacred-gold\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--purple-glow",
+          "message": "CSS variable \"--purple-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--blue-glow",
+          "message": "CSS variable \"--blue-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--green-glow",
+          "message": "CSS variable \"--green-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--gold-glow",
+          "message": "CSS variable \"--gold-glow\" not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleGeometryMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleLotusMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleEyeMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleNatureMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleStarMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleRootMode",
+          "error": "Function not defined"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemDesignSystem",
+          "message": "Emblem element \"emblemDesignSystem\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemComponents",
+          "message": "Emblem element \"emblemComponents\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "cornerElements",
+          "message": "Emblem element \"cornerElements\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "floatingEmblems",
+          "message": "Emblem element \"floatingEmblems\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemButtons",
+          "message": "Emblem element \"emblemButtons\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemIcons",
+          "message": "Emblem element \"emblemIcons\" not found"
+        }
+      ]
+    },
+    {
+      "page": "index-enhanced.html",
+      "url": "http://headysystems.com:8080/index-enhanced.html",
+      "errors": [
+        {
+          "type": "js_missing",
+          "file": "https://performance.radar.cloudflare.com/beacon.js",
+          "error": null
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-geometry-bg",
+          "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--cosmic-gradient",
+          "message": "CSS variable \"--cosmic-gradient\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--emblem-glass",
+          "message": "CSS variable \"--emblem-glass\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-gold",
+          "message": "CSS variable \"--sacred-gold\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--purple-glow",
+          "message": "CSS variable \"--purple-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--blue-glow",
+          "message": "CSS variable \"--blue-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--green-glow",
+          "message": "CSS variable \"--green-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--gold-glow",
+          "message": "CSS variable \"--gold-glow\" not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleGeometryMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleLotusMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleEyeMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleNatureMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleStarMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleRootMode",
+          "error": "Function not defined"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemDesignSystem",
+          "message": "Emblem element \"emblemDesignSystem\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemComponents",
+          "message": "Emblem element \"emblemComponents\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "cornerElements",
+          "message": "Emblem element \"cornerElements\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "floatingEmblems",
+          "message": "Emblem element \"floatingEmblems\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemButtons",
+          "message": "Emblem element \"emblemButtons\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemIcons",
+          "message": "Emblem element \"emblemIcons\" not found"
+        }
+      ]
+    },
+    {
+      "page": "chat-enhanced.html",
+      "url": "http://headysystems.com:8080/chat-enhanced.html",
+      "errors": [
+        {
+          "type": "js_missing",
+          "file": "https://performance.radar.cloudflare.com/beacon.js",
+          "error": null
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-geometry-bg",
+          "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--cosmic-gradient",
+          "message": "CSS variable \"--cosmic-gradient\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--emblem-glass",
+          "message": "CSS variable \"--emblem-glass\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-gold",
+          "message": "CSS variable \"--sacred-gold\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--purple-glow",
+          "message": "CSS variable \"--purple-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--blue-glow",
+          "message": "CSS variable \"--blue-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--green-glow",
+          "message": "CSS variable \"--green-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--gold-glow",
+          "message": "CSS variable \"--gold-glow\" not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleGeometryMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleLotusMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleEyeMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleNatureMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleStarMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleRootMode",
+          "error": "Function not defined"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemDesignSystem",
+          "message": "Emblem element \"emblemDesignSystem\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemComponents",
+          "message": "Emblem element \"emblemComponents\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "cornerElements",
+          "message": "Emblem element \"cornerElements\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "floatingEmblems",
+          "message": "Emblem element \"floatingEmblems\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemButtons",
+          "message": "Emblem element \"emblemButtons\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemIcons",
+          "message": "Emblem element \"emblemIcons\" not found"
+        }
+      ]
+    },
+    {
+      "page": "admin-ui-enhanced.html",
+      "url": "http://headysystems.com:8080/admin-ui-enhanced.html",
+      "errors": [
+        {
+          "type": "js_missing",
+          "file": "https://performance.radar.cloudflare.com/beacon.js",
+          "error": null
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-geometry-bg",
+          "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--cosmic-gradient",
+          "message": "CSS variable \"--cosmic-gradient\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--emblem-glass",
+          "message": "CSS variable \"--emblem-glass\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--sacred-gold",
+          "message": "CSS variable \"--sacred-gold\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--purple-glow",
+          "message": "CSS variable \"--purple-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--blue-glow",
+          "message": "CSS variable \"--blue-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--green-glow",
+          "message": "CSS variable \"--green-glow\" not defined"
+        },
+        {
+          "type": "css_variable_missing",
+          "variable": "--gold-glow",
+          "message": "CSS variable \"--gold-glow\" not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleGeometryMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleLotusMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleEyeMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleNatureMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleStarMode",
+          "error": "Function not defined"
+        },
+        {
+          "type": "js_function_missing",
+          "function": "toggleRootMode",
+          "error": "Function not defined"
+        }
+      ],
+      "warnings": [
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemDesignSystem",
+          "message": "Emblem element \"emblemDesignSystem\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemComponents",
+          "message": "Emblem element \"emblemComponents\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "cornerElements",
+          "message": "Emblem element \"cornerElements\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "floatingEmblems",
+          "message": "Emblem element \"floatingEmblems\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemButtons",
+          "message": "Emblem element \"emblemButtons\" not found"
+        },
+        {
+          "type": "missing_emblem_element",
+          "element": "emblemIcons",
+          "message": "Emblem element \"emblemIcons\" not found"
+        }
+      ]
+    }
+  ],
+  "all_errors": [
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2026-02-20T19:27:36.699Z"
+    },
+    {
+      "type": "js_missing",
+      "file": "https://performance.radar.cloudflare.com/beacon.js",
+      "error": null
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-geometry-bg",
+      "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--cosmic-gradient",
+      "message": "CSS variable \"--cosmic-gradient\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--emblem-glass",
+      "message": "CSS variable \"--emblem-glass\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-gold",
+      "message": "CSS variable \"--sacred-gold\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--purple-glow",
+      "message": "CSS variable \"--purple-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--blue-glow",
+      "message": "CSS variable \"--blue-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--green-glow",
+      "message": "CSS variable \"--green-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--gold-glow",
+      "message": "CSS variable \"--gold-glow\" not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleGeometryMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleLotusMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleEyeMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleNatureMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleStarMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleRootMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "request_failed",
+      "url": "http://headysystems.com:8080/favicon.ico",
+      "failure": {
+        "errorText": "net::ERR_ABORTED"
+      },
+      "timestamp": "2026-02-20T19:27:38.873Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2026-02-20T19:27:38.874Z"
+    },
+    {
+      "type": "js_missing",
+      "file": "https://performance.radar.cloudflare.com/beacon.js",
+      "error": null
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-geometry-bg",
+      "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--cosmic-gradient",
+      "message": "CSS variable \"--cosmic-gradient\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--emblem-glass",
+      "message": "CSS variable \"--emblem-glass\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-gold",
+      "message": "CSS variable \"--sacred-gold\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--purple-glow",
+      "message": "CSS variable \"--purple-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--blue-glow",
+      "message": "CSS variable \"--blue-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--green-glow",
+      "message": "CSS variable \"--green-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--gold-glow",
+      "message": "CSS variable \"--gold-glow\" not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleGeometryMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleLotusMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleEyeMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleNatureMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleStarMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleRootMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "request_failed",
+      "url": "http://headysystems.com:8080/favicon.ico",
+      "failure": {
+        "errorText": "net::ERR_ABORTED"
+      },
+      "timestamp": "2026-02-20T19:27:40.485Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2026-02-20T19:27:40.486Z"
+    },
+    {
+      "type": "js_missing",
+      "file": "https://performance.radar.cloudflare.com/beacon.js",
+      "error": null
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-geometry-bg",
+      "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--cosmic-gradient",
+      "message": "CSS variable \"--cosmic-gradient\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--emblem-glass",
+      "message": "CSS variable \"--emblem-glass\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-gold",
+      "message": "CSS variable \"--sacred-gold\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--purple-glow",
+      "message": "CSS variable \"--purple-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--blue-glow",
+      "message": "CSS variable \"--blue-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--green-glow",
+      "message": "CSS variable \"--green-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--gold-glow",
+      "message": "CSS variable \"--gold-glow\" not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleGeometryMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleLotusMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleEyeMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleNatureMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleStarMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleRootMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "request_failed",
+      "url": "http://headysystems.com:8080/favicon.ico",
+      "failure": {
+        "errorText": "net::ERR_ABORTED"
+      },
+      "timestamp": "2026-02-20T19:27:41.240Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2026-02-20T19:27:41.244Z"
+    },
+    {
+      "type": "js_missing",
+      "file": "https://performance.radar.cloudflare.com/beacon.js",
+      "error": null
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-geometry-bg",
+      "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--cosmic-gradient",
+      "message": "CSS variable \"--cosmic-gradient\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--emblem-glass",
+      "message": "CSS variable \"--emblem-glass\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-gold",
+      "message": "CSS variable \"--sacred-gold\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--purple-glow",
+      "message": "CSS variable \"--purple-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--blue-glow",
+      "message": "CSS variable \"--blue-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--green-glow",
+      "message": "CSS variable \"--green-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--gold-glow",
+      "message": "CSS variable \"--gold-glow\" not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleGeometryMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleLotusMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleEyeMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleNatureMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleStarMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleRootMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "request_failed",
+      "url": "http://headysystems.com:8080/favicon.ico",
+      "failure": {
+        "errorText": "net::ERR_ABORTED"
+      },
+      "timestamp": "2026-02-20T19:27:41.944Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2026-02-20T19:27:41.944Z"
+    },
+    {
+      "type": "js_missing",
+      "file": "https://performance.radar.cloudflare.com/beacon.js",
+      "error": null
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-geometry-bg",
+      "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--cosmic-gradient",
+      "message": "CSS variable \"--cosmic-gradient\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--emblem-glass",
+      "message": "CSS variable \"--emblem-glass\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-gold",
+      "message": "CSS variable \"--sacred-gold\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--purple-glow",
+      "message": "CSS variable \"--purple-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--blue-glow",
+      "message": "CSS variable \"--blue-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--green-glow",
+      "message": "CSS variable \"--green-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--gold-glow",
+      "message": "CSS variable \"--gold-glow\" not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleGeometryMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleLotusMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleEyeMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleNatureMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleStarMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleRootMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "request_failed",
+      "url": "http://headysystems.com:8080/favicon.ico",
+      "failure": {
+        "errorText": "net::ERR_ABORTED"
+      },
+      "timestamp": "2026-02-20T19:27:42.999Z"
+    },
+    {
+      "type": "console_error",
+      "message": "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      "timestamp": "2026-02-20T19:27:42.999Z"
+    },
+    {
+      "type": "js_missing",
+      "file": "https://performance.radar.cloudflare.com/beacon.js",
+      "error": null
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-geometry-bg",
+      "message": "CSS variable \"--sacred-geometry-bg\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--cosmic-gradient",
+      "message": "CSS variable \"--cosmic-gradient\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--emblem-glass",
+      "message": "CSS variable \"--emblem-glass\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--sacred-gold",
+      "message": "CSS variable \"--sacred-gold\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--purple-glow",
+      "message": "CSS variable \"--purple-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--blue-glow",
+      "message": "CSS variable \"--blue-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--green-glow",
+      "message": "CSS variable \"--green-glow\" not defined"
+    },
+    {
+      "type": "css_variable_missing",
+      "variable": "--gold-glow",
+      "message": "CSS variable \"--gold-glow\" not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleGeometryMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleLotusMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleEyeMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleNatureMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleStarMode",
+      "error": "Function not defined"
+    },
+    {
+      "type": "js_function_missing",
+      "function": "toggleRootMode",
+      "error": "Function not defined"
+    }
+  ],
+  "all_warnings": [
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemDesignSystem",
+      "message": "Emblem element \"emblemDesignSystem\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemComponents",
+      "message": "Emblem element \"emblemComponents\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "cornerElements",
+      "message": "Emblem element \"cornerElements\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "floatingEmblems",
+      "message": "Emblem element \"floatingEmblems\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemButtons",
+      "message": "Emblem element \"emblemButtons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemIcons",
+      "message": "Emblem element \"emblemIcons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemDesignSystem",
+      "message": "Emblem element \"emblemDesignSystem\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemComponents",
+      "message": "Emblem element \"emblemComponents\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "cornerElements",
+      "message": "Emblem element \"cornerElements\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "floatingEmblems",
+      "message": "Emblem element \"floatingEmblems\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemButtons",
+      "message": "Emblem element \"emblemButtons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemIcons",
+      "message": "Emblem element \"emblemIcons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemDesignSystem",
+      "message": "Emblem element \"emblemDesignSystem\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemComponents",
+      "message": "Emblem element \"emblemComponents\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "cornerElements",
+      "message": "Emblem element \"cornerElements\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "floatingEmblems",
+      "message": "Emblem element \"floatingEmblems\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemButtons",
+      "message": "Emblem element \"emblemButtons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemIcons",
+      "message": "Emblem element \"emblemIcons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemDesignSystem",
+      "message": "Emblem element \"emblemDesignSystem\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemComponents",
+      "message": "Emblem element \"emblemComponents\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "cornerElements",
+      "message": "Emblem element \"cornerElements\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "floatingEmblems",
+      "message": "Emblem element \"floatingEmblems\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemButtons",
+      "message": "Emblem element \"emblemButtons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemIcons",
+      "message": "Emblem element \"emblemIcons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemDesignSystem",
+      "message": "Emblem element \"emblemDesignSystem\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemComponents",
+      "message": "Emblem element \"emblemComponents\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "cornerElements",
+      "message": "Emblem element \"cornerElements\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "floatingEmblems",
+      "message": "Emblem element \"floatingEmblems\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemButtons",
+      "message": "Emblem element \"emblemButtons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemIcons",
+      "message": "Emblem element \"emblemIcons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemDesignSystem",
+      "message": "Emblem element \"emblemDesignSystem\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemComponents",
+      "message": "Emblem element \"emblemComponents\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "cornerElements",
+      "message": "Emblem element \"cornerElements\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "floatingEmblems",
+      "message": "Emblem element \"floatingEmblems\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemButtons",
+      "message": "Emblem element \"emblemButtons\" not found"
+    },
+    {
+      "type": "missing_emblem_element",
+      "element": "emblemIcons",
+      "message": "Emblem element \"emblemIcons\" not found"
+    }
+  ],
+  "recommendations": [
+    "🔧 Implement missing JavaScript functions for emblem mode toggles",
+    "🔧 Define missing CSS variables in emblem-design-system.css",
+    "🎨 Add missing emblem elements for complete design system integration"
+  ]
+}

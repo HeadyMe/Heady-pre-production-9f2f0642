@@ -1,0 +1,20 @@
+name: 'Heady Admin Theme'
+type: theme
+description: 'Modern admin theme for Heady Systems with integrated task management and system control'
+core_version_requirement: ^11
+base theme: claro
+libraries:
+  - heady_admin_theme/global-styling
+  - heady_admin_theme/headybuddy-integration
+regions:
+  header: 'Header'
+  primary_menu: 'Primary menu'
+  secondary_menu: 'Secondary menu'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+  highlighted: 'Highlighted'
+  breadcrumb: 'Breadcrumb'
+  content: 'Content'
+  sidebar_first: 'Left sidebar'
+  sidebar_second: 'Right sidebar'
+  footer: 'Footer'

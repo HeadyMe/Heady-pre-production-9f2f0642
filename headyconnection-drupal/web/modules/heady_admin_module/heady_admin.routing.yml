@@ -1,0 +1,40 @@
+heady_admin.dashboard:
+  path: '/admin/dashboard'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::dashboard'
+    _title: 'Heady Systems Dashboard'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.services:
+  path: '/admin/services'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::services'
+    _title: 'Services Management'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.domains:
+  path: '/admin/domains'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::domains'
+    _title: 'Domain Management'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.tunnels:
+  path: '/admin/tunnels'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::tunnels'
+    _title: 'Tunnel Management'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.api_status:
+  path: '/admin/api/status'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::apiStatus'
+    _title: 'API Status'
+  requirements:
+    _permission: 'access administration pages'
+    _method: 'GET'

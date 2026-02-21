@@ -1,7 +1,7 @@
 {
   "name": "heady-systems",
   "version": "2.0.0",
-  "description": "HeadySystems - Sacred Geometry AI Platform with HeadySoul + Socratic Integration + Advanced Automation",
+  "description": "HeadySystems - Sacred Geometry AI Platform with HeadySoul + HeadyBattle Integration + Advanced Automation",
   "main": "heady-manager.js",
   "scripts": {
     "start:production": "NODE_ENV=production node heady-manager.js",
@@ -13,15 +13,21 @@
     "dev:watch": "nodemon --watch src --ext js,json --exec 'node heady-manager.js'",
     "clean": "rm -f headyheadless-report-*.json && echo 'Cleaned temporary files'",
     "test:watch": "jest --watch",
-    "health": "curl -s https://headysystems.com.com:8080/api/health | jq .",
+    "health": "curl -s http://localhost:3310/api/health/basic",
     "status": "node -e \"console.log('HeadySystems Status:', require('./package.json').version)\"",
     "build": "echo 'HeadySystems build completed - All modules optimized'",
     "test": "jest --coverage",
-    "deploy": "./scripts/hcfp-fixed-deploy.sh"
+    "deploy": "./scripts/hcfp-fixed-deploy.sh",
+    "hcfp": "node bin/hcfp",
+    "hcfp:auto-success": "node bin/hcfp auto-success",
+    "hcfp:stop": "node bin/hcfp stop",
+    "hcfp:status": "node bin/hcfp status",
+    "hcfp:critique": "node bin/hcfp critique",
+    "hcfp:health": "node bin/hcfp health"
   },
   "keywords": [
     "ai",
-    "socratic",
+    "HeadyBattle",
     "human-ai-alignment",
     "sacred-geometry",
     "heady",
@@ -36,20 +42,24 @@
     "@anthropic-ai/sdk": "^0.75.0",
     "@google/generative-ai": "^0.24.1",
     "axios": "^1.7.8",
-    "compression": "^1.7.5",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "express-rate-limit": "^8.2.1",
     "glob": "^13.0.5",
-    "helmet": "^8.0.0",
+    "helmet": "^8.1.0",
     "joi": "^17.13.3",
+    "jsdom": "^28.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "morgan": "^1.10.0",
     "openai": "^4.71.1",
     "puppeteer": "^23.8.0",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^10.0.0",
+    "winston": "^3.19.0",
     "ws": "^8.19.0"
   },
   "devDependencies": {
@@ -76,10 +86,15 @@
   },
   "config": {
     "headysoul_enabled": true,
-    "socratic_mode": "exploratory",
+    "HeadyBattle_mode": "exploratory",
     "zero_idle": true,
     "quantum_ready": true,
     "production_domains": [
+      "headybuddy.org",
+      "headysystems.com",
+      "headyconnection.org",
+      "headymcp.com",
+      "headyio.com",
       "headyme.com",
       "admin.headyme.com",
       "chat.headyme.com"
@@ -88,7 +103,7 @@
   "bugs": {
     "url": "https://github.com/HeadySystems/Heady/issues"
   },
-  "homepage": "https://headyme.com",
+  "homepage": "https://headysystems.com",
   "directories": {
     "lib": "src",
     "test": "tests"

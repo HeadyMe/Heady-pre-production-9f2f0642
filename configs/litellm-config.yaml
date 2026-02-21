@@ -1,0 +1,269 @@
+# ============================================================
+# LITELLM CONFIGURATION - UNIFIED AI SERVICES BACKBONE
+# ============================================================
+# One OpenAI-compatible gateway to 100+ LLM providers
+# Handles routing, load balancing, fallbacks, cost tracking
+# ============================================================
+
+model_list:
+  # === PAID SERVICES ===
+  - model_name: heady-claude-sonnet
+    litellm_params:
+      model: anthropic/claude-sonnet-4
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+    model_info:
+      base_model: "claude-sonnet-4"
+      type: "paid"
+      provider: "anthropic"
+      arena_roles: ["architecture_reviewer", "deep_reasoner", "code_critic"]
+  
+  - model_name: heady-claude-opus
+    litellm_params:
+      model: anthropic/claude-opus-4
+      api_key: os.environ/ANTHROPIC_API_KEY
+      max_tokens: 8192
+    model_info:
+      base_model: "claude-opus-4"
+      type: "paid"
+      provider: "anthropic"
+      arena_roles: ["architecture_reviewer", "deep_reasoner"]
+
+  - model_name: heady-gpt4o
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+    model_info:
+      base_model: "gpt-4o"
+      type: "paid"
+      provider: "openai"
+      arena_roles: ["test_generator", "function_caller", "debugger"]
+
+  - model_name: heady-o3
+    litellm_params:
+      model: openai/o3
+      api_key: os.environ/OPENAI_API_KEY
+    model_info:
+      base_model: "o3"
+      type: "paid"
+      provider: "openai"
+      arena_roles: ["debugger", "error_analyzer"]
+
+  - model_name: heady-perplexity-sonar
+    litellm_params:
+      model: perplexity/sonar-pro
+      api_key: os.environ/PERPLEXITY_API_KEY
+    model_info:
+      base_model: "sonar-pro"
+      type: "paid"
+      provider: "perplexity"
+      arena_roles: ["research_validator", "fact_checker", "trend_scanner"]
+
+  # === OPEN-SOURCE SELF-HOSTED ===
+  - model_name: heady-kimi-dev
+    litellm_params:
+      model: ollama/kimi-dev:72b
+      api_base: https://ollama.headysystems.com
+    model_info:
+      base_model: "kimi-dev:72b"
+      type: "open-source"
+      provider: "ollama"
+      arena_roles: ["primary_coding", "autonomous_patching"]
+
+  - model_name: heady-deepseek-coder
+    litellm_params:
+      model: ollama/deepseek-coder-v2:16b
+      api_base: https://ollama.headysystems.com
+    model_info:
+      base_model: "deepseek-coder-v2:16b"
+      type: "open-source"
+      provider: "ollama"
+      arena_roles: ["local_inference", "offline_fallback"]
+
+  - model_name: heady-qwen3-coder
+    litellm_params:
+      model: ollama/qwen3:8b
+      api_base: https://ollama.headysystems.com
+    model_info:
+      base_model: "qwen3:8b"
+      type: "open-source"
+      provider: "ollama"
+      arena_roles: ["fast_agent_tasks"]
+
+  - model_name: heady-codellama
+    litellm_params:
+      model: ollama/codellama:34b
+      api_base: https://ollama.headysystems.com
+    model_info:
+      base_model: "codellama:34b"
+      type: "open-source"
+      provider: "ollama"
+      arena_roles: ["code_completion"]
+
+  - model_name: heady-nomic-embed
+    litellm_params:
+      model: ollama/nomic-embed-text
+      api_base: https://ollama.headysystems.com
+      model_info:
+        base_model: "nomic-embed-text"
+        type: "embedding"
+        provider: "ollama"
+
+  # === VLLM HIGH-CONCURRENCY ===
+  - model_name: heady-vllm-kimi
+    litellm_params:
+      model: vllm/kimi-dev-72b
+      api_base: https://vllm.headysystems.com/v1
+    model_info:
+      base_model: "kimi-dev-72b"
+      type: "open-source"
+      provider: "vllm"
+      arena_roles: ["parallel_inference", "batch_processing"]
+
+# ============================================================
+# GENERAL SETTINGS
+# ============================================================
+general_settings:
+  # Enable performance monitoring
+  set_verbose: true
+  
+  # Track costs and usage
+  drop_params: true
+  success_callback: ["litellm_success_callback"]
+  failure_callback: ["litellm_failure_callback"]
+  
+  # Enable caching for identical requests
+  cache: true
+  cache_type: "simple"  # or "redis"
+  cache_params:
+    ttl: 3600  # 1 hour cache
+    max_size: 1000
+
+# ============================================================
+# ROUTING CONFIGURATION
+# ============================================================
+router_settings:
+  # Load balancing across multiple models
+  model_group_alias:
+    coding_models:
+      - heady-kimi-dev
+      - heady-deepseek-coder
+      - heady-gpt4o
+      - heady-claude-sonnet
+    
+    reasoning_models:
+      - heady-claude-opus
+      - heady-o3
+      - heady-gpt4o
+    
+    research_models:
+      - heady-perplexity-sonar
+      - heady-claude-sonnet
+      - heady-gpt4o
+    
+    embedding_models:
+      - heady-nomic-embed
+
+  # Fallback chains
+  fallbacks:
+    - model: heady-claude-sonnet
+      fallbacks: [heady-gpt4o, heady-kimi-dev]
+    
+    - model: heady-gpt4o
+      fallbacks: [heady-claude-sonnet, heady-deepseek-coder]
+    
+    - model: heady-perplexity-sonar
+      fallbacks: [heady-claude-sonnet, heady-gpt4o]
+
+# ============================================================
+# SECURITY & RELIABILITY
+# ============================================================
+security:
+  # Rate limiting per model
+  rate_limits:
+    heady-claude-sonnet: "100/minute"
+    heady-gpt4o: "200/minute"
+    heady-perplexity-sonar: "50/minute"
+    heady-kimi-dev: "1000/minute"  # Local models higher limit
+  
+  # Input validation
+  input_validation:
+    max_tokens: 8192
+    allowed_content_types: ["text", "json"]
+    blocked_patterns: ["password", "secret", "api_key"]
+
+# ============================================================
+# ARENA MODE SPECIFIC CONFIG
+# ============================================================
+arena_mode:
+  # Parallel execution across all three branches
+  parallel_execution: true
+  
+  # Each branch gets different model strategy
+  branch_strategies:
+    headysystems:
+      primary: heady-claude-opus
+      fallback: heady-claude-sonnet
+      reasoning: "aggressive_innovation"
+    
+    headyconnection:
+      primary: heady-perplexity-sonar
+      fallback: heady-gpt4o
+      reasoning: "community_driven"
+    
+    headyme:
+      primary: heady-kimi-dev
+      fallback: heady-deepseek-coder
+      reasoning: "personal_optimization"
+  
+  # Resource allocation per branch - UNLIMITED for enterprise
+  resource_allocation:
+    max_concurrent_requests: 50  # Increased from 3 for true parallelism
+    timeout_per_request: 300  # 5 minutes
+    retry_attempts: 2
+
+# ============================================================
+# COST TRACKING
+# ============================================================
+cost_tracking:
+  # Enable detailed cost tracking
+  enabled: true
+  
+  # Cost per 1M tokens (approximate)
+  token_costs:
+    heady-claude-sonnet: 15.0
+    heady-claude-opus: 75.0
+    heady-gpt4o: 5.0
+    heady-o3: 15.0
+    heady-perplexity-sonar: 5.0
+    heady-kimi-dev: 0.3  # Local models much cheaper
+    heady-deepseek-coder: 0.2
+    heady-qwen3-coder: 0.1
+    heady-codellama: 0.4
+  
+  # Budget alerts - REMOVED artificial limits for enterprise
+  budget_alerts:
+    daily_limit: 10000.0  # $10,000/day - enterprise scale
+    weekly_limit: 50000.0  # $50,000/week - enterprise scale
+    alert_emails: ["admin@headysystems.com"]
+
+# ============================================================
+# MONITORING & OBSERVABILITY
+# ============================================================
+monitoring:
+  # Prometheus metrics
+  metrics_enabled: true
+  metrics_port: 9090
+  
+  # Health checks
+  health_check:
+    enabled: true
+    endpoint: "/health"
+    interval: 30  # seconds
+  
+  # Logging
+  logging:
+    level: "INFO"
+    format: "json"
+    include_request_id: true
+    include_model_info: true

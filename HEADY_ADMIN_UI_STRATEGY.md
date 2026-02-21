@@ -23,10 +23,10 @@
 ## 🏗️ CURRENT SYSTEM ASSETS
 
 ### ✅ **Available Infrastructure**
-- **HeadyConductor**: 8 parallel workers with dynamic allocation
+- **Headypromoter**: 8 parallel workers with dynamic allocation
 - **HeadyManager**: API gateway with full endpoint coverage
 - **HeadySoul**: Human-AI alignment layer
-- **HCBrain**: Decision processing with Socratic method
+- **HCBrain**: Decision processing with HeadyBattle
 - **Domain Architecture**: headyio.com + headyme.com branded domains
 - **Real-time Metrics**: Performance monitoring and resource utilization
 
@@ -47,7 +47,7 @@ Deployment: Vercel/Netlify with headyme.com domain
 ```
 headyme.com/
 ├── dashboard/           # Main admin dashboard
-├── conductor/           # HeadyConductor management
+├── promoter/           # Headypromoter management
 ├── systems/             # System health monitoring
 ├── tasks/               # Task queue management
 ├── domains/             # Multi-website management
@@ -58,7 +58,7 @@ headyme.com/
 ### **1.3 Core Dashboard Components**
 ```typescript
 // Real-time System Overview
-- HeadyConductor status (8 workers, utilization, efficiency)
+- Headypromoter status (8 workers, utilization, efficiency)
 - Active tasks & queue status
 - Resource utilization charts
 - System health metrics
@@ -131,7 +131,7 @@ POST /api/admin/sites/create
 ```bash
 Day 1-2: Setup React + TypeScript environment
 Day 3-4: Implement dashboard layout and navigation
-Day 5-6: Integrate with HeadyConductor API
+Day 5-6: Integrate with Headypromoter API
 Day 7: Deploy basic admin UI to headyme.com
 ```
 
@@ -172,9 +172,9 @@ interface DashboardLayout {
 }
 
 // Real-time Data Hooks
-const useConductorStatus = () => {
-  return useQuery(['conductor-status'], 
-    () => fetch('/api/conductor/status'),
+const usepromoterStatus = () => {
+  return useQuery(['promoter-status'], 
+    () => fetch('/api/promoter/status'),
     { refetchInterval: 1000 }
   );
 };
@@ -240,7 +240,7 @@ class SiteProvisioner {
 ### **Multi-Tenant Strategy**
 ```
 Shared Infrastructure:
-- HeadyConductor (8 workers, shared across all sites)
+- Headypromoter (8 workers, shared across all sites)
 - API Gateway (api.headyio.com)
 - Database Cluster (PostgreSQL with tenant isolation)
 - Cache Layer (Redis with namespace separation)
@@ -317,7 +317,7 @@ interface DashboardLayout {
   };
   
   sidebar: {
-    main: ['Dashboard', 'Sites', 'Conductor', 'Analytics'],
+    main: ['Dashboard', 'Sites', 'promoter', 'Analytics'],
     secondary: ['Settings', 'Logs', 'API Docs'],
   };
   
@@ -391,7 +391,7 @@ interface SiteAnalytics {
 ```typescript
 interface AdminMetrics {
   system: {
-    conductorStatus: ConductorStatus;
+    promoterStatus: promoterStatus;
     resourceUtilization: ResourceMetrics;
     activeTasks: TaskMetrics;
     errorRates: ErrorMetrics;
@@ -479,4 +479,4 @@ npm run provision:ssl new-site.headyme.com
 - GitHub for deployment
 - AWS/GCP for infrastructure
 
-This strategy leverages your existing HeadyConductor infrastructure to create a robust, scalable admin UI that can efficiently manage multiple websites while maintaining optimal performance and user experience.
+This strategy leverages your existing Headypromoter infrastructure to create a robust, scalable admin UI that can efficiently manage multiple websites while maintaining optimal performance and user experience.

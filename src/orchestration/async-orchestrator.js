@@ -111,7 +111,7 @@ class HeadyAsyncOrchestrator {
    */
   async initializeResourceTracking() {
     const services = [
-      { name: 'HeadyConductor', domain: 'conductor.headysystems.com', port: 8000, baseline: 90, peak: 100 },
+      { name: 'Headypromoter', domain: 'promoter.headysystems.com', port: 8000, baseline: 90, peak: 100 },
       { name: 'HeadySoul', domain: 'soul.headysystems.com', port: 8001, baseline: 90, peak: 100 },
       { name: 'HeadyMCP', domain: 'mcp.headysystems.com', port: 8002, baseline: 90, peak: 100 },
       { name: 'HeadyWeb', domain: 'web.headysystems.com', port: 3000, baseline: 90, peak: 100 },
@@ -145,7 +145,7 @@ class HeadyAsyncOrchestrator {
   initializeRebuildQueue() {
     this.rebuildQueue = [
       {
-        name: 'HeadyConductor',
+        name: 'Headypromoter',
         priority: 1,
         dependencies: [],
         rebuildCommand: 'validate-orchestration',
@@ -155,7 +155,7 @@ class HeadyAsyncOrchestrator {
       {
         name: 'HeadySoul',
         priority: 2,
-        dependencies: ['HeadyConductor'],
+        dependencies: ['Headypromoter'],
         rebuildCommand: 'validate-intelligence',
         testSuite: ['intelligence_tests', 'learning_pipeline', 'semantic_analysis'],
         estimatedTime: 600000 // 10 minutes
@@ -163,7 +163,7 @@ class HeadyAsyncOrchestrator {
       {
         name: 'HeadyMCP',
         priority: 3,
-        dependencies: ['HeadyConductor'],
+        dependencies: ['Headypromoter'],
         rebuildCommand: 'validate-mcp',
         testSuite: ['mcp_protocol', 'tool_discovery', 'context_bridge'],
         estimatedTime: 300000 // 5 minutes
@@ -171,7 +171,7 @@ class HeadyAsyncOrchestrator {
       {
         name: 'HeadyWeb',
         priority: 4,
-        dependencies: ['HeadyConductor'],
+        dependencies: ['Headypromoter'],
         rebuildCommand: 'validate-web',
         testSuite: ['ui_rendering', 'websocket_connection', 'attention_tracking'],
         estimatedTime: 600000 // 10 minutes
@@ -179,7 +179,7 @@ class HeadyAsyncOrchestrator {
       {
         name: 'HeadyBuddy',
         priority: 5,
-        dependencies: ['HeadyConductor', 'HeadySoul'],
+        dependencies: ['Headypromoter', 'HeadySoul'],
         rebuildCommand: 'validate-buddy',
         testSuite: ['ai_responses', 'user_interaction', 'session_management'],
         estimatedTime: 600000 // 10 minutes
@@ -187,7 +187,7 @@ class HeadyAsyncOrchestrator {
       {
         name: 'HeadyLens',
         priority: 6,
-        dependencies: ['HeadyConductor'],
+        dependencies: ['Headypromoter'],
         rebuildCommand: 'validate-lens',
         testSuite: ['visual_analysis', 'gpu_resources', 'image_processing'],
         estimatedTime: 900000 // 15 minutes
@@ -195,7 +195,7 @@ class HeadyAsyncOrchestrator {
       {
         name: 'HeadyVinci',
         priority: 7,
-        dependencies: ['HeadyConductor', 'HeadySoul'],
+        dependencies: ['Headypromoter', 'HeadySoul'],
         rebuildCommand: 'validate-vinci',
         testSuite: ['pattern_recognition', 'ml_models', 'continuous_learning'],
         estimatedTime: 900000 // 15 minutes
@@ -287,7 +287,7 @@ class HeadyAsyncOrchestrator {
    * Check if service supports user-facing operations
    */
   isSupportService(serviceName) {
-    const supportServices = ['HeadyConductor', 'HeadySoul'];
+    const supportServices = ['Headypromoter', 'HeadySoul'];
     return supportServices.includes(serviceName);
   }
 

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady Systems Admin - Drupal Integration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+        }
+
+        .container {
+            background: var(--white);
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            max-width: 800px;
+            width: 90%;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .status-card {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .instructions {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: var(--white);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .code {
+            background: var(--dark);
+            color: var(--white);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚀</div>
+            <h1>Heady Systems Admin</h1>
+            <p class="subtitle">Drupal 11 Integration Ready</p>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-icon">🎨</div>
+                <div class="status-title">Theme</div>
+                <div class="status-value">Ready</div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon">🔧</div>
+                <div class="status-title">Module</div>
+                <div class="status-value">Ready</div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon">📁</div>
+                <div class="status-title">Files</div>
+                <div class="status-value">Installed</div>
+            </div>
+            <div class="status-card">
+                <div class="status-icon">🌐</div>
+                <div class="status-title">Drupal</div>
+                <div class="status-value">Running</div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Installation Instructions</h3>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <strong>Copy files to Drupal web root</strong>
+                    <div class="code">
+cp -r themes/heady_admin_theme /path/to/drupal/web/themes/
+cp -r modules/heady_admin_module /path/to/drupal/web/modules/
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <strong>Run installation script</strong>
+                    <div class="code">
+cd /path/to/drupal/web
+chmod +x install.sh
+./install.sh
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <strong>Clear Drupal caches</strong>
+                    <div class="code">
+drush cache:rebuild
+# Or visit: /admin/config/development/performance
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    <strong>Access your admin dashboard</strong>
+                    <div class="code">
+📱 Dashboard: /admin/dashboard
+🔧 Services: /admin/services
+🌐 Domains: /admin/domains
+🚇 Tunnels: /admin/tunnels
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            ✅ Installation completed successfully! Check your Drupal admin interface.
+        </div>
+
+        <div class="links">
+            <a href="http://localhost:8081" class="btn" target="_blank">
+                <span>🌐</span>
+                <span>Open Drupal Admin</span>
+            </a>
+            <a href="http://10.1.5.65:8080/admin.html" class="btn btn-success" target="_blank">
+                <span>📊</span>
+                <span>Standalone Admin UI</span>
+            </a>
+            <button class="btn btn-success" onclick="simulateInstallation()">
+                <span>⚡</span>
+                <span>Simulate Installation</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function simulateInstallation() {
+            const steps = document.querySelectorAll('.step');
+            const successMessage = document.getElementById('successMessage');
+            
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    step.style.background = 'rgba(16, 185, 129, 0.1)';
+                    step.style.borderLeft = '4px solid var(--success)';
+                    
+                    if (index === steps.length - 1) {
+                        setTimeout(() => {
+                            successMessage.classList.add('show');
+                        }, 500);
+                    }
+                }, (index + 1) * 1000);
+            });
+        }
+
+        // Check if Drupal is accessible
+        fetch('http://localhost:8081')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Drupal is running and accessible');
+                }
+            })
+            .catch(error => {
+                console.log('⚠️ Drupal may not be fully accessible');
+            });
+    </script>
+</body>
+</html>

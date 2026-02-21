@@ -26,8 +26,8 @@
  */
 
 class HeadyBackgroundOptimizer {
-  constructor(headyConductor, taskManager) {
-    this.headyConductor = headyConductor;
+  constructor(headypromoter, taskManager) {
+    this.headypromoter = headypromoter;
     this.taskManager = taskManager;
     this.optimizationStats = {
       totalOptimizations: 0,
@@ -88,11 +88,11 @@ class HeadyBackgroundOptimizer {
         // Execute tasks in parallel when no user activity
         if (!this.hasUserActivity()) {
           console.log('🚀 Executing parallel optimization batch...');
-          await Promise.all(optimizationTasks.map(task => this.executeOptimization(task)));
+          await Promise.all(headyOptimizationTasks.map(task => this.executeOptimization(task)));
         } else {
           // Execute one task even during user activity
-          const headyTask = optimizationTasks[Math.floor(Math.random() * optimizationTasks.length)];
-          await this.executeOptimization(task);
+          const headyTask = headyOptimizationTasks[Math.floor(Math.random() * headyOptimizationTasks.length)];
+          await this.executeOptimization(headyTask);
         }
         
         // NO SLEEP - immediately continue with next optimization
@@ -108,32 +108,32 @@ class HeadyBackgroundOptimizer {
     const headyTaskName = task.name || 'unknown_optimization';
     
     try {
-      console.log(`⚡ Executing optimization: ${taskName}`);
+      console.log(`⚡ Executing optimization: ${headyTaskName}`);
       await task();
       
-      const headyDuration = Date.now() - startTime;
+      const headyDuration = Date.now() - headyStartTime;
       this.optimizationStats.totalOptimizations++;
       
       this.optimizationHistory.push({
-        task: taskName,
+        task: headyTaskName,
         timestamp: new Date(),
-        duration,
+        duration: headyDuration,
         status: 'success'
       });
       
-      console.log(`✅ Optimization completed: ${taskName} (${duration}ms)`);
+      console.log(`✅ Optimization completed: ${headyTaskName} (${headyDuration}ms)`);
     } catch (error) {
-      const headyDuration = Date.now() - startTime;
+      const headyDuration = Date.now() - headyStartTime;
       
       this.optimizationHistory.push({
-        task: taskName,
+        task: headyTaskName,
         timestamp: new Date(),
-        duration,
+        duration: headyDuration,
         status: 'failed',
         error: error.message
       });
       
-      console.error(`❌ Optimization failed: ${taskName} (${duration}ms)`, error.message);
+      console.error(`❌ Optimization failed: ${headyTaskName} (${headyDuration}ms)`, error.message);
     }
   }
 
@@ -248,16 +248,16 @@ class HeadyBackgroundOptimizer {
     try {
       const headyTempDirs = ['./tmp', './temp', './.tmp'];
       
-      for (const headyDir of tempDirs) {
+      for (const headyDir of headyTempDirs) {
         try {
-          const headyFiles = await fs.readdir(dir);
-          for (const headyFile of files) {
-            const headyFilePath = path.join(dir, file);
-            const headyStat = await fs.stat(filePath);
+          const headyFiles = await fs.readdir(headyDir);
+          for (const headyFile of headyFiles) {
+            const headyFilePath = path.join(headyDir, headyFile);
+            const headyStat = await fs.stat(headyFilePath);
             
             // Remove files older than 1 hour
-            if (Date.now() - stat.mtime.getTime() > 3600000) {
-              await fs.unlink(filePath);
+            if (Date.now() - headyStat.mtime.getTime() > 3600000) {
+              await fs.unlink(headyFilePath);
             }
           }
         } catch (error) {
@@ -326,13 +326,13 @@ class HeadyBackgroundOptimizer {
       const headyMetrics = await this.collectPerformanceMetrics();
       
       // Identify bottlenecks
-      const headyBottlenecks = await this.identifyBottlenecks(metrics);
+      const headyBottlenecks = await this.identifyBottlenecks(headyMetrics);
       
       // Generate optimization recommendations
-      const headyRecommendations = await this.generateOptimizationRecommendations(bottlenecks);
+      const headyRecommendations = await this.generateOptimizationRecommendations(headyBottlenecks);
       
       // Queue optimization tasks
-      recommendations.forEach(rec => {
+      headyRecommendations.forEach(rec => {
         this.taskManager.addTask({
           type: 'performance_optimization',
           recommendation: rec,
@@ -450,9 +450,9 @@ class HeadyBackgroundOptimizer {
       const headyDuplicates = await this.findDuplicateCode();
       
       // Auto-refactor into reusable functions
-      for (const headyDup of duplicates) {
-        const headyRefactored = await this.refactorToFunction(dup);
-        await this.applyRefactoring(refactored);
+      for (const headyDup of headyDuplicates) {
+        const headyRefactored = await this.refactorToFunction(headyDup);
+        await this.applyRefactoring(headyRefactored);
         this.optimizationStats.codeRefactors++;
       }
       
@@ -527,7 +527,7 @@ class HeadyBackgroundOptimizer {
       // Monitor memory leaks
       
       const headyMemUsage = process.memoryUsage();
-      console.log(`📊 Memory usage: RSS=${Math.round(memUsage.rss/1024/1024)}MB, Heap=${Math.round(memUsage.heapUsed/1024/1024)}MB`);
+      console.log(`📊 Memory usage: RSS=${Math.round(headyMemUsage.rss/1024/1024)}MB, Heap=${Math.round(headyMemUsage.heapUsed/1024/1024)}MB`);
       
       this.optimizationStats.resourceSavings++;
     } catch (error) {
@@ -560,17 +560,17 @@ class HeadyBackgroundOptimizer {
     try {
       // Check service health
       const headyServices = [
-        'https://headyme.com',
-        'https://manager.headyme.com',
-        'https://chat.headyme.com'
+        process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com',
+        process.env.HEADY_BRAIN_URL || 'https://headyio.com',
+        'https://headybuddy.org'
       ];
       
-      for (const headyService of services) {
+      for (const headyService of headyServices) {
         try {
-          const headyResponse = await fetch(service);
-          console.log(`✅ ${service}: ${response.status}`);
+          const headyResponse = await fetch(headyService);
+          console.log(`✅ ${headyService}: ${headyResponse.status}`);
         } catch (error) {
-          console.log(`❌ ${service}: ${error.message}`);
+          console.log(`❌ ${headyService}: ${error.message}`);
         }
       }
     } catch (error) {
@@ -589,27 +589,27 @@ class HeadyBackgroundOptimizer {
     }
   }
 
-  async.comAPIEndpoints() {
-    console.log('🧪.coming API endpoints...');
+  async checkAPIEndpoints() {
+    console.log('🧪 Checking API endpoints...');
     
     try {
-      //.com critical endpoints
-      const headyEndpoints = [
+      // Check critical endpoints
+      const endpoints = [
         '/api/health',
-        '/api/conductor/status',
+        '/api/promoter/status',
         '/api/headysoul/health'
       ];
       
-      for (const headyEndpoint of endpoints) {
+      for (const endpoint of endpoints) {
         try {
-          const headyResponse = await fetch(`https://manager.headyme.com${endpoint}`);
-          console.log(`✅ ${endpoint}: ${response.status}`);
+          const headyResponse = await fetch(`${process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com'}${endpoint}`);
+          console.log(`✅ ${endpoint}: ${headyResponse.status}`);
         } catch (error) {
           console.log(`❌ ${endpoint}: ${error.message}`);
         }
       }
     } catch (error) {
-      console.error('❌ API endpoint.coming failed:', error);
+      console.error('❌ API endpoint check failed:', error);
     }
   }
 
@@ -720,7 +720,7 @@ class HeadyBackgroundOptimizer {
     const headyTotalOptimizations = this.optimizationStats.totalOptimizations;
     const headySuccessfulOptimizations = this.optimizationHistory.filter(h => h.status === 'success').length;
     
-    return totalOptimizations > 0 ? (successfulOptimizations / totalOptimizations * 100).toFixed(2) + '%' : '0%';
+    return headyTotalOptimizations > 0 ? (headySuccessfulOptimizations / headyTotalOptimizations * 100).toFixed(2) + '%' : '0%';
   }
 
   generateOptimizationReport() {
@@ -762,7 +762,7 @@ class HeadyBackgroundOptimizer {
     this.isOptimizing = false;
     
     const headyReport = this.generateOptimizationReport();
-    console.log('📊 Final Optimization Report:', report);
+    console.log('📊 Final Optimization Report:', headyReport);
   }
 }
 

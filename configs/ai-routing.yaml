@@ -1,0 +1,322 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: ai-routing.yaml                               ║
+# ║  UPDATED: 20260218-211102                                            ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+# AI Routing Configuration for Heady Systems
+# Central brain for intelligent model + resource allocation
+
+defaults:
+  max_cloud_usage_percent: 85      # keep remote < ~90%
+  max_local_cpu_percent: 80        # keep Bossgame < ~90%
+  max_latency_ms_soft: 2000
+  max_latency_ms_hard: 5000
+  ors_thresholds:
+    aggressive: 85                  # ORS >= 85 → allow heavy optimization
+    normal: 70                     # ORS 70–84 → normal improvements
+    maintenance: 50                # ORS 50–69 → repair-only
+    recovery: 0                    # ORS < 50 → stop most tasks
+  
+  # Determinism settings
+  determinism_seed: 42
+  config_hash_required: true
+  trace_all_decisions: true
+
+providers:
+  # Remote High-Quality Providers
+  openai_gpt4o:
+    type: remote
+    quality: high
+    cost_tier: medium
+    max_concurrency: 50  # Increased from 16 for enterprise
+    max_tokens: 128000
+    endpoint: "https://api.openai.com/v1/chat/completions"
+    model: "gpt-4o"
+    temperature_range: [0.0, 1.0]
+    specialties: ["code_generation", "analysis", "general_chat"]
+    
+  openai_o1_pro:
+    type: remote
+    quality: very_high
+    cost_tier: high
+    max_concurrency: 4
+    max_tokens: 200000
+    endpoint: "https://api.openai.com/v1/chat/completions"
+    model: "o1-pro"
+    temperature_range: [0.1, 0.3]
+    specialties: ["deep_reasoning", "complex_analysis"]
+    
+  claude_code_enterprise:
+    type: remote
+    quality: very_high
+    cost_tier: high
+    max_concurrency: 4
+    max_tokens: 1000000
+    endpoint: "https://api.anthropic.com/v1/messages"
+    model: "claude-3-5-sonnet-latest"
+    temperature_range: [0.0, 1.0]
+    specialties: ["code_generation", "long_context_analysis", "multimodal"]
+    
+  gemini_ultra:
+    type: remote
+    quality: very_high
+    cost_tier: high
+    max_concurrency: 4
+    max_tokens: 2000000
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models"
+    model: "gemini-2.0-flash-exp"
+    temperature_range: [0.0, 2.0]
+    specialties: ["multimodal", "deep_reasoning", "vision"]
+    
+  # Local/Edge Providers
+  ollama_llama3_8b:
+    type: local
+    quality: medium
+    cost_tier: low
+    max_concurrency: 8
+    max_tokens: 8192
+    endpoint: "https://ollama.headysystems.com/api/generate"
+    model: "llama3:8b"
+    temperature_range: [0.0, 1.0]
+    specialties: ["embeddings", "light_analysis", "general_chat"]
+    
+  ollama_codellama_13b:
+    type: local
+    quality: high
+    cost_tier: low
+    max_concurrency: 4
+    max_tokens: 16384
+    endpoint: "https://ollama.headysystems.com/api/generate"
+    model: "codellama:13b"
+    temperature_range: [0.0, 1.0]
+    specialties: ["code_generation", "code_analysis"]
+
+tasks:
+  # Core Task Categories with Routing Logic
+  general_chat:
+    description: "User interactions, HeadyBuddy conversations, general assistance"
+    preferred_providers:
+      - openai_gpt4o
+      - gemini_ultra
+    fallback_providers:
+      - ollama_llama3_8b
+    max_tokens: 4096
+    latency_sensitivity: medium
+    importance: user_facing
+    quality_threshold: 0.7
+    
+  deep_reasoning:
+    description: "Complex planning, architecture decisions, strategic analysis"
+    preferred_providers:
+      - openai_o1_pro
+      - claude_code_enterprise
+    fallback_providers:
+      - openai_gpt4o
+    max_tokens: 32768
+    latency_sensitivity: low
+    importance: user_facing
+    quality_threshold: 0.9
+    
+  code_generation:
+    description: "Code creation, refactoring, multi-file edits, debugging"
+    preferred_providers:
+      - claude_code_enterprise
+    fallback_providers:
+      - openai_gpt4o
+      - ollama_codellama_13b
+    max_tokens: 120000
+    latency_sensitivity: medium
+    importance: user_facing
+    quality_threshold: 0.85
+    
+  long_context_analysis:
+    description: "Repository analysis, multi-notebook processing, document review"
+    preferred_providers:
+      - claude_code_enterprise
+    fallback_providers:
+      - gemini_ultra
+    max_tokens: 1000000
+    latency_sensitivity: low
+    importance: background
+    quality_threshold: 0.8
+    
+  embeddings:
+    description: "Vector embeddings, search indexing, similarity matching"
+    preferred_providers:
+      - ollama_llama3_8b
+    fallback_providers:
+      - openai_gpt4o
+    max_tokens: 2048
+    latency_sensitivity: high
+    importance: background
+    quality_threshold: 0.6
+    
+  multimodal:
+    description: "Vision, audio, document processing, image analysis"
+    preferred_providers:
+      - gemini_ultra
+      - claude_code_enterprise
+    fallback_providers:
+      - openai_gpt4o
+    max_tokens: 16384
+    latency_sensitivity: medium
+    importance: user_facing
+    quality_threshold: 0.8
+    
+  system_optimization:
+    description: "Performance tuning, resource allocation, config adjustments"
+    preferred_providers:
+      - openai_o1_pro
+      - claude_code_enterprise
+    fallback_providers:
+      - openai_gpt4o
+    max_tokens: 16384
+    latency_sensitivity: medium
+    importance: background
+    quality_threshold: 0.85
+    
+  error_analysis:
+    description: "Debugging, log analysis, incident investigation"
+    preferred_providers:
+      - claude_code_enterprise
+      - openai_gpt4o
+    fallback_providers:
+      - ollama_codellama_13b
+    max_tokens: 32768
+    latency_sensitivity: high
+    importance: background
+    quality_threshold: 0.8
+
+# ORS-Based Routing Rules
+ors_routing_rules:
+  # Aggressive Mode (ORS >= 85)
+  aggressive:
+    allow_experimental_models: true
+    increase_concurrency_limits: 1.5
+    prefer_high_quality_over_cost: true
+    enable_heady_sims_optimization: true
+    
+  # Normal Mode (ORS 70-84)
+  normal:
+    allow_experimental_models: false
+    standard_concurrency_limits: 1.0
+    balance_quality_and_cost: true
+    enable_basic_optimization: true
+    
+  # Maintenance Mode (ORS 50-69)
+  maintenance:
+    allow_experimental_models: false
+    reduce_concurrency_limits: 0.5
+    prefer_cost_effectiveness: true
+    optimization_disabled: true
+    
+  # Recovery Mode (ORS < 50)
+  recovery:
+    emergency_only: true
+    minimal_concurrency: 1
+    use_local_only: true
+    all_non_critical_tasks_blocked: true
+
+# Node-Specific Routing Configuration
+node_routing:
+  # AI Nodes that require routing awareness
+  promoter:
+    primary_task: deep_reasoning
+    fallback_task: system_optimization
+    max_concurrent_tasks: 4
+    priority: high
+    
+  brain:
+    primary_task: deep_reasoning
+    fallback_task: error_analysis
+    max_concurrent_tasks: 2
+    priority: critical
+    
+  jules:
+    primary_task: code_generation
+    fallback_task: general_chat
+    max_concurrent_tasks: 6
+    priority: high
+    
+  pythia:
+    primary_task: code_generation
+    fallback_task: embeddings
+    max_concurrent_tasks: 4
+    priority: medium
+    
+  socrates:
+    primary_task: deep_reasoning
+    fallback_task: general_chat
+    max_concurrent_tasks: 3
+    priority: high
+    
+  muse:
+    primary_task: multimodal
+    fallback_task: general_chat
+    max_concurrent_tasks: 2
+    priority: medium
+
+# Health Check Integration
+health_checks:
+  endpoint_health:
+    interval_seconds: 30
+    timeout_ms: 5000
+    failure_threshold: 3
+    
+  provider_monitoring:
+    track_latency: true
+    track_error_rates: true
+    track_usage_quotas: true
+    auto_failover_enabled: true
+    
+  ors_monitoring:
+    real_time_ors: true
+    ors_history_window_hours: 24
+    ors_trend_analysis: true
+
+# Deterministic Routing
+deterministic_routing:
+  seed_routing_decisions: true
+  log_all_routing_choices: true
+  config_versioning: true
+  rollback_on_failure: true
+  
+# Self-Critique Integration
+self_critique:
+  analyze_routing_performance: true
+  suggest_provider_changes: true
+  optimize_task_categorization: true
+  learning_feedback_loop: true
+
+# Production Domain Enforcement
+production_domains:
+  headyme:
+    api: "https://api.headyme.com"
+    app: "https://headyme.com"
+    admin: "https://admin.headyme.com"
+    
+  headysystems:
+    api: "https://api.headysystems.com"
+    app: "https://app.headysystems.com"
+    
+  headyconnection:
+    api: "https://api.headyconnection.org"
+    app: "https://app.headyconnection.org"
+
+# Security & Compliance
+security:
+  forbid_localhost: true
+  forbid_onrender: true
+  require_https: true
+  audit_all_routing: true
+  rate_limit_per_node: true
+  cost_tracking_enabled: true

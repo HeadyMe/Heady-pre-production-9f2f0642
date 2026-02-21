@@ -1,0 +1,179 @@
+<div class="heady-dashboard" style="background: #0a0a0a; color: #00ff00; padding: 2rem; font-family: 'Courier New', monospace; min-height: 100vh;">
+  <header style="border-bottom: 2px solid #00ff00; padding-bottom: 1rem; margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; margin: 0; text-shadow: 0 0 10px #00ff00;">
+      HEADY SYSTEM ENGINE // D11 + MCP
+    </h1>
+    <p style="margin: 0.5rem 0 0 0; opacity: 0.8;">
+      Last Updated: {{ timestamp }}
+    </p>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+    
+    <!-- System Status Card -->
+    <div class="card" style="border: 1px solid #00ff00; padding: 1.5rem; background: rgba(0, 255, 0, 0.05); border-radius: 8px;">
+      <h2 style="margin: 0 0 1rem 0; color: #00ff00; font-size: 1.2rem;">🖥️ SYSTEM STATUS</h2>
+      <div style="display: grid; gap: 0.5rem; font-size: 0.9rem;">
+        <p style="margin: 0;"><strong>JSON:API:</strong> <span style="color: {{ jsonapi_status == 'Active' ? '#00ff00' : '#ff0000' }};">{{ jsonapi_status }}</span></p>
+        <p style="margin: 0;"><strong>MCP Protocol:</strong> <span style="color: {{ mcp_status == 'Active' ? '#00ff00' : '#ff0000' }};">{{ mcp_status }}</span></p>
+        <p style="margin: 0;"><strong>Content Nodes:</strong> {{ node_count }}</p>
+        <p style="margin: 0;"><strong>Priority Executions:</strong> {{ priority_count }}</p>
+        <p style="margin: 0;"><strong>PHP Version:</strong> {{ constant('PHP_VERSION') }}</p>
+      </div>
+    </div>
+
+    <!-- Connection Endpoints Card -->
+    <div class="card" style="border: 1px solid #00ff00; padding: 1.5rem; background: rgba(0, 255, 0, 0.05); border-radius: 8px;">
+      <h2 style="margin: 0 0 1rem 0; color: #00ff00; font-size: 1.2rem;">🔗 CONNECTION ENDPOINTS</h2>
+      <div style="display: grid; gap: 0.5rem; font-size: 0.8rem;">
+        <p style="margin: 0;"><strong>API Root:</strong></p>
+        <code style="background: #000; padding: 0.25rem; display: block; word-break: break-all; color: #00ff00;">{{ api_endpoint }}</code>
+        
+        <p style="margin: 0.5rem 0 0 0;"><strong>MCP Gateway:</strong></p>
+        <code style="background: #000; padding: 0.25rem; display: block; word-break: break-all; color: #00ff00;">{{ mcp_endpoint }}</code>
+        
+        <p style="margin: 0.5rem 0 0 0;"><strong>Vector Search:</strong></p>
+        <code style="background: #000; padding: 0.25rem; display: block; word-break: break-all; color: #00ff00;">{{ vector_endpoint }}</code>
+      </div>
+    </div>
+
+    <!-- Vector Engine Card -->
+    <div class="card" style="border: 1px solid #00ff00; padding: 1.5rem; background: rgba(0, 255, 0, 0.05); border-radius: 8px;">
+      <h2 style="margin: 0 0 1rem 0; color: #00ff00; font-size: 1.2rem;">🧠 VECTOR ENGINE</h2>
+      <div style="display: grid; gap: 0.5rem; font-size: 0.9rem;">
+        <p style="margin: 0;"><strong>pgvector:</strong> <span style="color: {{ vector_ext_status == 'Installed' ? '#00ff00' : '#ff0000' }};">{{ vector_ext_status }}</span></p>
+        <p style="margin: 0;"><strong>Vector Status:</strong> <span style="color: {{ vector_status == 'Active' ? '#00ff00' : '#ffff00' }};">{{ vector_status }}</span></p>
+        <p style="margin: 0;"><strong>Indexed Nodes:</strong> {{ vector_count }}</p>
+        <p style="margin: 0;"><strong>Embed Model:</strong> <span style="font-size: 0.8rem;">{{ embed_model }}</span></p>
+        <p style="margin: 0;"><strong>Embed Endpoint:</strong> <span style="font-size: 0.8rem;">{{ embed_endpoint }}</span></p>
+      </div>
+    </div>
+
+    <!-- Quick Actions Card -->
+    <div class="card" style="border: 1px solid #00ff00; padding: 1.5rem; background: rgba(0, 255, 0, 0.05); border-radius: 8px;">
+      <h2 style="margin: 0 0 1rem 0; color: #00ff00; font-size: 1.2rem;">⚡ QUICK ACTIONS</h2>
+      <div style="display: grid; gap: 0.5rem;">
+        <button onclick="testMcp()" style="background: #00ff00; color: #000; border: none; padding: 0.5rem; cursor: pointer; font-family: monospace;">Test MCP Connection</button>
+        <button onclick="testVectorSearch()" style="background: #00ff00; color: #000; border: none; padding: 0.5rem; cursor: pointer; font-family: monospace;">Test Vector Search</button>
+        <button onclick="createTestNote()" style="background: #00ff00; color: #000; border: none; padding: 0.5rem; cursor: pointer; font-family: monospace;">Create Test Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Stream -->
+  <div style="background: #000; padding: 1.5rem; border: 1px dashed #00ff00; border-radius: 8px;">
+    <h3 style="margin: 0 0 1rem 0; color: #00ff00;">📡 ACTIVITY STREAM</h3>
+    <div id="activity-stream" style="height: 200px; overflow-y: scroll; font-size: 0.8rem; line-height: 1.4;">
+      <p style="margin: 0; color: #00ff00;">[{{ timestamp }}] Heady MCP Engine initialized</p>
+      <p style="margin: 0; color: #00ff00;">[{{ timestamp }}] JSON:API status: {{ jsonapi_status }}</p>
+      <p style="margin: 0; color: #00ff00;">[{{ timestamp }}] Vector engine: {{ vector_status }}</p>
+      <p style="margin: 0; color: #00ff00;">[{{ timestamp }}] Priority executions: {{ priority_count }}</p>
+      <p style="margin: 0; color: #ffff00;">[{{ timestamp }}] Waiting for MCP handshake...</p>
+    </div>
+  </div>
+
+  <script>
+    function addActivity(message, type = 'info') {
+      const stream = document.getElementById('activity-stream');
+      const timestamp = new Date().toLocaleTimeString();
+      const colors = {
+        'info': '#00ff00',
+        'success': '#00ff00', 
+        'error': '#ff0000',
+        'warning': '#ffff00'
+      };
+      
+      const p = document.createElement('p');
+      p.style.margin = '0';
+      p.style.color = colors[type] || '#00ff00';
+      p.textContent = `[${timestamp}] ${message}`;
+      
+      stream.appendChild(p);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    async function testMcp() {
+      addActivity('Testing MCP connection...', 'info');
+      try {
+        const response = await fetch('{{ mcp_endpoint }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'tools/list',
+            id: 1
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          addActivity(`MCP connection successful! Found ${data.result.tools.length} tools`, 'success');
+        } else {
+          addActivity(`MCP connection failed: ${response.status}`, 'error');
+        }
+      } catch (error) {
+        addActivity(`MCP connection error: ${error.message}`, 'error');
+      }
+    }
+
+    async function testVectorSearch() {
+      addActivity('Testing vector search...', 'info');
+      try {
+        const response = await fetch('{{ vector_endpoint }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'test search',
+            limit: 5
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          addActivity(`Vector search successful! Found ${data.total} results`, 'success');
+        } else {
+          addActivity(`Vector search failed: ${response.status}`, 'error');
+        }
+      } catch (error) {
+        addActivity(`Vector search error: ${error.message}`, 'error');
+      }
+    }
+
+    async function createTestNote() {
+      addActivity('Creating test note...', 'info');
+      try {
+        const response = await fetch('{{ mcp_endpoint }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'tools/call',
+            params: {
+              name: 'create_note',
+              arguments: {
+                title: 'Test Note from Dashboard',
+                body: 'This is a test note created from the Heady dashboard.',
+                priority: 10
+              }
+            },
+            id: 2
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          addActivity('Test note created successfully!', 'success');
+        } else {
+          addActivity(`Failed to create note: ${response.status}`, 'error');
+        }
+      } catch (error) {
+        addActivity(`Note creation error: ${error.message}`, 'error');
+      }
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+      addActivity('System heartbeat - all systems operational', 'info');
+    }, 30000);
+  </script>
+</div>

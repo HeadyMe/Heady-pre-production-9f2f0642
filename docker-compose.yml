@@ -10,26 +10,88 @@ services:
       - DB_NAME=headysystems
       - DB_USER=postgres
       - DB_PASS=postgres
+      # Vector embedding configuration
+      - EMBED_API_URL=http://ollama:11434/api/embeddings
+      - EMBED_MODEL=nomic-embed-text
+      # Heady Manager integration
+      - HEADY_MANAGER_URL=http://heady-manager:3310
+      # Production domain enforcement
+      - BASE_URL=https://cms.headyconnection.org
+      - APP_BASE_URL=https://app.headysystems.com
+      - API_BASE_URL=https://api.headysystems.com
     volumes:
       - ./drupal/web:/var/www/html/web
       - ./drupal/config:/var/www/html/config
+      - ./modules/custom/heady_mcp:/var/www/html/modules/custom/heady_mcp
+    networks:
+      - heady-network
     depends_on:
       - postgres
       - redis
+      - ollama
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     environment:
       - POSTGRES_DB=headysystems
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Initialize pgvector extension
+      - ./scripts/init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # Pull nomic-embed-text model on startup
+    command: >
+      sh -c "
+        ollama serve &
+        sleep 10 &&
+        ollama pull nomic-embed-text &&
+        wait
+      "
 
   nginx:
     image: nginx:alpine
@@ -37,10 +99,28 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./drupal/web:/var/www/html/web
+    networks:
+      - heady-network
     depends_on:
       - drupal
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
 volumes:
   postgres_data:
+    driver: local
+  ollama_data:
+    driver: local
+
+networks:
+  heady-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

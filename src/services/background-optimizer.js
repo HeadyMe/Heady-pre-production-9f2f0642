@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -21,7 +20,6 @@
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  */
 
-#!/usr/bin/env node
 /*
  * BACKGROUND OPTIMIZER
  * Continuously optimizes system during "idle" time
@@ -73,7 +71,7 @@ class HeadyBackgroundOptimizer {
       } else {
         // Execute one task even during user activity
         const headyTask = tasks[Math.floor(Math.random() * tasks.length)];
-        await task().catch(err => 
+        await headyTask().catch(err => 
           console.error('Single background task failed:', err.message)
         );
       }
@@ -97,8 +95,8 @@ class HeadyBackgroundOptimizer {
       
       // Analyze query performance (simulated)
       const headySlowQueries = await this.findSlowQueries();
-      for (const headyQuery of slowQueries) {
-        await this.optimizeQuery(query);
+      for (const headyQuery of headySlowQueries) {
+        await this.optimizeQuery(headyQuery);
       }
       
       this.optimizationMetrics.optimizationsCompleted++;
@@ -112,14 +110,14 @@ class HeadyBackgroundOptimizer {
     console.log('📦 Compressing assets...');
     
     try {
-      const headyAssetsPath = path.join(process.cwd(), 'public', 'assets');
+      const headyAssetsPath = headyPath.join(process.cwd(), 'public', 'assets');
       
       try {
-        const headyAssets = await fs.readdir(assetsPath);
+        const headyAssets = await headyFs.readdir(headyAssetsPath);
         
-        for (const headyAsset of assets) {
-          if (!asset.endsWith('.min.js') && !asset.endsWith('.min.css') && !asset.endsWith('.min.html')) {
-            await this.minifyAsset(path.join(assetsPath, asset));
+        for (const headyAsset of headyAssets) {
+          if (!headyAsset.endsWith('.min.js') && !headyAsset.endsWith('.min.css') && !headyAsset.endsWith('.min.html')) {
+            await this.minifyAsset(headyPath.join(headyAssetsPath, headyAsset));
           }
         }
         
@@ -141,12 +139,12 @@ class HeadyBackgroundOptimizer {
       // Find and remove temporary files
       const headyTempFiles = await this.findTempFiles();
       
-      for (const headyFile of tempFiles) {
-        await fs.unlink(file);
+      for (const headyFile of headyTempFiles) {
+        await headyFs.unlink(headyFile);
       }
       
       this.optimizationMetrics.resourceSavings++;
-      console.log(`✅ Cleaned up ${tempFiles.length} temporary files`);
+      console.log(`✅ Cleaned up ${headyTempFiles.length} temporary files`);
     } catch (error) {
       console.error('❌ File cleanup failed:', error.message);
     }
@@ -174,10 +172,10 @@ class HeadyBackgroundOptimizer {
     
     try {
       const headyMetrics = await this.collectPerformanceMetrics();
-      const headyBottlenecks = await this.identifyBottlenecks(metrics);
+      const headyBottlenecks = await this.identifyBottlenecks(headyMetrics);
       
-      for (const headyBottleneck of bottlenecks) {
-        await this.addressBottleneck(bottleneck);
+      for (const headyBottleneck of headyBottlenecks) {
+        await this.addressBottleneck(headyBottleneck);
       }
       
       this.optimizationMetrics.performanceImprovements++;
@@ -194,9 +192,9 @@ class HeadyBackgroundOptimizer {
       // Analyze API response times
       const headyEndpoints = await this.analyzeAPIPerformance();
       
-      for (const headyEndpoint of endpoints) {
-        if (endpoint.averageResponseTime > 200) {
-          await this.optimizeEndpoint(endpoint);
+      for (const headyEndpoint of headyEndpoints) {
+        if (headyEndpoint.averageResponseTime > 200) {
+          await this.optimizeEndpoint(headyEndpoint);
         }
       }
       
@@ -227,8 +225,8 @@ class HeadyBackgroundOptimizer {
     try {
       const headyLogFiles = await this.findLogFiles();
       
-      for (const headyLogFile of logFiles) {
-        await this.compactLogFile(logFile);
+      for (const headyLogFile of headyLogFiles) {
+        await this.compactLogFile(headyLogFile);
       }
       
       this.optimizationMetrics.resourceSavings++;
@@ -245,9 +243,9 @@ class HeadyBackgroundOptimizer {
       // Check for outdated dependencies
       const headyOutdated = await this.checkOutdatedDependencies();
       
-      for (const headyDep of outdated) {
-        if (dep.updateType === 'patch') {
-          await this.updateDependency(dep);
+      for (const headyDep of headyOutdated) {
+        if (headyDep.updateType === 'patch') {
+          await this.updateDependency(headyDep);
         }
       }
       
@@ -266,9 +264,9 @@ class HeadyBackgroundOptimizer {
       const headyDuplicates = await this.findDuplicateCode();
       
       // Auto-refactor into reusable functions
-      for (const headyDup of duplicates) {
-        const headyRefactored = await this.refactorToFunction(dup);
-        await this.applyRefactoring(refactored);
+      for (const headyDup of headyDuplicates) {
+        const headyRefactored = await this.refactorToFunction(headyDup);
+        await this.applyRefactoring(headyRefactored);
       }
       
       this.optimizationMetrics.optimizationsCompleted++;
@@ -304,17 +302,17 @@ class HeadyBackgroundOptimizer {
       const headyTempDirs = ['/tmp', './temp', './.tmp'];
       let headyCleanedCount = 0;
       
-      for (const headyDir of tempDirs) {
+      for (const headyDir of headyTempDirs) {
         try {
-          const headyFiles = await fs.readdir(dir);
-          for (const headyFile of files) {
-            const headyFilePath = path.join(dir, file);
-            const headyStats = await fs.stat(filePath);
+          const headyFiles = await fs.readdir(headyDir);
+          for (const headyFile of headyFiles) {
+            const headyFilePath = path.join(headyDir, headyFile);
+            const headyStats = await fs.stat(headyFilePath);
             
             // Remove files older than 1 hour
-            if (Date.now() - stats.mtime.getTime() > 3600000) {
-              await fs.unlink(filePath);
-              cleanedCount++;
+            if (Date.now() - headyStats.mtime.getTime() > 3600000) {
+              await fs.unlink(headyFilePath);
+              headyCleanedCount++;
             }
           }
         } catch (err) {
@@ -323,7 +321,7 @@ class HeadyBackgroundOptimizer {
       }
       
       this.optimizationMetrics.resourceSavings++;
-      console.log(`✅ Cleaned ${cleanedCount} temp files`);
+      console.log(`✅ Cleaned ${headyCleanedCount} temp files`);
     } catch (error) {
       console.error('❌ Temp file cleanup failed:', error.message);
     }

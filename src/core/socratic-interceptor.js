@@ -9,7 +9,7 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: socratic-interceptor.js                                   ║
+// ║  FILE: HeadyBattle-interceptor.js                                   ║
 // ║  UPDATED: 20260218-211102                                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -21,24 +21,26 @@
  */
 
 /*
- * Socratic Response Interceptor - MANDATORY FOR ALL RESPONSES
- * Ensures every AI response uses Socratic method without exception
- * Intercepts all outgoing responses and enhances with Socratic questioning
+ * HeadyBattle Response Interceptor - MANDATORY FOR ALL RESPONSES
+ * Ensures every AI response uses HeadyBattle without exception
+ * Intercepts all outgoing responses and enhances with HeadyBattle questioning
  */
 
 const { HeadySoul } = require('../hc/headysoul');
 
-class SocraticInterceptor {
+class HeadyBattleInterceptor {
   constructor() {
     this.headySoul = new HeadySoul();
     this.interceptionCount = 0;
     this.bypassAttempts = 0;
-    this.enforcementMode = process.env.SOCRATIC_MODE_ENABLED === 'true';
+    this.enforcementMode = process.env.HEADYBATTLE_MODE_ENABLED === 'true';
     this.isContinuousValidation = false;
     
+    // Set environment variable if not present - MANDATORY for all operations
     if (!this.enforcementMode) {
-      console.error('🚨 CRITICAL: SOCRATIC_MODE_ENABLED must be true for all responses');
-      process.exit(1);
+      console.log('🤔 Setting HEADYBATTLE_MODE_ENABLED=true for mandatory HeadyBattle compliance');
+      process.env.HEADYBATTLE_MODE_ENABLED = 'true';
+      this.enforcementMode = true;
     }
   }
 
@@ -47,27 +49,27 @@ class SocraticInterceptor {
     this.interceptionCount++;
     
     // Log interception for compliance
-    console.log(`🤔 Socratic Interception #${this.interceptionCount}: Applying mandatory Socratic method`);
+    console.log(`🤔 HeadyBattle Interception #${this.interceptionCount}: Applying mandatory HeadyBattle`);
     
     try {
-      // Apply Socratic enhancement to ALL responses
-      const socraticEnhanced = await this.headySoul.applySocraticMethodToResponse(response, context);
+      // Apply HeadyBattle enhancement to ALL responses
+      const HeadyBattleEnhanced = await this.headySoul.applyHeadyBattleMethodToResponse(response, context);
       
-      // Validate Socratic enhancement was applied
-      if (!socraticEnhanced.socratic_enhancement) {
+      // Validate HeadyBattle enhancement was applied
+      if (!HeadyBattleEnhanced.HeadyBattle_enhancement) {
         this.bypassAttempts++;
-        console.error(`🚨 Socratic bypass attempt #${this.bypassAttempts} detected`);
-        throw new Error('Socratic enhancement failed - response blocked');
+        console.error(`🚨 HeadyBattle bypass attempt #${this.bypassAttempts} detected`);
+        throw new Error('HeadyBattle enhancement failed - response blocked');
       }
       
-      return socraticEnhanced;
+      return HeadyBattleEnhanced;
       
     } catch (error) {
-      console.error('🚨 Socratic interceptor error:', error.message);
-      // Fallback: still apply basic Socratic questioning
+      console.error('🚨 HeadyBattle interceptor error:', error.message);
+      // Fallback: still apply basic HeadyBattle questioning
       return {
         original_response: response,
-        socratic_enhancement: true,
+        HeadyBattle_enhancement: true,
         enhanced_response: `What assumptions underlie this response?\n\nHow might we examine this from multiple perspectives?\n\nWhat evidence supports these claims?\n\nOriginal response: ${response}`,
         questions: [
           'What assumptions underlie this response?',
@@ -81,18 +83,24 @@ class SocraticInterceptor {
   }
 
   // Middleware for Express applications
-  socraticMiddleware() {
+  HeadyBattleMiddleware() {
     return async (req, res, next) => {
       // Intercept response.send
       const originalSend = res.send;
       res.send = async (data) => {
-        if (typeof data === 'string' && data.length > 50) {
-          const socraticData = await this.interceptResponse(data, {
+        const contentType = String(res.getHeader('content-type') || '').toLowerCase();
+        const trimmed = typeof data === 'string' ? data.trim() : '';
+        const looksLikeJson =
+          (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+          (trimmed.startsWith('[') && trimmed.endsWith(']'));
+
+        if (typeof data === 'string' && data.length > 50 && !contentType.includes('application/json') && !looksLikeJson) {
+          const HeadyBattleData = await this.interceptResponse(data, {
             type: 'api_response',
             endpoint: req.path,
             method: req.method
           });
-          return originalSend.call(res, JSON.stringify(socraticData));
+          return originalSend.call(res, JSON.stringify(HeadyBattleData));
         }
         return originalSend.call(res, data);
       };
@@ -101,14 +109,14 @@ class SocraticInterceptor {
       const originalJson = res.json;
       res.json = async (data) => {
         if (data && typeof data === 'object' && data.response) {
-          const socraticData = await this.interceptResponse(data.response, {
+          const HeadyBattleData = await this.interceptResponse(data.response, {
             type: 'api_response',
             endpoint: req.path,
             method: req.method
           });
-          data.response = socraticData.enhanced_response;
-          data.socratic_questions = socraticData.questions;
-          data.socratic_enhancement = true;
+          data.response = HeadyBattleData.enhanced_response;
+          data.HeadyBattle_questions = HeadyBattleData.questions;
+          data.HeadyBattle_enhancement = true;
         }
         return originalJson.call(res, data);
       };
@@ -147,36 +155,36 @@ class SocraticInterceptor {
     };
   }
 
-  // Validate system-wide Socratic compliance
+  // Validate system-wide HeadyBattle compliance
   async validateSystemCompliance() {
     const metrics = this.getMetrics();
     
-    console.log('🔍 Socratic Compliance Validation:');
+    console.log('🔍 HeadyBattle Compliance Validation:');
     console.log(`   Total Interceptions: ${metrics.total_interceptions}`);
     console.log(`   Bypass Attempts: ${metrics.bypass_attempts}`);
     console.log(`   Compliance Rate: ${metrics.compliance_rate}`);
     console.log(`   Status: ${metrics.status}`);
     
     if (metrics.bypass_attempts > 0) {
-      console.error('🚨 CRITICAL: Socratic method violations detected!');
+      console.error('🚨 CRITICAL: HeadyBattle violations detected!');
       return false;
     }
     
-    console.log('✅ System fully compliant with Socratic method requirements');
+    console.log('✅ System fully compliant with HeadyBattle requirements');
     return true;
   }
 
   // Enable continuous validation for HCFP Full Auto Mode
   enableContinuousValidation() {
     this.isContinuousValidation = true;
-    console.log('🤔 SocraticInterceptor: Continuous validation enabled for HCFP Full Auto Mode');
+    console.log('🤔 HeadyBattleInterceptor: Continuous validation enabled for HCFP Full Auto Mode');
   }
 
   // Disable continuous validation
   disableContinuousValidation() {
     this.isContinuousValidation = false;
-    console.log('🤔 SocraticInterceptor: Continuous validation disabled');
+    console.log('🤔 HeadyBattleInterceptor: Continuous validation disabled');
   }
 }
 
-module.exports = { SocraticInterceptor };
+module.exports = { HeadyBattleInterceptor };

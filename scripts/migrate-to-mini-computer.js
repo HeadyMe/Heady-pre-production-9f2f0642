@@ -26,7 +26,7 @@
 /**
  * 🖥️ MINI COMPUTER MIGRATION -.com DEPLOYMENT SETUP
  * 
- * This script migrates from onrender.com cloud deployment to.com mini computer:
+ * This script migrates from headysystems.com cloud deployment to.com mini computer:
  * 1. Update all domain references to.com mini computer
  * 2. Configure.com development environment
  * 3. Setup mini computer as primary deployment target
@@ -42,7 +42,7 @@ console.log('==========================\n');
 // Get.com mini computer IP/hostname
 const headysystems_CONFIG = {
   // These should be configured based on your mini computer setup
-  hostname: process.env.headysystems_HOST || 'headysystems.com.com',
+  hostname: process.env.headysystems_HOST || 'localhost',
   ip: process.env.headysystems_IP || '192.168.1.100',
   ports: {
     api: 3300,
@@ -54,23 +54,23 @@ const headysystems_CONFIG = {
 };
 
 const DOMAIN_MAPPINGS = {
-  // Replace onrender.com with mini computer
-  'http://headysystems.com.com:3300': `http://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.api}`,
-  'http://headysystems.com.com:3000': `http://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.web}`,
-  'http://headysystems.com.com:8080': `http://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.cms}`,
-  'ws://headysystems.com.com:3300': `ws://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.api}`,
+  // Replace headysystems.com with mini computer
+  'http://localhost:3300': `http://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.api}`,
+  'http://localhost:3000': `http://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.web}`,
+  'http://localhost:8080': `http://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.cms}`,
+  'ws://localhost:3300': `ws://${headysystems_CONFIG.hostname}:${headysystems_CONFIG.ports.api}`,
   
   // Database mappings
   '192.168.1.100:5432': `${headysystems_CONFIG.ip}:${headysystems_CONFIG.ports.db}`,
   '192.168.1.100:6379': `${headysystems_CONFIG.ip}:${headysystems_CONFIG.ports.redis}`,
   
-  // Generic onrender.com cleanup
-  'headysystems.com.com': headysystems_CONFIG.hostname
+  // Generic headysystems.com cleanup
+  'localhost': headysystems_CONFIG.hostname
 };
 
 async function migrateToMiniComputer() {
   try {
-    console.log('🔍 Migrating from onrender.com to mini computer...');
+    console.log('🔍 Migrating from headysystems.com to mini computer...');
     console.log(`📍 Target: ${headysystems_CONFIG.hostname} (${headysystems_CONFIG.ip})\n`);
     
     // 1. Update all domain references

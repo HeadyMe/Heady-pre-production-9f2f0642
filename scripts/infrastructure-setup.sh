@@ -282,8 +282,8 @@ fi
 log "✅ All services started"
 log "🌐 Access points:"
 log "  HeadyManager: http://manager.headyme.com/api/health"
-log "  Web Dashboard: http://localhost:3000"
-log "  Prometheus: http://localhost:9090"
+log "  Web Dashboard: https://headyme.com"
+log "  Prometheus: https://prometheus.headysystems.com"
 EOF
     
     chmod +x scripts/minicomputer/start-services.sh
@@ -307,22 +307,22 @@ scrape_configs:
     
   - job_name: 'python-worker'
     static_configs:
-      - targets: ['localhost:5000']
+      - targets: ['academy.headysystems.com']
     metrics_path: '/metrics'
     
   - job_name: 'redis'
     static_configs:
-      - targets: ['localhost:6379']
+      - targets: ['cache.headysystems.com:6379']
       
   - job_name: 'node-exporter'
     static_configs:
-      - targets: ['localhost:9100']
+      - targets: ['monitoring.headysystems.com:9100']
 
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          - localhost:9093
+          - alertmanager.headysystems.com:9093
 EOF
     
     success "✓ Observability configuration created"

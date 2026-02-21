@@ -98,8 +98,8 @@ windsurf:
         priority: 200
         default: true
         endpoint: "https://headyio.com/api/brain"
-      - id: "heady-conductor"
-        name: "Heady Conductor"
+      - id: "heady-promoter"
+        name: "Heady promoter"
         provider: "headysystems"
         priority: 190
         endpoint: "https://headyio.com/api"
@@ -112,7 +112,7 @@ windsurf:
 
 # ─── INTELLIGENT ORCHESTRATION ───────────────────────────────────────────
 orchestration:
-  # Monte Carlo task planning
+  # HeadySims task planning
   monte_carlo:
     enabled: true
     exploration_factor: 0.3

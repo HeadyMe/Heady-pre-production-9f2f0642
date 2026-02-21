@@ -26,8 +26,8 @@
 ### 🌐 Live Demo URLs
 - **Main Platform**: https://headyme.com/admin-ui.html
 - **API Health**: https://manager.headyme.com/api/health
-- **Socratic AI**: https://manager.headyme.com/api/socratic/question
-- **Monte Carlo**: https://manager.headyme.com/api/dual-engine/test
+- **HeadyBattle AI**: https://manager.headyme.com/api/HeadyBattle/question
+- **HeadySims**: https://manager.headyme.com/api/dual-engine/test
 
 ### 🏗️ Architecture Showcase
 ```
@@ -43,18 +43,18 @@
 ### 1. Platform Overview (2 minutes)
 **Show**: https://headyme.com/admin-ui.html
 - "This is our Heady admin dashboard - real-time system monitoring"
-- "Notice the dual-engine status: Socratic + Monte Carlo both ACTIVE"
+- "Notice the dual-engine status: HeadyBattle + HeadySims both ACTIVE"
 - "100% validation coverage on every action"
 
 ### 2. AI Intelligence Demo (3 minutes)
-**Socratic Questioning**:
+**HeadyBattle Questioning**:
 ```bash
-curl -X POST https://manager.headyme.com/api/socratic/question \
+curl -X POST https://manager.headyme.com/api/HeadyBattle/question \
   -H "Content-Type: application/json" \
   -d '{"request": "Should we optimize our database?"}'
 ```
 
-**Monte Carlo Strategy**:
+**HeadySims Strategy**:
 ```bash
 curl -X POST https://manager.headyme.com/api/dual-engine/test \
   -H "Content-Type: application/json" \
@@ -70,7 +70,7 @@ curl -X POST https://manager.headyme.com/api/dual-engine/test \
 ### 4. Technology Stack (1 minute)
 - **Drupal 11**: Enterprise content management
 - **Next.js**: Modern React frontend
-- **Dual-Engine AI**: Socratic + Monte Carlo
+- **Dual-Engine AI**: HeadyBattle + HeadySims
 - **Render.com**: Scalable infrastructure
 - **Cloudflare**: Global CDN + security
 
@@ -126,7 +126,7 @@ curl -X POST https://manager.headyme.com/api/dual-engine/test \
 "Imagine an AI system that questions every decision and explores every possibility before acting. That's what we've built with Heady."
 
 ### Technology Differentiator
-"While competitors use single AI models, we use dual engines - Socratic questioning challenges assumptions, Monte Carlo explores strategies. 100% validation, 0% blind execution."
+"While competitors use single AI models, we use dual engines - HeadyBattle questioning challenges assumptions, HeadySims explores strategies. 100% validation, 0% blind execution."
 
 ### Business Value
 "Enterprise companies lose millions to bad decisions. Our dual-engine system prevents costly mistakes before they happen, saving companies 20-30% on IT operations."

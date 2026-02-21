@@ -1,0 +1,73 @@
+{
+  "auto_deploy": {
+    "enabled": true,
+    "triggers": {
+      "health_failure": true,
+      "code_change": true,
+      "schedule": "0 */6 * * *",
+      "manual": true
+    },
+    "targets": {
+      "cloudflare_workers": {
+        "enabled": true,
+        "priority": 1
+      },
+      "mini_computer": {
+        "enabled": true,
+        "priority": 2
+      },
+      "cdn": {
+        "enabled": true,
+        "priority": 3
+      }
+    },
+    "domains": [
+      {
+        "name": "headybuddy",
+        "fqdn": "headybuddy.org",
+        "repo": "HeadySystems/headybuddy-web",
+        "worker": "headybuddy-worker"
+      },
+      {
+        "name": "headysystems", 
+        "fqdn": "headysystems.com",
+        "repo": "HeadySystems/headysystems-web",
+        "worker": "headysystems-worker"
+      },
+      {
+        "name": "headyconnection",
+        "fqdn": "headyconnection.org", 
+        "repo": "HeadySystems/headyconnection-web",
+        "worker": "headyconnection-worker"
+      },
+      {
+        "name": "headymcp",
+        "fqdn": "headymcp.com",
+        "repo": "HeadySystems/headymcp-web", 
+        "worker": "headymcp-worker"
+      },
+      {
+        "name": "headyio",
+        "fqdn": "headyio.com",
+        "repo": "HeadySystems/headyio-web",
+        "worker": "headyio-worker"
+      },
+      {
+        "name": "headyme",
+        "fqdn": "headyme.com",
+        "repo": "HeadySystems/headyme-web",
+        "worker": "headyme-worker"
+      }
+    ],
+    "notifications": {
+      "slack": {
+        "enabled": false,
+        "webhook_url": ""
+      },
+      "email": {
+        "enabled": false,
+        "recipients": []
+      }
+    }
+  }
+}

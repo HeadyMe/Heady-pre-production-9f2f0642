@@ -1,0 +1,60 @@
+/* Heady MCP Dashboard Styles */
+.heady-dashboard {
+  background: #0a0a0a !important;
+  color: #00ff00 !important;
+}
+
+.heady-dashboard .card {
+  transition: all 0.3s ease;
+  border: 1px solid #00ff00 !important;
+}
+
+.heady-dashboard .card:hover {
+  background: rgba(0, 255, 0, 0.1) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3) !important;
+}
+
+.heady-dashboard button {
+  transition: all 0.2s ease;
+}
+
+.heady-dashboard button:hover {
+  background: #00cc00 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 255, 0, 0.3) !important;
+}
+
+.heady-dashboard button:active {
+  transform: translateY(0) !important;
+}
+
+.heady-dashboard code {
+  font-family: 'Courier New', monospace !important;
+  background: #000 !important;
+  color: #00ff00 !important;
+  padding: 0.25rem !important;
+  border-radius: 4px !important;
+  font-size: 0.8rem !important;
+}
+
+.heady-dashboard #activity-stream {
+  scrollbar-width: thin;
+  scrollbar-color: #00ff00 #000;
+}
+
+.heady-dashboard #activity-stream::-webkit-scrollbar {
+  width: 8px;
+}
+
+.heady-dashboard #activity-stream::-webkit-scrollbar-track {
+  background: #000;
+}
+
+.heady-dashboard #activity-stream::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 4px;
+}
+
+.heady-dashboard #activity-stream::-webkit-scrollbar-thumb:hover {
+  background: #00cc00;
+}

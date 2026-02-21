@@ -43,6 +43,11 @@ class RealtimeMonitor extends EventEmitter {
             wsPort: options.wsPort || 3301,
             enableMetrics: options.enableMetrics !== false,
             enableAlerts: options.enableAlerts !== false,
+            serviceTimeoutMs: options.serviceTimeoutMs || 1000,
+            managerHealthUrl: options.managerHealthUrl || process.env.HEADY_MANAGER_HEALTH_URL || 'https://manager.headysystems.com/api/health',
+            staticHealthUrl: options.staticHealthUrl || process.env.HEADY_STATIC_HEALTH_URL || 'https://headybuddy.org',
+            headyBattleComplianceUrl: options.headyBattleComplianceUrl || process.env.HEADYBATTLE_COMPLIANCE_URL || 'https://battle.headysystems.com/api/HeadyBattle-compliance',
+            domainCheckTimeoutMs: options.domainCheckTimeoutMs || 2000,
             alertThresholds: {
                 cpu: 80,
                 memory: 85,
@@ -145,16 +150,25 @@ class RealtimeMonitor extends EventEmitter {
         this.componentMonitors.set('process', new ProcessMonitor());
         
         // Services monitor
-        this.componentMonitors.set('services', new ServicesMonitor());
+        this.componentMonitors.set('services', new ServicesMonitor({
+            managerHealthUrl: this.config.managerHealthUrl,
+            staticHealthUrl: this.config.staticHealthUrl,
+            timeoutMs: this.config.serviceTimeoutMs
+        }));
         
         // Network monitor
         this.componentMonitors.set('network', new NetworkMonitor());
         
-        // Socratic compliance monitor
-        this.componentMonitors.set('socratic', new SocraticMonitor());
+        // HeadyBattle compliance monitor
+        this.componentMonitors.set('HeadyBattle', new HeadyBattleMonitor({
+            complianceUrl: this.config.headyBattleComplianceUrl,
+            timeoutMs: this.config.serviceTimeoutMs
+        }));
         
         // Domain monitor
-        this.componentMonitors.set('domains', new DomainMonitor());
+        this.componentMonitors.set('domains', new DomainMonitor({
+            timeoutMs: this.config.domainCheckTimeoutMs
+        }));
         
         console.log(`📊 Initialized ${this.componentMonitors.size} component monitors`);
     }
@@ -493,10 +507,13 @@ class ProcessMonitor extends EventEmitter {
 }
 
 class ServicesMonitor extends EventEmitter {
-    constructor() {
+    constructor(options = {}) {
         super();
         this.isRunning = false;
         this.services = new Map();
+        this.managerHealthUrl = options.managerHealthUrl || process.env.HEADY_MANAGER_HEALTH_URL || 'https://manager.headysystems.com/api/health';
+        this.staticHealthUrl = options.staticHealthUrl || process.env.HEADY_STATIC_HEALTH_URL || 'https://headybuddy.org';
+        this.timeoutMs = options.timeoutMs || 1000;
     }
     
     start() {
@@ -509,10 +526,10 @@ class ServicesMonitor extends EventEmitter {
     
     async getData() {
         // Check HeadyManager service
-        const headyManagerStatus = await this.checkService('http://headysystems.com.com:3300/api/health');
+        const headyManagerStatus = await this.checkService(this.managerHealthUrl);
         
         // Check static server
-        const staticServerStatus = await this.checkService('https://headysystems.com.com:8080');
+        const staticServerStatus = await this.checkService(this.staticHealthUrl);
         
         return {
             headyManager: headyManagerStatus,
@@ -526,7 +543,7 @@ class ServicesMonitor extends EventEmitter {
     async checkService(url) {
         try {
             const start = Date.now();
-            const response = await fetch(url, { timeout: 1000 });
+            const response = await this.fetchWithTimeout(url, {}, this.timeoutMs);
             const responseTime = Date.now() - start;
             
             return {
@@ -543,6 +560,20 @@ class ServicesMonitor extends EventEmitter {
                 error: error.message,
                 timestamp: Date.now()
             };
+        }
+    }
+
+    async fetchWithTimeout(url, options = {}, timeoutMs = this.timeoutMs) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            return await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timeout);
         }
     }
 }
@@ -570,11 +601,13 @@ class NetworkMonitor extends EventEmitter {
     }
 }
 
-class SocraticMonitor extends EventEmitter {
-    constructor() {
+class HeadyBattleMonitor extends EventEmitter {
+    constructor(options = {}) {
         super();
         this.isRunning = false;
         this.lastCheck = Date.now();
+        this.complianceUrl = options.complianceUrl || process.env.HEADYBATTLE_COMPLIANCE_URL || 'https://battle.headysystems.com/api/HeadyBattle-compliance';
+        this.timeoutMs = options.timeoutMs || 1000;
     }
     
     start() {
@@ -587,7 +620,7 @@ class SocraticMonitor extends EventEmitter {
     
     async getData() {
         try {
-            const response = await fetch('http://headysystems.com.com:3300/api/socratic-compliance', { timeout: 1000 });
+            const response = await this.fetchWithTimeout(this.complianceUrl, {}, this.timeoutMs);
             const data = await response.json();
             
             return {
@@ -605,12 +638,27 @@ class SocraticMonitor extends EventEmitter {
             };
         }
     }
+
+    async fetchWithTimeout(url, options = {}, timeoutMs = this.timeoutMs) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            return await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
 }
 
 class DomainMonitor extends EventEmitter {
-    constructor() {
+    constructor(options = {}) {
         super();
         this.isRunning = false;
+        this.timeoutMs = options.timeoutMs || 2000;
         this.domains = [
             'headysystems.com',
             'headyconnection.org', 
@@ -648,11 +696,9 @@ class DomainMonitor extends EventEmitter {
     async checkDomain(domain) {
         try {
             const start = Date.now();
-            const response = await fetch(`https://${domain}`, { 
-                method: 'HEAD',
-                timeout: 2000,
-                mode: 'no-cors'
-            });
+            await this.fetchWithTimeout(`https://${domain}`, {
+                method: 'HEAD'
+            }, this.timeoutMs);
             const responseTime = Date.now() - start;
             
             return {
@@ -668,6 +714,20 @@ class DomainMonitor extends EventEmitter {
                 error: error.message,
                 timestamp: Date.now()
             };
+        }
+    }
+
+    async fetchWithTimeout(url, options = {}, timeoutMs = this.timeoutMs) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            return await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+        } finally {
+            clearTimeout(timeout);
         }
     }
 }

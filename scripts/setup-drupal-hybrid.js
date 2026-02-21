@@ -45,9 +45,9 @@ const DRUPAL_CONFIG = {
   webserver: 'nginx',
   memory: '1GB+',
   domains: {
-    cms: 'cms.headysystems.com.com',
-    app: 'app.headysystems.com.com',
-    api: 'api.headysystems.com.com'
+    cms: 'cms.localhost',
+    app: 'app.localhost',
+    api: 'api.localhost'
   }
 };
 
@@ -295,7 +295,7 @@ export default App;`;
   // Drupal API utility
   const drupalAPI = `import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://headysystems.com.com:3300';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3300';
 
 // Create axios instance with Drupal headers
 const api = axios.create({
@@ -368,14 +368,14 @@ async function setupAPIIntegration() {
   const apiConfig = `{
   "version": "1.0.0",
   "drupal": {
-    "url": "http://headysystems.com.com:8080",
-    "api": "http://headysystems.com.com:8080/jsonapi",
-    "auth": "http://headysystems.com.com:8080/oauth/token"
+    "url": "http://localhost:8080",
+    "api": "http://localhost:8080/jsonapi",
+    "auth": "http://localhost:8080/oauth/token"
   },
   "services": {
-    "memory": "http://headysystems.com.com:3300/memory",
-    "ai": "http://headysystems.com.com:3300/ai",
-    "monitoring": "http://headysystems.com.com:3300/monitoring"
+    "memory": "http://localhost:3300/memory",
+    "ai": "http://localhost:3300/ai",
+    "monitoring": "http://localhost:3300/monitoring"
   },
   "cache": {
     "ttl": 300,
@@ -472,12 +472,12 @@ echo "🌐 Updating DNS configuration..."
 
 # 5. Health checks
 echo "🏥 Running health checks..."
-curl -f http://headysystems.com.com:8080/health || exit 1
-curl -f http://headysystems.com.com:3300/health || exit 1
-curl -f http://headysystems.com.com:3000 || exit 1
+curl -f http://localhost:8080/health || exit 1
+curl -f http://localhost:3300/health || exit 1
+curl -f http://localhost:3000 || exit 1
 
 echo "✅ Deployment complete!"
-echo "📊 Monitoring: https://monitoring.headysystems.com.com"`;
+echo "📊 Monitoring: https://monitoring.localhost"`;
 
   await fs.writeFile('scripts/deploy.sh', deployScript);
   await fs.chmod('scripts/deploy.sh', '755');

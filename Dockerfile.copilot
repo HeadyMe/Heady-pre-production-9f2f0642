@@ -1,0 +1,38 @@
+# HeadyCopilot Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    python3
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+COPY configs/ ./configs/
+
+# Create copilot directories
+RUN mkdir -p /app/data /app/suggestions /app/context /app/learning
+
+# Set environment
+ENV NODE_ENV=production
+ENV COPILOT_MODE=enhanced
+ENV SUGGESTION_QUALITY=maximum
+
+# Expose ports
+EXPOSE 5000 5001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
+
+# Start HeadyCopilot service
+CMD ["node", "src/hc/heady-copilot.js"]

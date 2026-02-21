@@ -1,0 +1,11 @@
+name: 'Heady Systems Control'
+type: module
+description: 'Complete system monitoring, control, and WARP integration for Heady ecosystem'
+core_version_requirement: ^11
+package: 'Heady'
+dependencies:
+  - drupal:rest
+  - drupal:jsonapi
+  - drupal:views
+  - drupal:system
+configure: heady_control.settings

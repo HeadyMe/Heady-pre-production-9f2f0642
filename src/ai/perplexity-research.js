@@ -53,7 +53,7 @@ class PerplexityResearch {
     console.log('✅ Perplexity Research Integration initialized');
     return {
       status: 'connected',
-      model: 'llama-3.1-sonar-small-128k-online',
+      model: 'sonar-pro',
       capabilities: [
         'real_time_research',
         'knowledge_discovery',
@@ -77,7 +77,7 @@ class PerplexityResearch {
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-pro',
           messages: [{
             role: 'user',
             content: 'Test connection - respond with "connected"'
@@ -111,7 +111,7 @@ class PerplexityResearch {
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: options.model || 'llama-3.1-sonar-small-128k-online',
+          model: options.model || 'sonar-pro',
           messages: [{
             role: 'user',
             content: researchPrompt
@@ -178,7 +178,7 @@ Please provide:
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-pro',
           messages: [{
             role: 'user',
             content: factCheckPrompt
@@ -233,7 +233,7 @@ Please provide:
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-pro',
           messages: [{
             role: 'user',
             content: trendPrompt
@@ -291,7 +291,7 @@ Please provide:
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-pro',
           messages: [{
             role: 'user',
             content: docPrompt
@@ -351,7 +351,7 @@ Please provide:
           'Authorization': `Bearer ${this.apiKey}`
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-pro',
           messages: [{
             role: 'user',
             content: marketPrompt
@@ -843,7 +843,7 @@ Please provide:
   getStatus() {
     return {
       connected: !!this.apiKey,
-      model: 'llama-3.1-sonar-small-128k-online',
+      model: 'sonar-pro',
       cache: {
         size: this.researchCache.size,
         knowledgeBase: this.knowledgeBase.size

@@ -39,7 +39,7 @@ All Render services are now running on this.com machine with proper Heady domain
 
 **✅ RUNNING SERVICES:**
 - Heady Manager (Port 3300)
-- Dual Engine System (Socratic + Monte Carlo)
+- Dual Engine System (HeadyBattle + HeadySims)
 - Memory System (150 memories loaded)
 - headysystems.com Eliminator (Active)
 - Action Interceptor (100% validation)
@@ -95,8 +95,8 @@ BASE_URL="https://manager.headyme.com"
 **Access URLs for Demo:**
 - Admin Dashboard: http://manager.headyme.com/admin-ui.html
 - API Health: http://manager.headyme.com/api/health
-- Socratic AI: http://manager.headyme.com/api/socratic/question
-- Monte Carlo: http://manager.headyme.com/api/dual-engine/test
+- HeadyBattle AI: http://manager.headyme.com/api/HeadyBattle/question
+- HeadySims: http://manager.headyme.com/api/dual-engine/test
 
 ### 📊 System Health
 

@@ -21,8 +21,8 @@
  */
 
 /**
- * 🔐 Heady Separation Protocol - Ensures Clear.com/Remote Boundaries
- * Foundation for distinct.com vs remote environments with clear separation
+ * 🔐 Heady Separation Protocol - Ensures Clear Local/Remote Boundaries
+ * Foundation for distinct local vs remote environments with clear separation
  */
 
 class HeadySeparationProtocol {
@@ -34,7 +34,7 @@ class HeadySeparationProtocol {
   }
 
   /**
-   * Detect current environment .com vs remote)
+   * Detect current environment (local vs remote)
    */
   detectEnvironment() {
     const indicators = {
@@ -42,15 +42,15 @@ class HeadySeparationProtocol {
       isProduction: process.env.NODE_ENV === 'production',
       isDevelopment: process.env.NODE_ENV === 'development',
       isTest: process.env.NODE_ENV === 'test',
-      port: process.env.PORT || 3000,
-      domain: process.env.DOMAIN || 'headysystems.com.com'
+      port: process.env.PORT || 3310,
+      domain: process.env.DOMAIN || 'headyme.com'
     };
 
     // Environment detection logic
-    if (indicators.isProduction && !indicators.hostname.includes(.com')) {
+    if (indicators.isProduction && !indicators.hostname.includes('local')) {
       return 'REMOTE_PRODUCTION';
-    } else if (indicators.isDevelopment || indicators.domain.includes('headysystems.com.com')) {
-      return .com_DEVELOPMENT';
+    } else if (indicators.isDevelopment || indicators.domain.includes('localhost')) {
+      return 'LOCAL_DEVELOPMENT';
     } else if (indicators.isTest) {
       return 'TEST_ENVIRONMENT';
     } else {
@@ -75,17 +75,17 @@ class HeadySeparationProtocol {
       case 'REMOTE_PRODUCTION':
         return {
           ...baseRules,
-          allowedDomains: ['headyme.com', 'chat.headyme.com', 'manager.headyme.com'],
-          forbiddenDomains: ['headysystems.com.com', 'headyme.com', 'headysystems.com'],
+          allowedDomains: ['headyme.com', 'headybuddy.org', 'headysystems.com', 'headyconnection.org', 'headymcp.com', 'headyio.com'],
+          forbiddenDomains: ['localhost'],
           strictMode: true,
           publicAccess: true
         };
       
-      case .com_DEVELOPMENT':
+      case 'LOCAL_DEVELOPMENT':
         return {
           ...baseRules,
-          allowedDomains: ['headysystems.com.com', 'headyme.com'],
-          forbiddenDomains: ['headyme.com', 'chat.headyme.com'],
+          allowedDomains: ['localhost', '127.0.0.1'],
+          forbiddenDomains: ['headyme.com', 'headysystems.com', 'headyio.com'],
           strictMode: false,
           publicAccess: false,
           developmentMode: true
@@ -94,7 +94,7 @@ class HeadySeparationProtocol {
       default:
         return {
           ...baseRules,
-          allowedDomains: ['headysystems.com.com', 'headyme.com'],
+          allowedDomains: ['localhost', '127.0.0.1', 'headyme.com', 'headysystems.com'],
           forbiddenDomains: [],
           strictMode: false,
           publicAccess: false
@@ -108,7 +108,7 @@ class HeadySeparationProtocol {
   determineActiveMode() {
     if (this.environment === 'REMOTE_PRODUCTION') {
       return 'PRODUCTION_MODE';
-    } else if (this.environment === .com_DEVELOPMENT') {
+    } else if (this.environment === 'LOCAL_DEVELOPMENT') {
       return 'DEVELOPMENT_MODE';
     } else {
       return 'HYBRID_MODE';
@@ -204,14 +204,14 @@ class HeadySeparationProtocol {
     const validation = { compliant: true, violations: [] };
 
     // Check for cross-environment service calls
-    if (this.environment === .com_DEVELOPMENT' && service.includes('headyme.com')) {
+    if (this.environment === 'LOCAL_DEVELOPMENT' && service.includes('headyme.com')) {
       validation.compliant = false;
-      validation.violations.push(.com environment cannot access production services');
+      validation.violations.push('Local environment cannot access production services');
     }
 
-    if (this.environment === 'REMOTE_PRODUCTION' && service.includes('headysystems.com.com')) {
+    if (this.environment === 'REMOTE_PRODUCTION' && service.includes('localhost')) {
       validation.compliant = false;
-      validation.violations.push('Production environment cannot access headysystems.com.com services');
+      validation.violations.push('Production environment cannot access localhost services');
     }
 
     return validation;
@@ -224,14 +224,14 @@ class HeadySeparationProtocol {
     const validation = { compliant: true, violations: [] };
 
     // Check for cross-environment data access
-    if (this.environment === .com_DEVELOPMENT' && data.includes('production')) {
+    if (this.environment === 'LOCAL_DEVELOPMENT' && data.includes('production')) {
       validation.compliant = false;
-      validation.violations.push(.com environment cannot access production data');
+      validation.violations.push('Local environment cannot access production data');
     }
 
-    if (this.environment === 'REMOTE_PRODUCTION' && data.includes(.com')) {
+    if (this.environment === 'REMOTE_PRODUCTION' && data.includes('local')) {
       validation.compliant = false;
-      validation.violations.push('Production environment cannot access.com data');
+      validation.violations.push('Production environment cannot access local data');
     }
 
     return validation;
@@ -246,17 +246,17 @@ class HeadySeparationProtocol {
     switch (this.environment) {
       case 'REMOTE_PRODUCTION':
         // Production must use production domains
-        if (operation.url && !operation.url.includes('headyme.com')) {
+        if (operation.url && !['headyme.com', 'headybuddy.org', 'headysystems.com', 'headyconnection.org', 'headymcp.com', 'headyio.com'].some(d => operation.url.includes(d))) {
           validation.compliant = false;
-          validation.violations.push('Production must use headyme.com domains');
+          validation.violations.push('Production must use Heady branded domains');
         }
         break;
 
-      case .com_DEVELOPMENT':
-        //.com should not access production APIs
+      case 'LOCAL_DEVELOPMENT':
+        // Local should not access production APIs
         if (operation.api && operation.api.includes('headyme.com')) {
           validation.compliant = false;
-          validation.violations.push(.com development should not access production APIs');
+          validation.violations.push('Local development should not access production APIs');
         }
         break;
     }
@@ -317,7 +317,7 @@ class HeadySeparationProtocol {
       ...boundary,
       allowedOrigins: this.environment === 'REMOTE_PRODUCTION' 
         ? ['https://headyme.com', 'https://chat.headyme.com']
-        : ['http://headyme.com:3000', 'http://headyme.com:3000'],
+        : ['http://localhost:3000', 'http://localhost:3310'],
       rateLimiting: this.environment === 'REMOTE_PRODUCTION',
       authentication: this.environment === 'REMOTE_PRODUCTION',
       cors: {
@@ -349,8 +349,8 @@ class HeadySeparationProtocol {
     return {
       ...boundary,
       services: this.environment === 'REMOTE_PRODUCTION'
-        ? ['manager.headyme.com', 'api.headyme.com']
-        : ['api.headysystems.com.com', 'headyme.com:3000'],
+        ? ['manager.headysystems.com', 'api.headyio.com']
+        : ['manager.headysystems.com', 'api.headyio.com'],
       loadBalancing: this.environment === 'REMOTE_PRODUCTION',
       monitoring: true,
       healthChecks: true

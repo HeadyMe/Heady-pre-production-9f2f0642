@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -21,10 +20,9 @@
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  */
 
-#!/usr/bin/env node
 /**
  * 🎯 ACTION INTERCEPTOR: Universal Dual-Engine Execution Wrapper
- * Intercepts ALL actions in Heady and routes through Socratic + Monte Carlo
+ * Intercepts ALL actions in Heady and routes through HeadyBattle + HeadySims
  * 100% of actions pass through both engines - no exceptions
  */
 

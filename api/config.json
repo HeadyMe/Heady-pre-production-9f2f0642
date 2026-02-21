@@ -1,14 +1,14 @@
 {
   "version": "1.0.0",
   "drupal": {
-    "url": "http://headysystems.com.com:8080",
-    "api": "http://headysystems.com.com:8080/jsonapi",
-    "auth": "http://headysystems.com.com:8080/oauth/token"
+    "url": "https://cms.headyme.com",
+    "api": "https://cms.headyme.com/jsonapi",
+    "auth": "https://cms.headyme.com/oauth/token"
   },
   "services": {
-    "memory": "http://headysystems.com.com:3300/memory",
-    "ai": "http://headysystems.com.com:3300/ai",
-    "monitoring": "http://headysystems.com.com:3300/monitoring"
+    "memory": "https://manager.headysystems.com/memory",
+    "ai": "https://headyio.com/ai",
+    "monitoring": "https://manager.headysystems.com/monitoring"
   },
   "cache": {
     "ttl": 300,

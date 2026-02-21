@@ -1,0 +1,277 @@
+/* HeadySystems Animated Watermark Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Main content styling */
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.content h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.demo-section {
+    background: white;
+    padding: 30px;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    color: #333;
+}
+
+/* Watermark Container */
+.watermark-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allows clicking through watermark */
+    z-index: 1000;
+    overflow: hidden;
+}
+
+/* Watermark Base */
+.watermark {
+    position: absolute;
+    width: 300px;
+    height: 150px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.25; /* More visible but still not intrusive */
+    
+    /* Slow floating animation */
+    animation: 
+        floatAnimation 20s ease-in-out infinite,
+        rotateAnimation 30s linear infinite,
+        pulseAnimation 8s ease-in-out infinite;
+}
+
+/* Watermark Logo */
+.watermark-logo {
+    width: 100%;
+    height: 100%;
+    
+    /* Additional flowing effect */
+    animation: 
+        flowAnimation 25s ease-in-out infinite,
+        breatheAnimation 6s ease-in-out infinite;
+}
+
+.watermark-logo svg {
+    width: 100%;
+    height: 100%;
+    
+    /* Enhanced glow effect for visual excitement */
+    filter: drop-shadow(0 0 15px rgba(147, 112, 219, 0.4));
+}
+
+/* Floating Animation - Slow movement */
+@keyframes floatAnimation {
+    0%, 100% {
+        transform: translate(-50%, -50%) translateY(0px) translateX(0px);
+    }
+    25% {
+        transform: translate(-50%, -50%) translateY(-20px) translateX(10px);
+    }
+    50% {
+        transform: translate(-50%, -50%) translateY(0px) translateX(20px);
+    }
+    75% {
+        transform: translate(-50%, -50%) translateY(20px) translateX(10px);
+    }
+}
+
+/* Rotation Animation - Very slow rotation */
+@keyframes rotateAnimation {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Pulse Animation - Subtle scaling */
+@keyframes pulseAnimation {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}
+
+/* Flow Animation - Gentle flowing motion */
+@keyframes flowAnimation {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+    }
+    33% {
+        transform: translateY(-5px) scale(1.02);
+    }
+    66% {
+        transform: translateY(5px) scale(0.98);
+    }
+}
+
+/* Breathe Animation - Subtle breathing effect */
+@keyframes breatheAnimation {
+    0%, 100% {
+        opacity: 0.15;
+    }
+    50% {
+        opacity: 0.25;
+    }
+}
+
+/* Color Shift Animation - Gradual color changes */
+@keyframes colorShiftAnimation {
+    0% {
+        filter: hue-rotate(0deg) brightness(1);
+    }
+    25% {
+        filter: hue-rotate(90deg) brightness(1.1);
+    }
+    50% {
+        filter: hue-rotate(180deg) brightness(0.9);
+    }
+    75% {
+        filter: hue-rotate(270deg) brightness(1.05);
+    }
+    100% {
+        filter: hue-rotate(360deg) brightness(1);
+    }
+}
+
+/* SVG Color Animation */
+@keyframes svgColorAnimation {
+    0%, 100% {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+    }
+    33% {
+        filter: drop-shadow(0 0 15px rgba(65, 105, 225, 0.4));
+    }
+    66% {
+        filter: drop-shadow(0 0 12px rgba(147, 112, 219, 0.35));
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .watermark {
+        width: 200px;
+        height: 100px;
+        opacity: 0.12; /* Even more subtle on mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .watermark {
+        width: 150px;
+        height: 75px;
+        opacity: 0.10;
+    }
+}
+
+/* Alternative positioning options */
+.watermark.top-right {
+    top: 20px;
+    right: 20px;
+    left: auto;
+    transform: none;
+    animation: 
+        floatAnimationTR 20s ease-in-out infinite,
+        rotateAnimation 30s linear infinite,
+        pulseAnimation 8s ease-in-out infinite,
+        colorShiftAnimation 15s linear infinite;
+}
+
+@keyframes floatAnimationTR {
+    0%, 100% {
+        transform: translateY(0px) translateX(0px);
+    }
+    25% {
+        transform: translateY(-10px) translateX(-5px);
+    }
+    50% {
+        transform: translateY(0px) translateX(-10px);
+    }
+    75% {
+        transform: translateY(10px) translateX(-5px);
+    }
+}
+
+/* Bottom corner positioning */
+.watermark.bottom-left {
+    bottom: 20px;
+    left: 20px;
+    top: auto;
+    right: auto;
+    transform: none;
+    animation: 
+        floatAnimationBL 20s ease-in-out infinite,
+        rotateAnimation 30s linear infinite,
+        pulseAnimation 8s ease-in-out infinite,
+        colorShiftAnimation 15s linear infinite;
+}
+
+@keyframes floatAnimationBL {
+    0%, 100% {
+        transform: translateY(0px) translateX(0px);
+    }
+    25% {
+        transform: translateY(10px) translateX(5px);
+    }
+    50% {
+        transform: translateY(0px) translateX(10px);
+    }
+    75% {
+        transform: translateY(-10px) translateX(5px);
+    }
+}
+
+/* Print styles - hide watermark when printing */
+@media print {
+    .watermark-container {
+        display: none;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+    
+    .demo-section {
+        background: #3d3d3d;
+        color: #e0e0e0;
+    }
+    
+    .watermark {
+        opacity: 0.12; /* More subtle in dark mode */
+    }
+}

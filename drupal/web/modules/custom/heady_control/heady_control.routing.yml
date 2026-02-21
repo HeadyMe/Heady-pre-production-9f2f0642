@@ -1,0 +1,52 @@
+name: 'Heady Systems Control'
+type: module
+description: 'Complete system monitoring, control, and WARP integration for Heady ecosystem'
+core_version_requirement: ^11
+package: 'Heady'
+dependencies:
+  - drupal:rest
+  - drupal:jsonapi
+  - drupal:views
+  - drupal:system
+configure: heady_control.settings
+
+# API endpoints
+heady_control.dashboard:
+  path: '/admin/heady/dashboard'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyControlController::dashboard'
+    _title: 'Heady Systems Control Center'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_control.deploy:
+  path: '/admin/heady/deploy/{domain}'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyControlController::triggerDeploy'
+  methods: [POST]
+  requirements:
+    _permission: 'administer site configuration'
+
+heady_control.restart_service:
+  path: '/admin/heady/restart/{service_name}'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyControlController::restartService'
+    methods: [POST]
+  requirements:
+    _permission: 'administer site configuration'
+
+heady_control.logs:
+  path: '/admin/heady/logs'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyControlController::getSystemLogs'
+    methods: [GET]
+  requirements:
+    _permission: 'access administration pages'
+
+heady_control.buddy_sync:
+  path: '/admin/heady/buddy/sync'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyControlController::forceBuddySync'
+    methods: [POST]
+  requirements:
+    _permission: 'administer site configuration'

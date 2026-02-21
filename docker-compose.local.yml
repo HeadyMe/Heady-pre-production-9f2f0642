@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════
-# 🐳 HEADY.com DOCKER COMPOSE WITH CLOUDFLARE TUNNEL
+# 🐳 HEADY LOCAL DOCKER COMPOSE WITH CLOUDFLARE TUNNEL
 # ═══════════════════════════════════════════════════════════════
-#.com deployment with 90% baseline / 100% peak resource allocation
+# Local deployment with 90% baseline / 100% peak resource allocation
 
 version: '3.8'
 
@@ -17,7 +17,7 @@ services:
     networks:
       - heady-network
     depends_on:
-      - heady-conductor
+      - heady-promoter
       - heady-soul
       - heady-mcp
       - heady-web
@@ -25,10 +25,10 @@ services:
       - heady-lens
       - heady-vinci
 
-  # HeadyConductor - Central Orchestrator
-  heady-conductor:
-    image: headysystems/conductor:latest
-    container_name: heady-conductor
+  # Headypromoter - Central Orchestrator
+  heady-promoter:
+    image: headysystems/promoter:latest
+    container_name: heady-promoter
     restart: unless-stopped
     environment:
       - NODE_ENV=production
@@ -43,7 +43,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - conductor-data:/app/data
+      - promoter-data:/app/data
       - ./logs:/app/logs
     networks:
       - heady-network
@@ -56,7 +56,7 @@ services:
           cpus: '1.8'  # 90% baseline
           memory: 3.6G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -74,7 +74,7 @@ services:
       - PRIORITY_LEVEL=medium
       - PREDICTION_MODEL=enabled
       - RESOURCE_OPTIMIZATION=enabled
-      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - CONDUCTOR_ENDPOINT=http://heady-promoter:8000
     ports:
       - "8001:8001"
     volumes:
@@ -92,7 +92,7 @@ services:
           cpus: '3.6'  # 90% baseline
           memory: 7.2G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:8001/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -107,7 +107,7 @@ services:
       - NODE_ENV=production
       - REDIS_URL=redis://heady-redis:6379
       - DB_URL=postgresql://heady:headypass@heady-db:5432/heady
-      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - CONDUCTOR_ENDPOINT=http://heady-promoter:8000
       - PROTOCOL_VERSION=latest
     ports:
       - "8002:8002"
@@ -125,7 +125,7 @@ services:
           cpus: '0.9'  # 90% baseline
           memory: 1.8G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:8002/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -138,7 +138,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - API_ENDPOINT=http://heady-conductor:8000
+      - API_ENDPOINT=http://heady-promoter:8000
       - WEBSOCKET_ENABLED=true
       - ATTENTION_TRACKING=enabled
       - BUDDY_ENDPOINT=http://heady-buddy:8003
@@ -155,7 +155,7 @@ services:
           cpus: '0.9'
           memory: 1.8G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -168,7 +168,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - CONDUCTOR_ENDPOINT=http://heady-promoter:8000
       - SOUL_ENDPOINT=http://heady-soul:8001
       - ATTENTION_DETECTION=enabled
       - RESOURCE_ESCALATION=enabled
@@ -186,7 +186,7 @@ services:
           cpus: '1.8'  # 90% baseline
           memory: 3.6G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:8003/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -201,7 +201,7 @@ services:
       - NODE_ENV=production
       - GPU_ENABLED=true
       - PRIORITY_LEVEL=medium-low
-      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - CONDUCTOR_ENDPOINT=http://heady-promoter:8000
       - VISUAL_PROCESSING_MODE=optimized
     ports:
       - "8004:8004"
@@ -216,7 +216,7 @@ services:
           cpus: '2.7'  # 90% baseline
           memory: 5.4G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:8004/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -232,7 +232,7 @@ services:
       - LEARNING_CONTINUOUS=true
       - PATTERN_CACHE=redis://heady-redis:6379
       - PRIORITY_LEVEL=medium-low
-      - CONDUCTOR_ENDPOINT=http://heady-conductor:8000
+      - CONDUCTOR_ENDPOINT=http://heady-promoter:8000
       - RESOURCE_MODE=baseline
     ports:
       - "8005:8005"
@@ -250,7 +250,7 @@ services:
           cpus: '3.6'  # 90% baseline
           memory: 7.2G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:8005/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -315,7 +315,7 @@ services:
       - heady-network
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://headysystems.com:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -329,17 +329,17 @@ networks:
         - subnet: 172.20.0.0/16
 
 volumes:
-  conductor-data:
-    driver:.com
+  promoter-data:
+    driver: local
   soul-data:
-    driver:.com
+    driver: local
   soul-cache:
-    driver:.com
+    driver: local
   vinci-patterns:
-    driver:.com
+    driver: local
   redis-data:
-    driver:.com
+    driver: local
   postgres-data:
-    driver:.com
+    driver: local
   storage-data:
-    driver:.com
+    driver: local

@@ -118,7 +118,7 @@ class HeadySequentialRebuildEngine {
         type: 'component',
         priority: 5,
         dependencies: ['HeadyWeb'],
-        testSuite: ['socratic_dialogue', 'reasoning_engine', 'ui_interaction'],
+        testSuite: ['HeadyBattle_dialogue', 'reasoning_engine', 'ui_interaction'],
         domains: ['headyme.com/soul'],
         buildCommand: 'component integrated in HeadyWeb'
       },
@@ -408,7 +408,7 @@ class HeadySequentialRebuildEngine {
    */
   async testAPIHealth(component) {
     try {
-      const response = await fetch('https://headysystems.com.com/api/health');
+      const response = await fetch(`${process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com'}/api/health`);
       const health = await response.json();
       
       return {
@@ -499,7 +499,7 @@ class HeadySequentialRebuildEngine {
    */
   async testMemoryScan(component) {
     try {
-      const response = await fetch('https://headysystems.com.com/api/memory/stats');
+      const response = await fetch(`${process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com'}/api/memory/stats`);
       const stats = await response.json();
       
       return {

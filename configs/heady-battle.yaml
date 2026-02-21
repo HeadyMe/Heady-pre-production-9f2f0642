@@ -1,0 +1,292 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: heady-battle.yaml                                        ║
+# ║  UPDATED: 20260219-154500                                            ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+# HeadyBattle Configuration
+# Multi-branch orchestration using HeadyMC ultra-fast decomposition
+
+version: 1.0.0
+description: HeadyBattle multi-branch orchestration using HeadyMC
+
+# Branch Management Strategy
+branching:
+  max_dev_branches: 32
+  max_staging_branches: 4
+  naming_template: "heady/battle-{taskId}-{type}{index}"
+  assignment_strategy: "file-affinity-balanced"  # file-affinity-balanced | random | least-loaded
+  
+  # Branch creation policies
+  auto_create: true
+  cleanup_after_merge: true
+  retention_days: 7
+  
+  # Conflict prevention
+  conflict_prediction: true
+  file_affinity_threshold: 0.7
+  max_branch_file_overlap: 0.3
+
+# Execution Configuration
+execution:
+  # Performance targets
+  max_workers: 64
+  batch_size: 100
+  subtask_timeout_ms: 30000
+  target_decompose_ms: 100   # 10k subtasks in < 100ms
+  target_first_dispatch_ms: 200  # First subtask start in < 200ms
+  
+  # Worker allocation
+  preferred_workers: ["windsurf-cascade", "github-copilot-workspace", "local-claude"]
+  max_workers_per_branch: 4
+  worker_selection_strategy: "load-balanced"
+  
+  # Parallel execution
+  enable_parallel_layers: true
+  dependency_aware_scheduling: true
+  resource_monitoring: true
+
+# Promotion Rules
+promotion_rules:
+  dev_to_staging:
+    trigger: "all_subtasks_complete_and_tests_pass"
+    merge_method: "squash"
+    require_tests: true
+    test_timeout_ms: 600000
+    
+  staging_to_main:
+    trigger: "all_staging_pass_integration_tests"
+    merge_method: "squash"
+    require_human_approval: false
+    integration_test_timeout_ms: 1200000
+    
+  # Rollback policies
+  auto_rollback_on_failure: true
+  rollback_trigger: "test_failure_or_conflict"
+  max_rollback_attempts: 3
+
+# Cleanup Policies
+cleanup:
+  delete_dev_branches_after_merge: true
+  delete_staging_branches_after_merge: true
+  retention_days: 7
+  
+  # Cleanup scheduling
+  cleanup_interval_hours: 24
+  failed_branch_retention_days: 14
+  
+  # Archive policies
+  archive_completed_battles: true
+  archive_location: "/var/log/heady/battle-archive"
+
+# Git Integration
+git:
+  provider: "github"
+  default_base_branch: "main"
+  api_timeout_ms: 30000
+  
+  # Commit policies
+  commit_message_template: "[HeadyBattle] {taskId} - {branchType} {branchIndex}: {description}"
+  include_subtask_summary: true
+  include_performance_metrics: true
+  
+  # Branch protection
+  require_branch_protection: true
+  enforce_status_checks: true
+  require_code_owner_approval: false
+
+# Metrics and Observability
+metrics:
+  enabled: true
+  emit_to: "heady-lens"
+  
+  # Metric prefixes
+  prefixes:
+    mc_decompose_duration: "mc.decompose.duration"
+    mc_decompose_subtasks: "mc.decompose.subtasks"
+    mc_battle_branches: "mc.battle.branches.created"
+    mc_battle_conflicts: "mc.battle.merge.conflicts"
+    mc_battle_duration: "mc.battle.duration"
+    mc_battle_subtasks_completed: "mc.battle.subtasks.completed"
+    mc_battle_ci_duration: "mc.battle.ci.duration"
+    
+  # Performance thresholds
+  alert_thresholds:
+    decompose_duration_ms: 200
+    battle_duration_minutes: 60
+    conflict_rate_percent: 5
+    ci_failure_rate_percent: 10
+
+# HeadyBattle Mode Triggers
+battle_triggers:
+  # Task complexity thresholds
+  min_subtasks_for_battle: 100
+  min_files_for_battle: 10
+  min_complexity_score: 7.5
+  
+  # Task types that trigger Battle mode
+  battle_worthy_types:
+    - "feature_implementation"
+    - "refactoring_large"
+    - "multi_service_update"
+    - "api_redesign"
+    - "database_migration"
+    
+  # Repository-specific rules
+  repo_specific_rules:
+    "heady/heady": { min_subtasks: 50, min_files: 5 }
+    "heady/headyme": { min_subtasks: 25, min_files: 3 }
+    "heady/headysystems": { min_subtasks: 75, min_files: 8 }
+
+# Quality Gates
+quality_gates:
+  # Code quality
+  require_code_quality_check: true
+  min_code_quality_score: 7.0
+  forbidden_patterns: ["console.log", "debugger", "TODO", "FIXME"]
+  
+  # Test coverage
+  require_test_coverage: true
+  min_test_coverage_percent: 80
+  require_unit_tests: true
+  require_integration_tests: false
+  
+  # Security
+  require_security_scan: true
+  max_security_issues: 0
+  vulnerability_scan_enabled: true
+
+# Resource Management
+resources:
+  # CPU limits
+  max_cpu_per_worker: 2.0
+  total_cpu_limit: 16.0
+  
+  # Memory limits
+  max_memory_per_worker_mb: 4096
+  total_memory_limit_mb: 32768
+  
+  # Network limits
+  max_concurrent_requests: 100
+  request_timeout_ms: 30000
+  
+  # Storage limits
+  max_workspace_size_gb: 10
+  cleanup_workspace_after: true
+
+# Integration Points
+integrations:
+  # CI/CD systems
+  ci_systems:
+    - name: "github-actions"
+      webhook_enabled: true
+      status_check_required: true
+    - name: "jenkins"
+      api_enabled: false
+    - name: "gitlab-ci"
+      api_enabled: false
+      
+  # Communication
+  notifications:
+    slack:
+      enabled: false
+      webhook_url: ""
+      channel: "#heady-battle"
+      
+    email:
+      enabled: false
+      recipients: []
+      
+  # Project management
+  jira:
+    enabled: false
+    api_url: ""
+    project_key: ""
+
+# Advanced Features
+advanced:
+  # Machine learning optimization
+  ml_optimization:
+    enabled: true
+    historical_data_days: 30
+    prediction_accuracy_threshold: 0.8
+    
+  # Predictive conflict detection
+  conflict_prediction:
+    enabled: true
+    model_type: "random_forest"
+    training_data_days: 90
+    
+  # Dynamic resource allocation
+  dynamic_scaling:
+    enabled: true
+    scale_up_threshold: 0.8
+    scale_down_threshold: 0.3
+    min_workers: 4
+    max_workers: 128
+
+# Safety and Rollback
+safety:
+  # Emergency stops
+  emergency_stop_enabled: true
+  emergency_stop_triggers:
+    - "conflict_rate > 20%"
+    - "ci_failure_rate > 30%"
+    - "resource_usage > 90%"
+    
+  # Rollback automation
+  auto_rollback:
+    enabled: true
+    rollback_triggers:
+      - "integration_test_failure"
+      - "production_incident"
+      - "performance_degradation"
+      
+  # Manual overrides
+  manual_override_enabled: true
+  require_approval_for_override: true
+  override_approvers: ["admin", "lead-developer"]
+
+# Debugging and Diagnostics
+debug:
+  # Logging levels
+  log_level: "info"  # debug, info, warn, error
+  log_subtask_details: false
+  log_performance_metrics: true
+  
+  # Tracing
+  enable_tracing: true
+  trace_sample_rate: 0.1  # 10% sampling
+  
+  # Debug modes
+  debug_mode: false
+  preserve_workspaces: false
+  verbose_git_commands: false
+
+# Experimental Features
+experimental:
+  # AI-powered code generation
+  ai_code_generation:
+    enabled: false
+    model: "claude-3-5-sonnet"
+    max_tokens_per_task: 10000
+    
+  # Autonomous testing
+  autonomous_testing:
+    enabled: false
+    test_generation_model: "gpt-4"
+    auto_fix_tests: false
+    
+  # Self-healing branches
+  self_healing:
+    enabled: false
+    auto_fix_conflicts: false
+    auto_retry_failed_tests: false

@@ -1,3 +1,6 @@
+const HCAIRouterSimple = require('../ai-router/hc-ai-router-simple');
+const getAiRouter = () => new HCAIRouterSimple();
+const routeTask = (task, options) => getAiRouter().routeTask(task, options);
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -22,18 +25,18 @@
 
 /**
  * ═══════════════════════════════════════════════════════════════
- * 🧠 SOCRATES NODE - The Socratic Questioner
+ * 🧠 SOCRATES NODE - The HeadyBattle Questioner
  * ═══════════════════════════════════════════════════════════════
  * Never accepts requests at face value.
  * Questions assumptions, explores alternatives, reveals contradictions.
- * Guides discovery through Socratic dialogue.
+ * Guides discovery through HeadyBattle dialogue.
  */
 
 class SOCRATESNode {
   constructor() {
     this.name = 'SOCRATES';
     this.codename = 'The Questioner';
-    this.role = 'Socratic dialogue orchestrator - questions first, answers second';
+    this.role = 'HeadyBattle dialogue orchestrator - questions first, answers second';
     this.questionHistory = [];
     this.userContext = {};
     this.pythia = null; // Will be initialized later
@@ -46,7 +49,7 @@ class SOCRATESNode {
   }
 
   /**
-   * Process any request through Socratic questioning
+   * Process any request through HeadyBattle questioning
    */
   async processRequest(userInput, context = {}) {
     console.log(`[SOCRATES] Questioning: "${userInput.substring(0, 100)}..."`);
@@ -54,7 +57,7 @@ class SOCRATESNode {
     // Step 1: Understand user intent deeply
     const intent = await this.analyzeIntent(userInput, context);
 
-    // Step 2: Generate Socratic questions
+    // Step 2: Generate HeadyBattle questions
     const questions = await this.generateQuestions(intent);
 
     // Step 3: If critical gaps exist, ask clarifying questions
@@ -77,7 +80,7 @@ class SOCRATESNode {
    */
   async analyzeIntent(userInput, context) {
     const analysisPrompt = `
-You are SOCRATES, the Socratic questioner in Heady Systems.
+You are SOCRATES, the HeadyBattle questioner in Heady Systems.
 
 User request: "${userInput}"
 
@@ -120,7 +123,7 @@ Return JSON with: intent, assumptions, gaps, contradictions, alternatives, hidde
   }
 
   /**
-   * Generate Socratic questions based on intent analysis
+   * Generate HeadyBattle questions based on intent analysis
    */
   async generateQuestions(intent) {
     const questions = [];
@@ -246,7 +249,7 @@ Return JSON with: intent, assumptions, gaps, contradictions, alternatives, hidde
       type: 'execution',
       intent: intent,
       recommendedNodes: nodesToInvoke,
-      socraticValidation: 'Intent clarified and validated',
+      HeadyBattleValidation: 'Intent clarified and validated',
       nextSteps: this.generateNextSteps(intent, nodesToInvoke),
     };
   }
@@ -360,7 +363,7 @@ Return JSON with: intent, assumptions, gaps, contradictions, alternatives, hidde
   }
 
   /**
-   * Execute with full Socratic context
+   * Execute with full HeadyBattle context
    */
   async execute(intent, context = {}) {
     console.log(`[SOCRATES] Executing with intent: ${intent.intent || intent}`);
@@ -379,15 +382,15 @@ Return JSON with: intent, assumptions, gaps, contradictions, alternatives, hidde
 
     return {
       node: this.name,
-      action: 'socratic_analysis',
-      result: `Analyzed request through Socratic method`,
+      action: 'HeadyBattle_analysis',
+      result: `Analyzed request through HeadyBattle`,
       recommendations: this.generateRecommendations(intent),
       timestamp: new Date().toISOString(),
     };
   }
 
   /**
-   * Generate recommendations based on Socratic analysis
+   * Generate recommendations based on HeadyBattle analysis
    */
   generateRecommendations(intent) {
     const recommendations = [];
@@ -409,6 +412,38 @@ Return JSON with: intent, assumptions, gaps, contradictions, alternatives, hidde
 
     return recommendations;
   }
+
+  /**
+   * 🧠 Get routing context for AI tasks
+   */
+  getRoutingContext(taskKind, options = {}) {
+    return {
+      kind: taskKind,
+      nodeId: 'SOCRATES',
+      ors: this.getORS() || 85,
+      estTokens: options.tokens || 1000,
+      latencySensitivity: options.latency || 'medium',
+      importance: options.importance || 'user_facing',
+      traceId: this.generateTraceId(),
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  /**
+   * 📊 Get current ORS (Operational Readiness Score)
+   */
+  getORS() {
+    // This would integrate with your ORS monitoring system
+    return 85; // Default for now
+  }
+
+  /**
+   * 🏷️ Generate trace ID for routing
+   */
+  generateTraceId() {
+    return `trace_1771541848824_3yob299t3`;
+  }
+
 }
 
 module.exports = SOCRATESNode;

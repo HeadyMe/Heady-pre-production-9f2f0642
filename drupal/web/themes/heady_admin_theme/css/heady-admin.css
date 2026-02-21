@@ -1,0 +1,61 @@
+/* Heady Admin Theme Styles */
+:root {
+  --heady-primary: #6366f1;
+  --heady-primary-dark: #4f46e5;
+  --heady-success: #10b981;
+  --heady-warning: #f59e0b;
+  --heady-danger: #ef4444;
+  --heady-dark: #1f2937;
+  --heady-light: #f3f4f6;
+}
+
+.heady-admin-header {
+  background: linear-gradient(135deg, var(--heady-primary) 0%, var(--heady-primary-dark) 100%);
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.heady-buddy-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--heady-primary);
+  color: white;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.heady-buddy-widget:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.system-control-panel {
+  background: var(--heady-light);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
+
+.task-management-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.domain-builder-interface {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}

@@ -1,0 +1,16 @@
+services:
+  heady_mcp.tool_manager:
+    class: Drupal\heady_mcp\Service\McpToolManager
+    arguments: ['@entity_type.manager', '@database', '@http_client']
+    
+  heady_mcp.vector_embedder:
+    class: Drupal\heady_mcp\Service\VectorEmbedder
+    arguments: ['@http_client', '@database', '@config.factory']
+    
+  heady_mcp.url_validator:
+    class: Drupal\heady_mcp\Service\UrlValidator
+    arguments: ['@config.factory']
+    
+  heady_mcp.priority_executor:
+    class: Drupal\heady_mcp\Service\PriorityExecutor
+    arguments: ['@logger.channel.heady_mcp', '@database']

@@ -1,0 +1,114 @@
+# HCFP Full Pipeline Configuration - Hybrid Deployment
+name: "Heady Systems Full Pipeline"
+version: "2.0.0"
+
+# Production domains - Hybrid deployment
+production_domains:
+  headybuddy:
+    app: "http://headybuddy.org"
+    api: "http://headybuddy.org/api"
+    admin: "http://headybuddy.org"
+    domain: "headybuddy.org"
+    deployment_type: "hybrid"
+    local_port: 9000
+  headysystems:
+    app: "http://headysystems.com"
+    api: "http://headysystems.com/api"
+    admin: "http://headysystems.com"
+    domain: "headysystems.com"
+    deployment_type: "hybrid"
+    local_port: 9001
+  headyconnection:
+    app: "http://headyconnection.org"
+    api: "http://headyconnection.org/api"
+    admin: "http://headyconnection.org"
+    domain: "headyconnection.org"
+    deployment_type: "hybrid"
+    local_port: 9002
+  headymcp:
+    app: "http://headymcp.com"
+    api: "http://headymcp.com/api"
+    admin: "http://headymcp.com"
+    domain: "headymcp.com"
+    deployment_type: "hybrid"
+    local_port: 9003
+  headyio:
+    app: "http://headyio.com"
+    api: "http://headyio.com/api"
+    admin: "http://headyio.com"
+    domain: "headyio.com"
+    deployment_type: "hybrid"
+    local_port: 9004
+  headyme:
+    app: "http://headyme.com"
+    api: "http://headyme.com/api"
+    admin: "http://headyme.com"
+    domain: "headyme.com"
+    deployment_type: "hybrid"
+    local_port: 9005
+
+# Auto-deployment configuration
+auto_deploy:
+  enabled: true
+  trigger_on_health_failure: true
+  trigger_on_code_change: true
+  deployment_targets:
+    - type: "local_servers"
+      enabled: true
+      status: "deployed"
+      proxy: "nginx"
+    - type: "cloudflare_workers"
+      enabled: true
+      status: "ready"
+    - type: "mini_computer"
+      enabled: true
+      status: "deployed"
+
+# Health monitoring
+health_monitoring:
+  enabled: true
+  check_interval: 30
+  failure_threshold: 3
+  auto_recovery: true
+  current_status: "healthy"
+
+# Performance optimization
+optimization:
+  enabled: true
+  auto_scaling: true
+  cache_optimization: true
+  local_proxy: true
+  global_edge: true
+
+# Cross-domain integration
+cross_domain:
+  enabled: true
+  shared_sessions: true
+  unified_navigation: true
+  local_routing: true
+  global_fallback: true
+
+# HeadyBuddy integration
+heady_buddy:
+  enabled: true
+  cross_device_sync: true
+  real_time_updates: true
+  hybrid_sync: true
+
+# WARP security
+warp_security:
+  enabled: true
+  zero_trust: true
+  hybrid_mode: true
+
+# Stop conditions
+stop_conditions:
+  - type: "health_score"
+    threshold: 95
+    operator: ">="
+  - type: "uptime"
+    threshold: 99.5
+    operator: ">="
+  - type: "response_time"
+    threshold: 200
+    operator: "<="

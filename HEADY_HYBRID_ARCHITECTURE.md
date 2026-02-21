@@ -27,14 +27,14 @@
 admin.headyme.com (Next.js) → Modern control center
 [content-sites].headyme.com (Drupal) → Rich content management
 [app-sites].headyme.com (Next.js) → Modern web applications
-api.headyio.com (HeadyConductor) → Shared services
+api.headyio.com (Headypromoter) → Shared services
 ```
 
 ## 🎯 TECHNOLOGY ALLOCATION
 
 ### **Next.js Admin Dashboard** (admin.headyme.com)
 **Why Next.js here?**
-- ✅ Real-time HeadyConductor integration
+- ✅ Real-time Headypromoter integration
 - ✅ Modern UI with live charts/metrics
 - ✅ Fast API interactions
 - ✅ TypeScript safety
@@ -42,7 +42,7 @@ api.headyio.com (HeadyConductor) → Shared services
 - ✅ Lightweight and performant
 
 **Features**:
-- HeadyConductor worker management
+- Headypromoter worker management
 - Multi-site provisioning
 - Performance monitoring
 - User management
@@ -87,7 +87,7 @@ api.headyio.com (HeadyConductor) → Shared services
 ```typescript
 // admin.headyme.com - Central Command
 interface AdminDashboard {
-  conductor: HeadyConductorStatus;     // Real-time worker metrics
+  promoter: HeadypromoterStatus;     // Real-time worker metrics
   sites: SiteManagement;                // Multi-site control
   content: ContentOverview;            // Drupal content monitoring
   analytics: CrossPlatformAnalytics;   // Unified analytics
@@ -110,7 +110,7 @@ class ContentSite extends DrupalSite {
   };
   
   integrations: {
-    heady_conductor: 'REST API',
+    heady_promoter: 'REST API',
     admin_dashboard: 'Webhook updates',
     analytics: 'Google Analytics + Heady',
     user_management: 'Shared auth via API'
@@ -132,7 +132,7 @@ interface ApplicationSite {
   };
   
   integrations: {
-    heady_conductor: 'WebSocket + REST',
+    heady_promoter: 'WebSocket + REST',
     drupal_content: 'GraphQL API',
     admin_dashboard: 'Real-time sync',
     payment: 'Stripe integration'
@@ -160,8 +160,8 @@ class IntegrationHub {
     manage_users: 'API → Drupal users'
   };
   
-  // HeadyConductor → All Platforms
-  conductorMetrics: {
+  // Headypromoter → All Platforms
+  promoterMetrics: {
     performance_data: 'WebSocket → All dashboards',
     resource_usage: 'Real-time monitoring',
     task_status: 'Live updates'
@@ -181,7 +181,7 @@ interface SharedServices {
   
   analytics: {
     collection: 'Unified tracking',
-    processing: 'HeadyConductor workers',
+    processing: 'Headypromoter workers',
     dashboard: 'Next.js admin UI'
   };
   
@@ -205,7 +205,7 @@ interface SharedServices {
 ```bash
 # Week 1: Next.js Admin Dashboard
 Day 1-2: Setup admin.headyme.com with Next.js
-Day 3-4: Integrate HeadyConductor real-time metrics
+Day 3-4: Integrate Headypromoter real-time metrics
 Day 5-6: Build multi-site management interface
 Day 7: Deploy basic admin dashboard
 
@@ -263,7 +263,7 @@ sites/
 settings.php:
   - Shared database with prefix separation
   - Redis cache integration
-  - HeadyConductor API integration
+  - Headypromoter API integration
   - Cross-platform authentication
 ```
 
@@ -277,7 +277,7 @@ src/
 │   │   ├── drupal/             # Drupal site controls
 │   │   ├── nextjs/             # Next.js site controls
 │   │   └── create/             # Site creation wizard
-│   ├── conductor/              # HeadyConductor management
+│   ├── promoter/              # Headypromoter management
 │   ├── content/                # Content monitoring
 │   ├── analytics/              # Cross-platform analytics
 │   └── users/                  # User management
@@ -286,12 +286,12 @@ src/
 │   ├── charts/                 # Recharts components
 │   └── forms/                  # Form components
 ├── hooks/
-│   ├── useConductor.ts         # HeadyConductor integration
+│   ├── usepromoter.ts         # Headypromoter integration
 │   ├── useDrupalAPI.ts         # Drupal API hooks
 │   └── useRealTime.ts          # Socket.io integration
 └── lib/
     ├── drupal-api.ts           # Drupal API client
-    ├── conductor-api.ts        # HeadyConductor API
+    ├── promoter-api.ts        # Headypromoter API
     └── analytics.ts            # Analytics processing
 ```
 
@@ -324,10 +324,10 @@ class PlatformBridge {
     }
   }
   
-  // HeadyConductor integration
+  // Headypromoter integration
   async distributeWorkload(task: PlatformTask) {
     const platform = this.detectOptimalPlatform(task);
-    return await HeadyConductor.submitTask({
+    return await Headypromoter.submitTask({
       ...task,
       target_platform: platform,
       priority: this.calculatePriority(task)
@@ -360,7 +360,7 @@ class BlogTemplate extends DrupalTemplate {
   ];
   
   integrations: [
-    'headdy_conductor' => 'Performance monitoring',
+    'headdy_promoter' => 'Performance monitoring',
     'analytics' => 'Google Analytics + Heady',
     'cdn' => 'CloudFlare integration'
   ];
@@ -393,7 +393,7 @@ class SaaSTemplate extends NextJSTemplate {
   ];
   
   integrations: [
-    'headdy_conductor' => 'Background processing',
+    'headdy_promoter' => 'Background processing',
     'drupal_cms' => 'Content management via API',
     'stripe' => 'Payment processing',
     'analytics' => 'Custom analytics dashboard'
@@ -412,7 +412,7 @@ class EcommerceTemplate extends NextJSTemplate {
   ];
   
   integrations: [
-    'headdy_conductor' => 'Order processing',
+    'headdy_promoter' => 'Order processing',
     'drupal_cms' => 'Product descriptions via CMS',
     'stripe' => 'Payment processing',
     'shipping' => 'Shipping API integration'
@@ -481,7 +481,7 @@ interface CrossPlatformAnalytics {
   performance_metrics: {
     site_speed: 'Real Core Web Vitals',
     uptime: 'Cross-platform monitoring',
-    resource_usage: 'HeadyConductor metrics'
+    resource_usage: 'Headypromoter metrics'
   };
   
   business_metrics: {
@@ -543,4 +543,4 @@ stages:
 - [ ] Cross-platform debugging tools
 - [ ] Automated testing and deployment
 
-This hybrid approach gives you the **best of both worlds**: Drupal's unparalleled content management capabilities combined with Next.js's modern application performance, all orchestrated through your powerful HeadyConductor system.
+This hybrid approach gives you the **best of both worlds**: Drupal's unparalleled content management capabilities combined with Next.js's modern application performance, all orchestrated through your powerful Headypromoter system.

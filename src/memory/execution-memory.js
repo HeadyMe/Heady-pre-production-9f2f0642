@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -21,7 +20,6 @@
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  */
 
-#!/usr/bin/env node
 /**
  * 🧠 EXECUTION MEMORY: Stores and learns from all dual-engine executions
  * Provides historical data for strategy improvement
@@ -39,13 +37,13 @@ class ExecutionMemory {
       id: this.generateId(),
       timestamp: execution.timestamp,
       action: execution.action,
-      socraticAnalysis: execution.socraticAnalysis,
+      HeadyBattleAnalysis: execution.HeadyBattleAnalysis,
       monteCarloStrategy: execution.monteCarloStrategy,
       result: execution.result,
       success: execution.result.success,
       duration: execution.result.duration,
       confidence: execution.monteCarloStrategy.confidence,
-      socraticScore: execution.socraticAnalysis.validityScore,
+      HeadyBattleScore: execution.HeadyBattleAnalysis.validityScore,
     };
 
     // Add to history
@@ -140,14 +138,14 @@ class ExecutionMemory {
 
     const successCount = executions.filter(exec => exec.success).length;
     const avgConfidence = executions.reduce((sum, exec) => sum + exec.confidence, 0) / executions.length;
-    const avgSocraticScore = executions.reduce((sum, exec) => sum + exec.socraticScore, 0) / executions.length;
+    const avgHeadyBattleScore = executions.reduce((sum, exec) => sum + exec.HeadyBattleScore, 0) / executions.length;
     const avgDuration = executions.reduce((sum, exec) => sum + exec.duration, 0) / executions.length;
 
     return {
       totalExecutions: executions.length,
       successRate: successCount / executions.length,
       averageConfidence: avgConfidence,
-      averageSocraticScore: avgSocraticScore,
+      averageHeadyBattleScore: avgHeadyBattleScore,
       averageDuration: avgDuration,
       trend: this.calculateTrend(executions),
     };
@@ -226,7 +224,7 @@ class ExecutionMemory {
         type: 'success_pattern',
         description: `Strategy "${execution.monteCarloStrategy.bestStrategy.name}" worked well`,
         confidence: execution.confidence,
-        socraticScore: execution.socraticScore,
+        HeadyBattleScore: execution.HeadyBattleScore,
       });
     } else {
       learnings.push({
@@ -255,8 +253,8 @@ class ExecutionMemory {
       averageConfidence: totalExecutions > 0 
         ? this.executions.reduce((sum, exec) => sum + exec.confidence, 0) / totalExecutions 
         : 0,
-      averageSocraticScore: totalExecutions > 0
-        ? this.executions.reduce((sum, exec) => sum + exec.socraticScore, 0) / totalExecutions
+      averageHeadyBattleScore: totalExecutions > 0
+        ? this.executions.reduce((sum, exec) => sum + exec.HeadyBattleScore, 0) / totalExecutions
         : 0,
       patternCount: this.patterns.size,
       mostCommonActionType: this.getMostCommonActionType(),

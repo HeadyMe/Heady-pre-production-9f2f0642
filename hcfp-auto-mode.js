@@ -42,7 +42,7 @@ function triggerAutoMode() {
         continuous: true,
         dualEngine: true,
         monteCarlo: true,
-        socratic: true,
+        HeadyBattle: true,
         learning: true,
       }
     },
@@ -82,8 +82,8 @@ function triggerAutoMode() {
         if (response.success) {
           console.log('✅ HCFullPipeline Auto-Mode activated successfully');
           console.log('🎯 Dual-Engine execution: ENABLED');
-          console.log('🎲 Monte Carlo exploration: ENABLED');
-          console.log('🤔 Socratic validation: ENABLED');
+          console.log('🎲 HeadySims exploration: ENABLED');
+          console.log('🤔 HeadyBattle validation: ENABLED');
           console.log('🧠 Continuous learning: ENABLED');
         } else {
           console.log('❌ Auto-Mode activation failed');
@@ -118,7 +118,7 @@ function triggerDualEngine() {
       learnAll: true,
       confidenceThreshold: 0.85,
       monteCarloIterations: 1000,
-      socraticDepth: "deep",
+      HeadyBattleDepth: "deep",
     }
   });
 

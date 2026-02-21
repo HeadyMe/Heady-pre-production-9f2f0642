@@ -53,7 +53,7 @@ models:
       fallback_to_external: false
       100_percent_heady: true
 
-  heady-conductor:
+  heady-promoter:
     class: heady
     provider: headysystems
     default_params:

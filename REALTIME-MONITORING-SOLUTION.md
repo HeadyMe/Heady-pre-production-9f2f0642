@@ -41,7 +41,7 @@
 #### 2. **Service Health Monitoring**
 - **HeadyManager**: Response time, uptime, status
 - **Static Server**: Availability and performance
-- **Socratic Engine**: Compliance and enforcement status
+- **HeadyBattle Engine**: Compliance and enforcement status
 - **WebSocket Server**: Connection monitoring
 
 #### 3. **Domain Monitoring**
@@ -99,7 +99,7 @@ ws://headysystems.com:3301/realtime
 - **ProcessMonitor**: Node.js process metrics
 - **ServicesMonitor**: HTTP service health
 - **NetworkMonitor**: Connection tracking
-- **SocraticMonitor**: Compliance monitoring
+- **HeadyBattleMonitor**: Compliance monitoring
 - **DomainMonitor**: Production domain status
 
 #### **Alert Thresholds:**
@@ -160,7 +160,7 @@ ws://headysystems.com:3301/realtime
 - **Connection Status**: WebSocket connectivity
 - **Service Status**: Individual component health
 - **Domain Status**: Production domain availability
-- **Socratic Status**: Compliance monitoring
+- **HeadyBattle Status**: Compliance monitoring
 
 #### **Interactive Elements:**
 - **Live Updates**: 100ms refresh rate
@@ -201,7 +201,7 @@ ingress:
 #### **✅ Complete System Coverage:**
 - **System resources** (CPU, Memory, Load)
 - **Service health** (HeadyManager, Static Server)
-- **Application metrics** (Socratic compliance)
+- **Application metrics** (HeadyBattle compliance)
 - **Network monitoring** (Domain status, Response times)
 
 #### **✅ Professional Monitoring:**

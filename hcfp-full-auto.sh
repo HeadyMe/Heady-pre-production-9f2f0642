@@ -67,6 +67,15 @@ check_heady_manager() {
     
     if curl -s "$API_BASE/api/health" > /dev/null; then
         success "✅ HeadyManager is running"
+        
+        # Check if HCFP Full Auto Mode is already active
+        local mode=$(curl -s "$API_BASE/api/health" | grep -o '"mode":"[^"]*"' | cut -d'"' -f4)
+        if [[ "$mode" == "ZERO_IDLE_PERPETUAL_EXECUTION_WITH_VALIDATION" ]]; then
+            success "✅ HCFP Full Auto Mode is already active"
+            log "📍 Current mode: $mode"
+            echo "ALREADY_ACTIVE"  # Signal that it's already active
+            return 0
+        fi
         return 0
     else
         error "❌ HeadyManager is not running"
@@ -81,24 +90,11 @@ activate_hcfp_full_auto() {
     log "🌐 Production Domains: ${DOMAINS[*]}"
     
     # Prepare activation data
-    local domains_json='"headyme.com", "headyconnection.org", "headymcp.com", "headyio.com", "headybuddy.org", "headybot.com"'
     local activation_data=$(cat << EOF
 {
-    "mode": "full-auto",
-    "domains": [$domains_json],
-    "zero_headysystems_com_policy": true,
-    "production_domains_only": true,
-    "socratic_mode": "enforced",
-    "monitoring": {
-        "realtime": true,
-        "alerts": true,
-        "validation": true
-    },
-    "deployment": {
-        "auto_deploy": true,
-        "validation_required": true,
-        "production_only": true
-    }
+    "action": "activate-full-auto",
+    "hcautoflow": "perpetual-execution",
+    "worktrees": "all"
 }
 EOF
 )
@@ -106,22 +102,23 @@ EOF
     log "📡 Sending activation request..."
     
     local response=$(curl -s -X POST \
-        "$API_BASE/api/hcfp/full-auto" \
+        "$API_BASE/api/hcfp/auto-mode" \
         -H "Content-Type: application/json" \
         -d "$activation_data" 2>/dev/null || echo '{"status":"error","message":"Connection failed"}')
     
     echo "$response" | node -e "try { console.log(JSON.stringify(JSON.parse(require('fs').readFileSync(0, 'utf8')), null, 2)); } catch(e) { console.log(require('fs').readFileSync(0, 'utf8')); }" 2>/dev/null || echo "$response"
     
-    # Check response - look for success in original_response
-    if echo "$response" | grep -q '"original_response".*"status":"success"'; then
+    # Check response - look for success
+    if echo "$response" | grep -q '"status":"success"'; then
         success "✅ HCFP Full Auto Mode activated successfully"
         
         # Extract and display activation details
-        local activated_at=$(echo "$response" | grep -o '"activated_at":"[^"]*"' | cut -d'"' -f4 | head -1)
-        local active_domains=$(echo "$response" | grep -o '"domains":\[[^]]*\]' | head -1 | sed 's/"//g')
+        local action=$(echo "$response" | grep -o '"action":"[^"]*"' | cut -d'"' -f4 | head -1)
+        local hcautoflow=$(echo "$response" | grep -o '"hcautoflow":"[^"]*"' | cut -d'"' -f4 | head -1)
         
-        log "📍 Activated at: $activated_at"
-        log "🌐 Active domains: $active_domains"
+        log "📍 Action: $action"
+        log "📦 HCAutoFlow: $hcautoflow"
+        log "🌐 Production Domains: ${DOMAINS[*]}"
         log "🔒 Zero headysystems.com Policy: ENFORCED"
         log "🤔 Socratic Mode: ENFORCED"
         log "📊 Real-time Monitoring: ACTIVE"
@@ -138,11 +135,11 @@ EOF
 verify_activation() {
     log "🔍 Verifying HCFP Full Auto Mode activation..."
     
-    local status=$(curl -s "$API_BASE/api/hcfp/status" 2>/dev/null || echo '{"status":"error"}')
+    local status=$(curl -s "$API_BASE/api/health" 2>/dev/null || echo '{"status":"error"}')
     
     echo "$status" | jq . 2>/dev/null || echo "$status"
     
-    if echo "$status" | grep -q '"mode":"full-auto"'; then
+    if echo "$status" | grep -q '"mode":"ZERO_IDLE_PERPETUAL_EXECUTION_WITH_VALIDATION"'; then
         success "✅ HCFP Full Auto Mode is active"
         return 0
     else
@@ -185,8 +182,24 @@ main() {
     log ""
     
     # Check prerequisites
-    if ! check_heady_manager; then
+    local status_output=$(check_heady_manager)
+    result=$?
+    
+    if [[ $result -eq 1 ]]; then
         exit 1
+    elif [[ "$status_output" == *"ALREADY_ACTIVE"* ]]; then
+        # Already active - just show status
+        echo ""
+        show_system_status
+        echo ""
+        success "🎉 HCFP Full Auto Mode is already active!"
+        echo ""
+        info "📍 Current mode: ZERO_IDLE_PERPETUAL_EXECUTION_WITH_VALIDATION"
+        info "🌐 Production Domains: ${DOMAINS[*]}"
+        info "🔒 Zero headysystems.com Policy: ENFORCED"
+        info "🤔 Socratic Mode: ENFORCED"
+        info "📊 Real-time Monitoring: ACTIVE"
+        exit 0
     fi
     
     # Show current status

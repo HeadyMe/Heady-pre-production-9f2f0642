@@ -103,7 +103,7 @@ Your existing naming follows excellent patterns:
 ```
 HeadySoul - Memory & personality layer
 HeadyBrain - Intelligent reasoning core
-HeadyConductor - Task orchestration
+Headypromoter - Task orchestration
 HeadyLens - Real-time monitoring
 HeadyManager - Task delegation & tracking
 HeadyBuddy - AI companion interface
@@ -161,7 +161,7 @@ headyadmin.com → Management tools
 ```
 https://api.headyio.com/v1/[service]/[resource]
 https://api.headyio.com/v1/brain/decide
-https://api.headyio.com/v1/socratic/start
+https://api.headyio.com/v1/HeadyBattle/start
 https://api.headyio.com/v1/headysoul/escalate
 ```
 

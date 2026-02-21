@@ -19,7 +19,7 @@
  * 🏷️  BRANDED: Heady Systems branding applied
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  * 🌐 COMMUNICATION: All channels verified and active
- * 🔗 DOMAINS: Production domains only - zero localhost policy
+ * 🔗 DOMAINS: Production domains only - zero app.headysystems.com policy
  * 🤖 AUTOFLOW: Intelligent pipeline orchestration active
  * 🚀 INTEGRATION: Full Windsurf-Next and system integration
  */
@@ -84,7 +84,7 @@ class HCAutoFlow {
             
             console.log('✓ Configuration loaded');
             console.log(`  Pipeline Mode: ${this.config.pipeline_mode}`);
-            console.log(`  Monte Carlo Factor: ${this.config.monte_carlo_config.exploration_factor}`);
+            console.log(`  HeadySims Factor: ${this.config.heady_sims_config.exploration_factor}`);
             
         } catch (error) {
             console.warn('⚠ Could not load config, using defaults');
@@ -173,7 +173,7 @@ class HCAutoFlow {
     async startIntelligentOrchestration() {
         console.log('✓ Starting intelligent orchestration');
         
-        // Monte Carlo task scheduler
+        // HeadySims task scheduler
         this.schedulerInterval = setInterval(() => {
             this.scheduleTasks();
         }, 1000);
@@ -192,7 +192,7 @@ class HCAutoFlow {
     }
 
     async scheduleTasks() {
-        // Monte Carlo task selection
+        // HeadySims task selection
         const tasks = await this.getPendingTasks();
         
         for (const task of tasks) {
@@ -205,7 +205,7 @@ class HCAutoFlow {
     }
 
     selectBestWorkerPool(task) {
-        // Monte Carlo UCB1 algorithm for worker selection
+        // HeadySims UCB1 algorithm for worker selection
         let bestPool = null;
         let bestScore = -Infinity;
         
@@ -224,8 +224,8 @@ class HCAutoFlow {
     }
 
     calculateUCB1(pool, task) {
-        const exploration = this.config.monte_carlo_config.exploration_factor;
-        const confidence = this.config.monte_carlo_config.ucb1_confidence;
+        const exploration = this.config.heady_sims_config.exploration_factor;
+        const confidence = this.config.heady_sims_config.ucb1_confidence;
         
         // Average reward (completion rate)
         const avgReward = pool.completed_tasks > 0 ? 
@@ -399,13 +399,13 @@ class HCAutoFlow {
         for (const escalation of escalations) {
             console.log(`🧠 Processing HeadySoul escalation: ${escalation.id}`);
             
-            // Generate Socratic questions
-            const questions = await this.headySoul.generateSocraticQuestions(escalation);
+            // Generate HeadyBattle questions
+            const questions = await this.headySoul.generateHeadyBattleQuestions(escalation);
             
             // Send to HeadySoul for guidance
             await this.headySoul.notifyHeadySoul({
                 ...escalation,
-                socratic_questions: questions
+                HeadyBattle_questions: questions
             });
         }
     }
@@ -444,7 +444,7 @@ class HCAutoFlow {
         return {
             autoflow_enabled: true,
             pipeline_mode: "minicomputer_optimized",
-            monte_carlo_config: {
+            heady_sims_config: {
                 exploration_factor: 0.3,
                 ucb1_confidence: 2.0,
                 speed_priority: 0.8,
@@ -452,7 +452,7 @@ class HCAutoFlow {
             },
             integration: {
                 headysoul: true,
-                socratic_method: true,
+                HeadyBattle_method: true,
                 communication_chain: "optimal"
             }
         };
@@ -465,7 +465,7 @@ class HCAutoFlow {
                 id: 'task-1',
                 type: 'ai_processing',
                 priority: 0,
-                operation: 'monte_carlo_simulation',
+                operation: 'heady_sims_simulation',
                 data: { simulations: 100, max_value: 50 }
             },
             {

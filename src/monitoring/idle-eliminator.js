@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -21,7 +20,6 @@
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  */
 
-#!/usr/bin/env node
 /*
  * IDLE ELIMINATOR
  * Enforces zero idle time - triggers emergency tasks when idle detected
@@ -44,24 +42,24 @@ class HeadyIdleEliminator {
     // Check every 100ms for idle violations
     const headyMonitorInterval = setInterval(() => {
       if (!this.isMonitoring) {
-        clearInterval(monitorInterval);
+        clearInterval(headyMonitorInterval);
         return;
       }
       
       const headyIdleTime = Date.now() - this.lastActivity;
       
-      if (idleTime > this.idleThreshold) {
+      if (headyIdleTime > this.idleThreshold) {
         this.violations.push({
           timestamp: new Date(),
-          duration: idleTime,
+          duration: headyIdleTime,
           reason: 'NO_ACTIVE_TASK'
         });
         
-        console.log(`🚨 IDLE VIOLATION: ${idleTime}ms idle detected`);
+        console.log(`🚨 IDLE VIOLATION: ${headyIdleTime}ms idle detected`);
         
         // IMMEDIATELY trigger emergency task
         this.executeEmergencyTask();
-        this.totalIdleTimeEliminated += idleTime;
+        this.totalIdleTimeEliminated += headyIdleTime;
       }
     }, 100);
   }
@@ -74,7 +72,7 @@ class HeadyIdleEliminator {
       () => this.updateSystemMetrics(),
       () => this.pingAllServices(),
       () => this.backupCriticalData(),
-      () => this.comAPIEndpoints(),
+      () => this.checkAPIEndpoints(),
       () => this.analyzeErrorLogs(),
       () => this.optimizeDatabaseQueries(),
       () => this.compressAssets(),
@@ -90,11 +88,11 @@ class HeadyIdleEliminator {
     ];
     
     // Execute multiple emergency tasks in parallel for maximum efficiency
-    const headyTaskCount = Math.min(4, tasks.length); // Execute 4 at once
-    const headySelectedTasks = [];
+    const taskCount = Math.min(4, tasks.length); // Execute 4 at once
+    const selectedTasks = [];
     
-    for (let headyI = 0; i < taskCount; i++) {
-      const headyRandomIndex = Math.floor(Math.random() * tasks.length);
+    for (let i = 0; i < taskCount; i++) {
+      const randomIndex = Math.floor(Math.random() * tasks.length);
       selectedTasks.push(tasks[randomIndex]);
       tasks.splice(randomIndex, 1);
     }
@@ -215,13 +213,13 @@ class HeadyIdleEliminator {
 
   generateReport() {
     const headyTotalIdleTime = this.violations.reduce((sum, v) => sum + v.duration, 0);
-    const headyWastedHours = (totalIdleTime / 1000 / 3600).toFixed(2);
-    const headyEstimatedCost = (parseFloat(wastedHours) * 0.10).toFixed(2); // $0.10/hr estimate
+    const headyWastedHours = (headyTotalIdleTime / 1000 / 3600).toFixed(2);
+    const headyEstimatedCost = (parseFloat(headyWastedHours) * 0.10).toFixed(2); // $0.10/hr estimate
     
     return {
       totalViolations: this.violations.length,
-      totalWastedHours: wastedHours,
-      estimatedCost: `$${estimatedCost}`,
+      totalWastedHours: headyWastedHours,
+      estimatedCost: `$${headyEstimatedCost}`,
       emergencyTasksExecuted: this.emergencyTasksExecuted,
       totalIdleTimeEliminated: this.totalIdleTimeEliminated,
       averageViolationDuration: this.violations.length > 0 ? 
@@ -252,10 +250,10 @@ class HeadyIdleEliminator {
     // Generate final report
     const headyReport = this.generateReport();
     console.log('📊 Final Report:');
-    console.log(`   Violations: ${report.totalViolations}`);
-    console.log(`   Emergency Tasks: ${report.emergencyTasksExecuted}`);
-    console.log(`   Efficiency: ${report.efficiency}`);
-    console.log(`   Cost Saved: $${report.estimatedCost} (estimated)`);
+    console.log(`   Violations: ${headyReport.totalViolations}`);
+    console.log(`   Emergency Tasks: ${headyReport.emergencyTasksExecuted}`);
+    console.log(`   Efficiency: ${headyReport.efficiency}`);
+    console.log(`   Cost Saved: $${headyReport.estimatedCost} (estimated)`);
     
     console.log('✅ Idle Eliminator shutdown complete');
   }

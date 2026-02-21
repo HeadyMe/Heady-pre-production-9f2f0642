@@ -19,7 +19,7 @@
  * 🏷️  BRANDED: Heady Systems branding applied
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  * 🌐 COMMUNICATION: All channels verified and active
- * 🔗 DOMAINS: Production domains only - zero localhost policy
+ * 🔗 DOMAINS: Production domains only - zero app.headysystems.com policy
  * 🤖 BUDDY: AI development companion - NO PLACEHOLDERS
  * 🚀 INTEGRATION: Full Windsurf-Next and system integration
  */
@@ -374,8 +374,8 @@ class HeadyBuddy {
     }
 
     async generateGeneralResponse(message, context) {
-        // Use HeadySoul for Socratic questioning
-        const socraticQuestions = await this.headySoul.generateSocraticQuestions({
+        // Use HeadySoul for HeadyBattle questioning
+        const HeadyBattleQuestions = await this.headySoul.generateHeadyBattleQuestions({
             type: 'general_inquiry',
             query: message,
             context: context
@@ -384,7 +384,7 @@ class HeadyBuddy {
         return {
             type: 'general_response',
             message: `I understand you're asking about: ${message}`,
-            socratic_questions: socraticQuestions,
+            HeadyBattle_questions: HeadyBattleQuestions,
             confidence: 0.7,
             suggestions: [
                 'Let me help you explore this topic through questions',

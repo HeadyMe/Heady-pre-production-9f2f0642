@@ -520,22 +520,22 @@ CREATE TABLE IF NOT EXISTS code_patterns (
 // EVERY action must pass through this
 class DualEngineExecutor {
   async execute(action, context = {}) {
-    // Phase 1: Socratic questioning
-    const socraticAnalysis = await this.socraticPhase(action, context);
-    if (socraticAnalysis.needsClarification) {
-      return { status: 'CLARIFICATION_NEEDED', questions: socraticAnalysis.questions };
+    // Phase 1: HeadyBattle questioning
+    const HeadyBattleAnalysis = await this.HeadyBattlePhase(action, context);
+    if (HeadyBattleAnalysis.needsClarification) {
+      return { status: 'CLARIFICATION_NEEDED', questions: HeadyBattleAnalysis.questions };
     }
     
-    // Phase 2: Monte Carlo exploration
+    // Phase 2: HeadySims exploration
     const monteCarloStrategy = await this.monteCarloPhase(
-      socraticAnalysis.validatedAction,
+      HeadyBattleAnalysis.validatedAction,
       context
     );
     
     // Phase 3: Final validation
-    const finalValidation = await this.socraticValidation(
+    const finalValidation = await this.HeadyBattleValidation(
       monteCarloStrategy.bestStrategy,
-      socraticAnalysis
+      HeadyBattleAnalysis
     );
     
     if (!finalValidation.approved) {
@@ -549,7 +549,7 @@ class DualEngineExecutor {
     );
     
     // Phase 5: Learn
-    await this.learningPhase(action, socraticAnalysis, monteCarloStrategy, result);
+    await this.learningPhase(action, HeadyBattleAnalysis, monteCarloStrategy, result);
     
     return { status: 'SUCCESS', result: result };
   }
@@ -675,7 +675,7 @@ headyconnection-web/
 Heady/
 ├── src/
 │   ├── core/dual-engine-executor.js
-│   ├── engines/monte-carlo-engine.js
+│   ├── engines/HeadySims-engine.js
 │   ├── nodes/socrates.js
 │   └── routes/coding-mastery.js
 ├── scripts/

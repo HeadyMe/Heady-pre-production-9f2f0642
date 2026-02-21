@@ -1,0 +1,40 @@
+# HeadyMaid Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    python3 \
+    coreutils \
+    findutils
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+COPY configs/ ./configs/
+
+# Create maid directories
+RUN mkdir -p /app/data /app/logs /app/cleanup /app/schedules
+
+# Set environment
+ENV NODE_ENV=production
+ENV MAID_MODE=enhanced
+ENV CLEANUP_SCHEDULE=continuous
+
+# Expose ports
+EXPOSE 5100 5101
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:5100/health || exit 1
+
+# Start HeadyMaid service
+CMD ["node", "src/hc/heady-maid.js"]

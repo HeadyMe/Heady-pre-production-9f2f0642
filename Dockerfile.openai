@@ -1,0 +1,38 @@
+# HeadyOpenAI Dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    bash \
+    python3
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY src/ ./src/
+COPY configs/ ./configs/
+
+# Create OpenAI directories
+RUN mkdir -p /app/data /app/models /app/prompts /app/fine_tunes
+
+# Set environment
+ENV NODE_ENV=production
+ENV OPENAI_MODE=enhanced
+ENV MODEL=gpt-4-turbo
+
+# Expose ports
+EXPOSE 5500 5501
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:5500/health || exit 1
+
+# Start HeadyOpenAI service
+CMD ["node", "src/ai/openai-integration.js"]

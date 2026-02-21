@@ -1,0 +1,54 @@
+heady-admin-dashboard:
+  version: 1.x
+  css:
+    theme:
+      css/heady-admin-dashboard.css: {}
+  js:
+    js/heady-admin-dashboard.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+
+heady-domain-management:
+  version: 1.x
+  css:
+    theme:
+      css/heady-domain-management.css: {}
+  js:
+    js/heady-domain-management.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+
+heady-domain-builder:
+  version: 1.x
+  css:
+    theme:
+      css/heady-domain-builder.css: {}
+  js:
+    js/heady-domain-builder.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+
+heady-task-management:
+  version: 1.x
+  css:
+    theme:
+      css/heady-task-management.css: {}
+  js:
+    js/heady-task-management.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+
+heady-system-monitor:
+  version: 1.x
+  css:
+    theme:
+      css/heady-system-monitor.css: {}
+  js:
+    js/heady-system-monitor.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal

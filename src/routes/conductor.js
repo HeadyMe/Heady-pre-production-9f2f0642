@@ -9,7 +9,7 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: conductor.js                                   ║
+// ║  FILE: promoter.js                                   ║
 // ║  UPDATED: 20260218-211102                                            ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
@@ -28,18 +28,18 @@
 
 const express = require('express');
 const router = express.Router();
-const CONDUCTORNode = require('../nodes/conductor');
+const CONDUCTORNode = require('../nodes/promoter');
 
-const conductor = new CONDUCTORNode();
+const promoter = new CONDUCTORNode();
 
 // Initialize CONDUCTOR
 router.post('/initialize', async (req, res) => {
   try {
-    await conductor.initialize();
+    await promoter.initialize();
     res.json({
       success: true,
       message: 'CONDUCTOR initialized successfully',
-      status: conductor.getStatus(),
+      status: promoter.getStatus(),
     });
   } catch (error) {
     res.status(500).json({
@@ -60,7 +60,7 @@ router.post('/orchestrate', async (req, res) => {
   }
   
   try {
-    const response = await conductor.orchestrate(task, options || {});
+    const response = await promoter.orchestrate(task, options || {});
     res.json(response);
   } catch (error) {
     console.error('[CONDUCTOR API] Orchestration failed:', error);
@@ -74,7 +74,7 @@ router.post('/orchestrate', async (req, res) => {
 // Get available providers
 router.get('/providers', (req, res) => {
   try {
-    const available = conductor.getAvailableProviders();
+    const available = promoter.getAvailableProviders();
     res.json({
       providers: available,
       total: available.length,
@@ -90,7 +90,7 @@ router.get('/providers', (req, res) => {
 // Test provider connections
 router.get('/test-connections', async (req, res) => {
   try {
-    const connections = await conductor.testProviderConnections();
+    const connections = await promoter.testProviderConnections();
     res.json({
       connections: connections,
       timestamp: new Date().toISOString(),
@@ -106,7 +106,7 @@ router.get('/test-connections', async (req, res) => {
 // Get CONDUCTOR status
 router.get('/status', (req, res) => {
   try {
-    res.json(conductor.getStatus());
+    res.json(promoter.getStatus());
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -118,7 +118,7 @@ router.get('/status', (req, res) => {
 // Get performance metrics
 router.get('/metrics', (req, res) => {
   try {
-    res.json(conductor.performanceMetrics);
+    res.json(promoter.performanceMetrics);
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -132,7 +132,7 @@ router.post('/compare', async (req, res) => {
   const { task, providers } = req.body;
   
   try {
-    const response = await conductor.orchestrate(task, {
+    const response = await promoter.orchestrate(task, {
       strategy: 'parallel',
       providers: providers || ['auto'],
       temperature: 0.7,
@@ -153,7 +153,7 @@ router.post('/consensus', async (req, res) => {
   const { task, providers } = req.body;
   
   try {
-    const response = await conductor.orchestrate(task, {
+    const response = await promoter.orchestrate(task, {
       strategy: 'consensus',
       providers: providers || ['claude', 'gemini', 'ollama'],
       temperature: 0.5,

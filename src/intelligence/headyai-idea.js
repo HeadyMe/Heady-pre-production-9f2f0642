@@ -19,7 +19,7 @@
  * 🏷️  BRANDED: Heady Systems branding applied
  * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
  * 🌐 COMMUNICATION: All channels verified and active
- * 🔗 DOMAINS: Production domains only - zero localhost policy
+ * 🔗 DOMAINS: Production domains only - zero app.headysystems.com policy
  * 🧠 AI-IDEA: Advanced IDE enhancement system active
  * 🚀 INTEGRATION: Full Windsurf-Next and system integration
  */

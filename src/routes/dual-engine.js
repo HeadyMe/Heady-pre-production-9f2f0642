@@ -22,7 +22,7 @@
 
 /**
  * ═══════════════════════════════════════════════════════════════
- * 🎯 DUAL ENGINE API ROUTES - Socratic + Monte Carlo Control
+ * 🎯 DUAL ENGINE API ROUTES - HeadyBattle + HeadySims Control
  * ═══════════════════════════════════════════════════════════════
  */
 
@@ -60,7 +60,7 @@ router.get('/status', (req, res) => {
     
     res.json({
       name: 'Dual Engine System',
-      socraticEngine: 'ACTIVE',
+      HeadyBattleEngine: 'ACTIVE',
       monteCarloEngine: 'ACTIVE',
       actionInterceptor: 'ACTIVE',
       coverage: '100%',

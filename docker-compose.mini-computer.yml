@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: heady-postgres
     environment:
       POSTGRES_DB: headysystems
@@ -12,6 +12,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
 
   redis:
@@ -21,6 +29,14 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
 
   api:
@@ -29,16 +45,28 @@ services:
       dockerfile: Dockerfile.api
     container_name: heady-api
     ports:
-      - "3300:3300"
+      - "3310:3310"
     environment:
       - NODE_ENV=production
+      - PORT=3310
       - DB_HOST=postgres
       - REDIS_HOST=redis
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_URL=http://ollama:11434
     depends_on:
       - postgres
       - redis
     volumes:
       - ./.heady:/app/.heady
+      - ./logs:/app/logs
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3310/api/health/basic"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
 
   web:
@@ -49,9 +77,18 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://headysystems.com.com:3300
+      - REACT_APP_API_URL=http://api:3310
+      - NEXT_PUBLIC_API_URL=http://api:3310
     depends_on:
       - api
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     restart: unless-stopped
 
   cms:
@@ -63,12 +100,52 @@ services:
       - "8080:80"
     environment:
       - DB_HOST=postgres
+      - API_URL=http://api:3310
     depends_on:
       - postgres
+      - api
     volumes:
       - ./drupal/web:/var/www/html/web
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: heady-ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - heady-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
+  ollama_data:
+    driver: local
+
+networks:
+  heady-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

@@ -39,7 +39,7 @@ class ActionInterceptor {
    * Intercept ALL actions and route through dual engine
    */
   intercept(headyManager) {
-    console.log('🎯 Installing Action Interceptor - ALL actions will pass through Socratic + Monte Carlo');
+    console.log('🎯 Installing Action Interceptor - ALL actions will pass through HeadyBattle + HeadySims');
     
     // Intercept API endpoints
     this.interceptAPI(headyManager);
@@ -114,7 +114,7 @@ class ActionInterceptor {
           
           if (result.status === 'SUCCESS') {
             req.dualEngineResult = result;
-            console.log(`✅ API call approved: ${path} (Socratic: ${result.metadata.socraticScore.toFixed(2)}, Monte Carlo: ${result.metadata.monteCarloConfidence.toFixed(2)})`);
+            console.log(`✅ API call approved: ${path} (HeadyBattle: ${result.metadata.HeadyBattleScore.toFixed(2)}, HeadySims: ${result.metadata.monteCarloConfidence.toFixed(2)})`);
             return handler(req, res, next);
           }
           

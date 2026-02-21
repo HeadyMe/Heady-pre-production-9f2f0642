@@ -100,11 +100,11 @@ class HeadyPersistentMemory {
       loadTimeMs: 0
     };
 
-    context.loadTimeMs = Date.now() - startTime;
+    headyContext.loadTimeMs = Date.now() - headyStartTime;
     this.stats.reads++;
     
-    console.log(`[HeadyMemory] Context loaded in ${context.loadTimeMs}ms`);
-    return context;
+    console.log(`[HeadyMemory] Context loaded in ${headyContext.loadTimeMs}ms`);
+    return headyContext;
   }
 
   /**
@@ -136,11 +136,11 @@ class HeadyPersistentMemory {
     };
 
     // Queue for async processing (don't block response)
-    this.ingestQueue.push(ingestion);
+    this.ingestQueue.push(headyIngestion);
     this._processIngestionQueue();
     
     this.stats.ingested++;
-    return ingestion;
+    return headyIngestion;
   }
 
   /**
@@ -158,9 +158,9 @@ class HeadyPersistentMemory {
     try {
       const headyData = await headyFs.readFile(headyHistoryFile, 'utf8');
       const headyHistory = JSON.parse(headyData);
-      this.hotCache.set(headyCacheKey, history);
+      this.hotCache.set(headyCacheKey, headyHistory);
       this.stats.cacheMisses++;
-      return history;
+      return headyHistory;
     } catch (err) {
       return { 
         userId, 
@@ -208,11 +208,11 @@ class HeadyPersistentMemory {
 
     const headyInsightsFile = headyPath.join(this.insightsPath, 'system.json');
     try {
-      const headyData = await headyFs.readFile(insightsFile, 'utf8');
+      const headyData = await headyFs.readFile(headyInsightsFile, 'utf8');
       const headyInsights = JSON.parse(headyData);
-      this.hotCache.set(headyCacheKey, insights);
+      this.hotCache.set(headyCacheKey, headyInsights);
       this.stats.cacheMisses++;
-      return insights;
+      return headyInsights;
     } catch (err) {
       return { 
         totalRequests: 0,
@@ -235,22 +235,22 @@ class HeadyPersistentMemory {
     const headyMemories = [];
     const headyFiles = await headyFs.readdir(this.contextPath);
     
-    for (const headyFile of files.slice(-100)) { // Last 100 memories
+    for (const headyFile of headyFiles.slice(-100)) { // Last 100 memories
       try {
-        const headyData = await headyFs.readFile(headyPath.join(this.contextPath, file), 'utf8');
-        const memory = JSON.parse(headyData);
+        const headyData = await headyFs.readFile(headyPath.join(this.contextPath, headyFile), 'utf8');
+        const headyMemory = JSON.parse(headyData);
         
         // Keyword matching
-        const headyMemoryText = JSON.stringify(memory).toLowerCase();
-        const headyMatches = keywords.filter(kw => memoryText.includes(kw.toLowerCase()));
+        const headyMemoryText = JSON.stringify(headyMemory).toLowerCase();
+        const headyMatches = keywords.filter(kw => headyMemoryText.includes(kw.toLowerCase()));
         
-        if (matches.length > 0) {
-          memories.push({ ...memory, relevance: matches.length / keywords.length });
+        if (headyMatches.length > 0) {
+          headyMemories.push({ ...headyMemory, relevance: headyMatches.length / keywords.length });
         }
       } catch (err) {}
     }
 
-    return memories.sort((a, b) => b.relevance - a.relevance).slice(0, 10);
+    return headyMemories.sort((a, b) => b.relevance - a.relevance).slice(0, 10);
   }
 
   /**
@@ -266,11 +266,11 @@ class HeadyPersistentMemory {
 
     const headyPrefsFile = headyPath.join(this.memoryPath, 'node-preferences.json');
     try {
-      const headyData = await headyFs.readFile(prefsFile, 'utf8');
+      const headyData = await headyFs.readFile(headyPrefsFile, 'utf8');
       const headyPrefs = JSON.parse(headyData);
-      this.hotCache.set(headyCacheKey, prefs);
+      this.hotCache.set(headyCacheKey, headyPrefs);
       this.stats.cacheMisses++;
-      return prefs;
+      return headyPrefs;
     } catch (err) {
       return {
         BRAIN: { decisionSpeed: 'fast', confidence: 'high' },
@@ -294,11 +294,11 @@ class HeadyPersistentMemory {
 
     const headyPerfFile = headyPath.join(this.nodesPath, 'performance.json');
     try {
-      const headyData = await headyFs.readFile(perfFile, 'utf8');
+      const headyData = await headyFs.readFile(headyPerfFile, 'utf8');
       const headyPerf = JSON.parse(headyData);
-      this.hotCache.set(headyCacheKey, perf);
+      this.hotCache.set(headyCacheKey, headyPerf);
       this.stats.cacheMisses++;
-      return perf;
+      return headyPerf;
     } catch (err) {
       return {
         avgExecutionTime: 150,
@@ -317,25 +317,25 @@ class HeadyPersistentMemory {
 
     const headyBatch = this.ingestQueue.splice(0, 50); // Process in batches
     
-    for (const headyIngestion of batch) {
+    for (const headyIngestion of headyBatch) {
       // Save to context
-      const headyContextFile = headyPath.join(this.contextPath, `${ingestion.id}.json`);
-      await headyFs.writeFile(contextFile, JSON.stringify(ingestion, null, 2), 'utf8');
+      const headyContextFile = headyPath.join(this.contextPath, `${headyIngestion.id}.json`);
+      await headyFs.writeFile(headyContextFile, JSON.stringify(headyIngestion, null, 2), 'utf8');
       
       // Update headyPatterns
-      await this._updatePatterns(ingestion);
+      await this._updatePatterns(headyIngestion);
       
       // Update insights
-      await this._updateInsights(ingestion);
+      await this._updateInsights(headyIngestion);
       
       // Update user history
-      await this._updateUserHistory(ingestion);
+      await this._updateUserHistory(headyIngestion);
       
       // Update node performance
-      await this._updateNodePerformance(ingestion);
+      await this._updateNodePerformance(headyIngestion);
     }
 
-    this.stats.writes += batch.length;
+    this.stats.writes += headyBatch.length;
   }
 
   async _updatePatterns(ingestion) {
@@ -380,8 +380,8 @@ class HeadyPersistentMemory {
     };
     
     try {
-      const headyData = await headyFs.readFile(insightsFile, 'utf8');
-      insights = JSON.parse(headyData);
+      const headyData = await headyFs.readFile(headyInsightsFile, 'utf8');
+      headyInsights = JSON.parse(headyData);
     } catch (err) {}
 
     headyInsights.totalRequests++;
@@ -392,7 +392,7 @@ class HeadyPersistentMemory {
     // Update success rate
     const headySuccess = ingestion.response.statusCode < 400 ? 1 : 0;
     headyInsights.successRate = 
-      ((headyInsights.successRate * (headyInsights.totalRequests - 1)) + success) / headyInsights.totalRequests;
+      ((headyInsights.successRate * (headyInsights.totalRequests - 1)) + headySuccess) / headyInsights.totalRequests;
 
     // Update system health
     if (headyInsights.successRate > 95 && headyInsights.avgResponseTime < 500) {
@@ -403,16 +403,16 @@ class HeadyPersistentMemory {
       headyInsights.systemHealth = 'NEEDS_ATTENTION';
     }
 
-    await headyFs.writeFile(insightsFile, JSON.stringify(insights, null, 2), 'utf8');
+    await headyFs.writeFile(headyInsightsFile, JSON.stringify(headyInsights, null, 2), 'utf8');
     this.stats.insightsGenerated++;
   }
 
   async _updateUserHistory(ingestion) {
     const headyUserId = ingestion.request.userId;
-    const headyHistory = await this.getUserHistory(userId);
+    const headyHistory = await this.getUserHistory(headyUserId);
     
-    history.sessions = history.sessions || [];
-    history.sessions.push({
+    headyHistory.sessions = headyHistory.sessions || [];
+    headyHistory.sessions.push({
       timestamp: ingestion.timestamp,
       path: ingestion.request.path,
       method: ingestion.request.method,
@@ -422,18 +422,18 @@ class HeadyPersistentMemory {
     });
 
     // Keep last 500 sessions per user
-    if (history.sessions.length > 500) {
-      history.sessions = history.sessions.slice(-500);
+    if (headyHistory.sessions.length > 500) {
+      headyHistory.sessions = headyHistory.sessions.slice(-500);
     }
 
     // Update user preferences
-    history.preferences = this._updateUserPreferences(history, ingestion);
+    headyHistory.preferences = this._updateUserPreferences(headyHistory, ingestion);
 
-    const headyHistoryFile = headyPath.join(this.sessionsPath, `${userId}.json`);
-    await headyFs.writeFile(historyFile, JSON.stringify(history, null, 2), 'utf8');
+    const headyHistoryFile = headyPath.join(this.sessionsPath, `${headyUserId}.json`);
+    await headyFs.writeFile(headyHistoryFile, JSON.stringify(headyHistory, null, 2), 'utf8');
     
     // Update hot cache
-    this.hotCache.set(`user:${userId}`, history);
+    this.hotCache.set(`user:${headyUserId}`, headyHistory);
   }
 
   async _updateNodePerformance(ingestion) {
@@ -441,35 +441,35 @@ class HeadyPersistentMemory {
     let headyPerf = { avgExecutionTime: 150, successRate: 98.5, errorRate: 1.5, throughput: 1000 };
     
     try {
-      const headyData = await headyFs.readFile(perfFile, 'utf8');
-      perf = JSON.parse(headyData);
+      const headyData = await headyFs.readFile(headyPerfFile, 'utf8');
+      headyPerf = JSON.parse(headyData);
     } catch (err) {}
 
     // Update metrics
-    perf.avgExecutionTime = 
-      (perf.avgExecutionTime * 0.9) + (ingestion.response.processingTimeMs * 0.1);
+    headyPerf.avgExecutionTime = 
+      (headyPerf.avgExecutionTime * 0.9) + (ingestion.response.processingTimeMs * 0.1);
     
     const headySuccess = ingestion.response.statusCode < 400 ? 1 : 0;
-    perf.successRate = (perf.successRate * 0.95) + (success * 0.05);
-    perf.errorRate = 100 - perf.successRate;
+    headyPerf.successRate = (headyPerf.successRate * 0.95) + (headySuccess * 0.05);
+    headyPerf.errorRate = 100 - headyPerf.successRate;
 
-    await headyFs.writeFile(perfFile, JSON.stringify(perf, null, 2), 'utf8');
+    await headyFs.writeFile(headyPerfFile, JSON.stringify(headyPerf, null, 2), 'utf8');
   }
 
   _updateUserPreferences(history, ingestion) {
     const headyPrefs = history.preferences || {};
     
     // Track preferred paths
-    preheadyFs.preferredPaths = preheadyFs.preferredPaths || {};
-    const headyPath = ingestion.request.path;
-    preheadyFs.preferredPaths[path] = (preheadyFs.preferredPaths[path] || 0) + 1;
+    headyPrefs.preferredPaths = headyPrefs.preferredPaths || {};
+    const headyReqPath = ingestion.request.path;
+    headyPrefs.preferredPaths[headyReqPath] = (headyPrefs.preferredPaths[headyReqPath] || 0) + 1;
     
     // Track active hours
     const headyHour = new Date(ingestion.timestamp).getHours();
-    preheadyFs.activeHours = preheadyFs.activeHours || {};
-    preheadyFs.activeHours[hour] = (preheadyFs.activeHours[hour] || 0) + 1;
+    headyPrefs.activeHours = headyPrefs.activeHours || {};
+    headyPrefs.activeHours[headyHour] = (headyPrefs.activeHours[headyHour] || 0) + 1;
     
-    return prefs;
+    return headyPrefs;
   }
 
   _extractKeywords(req) {
@@ -478,12 +478,12 @@ class HeadyPersistentMemory {
                  req.path + ' ' + 
                  (req.headers['user-agent'] || '');
     
-    const headyWords = text.toLowerCase()
+    const headyWords = headyText.toLowerCase()
       .replace(/[^a-z0-9\s]/g, ' ')
       .split(/\s+/)
       .filter(w => w.length > 3);
     
-    return [...new Set(words)];
+    return [...new Set(headyWords)];
   }
 
   _extractInsights(req, res, context) {
@@ -521,11 +521,11 @@ class HeadyPersistentMemory {
 
     const headyNodeFile = headyPath.join(this.nodesPath, `${nodeId}.json`);
     try {
-      const headyData = await headyFs.readFile(nodeFile, 'utf8');
+      const headyData = await headyFs.readFile(headyNodeFile, 'utf8');
       const headyNodeMemory = JSON.parse(headyData);
-      this.hotCache.set(headyCacheKey, nodeMemory);
+      this.hotCache.set(headyCacheKey, headyNodeMemory);
       this.stats.cacheMisses++;
-      return nodeMemory;
+      return headyNodeMemory;
     } catch (err) {
       return {
         nodeId,
@@ -541,16 +541,16 @@ class HeadyPersistentMemory {
   async updateNodeMemory(nodeId, execution) {
     const headyNodeMemory = await this.getNodeMemory(nodeId);
     
-    nodeMemory.executions++;
-    nodeMemory.successRate = 
-      ((nodeMemory.successRate * (nodeMemory.executions - 1)) + (execution.success ? 100 : 0)) 
-      / nodeMemory.executions;
-    nodeMemory.avgTime = 
-      ((nodeMemory.avgTime * (nodeMemory.executions - 1)) + execution.time) / nodeMemory.executions;
+    headyNodeMemory.executions++;
+    headyNodeMemory.successRate = 
+      ((headyNodeMemory.successRate * (headyNodeMemory.executions - 1)) + (execution.success ? 100 : 0)) 
+      / headyNodeMemory.executions;
+    headyNodeMemory.avgTime = 
+      ((headyNodeMemory.avgTime * (headyNodeMemory.executions - 1)) + execution.time) / headyNodeMemory.executions;
     
     // Store execution pattern
-    nodeMemory.headyPatterns = nodeMemory.headyPatterns || [];
-    nodeMemory.headyPatterns.push({
+    headyNodeMemory.headyPatterns = headyNodeMemory.headyPatterns || [];
+    headyNodeMemory.headyPatterns.push({
       timestamp: new Date().toISOString(),
       type: execution.type,
       success: execution.success,
@@ -559,15 +559,15 @@ class HeadyPersistentMemory {
     });
     
     // Keep last 100 headyPatterns
-    if (nodeMemory.headyPatterns.length > 100) {
-      nodeMemory.headyPatterns = nodeMemory.headyPatterns.slice(-100);
+    if (headyNodeMemory.headyPatterns.length > 100) {
+      headyNodeMemory.headyPatterns = headyNodeMemory.headyPatterns.slice(-100);
     }
 
     const headyNodeFile = headyPath.join(this.nodesPath, `${nodeId}.json`);
-    await headyFs.writeFile(nodeFile, JSON.stringify(nodeMemory, null, 2), 'utf8');
+    await headyFs.writeFile(headyNodeFile, JSON.stringify(headyNodeMemory, null, 2), 'utf8');
     
     // Update cache
-    this.hotCache.set(`node:${nodeId}`, nodeMemory);
+    this.hotCache.set(`node:${nodeId}`, headyNodeMemory);
   }
 
   getStats() {
@@ -604,9 +604,9 @@ class HeadyPersistentMemory {
     const headyHourCounts = {};
     
     headyPatterns.forEach(pattern => {
-      pathCounts[pattern.path] = (pathCounts[pattern.path] || 0) + 1;
+      headyPathCounts[pattern.path] = (headyPathCounts[pattern.path] || 0) + 1;
       const headyHour = new Date(pattern.timestamp).getHours();
-      hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+      headyHourCounts[headyHour] = (headyHourCounts[headyHour] || 0) + 1;
     });
     
     console.log(`[HeadyMemory] Analyzed ${headyPatterns.length} headyPatterns`);
@@ -618,7 +618,7 @@ class HeadyPersistentMemory {
       const headyEntries = Array.from(this.hotCache.entries());
       this.hotCache.clear();
       // Keep most recent 500
-      entries.slice(-500).forEach(([k, v]) => this.hotCache.set(k, v));
+      headyEntries.slice(-500).forEach(([k, v]) => this.hotCache.set(k, v));
       console.log(`[HeadyMemory] Optimized cache, kept 500 entries`);
     }
   }
@@ -647,39 +647,39 @@ class HeadyPersistentMemory {
 
     // Search user histories
     const headyUserFiles = await headyFs.readdir(this.sessionsPath);
-    for (const headyFile of userFiles.slice(-20)) {
+    for (const headyFile of headyUserFiles.slice(-20)) {
       try {
-        const headyData = await headyFs.readFile(headyPath.join(this.sessionsPath, file), 'utf8');
+        const headyData = await headyFs.readFile(headyPath.join(this.sessionsPath, headyFile), 'utf8');
         const headyHistory = JSON.parse(headyData);
-        const headyHistoryText = JSON.stringify(history).toLowerCase();
+        const headyHistoryText = JSON.stringify(headyHistory).toLowerCase();
         
-        if (keywords.some(kw => historyText.includes(kw.toLowerCase()))) {
-          results.userHistory.push(history);
+        if (headyKeywords.some(kw => headyHistoryText.includes(kw.toLowerCase()))) {
+          headyResults.userHistory.push(headyHistory);
         }
       } catch (err) {}
     }
 
     // Search headyPatterns
     const headyPatterns = await this.getRecentPatterns(100);
-    results.headyPatterns = headyPatterns.filter(p => 
-      keywords.some(kw => p.headyPath.toLowerCase().includes(kw.toLowerCase()))
+    headyResults.headyPatterns = headyPatterns.filter(p => 
+      headyKeywords.some(kw => (p.path || '').toLowerCase().includes(kw.toLowerCase()))
     );
 
     // Search contexts
     const headyContextFiles = await headyFs.readdir(this.contextPath);
-    for (const headyFile of contextFiles.slice(-50)) {
+    for (const headyFile of headyContextFiles.slice(-50)) {
       try {
-        const headyData = await headyFs.readFile(headyPath.join(this.contextPath, file), 'utf8');
+        const headyData = await headyFs.readFile(headyPath.join(this.contextPath, headyFile), 'utf8');
         const headyContext = JSON.parse(headyData);
-        const headyContextText = JSON.stringify(context).toLowerCase();
+        const headyContextText = JSON.stringify(headyContext).toLowerCase();
         
-        if (keywords.some(kw => contextText.includes(kw.toLowerCase()))) {
-          results.contexts.push(context);
+        if (headyKeywords.some(kw => headyContextText.includes(kw.toLowerCase()))) {
+          headyResults.contexts.push(headyContext);
         }
       } catch (err) {}
     }
 
-    return results;
+    return headyResults;
   }
 }
 

@@ -26,7 +26,7 @@
  */
 
 class HeadyZeroIdleTaskManager {
-  constructor(headyConductor) {
+  constructor(headypromoter) {
     this.taskQueue = {
       critical: [],      // User-initiated tasks - execute IMMEDIATELY
       high: [],          // Auto-optimization tasks
@@ -35,7 +35,7 @@ class HeadyZeroIdleTaskManager {
     };
     this.isIdle = false;
     this.idleTimer = null;
-    this.headyConductor = headyConductor;
+    this.headypromoter = headypromoter;
     this.lastActivity = Date.now();
     this.idleThreshold = 500; // Max 500ms idle
     this.violations = [];
@@ -56,11 +56,11 @@ class HeadyZeroIdleTaskManager {
       // Priority order - ALWAYS execute something
       const headyTask = this.getNextTask();
       
-      if (!task) {
+      if (!headyTask) {
         // NO IDLE - trigger background intelligence work
         await this.executeBackgroundIntelligence();
       } else {
-        await this.executeTask(task);
+        await this.executeTask(headyTask);
       }
     } catch (error) {
       console.error('🚨 Task execution failed, continuing with emergency task:', error.message);
@@ -112,14 +112,14 @@ class HeadyZeroIdleTaskManager {
     ];
     
     // Execute random background task to improve system
-    const headyActivity = activities[Math.floor(Math.random() * activities.length)];
-    await activity();
+    const headyActivity = headyActivities[Math.floor(Math.random() * headyActivities.length)];
+    await headyActivity();
   }
 
   async executeEmergencyTask() {
     const headyTask = this.emergencyTasks[Math.floor(Math.random() * this.emergencyTasks.length)];
     console.log('🚨 Executing emergency task to eliminate idle time');
-    await task();
+    await headyTask();
   }
 
   // Task Queue Management
@@ -242,14 +242,14 @@ class HeadyZeroIdleTaskManager {
   async analyzeCodePatterns() {
     console.log('🔍 Analyzing code patterns...');
     try {
-      // Use HeadyConductor workers to analyze codebase
+      // Use Headypromoter workers to analyze codebase
       const headyAnalysisTask = {
         type: 'code_analysis',
         action: 'analyze_patterns',
         priority: 'medium'
       };
       
-      await this.headyConductor.submitTask(analysisTask);
+      await this.headypromoter.submitTask(headyAnalysisTask);
       console.log('✅ Code pattern analysis completed');
     } catch (error) {
       console.error('❌ Code pattern analysis failed:', error);
@@ -276,7 +276,7 @@ class HeadyZeroIdleTaskManager {
       // Monitor memory leaks
       
       const headyMemUsage = process.memoryUsage();
-      console.log(`📊 Memory usage: RSS=${Math.round(memUsage.rss/1024/1024)}MB, Heap=${Math.round(memUsage.heapUsed/1024/1024)}MB`);
+      console.log(`📊 Memory usage: RSS=${Math.round(headyMemUsage.rss/1024/1024)}MB, Heap=${Math.round(headyMemUsage.heapUsed/1024/1024)}MB`);
     } catch (error) {
       console.error('❌ Memory optimization failed:', error);
     }
@@ -321,14 +321,14 @@ class HeadyZeroIdleTaskManager {
     setInterval(() => {
       const headyIdleTime = Date.now() - this.lastActivity;
       
-      if (idleTime > this.idleThreshold) {
+      if (headyIdleTime > this.idleThreshold) {
         this.violations.push({
           timestamp: new Date(),
-          duration: idleTime,
+          duration: headyIdleTime,
           reason: 'NO_ACTIVE_TASK'
         });
         
-        console.warn(`🚨 IDLE VIOLATION: ${idleTime}ms idle time detected`);
+        console.warn(`🚨 IDLE VIOLATION: ${headyIdleTime}ms idle time detected`);
         
         // IMMEDIATELY trigger emergency task
         this.executeEmergencyTask();
@@ -344,15 +344,15 @@ class HeadyZeroIdleTaskManager {
   // Reporting and Analytics
   generateEfficiencyReport() {
     const headyTotalIdleTime = this.violations.reduce((sum, v) => sum + v.duration, 0);
-    const headyWastedHours = (totalIdleTime / 1000 / 3600).toFixed(2);
-    const headyEstimatedCost = (wastedHours * 0.10).toFixed(2);
+    const headyWastedHours = (headyTotalIdleTime / 1000 / 3600).toFixed(2);
+    const headyEstimatedCost = (headyWastedHours * 0.10).toFixed(2);
     
     return {
       totalViolations: this.violations.length,
-      totalWastedHours: wastedHours,
-      estimatedCost: `$${estimatedCost}`,
-      efficiency: ((1 - (totalIdleTime / (Date.now() - this.startTime))) * 100).toFixed(2) + '%',
-      recommendation: wastedHours > 0.1 ? 'INCREASE BACKGROUND TASK DIVERSITY' : 'OPTIMAL EFFICIENCY',
+      totalWastedHours: headyWastedHours,
+      estimatedCost: `$${headyEstimatedCost}`,
+      efficiency: ((1 - (headyTotalIdleTime / (Date.now() - this.startTime))) * 100).toFixed(2) + '%',
+      recommendation: headyWastedHours > 0.1 ? 'INCREASE BACKGROUND TASK DIVERSITY' : 'OPTIMAL EFFICIENCY',
       taskStats: {
         critical: this.taskQueue.critical.length,
         high: this.taskQueue.high.length,
@@ -366,9 +366,9 @@ class HeadyZeroIdleTaskManager {
   async executeUserTask(task) {
     console.log(`👤 Executing user task: ${task.description}`);
     
-    // Use HeadyConductor for parallel execution if possible
-    if (this.headyConductor && task.canParallel) {
-      await this.headyConductor.submitTask({
+    // Use Headypromoter for parallel execution if possible
+    if (this.headypromoter && task.canParallel) {
+      await this.headypromoter.submitTask({
         type: 'user_task',
         action: task.action,
         data: task.data,
@@ -386,12 +386,12 @@ class HeadyZeroIdleTaskManager {
     const headyPatterns = this.analyzeRecentActions();
     
     // Predict next likely actions
-    const headyPredictions = await this.predictNextActions(patterns);
+    const headyPredictions = await this.predictNextActions(headyPatterns);
     
     // Pre-execute preparations
-    for (const headyPrediction of predictions) {
-      if (prediction.confidence > 0.7) {
-        await this.prepareForAction(prediction);
+    for (const headyPrediction of headyPredictions) {
+      if (headyPrediction.confidence > 0.7) {
+        await this.prepareForAction(headyPrediction);
       }
     }
   }
@@ -455,7 +455,7 @@ class HeadyZeroIdleTaskManager {
     
     // Generate final report
     const headyReport = this.generateEfficiencyReport();
-    console.log('📊 Final Efficiency Report:', report);
+    console.log('📊 Final Efficiency Report:', headyReport);
   }
 }
 

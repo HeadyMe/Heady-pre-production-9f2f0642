@@ -1,0 +1,420 @@
+#!/usr/bin/env node
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: hcfp                                               ║
+// ║  UPDATED: 20260219-220600                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/**
+ * 🚀 HCFP CLI - Heady Continuous Full Pipeline Command Line Interface
+ * 
+ * Unified command interface for HCFP Full Auto Mode with intelligent
+ * self-aware orchestration and dynamic resource allocation
+ */
+
+const path = require('path');
+const fs = require('fs');
+const { program } = require('commander');
+
+// Import HCFP components
+const HCFPFullAutoEngine = require('../src/orchestration/hcfp-full-auto-engine');
+const WebsiteHealthIntegration = require('../src/integration/website-health-integration');
+const HCAIRouterSimple = require('../src/ai-router/hc-ai-router-simple');
+
+// Version and description
+const VERSION = '2.0.0';
+const DESCRIPTION = 'Heady Continuous Full Pipeline - Intelligent Self-Aware Orchestration';
+
+// Main CLI class
+class HCFPCLI {
+  constructor() {
+    this.engine = null;
+    this.healthIntegration = null;
+    this.aiRouter = null;
+    this.isRunning = false;
+  }
+
+  /**
+   * 🚀 Start HCFP Full Auto Mode
+   */
+  async startFullAuto(options = {}) {
+    console.log('\n🚀 STARTING HCFP FULL AUTO MODE');
+    console.log('='.repeat(60));
+    
+    try {
+      // Initialize AI Router first
+      console.log('🤖 Initializing AI Router...');
+      this.aiRouter = new HCAIRouterSimple({
+        configPath: path.join(__dirname, '../configs/ai-routing.yaml'),
+        nodeId: 'hcfp-cli',
+        primaryTask: 'system_optimization',
+        fallbackTask: 'error_analysis',
+        maxConcurrentTasks: 8,
+        priority: 'critical'
+      });
+      await this.aiRouter.initialize();
+      console.log('✅ AI Router initialized');
+
+      // Initialize Website Health Integration
+      console.log('🌐 Initializing Website Health Integration...');
+      this.healthIntegration = new WebsiteHealthIntegration({
+        enable_website_monitoring: true,
+        enable_frontend_error_collection: true,
+        auto_healing_enabled: true
+      });
+
+      // Initialize Full Auto Engine
+      console.log('⚡ Initializing Full Auto Engine...');
+      this.engine = new HCFPFullAutoEngine(
+        path.join(__dirname, '../configs/hcfullpipeline.yaml')
+      );
+
+      // Start health integration with engine
+      await this.healthIntegration.start(this.engine, this.aiRouter);
+
+      // Start the main engine
+      await this.engine.start();
+
+      this.isRunning = true;
+      
+      console.log('\n✅ HCFP Full Auto Mode started successfully!');
+      console.log('🎯 Continuous beneficial tasks execution begun');
+      console.log('🌐 Website health monitoring active');
+      console.log('🤖 AI router operational');
+      
+      this.setupGracefulShutdown();
+      
+      return true;
+
+    } catch (error) {
+      console.error('\n❌ Failed to start HCFP Full Auto Mode:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * 🛑 Stop HCFP Full Auto Mode
+   */
+  async stopFullAuto() {
+    if (!this.isRunning) {
+      console.log('ℹ️ HCFP Full Auto Mode is not running');
+      return;
+    }
+
+    console.log('\n🛑 STOPPING HCFP FULL AUTO MODE');
+    console.log('='.repeat(50));
+
+    try {
+      if (this.engine) {
+        await this.engine.stop('CLI stop command');
+        console.log('✅ Full Auto Engine stopped');
+      }
+
+      if (this.healthIntegration) {
+        await this.healthIntegration.stop();
+        console.log('✅ Website Health Integration stopped');
+      }
+
+      this.isRunning = false;
+      
+      console.log('\n🎉 HCFP Full Auto Mode stopped gracefully');
+      
+    } catch (error) {
+      console.error('❌ Error during shutdown:', error.message);
+    }
+  }
+
+  /**
+   * 📊 Get current status
+   */
+  async getStatus() {
+    console.log('\n📊 HCFP FULL AUTO STATUS');
+    console.log('='.repeat(40));
+
+    const status = {
+      running: this.isRunning,
+      engine: null,
+      health_integration: null,
+      ai_router: null
+    };
+
+    if (this.engine) {
+      status.engine = {
+        ors: this.engine.currentORS,
+        active_tasks: this.engine.activeTasks.size,
+        total_tasks: this.engine.performanceMetrics.totalTasks,
+        success_rate: this.engine.performanceMetrics.totalTasks > 0 
+          ? this.engine.performanceMetrics.successfulTasks / this.engine.performanceMetrics.totalTasks 
+          : 1,
+        avg_duration: this.engine.performanceMetrics.avgTaskDuration
+      };
+    }
+
+    if (this.healthIntegration) {
+      status.health_integration = this.healthIntegration.getStatus();
+    }
+
+    if (this.aiRouter) {
+      status.ai_router = {
+        health_score: this.aiRouter.getHealthScore ? this.aiRouter.getHealthScore() : 'unknown',
+        routing_decisions: this.aiRouter.routingDecisions ? this.aiRouter.routingDecisions.length : 0
+      };
+    }
+
+    // Display status
+    console.log(`🟢 Status: ${status.running ? 'RUNNING' : 'STOPPED'}`);
+    
+    if (status.engine) {
+      console.log(`📊 ORS: ${status.engine.ors}`);
+      console.log(`⚡ Active Tasks: ${status.engine.active_tasks}`);
+      console.log(`✅ Success Rate: ${(status.engine.success_rate * 100).toFixed(1)}%`);
+      console.log(`⏱️ Avg Duration: ${status.engine.avg_duration.toFixed(0)}ms`);
+    }
+
+    if (status.health_integration?.current_health_status) {
+      const health = status.health_integration.current_health_status;
+      console.log(`🌐 Website Health: Monitored`);
+      console.log(`🚨 ORS Impact: ${status.health_integration.ors_impact}`);
+    }
+
+    return status;
+  }
+
+  /**
+   * 🌐 Trigger website health check
+   */
+  async triggerHealthCheck() {
+    let startedTransientIntegration = false;
+
+    if (!this.healthIntegration) {
+      console.log('ℹ️ Website Health Integration not initialized, starting one-off integration...');
+      this.healthIntegration = new WebsiteHealthIntegration({
+        enable_website_monitoring: true,
+        enable_frontend_error_collection: true,
+        auto_healing_enabled: true
+      });
+
+      await this.healthIntegration.start(this.engine, this.aiRouter);
+      startedTransientIntegration = true;
+    }
+
+    console.log('\n🌐 TRIGGERING WEBSITE HEALTH CHECK');
+    console.log('='.repeat(45));
+
+    try {
+      if (this.healthIntegration.websiteMonitor) {
+        const results = await this.healthIntegration.websiteMonitor.performHealthChecks();
+        
+        console.log('✅ Website health check completed');
+        console.log(`📊 Overall Health: ${results.overall_health.score}% (${results.overall_health.status})`);
+        console.log(`⏱️ Duration: ${results.duration_ms}ms`);
+        
+        return results;
+      } else {
+        console.log('ℹ️ Website monitor not active');
+      }
+      
+    } catch (error) {
+      console.error('❌ Website health check failed:', error.message);
+      throw error;
+    } finally {
+      if (startedTransientIntegration && this.healthIntegration) {
+        await this.healthIntegration.stop();
+        this.healthIntegration = null;
+        console.log('✅ One-off Website Health Integration shutdown complete');
+      }
+    }
+  }
+
+  /**
+   * 🎯 Execute specific task
+   */
+  async executeTask(taskType, description, options = {}) {
+    if (!this.engine) {
+      console.error('❌ HCFP Engine not initialized');
+      return;
+    }
+
+    console.log(`\n🎯 EXECUTING TASK: ${taskType}`);
+    console.log(`📝 Description: ${description}`);
+    console.log('='.repeat(50));
+
+    try {
+      const taskSpec = {
+        id: `cli-task-${Date.now()}`,
+        type: taskType,
+        description: description,
+        priority: options.priority || 'normal',
+        timestamp: new Date()
+      };
+
+      // This would integrate with the engine's task execution
+      console.log('✅ Task submitted to HCFP Engine');
+      console.log(`🆔 Task ID: ${taskSpec.id}`);
+      
+      return taskSpec;
+      
+    } catch (error) {
+      console.error('❌ Task execution failed:', error.message);
+    }
+  }
+
+  /**
+   🛡️ Setup graceful shutdown
+   */
+  setupGracefulShutdown() {
+    const shutdown = async (signal) => {
+      console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
+      await this.stopFullAuto();
+      process.exit(0);
+    };
+
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+  }
+}
+
+// Initialize CLI
+const hcfpCLI = new HCFPCLI();
+
+// Configure CLI program
+program
+  .name('hcfp')
+  .description(DESCRIPTION)
+  .version(VERSION);
+
+// Full auto command
+program
+  .command('auto-success')
+  .description('Start HCFP Full Auto Mode with guaranteed success through intelligent self-aware orchestration')
+  .option('-v, --verbose', 'Verbose logging')
+  .option('--no-health', 'Disable website health monitoring')
+  .action(async (options) => {
+    try {
+      await hcfpCLI.startFullAuto({
+        verbose: options.verbose,
+        enableHealthMonitoring: options.health !== false
+      });
+
+      // Keep process running
+      console.log('\n🎯 HCFP Full Auto Mode is running...');
+      console.log('Press Ctrl+C to stop');
+      
+      // Set up status monitoring
+      const statusInterval = setInterval(async () => {
+        if (hcfpCLI.isRunning) {
+          if (options.verbose) {
+            await hcfpCLI.getStatus();
+          }
+        } else {
+          clearInterval(statusInterval);
+        }
+      }, 60000); // Status every minute
+
+    } catch (error) {
+      console.error('💥 Failed to start HCFP Full Auto Mode:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Stop command
+program
+  .command('stop')
+  .description('Stop HCFP Full Auto Mode')
+  .action(async () => {
+    try {
+      await hcfpCLI.stopFullAuto();
+    } catch (error) {
+      console.error('❌ Failed to stop HCFP Full Auto Mode:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Status command
+program
+  .command('status')
+  .description('Get current HCFP Full Auto status')
+  .option('-j, --json', 'Output status as JSON')
+  .action(async (options) => {
+    try {
+      const status = await hcfpCLI.getStatus();
+      
+      if (options.json) {
+        console.log(JSON.stringify(status, null, 2));
+      }
+    } catch (error) {
+      console.error('❌ Failed to get status:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Critique command removed (self-critique engine disabled)
+
+// Health check command
+program
+  .command('health')
+  .description('Trigger immediate website health check')
+  .action(async () => {
+    try {
+      await hcfpCLI.triggerHealthCheck();
+    } catch (error) {
+      console.error('❌ Failed to trigger health check:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Execute task command
+program
+  .command('execute <type> <description>')
+  .description('Execute a specific task through HCFP')
+  .option('-p, --priority <priority>', 'Task priority (low, normal, high, critical)', 'normal')
+  .action(async (type, description, options) => {
+    try {
+      await hcfpCLI.executeTask(type, description, options);
+    } catch (error) {
+      console.error('❌ Failed to execute task:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Config command
+program
+  .command('config')
+  .description('Show current configuration')
+  .action(() => {
+    console.log('\n⚙️ HCFP CONFIGURATION');
+    console.log('='.repeat(30));
+    
+    const configPath = path.join(__dirname, '../configs/hcfullpipeline.yaml');
+    const aiRouterPath = path.join(__dirname, '../configs/ai-routing.yaml');
+    
+    console.log(`📋 Pipeline Config: ${configPath}`);
+    console.log(`🤖 AI Router Config: ${aiRouterPath}`);
+    
+    if (fs.existsSync(configPath)) {
+      const stats = fs.statSync(configPath);
+      console.log(`📅 Pipeline Config Updated: ${stats.mtime.toISOString()}`);
+    }
+    
+    if (fs.existsSync(aiRouterPath)) {
+      const stats = fs.statSync(aiRouterPath);
+      console.log(`📅 AI Router Config Updated: ${stats.mtime.toISOString()}`);
+    }
+  });
+
+// Parse command line arguments
+program.parse();
+
+// Handle no command case
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}

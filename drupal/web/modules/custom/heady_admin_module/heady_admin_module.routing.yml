@@ -1,0 +1,57 @@
+heady_admin.dashboard:
+  path: '/admin/dashboard'
+  defaults:
+    _controller: '\Drupal\heady_admin_module\Controller\HeadyAdminController::dashboard'
+    _title: 'Heady Systems Dashboard'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.domains:
+  path: '/admin/domains'
+  defaults:
+    _controller: '\Drupal\heady_admin_module\Controller\HeadyAdminController::domains'
+    _title: 'Domain Management'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.domains.builder:
+  path: '/admin/domains/builder'
+  defaults:
+    _controller: '\Drupal\heady_admin_module\Controller\HeadyAdminController::domainBuilder'
+    _title: 'Domain Builder'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.tasks:
+  path: '/admin/tasks'
+  defaults:
+    _controller: '\Drupal\heady_admin_module\Controller\HeadyAdminController::tasks'
+    _title: 'Task Management'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.system.monitor:
+  path: '/admin/system/monitor'
+  defaults:
+    _controller: '\Drupal\heady_admin_module\Controller\HeadyAdminController::systemMonitor'
+    _title: 'System Monitor'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_admin.api.headybuddy.sync:
+  path: '/api/headybuddy/sync/tasks'
+  defaults:
+    _controller: '\Drupal\heady_admin_module\Controller\HeadyApiController::syncTasks'
+    _title: 'HeadyBuddy Task Sync'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
+
+heady_admin.api.headybuddy.browser:
+  path: '/api/headybuddy/browser/start'
+  defaults:
+    _controller: '\Drupal\heady_admin_module\Controller\HeadyApiController::startBrowser'
+    _title: 'Start Headless Browser'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]

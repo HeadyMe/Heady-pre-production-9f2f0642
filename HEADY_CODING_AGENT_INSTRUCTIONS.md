@@ -70,7 +70,7 @@ The agent must recognize and utilize these 20 nodes:
 17. LENS (All-Seeing Eye) - headylens, metrics
 18. MEMORY (Eternal Archive) - headymemory
 19. BRAIN (Central Intelligence) - headybrain
-20. CONDUCTOR (Orchestrator) - headyconductor
+20. CONDUCTOR (Orchestrator) - headypromoter
 
 **Node Integration Rules:**
 - Each node has specific triggers and tools
