@@ -1339,7 +1339,7 @@ try {
 }
 
 // Wave 4 real routers
-for (const [name, file] of [["ops", "ops"], ["maintenance", "maintenance"], ["lens", "lens"], ["vinci", "vinci"]]) {
+for (const [name, file] of [["ops", "ops"], ["maintenance", "maintenance"], ["lens", "lens"], ["vinci", "vinci"], ["conductor", "conductor"]]) {
   try {
     const r = require(`./src/routes/${file}`);
     app.use(`/api/${name}`, r);
