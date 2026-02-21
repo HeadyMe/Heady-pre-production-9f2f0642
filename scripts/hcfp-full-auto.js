@@ -161,21 +161,22 @@ Examples:
 class HeadySimsEngine {
   constructor(config) {
     this.config = config;
-    this.strategies = config.strategies;
-    this.algorithm = config.algorithm;
+    this.strategies = config.strategies || [];
+    this.algorithm = config.monte_carlo ? { type: config.monte_carlo.algorithm } : { type: 'ucb1' };
+    this.simulation_runs = config.monte_carlo ? config.monte_carlo.simulation_runs : 1000;
   }
 
   async runSimulations() {
-    console.log(`🎲 Running ${this.config.simulation_runs} simulations with ${this.algorithm.type} algorithm`);
+    console.log(`🎲 Running ${this.simulation_runs} simulations with ${this.algorithm.type} algorithm`);
     
     const results = {};
     let bestScore = 0;
     let winner = null;
     
     // Simulate each strategy
-    for (const [name, strategy] of Object.entries(this.strategies)) {
-      const score = await this.simulateStrategy(name, strategy);
-      results[name] = { score, strategy };
+    for (const name of this.strategies) {
+      const score = await this.simulateStrategy(name, { strengths: [name.split('_')[1] || 'balanced'] });
+      results[name] = { score, strategy: name };
       
       if (score > bestScore) {
         bestScore = score;
@@ -204,8 +205,12 @@ class HeadySimsEngine {
     
     // Calculate weighted score
     let score = 0;
+    const evalMetrics = this.config.evaluation?.metrics || {
+      latency: 0.2, accuracy: 0.2, efficiency: 0.2, satisfaction: 0.2, quality: 0.2
+    };
+
     for (const [metric, value] of Object.entries(metrics)) {
-      const weight = this.config.evaluation_metrics[metric]?.weight || 0.2;
+      const weight = evalMetrics[metric] || 0.2;
       score += value * weight;
     }
     
@@ -266,7 +271,7 @@ class HeadySimsEngine {
 class HeadyBattleInterrogator {
   constructor(config) {
     this.config = config;
-    this.categories = config.question_categories;
+    this.categories = config.questions || {};
   }
 
   async interrogate(mcResults) {
@@ -279,11 +284,13 @@ class HeadyBattleInterrogator {
       criticalIssues: []
     };
     
+    const numCategories = Object.keys(this.categories).length || 1;
+    
     // Interrogate each category
-    for (const [categoryName, category] of Object.entries(this.categories)) {
-      const categoryResults = await this.interrogateCategory(categoryName, category, mcResults);
+    for (const [categoryName, questions] of Object.entries(this.categories)) {
+      const categoryResults = await this.interrogateCategory(categoryName, questions, mcResults);
       results.categories[categoryName] = categoryResults;
-      results.totalScore += categoryResults.score * category.weight;
+      results.totalScore += categoryResults.score * (1 / numCategories);
       
       if (categoryResults.criticalIssues.length > 0) {
         results.criticalIssues.push(...categoryResults.criticalIssues);
@@ -291,20 +298,24 @@ class HeadyBattleInterrogator {
     }
     
     // Final validation
-    results.approved = results.totalScore >= this.config.validation_rules.minimum_score &&
+    const minScore = this.config.validation?.minimum_score || 0.8;
+    results.approved = results.totalScore >= minScore &&
                       results.criticalIssues.length === 0;
     
     return results;
   }
 
-  async interrogateCategory(categoryName, category, mcResults) {
+  async interrogateCategory(categoryName, questionsList, mcResults) {
     const results = {
       score: 0,
       questions: [],
       criticalIssues: []
     };
     
-    for (const question of category.questions) {
+    if (!Array.isArray(questionsList)) return results;
+
+    for (const questionText of questionsList) {
+      const question = { text: questionText, critical: false };
       const answer = await this.askQuestion(question, mcResults);
       results.questions.push({ question: question.text, answer, score: answer.score });
       
@@ -320,7 +331,9 @@ class HeadyBattleInterrogator {
     }
     
     // Normalize score
-    results.score = results.score / category.questions.length;
+    if (questionsList.length > 0) {
+      results.score = results.score / questionsList.length;
+    }
     
     return results;
   }

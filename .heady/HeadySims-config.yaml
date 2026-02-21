@@ -1,0 +1,23 @@
+monte_carlo:
+  algorithm: ucb1
+  exploration_factor: 2.0
+  simulation_runs: 1000
+strategies:
+  - fast_serial
+  - fast_parallel
+  - balanced
+  - thorough
+  - cached_fast
+  - probe_then_commit
+  - monte_carlo_optimal
+evaluation:
+  metrics:
+    latency: 0.3
+    accuracy: 0.25
+    efficiency: 0.2
+    satisfaction: 0.15
+    quality: 0.1
+  thresholds:
+    promotion: 0.75
+    stagnation: 5
+    degradation: 0.6

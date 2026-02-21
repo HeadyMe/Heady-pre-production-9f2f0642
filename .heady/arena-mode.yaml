@@ -1,199 +1,21 @@
-# 🎮 Heady Arena Mode Configuration
-# Competitive pattern selection with HeadySims + HeadyBattle integration
-
-id: arena-mode
-name: HeadyArena
-version: 3.0.0
-type: optimizer
-owner: core
-
-enabled: true
-environment: staging
-simulation_frequency: continuous
-competitive_mode: true
-
-tournament_structure:
-  participants:
-    - fast_serial
-    - fast_parallel
-    - balanced
-    - thorough
-    - cached_fast
-    - probe_then_commit
-    - monte_carlo_optimal
-    - imagination_engine_proposed
-    
-  selection_method: monte_carlo_tournament
-  elimination_rounds: 3
-  final_candidates: 3
-
-competition_rules:
-  round_1:
-    description: "Initial screening"
-    participants: 8
-    advancement_criteria: "top 4 scores"
-    simulation_runs: 100
-    
-  round_2:
-    description: "Semi-finals"
-    participants: 4
-    advancement_criteria: "top 2 scores"
-    simulation_runs: 500
-    
-  round_3:
-    description: "Finals"
-    participants: 2
-    advancement_criteria: "winner selection"
-    simulation_runs: 1000
-
-evaluation_metrics:
-  performance:
-    latency: {weight: 0.25, target: "< 500ms"}
-    accuracy: {weight: 0.20, target: "> 98%"}
-    throughput: {weight: 0.15, target: "> 1000 req/s"}
-    
-  quality:
-    code_quality: {weight: 0.15, target: "> 95%"}
-    test_coverage: {weight: 0.10, target: "> 90%"}
-    maintainability: {weight: 0.05, target: "> 85%"}
-    
-  user_experience:
-    satisfaction: {weight: 0.05, target: "> 4.5/5.0"}
-    accessibility: {weight: 0.03, target: "100% compliant"}
-    usability: {weight: 0.02, target: "> 4.0/5.0"}
-
-HeadyBattle_integration:
-  interrogation_points:
-    - before_tournament: "Validate candidate strategies"
-    - between_rounds: "Interrogate performance patterns"
-    - final_selection: "Question promotion readiness"
-    
-  validation_criteria:
-    minimum_HeadyBattle_score: 0.80
-    critical_question_approval: true
-    ethical_validation_required: true
-
-monte_carlo_integration:
-  algorithm: ucb1_tournament
-  exploration_factor: 2.5
-  confidence_threshold: 0.85
-  
-  simulation_parameters:
-    runs_per_strategy: 1000
-    convergence_check: true
-    variance_analysis: true
-    pattern_detection: true
-
-promotion_criteria:
-  minimum_score: 0.75
-  HeadyBattle_approval: true
+arena:
+  enabled: true
+  environment: staging
+  simulation_frequency: continuous
+candidates:
+  generation_method: monte_carlo + imagination
+  max_candidates: 7
+  evaluation_metrics:
+    - latency
+    - accuracy
+    - resource_efficiency
+    - user_satisfaction
+    - code_quality
+promotion:
+  threshold: 0.75
+  HeadyBattle_validation_required: true
   monte_carlo_confidence: 0.85
-  no_stagnation_periods: 5
-  performance_improvement: 0.10
-  
-  auto_promotion:
-    conditions:
-      - score >= 0.90
-      - HeadyBattle_score >= 0.85
-      - monte_carlo_confidence >= 0.90
-      - consistent_performance >= 3_runs
-      
-  human_review_required:
-    conditions:
-      - score between 0.75-0.89
-      - ethical_questions_raised
-      - system_wide_impact_detected
-
-monitoring_dashboard:
-  real_time_metrics:
-    - current_tournament_status
-    - strategy_performance_scores
-    - HeadyBattle_validation_results
-    - monte_carlo_confidence_levels
-    
-  historical_tracking:
-    - tournament_history
-    - strategy_success_rates
-    - promotion_patterns
-    - performance_trends
-    
-  alerts:
-    - stagnation_detection
-    - performance_degradation
-    - HeadyBattle_validation_failure
-    - monte_carlo_convergence_issues
-
-arena_workflow:
-  1. candidate_generation:
-     - monte_carlo_proposals
-     - imagination_engine_suggestions
-     - pattern_recognition_inputs
-     - historical_best_performers
-     
-  2. tournament_execution:
-     - round_1_screening
-     - round_2_semifinals
-     - round_3_finals
-     - continuous_simulation
-     
-  3. validation_phase:
-     - HeadyBattle_interrogation
-     - monte_carlo_confidence_check
-     - ethical_validation
-     - performance_verification
-     
-  4. promotion_decision:
-     - score_evaluation
-     - criteria_checking
-     - approval_process
-     - branch_merge_preparation
-
-learning_integration:
-  pattern_recognition:
-    - successful_strategy_patterns
-    - failure_mode_analysis
-    - optimization_opportunities
-    - convergence_improvements
-    
-  adaptation_rules:
-    - strategy_weight_adjustment
-    - metric_rebalancing
-    - question_refinement
-    - tournament_structure_optimization
-
-api:
-  base_path: /api/arena-mode
-  endpoints:
-    - GET /tournament/status
-    - POST /tournament/start
-    - GET /candidates
-    - POST /evaluate
-    - GET /results
-    - POST /promote
-    - GET /history
-
-environment_variables:
-  ARENA_MODE_ENABLED: true
-  TOURNAMENT_PARTICIPANTS: 8
-  SIMULATION_RUNS: 1000
-  PROMOTION_THRESHOLD: 0.75
-  SOCRATIC_VALIDATION: true
-  MONTE_CARLO_CONFIDENCE: 0.85
-
-branch_integration:
-  development_to_staging:
-    trigger: "push to development"
-    action: "start arena tournament"
-    validation: "HeadyBattle + monte carlo"
-    
-  staging_to_main:
-    trigger: "arena tournament completion"
-    action: "evaluate promotion criteria"
-    validation: "final HeadyBattle approval"
-
-success_criteria:
-  tournament_completion_rate: "100%"
-  promotion_accuracy: "> 95%"
-  performance_improvement: "> 10%"
-  HeadyBattle_validation_pass: "> 90%"
-  monte_carlo_confidence: "> 85%"
+monitoring:
+  real_time_metrics: true
+  performance_tracking: true
+  learning_integration: true

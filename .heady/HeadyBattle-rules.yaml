@@ -1,0 +1,21 @@
+HeadyBattle:
+  enabled: true
+  interrogation_depth: 3
+  validation_required: true
+questions:
+  purpose:
+    - "What is the primary goal?"
+    - "How does this serve the mission?"
+    - "What problem does this solve?"
+  consequences:
+    - "What could go wrong?"
+    - "Who might be affected?"
+    - "What are the trade-offs?"
+  optimization:
+    - "Is this the most elegant solution?"
+    - "Can this be simplified?"
+    - "What patterns does this establish?"
+validation:
+  minimum_score: 0.8
+  critical_questions: mandatory
+  human_review_threshold: 0.7

@@ -72,13 +72,114 @@ Write-Host "  [OK] Scripts created" -ForegroundColor Green
 # ─── public/index.html (fallback) ────────────────────────────────────
 @"
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Heady Systems</title></head>
-<body style="background:#0a0a0a;color:#fff;font-family:system-ui;display:flex;justify-content:center;align-items:center;height:100vh;margin:0">
-<div style="text-align:center">
-<h1>Heady Systems</h1>
-<p style="color:#666">Sacred Geometry :: Organic Systems :: Breathing Interfaces</p>
-<p><a href="/api/health" style="color:#4ade80">API Health</a></p>
-</div>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heady Systems - Sacred Geometry Framework</title>
+  <!-- Documentation: This fallback index serves the core Heady Systems entrypoint when the React frontend is unavailable -->
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    
+    .geometry-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100vmin;
+      height: 100vmin;
+      background: radial-gradient(circle, rgba(74, 222, 128, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: 0;
+      animation: pulse 8s ease-in-out infinite;
+    }
+
+    .seed-of-life {
+      position: absolute;
+      width: 60vmin;
+      height: 60vmin;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .container {
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      padding: 3rem;
+      background: rgba(10, 10, 10, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(74, 222, 128, 0.1);
+    }
+    
+    h1 {
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .tagline {
+      color: #888;
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .links {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+    }
+    
+    a {
+      color: #4ade80;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+    
+    a:hover {
+      background: rgba(74, 222, 128, 0.1);
+      box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+      50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="geometry-bg">
+    <div class="seed-of-life"></div>
+  </div>
+  <div class="container">
+    <h1>Heady Systems</h1>
+    <div class="tagline">Sacred Geometry :: Organic Systems</div>
+    <div class="links">
+      <a href="/api/health">API Health</a>
+      <a href="https://docs.heady.systems">Documentation</a>
+    </div>
+  </div>
 </body>
 </html>
+

@@ -85,7 +85,7 @@
       "description": "HeadyRegistry — Central service catalog and discovery",
       "provider": "headysystems",
       "transport": "http",
-      "url": "https://headyio.com/registry",
+      "url": "https://registry.headysystems.com",
       "apiKey": "${HEADY_API_KEY}",
       "priority": 140,
       "capabilities": {
@@ -117,8 +117,8 @@
       }
     },
     "heady-hcfp": {
-      "displayName": "HCFP Auto-Success",
-      "description": "HCFP Full Pipeline — 100% ORS auto-success engine",
+      "displayName": "Heady HCFP",
+      "description": "HeadyHCFP — 100% ORS auto-success engine",
       "provider": "headysystems",
       "transport": "http",
       "url": "https://hcfp.headysystems.com",
@@ -136,23 +136,17 @@
       }
     },
     "heady-buddy": {
-      "displayName": "Heady Buddy",
-      "description": "HeadyBuddy — User interaction and assistant layer",
+      "displayName": "HeadyBuddy v2.0",
+      "description": "HeadyBuddy — Ultimate Personal AI Assistant (NanoClaw + OpenClaw architecture). Multi-provider (Gemini 3.1 Pro, Claude Opus 4.6, Ollama), persistent memory, 6 skills, task scheduler, WebChat channel.",
       "provider": "headysystems",
       "transport": "http",
       "url": "https://headybuddy.org",
+      "localUrl": "https://buddy.headysystems.com",
       "apiKey": "${HEADY_API_KEY}",
       "priority": 110,
-      "capabilities": {
-        "userInteraction": true,
-        "contextSwitching": true,
-        "attentionTracking": true
-      },
-      "endpoints": {
-        "health": "/health",
-        "chat": "/api/buddy/chat",
-        "context": "/api/buddy/context"
-      }
+      "capabilities": { "multiProvider": true, "persistentMemory": true, "skills": true, "scheduler": true, "streaming": true, "webchat": true, "battle": true },
+      "providers": { "gemini": "gemini-3.1-pro-preview", "claude": "claude-opus-4-20250514", "ollama": "llama3.2" },
+      "endpoints": { "health": "/health", "chat": "/api/chat", "stream": "/api/chat/stream", "memory": "/api/memory", "skills": "/api/skills", "tasks": "/api/tasks", "providers": "/api/providers", "hcfp": "/api/hcfp/status" }
     },
     "heady-mcp-hub": {
       "displayName": "Heady MCP Hub",
@@ -176,7 +170,7 @@
 
     "heady-orchestrator": {
       "displayName": "Heady Orchestrator",
-      "description": "HeadyCommunicationOrchestrator — Trinity communication, wavelength alignment, auto-success protocols",
+      "description": "HeadyOrchestrator — Trinity communication, wavelength alignment, auto-success protocols",
       "provider": "headysystems",
       "transport": "http",
       "url": "https://orchestrator.headysystems.com",
@@ -302,7 +296,7 @@
         "generate": "/models/{model}:generateContent",
         "stream": "/models/{model}:streamGenerateContent",
         "embed": "/models/{model}:embedContent",
-        "adminUI": "http://localhost:8090/api/ai"
+        "adminUI": "https://admin.headysystems.com/api/ai"
       },
       "billing": {
         "credit": 300,
@@ -434,11 +428,11 @@
       "endpoints": { "health": "/health", "learn": "/api/vinci/learn", "predict": "/api/vinci/predict" }
     },
     "heady-python": {
-      "displayName": "Heady Python Academy",
+      "displayName": "Heady Python",
       "description": "HeadyPython — Python FastAPI worker for ML and data processing",
       "provider": "headysystems",
       "transport": "http",
-      "url": "https://academy.headysystems.com",
+      "url": "https://python.headysystems.com",
       "apiKey": "${HEADY_API_KEY}",
       "priority": 48,
       "capabilities": { "pythonExecution": true, "mlProcessing": true, "dataAnalysis": true },
@@ -447,7 +441,7 @@
 
     "heady-ollama": {
       "displayName": "Heady Ollama",
-      "description": "Heady Ollama — Local LLM inference engine (Llama, CodeLlama, Mistral)",
+      "description": "HeadyOllama — Local LLM inference engine (Llama, CodeLlama, Mistral)",
       "provider": "headysystems",
       "transport": "http",
       "url": "https://ollama.headysystems.com",
@@ -458,7 +452,7 @@
     },
     "heady-vector-db": {
       "displayName": "Heady Vector DB",
-      "description": "Heady Qdrant — Vector database for semantic search and RAG",
+      "description": "HeadyVectorDB — Vector database for semantic search and RAG",
       "provider": "headysystems",
       "transport": "http",
       "url": "https://vector.headysystems.com",
@@ -469,7 +463,7 @@
     },
     "heady-ai-gateway": {
       "displayName": "Heady AI Gateway",
-      "description": "Heady AI Gateway — Unified Nginx proxy routing to all AI model services",
+      "description": "HeadyAIGateway — Unified Nginx proxy routing to all AI model services",
       "provider": "headysystems",
       "transport": "http",
       "url": "https://ai-gateway.headysystems.com",
