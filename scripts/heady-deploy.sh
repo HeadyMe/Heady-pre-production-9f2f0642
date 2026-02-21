@@ -4,7 +4,7 @@
 # Syncs all canonical local repos to GitHub, triggers Render deploys,
 # and runs HeadyBattle multi-branch evaluation.
 # ═══════════════════════════════════════════════════════════════════
-set -euo pipefail
+set +e  # continue on errors — we handle them per-repo
 
 # ── Config ────────────────────────────────────────────────────────
 PAT_HEADYME="${GITHUB_TOKEN:-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}"
