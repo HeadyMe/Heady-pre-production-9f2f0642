@@ -1295,6 +1295,16 @@ try {
   console.warn(`  ⚠ HeadyBrain Core Routes not loaded: ${err.message}`);
 }
 
+// ─── Mount Notion sync routes ───────────────────────────────────────
+try {
+  const { registerNotionRoutes } = require("./src/services/heady-notion");
+  registerNotionRoutes(app);
+  console.log("  ∞ HeadyNotion Sync: LOADED");
+  console.log("    → Endpoints: /api/notion/sync, /health, /state");
+} catch (err) {
+  console.warn(`  ⚠ HeadyNotion routes not loaded: ${err.message}`);
+}
+
 // ─── Service Stub Routes for MCP Tools ──────────────────────────────
 // These ensure all heady_* MCP tools have working backend endpoints.
 // Each stub logs the request, records the connectivity pattern, and

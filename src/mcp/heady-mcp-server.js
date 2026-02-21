@@ -491,6 +491,16 @@ const HEADY_TOOLS = [
       required: ['message'],
     },
   },
+  {
+    name: 'heady_notion',
+    description: 'Sync Heady Knowledge Vault and notebooks to Notion. Manages 11 organized pages.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        action: { type: 'string', enum: ['sync', 'status', 'health'], default: 'sync', description: 'Notion action' },
+      },
+    },
+  },
 ];
 
 // ── List Tools ────────────────────────────────────────────────────────────────
@@ -875,6 +885,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           });
         return {
           content: [{ type: 'text', text: result.response || result.content || JSON.stringify(result, null, 2) }],
+        };
+      }
+
+      case 'heady_notion': {
+        const endpointMap = { sync: '/api/notion/sync', status: '/api/notion/state', health: '/api/notion/health' };
+        const endpoint = endpointMap[args.action] || '/api/notion/sync';
+        const result = (args.action === 'sync')
+          ? await headyPost(endpoint, { source: 'google-antigravity' })
+          : await headyGet(endpoint);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       }
 
