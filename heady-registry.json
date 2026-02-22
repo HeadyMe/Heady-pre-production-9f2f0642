@@ -1,0 +1,744 @@
+{
+  "registryVersion": "3.3.0",
+  "updatedAt": "2026-02-21T11:58:00.000Z",
+  "description": "HeadyRegistry — Central catalog and control point for the Heady ecosystem",
+  "last_deployment": "",
+  "ensembleDefaults": {
+    "reasoningMode": "ensemble",
+    "utilization": "full-spectrum",
+    "defaultReasoningEngine": "Heady Intelligence Layer",
+    "allowSingleModelOverrides": true,
+    "singleModelOverrideTriggers": [
+      "Claude only",
+      "Gemini only",
+      "Codex only",
+      "local only"
+    ],
+    "disallowPlaceholders": true,
+    "sourceOfTruth": "configs/heady-intelligence.yaml"
+  },
+  "components": [
+    {
+      "id": "heady-promoter",
+      "name": "Headypromoter",
+      "type": "orchestration",
+      "version": "4.0.0",
+      "sourceOfTruth": "src/hc/Headypromoter.js",
+      "responsibilities": [
+        "taskRouting",
+        "policyEnforcement",
+        "registryConsumption",
+        "systemOverview",
+        "resourceAllocation",
+        "parallelExecution",
+        "workerManagement",
+        "performanceOptimization"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "critical",
+      "dependencies": {
+        "upstream": [
+          "heady-manager",
+          "headyregistry",
+          "hc-brain",
+          "hcfullpipeline"
+        ],
+        "downstream": [
+          "headylens",
+          "mc-plan-scheduler",
+          "hc-supervisor",
+          "pattern-engine",
+          "self-critique-engine"
+        ]
+      },
+      "apis": [
+        "/api/promoter/route-task",
+        "/api/promoter/status",
+        "/api/promoter/workers",
+        "/api/promoter/metrics"
+      ]
+    },
+    {
+      "id": "heady-manager",
+      "name": "HeadyManager",
+      "type": "api-gateway",
+      "version": "3.3.0",
+      "sourceOfTruth": "src/heady-manager.js",
+      "responsibilities": [
+        "apiGateway",
+        "requestRouting",
+        "authentication",
+        "rateLimiting"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "critical"
+    },
+    {
+      "id": "headylens",
+      "name": "HeadyLens",
+      "type": "monitoring",
+      "version": "3.3.0",
+      "sourceOfTruth": "src/monitoring/health-monitor.js",
+      "responsibilities": [
+        "realTimeMonitoring",
+        "systemOverview",
+        "promoterComparison",
+        "metricsCollection",
+        "alerting",
+        "orsTracking"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "high"
+    },
+    {
+      "id": "mc-plan-scheduler",
+      "name": "HeadySimsPlScheduler",
+      "type": "optimizer",
+      "version": "4.0.0",
+      "sourceOfTruth": "src/hcmontecarlo.js",
+      "responsibilities": [
+        "ucb1PlanSelection",
+        "latencyEstimation",
+        "driftDetection",
+        "speedPriorityModes",
+        "adaptiveQuality",
+        "ultraFastTaskDecomposition",
+        "parallelSubtaskExecution",
+        "branchOrchestration",
+        "stagingMergeFlow",
+        "HeadyBattleMode"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "high"
+    },
+    {
+      "id": "hc-supervisor",
+      "name": "HeadySupervisor",
+      "type": "supervisor",
+      "version": "3.3.0",
+      "sourceOfTruth": "src/hcsupervisor.js",
+      "responsibilities": [
+        "agentSupervision",
+        "taskDistribution",
+        "resourceMonitoring",
+        "failureRecovery"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "high"
+    },
+    {
+      "id": "hc-brain",
+      "name": "HCBrain",
+      "type": "intelligence",
+      "version": "3.3.0",
+      "sourceOfTruth": "src/hcbrain.js",
+      "responsibilities": [
+        "metaControl",
+        "readinessEval",
+        "conceptAlignment",
+        "autoTuning",
+        "governance"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "critical"
+    },
+    {
+      "id": "heady-coder",
+      "name": "HeadyCoder",
+      "type": "coding-orchestrator",
+      "version": "2.0.0",
+      "sourceOfTruth": "configs/heady-coder.yaml",
+      "responsibilities": [
+        "ensembleCodingOrchestration",
+        "multiNodeRouting",
+        "antiTemplatePolicyEnforcement",
+        "headyBattleIntegration",
+        "costOptimization"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "critical",
+      "dependencies": {
+        "upstream": [
+          "heady-manager",
+          "hc-brain",
+          "mc-plan-scheduler"
+        ],
+        "downstream": [
+          "heady-claude",
+          "heady-codex",
+          "heady-gemini",
+          "heady-perplexity",
+          "heady-copilot",
+          "heady-jules",
+          "heady-grok"
+        ]
+      }
+    },
+    {
+      "id": "heady-maintenance",
+      "name": "HeadyMaintenance",
+      "type": "governance",
+      "version": "1.0.0",
+      "sourceOfTruth": "configs/file-governance.yaml",
+      "responsibilities": [
+        "fileGovernance",
+        "rootCleanup",
+        "directoryContracts",
+        "preCommitEnforcement",
+        "autoClassification",
+        "configSync"
+      ],
+      "ownership": "core",
+      "status": "active",
+      "criticality": "high",
+      "enforcement": {
+        "preCommitHook": "scripts/hooks/check-file-placement.sh",
+        "ciJob": ".github/workflows/heady-ci.yml#file-governance"
+      }
+    }
+  ],
+  "aiNodes": [
+    {
+      "id": "heady-claude",
+      "name": "HeadyClaude",
+      "category": "ai-node",
+      "role": "primary-architect",
+      "description": "Deep reasoning + architecture specialist",
+      "layer": "intelligence",
+      "owner": "core",
+      "status": "active",
+      "criticality": "critical",
+      "defaultModel": {
+        "provider": "anthropic",
+        "model": "claude-opus-4.6",
+        "contextWindowTokens": 1000000,
+        "maxOutputTokens": 128000,
+        "thinking": "adaptive",
+        "effort": "high"
+      },
+      "capabilities": [
+        "architecture-design",
+        "complex-debugging",
+        "self-critique",
+        "policy-reasoning",
+        "long-context-analysis",
+        "code-review"
+      ],
+      "preferredTasks": [
+        "system-architecture",
+        "error-analysis",
+        "governance-logic",
+        "debugging"
+      ],
+      "fallbackPolicy": {
+        "maxAttempts": 2,
+        "fallbackNodes": [
+          "heady-gemini",
+          "heady-codex"
+        ],
+        "onFailure": [
+          "escalate-to-ensemble",
+          "trigger-headybattle"
+        ]
+      },
+      "routingHints": {
+        "latencyClass": "medium",
+        "costClass": "high",
+        "qualityClass": "very-high"
+      },
+      "slo": {
+        "targetSuccessRate": 0.97,
+        "maxLatencyMsP50": 1500,
+        "maxLatencyMsP95": 3000
+      },
+      "pricing": {
+        "inputPerMTok": 5.00,
+        "outputPerMTok": 25.00
+      }
+    },
+    {
+      "id": "heady-codex",
+      "name": "HeadyCodex",
+      "category": "ai-node",
+      "role": "primary-executor",
+      "description": "Agentic coding engine — multi-file refactors, terminal, security",
+      "layer": "intelligence",
+      "owner": "core",
+      "status": "active",
+      "criticality": "critical",
+      "defaultModel": {
+        "provider": "openai",
+        "model": "gpt-5.3-codex",
+        "contextWindowTokens": 400000,
+        "effort": "xhigh-fast",
+        "interactiveSteering": true,
+        "cybersecurityRating": "High"
+      },
+      "capabilities": [
+        "agentic-coding",
+        "multi-file-refactors",
+        "terminal-execution",
+        "migrations",
+        "security-scans",
+        "test-generation"
+      ],
+      "preferredTasks": [
+        "code-generation",
+        "refactoring",
+        "migration",
+        "security-audit",
+        "test-writing"
+      ],
+      "fallbackPolicy": {
+        "maxAttempts": 2,
+        "fallbackNodes": [
+          "heady-claude",
+          "heady-gemini"
+        ],
+        "onFailure": [
+          "escalate-to-ensemble",
+          "trigger-headybattle"
+        ]
+      },
+      "routingHints": {
+        "latencyClass": "medium",
+        "costClass": "high",
+        "qualityClass": "very-high"
+      },
+      "slo": {
+        "targetSuccessRate": 0.97,
+        "maxLatencyMsP50": 1200,
+        "maxLatencyMsP95": 2500
+      },
+      "pricing": {
+        "inputPerMTok": 2.00,
+        "outputPerMTok": 14.00
+      }
+    },
+    {
+      "id": "heady-gemini",
+      "name": "HeadyGemini",
+      "category": "ai-node",
+      "role": "logic-specialist",
+      "description": "Advanced reasoning, multimodal, creative/visual coding",
+      "layer": "intelligence",
+      "owner": "core",
+      "status": "active",
+      "criticality": "high",
+      "defaultModel": {
+        "provider": "google",
+        "model": "gemini-3.1-pro",
+        "contextWindowTokens": 1000000,
+        "effort": "high"
+      },
+      "capabilities": [
+        "advanced-reasoning",
+        "multimodal",
+        "code-generation",
+        "svg-animation",
+        "creative-coding",
+        "vision",
+        "pure-logic-benchmarks"
+      ],
+      "preferredTasks": [
+        "frontend-ui",
+        "visual-coding",
+        "logic-problems",
+        "multimodal-analysis"
+      ],
+      "fallbackPolicy": {
+        "maxAttempts": 2,
+        "fallbackNodes": [
+          "heady-claude",
+          "heady-codex"
+        ],
+        "onFailure": [
+          "escalate-to-ensemble"
+        ]
+      },
+      "routingHints": {
+        "latencyClass": "medium",
+        "costClass": "medium",
+        "qualityClass": "very-high"
+      },
+      "slo": {
+        "targetSuccessRate": 0.97,
+        "maxLatencyMsP50": 1500,
+        "maxLatencyMsP95": 3000
+      },
+      "pricing": {
+        "inputPerMTok": 2.00,
+        "outputPerMTok": 12.00
+      },
+      "googleCloud": {
+        "vertexAI": true,
+        "aiStudioFreeTier": true,
+        "trialCreditBudget": 120.00
+      }
+    },
+    {
+      "id": "heady-perplexity",
+      "name": "HeadyPerplexity",
+      "category": "ai-node",
+      "role": "research-specialist",
+      "description": "Grounded web research, documentation, API discovery",
+      "layer": "intelligence",
+      "owner": "core",
+      "status": "active",
+      "criticality": "high",
+      "defaultModel": {
+        "provider": "perplexity",
+        "model": "sonar-pro",
+        "contextWindowTokens": 200000
+      },
+      "capabilities": [
+        "real-time-web-research",
+        "documentation-search",
+        "api-discovery",
+        "fact-checking",
+        "trend-analysis"
+      ],
+      "preferredTasks": [
+        "research",
+        "documentation",
+        "api-lookup",
+        "competitive-analysis"
+      ],
+      "fallbackPolicy": {
+        "maxAttempts": 2,
+        "fallbackNodes": [
+          "heady-gemini"
+        ],
+        "onFailure": [
+          "switch-to-local-rag"
+        ]
+      },
+      "routingHints": {
+        "latencyClass": "medium",
+        "costClass": "medium",
+        "qualityClass": "high"
+      },
+      "slo": {
+        "targetSuccessRate": 0.95,
+        "maxLatencyMsP50": 2000,
+        "maxLatencyMsP95": 5000
+      },
+      "pricing": {
+        "inputPerMTok": 3.00,
+        "outputPerMTok": 15.00
+      }
+    },
+    {
+      "id": "heady-copilot",
+      "name": "HeadyCopilot",
+      "category": "ai-node",
+      "role": "ide-completion",
+      "description": "Inline code completion + PR review via GitHub Copilot",
+      "layer": "intelligence",
+      "owner": "core",
+      "status": "active",
+      "criticality": "high",
+      "defaultModel": {
+        "provider": "github",
+        "backend": "Opus 4.6 via Copilot"
+      },
+      "capabilities": [
+        "inline-completions",
+        "pr-review",
+        "ide-integration",
+        "speed",
+        "local-context"
+      ],
+      "preferredTasks": [
+        "code-completion",
+        "inline-suggestions"
+      ],
+      "fallbackPolicy": {
+        "maxAttempts": 1,
+        "fallbackNodes": [
+          "heady-claude"
+        ]
+      },
+      "routingHints": {
+        "latencyClass": "low",
+        "costClass": "low",
+        "qualityClass": "high"
+      },
+      "pricing": {
+        "type": "subscription"
+      }
+    },
+    {
+      "id": "heady-jules",
+      "name": "HeadyJules",
+      "category": "ai-node",
+      "role": "orchestrator",
+      "description": "Task decomposition, parallel work distribution, conflict resolution",
+      "layer": "intelligence",
+      "owner": "core",
+      "status": "active",
+      "criticality": "critical",
+      "capabilities": [
+        "task-decomposition",
+        "parallel-distribution",
+        "conflict-resolution",
+        "workflow-selection",
+        "policy-aware-routing"
+      ],
+      "preferredTasks": [
+        "workflow-automation",
+        "task-breakdown",
+        "multi-step-orchestration"
+      ],
+      "fallbackPolicy": {
+        "maxAttempts": 2,
+        "fallbackNodes": [
+          "hc-brain"
+        ]
+      },
+      "routingHints": {
+        "latencyClass": "low",
+        "costClass": "low",
+        "qualityClass": "high"
+      }
+    },
+    {
+      "id": "heady-grok",
+      "name": "HeadyGrok",
+      "category": "ai-node",
+      "role": "adversarial-validator",
+      "description": "Adversarial testing, edge-case discovery, red team thinking",
+      "layer": "intelligence",
+      "owner": "core",
+      "status": "active",
+      "criticality": "high",
+      "defaultModel": {
+        "provider": "xai",
+        "model": "grok-4",
+        "contextWindowTokens": 256000
+      },
+      "capabilities": [
+        "adversarial-testing",
+        "edge-case-discovery",
+        "attack-surface-analysis",
+        "red-team-thinking",
+        "real-time-data"
+      ],
+      "preferredTasks": [
+        "security-review",
+        "adversarial-validation",
+        "competition"
+      ],
+      "fallbackPolicy": {
+        "maxAttempts": 2,
+        "fallbackNodes": [
+          "heady-claude"
+        ]
+      },
+      "routingHints": {
+        "latencyClass": "medium",
+        "costClass": "high",
+        "qualityClass": "very-high"
+      },
+      "slo": {
+        "targetSuccessRate": 0.95,
+        "maxLatencyMsP50": 2000,
+        "maxLatencyMsP95": 4000
+      },
+      "pricing": {
+        "inputPerMTok": 3.00,
+        "outputPerMTok": 15.00
+      }
+    }
+  ],
+  "repos": [
+    {
+      "id": "heady-sys",
+      "name": "HeadySystems/Heady",
+      "url": "git@github.com:HeadySystems/Heady.git",
+      "role": "primary",
+      "promotionTargets": [],
+      "branchPolicy": {
+        "main": "protected-prod",
+        "release/*": "frozen"
+      }
+    },
+    {
+      "id": "heady-me",
+      "name": "HeadyMe/Heady",
+      "url": "git@github.com:HeadyMe/Heady.git",
+      "role": "personal-cloud",
+      "promotionTargets": [
+        "heady-sys",
+        "heady-conn"
+      ],
+      "branchPolicy": {
+        "main": "protected-prod",
+        "personal/*": "local-only"
+      }
+    },
+    {
+      "id": "heady-conn",
+      "name": "HeadyConnection/Heady",
+      "url": "https://github.com/HeadySystems/HeadyConnection.git",
+      "role": "cross-system-bridge",
+      "promotionTargets": [
+        "heady-sys",
+        "heady-me"
+      ],
+      "branchPolicy": {
+        "main": "protected-prod",
+        "tenant/*": "env-specific"
+      }
+    },
+    {
+      "id": "sandbox",
+      "name": "HeadySystems/sandbox",
+      "url": "git@github.com:HeadySystems/sandbox.git",
+      "role": "experimental",
+      "promotionTargets": [
+        "heady-sys",
+        "heady-me",
+        "heady-conn"
+      ],
+      "branchPolicy": {
+        "main": "dev",
+        "exp/*": "short-lived"
+      }
+    }
+  ],
+  "workflows": [
+    {
+      "id": "task-routing",
+      "name": "Task Routing",
+      "owner": "Headypromoter",
+      "inputs": [
+        "events",
+        "registry",
+        "tasks"
+      ],
+      "outputs": [
+        "routed-tasks",
+        "metrics"
+      ],
+      "dependencies": [
+        "heady-manager",
+        "headylens",
+        "headyregistry",
+        "hc-brain",
+        "hc-supervisor",
+        "mc-plan-scheduler",
+        "hcfullpipeline"
+      ],
+      "status": "active",
+      "sourceOfTruth": "src/hc/Headypromoter.js"
+    },
+    {
+      "id": "heady-battle-mode",
+      "name": "HeadyBattle Mode",
+      "owner": "HeadyCoder",
+      "inputs": [
+        "tasks",
+        "repos",
+        "ai-nodes"
+      ],
+      "outputs": [
+        "branches",
+        "stagingBranches",
+        "squashMerges",
+        "battleScores"
+      ],
+      "dependencies": [
+        "mc-plan-scheduler",
+        "pattern-engine",
+        "self-critique-engine",
+        "headylens",
+        "heady-claude",
+        "heady-codex",
+        "heady-gemini",
+        "heady-grok"
+      ],
+      "status": "active",
+      "sourceOfTruth": "configs/heady-battle.yaml"
+    },
+    {
+      "id": "health-monitoring",
+      "name": "Health Monitoring",
+      "owner": "HeadyLens",
+      "inputs": [
+        "system-metrics",
+        "health-checks"
+      ],
+      "outputs": [
+        "alerts",
+        "ors-score",
+        "system-status"
+      ],
+      "dependencies": [
+        "heady-promoter",
+        "heady-manager",
+        "hc-brain"
+      ],
+      "status": "active",
+      "sourceOfTruth": "src/monitoring/health-monitor.js"
+    },
+    {
+      "id": "ensemble-routing",
+      "name": "Ensemble Intelligence Routing",
+      "owner": "HeadyCoder",
+      "inputs": [
+        "coding-tasks",
+        "research-tasks",
+        "analysis-tasks"
+      ],
+      "outputs": [
+        "ensemble-results",
+        "battle-scores",
+        "cost-metrics"
+      ],
+      "dependencies": [
+        "heady-claude",
+        "heady-codex",
+        "heady-gemini",
+        "heady-perplexity",
+        "heady-jules",
+        "heady-grok"
+      ],
+      "status": "active",
+      "sourceOfTruth": "configs/heady-coder.yaml"
+    }
+  ],
+  "patterns": [
+    {
+      "id": "multi-sot-protocol",
+      "name": "Multi Source-of-Truth Protocol",
+      "type": "operational",
+      "description": "Sandbox as change origin, controlled promotion to Systems/Me/Connection sources of truth with registry-driven sync and hard gates.",
+      "sourceOfTruth": "docs/ITERATIVE_REBUILD_PROTOCOL.md",
+      "status": "active"
+    },
+    {
+      "id": "ensemble-first",
+      "name": "Ensemble-First Intelligence",
+      "type": "architectural",
+      "description": "Default reasoning engine is the Heady aggregate, not any single vendor model. Full-spectrum utilization unless explicitly overridden.",
+      "sourceOfTruth": "configs/heady-intelligence.yaml",
+      "status": "active"
+    },
+    {
+      "id": "anti-template-policy",
+      "name": "Anti-Template Output Policy",
+      "type": "governance",
+      "description": "Heady systems never return generic boilerplate or template fallbacks. Violations trigger re-routing, RAG, and HeadyBattle escalation.",
+      "sourceOfTruth": "configs/heady-intelligence.yaml",
+      "status": "active"
+    }
+  ]
+}

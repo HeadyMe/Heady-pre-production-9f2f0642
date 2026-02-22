@@ -1,247 +1,468 @@
-# HeadyCoder Configuration
-# Ultimate Coding Assistant with Multi-Tool Integration
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  HeadyCoder v2.0 — Full Ensemble           ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: heady-coder.yaml                                         ║
+# ║  UPDATED: 20260221-045100                                       ║
+# ╚══════════════════════════════════════════════════════════════════╝
 
-version: 1.0.0
-description: HeadyCoder - Multi-assistant coding orchestration
+# HeadyCoder v2.0 — Multi-Agent Coding Intelligence Architecture
+# ═══════════════════════════════════════════════════════════════
+# HeadyCoder is NOT a single model. It is the coding façade over
+# the FULL Heady Intelligence Layer. The default reasoning engine
+# is "Heady" itself — the multi-node ensemble — not Claude, not
+# Gemini, not Codex alone.
+#
+# Every request enters the Intelligence Core (HeadyManager →
+# HeadyConductor → HCFullPipeline), which fans out across ALL
+# connected nodes and backends simultaneously.
 
-# Core Configuration
+version: 2.0.0
+description: "HeadyCoder — Ensemble-first coding orchestrator over the full Heady Intelligence Layer"
+
+# ═══════════════════════════════════════════
+# CORE PRINCIPLE: 100% SERVICE UTILIZATION
+# ═══════════════════════════════════════════
 core:
-  mode: "enhanced"
-  quality_target: 0.95
+  reasoning_mode: "ensemble"          # NEVER single-model by default
+  utilization: "full-spectrum"        # ALL services active unless overridden
+  allow_single_model_override: true   # User CAN say "Claude only" etc.
+  single_model_override_triggers:
+    - "Claude only"
+    - "Gemini only"
+    - "Codex only"
+    - "local only"
+    - "local models only"
+  quality_target: 0.97
   auto_refactoring: true
-  multi_assistant_orchestration: true
-  integration_depth: "maximum"
+  auto_escalate_to_battle: true       # Complex tasks → HeadyBattle automatically
+  battle_complexity_threshold: 7.5    # Tasks scoring ≥7.5 trigger HeadyBattle
 
-# Assistant Integration
-assistants:
-  claude_code:
+  # Hard contract: every agent + service must obey these
+  guarantees:
+    - "Never return vendor-flavored boilerplate or template fallbacks"
+    - "Always attempt real, executable code grounded in the active repo and docs"
+    - "Use RAG, pattern engine, and HeadyBattle when tasks are ambiguous or complex"
+    - "Decompose large tasks via HeadyMC and route through HeadyBattle when thresholds are met"
+    - "Surface trade-offs and uncertainties explicitly instead of hiding behind generic disclaimers"
+    - "Full-spectrum orchestration by default — all relevant tools, nodes, and models active"
+
+# ═══════════════════════════════════════════
+# NODE ARCHITECTURE (Per-Node Defaults)
+# ═══════════════════════════════════════════
+# These are implementation details INSIDE the ensemble,
+# not global defaults that bypass other nodes.
+nodes:
+  heady_claude:
+    id: "heady-claude"
     enabled: true
-    model: "claude-opus-4.6"
-    context_window: 200000
-    thinking_mode: "fast"
-    artifact_support: true
-    code_generation: "optimized"
+    default_model: "claude-opus-4.6"
+    thinking:
+      type: "adaptive"
+      effort: "high"                  # high for normal, max for HeadyBattle/security
+    context_window: 1000000           # 1M token beta
+    max_output_tokens: 128000
+    role: "primary-architect"
     strengths:
-      - "complex_reasoning"
       - "architecture_design"
-      - "debugging"
+      - "complex_debugging"
+      - "self_critique"
+      - "policy_reasoning"
+      - "long_context_analysis"
       - "code_review"
-      - "fast_thinking"
-    
-  jules:
+    preferred_tasks:
+      - "system_architecture"
+      - "error_analysis"
+      - "governance_logic"
+      - "debugging"
+    fallback_nodes: ["heady-gemini", "heady-codex"]
+    slo:
+      target_success_rate: 0.97
+      max_latency_ms_p50: 1500
+      max_latency_ms_p95: 3000
+    pricing:
+      input_per_mtok: 5.00            # $10 >200K
+      output_per_mtok: 25.00          # $37.50 >200K
+
+  heady_codex:
+    id: "heady-codex"
     enabled: true
-    workflow_orchestration: true
-    automation_depth: "maximum"
-    task_decomposition: true
-    integration_level: "complete"
+    default_model: "gpt-5.3-codex"
+    effort: "xhigh"
+    mode: "fast"
+    context_window: 400000
+    interactive_steering: true
+    cybersecurity_rating: "High"
+    role: "primary-executor"
     strengths:
-      - "workflow_automation"
-      - "task_breakdown"
-      - "process_optimization"
-      - "continuous_integration"
-    
-  copilot:
+      - "agentic_coding"
+      - "multi_file_refactors"
+      - "terminal_execution"
+      - "migrations"
+      - "security_scans"
+      - "test_generation"
+    preferred_tasks:
+      - "code_generation"
+      - "refactoring"
+      - "migration"
+      - "security_audit"
+      - "test_writing"
+    fallback_nodes: ["heady-claude", "heady-gemini"]
+    slo:
+      target_success_rate: 0.97
+      max_latency_ms_p50: 1200
+      max_latency_ms_p95: 2500
+    pricing:
+      input_per_mtok: 2.00
+      output_per_mtok: 14.00
+
+  heady_gemini:
+    id: "heady-gemini"
     enabled: true
-    suggestion_quality: "maximum"
-    context_awareness: "enhanced"
-    learning_mode: "continuous"
-    intellisense: true
-    strengths:
-      - "code_completion"
-      - "inline_suggestions"
-      - "contextual_help"
-      - "pattern_recognition"
-  
-  perplexity:
-    enabled: true
-    model: "sonar-pro"
-    research_depth: "maximum"
-    real_time_research: true
-    fact_checking: true
-    trend_analysis: true
-    strengths:
-      - "real_time_research"
-      - "knowledge_discovery"
-      - "fact_checking"
-      - "technical_documentation"
-      - "market_research"
-  
-  openai:
-    enabled: true
-    model: "gpt-4-turbo"
-    context_window: 128000
-    function_calling: true
-    code_interpreter: true
-    advanced_reasoning: true
+    default_model: "gemini-3.1-pro"
+    effort: "high"
+    context_window: 1000000           # 1M+ token context
+    role: "logic-specialist"
     strengths:
       - "advanced_reasoning"
-      - "function_calling"
-      - "code_interpretation"
-      - "complex_problem_solving"
-      - "mathematical_analysis"
-  
-  gemini:
-    enabled: true
-    model: "gemini-3.1-pro"
-    multimodal: true
-    vision_capabilities: true
-    code_generation: "optimized"
-    reasoning_depth: "maximum"
-    strengths:
-      - "multimodal_processing"
-      - "vision_analysis"
+      - "multimodal"
       - "code_generation"
-      - "reasoning_depth"
-      - "cross_modal_understanding"
-      - "advanced_pro_capabilities"
-  
-  groq:
+      - "svg_animation"
+      - "creative_coding"
+      - "vision"
+      - "pure_logic_benchmarks"
+    preferred_tasks:
+      - "frontend_ui"
+      - "visual_coding"
+      - "logic_problems"
+      - "multimodal_analysis"
+    fallback_nodes: ["heady-claude", "heady-codex"]
+    google_cloud:
+      vertex_ai: true
+      ai_studio_free_tier: true       # 15 RPM free for dev
+      trial_credit_budget: 120.00     # $120 of $300 allocated
+    slo:
+      target_success_rate: 0.97
+      max_latency_ms_p50: 1500
+      max_latency_ms_p95: 3000
+    pricing:
+      input_per_mtok: 2.00            # $4 >200K
+      output_per_mtok: 12.00          # $18 >200K
+
+  heady_perplexity:
+    id: "heady-perplexity"
     enabled: true
-    model: "mixtral-8x7b-32768"
-    inference_speed: "maximum"
-    low_latency: true
-    batch_processing: true
-    real_time_inference: true
+    default_model: "sonar-pro"
+    deep_research_model: "sonar-deep-research"
+    context_window: 200000
+    role: "research-specialist"
     strengths:
-      - "high_speed_inference"
-      - "low_latency_response"
-      - "batch_processing"
-      - "real_time_applications"
-      - "performance_optimized"
-  
-  codex:
+      - "real_time_web_research"
+      - "documentation_search"
+      - "api_discovery"
+      - "fact_checking"
+      - "trend_analysis"
+    preferred_tasks:
+      - "research"
+      - "documentation"
+      - "api_lookup"
+      - "competitive_analysis"
+    fallback_nodes: ["heady-gemini", "local-rag"]
+    slo:
+      target_success_rate: 0.95
+      max_latency_ms_p50: 2000
+      max_latency_ms_p95: 5000
+    pricing:
+      input_per_mtok: 3.00
+      output_per_mtok: 15.00
+
+  heady_copilot:
+    id: "heady-copilot"
     enabled: true
-    model: "gpt-codex-5.3"
-    code_generation: "optimized"
-    completion_quality: "maximum"
-    context_awareness: "enhanced"
-    multi_language_support: true
+    backend: "Opus 4.6 via GitHub Copilot"
+    role: "ide-completion"
     strengths:
+      - "inline_completions"
+      - "pr_review"
+      - "ide_integration"
+      - "speed"
+      - "local_context"
+    preferred_tasks:
       - "code_completion"
-      - "code_generation"
-      - "multi_language_support"
-      - "context_aware_completion"
-      - "advanced_code_synthesis"
+      - "inline_suggestions"
+    fallback_nodes: ["heady-claude"]
+    pricing:
+      type: "subscription"
 
-# Orchestration Strategy
-orchestration:
-  mode: "intelligent_routing"
-  selection_criteria:
-    - task_complexity
-    - code_language
-    - project_type
-    - user_preference
-    - performance_history
-  
-  routing_rules:
-    - condition: "complex_architecture"
-      primary_assistant: "claude_code"
-      secondary_assistant: "openai"
-      
-    - condition: "workflow_automation"
-      primary_assistant: "jules"
-      secondary_assistant: "copilot"
-      
-    - condition: "code_completion"
-      primary_assistant: "codex"
-      secondary_assistant: "copilot"
-      
-    - condition: "debugging"
-      primary_assistant: "claude_code"
-      secondary_assistant: "openai"
-      
-    - condition: "real_time_research"
-      primary_assistant: "perplexity"
-      secondary_assistant: "claude_code"
-      
-    - condition: "technical_documentation"
-      primary_assistant: "perplexity"
-      secondary_assistant: "gemini"
-      
-    - condition: "multimodal_analysis"
-      primary_assistant: "gemini"
-      secondary_assistant: "claude_code"
-      
-    - condition: "high_performance_inference"
-      primary_assistant: "groq"
-      secondary_assistant: "openai"
-      
-    - condition: "mathematical_analysis"
-      primary_assistant: "openai"
-      secondary_assistant: "claude_code"
-      
-    - condition: "vision_processing"
-      primary_assistant: "gemini"
-      secondary_assistant: "perplexity"
-      
-    - condition: "market_research"
-      primary_assistant: "perplexity"
-      secondary_assistant: "openai"
-      
-    - condition: "function_calling"
-      primary_assistant: "openai"
-      secondary_assistant: "claude_code"
-      
-    - condition: "advanced_code_synthesis"
-      primary_assistant: "codex"
-      secondary_assistant: "claude_code"
-      
-    - condition: "multi_language_development"
-      primary_assistant: "codex"
-      secondary_assistant: "openai"
+  heady_jules:
+    id: "heady-jules"
+    enabled: true
+    role: "orchestrator"
+    strengths:
+      - "task_decomposition"
+      - "parallel_distribution"
+      - "conflict_resolution"
+      - "workflow_selection"
+      - "policy_aware_routing"
+    preferred_tasks:
+      - "workflow_automation"
+      - "task_breakdown"
+      - "multi_step_orchestration"
+    fallback_nodes: ["hc-brain"]
 
-# Code Quality Management
-quality:
-  standards:
-    - "eslint"
-    - "prettier"
-    - "sonarqube"
-    - "security_scan"
-    - "performance_analysis"
-    
-  auto_fix: true
-  review_required: true
-  test_coverage_target: 85
-  
-# Integration Points
+  heady_grok:
+    id: "heady-grok"
+    enabled: true
+    default_model: "grok-4"
+    context_window: 256000
+    role: "adversarial-validator"
+    strengths:
+      - "adversarial_testing"
+      - "edge_case_discovery"
+      - "attack_surface_analysis"
+      - "red_team_thinking"
+      - "real_time_data"
+    preferred_tasks:
+      - "security_review"
+      - "adversarial_validation"
+      - "competition"
+    fallback_nodes: ["heady-claude"]
+    pricing:
+      input_per_mtok: 3.00
+      output_per_mtok: 15.00
+
+# ═══════════════════════════════════════════
+# ROUTING LOGIC (HeadyJules Decision Matrix)
+# ═══════════════════════════════════════════
+routing:
+  # ALL nodes are active by default. This defines PRIMARY responsibility.
+  rules:
+    - task_type: ["new_architecture", "system_design"]
+      primary: "heady-claude"
+      effort_override: "high"
+      validators: ["heady-gemini"]
+      researchers: ["heady-perplexity"]
+
+    - task_type: ["code_generation", "refactor", "migration"]
+      primary: "heady-codex"
+      effort_override: "xhigh-fast"
+      reviewers: ["heady-claude"]
+      testers: ["heady-codex"]
+
+    - task_type: ["debugging", "error_analysis"]
+      primary: "heady-claude"
+      effort_override: "max"
+      executors: ["heady-codex"]
+      context: ["heady-perplexity"]
+
+    - task_type: ["security_audit", "penetration_test"]
+      primary: "heady-codex"
+      secondary: ["heady-claude"]
+      adversarial: ["heady-grok"]
+
+    - task_type: ["frontend", "ui", "visual"]
+      primary: "heady-gemini"
+      structure: ["heady-codex"]
+      review: ["heady-claude"]
+
+    - task_type: ["research", "documentation"]
+      primary: "heady-perplexity"
+      synthesis: ["heady-claude"]
+      validation: ["heady-gemini"]
+
+    - task_type: ["battle", "competition"]
+      mode: "HeadyBattle"
+      all_nodes: true
+      effort: "max"
+
+  # Cost-aware routing (never compromise quality for cost)
+  cost_optimization:
+    trivial_tasks:
+      use: "gemini-2.5-flash"         # $0.30/$2.50 per MTok
+      skip_extended_thinking: true
+    standard_tasks:
+      use: "full_stack"
+      effort: "medium"
+      estimated_cost: "$0.05-0.15"
+    critical_tasks:
+      use: "full_stack"
+      effort: "max"
+      estimated_cost: "$0.50-2.00"
+
+# ═══════════════════════════════════════════
+# ANTI-TEMPLATE POLICY (HARD RULE)
+# ═══════════════════════════════════════════
+output_policies:
+  disallow_placeholders: true
+  placeholder_patterns:
+    - "As an AI language model"
+    - "I am unable to"
+    - "I cannot browse the internet"
+    - "this is just an example"
+    - "replace this with"
+    - "lorem ipsum"
+    - "template response"
+    - "boilerplate"
+    - "I don't have access to"
+    - "I'm sorry, but"
+    - "placeholder"
+  on_placeholder_detected:
+    - action: "reject_output"
+    - action: "reroute_ensemble"
+    - action: "force_rag_real_context"
+    - action: "escalate_to_headybattle_if_large"
+    - action: "log_error"
+
+# ═══════════════════════════════════════════
+# GRACEFUL FALLBACK POLICY (Non-Template)
+# ═══════════════════════════════════════════
+fallbacks:
+  max_attempts_per_task: 3
+  sequence:
+    - "retry_same_node_with_more_context"
+    - "reroute_to_alternate_node_same_role"
+    - "escalate_to_ensemble_battle"
+    - "surface_partial_result_with_risks"
+  on_failure_modes:
+    ambiguous_requirements:
+      - "ask_clarifying_questions"
+      - "use_rag_on_repo_and_docs"
+    missing_permissions:
+      - "stop_and_explain_missing_perm"
+      - "emit_actionable_checklist"
+    external_api_failure:
+      - "retry_with_backoff"
+      - "switch_to_cached_or_rag_data"
+    model_degradation:
+      - "reduce_node_weight_in_routing"
+      - "route_critical_tasks_to_healthiest_nodes"
+      - "log_event_to_headylens"
+
+# ═══════════════════════════════════════════
+# NODE HEALTH & AUTO-REBALANCING
+# ═══════════════════════════════════════════
+node_health:
+  min_success_rate: 0.97
+  evaluation_window_minutes: 10
+  on_degradation:
+    - "reduce_node_weight_in_routing"
+    - "route_critical_tasks_to_healthiest_nodes"
+    - "log_event_to_headylens"
+  auto_rebalance: true
+  rebalance_interval_seconds: 30
+
+# ═══════════════════════════════════════════
+# HEADYBATTLE SCORING MATRIX
+# ═══════════════════════════════════════════
+battle_scoring:
+  correctness:
+    weight: 0.30
+    primary_judge: "heady-codex"
+  code_quality:
+    weight: 0.25
+    primary_judge: "heady-claude"
+  performance:
+    weight: 0.20
+    primary_judge: "heady-gemini"
+  security:
+    weight: 0.15
+    primary_judge: "heady-codex"
+  innovation:
+    weight: 0.10
+    primary_judge: "heady-grok"
+
+# ═══════════════════════════════════════════
+# GOOGLE CLOUD RESOURCE STRATEGY
+# ═══════════════════════════════════════════
+google_cloud:
+  trial_credit: 300.00
+  trial_days: 90
+  allocation:
+    gemini_3_1_pro_vertex: 120.00
+    gemini_flash_api: 30.00
+    cloud_run_functions: 50.00
+    cloud_storage: 20.00
+    vertex_ai_finetuning: 80.00
+  colab_pro_plus:
+    subscriptions: 2
+    instance_a:
+      role: "development"
+      gpu: "A100-80GB"
+    instance_b:
+      role: "production"
+      gpu: "A100"
+  ai_studio:
+    free_tier: true
+    rate_limit: "15 RPM"
+    use_for: "all dev/test workloads"
+
+# ═══════════════════════════════════════════
+# INTEGRATION POINTS
+# ═══════════════════════════════════════════
 integrations:
+  heady_ide:
+    commands:
+      ask: "Routes through HeadyJules → full HeadyCoder stack"
+      fix: "HeadyCodex primary, HeadyClaude review"
+      optimize: "HeadyGemini analysis, HeadyCodex execution"
+      test: "HeadyCodex generates + runs tests"
+      docs: "HeadyPerplexity research + HeadyClaude writing"
+    inline_completions: "HeadyCopilot (Opus 4.6 backend)"
+
+  heady_web:
+    page_analysis: "heady-gemini"
+    form_autofill: "heady-claude"
+    content_summarization: "heady-perplexity"
+    code_inspection: "heady-codex"
+
+  heady_buddy:
+    voice_to_code: "Speech API → HeadyCoder pipeline"
+    screen_analysis: "HeadyGemini vision + HeadyClaude reasoning"
+    coding_requests: "Full HeadyCoder pipeline"
+
   git:
     auto_commit: true
     branch_management: true
     conflict_resolution: true
-    
+
   ci_cd:
-    jenkins: true
     github_actions: true
-    gitlab_ci: true
-    
-  project_management:
-    jira: true
-    trello: true
-    asana: true
-    
-  documentation:
-    auto_docs: true
-    api_docs: true
-    code_comments: true
+    heady_output_lint: true
 
-# Performance Optimization
-performance:
-  caching: true
-  parallel_processing: true
-  resource_optimization: true
-  response_time_target: 200  # ms
-  
-# Learning & Adaptation
-learning:
-  user_preference_learning: true
-  code_pattern_learning: true
-  performance_optimization: true
-  feedback_integration: true
+# ═══════════════════════════════════════════
+# QUALITY & SECURITY
+# ═══════════════════════════════════════════
+quality:
+  standards: ["eslint", "prettier", "security_scan", "performance_analysis"]
+  auto_fix: true
+  test_coverage_target: 85
+  review_required: true
 
-# Security
 security:
   code_scanning: true
   vulnerability_detection: true
   secure_coding_practices: true
   compliance_checks: true
+  cybersecurity_primary: "heady-codex"   # First model rated "High" for cybersec
+
+# ═══════════════════════════════════════════
+# BENCHMARK REFERENCE (Feb 2026)
+# ═══════════════════════════════════════════
+# Each node leads in different dimensions — this is
+# why HeadyCoder uses them ALL simultaneously.
+#
+# | Benchmark          | Claude Opus 4.6 | Codex 5.3   | Gemini 3.1 Pro | Grok 4  |
+# |--------------------|-----------------|-------------|----------------|---------|
+# | SWE-Bench Verified | ~81.4%          | 56.8% (Pro) | —              | —       |
+# | Terminal-Bench 2.0 | 69.9%           | 75.1%       | —              | —       |
+# | OSWorld-Verified   | —               | 64.7%       | —              | —       |
+# | Humanity's Last    | #1              | —           | 44.4%          | —       |
+# | ARC-AGI-2          | —               | —           | 77.1%          | —       |
+# | RubberDuckBench    | 68.5%           | 67.8%       | —              | 69.29%  |
+# | CyberSec CTF       | —               | 77.6%(High) | —              | —       |

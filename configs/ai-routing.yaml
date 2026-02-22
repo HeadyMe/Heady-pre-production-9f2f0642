@@ -14,6 +14,8 @@
 
 # AI Routing Configuration for Heady Systems
 # Central brain for intelligent model + resource allocation
+# DEFAULT: Ensemble-first — all nodes active unless overridden
+# See: configs/heady-intelligence.yaml for ensemble defaults
 
 defaults:
   max_cloud_usage_percent: 85      # keep remote < ~90%
@@ -32,50 +34,74 @@ defaults:
   trace_all_decisions: true
 
 providers:
-  # Remote High-Quality Providers
-  openai_gpt4o:
+  # Remote High-Quality Providers (Feb 2026 — Current)
+  heady_codex:
+    type: remote
+    quality: very_high
+    cost_tier: high
+    max_concurrency: 50
+    max_tokens: 400000
+    endpoint: "https://api.openai.com/v1/chat/completions"
+    model: "gpt-5.3-codex"
+    effort: "xhigh-fast"
+    temperature_range: [0.0, 1.0]
+    specialties: ["code_generation", "agentic_coding", "security", "terminal"]
+    cybersecurity_rating: "High"
+    
+  heady_claude:
+    type: remote
+    quality: very_high
+    cost_tier: high
+    max_concurrency: 8
+    max_tokens: 1000000
+    endpoint: "https://api.anthropic.com/v1/messages"
+    model: "claude-opus-4.6"
+    thinking: "adaptive"
+    effort: "high"
+    temperature_range: [0.0, 1.0]
+    specialties: ["architecture", "deep_reasoning", "long_context_analysis", "code_review"]
+    
+  heady_gemini:
+    type: remote
+    quality: very_high
+    cost_tier: medium
+    max_concurrency: 8
+    max_tokens: 1000000
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models"
+    model: "gemini-3.1-pro"
+    effort: "high"
+    temperature_range: [0.0, 2.0]
+    specialties: ["multimodal", "advanced_reasoning", "vision", "creative_coding"]
+
+  heady_gemini_flash:
+    type: remote
+    quality: high
+    cost_tier: low
+    max_concurrency: 20
+    max_tokens: 1000000
+    endpoint: "https://generativelanguage.googleapis.com/v1beta/models"
+    model: "gemini-2.5-flash"
+    temperature_range: [0.0, 1.0]
+    specialties: ["cost_efficient", "high_volume", "embeddings"]
+
+  heady_perplexity:
     type: remote
     quality: high
     cost_tier: medium
-    max_concurrency: 50  # Increased from 16 for enterprise
-    max_tokens: 128000
-    endpoint: "https://api.openai.com/v1/chat/completions"
-    model: "gpt-4o"
-    temperature_range: [0.0, 1.0]
-    specialties: ["code_generation", "analysis", "general_chat"]
-    
-  openai_o1_pro:
-    type: remote
-    quality: very_high
-    cost_tier: high
-    max_concurrency: 4
+    max_concurrency: 10
     max_tokens: 200000
-    endpoint: "https://api.openai.com/v1/chat/completions"
-    model: "o1-pro"
-    temperature_range: [0.1, 0.3]
-    specialties: ["deep_reasoning", "complex_analysis"]
-    
-  claude_code_enterprise:
+    endpoint: "https://api.perplexity.ai/chat/completions"
+    model: "sonar-pro"
+    specialties: ["web_research", "documentation", "fact_checking"]
+
+  heady_grok:
     type: remote
     quality: very_high
     cost_tier: high
     max_concurrency: 4
-    max_tokens: 1000000
-    endpoint: "https://api.anthropic.com/v1/messages"
-    model: "claude-3-5-sonnet-latest"
-    temperature_range: [0.0, 1.0]
-    specialties: ["code_generation", "long_context_analysis", "multimodal"]
-    
-  gemini_ultra:
-    type: remote
-    quality: very_high
-    cost_tier: high
-    max_concurrency: 4
-    max_tokens: 2000000
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/models"
-    model: "gemini-2.0-flash-exp"
-    temperature_range: [0.0, 2.0]
-    specialties: ["multimodal", "deep_reasoning", "vision"]
+    max_tokens: 256000
+    model: "grok-4"
+    specialties: ["adversarial_validation", "red_team", "real_time_data"]
     
   # Local/Edge Providers
   ollama_llama3_8b:

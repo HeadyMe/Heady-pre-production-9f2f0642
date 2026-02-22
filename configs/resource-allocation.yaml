@@ -1,0 +1,173 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  Heady Resource Allocation Policy                                ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: resource-allocation.yaml                                  ║
+# ║  OWNER: HeadyMaintenance + HeadyCoder                            ║
+# ║  UPDATED: 20260221-052400                                        ║
+# ╚══════════════════════════════════════════════════════════════════╝
+#
+# DEFAULT BEHAVIOR:
+#   When idle → 100% resources to autonomous knowledge gathering
+#   When user acts → instant 100% pivot to user task
+#   This is not configurable — it IS the default.
+
+version: 1.0.0
+description: "Adaptive resource allocation — autonomous learning with instant user-priority"
+
+# ═══════════════════════════════════════════
+# RESOURCE MODES
+# ═══════════════════════════════════════════
+modes:
+  # DEFAULT: No user activity → full autonomous learning
+  autonomous_learning:
+    trigger: "no_user_activity_for >= 30s"
+    resource_split:
+      knowledge_gathering: 45    # code analysis, pattern detection, doc scanning
+      code_improvement: 30       # lint, refactor suggestions, tech debt detection
+      experience_building: 15    # replay past tasks, build instinct models
+      health_monitoring: 10      # system vitals, stagnation detection
+    storage_targets:
+      persistent:
+        - vector_db: "qdrant — embed and store all gathered knowledge"
+        - disk_store: "data/memory-store.json — fallback persistence"
+        - registry: "heady-registry.json — update component metadata"
+      non_persistent:
+        - cache: "in-memory Map — hot knowledge for instant recall"
+        - pattern_buffer: "recent patterns for real-time correlation"
+        - embedding_cache: "pre-computed embeddings for fast search"
+
+  # INSTANT PIVOT: User action detected → all resources to user
+  user_priority:
+    trigger: "any_user_input || api_request || chat_message"
+    resource_split:
+      user_task: 100
+    transition:
+      from_autonomous: "immediate"    # no graceful shutdown — hard cut
+      preserve_state: true            # save learning progress to resume later
+      max_pivot_latency_ms: 50        # must pivot within 50ms
+    behavior:
+      - "Pause all background knowledge gathering"
+      - "Flush any pending writes to persistent storage"
+      - "Route 100% compute to user request"
+      - "Resume autonomous learning after user interaction completes"
+
+  # GRADUAL RETURN: User goes quiet → ramp back to autonomous
+  return_to_autonomous:
+    trigger: "user_idle_for >= 30s"
+    ramp_schedule:
+      0s: { user: 100, autonomous: 0 }
+      30s: { user: 50, autonomous: 50 }
+      60s: { user: 20, autonomous: 80 }
+      120s: { user: 0, autonomous: 100 }
+
+# ═══════════════════════════════════════════
+# KNOWLEDGE GATHERING STRATEGIES
+# ═══════════════════════════════════════════
+knowledge_gathering:
+  strategies:
+    # 1. Code Analysis — scan codebase for patterns
+    code_analysis:
+      enabled: true
+      scan_paths:
+        - "src/"
+        - "configs/"
+        - "scripts/"
+        - "services/"
+      actions:
+        - "Identify code smells and tech debt"
+        - "Map function dependencies"
+        - "Track API surface changes"
+        - "Build project architecture model"
+      output: "vector_db + pattern_buffer"
+
+    # 2. Remote Resource Learning — use AI nodes in idle mode
+    remote_learning:
+      enabled: true
+      max_remote_usage_percent: 85   # leave 15% headroom
+      sources:
+        - node: "heady-perplexity"
+          task: "Research best practices for active codebase patterns"
+          frequency: "every_10min_idle"
+        - node: "heady-gemini"
+          task: "Analyze code structure and suggest improvements"
+          frequency: "every_15min_idle"
+        - node: "heady-claude"
+          task: "Deep architectural review of recent changes"
+          frequency: "every_30min_idle"
+      cost_guard:
+        max_daily_spend_usd: 5.00
+        prefer_cached_results: true
+
+    # 3. Experience Building — learn from past interactions
+    experience_building:
+      enabled: true
+      sources:
+        - "conversation_logs"
+        - "task_completion_history"
+        - "error_patterns"
+        - "user_preferences"
+      build:
+        - "instinct_models: fast heuristics from repeated patterns"
+        - "failure_avoidance: don't repeat past mistakes"
+        - "preference_map: predict what user will want next"
+
+    # 4. Documentation Indexing — keep knowledge base current
+    documentation_indexing:
+      enabled: true
+      scan_extensions: [".md", ".yaml", ".json", ".txt"]
+      embed_model: "nomic-embed-text"
+      reindex_interval: "15min"
+
+# ═══════════════════════════════════════════
+# STORAGE OPTIMIZATION
+# ═══════════════════════════════════════════
+storage:
+  persistent:
+    vector_db:
+      engine: "qdrant"
+      url: "http://localhost:6333"
+      collection: "heady_memories"
+      embedding_dim: 1536
+      auto_compact: true
+      compact_interval: "1h"
+    disk_fallback:
+      path: "data/memory-store.json"
+      max_size_mb: 500
+      auto_migrate_to_vector: true   # move to Qdrant when it's available
+    registry_sync:
+      auto_update: true
+      track_discoveries: true
+
+  non_persistent:
+    memory_cache:
+      max_entries: 10000             # no hard limit on memories — this is cache only
+      eviction: "lru"                # least recently used
+      ttl_hours: 24
+    pattern_buffer:
+      window_size: 1000              # last 1000 patterns
+      auto_promote_to_persistent: true  # patterns that repeat → vector DB
+    embedding_cache:
+      max_entries: 5000
+      precompute_on_idle: true       # build embeddings during autonomous mode
+
+# ═══════════════════════════════════════════
+# HEALTH & MONITORING
+# ═══════════════════════════════════════════
+monitoring:
+  continuous: true
+  metrics:
+    - "memories_stored_per_hour"
+    - "knowledge_coverage_percent"
+    - "pivot_latency_ms"
+    - "remote_resource_utilization"
+    - "storage_growth_rate"
+  alerts:
+    stagnation:
+      condition: "memories_stored_per_hour == 0 AND mode == autonomous_learning"
+      action: "restart_knowledge_gathering"
+    storage_full:
+      condition: "disk_usage > 90%"
+      action: "compact_and_deduplicate"
+    slow_pivot:
+      condition: "pivot_latency_ms > 100"
+      action: "preempt_background_tasks"

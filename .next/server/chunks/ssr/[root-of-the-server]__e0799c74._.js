@@ -1,0 +1,25 @@
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ SACRED GEOMETRY ∞  Heady Systems - HCFP Full Auto Mode        ║
+// ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+// ║  FILE: [root-of-the-server]__e0799c74._.js                                   ║
+// ║  UPDATED: 20260218-211102                                            ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+/*
+ * ✅ SCANNED: 20260218-211102
+ * 🔍 INSPECTED: All content reviewed
+ * 🏷️  BRANDED: Heady Systems branding applied
+ * 📊 STATUS: Fully compliant with HCFP Full Auto Mode
+ */
+
+module.exports=[93695,(a,b,c)=>{b.exports=a.x("next/dist/shared/lib/no-fallback-error.external.js",()=>require("next/dist/shared/lib/no-fallback-error.external.js"))},60249,a=>{a.n(a.i(25223))},53732,a=>{a.n(a.i(71598))},72133,a=>{a.n(a.i(533))},6207,a=>{a.n(a.i(32480))},4371,a=>{a.n(a.i(1311))},81467,a=>{"use strict";a.s(["default",()=>b]);let b=(0,a.i(47533).registerClientReference)(function(){throw Error("Attempted to call the default export of [project]/headyconnection-web/src/app/buddy/page.tsx <module evaluation> from the server, but it's on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.")},"[project]/headyconnection-web/src/app/buddy/page.tsx <module evaluation>","default")},2480,a=>{"use strict";a.s(["default",()=>b]);let b=(0,a.i(47533).registerClientReference)(function(){throw Error("Attempted to call the default export of [project]/headyconnection-web/src/app/buddy/page.tsx from the server, but it's on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.")},"[project]/headyconnection-web/src/app/buddy/page.tsx","default")},85875,a=>{"use strict";a.i(81467);var b=a.i(2480);a.n(b)}];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__e0799c74._.js.map

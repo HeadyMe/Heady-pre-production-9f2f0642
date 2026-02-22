@@ -36,30 +36,30 @@ class PYTHIANode {
     this.active = true;
     this.reasoningDepth = 'high';
     this.connections = {
-      ollama: process.env.OLLAMA_URL || 'https://ollama.headysystems.com',
+      brain: process.env.HEADY_BRAIN_URL || 'https://manager.headysystems.com',
     };
     this.reasoningHistory = [];
   }
 
   async initialize() {
     console.log('[PYTHIA] Initializing deep reasoning engine...');
-    
+
     // Test Ollama connection
     try {
-      const response = await fetch(`${this.connections.ollama}/api/tags`);
+      const response = await fetch(`${this.connections.brain}/api/brain/health`);
       if (response.ok) {
-        console.log('[PYTHIA] Connected to Ollama');
+        console.log('[PYTHIA] Connected to Heady Brain');
       }
     } catch (error) {
-      console.warn('[PYTHIA] Ollama not available:', error.message);
+      console.warn('[PYTHIA] Heady Brain not available:', error.message);
     }
-    
+
     console.log('[PYTHIA] Deep reasoning engine ready');
   }
 
   async deepReasoning(prompt, options = {}) {
     console.log(`[PYTHIA] Deep reasoning: ${prompt.substring(0, 100)}...`);
-    
+
     const reasoningPrompt = `
 You are PYTHIA, the Oracle of Delphi. Apply deep reasoning to this query:
 
@@ -76,18 +76,18 @@ Be thorough and methodical.
 `;
 
     try {
-      const response = await this.callOllama(reasoningPrompt, {
-        model: 'llama3.2:8b',
+      const response = await this.callHeadyBrain(reasoningPrompt, {
+        model: 'heady-brain',
         temperature: 0.3,
         maxTokens: 2000,
       });
-      
+
       this.reasoningHistory.push({
         prompt: prompt,
         response: response.text,
         timestamp: new Date().toISOString(),
       });
-      
+
       return {
         node: 'PYTHIA',
         reasoning: response.text,
@@ -106,7 +106,7 @@ Be thorough and methodical.
 
   async analyzeMultiModal(content) {
     console.log('[PYTHIA] Multi-modal analysis...');
-    
+
     const analysisPrompt = `
 Analyze this content from multiple perspectives:
 1. Logical structure
@@ -119,12 +119,12 @@ Content: ${JSON.stringify(content, null, 2)}
 `;
 
     try {
-      const response = await this.callOllama(analysisPrompt, {
-        model: 'llama3.2:8b',
+      const response = await this.callHeadyBrain(analysisPrompt, {
+        model: 'heady-brain',
         temperature: 0.4,
         maxTokens: 1500,
       });
-      
+
       return {
         node: 'PYTHIA',
         analysis: response.text,
@@ -139,31 +139,33 @@ Content: ${JSON.stringify(content, null, 2)}
     }
   }
 
-  async callOllama(prompt, options = {}) {
-    const response = await fetch(`${this.connections.ollama}/api/generate`, {
+  async callHeadyBrain(prompt, options = {}) {
+    const response = await fetch(`${this.connections.brain}/api/brain/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Heady-Source': 'pythia-node',
+        'X-Heady-Version': '1.0.0'
+      },
       body: JSON.stringify({
-        model: options.model || 'llama3.2:8b',
-        prompt: prompt,
-        stream: false,
-        options: {
-          temperature: options.temperature || 0.7,
-          num_predict: options.maxTokens || 1000,
-        },
+        message: prompt,
+        model: options.model || 'heady-brain',
+        temperature: options.temperature || 0.7,
+        max_tokens: options.maxTokens || 1000,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama request failed: ${response.statusText}`);
+      throw new Error(`Heady Brain request failed: ${response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    return { text: data.response || data.text || '' };
   }
 
   async execute(intent, context = {}) {
     console.log('[PYTHIA] Executing deep reasoning task...');
-    
+
     const reasoningPrompt = `
 Intent: ${intent.intent || 'Unknown'}
 Context: ${JSON.stringify(context, null, 2)}
@@ -172,7 +174,7 @@ Apply deep reasoning to analyze this situation and provide insights.
 `;
 
     const result = await this.deepReasoning(reasoningPrompt);
-    
+
     return {
       node: 'PYTHIA',
       action: 'deep_reasoning_completed',

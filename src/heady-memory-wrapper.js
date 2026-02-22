@@ -36,7 +36,11 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const HeadyVectorMemoryService = require('./services/vector-memory-service.js');
+
+// Persistent fallback storage path — survives restarts
+const MEMORY_STORE_PATH = path.join(__dirname, '..', 'data', 'memory-store.json');
 
 class HeadyMemoryWrapper {
   constructor() {
@@ -45,13 +49,49 @@ class HeadyMemoryWrapper {
     this.lastScan = 0;
     this.scanInterval = 30000; // 30 seconds
     this.systemAlerts = [];
-    this.memoryStore = new Map(); // Fallback storage
+    this.memoryStore = new Map(); // In-memory cache
     this.lastMemoryCount = 0;
     this.stagnationAlerted = false;
     this.initialized = false;
-    
+
+    // 🔥 LOAD PERSISTENT FALLBACK STORE FROM DISK
+    this._loadPersistentStore();
+
     // 🔥 ASYNC VECTOR SERVICE INITIALIZATION
     this.initializeVectorService();
+  }
+
+  _loadPersistentStore() {
+    try {
+      // Ensure data directory exists
+      const dataDir = path.dirname(MEMORY_STORE_PATH);
+      if (!fsSync.existsSync(dataDir)) {
+        fsSync.mkdirSync(dataDir, { recursive: true });
+      }
+      if (fsSync.existsSync(MEMORY_STORE_PATH)) {
+        const raw = fsSync.readFileSync(MEMORY_STORE_PATH, 'utf8');
+        const data = JSON.parse(raw);
+        for (const [id, memory] of Object.entries(data)) {
+          this.memoryStore.set(id, memory);
+        }
+        console.log(`✅ Loaded ${this.memoryStore.size} memories from persistent store`);
+      } else {
+        console.log('📝 No persistent memory store found — starting fresh');
+      }
+    } catch (err) {
+      console.warn('⚠ Failed to load persistent store:', err.message);
+    }
+  }
+
+  async _savePersistentStore() {
+    try {
+      const dataDir = path.dirname(MEMORY_STORE_PATH);
+      await fs.mkdir(dataDir, { recursive: true });
+      const obj = Object.fromEntries(this.memoryStore);
+      await fs.writeFile(MEMORY_STORE_PATH, JSON.stringify(obj, null, 2));
+    } catch (err) {
+      console.warn('⚠ Failed to save persistent store:', err.message);
+    }
   }
 
   async initializeVectorService() {
@@ -95,9 +135,11 @@ class HeadyMemoryWrapper {
       if (this.initialized) {
         return await this.vectorService.storeMemory(memory);
       } else {
-        // Fallback storage
+        // Persistent fallback storage — writes to disk so memories survive restarts
         const id = this.generateId();
         this.memoryStore.set(id, { ...memory, id, timestamp: new Date().toISOString() });
+        await this._savePersistentStore();
+        console.log(`💾 Memory stored (persistent fallback): ${id} (total: ${this.memoryStore.size})`);
         return id;
       }
     } catch (error) {
@@ -131,7 +173,7 @@ class HeadyMemoryWrapper {
       setTimeout(() => {
         try {
           let result;
-          
+
           switch (command) {
             case 'ingest':
               result = this.ingestMemory(args);
@@ -175,7 +217,7 @@ class HeadyMemoryWrapper {
             default:
               result = null;
           }
-          
+
           resolve(result);
         } catch (err) {
           reject(new Error(`HeadyMemory command failed: ${err.message}`));
@@ -189,37 +231,27 @@ class HeadyMemoryWrapper {
   }
 
   _getActualMemoryCount() {
-    // Dynamic memory count from vector service - NO HARDCODED LIMITS
+    // Dynamic memory count from vector service — NO HARDCODED LIMITS
     if (this.initialized) {
       return this.vectorService.memoryCount || 0;
     }
-    
-    // Fallback growth simulation - REMOVED HARDCODED 150 LIMIT
-    const baseCount = this.memoryStore ? this.memoryStore.size : 0;
-    const growthRate = Math.floor(Date.now() / 10000) % 50; // Increased growth range
-    const actualCount = Math.max(baseCount + growthRate, 151);
-    
-    // STAGNATION DETECTION - Trigger alerts if not growing
-    const lastCount = this.lastMemoryCount || actualCount;
-    const isStagnant = actualCount <= lastCount;
-    
+
+    // Persistent fallback — returns REAL count from memoryStore (disk-backed)
+    // NO FAKE GROWTH SIMULATION. Count is exactly how many memories exist.
+    const actualCount = this.memoryStore ? this.memoryStore.size : 0;
+
+    // STAGNATION DETECTION — alert if count hasn't grown in a while
+    const lastCount = this.lastMemoryCount || 0;
+    const isStagnant = actualCount <= lastCount && actualCount > 0;
+
     if (isStagnant && !this.stagnationAlerted) {
       this.stagnationAlerted = true;
-      console.error('🚨 MEMORY STAGNATION DETECTED - System learning halted!');
-      console.error(`🚨 Memory count stuck at: ${actualCount} (was: ${lastCount})`);
-      console.error('🚨 This indicates a critical system failure - investigate immediately!');
-      
-      // Trigger system-wide alert
-      this._triggerSystemAlert('MEMORY_STAGNATION', {
-        currentCount: actualCount,
-        lastCount: lastCount,
-        timestamp: new Date().toISOString(),
-        severity: 'CRITICAL'
-      });
+      console.warn('⚠ Memory growth paused — no new memories ingested recently');
+      console.warn(`  Current count: ${actualCount} (last check: ${lastCount})`);
     } else if (!isStagnant) {
-      this.stagnationAlerted = false; // Reset alert if growing
+      this.stagnationAlerted = false;
     }
-    
+
     this.lastMemoryCount = actualCount;
     return actualCount;
   }
@@ -227,7 +259,7 @@ class HeadyMemoryWrapper {
   _triggerSystemAlert(alertType, data) {
     // Send alert to monitoring system
     console.error(`🚨 SYSTEM ALERT: ${alertType}`, data);
-    
+
     // Store alert for health endpoint
     if (!this.systemAlerts) this.systemAlerts = [];
     this.systemAlerts.push({
@@ -235,7 +267,7 @@ class HeadyMemoryWrapper {
       data,
       timestamp: new Date().toISOString()
     });
-    
+
     // Keep only last 10 alerts
     if (this.systemAlerts.length > 10) {
       this.systemAlerts = this.systemAlerts.slice(-10);
@@ -245,7 +277,7 @@ class HeadyMemoryWrapper {
   async _getAllPreferences() {
     const headyCached = this.cache.get('all_preferences');
     if (headyCached) return headyCached;
-    
+
     const headyPrefs = await this._executeMemoryCommand('get_all_preferences', {});
     this.cache.set('all_preferences', headyPrefs);
     return headyPrefs;

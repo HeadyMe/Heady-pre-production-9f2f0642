@@ -24,7 +24,7 @@
  * ═══════════════════════════════════════════════════════════════
  * 🎼 CONDUCTOR NODE - The Multi-LLM Orchestrator
  * ═══════════════════════════════════════════════════════════════
- * Orchestrates all AI providers: Goose, Claude, Gemini, OpenAI, Yandex, HuggingFace, Ollama
+ * Orchestrates all AI providers: Goose, Claude, Gemini, OpenAI, Yandex, HuggingFace, Heady Brain
  * Builds consensus, validates quality, routes to optimal providers
  */
 
@@ -39,37 +39,37 @@ class CONDUCTORNode {
     this.name = 'CONDUCTOR';
     this.codename = 'The Orchestrator';
     this.role = 'Multi-LLM routing, consensus building, quality validation';
-    
+
     // Initialize AI Router for intelligent provider selection
     this.aiRouter = new HCAiRouter();
     this.nodeId = 'promoter';
-    
+
     // Initialize all providers (managed by AI Router)
-    this.anthropic = process.env.ANTHROPIC_API_KEY ? 
+    this.anthropic = process.env.ANTHROPIC_API_KEY ?
       new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
-    this.google = process.env.GOOGLE_API_KEY ? 
+    this.google = process.env.GOOGLE_API_KEY ?
       new GoogleGenerativeAI(process.env.GOOGLE_API_KEY) : null;
-    this.openai = process.env.OPENAI_API_KEY ? 
+    this.openai = process.env.OPENAI_API_KEY ?
       new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
-    
+
     this.providers = {
-      goose: { 
-        url: process.env.GOOSE_API_URL || 'https://api.goose.ai/v1', 
+      goose: {
+        url: process.env.GOOSE_API_URL || 'https://api.goose.ai/v1',
         key: process.env.GOOSE_API_KEY,
         models: ['goose-3b-v1', 'goose-7b-v1']
       },
-      yandex: { 
-        url: 'https://llm.api.cloud.yandex.net/foundationModels/v1', 
+      yandex: {
+        url: 'https://llm.api.cloud.yandex.net/foundationModels/v1',
         key: process.env.YANDEX_API_KEY,
         folderId: process.env.YANDEX_FOLDER_ID,
         models: ['yandexgpt-lite', 'yandexgpt-pro']
       },
-      ollama: { 
-        url: process.env.OLLAMA_URL || 'https://ollama.headysystems.com',
-        models: ['llama3.2:8b', 'codellama:13b', 'mistral:7b', 'nomic-embed-text']
+      'heady-brain': {
+        url: process.env.HEADY_BRAIN_URL || 'https://manager.headysystems.com',
+        models: ['heady-brain']
       },
-      huggingface: { 
-        url: 'https://api-inference.huggingface.co/models', 
+      huggingface: {
+        url: 'https://api-inference.huggingface.co/models',
         key: process.env.HF_TOKEN,
         models: ['meta-llama/Llama-3.2-8B-Instruct', 'mistralai/Mistral-7B-Instruct-v0.1']
       },
@@ -86,10 +86,10 @@ class CONDUCTORNode {
 
   async initialize() {
     console.log('[CONDUCTOR] Initializing multi-LLM orchestration...');
-    
+
     // Test provider connections
     await this.testProviderConnections();
-    
+
     console.log('[CONDUCTOR] Ready to orchestrate across all AI providers');
   }
 
@@ -99,7 +99,7 @@ class CONDUCTORNode {
   async orchestrate(task, options = {}) {
     const startTime = Date.now();
     this.performanceMetrics.totalRequests++;
-    
+
     const {
       strategy = 'best-fit', // best-fit | consensus | parallel | fallback
       providers = ['auto'], // auto | specific list
@@ -167,23 +167,23 @@ class CONDUCTORNode {
     if (requestedProviders.includes('auto')) {
       // Intelligent provider selection based on task
       const taskType = this.classifyTask(task);
-      
+
       const providerMap = {
-        'code-generation': ['claude', 'goose', 'ollama:codellama'],
-        'reasoning': ['claude', 'openai:o1', 'gemini', 'ollama:llama3.2'],
+        'code-generation': ['claude', 'goose', 'heady-brain'],
+        'reasoning': ['claude', 'openai:o1', 'gemini', 'heady-brain'],
         'creative': ['yandex', 'claude', 'openai:gpt-4o'],
         'multimodal': ['gemini', 'openai:gpt-4o', 'claude'],
-        'local-only': ['ollama'],
+        'local-only': ['heady-brain'],
         'translation': ['yandex', 'gemini', 'claude'],
-        'fast-response': ['goose', 'ollama:mistral'],
+        'fast-response': ['goose', 'heady-brain'],
         'high-quality': ['claude', 'openai:gpt-4o', 'gemini'],
-        'cost-effective': ['ollama', 'goose'],
+        'cost-effective': ['heady-brain', 'goose'],
       };
 
       // Check which providers are actually available
       const availableProviders = this.getAvailableProviders();
-      const recommended = providerMap[taskType] || ['claude', 'ollama', 'openai'];
-      
+      const recommended = providerMap[taskType] || ['claude', 'heady-brain', 'openai'];
+
       return recommended.filter(p => this.isProviderAvailable(p, availableProviders));
     }
 
@@ -207,7 +207,7 @@ class CONDUCTORNode {
     };
 
     const text = task.toLowerCase();
-    
+
     for (const [type, words] of Object.entries(keywords)) {
       if (words.some(word => text.includes(word))) {
         return type;
@@ -222,15 +222,15 @@ class CONDUCTORNode {
    */
   getAvailableProviders() {
     const available = [];
-    
+
     if (this.anthropic) available.push('claude');
     if (this.openai) available.push('openai');
     if (this.google) available.push('gemini');
     if (this.providers.goose.key) available.push('goose');
     if (this.providers.yandex.key) available.push('yandex');
     if (this.providers.huggingface.key) available.push('huggingface');
-    available.push('ollama'); // Always available if running
-    
+    available.push('heady-brain'); // Heady Brain API always available
+
     return available;
   }
 
@@ -239,12 +239,12 @@ class CONDUCTORNode {
    */
   isProviderAvailable(provider, availableProviders = null) {
     const available = availableProviders || this.getAvailableProviders();
-    
+
     if (provider.includes(':')) {
       const [providerName] = provider.split(':');
       return available.includes(providerName);
     }
-    
+
     return available.includes(provider);
   }
 
@@ -254,9 +254,9 @@ class CONDUCTORNode {
   async bestFitStrategy(task, providers, options) {
     const bestProvider = this.determineBestProvider(task, providers);
     console.log(`[CONDUCTOR] Best fit provider: ${bestProvider}`);
-    
+
     const response = await this.callProvider(bestProvider, task, options);
-    
+
     return {
       strategy: 'best-fit',
       provider: bestProvider,
@@ -271,21 +271,21 @@ class CONDUCTORNode {
    */
   async consensusStrategy(task, providers, options) {
     console.log(`[CONDUCTOR] Building consensus across ${providers.length} providers`);
-    
+
     const responses = await Promise.all(
       providers.map(provider => this.callProvider(provider, task, options))
     );
 
     // Filter successful responses
     const successfulResponses = responses.filter(r => r.success);
-    
+
     if (successfulResponses.length === 0) {
       throw new Error('All providers failed for consensus');
     }
 
     // Build consensus
     const consensus = await this.buildConsensus(successfulResponses);
-    
+
     return {
       strategy: 'consensus',
       providers: providers,
@@ -300,7 +300,7 @@ class CONDUCTORNode {
    */
   async parallelStrategy(task, providers, options) {
     console.log(`[CONDUCTOR] Parallel execution across ${providers.length} providers`);
-    
+
     const responses = await Promise.all(
       providers.map(provider => this.callProvider(provider, task, options))
     );
@@ -318,7 +318,7 @@ class CONDUCTORNode {
    */
   async fallbackStrategy(task, providers, options) {
     console.log(`[CONDUCTOR] Fallback strategy across ${providers.length} providers`);
-    
+
     for (let i = 0; i < providers.length; i++) {
       const provider = providers[i];
       try {
@@ -344,8 +344,8 @@ class CONDUCTORNode {
    * Call specific provider
    */
   async callProvider(provider, task, options) {
-    const [providerName, model] = provider.includes(':') 
-      ? provider.split(':') 
+    const [providerName, model] = provider.includes(':')
+      ? provider.split(':')
       : [provider, null];
 
     try {
@@ -360,8 +360,8 @@ class CONDUCTORNode {
           return await this.callGoose(task, model || 'goose-3b-v1', options);
         case 'yandex':
           return await this.callYandex(task, model || 'yandexgpt-lite', options);
-        case 'ollama':
-          return await this.callOllama(task, model || 'llama3.2:8b', options);
+        case 'heady-brain':
+          return await this.callHeadyBrain(task, model || 'heady-brain', options);
         case 'huggingface':
           return await this.callHuggingFace(task, model, options);
         default:
@@ -533,35 +533,35 @@ class CONDUCTORNode {
   }
 
   /**
-   * Ollama API call
+   * Heady Brain API call
    */
-  async callOllama(task, model, options) {
-    const response = await fetch(`${this.providers.ollama.url}/api/generate`, {
+  async callHeadyBrain(task, model, options) {
+    const response = await fetch(`${this.providers['heady-brain'].url}/api/brain/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Heady-Source': 'conductor-node',
+        'X-Heady-Version': '1.0.0'
+      },
       body: JSON.stringify({
+        message: task,
         model: model,
-        prompt: task,
-        stream: false,
-        options: {
-          temperature: options.temperature || 0.7,
-          num_predict: options.maxTokens || 2000,
-        },
+        temperature: options.temperature || 0.7,
+        max_tokens: options.maxTokens || 2000,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Ollama API error: ${response.statusText}`);
+      throw new Error(`Heady Brain API error: ${response.statusText}`);
     }
 
     const data = await response.json();
     return {
-      provider: 'ollama',
+      provider: 'heady-brain',
       model: model,
-      text: data.response,
+      text: data.response || data.text || '',
       success: true,
-      quality: this.assessResponseQuality(data.response),
-      local: true,
+      quality: this.assessResponseQuality(data.response || data.text || ''),
     };
   }
 
@@ -604,7 +604,7 @@ class CONDUCTORNode {
    */
   async buildConsensus(responses) {
     const allTexts = responses.map(r => r.text).join('\n\n---RESPONSE---\n\n');
-    
+
     // Use PYTHIA to analyze consensus
     const consensusPrompt = `
 Analyze these ${responses.length} AI responses to the same question and build a consensus answer:
@@ -654,12 +654,12 @@ Return JSON.
   extractCommonThemes(responses) {
     // Simple theme extraction - could be enhanced with NLP
     const themes = [];
-    
+
     if (responses.length > 1) {
       themes.push('All providers addressed the core question');
       themes.push('General agreement on main points');
     }
-    
+
     return themes;
   }
 
@@ -675,10 +675,10 @@ Return JSON.
    * Simple consensus merge when synthesis fails
    */
   simpleConsensusMerge(responses) {
-    const longest = responses.reduce((prev, current) => 
+    const longest = responses.reduce((prev, current) =>
       (prev.text.length > current.text.length) ? prev : current
     );
-    
+
     return longest.text + '\n\n[Note: This response was selected as the most comprehensive]';
   }
 
@@ -696,7 +696,7 @@ Return JSON.
    */
   compareResponses(responses) {
     const successful = responses.filter(r => r.success);
-    
+
     return {
       totalResponses: responses.length,
       successfulResponses: successful.length,
@@ -713,15 +713,15 @@ Return JSON.
    */
   summarizeParallelResults(responses) {
     const successful = responses.filter(r => r.success);
-    
+
     if (successful.length === 0) {
       return 'All providers failed';
     }
-    
+
     if (successful.length === 1) {
       return `Only ${successful[0].provider} succeeded`;
     }
-    
+
     return `${successful.length} providers responded successfully`;
   }
 
@@ -745,7 +745,7 @@ Return JSON.
       'claude': 1, // High quality reasoning
       'gemini': 2, // Fast and capable
       'openai': 3, // Reliable general purpose
-      'ollama': 4, //.com privacy
+      'heady-brain': 4, // Heady proprietary routing
       'goose': 5, // Fast code
       'yandex': 6, // Translation
       'huggingface': 7, // Specialized
@@ -763,18 +763,17 @@ Return JSON.
    */
   async testProviderConnections() {
     const tests = [];
-    
+
     // Test Ollama (always available.comly)
     try {
-      const response = await fetch(`${this.providers.ollama.url}/api/tags`);
+      const response = await fetch(`${this.providers['heady-brain'].url}/api/brain/health`);
       if (response.ok) {
-        const models = await response.json();
-        console.log(`[CONDUCTOR] Ollama connected: ${models.models?.length || 0} models available`);
-        tests.push({ provider: 'ollama', status: 'connected' });
+        console.log(`[CONDUCTOR] Heady Brain connected and operational`);
+        tests.push({ provider: 'heady-brain', status: 'connected' });
       }
     } catch (error) {
-      console.warn('[CONDUCTOR] Ollama not connected:', error.message);
-      tests.push({ provider: 'ollama', status: 'disconnected' });
+      console.warn('[CONDUCTOR] Heady Brain not connected:', error.message);
+      tests.push({ provider: 'heady-brain', status: 'disconnected' });
     }
 
     // Test cloud providers
@@ -800,14 +799,14 @@ Return JSON.
     // Update provider usage
     providers.forEach(provider => {
       const [providerName] = provider.split(':');
-      this.performanceMetrics.providerUsage[providerName] = 
+      this.performanceMetrics.providerUsage[providerName] =
         (this.performanceMetrics.providerUsage[providerName] || 0) + 1;
     });
 
     // Update average response time
     const total = this.performanceMetrics.totalRequests;
     const current = this.performanceMetrics.averageResponseTime;
-    this.performanceMetrics.averageResponseTime = 
+    this.performanceMetrics.averageResponseTime =
       ((current * (total - 1)) + responseTime) / total;
   }
 
@@ -831,10 +830,10 @@ Return JSON.
    */
   async execute(intent, context = {}) {
     console.log(`[CONDUCTOR] Executing orchestration for: ${intent.intent || intent}`);
-    
+
     const task = intent.intent || intent;
     const strategy = context.strategy || 'best-fit';
-    
+
     const result = await this.orchestrate(task, {
       strategy: strategy,
       providers: context.providers || ['auto'],

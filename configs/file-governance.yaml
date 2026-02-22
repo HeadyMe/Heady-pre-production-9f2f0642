@@ -1,0 +1,176 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  Heady File Governance Protocol                                 ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: file-governance.yaml                                     ║
+# ║  OWNER: HeadyMaintenance                                        ║
+# ║  UPDATED: 20260221-051000                                       ║
+# ╚══════════════════════════════════════════════════════════════════╝
+#
+# PURPOSE: Prevent root directory clutter by defining EXACTLY which
+# files are allowed in the project root. Anything else must live in
+# a categorized subdirectory. Enforced by pre-commit hook + CI.
+
+version: 1.0.0
+description: "File placement governance — root allowlist + directory contracts"
+owner: "HeadyMaintenance"
+enforcement:
+  pre_commit_hook: "scripts/hooks/check-file-placement.sh"
+  ci_job: ".github/workflows/heady-ci.yml#file-governance"
+  severity: "blocking"   # blocks commit/merge if violated
+
+# ═══════════════════════════════════════════
+# ROOT ALLOWLIST
+# ═══════════════════════════════════════════
+# ONLY these files/patterns are permitted in the project root.
+# Everything else triggers a violation.
+root_allowlist:
+  # Package/Project manifests
+  - "package.json"
+  - "package-lock.json"
+  - "tsconfig.json"
+  - "eslint.config.*"
+  - "postcss.config.*"
+  - "next.config.*"
+  - "next-env.d.ts"
+  - "requirements.txt"
+
+  # Docker
+  - "Dockerfile"
+  - "Dockerfile.*"
+  - "docker-compose*.yml"
+
+  # Git/CI
+  - ".gitignore"
+  - ".gitattributes"
+
+  # Repo docs (max 5 root .md files)
+  - "README.md"
+  - "README-WORKSPACE.md"
+  - "STANDING_DIRECTIVE.md"
+  - "CHANGELOG.md"
+  - "LICENSE"
+
+  # Agent context
+  - ".cursorrules"
+  - ".windsurfrules"
+
+  # Render deployment
+  - "render.yaml"
+
+  # Core entry points (until heady-manager is split)
+  - "heady-manager.js"
+  - "heady-registry.json"
+  - "index.html"
+
+  # Environment
+  - ".env"
+  - ".env.example"
+  - ".env.local"
+  - ".env.production"
+  - ".env.production.example"
+  - ".env.*"
+
+# ═══════════════════════════════════════════
+# DIRECTORY CONTRACTS
+# ═══════════════════════════════════════════
+# Where things MUST go if they're not in the root allowlist.
+directory_contracts:
+  docs/:
+    purpose: "All documentation"
+    subdirectories:
+      reports/: "Status reports, fix summaries, diagnostic outputs"
+      guides/: "Agent instructions, architecture docs, strategy docs"
+      deployment/: "Deployment guides, migration docs, OS setup"
+      email/: "Email forwarding and migration docs"
+      security/: "PQC guides, security audits"
+      api/: "API documentation"
+
+  scripts/:
+    purpose: "All executable scripts (.sh, .js, .py utility scripts)"
+    exceptions:
+      - "Entry point files in root (heady-manager.js)"
+    subdirectories:
+      hooks/: "Git hooks (pre-commit, pre-push)"
+      deployment/: "Deployment automation"
+      maintenance/: "Cleanup, migration, diagnostic scripts"
+
+  configs/:
+    purpose: "ALL configuration YAML/JSON files (not config/)"
+    note: "Consolidate config/ into configs/ — single directory"
+
+  backups/:
+    purpose: "All .bak, .backup-*, old versions, report JSONs"
+    subdirectories:
+      logs/: "Archived log files"
+
+  src/:
+    purpose: "All application source code"
+
+  assets/:
+    purpose: "Images, icons, media files"
+
+# ═══════════════════════════════════════════
+# AUTO-CLASSIFICATION RULES
+# ═══════════════════════════════════════════
+# When a file is committed to root that isn't on the allowlist,
+# the pre-commit hook suggests WHERE it should go.
+auto_classification:
+  - pattern: "*.md"
+    if_contains: ["REPORT", "FIX", "STATUS", "COMPLETE", "ACHIEVED"]
+    target: "docs/reports/"
+
+  - pattern: "*.md"
+    if_contains: ["GUIDE", "INSTRUCTIONS", "STRATEGY", "PROTOCOL", "ARCHITECTURE"]
+    target: "docs/guides/"
+
+  - pattern: "*.md"
+    if_contains: ["DEPLOY", "MIGRATION", "SETUP", "INSTALL"]
+    target: "docs/deployment/"
+
+  - pattern: "*.md"
+    if_contains: ["EMAIL", "FORWARDING", "NAMESERVER"]
+    target: "docs/email/"
+
+  - pattern: "*.log"
+    target: "backups/logs/"
+
+  - pattern: "*.bak"
+    target: "backups/"
+
+  - pattern: "*.backup-*"
+    target: "backups/"
+
+  - pattern: "*.sh"
+    target: "scripts/"
+
+  - pattern: "*-report-*.json"
+    target: "backups/"
+
+  - pattern: "*.yaml"
+    target: "configs/"
+    exceptions: ["docker-compose*.yml", "render.yaml"]
+
+# ═══════════════════════════════════════════
+# VIOLATION HANDLING
+# ═══════════════════════════════════════════
+violations:
+  on_pre_commit:
+    action: "block_commit"
+    message: |
+      🚫 File Governance Violation
+      The following file(s) are not allowed in the project root:
+        {files}
+      Suggested locations:
+        {suggestions}
+      See: configs/file-governance.yaml for the full policy.
+      Override: git commit --no-verify (NOT recommended)
+
+  on_ci:
+    action: "fail_check"
+    severity: "error"
+    auto_create_issue: false
+
+  on_agent_detection:
+    action: "auto_move"
+    log_to: "docs/ERROR_LOG.md"
+    message: "HeadyMaintenance auto-moved misplaced file to correct directory"

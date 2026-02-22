@@ -271,22 +271,25 @@ debug:
   preserve_workspaces: false
   verbose_git_commands: false
 
-# Experimental Features
-experimental:
+# Experimental Features → NOW ACTIVE (HeadyCoder v2.0 ensemble supports all)
+active_features:
   # AI-powered code generation
   ai_code_generation:
-    enabled: false
-    model: "claude-3-5-sonnet"
-    max_tokens_per_task: 10000
+    enabled: true
+    primary: "heady-codex"        # gpt-5.3-codex (xhigh-fast)
+    reviewer: "heady-claude"      # claude-opus-4.6 (adaptive thinking)
+    max_tokens_per_task: 128000
     
   # Autonomous testing
   autonomous_testing:
-    enabled: false
-    test_generation_model: "gpt-4"
-    auto_fix_tests: false
+    enabled: true
+    test_generation: "heady-codex"  # Best Terminal-Bench (75.1%)
+    validation: "heady-claude"      # Best SWE-Bench (~81.4%)
+    auto_fix_tests: true
     
   # Self-healing branches
   self_healing:
-    enabled: false
-    auto_fix_conflicts: false
-    auto_retry_failed_tests: false
+    enabled: true
+    auto_fix_conflicts: true
+    auto_retry_failed_tests: true
+    max_self_heal_attempts: 3

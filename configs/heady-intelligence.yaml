@@ -1,0 +1,128 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  Heady Intelligence Layer — Ensemble-First Defaults             ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: heady-intelligence.yaml                                  ║
+# ║  UPDATED: 20260221-045100                                       ║
+# ╚══════════════════════════════════════════════════════════════════╝
+#
+# This is THE source of truth for the Heady Intelligence Layer.
+# Every agent, service, and tool reads this to understand:
+#   - Default reasoning mode (ensemble, not single-model)
+#   - Anti-template policy
+#   - Node optimal placement
+#   - Graceful fallback chains
+
+defaults:
+  reasoning_mode: "ensemble"              # NEVER single-model by default
+  utilization: "full-spectrum"            # ALL services active unless overridden
+  default_reasoning_engine: "Heady Intelligence Layer"  # NOT a single vendor model
+  allow_single_model_override: true
+  single_model_override_triggers:
+    - pattern: "Claude only"
+    - pattern: "Gemini only"
+    - pattern: "Codex only"
+    - pattern: "local only"
+    - pattern: "local models only"
+
+# The default "reasoning model" is the aggregate of all active Heady
+# nodes and services acting together as one Intelligence Layer.
+# In plain language: the default reasoning model is "Heady," not "Claude."
+
+# Anti-Template Policy (HARD RULE)
+disallow_placeholders: true
+placeholder_patterns:
+  - "As an AI language model"
+  - "I am unable to"
+  - "I cannot browse the internet"
+  - "this is just an example"
+  - "replace this with"
+  - "lorem ipsum"
+  - "TODO:"
+  - "FIXME"
+  - "template response"
+  - "boilerplate"
+  - "I don't have access to"
+  - "I'm sorry, but I"
+  - "placeholder"
+  - "example only"
+
+on_placeholder_detected:
+  - action: "reject_output"
+  - action: "reroute_ensemble"
+  - action: "force_rag_real_context"
+  - action: "escalate_to_headybattle_if_large"
+  - action: "log_error"
+
+# Node Optimal Placement
+node_roles:
+  intelligence_core:
+    orchestrator:
+      id: "HeadyConductor"
+      role: "Global router, policy + battle aware"
+      fallbacks: ["HeadyManager"]
+    meta_controller:
+      id: "HCBrain"
+      role: "Global meta-controller, pattern and readiness"
+    scheduler:
+      id: "HeadyMC"
+      role: "Fractal decomposition, DAG scheduling"
+    supervisor:
+      id: "HCSupervisor"
+      role: "Fan-out to agents, max ~6 in parallel"
+
+  coding_nodes:
+    - id: "heady-claude"
+      default_model: "claude-opus-4.6"
+      role: "Primary architect, deep reasoning, self-critique"
+      fallbacks: ["heady-gemini", "heady-codex"]
+
+    - id: "heady-codex"
+      default_model: "gpt-5.3-codex"
+      role: "Primary executor, code gen, refactor, tests, security"
+      fallbacks: ["heady-claude", "heady-gemini"]
+
+    - id: "heady-gemini"
+      default_model: "gemini-3.1-pro"
+      role: "Logic specialist, multimodal, visual/creative coding"
+      fallbacks: ["heady-claude", "heady-codex"]
+
+    - id: "heady-perplexity"
+      default_model: "sonar-pro"
+      role: "Grounded external research"
+      fallbacks: ["heady-gemini", "local-rag"]
+
+    - id: "heady-copilot"
+      backend: "Opus 4.6 via Copilot"
+      role: "Inline completions + PR review in IDE"
+      fallbacks: ["heady-claude"]
+
+    - id: "heady-jules"
+      role: "Task decomposition, workflow selection"
+      fallbacks: ["hc-brain"]
+
+    - id: "heady-grok"
+      default_model: "grok-4"
+      role: "Adversarial validator, red team thinking"
+      fallbacks: ["heady-claude"]
+
+# Graceful Fallback Policy
+fallbacks:
+  max_attempts_per_task: 3
+  sequence:
+    - "retry_same_node_with_more_context"
+    - "reroute_to_alternate_node_same_role"
+    - "escalate_to_ensemble_battle"
+    - "surface_partial_result_with_risks"
+  # Fallbacks ADD more intelligence, not less. The last resort is a
+  # partial but concrete plan with explicit risk callouts, NEVER a
+  # vendor-style apology or template text.
+
+# Node Health Auto-Rebalancing
+node_health:
+  min_success_rate: 0.97
+  evaluation_window_minutes: 10
+  on_degradation:
+    - "reduce_node_weight_in_routing"
+    - "route_critical_tasks_to_healthiest_nodes"
+    - "log_event_to_headylens"
+  auto_rebalance: true

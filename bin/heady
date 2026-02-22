@@ -1,0 +1,397 @@
+#!/usr/bin/env node
+
+// ╔══════════════════════════════════════════════════════════════════╗
+// ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+// ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+// ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+// ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+// ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+// ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+// ║                                                                  ║
+// ║  ∞ UNIFIED HEADY CLI ∞  All Heady Services in One Command       ║
+// ╚══════════════════════════════════════════════════════════════════╝
+
+const { program } = require('commander');
+const { execSync, spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+
+const ROOT = path.resolve(__dirname, '..');
+const SCRIPTS = path.join(ROOT, 'scripts');
+const CONFIGS = path.join(ROOT, 'configs');
+const VERSION = '1.0.0';
+const API = process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com';
+
+// ═══ Helpers ═══
+function run(cmd, opts = {}) {
+  try {
+    return execSync(cmd, { cwd: ROOT, stdio: 'inherit', ...opts });
+  } catch (e) {
+    if (!opts.silent) process.exit(e.status || 1);
+  }
+}
+
+function runScript(scriptPath, args = []) {
+  const ext = path.extname(scriptPath);
+  const full = path.isAbsolute(scriptPath) ? scriptPath : path.join(SCRIPTS, scriptPath);
+  if (!fs.existsSync(full)) { console.error(`❌ Script not found: ${full}`); process.exit(1); }
+  const runners = { '.js': 'node', '.py': 'python3', '.sh': 'bash', '.ts': 'npx tsx' };
+  const runner = runners[ext] || 'node';
+  run(`${runner} "${full}" ${args.join(' ')}`);
+}
+
+function apiGet(endpoint) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(endpoint, API);
+    const mod = url.protocol === 'https:' ? https : http;
+    mod.get(url, { timeout: 5000 }, res => {
+      let d = '';
+      res.on('data', c => d += c);
+      res.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(d); } });
+    }).on('error', reject);
+  });
+}
+
+function banner(text) {
+  const line = '═'.repeat(Math.max(text.length + 4, 50));
+  console.log(`\n╔${line}╗`);
+  console.log(`║  ${text.padEnd(line.length - 2)}║`);
+  console.log(`╚${line}╝\n`);
+}
+
+// ═══ CLI Setup ═══
+program
+  .name('heady')
+  .description('∞ Unified Heady CLI — All Heady Systems in One Command')
+  .version(VERSION);
+
+// ══════════════════════════════════════════════
+// 🚀 HCFP Commands (delegates to bin/hcfp)
+// ══════════════════════════════════════════════
+const hcfp = program.command('hcfp').description('🚀 HCFP — Heady Continuous Full Pipeline');
+hcfp.command('auto-success').description('Start HCFP full-auto mode').option('-v, --verbose', 'Verbose')
+  .action(() => run('node bin/hcfp auto-success'));
+hcfp.command('stop').description('Stop HCFP').action(() => run('node bin/hcfp stop'));
+hcfp.command('status').description('HCFP status').option('-j, --json', 'JSON output')
+  .action((opts) => run(`node bin/hcfp status${opts.json ? ' --json' : ''}`));
+hcfp.command('health').description('Website health check').action(() => run('node bin/hcfp health'));
+hcfp.command('config').description('Show HCFP config').action(() => run('node bin/hcfp config'));
+
+// ══════════════════════════════════════════════
+// 📊 Status & Health
+// ══════════════════════════════════════════════
+program
+  .command('status')
+  .description('📊 Full system status — all services')
+  .action(async () => {
+    banner('HEADY SYSTEM STATUS');
+    try {
+      const h = await apiGet('/api/health');
+      console.log(`  System:      ${h.status || 'unknown'}`);
+      console.log(`  Uptime:      ${h.uptime ? Math.floor(h.uptime/3600)+'h '+Math.floor((h.uptime%3600)/60)+'m' : 'N/A'}`);
+      console.log(`  Services:    ${h.services || 'N/A'}`);
+      console.log(`  HCFP Mode:   ${h.hcfp_mode || 'N/A'}`);
+      console.log(`  Version:     ${h.version || VERSION}`);
+    } catch { console.log('  ⚠️  HeadyManager unreachable — check if it\'s running'); }
+    try {
+      const b = await apiGet('/api/brain/health');
+      console.log(`\n  Brain:       ${b.status || 'unknown'}`);
+      console.log(`  Interactions: ${b.interactions_logged || 0}`);
+    } catch { console.log('  Brain:       offline'); }
+    try {
+      const a = await apiGet('/api/autonomy/status');
+      console.log(`\n  Autonomy:    ${a.mode || 'unknown'}`);
+      if (a.allocation) {
+        console.log(`  Knowledge:   ${a.allocation.knowledge_gathering||0}%`);
+        console.log(`  User Task:   ${a.allocation.user_task||0}%`);
+      }
+    } catch { console.log('  Autonomy:    offline'); }
+    console.log('');
+  });
+
+program
+  .command('health')
+  .description('🏥 Quick health check of all endpoints')
+  .action(async () => {
+    banner('HEADY HEALTH CHECK');
+    const endpoints = [
+      { name: 'HeadyManager',  url: '/api/health' },
+      { name: 'Brain API',     url: '/api/brain/health' },
+      { name: 'Autonomy',      url: '/api/autonomy/status' },
+    ];
+    for (const ep of endpoints) {
+      try {
+        const r = await apiGet(ep.url);
+        console.log(`  ✅ ${ep.name.padEnd(20)} OK`);
+      } catch {
+        console.log(`  ❌ ${ep.name.padEnd(20)} UNREACHABLE`);
+      }
+    }
+    console.log('');
+  });
+
+// ══════════════════════════════════════════════
+// 🧠 Brain / AI Commands
+// ══════════════════════════════════════════════
+const brain = program.command('brain').description('🧠 HeadyBrain — AI chat, analysis, embeddings');
+brain.command('chat <message>').description('Send a chat message to HeadyBrain')
+  .option('-m, --model <model>', 'Model override', 'heady-brain')
+  .option('-t, --temp <temp>', 'Temperature', '0.7')
+  .action((message, opts) => {
+    const body = JSON.stringify({ message, model: opts.model, temperature: parseFloat(opts.temp) });
+    run(`curl -s -X POST ${API}/api/brain/chat -H "Content-Type: application/json" -d '${body}' | node -e "process.stdin.on('data',d=>{const r=JSON.parse(d);console.log(r.response||r.message||JSON.stringify(r,null,2))})"`, { stdio: ['pipe','inherit','inherit'] });
+  });
+brain.command('analyze <file>').description('Analyze a file with HeadyBrain')
+  .option('-f, --focus <focus>', 'Analysis focus', 'general')
+  .action((file, opts) => {
+    const content = fs.readFileSync(path.resolve(file), 'utf8');
+    const lang = path.extname(file).slice(1);
+    const body = JSON.stringify({ content, type: 'code', language: lang, focus: opts.focus });
+    run(`curl -s -X POST ${API}/api/brain/analyze -H "Content-Type: application/json" -d '${body.replace(/'/g, "'\\''")}' | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).analysis||d.toString()))"`, { stdio: ['pipe','inherit','inherit'] });
+  });
+brain.command('search <query>').description('Search the knowledge base')
+  .option('-l, --limit <n>', 'Max results', '10')
+  .action((query, opts) => {
+    const body = JSON.stringify({ query, scope: 'all', limit: parseInt(opts.limit) });
+    run(`curl -s -X POST ${API}/api/brain/search -H "Content-Type: application/json" -d '${body}' | node -e "process.stdin.on('data',d=>console.log(JSON.stringify(JSON.parse(d),null,2)))"`, { stdio: ['pipe','inherit','inherit'] });
+  });
+
+// ══════════════════════════════════════════════
+// 🚢 Deploy Commands
+// ══════════════════════════════════════════════
+const deploy = program.command('deploy').description('🚢 Deployment tools');
+deploy.command('production').description('Deploy to production').action(() => runScript('deploy-production.sh'));
+deploy.command('hcfp').description('HCFP fixed deploy').action(() => runScript('hcfp-fixed-deploy.sh'));
+deploy.command('all').description('Deploy all HCFP targets').action(() => runScript('hcfp/hcfp-deploy-all.sh'));
+deploy.command('arena').description('Deploy arena services').action(() => runScript('arena-deploy-all.sh'));
+
+// ══════════════════════════════════════════════
+// 🔬 HeadyLens Commands
+// ══════════════════════════════════════════════
+const lens = program.command('lens').description('🔬 HeadyLens — Visual monitoring & analysis');
+lens.command('scan').description('Scan all production domains')
+  .action(async () => {
+    banner('HEADYLENS — DOMAIN SCAN');
+    const domains = ['headyme.com','headysystems.com','headyconnection.org','headymcp.com','headyio.com','headybuddy.org'];
+    for (const d of domains) {
+      try {
+        const start = Date.now();
+        await new Promise((resolve, reject) => {
+          https.get(`https://${d}`, { timeout: 5000 }, res => {
+            res.resume();
+            res.on('end', resolve);
+          }).on('error', reject);
+        });
+        console.log(`  ✅ ${d.padEnd(25)} ${Date.now()-start}ms`);
+      } catch (e) {
+        console.log(`  ❌ ${d.padEnd(25)} ${e.code || 'ERROR'}`);
+      }
+    }
+    console.log('');
+  });
+
+// ══════════════════════════════════════════════
+// 🧹 Memory Commands
+// ══════════════════════════════════════════════
+const memory = program.command('memory').description('🧠 Memory system management');
+memory.command('status').description('Memory system status')
+  .action(() => {
+    banner('MEMORY SYSTEM STATUS');
+    const memFile = path.join(ROOT, 'data', 'memory-store.json');
+    const brainFile = path.join(ROOT, 'data', 'brain-interactions.json');
+    if (fs.existsSync(memFile)) {
+      const stats = fs.statSync(memFile);
+      const data = JSON.parse(fs.readFileSync(memFile, 'utf8'));
+      const count = Array.isArray(data) ? data.length : Object.keys(data).length;
+      console.log(`  memory-store.json:     ${count} entries (${(stats.size/1024).toFixed(1)}KB)`);
+      console.log(`  Last modified:         ${stats.mtime.toISOString()}`);
+    } else { console.log('  memory-store.json:     NOT FOUND'); }
+    if (fs.existsSync(brainFile)) {
+      const stats = fs.statSync(brainFile);
+      const data = JSON.parse(fs.readFileSync(brainFile, 'utf8'));
+      const count = Array.isArray(data) ? data.length : Object.keys(data).length;
+      console.log(`  brain-interactions:    ${count} logged (${(stats.size/1024).toFixed(1)}KB)`);
+    } else { console.log('  brain-interactions:    NOT FOUND'); }
+    console.log('');
+  });
+memory.command('fix').description('Fix memory 150-limit bug').action(() => runScript('fix-memory-system.js'));
+memory.command('init').description('Initialize memory system').action(() => runScript('initialize-memory.js'));
+
+// ══════════════════════════════════════════════
+// ⚔️ Battle / Enforcement
+// ══════════════════════════════════════════════
+const battle = program.command('battle').description('⚔️ HeadyBattle — Enforcement & compliance');
+battle.command('test').description('Run HeadyBattle tests').action(() => runScript('testing/test-heady-battle.js'));
+battle.command('enforce-naming').description('Enforce naming standards').action(() => runScript('enforcement/enforce-naming.js'));
+battle.command('enforce-localhost').description('Enforce no localhost').action(() => runScript('enforcement/enforce-localhost.js'));
+battle.command('verify-domains').description('Verify domain compliance').action(() => runScript('verify-no-localhost.sh'));
+battle.command('zero-tolerance').description('Zero-tolerance enforcement sweep').action(() => runScript('zero-tolerance-enforcement.sh'));
+
+// ══════════════════════════════════════════════
+// 🔧 Manager Commands
+// ══════════════════════════════════════════════
+const manager = program.command('manager').description('📡 HeadyManager — Core orchestration');
+manager.command('start').description('Start HeadyManager in production')
+  .action(() => run('NODE_ENV=production node heady-manager.js'));
+manager.command('dev').description('Start HeadyManager in dev mode')
+  .action(() => run('npx nodemon --watch src --ext js,json --exec "node heady-manager.js"'));
+manager.command('asap').description('Start all services (zero-idle + monitor + optimizer + learner)')
+  .action(() => run('npm run asap'));
+
+// ══════════════════════════════════════════════
+// 🏗️ Infrastructure
+// ══════════════════════════════════════════════
+const infra = program.command('infra').description('🏗️ Infrastructure management');
+infra.command('setup').description('Set up local infrastructure').action(() => runScript('setup-local-infrastructure.sh'));
+infra.command('cloudflare').description('Cloudflare diagnostics').action(() => runScript('cloudflare/cloudflare-error-diagnostic.js'));
+infra.command('drupal-setup').description('Set up Drupal hybrid').action(() => runScript('setup-drupal-hybrid.js'));
+infra.command('pqc').description('Post-Quantum Cryptography setup').action(() => runScript('implement-pqc.sh'));
+
+// ══════════════════════════════════════════════
+// 🎓 Training
+// ══════════════════════════════════════════════
+const train = program.command('train').description('🎓 HC Training pipeline');
+train.command('execute').description('Execute HC training').action(() => runScript('training/execute-hc-training.js'));
+train.command('analyze').description('HCTrainer analysis').action(() => runScript('training/hctrainer-analysis.js'));
+
+// ══════════════════════════════════════════════
+// 🔍 Scan & Validate
+// ══════════════════════════════════════════════
+const scan = program.command('scan').description('🔍 Scan & validate the codebase');
+scan.command('localhost').description('Scan for localhost references').action(() => runScript('verify-no-localhost.sh'));
+scan.command('lint').description('Lint output validation').action(() => runScript('heady-output-lint.js'));
+scan.command('branding').description('Validate branding consistency').action(() => runScript('validate-branding.js'));
+scan.command('registry').description('Validate service registry').action(() => runScript('validate-registry.js'));
+scan.command('websites').description('Full website health check').action(() => runScript('website-health-check.sh'));
+scan.command('docs').description('Verify documentation').action(() => runScript('verify-docs.js'));
+
+// ══════════════════════════════════════════════
+// 🐍 Python CLI
+// ══════════════════════════════════════════════
+program
+  .command('py <args...>')
+  .description('🐍 Run Heady Python CLI')
+  .action((args) => runScript(path.join(ROOT, '..', 'Heady', 'scripts', 'heady_cli.py'), args));
+
+// ══════════════════════════════════════════════
+// 📜 Script Runner
+// ══════════════════════════════════════════════
+program
+  .command('run <script> [args...]')
+  .description('📜 Run any Heady script by name (auto-detects runner)')
+  .action((script, args) => {
+    // Try exact match first, then fuzzy
+    let found = null;
+    const tryPaths = [
+      path.join(SCRIPTS, script),
+      path.join(SCRIPTS, script + '.js'),
+      path.join(SCRIPTS, script + '.sh'),
+      path.join(SCRIPTS, script + '.py'),
+      path.join(SCRIPTS, 'hcfp', script),
+      path.join(SCRIPTS, 'hcfp', script + '.js'),
+      path.join(SCRIPTS, 'hcfp', script + '.sh'),
+      path.join(SCRIPTS, 'deployment', script),
+      path.join(SCRIPTS, 'deployment', script + '.sh'),
+      path.join(SCRIPTS, 'testing', script),
+      path.join(SCRIPTS, 'testing', script + '.js'),
+      path.join(SCRIPTS, 'training', script),
+      path.join(SCRIPTS, 'training', script + '.js'),
+      path.join(SCRIPTS, 'cloudflare', script),
+      path.join(SCRIPTS, 'cloudflare', script + '.js'),
+      path.join(SCRIPTS, 'cloudflare', script + '.sh'),
+      path.join(SCRIPTS, 'enforcement', script),
+      path.join(SCRIPTS, 'enforcement', script + '.js'),
+    ];
+    for (const p of tryPaths) {
+      if (fs.existsSync(p)) { found = p; break; }
+    }
+    if (!found) {
+      console.error(`❌ Script "${script}" not found. Try: heady scripts`);
+      process.exit(1);
+    }
+    console.log(`▶ Running: ${path.relative(ROOT, found)}`);
+    runScript(found, args);
+  });
+
+// ══════════════════════════════════════════════
+// 📂 List Scripts
+// ══════════════════════════════════════════════
+program
+  .command('scripts')
+  .description('📂 List all available scripts')
+  .option('-c, --category <cat>', 'Filter by category (hcfp, deploy, test, train, cloudflare, enforce)')
+  .action((opts) => {
+    banner('AVAILABLE HEADY SCRIPTS');
+    const categories = {
+      hcfp: 'hcfp', deploy: 'deployment', test: 'testing',
+      train: 'training', cloudflare: 'cloudflare', enforce: 'enforcement'
+    };
+    const scanDir = opts.category && categories[opts.category]
+      ? path.join(SCRIPTS, categories[opts.category])
+      : SCRIPTS;
+    
+    function listScripts(dir, prefix = '') {
+      if (!fs.existsSync(dir)) return;
+      const items = fs.readdirSync(dir).sort();
+      for (const item of items) {
+        const full = path.join(dir, item);
+        const stat = fs.statSync(full);
+        if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
+          console.log(`\n  📁 ${prefix}${item}/`);
+          listScripts(full, prefix + '  ');
+        } else if (/\.(js|sh|py|ts)$/.test(item)) {
+          const size = (stat.size / 1024).toFixed(1) + 'KB';
+          console.log(`  ${prefix}📄 ${item.padEnd(45)} ${size}`);
+        }
+      }
+    }
+    listScripts(scanDir);
+    console.log('');
+  });
+
+// ══════════════════════════════════════════════
+// ⚙️ Config
+// ══════════════════════════════════════════════
+program
+  .command('config')
+  .description('⚙️ Show all configuration files')
+  .action(() => {
+    banner('HEADY CONFIGURATION');
+    if (fs.existsSync(CONFIGS)) {
+      const files = fs.readdirSync(CONFIGS).filter(f => /\.(json|yaml|yml)$/.test(f)).sort();
+      for (const f of files) {
+        const stat = fs.statSync(path.join(CONFIGS, f));
+        console.log(`  ${f.padEnd(40)} ${(stat.size/1024).toFixed(1)}KB  ${stat.mtime.toISOString().slice(0,16)}`);
+      }
+    }
+    console.log('');
+  });
+
+// ══════════════════════════════════════════════
+// 🆘 Info
+// ══════════════════════════════════════════════
+program
+  .command('info')
+  .description('ℹ️  Show Heady ecosystem info')
+  .action(() => {
+    banner('HEADY SYSTEMS ECOSYSTEM');
+    const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+    console.log(`  Name:       ${pkg.name}`);
+    console.log(`  Version:    ${pkg.version}`);
+    console.log(`  CLI:        heady v${VERSION}`);
+    console.log(`  Root:       ${ROOT}`);
+    console.log(`  Node:       ${process.version}`);
+    console.log(`  Platform:   ${process.platform} ${process.arch}`);
+    console.log(`  Manager:    ${API}`);
+    console.log(`\n  Domains:    headyme.com, headysystems.com, headymcp.com`);
+    console.log(`              headyio.com, headybuddy.org, headyconnection.org`);
+    console.log(`\n  Services:   30+ (see: heady status)`);
+    console.log(`  Scripts:    150+ (see: heady scripts)`);
+    console.log('');
+  });
+
+// Parse
+program.parse();
+if (!process.argv.slice(2).length) program.outputHelp();
