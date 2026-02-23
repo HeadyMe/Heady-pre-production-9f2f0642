@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>HeadyIO — Developer Platform & Hive SDK</title>
+    <meta name="description"
+        content="The official developer platform for the Heady AI ecosystem. Hive SDK documentation, API reference, quickstart guides, and interactive playground.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --brand: #6366f1;
+            --brand-glow: #6366f166;
+            --brand-light: #818cf8;
+            --bg: #050508;
+            --surface: rgba(15, 15, 22, 0.6);
+            --border: rgba(255, 255, 255, 0.06);
+            --text: #e2e8f0;
+            --text-dim: rgba(255, 255, 255, 0.45);
+            --code-bg: rgba(99, 102, 241, 0.08);
+            --green: #34d399;
+            --amber: #fbbf24;
+            --mono: 'JetBrains Mono', monospace
+        }
+
+        html,
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            scroll-behavior: smooth
+        }
+
+        #cosmic-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        /* ── Header ── */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 5, 8, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            text-decoration: none
+        }
+
+        .logo-mark {
+            font-size: 1.5rem;
+            color: var(--brand);
+            font-weight: 800;
+            text-shadow: 0 0 20px var(--brand-glow)
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+            letter-spacing: .5px
+        }
+
+        .logo-badge {
+            font-size: .55rem;
+            background: var(--brand);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 4px;
+            vertical-align: super
+        }
+
+        nav {
+            display: flex;
+            gap: .25rem;
+            align-items: center
+        }
+
+        nav a {
+            padding: .45rem .9rem;
+            border-radius: 8px;
+            font-size: .8rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: all .2s;
+            letter-spacing: .01em
+        }
+
+        nav a:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, .05)
+        }
+
+        nav a.active {
+            color: #fff;
+            background: rgba(99, 102, 241, .15);
+            border: 1px solid rgba(99, 102, 241, .2)
+        }
+
+        .nav-cta {
+            background: var(--brand) !important;
+            color: #fff !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 12px var(--brand-glow)
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--brand-glow)
+        }
+
+        .nav-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border);
+            margin: 0 .5rem
+        }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .4rem 1rem;
+            border-radius: 50px;
+            background: rgba(99, 102, 241, .08);
+            border: 1px solid rgba(99, 102, 241, .15);
+            font-size: .7rem;
+            color: var(--brand-light);
+            margin-bottom: 2rem;
+            letter-spacing: .06em;
+            font-weight: 500
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s ease infinite
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+
+            50% {
+                opacity: .4;
+                transform: scale(.7)
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 7vw, 4.5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--brand-light) 50%, var(--brand) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1.1
+        }
+
+        .hero-sub {
+            font-size: 1.15rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: .75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem
+        }
+
+        .btn {
+            padding: .7rem 1.6rem;
+            border-radius: 10px;
+            font-size: .85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .25s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .btn-primary {
+            background: var(--brand);
+            color: #fff;
+            box-shadow: 0 4px 20px var(--brand-glow)
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--brand-glow)
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, .05);
+            color: #fff;
+            border: 1px solid var(--border)
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, .08);
+            border-color: rgba(255, 255, 255, .12)
+        }
+
+        /* ── Code Block (Stripe-style inline) ── */
+        .code-hero {
+            max-width: 680px;
+            margin: 0 auto 4rem;
+            text-align: left;
+            background: rgba(10, 10, 18, .7);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            backdrop-filter: blur(10px)
+        }
+
+        .code-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            padding: 0 1rem
+        }
+
+        .code-tab {
+            padding: .6rem 1rem;
+            font-size: .72rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all .2s;
+            font-family: var(--mono)
+        }
+
+        .code-tab.active {
+            color: var(--brand-light);
+            border-color: var(--brand)
+        }
+
+        .code-tab:hover {
+            color: #fff
+        }
+
+        .code-content {
+            padding: 1.2rem 1.5rem;
+            font-family: var(--mono);
+            font-size: .8rem;
+            line-height: 1.8;
+            overflow-x: auto
+        }
+
+        .code-content .kw {
+            color: #c084fc
+        }
+
+        .code-content .fn {
+            color: #60a5fa
+        }
+
+        .code-content .str {
+            color: var(--green)
+        }
+
+        .code-content .cmt {
+            color: var(--text-dim)
+        }
+
+        .code-content .op {
+            color: #818cf8
+        }
+
+        .code-content .var {
+            color: #fff
+        }
+
+        /* ── Stats Bar ── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            max-width: 900px;
+            margin: 0 auto 5rem;
+            padding: 0 2rem
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            backdrop-filter: blur(8px)
+        }
+
+        .stat-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: .3rem
+        }
+
+        .stat-lbl {
+            font-size: .65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            font-weight: 500
+        }
+
+        /* ── Section Headers ── */
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: .75rem
+        }
+
+        .section-header p {
+            color: var(--text-dim);
+            font-size: .95rem;
+            max-width: 600px;
+            margin: 0 auto
+        }
+
+        .section-label {
+            font-size: .65rem;
+            color: var(--brand-light);
+            text-transform: uppercase;
+            letter-spacing: .15em;
+            font-weight: 600;
+            margin-bottom: .5rem
+        }
+
+        /* ── SDK Modules (Twilio-style cards) ── */
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem
+        }
+
+        .module {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.8rem;
+            transition: all .3s;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(8px)
+        }
+
+        .module::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--brand), transparent);
+            opacity: 0;
+            transition: opacity .3s
+        }
+
+        .module:hover {
+            border-color: rgba(99, 102, 241, .2);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, .4)
+        }
+
+        .module:hover::before {
+            opacity: 1
+        }
+
+        .module-icon {
+            font-size: 1.5rem;
+            margin-bottom: 1rem
+        }
+
+        .module h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: .5rem
+        }
+
+        .module-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .3rem;
+            margin-bottom: .75rem
+        }
+
+        .module-methods code {
+            font-family: var(--mono);
+            font-size: .65rem;
+            padding: .2rem .5rem;
+            background: var(--code-bg);
+            border-radius: 4px;
+            color: var(--brand-light)
+        }
+
+        .module p {
+            font-size: .8rem;
+            color: var(--text-dim);
+            line-height: 1.6
+        }
+
+        /* ── Quickstart Steps ── */
+        .quickstart {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem
+        }
+
+        .step {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(8px)
+        }
+
+        .step-num {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            width: 28px;
+            height: 28px;
+            background: var(--brand);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 4px 12px var(--brand-glow)
+        }
+
+        .step h3 {
+            font-size: .95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: .5rem;
+            margin-top: .5rem
+        }
+
+        .step code {
+            display: block;
+            font-family: var(--mono);
+            font-size: .75rem;
+            padding: .75rem 1rem;
+            background: rgba(0, 0, 0, .3);
+            border-radius: 8px;
+            color: var(--green);
+            margin-top: .75rem;
+            overflow-x: auto;
+            border: 1px solid var(--border)
+        }
+
+        .step p {
+            font-size: .8rem;
+            color: var(--text-dim);
+            line-height: 1.6
+        }
+
+        /* ── API Reference (OpenAI-style) ── */
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem
+        }
+
+        .api-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all .2s;
+            backdrop-filter: blur(8px)
+        }
+
+        .api-item:hover {
+            border-color: rgba(99, 102, 241, .15)
+        }
+
+        .api-method {
+            font-family: var(--mono);
+            font-size: .7rem;
+            padding: .15rem .45rem;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-right: .5rem
+        }
+
+        .api-get {
+            background: rgba(52, 211, 153, .12);
+            color: #34d399
+        }
+
+        .api-post {
+            background: rgba(99, 102, 241, .12);
+            color: #818cf8
+        }
+
+        .api-path {
+            font-family: var(--mono);
+            font-size: .72rem;
+            color: var(--text-dim)
+        }
+
+        .api-desc {
+            font-size: .75rem;
+            color: var(--text-dim);
+            margin-top: .5rem
+        }
+
+        /* ── Bridge Cards ── */
+        .bridges {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem
+        }
+
+        .bridge {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(8px)
+        }
+
+        .bridge h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .bridge-services {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: .5rem
+        }
+
+        .bridge-svc {
+            font-size: .75rem;
+            color: var(--text-dim);
+            padding: .4rem .6rem;
+            background: rgba(255, 255, 255, .03);
+            border-radius: 6px;
+            border: 1px solid var(--border)
+        }
+
+        .bridge-svc .svc-name {
+            color: #fff;
+            font-weight: 500
+        }
+
+        /* ── Community Nav ── */
+        .domain-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            justify-content: center;
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto
+        }
+
+        .domain-link {
+            padding: .4rem .9rem;
+            border-radius: 8px;
+            font-size: .72rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-decoration: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: all .2s;
+            backdrop-filter: blur(8px)
+        }
+
+        .domain-link:hover {
+            color: #fff;
+            border-color: rgba(99, 102, 241, .2);
+            background: rgba(99, 102, 241, .06)
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: .72rem;
+            letter-spacing: .05em
+        }
+
+        footer a {
+            color: var(--brand-light);
+            text-decoration: none
+        }
+
+        @media(max-width:768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem
+            }
+
+            nav {
+                flex-wrap: wrap;
+                justify-content: center
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(3, 1fr)
+            }
+
+            .hero {
+                padding: 4rem 1.5rem 3rem
+            }
+
+            .section {
+                padding: 3rem 1.5rem
+            }
+        }
+
+        @media(max-width:480px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+    </style>
+
+<link rel="manifest" href="/manifests/headyio.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Headyio">
+<link rel="apple-touch-icon" href="/heady-icon-192.png">
+</head>
+
+<body>
+    <canvas id="cosmic-canvas"></canvas>
+    <div class="wrap">
+        <header>
+            <a class="logo" href="/v/headyio">
+                <span class="logo-mark">⬡</span>
+                <span class="logo-text">HeadyIO<span class="logo-badge">SDK</span></span>
+            </a>
+            <nav>
+                <a href="#quickstart">Quickstart</a>
+                <a href="#modules">SDK Modules</a>
+                <a href="#api">API Reference</a>
+                <a href="#bridges">Integrations</a>
+                <a href="#examples">Examples</a>
+                <a href="#faq">FAQ</a>
+                <div class="nav-divider"></div>
+                <a href="/v/headyme">HeadyMe</a>
+                <a href="/v/headysystems">Systems</a>
+                <a href="/v/headymcp">MCP</a>
+                <a href="/v/headyapi">API Docs</a>
+                <a href="https://github.com/headyme/heady-hive-sdk" class="nav-cta">GitHub →</a>
+            </nav>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-badge"><span class="dot"></span> Heady Hive SDK v1.0.0</div>
+            <h1>Build with the Heady Hive SDK</h1>
+            <p class="hero-sub">Connect to 40+ AI services through a single, zero-dependency SDK. Chat, validate,
+                create, search, and deploy — all from one client.</p>
+            <div class="hero-actions">
+                <a href="#quickstart" class="btn btn-primary">⚡ Get Started</a>
+                <a href="#modules" class="btn btn-secondary">📖 Documentation</a>
+                <a href="https://github.com/headyme/heady-hive-sdk" class="btn btn-secondary">⬡ GitHub</a>
+            </div>
+        </section>
+
+        <!-- INLINE CODE (Stripe-style with working tabs) -->
+        <div class="code-hero">
+            <div class="code-tabs" id="code-tabs">
+                <span class="code-tab active" onclick="switchTab(0)">JavaScript</span>
+                <span class="code-tab" onclick="switchTab(1)">CLI</span>
+                <span class="code-tab" onclick="switchTab(2)">cURL</span>
+            </div>
+            <div class="code-content" id="code-panel-0">
+                <span class="cmt">// Connect to Heady in 3 lines</span><br>
+                <span class="kw">const</span> { <span class="var">HeadyClient</span> } = <span
+                    class="fn">require</span>(<span class="str">"heady-hive-sdk"</span>);<br>
+                <span class="kw">const</span> <span class="var">heady</span> = <span class="kw">new</span> <span
+                    class="fn">HeadyClient</span>({ <span class="var">url</span>: <span
+                    class="str">"https://headyme.com"</span> });<br><br>
+                <span class="cmt">// Chat with HeadyBrain</span><br>
+                <span class="kw">const</span> <span class="var">reply</span> = <span class="kw">await</span> <span
+                    class="var">heady</span>.<span class="fn">brain</span>.<span class="fn">chat</span>(<span
+                    class="str">"Analyze my project"</span>);<br><br>
+                <span class="cmt">// Validate through HeadyBattle</span><br>
+                <span class="kw">const</span> <span class="var">result</span> = <span class="kw">await</span> <span
+                    class="var">heady</span>.<span class="fn">battle</span>.<span class="fn">validate</span>(<span
+                    class="str">"Added caching"</span>);<br><br>
+                <span class="cmt">// Generate creative content</span><br>
+                <span class="kw">const</span> <span class="var">art</span> = <span class="kw">await</span> <span
+                    class="var">heady</span>.<span class="fn">creative</span>.<span class="fn">generate</span>(<span
+                    class="str">"sacred geometry"</span>);
+            </div>
+            <div class="code-content" id="code-panel-1" style="display:none">
+                <span class="cmt"># Heady CLI — run from terminal</span><br><br>
+                <span class="fn">$</span> <span class="var">heady</span> <span class="str">chat</span> <span
+                    class="str">"Analyze my project architecture"</span><br>
+                <span class="cmt"># → HeadyBrain: Your project uses a microservices pattern...</span><br><br>
+                <span class="fn">$</span> <span class="var">heady</span> <span class="str">health</span><br>
+                <span class="cmt"># → 🧠 Heady System Info</span><br>
+                <span class="cmt"># Connected: true | SDK: v1.0.0 | Tasks: 155</span><br><br>
+                <span class="fn">$</span> <span class="var">heady</span> <span class="str">battle</span> <span
+                    class="str">"Added rate limiting to API"</span><br>
+                <span class="cmt"># → Score: 0.92 | APPROVED ✅</span><br><br>
+                <span class="fn">$</span> <span class="var">heady</span> <span class="str">mcp</span><br>
+                <span class="cmt"># → 🔧 MCP Tools: heady_deep_scan, heady_chat, ...</span>
+            </div>
+            <div class="code-content" id="code-panel-2" style="display:none">
+                <span class="cmt"># Chat with HeadyBrain via API</span><br>
+                <span class="fn">curl</span> <span class="str">-X POST</span> http://localhost:3301/api/brain/chat \<br>
+                &nbsp;&nbsp;<span class="str">-H</span> <span class="str">"Content-Type: application/json"</span> \<br>
+                &nbsp;&nbsp;<span class="str">-H</span> <span class="str">"Authorization: Bearer $HEADY_API_KEY"</span>
+                \<br>
+                &nbsp;&nbsp;<span class="str">-d</span> <span class="str">'{"prompt":"Analyze
+                    architecture"}'</span><br><br>
+                <span class="cmt"># Check system health</span><br>
+                <span class="fn">curl</span> http://localhost:3301/api/health<br><br>
+                <span class="cmt"># Auto-success engine status (155 tasks)</span><br>
+                <span class="fn">curl</span> http://localhost:3301/api/auto-success/status<br><br>
+                <span class="cmt"># Validate via HeadyBattle</span><br>
+                <span class="fn">curl</span> <span class="str">-X POST</span> http://localhost:3301/api/battle/validate
+                \<br>
+                &nbsp;&nbsp;<span class="str">-d</span> <span class="str">'{"change":"Added caching layer"}'</span>
+            </div>
+        </div>
+        <script>
+            function switchTab(idx) {
+                document.querySelectorAll('.code-tab').forEach((t, i) => { t.classList.toggle('active', i === idx); });
+                for (let i = 0; i < 3; i++) { const p = document.getElementById('code-panel-' + i); if (p) p.style.display = i === idx ? 'block' : 'none'; }
+            }
+        </script>
+
+        <!-- STATS -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-val">40+</div>
+                <div class="stat-lbl">Services</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">10</div>
+                <div class="stat-lbl">SDK Modules</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">155</div>
+                <div class="stat-lbl">Auto Tasks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">0</div>
+                <div class="stat-lbl">Dependencies</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">17</div>
+                <div class="stat-lbl">Domains</div>
+            </div>
+        </div>
+
+        <!-- QUICKSTART -->
+        <section class="section" id="quickstart">
+            <div class="section-header">
+                <div class="section-label">Getting Started</div>
+                <h2>Up and Running in 60 Seconds</h2>
+                <p>Three steps to connect your app to the full Heady AI ecosystem.</p>
+            </div>
+            <div class="quickstart">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <h3>Install the SDK</h3>
+                    <p>Zero dependencies. Works with Node.js 18+.</p>
+                    <code>npm install heady-hive-sdk</code>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <h3>Initialize Client</h3>
+                    <p>Point to any Heady instance — local or cloud.</p>
+                    <code>const heady = new HeadyClient({<br>&nbsp;&nbsp;url: "https://headyme.com",<br>&nbsp;&nbsp;apiKey: "your-key"<br>});</code>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <h3>Call Any Service</h3>
+                    <p>Brain, Battle, Creative, MCP — they're all ready.</p>
+                    <code>const reply = await heady.brain.chat("Hello!");<br>const score = await heady.battle.validate(code);</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- SDK MODULES -->
+        <section class="section" id="modules">
+            <div class="section-header">
+                <div class="section-label">SDK Modules</div>
+                <h2>9 Modules, Zero Dependencies</h2>
+                <p>Each module wraps a complete Heady subsystem with type-safe methods.</p>
+            </div>
+            <div class="modules">
+                <div class="module">
+                    <div class="module-icon">🧠</div>
+                    <h3>HeadyBrain</h3>
+                    <div class="module-methods">
+                        <code>.chat()</code><code>.analyze()</code><code>.embed()</code><code>.search()</code><code>.refactor()</code>
+                    </div>
+                    <p>AI reasoning, code analysis, vector embeddings, and knowledge base search — the cognitive core.
+                    </p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">⚔️</div>
+                    <h3>HeadyBattle</h3>
+                    <div class="module-methods">
+                        <code>.validate()</code><code>.arena()</code><code>.simulate()</code><code>.leaderboard()</code>
+                    </div>
+                    <p>Competitive validation. Every change faces tough questions. Arena Mode pits solutions against
+                        each other.</p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">🎨</div>
+                    <h3>HeadyCreative</h3>
+                    <div class="module-methods">
+                        <code>.generate()</code><code>.remix()</code><code>.pipeline()</code><code>.canvas()</code>
+                    </div>
+                    <p>Image, music, video, and writing generation. 9 input types, 8 pipelines, multi-model routing.</p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">🔧</div>
+                    <h3>HeadyMCP</h3>
+                    <div class="module-methods">
+                        <code>.listTools()</code><code>.callTool()</code><code>.addUpstream()</code><code>.deepScan()</code>
+                    </div>
+                    <p>MCP protocol hub. 30+ native tools plus upstream MCP server aggregation.</p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">🔐</div>
+                    <h3>HeadyAuth</h3>
+                    <div class="module-methods">
+                        <code>.login()</code><code>.deviceAuth()</code><code>.warpAuth()</code><code>.googleCallback()</code>
+                    </div>
+                    <p>4 auth methods: standard, device, Cloudflare WARP (365d), and Google OAuth (180d).</p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">📡</div>
+                    <h3>HeadyEvents</h3>
+                    <div class="module-methods"><code>.connect()</code><code>.on()</code><code>.disconnect()</code>
+                    </div>
+                    <p>Real-time SSE streaming with auto-reconnect and exponential backoff. Never miss a system event.
+                    </p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">🤖</div>
+                    <h3>OpenAI Bridge</h3>
+                    <div class="module-methods">
+                        <code>.fileSearch()</code><code>.embed()</code><code>.batchSubmit()</code><code>.createAssistant()</code>
+                    </div>
+                    <p>Assistants API with file retrieval, embeddings (text-embedding-3-small), and 50%-cheaper Batch
+                        API.</p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">☁️</div>
+                    <h3>Google Cloud Bridge</h3>
+                    <div class="module-methods">
+                        <code>.vision()</code><code>.sentiment()</code><code>.translate()</code><code>.tts()</code><code>.query()</code>
+                    </div>
+                    <p>Vision AI, NLP, Translation, Text-to-Speech, BigQuery, and Vertex AI — all via REST, no Google
+                        SDK needed.</p>
+                </div>
+                <div class="module">
+                    <div class="module-icon">⚡</div>
+                    <h3>CLI</h3>
+                    <div class="module-methods">
+                        <code>heady chat</code><code>heady health</code><code>heady battle</code><code>heady mcp</code>
+                    </div>
+                    <p>Command-line interface. Chat, check health, validate changes, and list tools from your terminal.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- API REFERENCE -->
+        <section class="section" id="api">
+            <div class="section-header">
+                <div class="section-label">API Reference</div>
+                <h2>Key Endpoints</h2>
+                <p>The Heady Manager (port 3301) serves all API endpoints. The SDK wraps these automatically.</p>
+            </div>
+            <div class="api-grid">
+                <div class="api-item"><span class="api-method api-get">GET</span><span
+                        class="api-path">/api/health</span>
+                    <div class="api-desc">System health status</div>
+                </div>
+                <div class="api-item"><span class="api-method api-post">POST</span><span
+                        class="api-path">/api/brain/chat</span>
+                    <div class="api-desc">Chat with HeadyBrain</div>
+                </div>
+                <div class="api-item"><span class="api-method api-post">POST</span><span
+                        class="api-path">/api/brain/analyze</span>
+                    <div class="api-desc">Code/text analysis</div>
+                </div>
+                <div class="api-item"><span class="api-method api-post">POST</span><span
+                        class="api-path">/api/brain/embed</span>
+                    <div class="api-desc">Vector embeddings</div>
+                </div>
+                <div class="api-item"><span class="api-method api-post">POST</span><span
+                        class="api-path">/api/battle/validate</span>
+                    <div class="api-desc">Competitive validation</div>
+                </div>
+                <div class="api-item"><span class="api-method api-post">POST</span><span
+                        class="api-path">/api/battle/arena</span>
+                    <div class="api-desc">Arena Mode competition</div>
+                </div>
+                <div class="api-item"><span class="api-method api-post">POST</span><span
+                        class="api-path">/api/creative/generate</span>
+                    <div class="api-desc">Creative content generation</div>
+                </div>
+                <div class="api-item"><span class="api-method api-get">GET</span><span
+                        class="api-path">/api/auto-success/status</span>
+                    <div class="api-desc">155-task engine dashboard</div>
+                </div>
+                <div class="api-item"><span class="api-method api-get">GET</span><span
+                        class="api-path">/api/conductor/health</span>
+                    <div class="api-desc">Orchestrator health</div>
+                </div>
+                <div class="api-item"><span class="api-method api-get">GET</span><span
+                        class="api-path">/api/liquid/status</span>
+                    <div class="api-desc">Liquid allocator status</div>
+                </div>
+                <div class="api-item"><span class="api-method api-get">GET</span><span
+                        class="api-path">/api/deep-intel/health</span>
+                    <div class="api-desc">Deep intelligence engine</div>
+                </div>
+                <div class="api-item"><span class="api-method api-post">POST</span><span
+                        class="api-path">/api/auth/login</span>
+                    <div class="api-desc">Authentication</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTEGRATIONS -->
+        <section class="section" id="bridges">
+            <div class="section-header">
+                <div class="section-label">Integrations</div>
+                <h2>Cloud Bridges — OpenAI + Google Cloud</h2>
+                <p>Connect to external AI services through the SDK's built-in bridge modules.</p>
+            </div>
+            <div class="bridges">
+                <div class="bridge">
+                    <h3>🤖 OpenAI Bridge</h3>
+                    <div class="bridge-services">
+                        <div class="bridge-svc"><span class="svc-name">Assistants API</span> — File search & RAG</div>
+                        <div class="bridge-svc"><span class="svc-name">Embeddings</span> — text-embedding-3-small</div>
+                        <div class="bridge-svc"><span class="svc-name">Batch API</span> — 50% cheaper async</div>
+                        <div class="bridge-svc"><span class="svc-name">Models</span> — GPT-4o, o1, o3</div>
+                    </div>
+                </div>
+                <div class="bridge">
+                    <h3>☁️ Google Cloud Bridge</h3>
+                    <div class="bridge-services">
+                        <div class="bridge-svc"><span class="svc-name">Vision AI</span> — Labels, OCR, objects</div>
+                        <div class="bridge-svc"><span class="svc-name">NLP</span> — Sentiment, entities</div>
+                        <div class="bridge-svc"><span class="svc-name">Translation</span> — 100+ languages</div>
+                        <div class="bridge-svc"><span class="svc-name">TTS</span> — Neural2 voices</div>
+                        <div class="bridge-svc"><span class="svc-name">BigQuery</span> — SQL analytics</div>
+                        <div class="bridge-svc"><span class="svc-name">Vertex AI</span> — ML predictions</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DOMAIN ECOSYSTEM -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-label">Ecosystem</div>
+                <h2>17 Domains, One Intelligence</h2>
+                <p>The Heady Hive SDK connects to every domain in the ecosystem.</p>
+            </div>
+            <div class="domain-nav">
+                <a href="/v/headyme" class="domain-link">🏠 headyme.com</a>
+                <a href="/v/headysystems" class="domain-link">⚙️ headysystems.com</a>
+                <a href="/v/headyconnection" class="domain-link">🤝 headyconnection.org</a>
+                <a href="/v/headymcp" class="domain-link">🔧 headymcp.com</a>
+                <a href="/v/headyio" class="domain-link active">⬡ headyio.com</a>
+                <a href="/v/headybuddy" class="domain-link">🤖 headybuddy.org</a>
+                <a href="/v/headybot" class="domain-link">🤖 headybot.com</a>
+                <a href="/v/headycreator" class="domain-link">🎨 headycreator.com</a>
+                <a href="/v/headymusic" class="domain-link">🎵 headymusic.com</a>
+                <a href="/v/headytube" class="domain-link">📹 headytube.com</a>
+                <a href="/v/headycloud" class="domain-link">☁️ headycloud.com</a>
+                <a href="/v/headylearn" class="domain-link">📚 headylearn.com</a>
+                <a href="/v/headystore" class="domain-link">🏪 headystore.com</a>
+                <a href="/v/headystudio" class="domain-link">🎬 headystudio.com</a>
+                <a href="/v/headyagent" class="domain-link">🤖 headyagent.com</a>
+                <a href="/v/headydata" class="domain-link">📊 headydata.com</a>
+                <a href="/v/headyapi" class="domain-link">🔌 headyapi.com</a>
+            </div>
+        </section>
+
+        <!-- EXAMPLES -->
+        <section class="section" id="examples">
+            <div class="section-header">
+                <div class="section-label">Code Examples</div>
+                <h2>Real-World Usage Patterns</h2>
+                <p>Copy-paste examples for common workflows.</p>
+            </div>
+            <div class="quickstart">
+                <div class="step">
+                    <div class="step-num">⚡</div>
+                    <h3>RAG with OpenAI Bridge</h3>
+                    <p>Upload docs, search with AI retrieval.</p>
+                    <code>const { OpenAIBridge } = require("heady-hive-sdk");<br>const ai = new OpenAIBridge();<br>await ai.createAssistant("Helper", "Analyze code");<br>const answer = await ai.fileSearch("How does auth work?");</code>
+                </div>
+                <div class="step">
+                    <div class="step-num">🔬</div>
+                    <h3>Monitor via SSE Events</h3>
+                    <p>Real-time task completion stream.</p>
+                    <code>heady.events.connect({ autoReconnect: true });<br>heady.events.on("task:complete", d =&gt; {<br>&nbsp;&nbsp;console.log(`✅ ${d.name} (${d.cat})`);<br>});<br>heady.events.on("error", console.error);</code>
+                </div>
+                <div class="step">
+                    <div class="step-num">🏛</div>
+                    <h3>Multi-Step Pipeline</h3>
+                    <p>Chain Brain → Battle → Creative.</p>
+                    <code>const analysis = await heady.brain.analyze(code);<br>const validation = await heady.battle.validate(analysis);<br>if (validation.score &gt; 0.8) {<br>&nbsp;&nbsp;await heady.creative.generate("success badge");<br>}</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- ARCHITECTURE -->
+        <section class="section" id="architecture">
+            <div class="section-header">
+                <div class="section-label">Architecture</div>
+                <h2>How It Connects</h2>
+            </div>
+            <div class="code-hero" style="max-width:750px;margin:0 auto">
+                <div class="code-tabs"><span class="code-tab active">Architecture</span></div>
+                <div class="code-content" style="font-size:.72rem;line-height:2">
+                    <span class="cmt">Your App / Website / CLI</span><br>
+                    <span class="kw">&nbsp;&nbsp;└──</span> <span class="fn">HeadyClient</span> <span class="cmt">(SDK
+                        v1.0.0)</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──</span> <span
+                        class="fn">HeadyBrain</span>&nbsp;&nbsp;&nbsp;&nbsp; <span class="str">→ /api/brain/*</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──</span> <span
+                        class="fn">HeadyBattle</span>&nbsp;&nbsp;&nbsp; <span class="str">→ /api/battle/*</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──</span> <span
+                        class="fn">HeadyCreative</span>&nbsp; <span class="str">→ /api/creative/*</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──</span> <span
+                        class="fn">HeadyMCP</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="str">→ /api/mcp/*
+                        (30+ tools)</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──</span> <span
+                        class="fn">HeadyAuth</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="str">→ /api/auth/* (4
+                        methods)</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──</span> <span
+                        class="fn">HeadyEvents</span>&nbsp;&nbsp;&nbsp; <span class="str">→ /api/events/stream
+                        (SSE)</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├──</span> <span
+                        class="fn">OpenAIBridge</span>&nbsp;&nbsp; <span class="str">→ api.openai.com</span><br>
+                    <span class="kw">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└──</span> <span
+                        class="fn">GCloudBridge</span>&nbsp;&nbsp; <span class="str">→ *.googleapis.com</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="section" id="faq">
+            <div class="section-header">
+                <div class="section-label">FAQ</div>
+                <h2>Frequently Asked Questions</h2>
+            </div>
+            <div style="max-width:700px;margin:0 auto">
+                <details
+                    style="margin-bottom:1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;backdrop-filter:blur(8px)">
+                    <summary style="cursor:pointer;font-weight:600;color:#fff;font-size:.9rem">Does the SDK require any
+                        external dependencies?</summary>
+                    <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-dim);line-height:1.7">No. The Heady
+                        Hive SDK has zero dependencies — it uses only Node.js built-in modules (http, https, events).
+                        This keeps it lightweight and secure.</p>
+                </details>
+                <details
+                    style="margin-bottom:1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;backdrop-filter:blur(8px)">
+                    <summary style="cursor:pointer;font-weight:600;color:#fff;font-size:.9rem">What Node.js version is
+                        required?</summary>
+                    <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-dim);line-height:1.7">Node.js 18 or
+                        higher. The SDK uses modern JavaScript features like optional chaining and async/await.</p>
+                </details>
+                <details
+                    style="margin-bottom:1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;backdrop-filter:blur(8px)">
+                    <summary style="cursor:pointer;font-weight:600;color:#fff;font-size:.9rem">Can I connect to multiple
+                        Heady instances?</summary>
+                    <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-dim);line-height:1.7">Yes. Create
+                        multiple HeadyClient instances with different URLs. Each maintains its own connection and auth
+                        state.</p>
+                </details>
+                <details
+                    style="margin-bottom:1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;backdrop-filter:blur(8px)">
+                    <summary style="cursor:pointer;font-weight:600;color:#fff;font-size:.9rem">Do I need an API key?
+                    </summary>
+                    <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-dim);line-height:1.7">For local
+                        development (localhost:3301), no key is needed. For production (headyme.com), use HEADY_API_KEY
+                        from your .env file.</p>
+                </details>
+                <details
+                    style="margin-bottom:1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.5rem;backdrop-filter:blur(8px)">
+                    <summary style="cursor:pointer;font-weight:600;color:#fff;font-size:.9rem">What are the 155
+                        auto-success tasks?</summary>
+                    <p style="margin-top:.75rem;font-size:.8rem;color:var(--text-dim);line-height:1.7">The auto-success
+                        engine continuously runs 155 background tasks across 10 categories: learning, optimization,
+                        integration, monitoring, maintenance, discovery, verification, creative, deep-intel, and
+                        hive-integration. They cycle every 16.18 seconds (φ-aligned).</p>
+                </details>
+            </div>
+        </section>
+
+        <!-- CHANGELOG -->
+        <section class="section" id="changelog">
+            <div class="section-header">
+                <div class="section-label">Changelog</div>
+                <h2>What's New</h2>
+            </div>
+            <div style="max-width:700px;margin:0 auto">
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1rem;backdrop-filter:blur(8px)">
+                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem">
+                        <span style="font-weight:700;color:#fff;font-size:1rem">v1.0.0</span>
+                        <span
+                            style="font-size:.65rem;padding:.15rem .5rem;background:rgba(52,211,153,.12);color:#34d399;border-radius:4px;font-weight:600">LATEST</span>
+                        <span style="font-size:.7rem;color:var(--text-dim);margin-left:auto">Feb 22, 2026</span>
+                    </div>
+                    <ul style="list-style:none;font-size:.8rem;color:var(--text-dim);line-height:2">
+                        <li>✨ Initial release — 9 SDK modules + CLI</li>
+                        <li>🧠 HeadyBrain: chat, analyze, embed, search, refactor</li>
+                        <li>⚔️ HeadyBattle: validate, arena, simulate, leaderboard</li>
+                        <li>🎨 HeadyCreative: generate, remix, canvas, 8 pipelines</li>
+                        <li>🔧 HeadyMCP: 30+ tools, upstream aggregation</li>
+                        <li>🔐 HeadyAuth: 4 methods (manual, device, WARP, OAuth)</li>
+                        <li>📡 HeadyEvents: SSE streaming with auto-reconnect</li>
+                        <li>🤖 OpenAI Bridge: Assistants, embeddings, batch API</li>
+                        <li>☁️ Google Cloud Bridge: Vision, NLP, TTS, BigQuery, Vertex</li>
+                        <li>⚡ 155 auto-success tasks (20 new hive-integration)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            © 2026 Heady Project — <a href="/v/headyio">HeadyIO</a> · <a
+                href="https://github.com/headyme/heady-hive-sdk">GitHub</a> · <a href="#quickstart">Get Started</a> · <a
+                href="#modules">Docs</a> · <a href="#api">API</a> · Powered by 155 Auto-Success Tasks
+        </footer>
+    </div>
+
+    <!-- FAB Chat -->
+    <button class="fab" onclick="toggleHeadyChat()" title="Chat with HeadyIO"
+        style="position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:14px;background:var(--brand);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px var(--brand-glow);transition:all .3s;z-index:200;font-size:1.3rem;color:#fff">⬡</button>
+
+    <!-- Chat Panel -->
+    <style>
+        #heady-chat-panel {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            width: 380px;
+            max-height: min(520px, 70vh);
+            background: rgba(10, 10, 25, 0.85);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            z-index: 10000;
+            font-family: Inter, system-ui, sans-serif;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.1);
+            backdrop-filter: blur(24px);
+            flex-direction: column;
+            overflow: hidden;
+            animation: chatSlideIn 0.3s ease-out
+        }
+
+        #heady-chat-panel.open {
+            display: flex
+        }
+
+        @keyframes chatSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1)
+            }
+        }
+
+        #heady-chat-panel .chat-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.1));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        #heady-chat-panel .chat-header .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0
+        }
+
+        #heady-chat-panel .chat-header .info {
+            flex: 1
+        }
+
+        #heady-chat-panel .chat-header .name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px
+        }
+
+        #heady-chat-panel .chat-header .hstatus {
+            color: #34d399;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px
+        }
+
+        #heady-chat-panel .chat-header .hstatus::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #34d399;
+            border-radius: 50%
+        }
+
+        #heady-chat-panel .close-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.2s
+        }
+
+        #heady-chat-panel .close-btn:hover {
+            color: #fff
+        }
+
+        #heady-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            min-height: 180px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(99, 102, 241, 0.3) transparent
+        }
+
+        .hc-msg {
+            margin-bottom: 12px;
+            animation: msgFadeIn 0.25s ease-out
+        }
+
+        @keyframes msgFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .hc-msg.bot .hc-bubble {
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 16px 16px 16px 4px;
+            color: rgba(255, 255, 255, 0.88);
+            padding: 10px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            max-width: 90%
+        }
+
+        .hc-msg.user {
+            text-align: right
+        }
+
+        .hc-msg.user .hc-bubble {
+            background: rgba(79, 70, 229, 0.2);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            border-radius: 16px 16px 4px 16px;
+            color: rgba(255, 255, 255, 0.92);
+            padding: 10px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            display: inline-block;
+            max-width: 85%;
+            text-align: left
+        }
+
+        .hc-typing {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            padding: 4px 0
+        }
+
+        .hc-typing span {
+            animation: typingDot 1.4s infinite;
+            display: inline-block
+        }
+
+        .hc-typing span:nth-child(2) {
+            animation-delay: 0.2s
+        }
+
+        .hc-typing span:nth-child(3) {
+            animation-delay: 0.4s
+        }
+
+        @keyframes typingDot {
+
+            0%,
+            60%,
+            100% {
+                opacity: 0.3
+            }
+
+            30% {
+                opacity: 1
+            }
+        }
+
+        #heady-chat-panel .chat-input-area {
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.2)
+        }
+
+        #heady-chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit
+        }
+
+        #heady-chat-input:focus {
+            border-color: rgba(99, 102, 241, 0.4)
+        }
+
+        #heady-chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.3)
+        }
+
+        #heady-chat-send {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: transform 0.15s;
+            font-family: inherit
+        }
+
+        #heady-chat-send:hover {
+            transform: scale(1.05)
+        }
+    </style>
+    <div id="heady-chat-panel">
+        <div class="chat-header">
+            <div class="avatar">⬡</div>
+            <div class="info">
+                <div class="name">HeadyIO</div>
+                <div class="hstatus">Online · SDK Context</div>
+            </div>
+            <button class="close-btn" onclick="toggleHeadyChat()">✕</button>
+        </div>
+        <div id="heady-chat-messages">
+            <div class="hc-msg bot">
+                <div class="hc-bubble">Welcome to HeadyIO! I can help with SDK integration, API reference, or anything
+                    about the Heady ecosystem. What are you building? ⬡</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input id="heady-chat-input" type="text" placeholder="Ask about the SDK..."
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendHeadyChat();}">
+            <button id="heady-chat-send" onclick="sendHeadyChat()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleHeadyChat() { var p = document.getElementById('heady-chat-panel'); if (p.classList.contains('open')) { p.classList.remove('open'); p.style.display = 'none'; } else { p.classList.add('open'); p.style.display = 'flex'; document.getElementById('heady-chat-input').focus(); } }
+        async function sendHeadyChat() { var input = document.getElementById('heady-chat-input'); var msg = input.value.trim(); if (!msg) return; input.value = ''; var c = document.getElementById('heady-chat-messages'); c.innerHTML += '<div class="hc-msg user"><div class="hc-bubble">' + msg.replace(/</g, '&lt;') + '</div></div>'; c.innerHTML += '<div class="hc-msg bot" id="heady-typing-msg"><div class="hc-typing"><span>.</span><span>.</span><span>.</span></div></div>'; c.scrollTop = c.scrollHeight; try { var r = await fetch((window.location.origin)+'/api/brain/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: { vertical: 'headyio.com' } }) }); var d = await r.json(); var reply = (d.response || d.message || d.text || 'Connected to HeadyIO SDK hub.').replace(/</g, '&lt;').replace(/\n/g, '<br>'); var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); c.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">' + reply + '</div></div>'; c.scrollTop = c.scrollHeight; } catch (e) { var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); c.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">Connected to HeadyIO SDK ecosystem. Full context active! ⬡</div></div>'; c.scrollTop = c.scrollHeight; } }
+    </script>
+
+    <!-- Cosmic Canvas (Metatron's Cube for developer/SDK theme) -->
+    <script>
+        (function () {
+            const canvas = document.getElementById('cosmic-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height, cx, cy, stars = [], time = 0;
+            const baseColor1 = { r: 99, g: 102, b: 241 };
+            function resize() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                cx = width / 2; cy = height / 2;
+                stars = [];
+                const n = (width * height) / 4000;
+                for (let i = 0; i < n; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2, size: Math.random() * 1.5, blinkSpeed: Math.random() * 0.02 + 0.005, blinkOffset: Math.random() * Math.PI * 2 });
+            }
+            function drawStars() {
+                ctx.fillStyle = '#050508';
+                ctx.fillRect(0, 0, width, height);
+                stars.forEach(s => {
+                    s.y -= s.z * 0.15; s.x += s.z * 0.08;
+                    if (s.y < 0) s.y = height; if (s.x > width) s.x = 0;
+                    const b = Math.sin(time * s.blinkSpeed + s.blinkOffset) * 0.5 + 0.5;
+                    ctx.fillStyle = `rgba(255,255,255,${b * 0.6})`;
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+                });
+            }
+            function drawGeometry() {
+                const radius = Math.max(width, height) * 0.4;
+                const rotZ = time * 0.00012;
+                const tiltX = Math.sin(time * 0.0001) * 0.25;
+                const tiltY = Math.cos(time * 0.00008) * 0.2;
+                const breathe = Math.sin(time * 0.0015) * 0.015 + 1;
+                ctx.save();
+                ctx.translate(cx + Math.sin(time * 0.0005) * 15, cy + Math.cos(time * 0.0004) * 10);
+                ctx.scale(breathe, breathe); ctx.rotate(rotZ);
+                ctx.lineWidth = 0.25; ctx.lineCap = 'round';
+                function hueColor(idx, total, alpha) {
+                    const hue = ((idx / total) * 360 + time * 0.015) % 360;
+                    return `hsla(${hue},65%,60%,${alpha})`;
+                }
+                function proj(x, y, z) {
+                    const cy2 = Math.cos(tiltY), sy = Math.sin(tiltY);
+                    const cx2 = Math.cos(tiltX), sx = Math.sin(tiltX);
+                    return { x: x * cy2 - z * sy, y: y * cx2 - (x * sy + z * cy2) * sx };
+                }
+                // Metatron's Cube
+                const nodes = [{ x: 0, y: 0, z: 0 }];
+                for (let i = 0; i < 6; i++) { const a = (Math.PI / 3) * i; nodes.push({ x: Math.cos(a) * radius * 0.4, y: Math.sin(a) * radius * 0.4, z: Math.sin(a + time * 0.0002) * radius * 0.08 }); }
+                for (let i = 0; i < 6; i++) { const a = (Math.PI / 3) * i + Math.PI / 6; nodes.push({ x: Math.cos(a) * radius * 0.75, y: Math.sin(a) * radius * 0.75, z: Math.cos(a + time * 0.0003) * radius * 0.12 }); }
+                let li = 0; const tl = (nodes.length * (nodes.length - 1)) / 2;
+                for (let i = 0; i < nodes.length; i++) {
+                    for (let j = i + 1; j < nodes.length; j++) {
+                        const p1 = proj(nodes[i].x, nodes[i].y, nodes[i].z);
+                        const p2 = proj(nodes[j].x, nodes[j].y, nodes[j].z);
+                        ctx.strokeStyle = hueColor(li, tl, 0.3);
+                        ctx.shadowColor = hueColor(li, tl, 0.1); ctx.shadowBlur = 6;
+                        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+                        li++;
+                    }
+                }
+                for (let i = 0; i < nodes.length; i++) {
+                    const p = proj(nodes[i].x, nodes[i].y, nodes[i].z);
+                    ctx.strokeStyle = hueColor(i + tl, nodes.length + tl, 0.5);
+                    ctx.shadowBlur = 12;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.stroke();
+                }
+                ctx.restore();
+            }
+            function animate() { time++; drawStars(); drawGeometry(); requestAnimationFrame(animate); }
+            window.addEventListener('resize', resize); resize(); animate();
+        })();
+    </script>
+
+    <!-- WARP Auth -->
+    <script>
+        (function () {
+            const DK = 'heady_device_id', TK = 'heady_auth_token', WK = 'heady_warp';
+            if (!localStorage.getItem(DK)) localStorage.setItem(DK, crypto.randomUUID());
+            const warp = navigator.userAgent.includes('Cloudflare-WARP') || localStorage.getItem(WK) === 'true';
+            if (warp) localStorage.setItem(WK, 'true');
+            const maxAge = warp ? 365 * 86400000 : 90 * 86400000;
+            let tok = localStorage.getItem(TK);
+            try { if (tok && JSON.parse(atob(tok)).exp < Date.now()) tok = null; } catch { tok = null; }
+            if (!tok) { tok = btoa(JSON.stringify({ sub: localStorage.getItem(DK), iat: Date.now(), exp: Date.now() + maxAge, ver: 'headyio.com', warp })); localStorage.setItem(TK, tok); }
+            console.log('🔐', warp ? 'WARP 365d' : 'Standard 90d', '| device:', localStorage.getItem(DK).slice(0, 8));
+        })();
+    </script>
+
+<script>
+/* ── PWA Service Worker + Install Banner ── */
+(function(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js',{scope:'/'})
+      .then(r=>console.log('🔧 SW registered, scope:',r.scope))
+      .catch(e=>console.warn('SW reg failed:',e));
+  }
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt',(e)=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    showInstallBanner();
+  });
+  function showInstallBanner(){
+    if(document.getElementById('heady-install-banner'))return;
+    const b=document.createElement('div');
+    b.id='heady-install-banner';
+    b.innerHTML='<div style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:#fff;padding:12px 20px;border-radius:16px;font-size:13px;font-weight:600;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(99,102,241,0.4);backdrop-filter:blur(10px);animation:slideUp .3s ease"><span>📱 Install Headyio on your device</span><button onclick="installPWA()" style="background:#fff;color:#6366f1;border:none;padding:6px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px">Install</button><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:16px;padding:4px">✕</button></div>';
+    document.body.appendChild(b);
+  }
+  window.installPWA=async function(){
+    if(!deferredPrompt)return;
+    deferredPrompt.prompt();
+    const{outcome}=await deferredPrompt.userChoice;
+    console.log('📱 Install:',outcome);
+    deferredPrompt=null;
+    const b=document.getElementById('heady-install-banner');
+    if(b)b.remove();
+  };
+})();
+</script>
+<style>@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}</style>
+
+<script>
+/* ── Max-Duration Auth (WARP: 365d, Device: 365d, Standard: 180d) ── */
+(function(){
+  const DK='heady_device_id',TK='heady_auth_token',WK='heady_warp',SK='heady_session_start';
+  if(!localStorage.getItem(DK))localStorage.setItem(DK,crypto.randomUUID());
+  if(!localStorage.getItem(SK))localStorage.setItem(SK,Date.now().toString());
+  const warp=navigator.userAgent.includes('Cloudflare-WARP')||localStorage.getItem(WK)==='true';
+  if(warp)localStorage.setItem(WK,'true');
+  // Maximum secure durations: WARP=365d, Device=365d, Standard=180d
+  const maxAge=warp?365*86400000:365*86400000;
+  let tok=localStorage.getItem(TK);
+  try{if(tok&&JSON.parse(atob(tok)).exp<Date.now())tok=null;}catch{tok=null;}
+  if(!tok){
+    tok=btoa(JSON.stringify({
+      sub:localStorage.getItem(DK),
+      iat:Date.now(),
+      exp:Date.now()+maxAge,
+      ver:'headyio.com',
+      warp,
+      pwa:window.matchMedia('(display-mode:standalone)').matches,
+      device:navigator.userAgent.includes('Mobile')?'mobile':'desktop'
+    }));
+    localStorage.setItem(TK,tok);
+  }
+  const days=Math.round((JSON.parse(atob(tok)).exp-Date.now())/86400000);
+  console.log('🔐 Auth: '+days+'d remaining |',warp?'WARP':'Device','| id:',localStorage.getItem(DK).slice(0,8));
+})();
+</script>
+</body>
+
+</html>

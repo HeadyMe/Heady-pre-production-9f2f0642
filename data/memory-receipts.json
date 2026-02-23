@@ -1,0 +1,47 @@
+[
+  {
+    "id": "b8e80ae8-e2e4-46c8-9b43-9992ce29e021",
+    "stored": "Interaction logged to file only: \"Chat interaction: hello...\"",
+    "notStored": "No vector embedding created — content NOT searchable via semantic/3D vector search (23 chars). Memory wrapper not available.",
+    "method": "no-vector-db",
+    "fallbackUsed": true,
+    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
+    "ts": "2026-02-23T00:11:53.755Z"
+  },
+  {
+    "id": "7d411efc-a54d-4ba5-8f78-24c6283a5213",
+    "stored": "Interaction logged to file only: \"Chat interaction: What is Heady?...\"",
+    "notStored": "No vector embedding created — content NOT searchable via semantic/3D vector search (32 chars). Memory wrapper not available.",
+    "method": "no-vector-db",
+    "fallbackUsed": true,
+    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
+    "ts": "2026-02-23T00:15:04.329Z"
+  },
+  {
+    "id": "219bf0f5-4dbc-411f-951e-c849fb061b62",
+    "stored": "Interaction logged to file only: \"Chat interaction: Hey, what can Heady do?...\"",
+    "notStored": "No vector embedding created — content NOT searchable via semantic/3D vector search (41 chars). Memory wrapper not available.",
+    "method": "no-vector-db",
+    "fallbackUsed": true,
+    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
+    "ts": "2026-02-23T00:21:59.908Z"
+  },
+  {
+    "id": "1b8eed75-ded4-4f71-99ae-1e34461979ee",
+    "stored": "Interaction logged to file only: \"Chat interaction: Hey! What can Heady do for me?...\"",
+    "notStored": "No vector embedding created — content NOT searchable via semantic/3D vector search (48 chars). Memory wrapper not available.",
+    "method": "no-vector-db",
+    "fallbackUsed": true,
+    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
+    "ts": "2026-02-23T00:25:15.830Z"
+  },
+  {
+    "id": "b6eb1f02-b6ac-4266-804a-24c8fa861f06",
+    "stored": "Interaction logged to file only: \"Chat interaction: Hey! What is HeadyBuddy and what can it do for me?...\"",
+    "notStored": "No vector embedding created — content NOT searchable via semantic/3D vector search (68 chars). Memory wrapper not available.",
+    "method": "no-vector-db",
+    "fallbackUsed": true,
+    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
+    "ts": "2026-02-23T00:36:13.021Z"
+  }
+]

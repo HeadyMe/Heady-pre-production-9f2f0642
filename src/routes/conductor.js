@@ -35,6 +35,7 @@ const SERVICE_ENDPOINTS = {
     lens: "/api/lens/health",
     vinci: "/api/vinci/health",
     notion: "/api/notion/health",
+    "auto-success": "/api/auto-success/health",
 };
 
 router.get("/health", (req, res) => {
@@ -136,6 +137,42 @@ router.get("/model", (req, res) => {
 
 router.get("/orchestrate", (req, res) => res.json({ ok: true, recent: conductorLog.slice(-10) }));
 
+// ─── Auto-Success Task Orchestration Awareness ──────────────────────
+let _autoSuccessEngine = null;
+
+function bindAutoSuccess(engine) {
+    _autoSuccessEngine = engine;
+    // Wire cycle completions into conductor log
+    engine.on("cycle:completed", (evt) => {
+        const entry = {
+            id: `conductor-as-${Date.now()}`, action: "auto-success-cycle",
+            cycle: evt.cycle, batchSize: evt.batchSize,
+            succeeded: evt.succeeded, durationMs: evt.durationMs,
+            safeMode: evt.safeMode, ts: evt.ts,
+        };
+        conductorLog.push(entry);
+        if (conductorLog.length > 200) conductorLog.splice(0, conductorLog.length - 200);
+    });
+}
+
+router.get("/tasks", (req, res) => {
+    if (!_autoSuccessEngine) {
+        return res.json({
+            ok: true, service: "heady-conductor", tasks: null,
+            note: "Auto-Success engine not wired to Conductor",
+            ts: new Date().toISOString(),
+        });
+    }
+    const summary = _autoSuccessEngine.getConductorSummary();
+    res.json({
+        ok: true, service: "heady-conductor",
+        perspective: systemModel.perspective,
+        overallHealth: systemModel.overallHealth,
+        autoSuccess: summary,
+        ts: new Date().toISOString(),
+    });
+});
+
 // ── Helpers ──
 function fetchLocal(endpoint) {
     return new Promise((resolve, reject) => {
@@ -173,3 +210,4 @@ function identifyBlindSpots(model, lensData) {
 }
 
 module.exports = router;
+module.exports.bindAutoSuccess = bindAutoSuccess;

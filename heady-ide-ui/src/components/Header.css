@@ -1,0 +1,78 @@
+.glass-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-orb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #a855f7, #6366f1);
+    box-shadow: 0 0 12px var(--primary-glow);
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+
+.header-logo h1 {
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+    background: linear-gradient(to right, #f8fafc, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.service-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.service-dropdown {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 6px 12px;
+    border-radius: 6px;
+    outline: none;
+    font-family: var(--font-family);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.service-dropdown:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tier-badge {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.tier-badge.core {
+    background: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.tier-badge.admin {
+    background: rgba(168, 85, 247, 0.2);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}

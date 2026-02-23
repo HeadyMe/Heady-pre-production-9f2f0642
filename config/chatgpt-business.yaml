@@ -1,0 +1,76 @@
+# ChatGPT Business Plan — HeadyMCP Integration
+# Organization: org-FDBnhOoRE3B8sZqM1iUwHX2N
+# Workspace: 12db0c8b-4e33-4e10-be20-8154cd8fbc56
+
+organization:
+  id: org-FDBnhOoRE3B8sZqM1iUwHX2N
+  workspace_id: 12db0c8b-4e33-4e10-be20-8154cd8fbc56
+  plan: business
+  domain_verified: headysystems.com
+
+seats:
+  total: 2
+  users:
+    - email: ehaywoodmail@gmail.com
+      role: owner
+      capabilities: [codex_cli, codex_cloud, gpt_builder, apps, connectors]
+    - email: eric@headyconnection.org
+      role: member
+      capabilities: [codex_cli, codex_cloud, gpt_builder, apps, connectors]
+
+capabilities:
+  codex_cli: true
+  codex_cloud: true
+  gpt_builder: true
+  custom_apps: true
+  connectors:
+    enabled: true
+    count: 100+
+    active:
+      - github           # Code integration
+      - google_drive      # Document access
+      - slack             # Notifications
+      - notion            # Knowledge sync
+      - zapier            # Automation
+      - jira              # Project management
+
+heady_mcp_integration:
+  # HeadyMCP routes OpenAI calls through the Business account
+  routing:
+    primary_seat: ehaywoodmail@gmail.com
+    secondary_seat: eric@headyconnection.org
+    load_balance: round_robin
+  
+  # API calls include org header for Business features
+  api_headers:
+    OpenAI-Organization: org-FDBnhOoRE3B8sZqM1iUwHX2N
+    OpenAI-Project: 12db0c8b-4e33-4e10-be20-8154cd8fbc56
+  
+  # Misuse detection (because access is unrestricted)
+  audit:
+    enabled: true
+    log_path: data/openai-usage-audit.jsonl
+    alert_thresholds:
+      requests_per_minute: 60
+      cost_per_hour_usd: 50
+      unusual_model_access: true
+    
+  # Models available on Business plan
+  models:
+    - gpt-4o
+    - gpt-4o-mini
+    - gpt-4-turbo
+    - o1
+    - o1-mini
+    - o3-mini
+    - dall-e-3
+    - whisper-1
+    - tts-1
+    - text-embedding-3-large
+
+github_connector:
+  enabled: true
+  # Allows ChatGPT to read/write Heady repos via connector
+  repos:
+    - HeadyMe/Heady-8f71ffc8
+  permissions: [read, write, pull_request, issue]

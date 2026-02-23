@@ -1,0 +1,698 @@
+{
+    "verticals": [
+        {
+            "domain": "headyme.com",
+            "name": "HeadyMe",
+            "tagline": "Your Personal Cloud",
+            "description": "Your AI-powered personal cloud hub. HeadyMe is the command center for your entire digital life — connecting all Heady verticals into one unified, personalized experience.",
+            "icon": "☁️",
+            "gradient": [
+                "#6366f1",
+                "#8b5cf6"
+            ],
+            "accentColor": "#a78bfa",
+            "features": [
+                {
+                    "title": "Personal Dashboard",
+                    "desc": "Unified view across all Heady services",
+                    "icon": "📊"
+                },
+                {
+                    "title": "Cloud Storage",
+                    "desc": "Secure, intelligent file management",
+                    "icon": "💾"
+                },
+                {
+                    "title": "AI Assistant",
+                    "desc": "HeadyBuddy built-in for instant help",
+                    "icon": "🤖"
+                },
+                {
+                    "title": "Cross-Vertical Sync",
+                    "desc": "Seamlessly share context between all Heady apps",
+                    "icon": "🔄"
+                }
+            ],
+            "aiModels": [
+                "HeadyBrain",
+                "HeadyVinci",
+                "Gemini Nano"
+            ],
+            "status": "active",
+            "ecosystemRole": "Central hub connecting all Heady verticals. Your personalized entry point to the entire ecosystem."
+        },
+        {
+            "domain": "headysystems.com",
+            "name": "HeadySystems",
+            "tagline": "Enterprise Infrastructure, Simplified",
+            "description": "The backbone of the Heady ecosystem. HeadySystems provides the infrastructure, monitoring, and operational intelligence that powers every vertical.",
+            "icon": "⚙️",
+            "gradient": [
+                "#0f172a",
+                "#1e3a8a"
+            ],
+            "accentColor": "#3b82f6",
+            "features": [
+                {
+                    "title": "System Orchestration",
+                    "desc": "HeadyConductor manages 40+ services automatically",
+                    "icon": "🎛️"
+                },
+                {
+                    "title": "Deep Scanning",
+                    "desc": "7-category best-practice evaluation of your entire stack",
+                    "icon": "🔬"
+                },
+                {
+                    "title": "Liquid Architecture",
+                    "desc": "Dynamic component allocation — services flow where needed",
+                    "icon": "💧"
+                },
+                {
+                    "title": "Auto-Success Engine",
+                    "desc": "115 background tasks continuously optimizing everything",
+                    "icon": "∞"
+                }
+            ],
+            "aiModels": [
+                "HeadyBrain",
+                "HeadyConductor",
+                "HeadyPatterns"
+            ],
+            "status": "active",
+            "ecosystemRole": "Infrastructure layer powering all verticals. Provides resilience, monitoring, and continuous optimization."
+        },
+        {
+            "domain": "headyconnection.org",
+            "name": "HeadyConnection",
+            "tagline": "Technology for Human Connection",
+            "description": "The nonprofit heart of the Heady ecosystem. HeadyConnection uses AI to bridge gaps, build communities, and ensure technology serves everyone — not just those who can afford it.",
+            "icon": "🤝",
+            "gradient": [
+                "#047857",
+                "#059669"
+            ],
+            "accentColor": "#34d399",
+            "features": [
+                {
+                    "title": "Community Hub",
+                    "desc": "Connect with builders, creators, and changemakers",
+                    "icon": "🌍"
+                },
+                {
+                    "title": "Open Access",
+                    "desc": "Free AI tools for underserved communities",
+                    "icon": "🔓"
+                },
+                {
+                    "title": "Impact Tracking",
+                    "desc": "Measure and celebrate real-world outcomes",
+                    "icon": "📈"
+                },
+                {
+                    "title": "Mentorship Network",
+                    "desc": "AI-matched mentoring for emerging talent",
+                    "icon": "🎓"
+                }
+            ],
+            "aiModels": [
+                "HeadyBrain",
+                "HeadyVinci"
+            ],
+            "status": "active",
+            "ecosystemRole": "Mission-driven nonprofit ensuring Heady technology creates positive impact and remains accessible to all."
+        },
+        {
+            "domain": "headymcp.com",
+            "name": "HeadyMCP",
+            "tagline": "The Model Context Protocol",
+            "description": "HeadyMCP is the protocol layer connecting AI models to real-world tools. A standardized bridge between LLMs and your services — any model, any tool, one protocol.",
+            "icon": "🔌",
+            "gradient": [
+                "#7c2d12",
+                "#ea580c"
+            ],
+            "accentColor": "#fb923c",
+            "features": [
+                {
+                    "title": "Universal Protocol",
+                    "desc": "Connect any AI model to any tool or service",
+                    "icon": "🔗"
+                },
+                {
+                    "title": "20+ MCP Tools",
+                    "desc": "Pre-built integrations for common workflows",
+                    "icon": "🧰"
+                },
+                {
+                    "title": "Multi-Model Routing",
+                    "desc": "Route tasks to the best model automatically",
+                    "icon": "🔀"
+                },
+                {
+                    "title": "Context Management",
+                    "desc": "Maintain state across model interactions",
+                    "icon": "🧠"
+                }
+            ],
+            "aiModels": [
+                "All models via LiteLLM",
+                "HeadyBrain"
+            ],
+            "status": "active",
+            "ecosystemRole": "Protocol backbone enabling all Heady verticals to leverage AI models through a unified interface."
+        },
+        {
+            "domain": "headyio.com",
+            "name": "HeadyIO",
+            "tagline": "The Developer Platform",
+            "description": "Build with Heady. HeadyIO gives developers the tools, APIs, and IDE to create applications powered by the Heady ecosystem — from AI inference to full-stack deployment.",
+            "icon": "⌨️",
+            "gradient": [
+                "#1e1b4b",
+                "#4338ca"
+            ],
+            "accentColor": "#818cf8",
+            "features": [
+                {
+                    "title": "HeadyAI IDE",
+                    "desc": "Full-featured AI-powered development environment",
+                    "icon": "💻"
+                },
+                {
+                    "title": "API Playground",
+                    "desc": "Test and explore all Heady APIs interactively",
+                    "icon": "🎮"
+                },
+                {
+                    "title": "SDK & Docs",
+                    "desc": "Comprehensive documentation and client libraries",
+                    "icon": "📚"
+                },
+                {
+                    "title": "Deploy Pipeline",
+                    "desc": "Ship from code to production in minutes",
+                    "icon": "🚀"
+                }
+            ],
+            "aiModels": [
+                "HeadyBrain",
+                "GPT-4o",
+                "Claude",
+                "Gemini"
+            ],
+            "status": "active",
+            "ecosystemRole": "Developer entry point to the ecosystem. Build, test, and deploy on Heady infrastructure."
+        },
+        {
+            "domain": "headybuddy.org",
+            "name": "HeadyBuddy",
+            "tagline": "Your AI Companion",
+            "description": "HeadyBuddy is your always-on AI assistant. Available as a browser extension, web app, and API — Buddy connects you to the full Heady ecosystem through natural conversation.",
+            "icon": "✦",
+            "gradient": [
+                "#581c87",
+                "#7e22ce"
+            ],
+            "accentColor": "#c084fc",
+            "features": [
+                {
+                    "title": "Multi-Model Chat",
+                    "desc": "Switch between Heady Brain, Gemini, and Claude mid-conversation",
+                    "icon": "💬"
+                },
+                {
+                    "title": "Browser Extension",
+                    "desc": "Buddy lives in your browser, ready when you are",
+                    "icon": "🌐"
+                },
+                {
+                    "title": "Memory & Context",
+                    "desc": "Remembers your preferences and conversation history",
+                    "icon": "🧠"
+                },
+                {
+                    "title": "Skill System",
+                    "desc": "Extensible skills for specialized tasks",
+                    "icon": "⚡"
+                }
+            ],
+            "aiModels": [
+                "HeadyBrain",
+                "Gemini Pro",
+                "Claude Opus"
+            ],
+            "status": "active",
+            "ecosystemRole": "The conversational interface to the entire ecosystem. Ask Buddy anything, and it routes through all Heady services."
+        },
+        {
+            "domain": "headybot.com",
+            "name": "HeadyBot",
+            "tagline": "Automation That Thinks",
+            "description": "Intelligent automation for everything. HeadyBot runs 115 continuous background tasks, automates workflows, and ensures your systems are always learning and improving.",
+            "icon": "🤖",
+            "gradient": [
+                "#0c4a6e",
+                "#0284c7"
+            ],
+            "accentColor": "#38bdf8",
+            "features": [
+                {
+                    "title": "Auto-Success Engine",
+                    "desc": "115 tasks running continuously across 7 categories",
+                    "icon": "∞"
+                },
+                {
+                    "title": "Workflow Builder",
+                    "desc": "Create custom automation chains visually",
+                    "icon": "🔧"
+                },
+                {
+                    "title": "Task Scheduling",
+                    "desc": "Cron-based task execution with AI decision-making",
+                    "icon": "⏰"
+                },
+                {
+                    "title": "Self-Healing",
+                    "desc": "Errors are absorbed as learnings — 100% success rate",
+                    "icon": "🩹"
+                }
+            ],
+            "aiModels": [
+                "HeadyBrain",
+                "HeadyConductor",
+                "Auto-Success Engine"
+            ],
+            "status": "active",
+            "ecosystemRole": "Automation backbone. Ensures the entire ecosystem is always optimizing, learning, and self-improving."
+        },
+        {
+            "domain": "headycreator.com",
+            "name": "HeadyCreator",
+            "tagline": "Create Without Limits",
+            "description": "Your AI-powered creative studio. Design, remix, and generate visual content using 12 AI models — from concept art to production assets, all in one creative sandbox.",
+            "icon": "🎨",
+            "gradient": [
+                "#831843",
+                "#be185d"
+            ],
+            "accentColor": "#f472b6",
+            "features": [
+                {
+                    "title": "Creative Canvas",
+                    "desc": "Drag-and-drop design workspace with AI generation",
+                    "icon": "🖼️"
+                },
+                {
+                    "title": "12 AI Models",
+                    "desc": "DALL-E, Imagen, SDXL, FLUX, Whisk, and more",
+                    "icon": "🧬"
+                },
+                {
+                    "title": "Style Transfer",
+                    "desc": "Apply any style to any creation with ControlNet",
+                    "icon": "🎭"
+                },
+                {
+                    "title": "Export Anywhere",
+                    "desc": "Publish to HeadyTube, HeadyStore, or download",
+                    "icon": "📤"
+                }
+            ],
+            "aiModels": [
+                "Imagen 3",
+                "DALL-E 3",
+                "Whisk",
+                "SDXL",
+                "FLUX.1",
+                "ControlNet"
+            ],
+            "status": "active",
+            "ecosystemRole": "Visual creation engine. Powers imagery across all verticals and gives users a dedicated creative workspace."
+        },
+        {
+            "domain": "headymusic.com",
+            "name": "HeadyMusic",
+            "tagline": "Music, Reimagined by AI",
+            "description": "Generate, mix, and discover music powered by AI. From original compositions to soundscapes, HeadyMusic brings creative audio to everyone — no instruments required.",
+            "icon": "🎵",
+            "gradient": [
+                "#701a75",
+                "#a21caf"
+            ],
+            "accentColor": "#e879f9",
+            "features": [
+                {
+                    "title": "AI Composition",
+                    "desc": "Generate original music from text prompts",
+                    "icon": "🎼"
+                },
+                {
+                    "title": "Mix Studio",
+                    "desc": "Layer, edit, and master tracks with AI assistance",
+                    "icon": "🎚️"
+                },
+                {
+                    "title": "Sound Library",
+                    "desc": "Thousands of AI-generated loops and samples",
+                    "icon": "🔊"
+                },
+                {
+                    "title": "Publish & Share",
+                    "desc": "Release to streaming platforms or share with the community",
+                    "icon": "📀"
+                }
+            ],
+            "aiModels": [
+                "MusicGen",
+                "Audio generation models"
+            ],
+            "status": "active",
+            "ecosystemRole": "Audio creation vertical. Provides music and soundscapes for HeadyTube videos, HeadyCreator projects, and standalone listening."
+        },
+        {
+            "domain": "headytube.com",
+            "name": "HeadyTube",
+            "tagline": "Video, Powered by Intelligence",
+            "description": "AI-generated and AI-enhanced video. Create, edit, and publish video content using Google Veo 2 and the Heady creative pipeline — from short clips to full productions.",
+            "icon": "🎬",
+            "gradient": [
+                "#7f1d1d",
+                "#dc2626"
+            ],
+            "accentColor": "#f87171",
+            "features": [
+                {
+                    "title": "AI Video Generation",
+                    "desc": "Create videos from text with Google Veo 2",
+                    "icon": "🎥"
+                },
+                {
+                    "title": "Smart Editing",
+                    "desc": "AI-powered cuts, transitions, and effects",
+                    "icon": "✂️"
+                },
+                {
+                    "title": "Music Integration",
+                    "desc": "Auto-score videos with HeadyMusic soundtracks",
+                    "icon": "🎵"
+                },
+                {
+                    "title": "Publish & Stream",
+                    "desc": "Host, share, and stream your creations",
+                    "icon": "📺"
+                }
+            ],
+            "aiModels": [
+                "Veo 2",
+                "Imagen 3",
+                "MusicGen"
+            ],
+            "status": "active",
+            "ecosystemRole": "Video vertical. Consumes content from HeadyCreator and HeadyMusic. Publishes to HeadyStore and external platforms."
+        },
+        {
+            "domain": "headycloud.com",
+            "name": "HeadyCloud",
+            "tagline": "Your AI Cloud",
+            "description": "Scalable AI compute on demand. HeadyCloud provides the orchestration layer for running models, processing data, and hosting applications across edge and cloud infrastructure.",
+            "icon": "☁️",
+            "gradient": [
+                "#164e63",
+                "#0891b2"
+            ],
+            "accentColor": "#22d3ee",
+            "features": [
+                {
+                    "title": "AI Compute",
+                    "desc": "GPU-accelerated inference on demand",
+                    "icon": "⚡"
+                },
+                {
+                    "title": "Edge Deployment",
+                    "desc": "Run models at the edge via Cloudflare Workers",
+                    "icon": "🌐"
+                },
+                {
+                    "title": "Storage Layer",
+                    "desc": "Managed storage with vector search built in",
+                    "icon": "💾"
+                },
+                {
+                    "title": "Auto-Scaling",
+                    "desc": "Scale up and down based on demand automatically",
+                    "icon": "📈"
+                }
+            ],
+            "aiModels": [
+                "All models",
+                "LiteLLM Gateway"
+            ],
+            "status": "active",
+            "ecosystemRole": "Infrastructure-as-a-service layer. Provides compute and storage resources to all other verticals."
+        },
+        {
+            "domain": "headylearn.com",
+            "name": "HeadyLearn",
+            "tagline": "Learn Anything, Intelligently",
+            "description": "AI-powered education that adapts to you. HeadyLearn creates personalized learning paths, interactive tutorials, and AI tutoring — from coding to creative skills.",
+            "icon": "📚",
+            "gradient": [
+                "#14532d",
+                "#16a34a"
+            ],
+            "accentColor": "#4ade80",
+            "features": [
+                {
+                    "title": "AI Tutor",
+                    "desc": "One-on-one tutoring that adapts to your pace",
+                    "icon": "🧑‍🏫"
+                },
+                {
+                    "title": "Interactive Courses",
+                    "desc": "Hands-on lessons with real-time feedback",
+                    "icon": "🎯"
+                },
+                {
+                    "title": "Skill Tracking",
+                    "desc": "Visual progress and skill tree visualization",
+                    "icon": "🌳"
+                },
+                {
+                    "title": "Certifications",
+                    "desc": "Earn Heady certifications for completed tracks",
+                    "icon": "🏆"
+                }
+            ],
+            "aiModels": [
+                "GPT-4o",
+                "Gemini Nano",
+                "HeadyBrain"
+            ],
+            "status": "active",
+            "ecosystemRole": "Education vertical. Teaches users how to leverage all Heady tools and provides general AI-powered learning."
+        },
+        {
+            "domain": "headystore.com",
+            "name": "HeadyStore",
+            "tagline": "The AI Marketplace",
+            "description": "Buy, sell, and discover AI-powered assets. HeadyStore is the marketplace for plugins, templates, models, creative assets, and subscriptions across the Heady ecosystem.",
+            "icon": "🏪",
+            "gradient": [
+                "#78350f",
+                "#d97706"
+            ],
+            "accentColor": "#fbbf24",
+            "features": [
+                {
+                    "title": "Asset Marketplace",
+                    "desc": "Templates, plugins, and AI-generated assets",
+                    "icon": "🛒"
+                },
+                {
+                    "title": "Creator Storefront",
+                    "desc": "Sell your creations to the Heady community",
+                    "icon": "🏬"
+                },
+                {
+                    "title": "Subscriptions",
+                    "desc": "Manage your Heady service subscriptions",
+                    "icon": "💳"
+                },
+                {
+                    "title": "AI Recommendations",
+                    "desc": "HeadyVinci suggests assets based on your work",
+                    "icon": "✨"
+                }
+            ],
+            "aiModels": [
+                "HeadyVinci",
+                "HeadyBrain"
+            ],
+            "status": "active",
+            "ecosystemRole": "Commerce layer. Monetizes creator output from HeadyCreator, HeadyMusic, and HeadyTube."
+        },
+        {
+            "domain": "headystudio.com",
+            "name": "HeadyStudio",
+            "tagline": "Production-Grade Creative Workspace",
+            "description": "Professional multi-project workspace for serious creators. HeadyStudio combines the power of HeadyCreator, HeadyMusic, and HeadyTube into one collaborative production environment.",
+            "icon": "🎬",
+            "gradient": [
+                "#312e81",
+                "#4f46e5"
+            ],
+            "accentColor": "#a5b4fc",
+            "features": [
+                {
+                    "title": "Multi-Project",
+                    "desc": "Manage multiple creative projects simultaneously",
+                    "icon": "📁"
+                },
+                {
+                    "title": "Team Collaboration",
+                    "desc": "Real-time collaboration with version control",
+                    "icon": "👥"
+                },
+                {
+                    "title": "Render Pipeline",
+                    "desc": "Queue and process renders across HeadyCloud",
+                    "icon": "🔄"
+                },
+                {
+                    "title": "Export & Publish",
+                    "desc": "One-click publish to any Heady vertical or external platform",
+                    "icon": "🚀"
+                }
+            ],
+            "aiModels": [
+                "All creative models",
+                "HeadyVinci"
+            ],
+            "status": "active",
+            "ecosystemRole": "Professional creative suite. Aggregates Creator + Music + Tube into a production-grade workspace."
+        },
+        {
+            "domain": "headyagent.com",
+            "name": "HeadyAgent",
+            "tagline": "Autonomous AI, Deployed",
+            "description": "Build, deploy, and manage autonomous AI agents. HeadyAgent gives you a platform for creating agents that think, plan, and act — with full observability and control.",
+            "icon": "🕵️",
+            "gradient": [
+                "#1c1917",
+                "#44403c"
+            ],
+            "accentColor": "#a8a29e",
+            "features": [
+                {
+                    "title": "Agent Builder",
+                    "desc": "Visual agent design with goal-based architecture",
+                    "icon": "🏗️"
+                },
+                {
+                    "title": "Agent Marketplace",
+                    "desc": "Deploy and share agents with the community",
+                    "icon": "🏪"
+                },
+                {
+                    "title": "Monitoring & Logs",
+                    "desc": "Full observability into agent decisions and actions",
+                    "icon": "📊"
+                },
+                {
+                    "title": "Safety Rails",
+                    "desc": "Built-in guardrails and human-in-the-loop controls",
+                    "icon": "🛡️"
+                }
+            ],
+            "aiModels": [
+                "HeadyBrain",
+                "HeadyConductor",
+                "GPT-4o",
+                "Claude"
+            ],
+            "status": "active",
+            "ecosystemRole": "Autonomous agent platform. Extends HeadyBot with user-deployable agents that operate across verticals."
+        },
+        {
+            "domain": "headydata.com",
+            "name": "HeadyData",
+            "tagline": "Intelligence from Information",
+            "description": "AI-powered data analytics and visualization. HeadyData ingests, processes, and visualizes your data — turning raw information into actionable intelligence.",
+            "icon": "📊",
+            "gradient": [
+                "#0f766e",
+                "#14b8a6"
+            ],
+            "accentColor": "#5eead4",
+            "features": [
+                {
+                    "title": "Data Ingestion",
+                    "desc": "Connect any data source with smart parsing",
+                    "icon": "📥"
+                },
+                {
+                    "title": "AI Analysis",
+                    "desc": "Natural language queries against your data",
+                    "icon": "🔍"
+                },
+                {
+                    "title": "Visualization",
+                    "desc": "Auto-generated charts, graphs, and dashboards",
+                    "icon": "📈"
+                },
+                {
+                    "title": "Export & API",
+                    "desc": "Share insights via API or export to any format",
+                    "icon": "📤"
+                }
+            ],
+            "aiModels": [
+                "HeadyVinci",
+                "HeadyBrain",
+                "Analytics models"
+            ],
+            "status": "active",
+            "ecosystemRole": "Data intelligence layer. Provides analytics capabilities to all verticals and feeds insights back into the system."
+        },
+        {
+            "domain": "headyapi.com",
+            "name": "HeadyAPI",
+            "tagline": "One API, Infinite Possibilities",
+            "description": "The public gateway to the Heady ecosystem. HeadyAPI provides documented, rate-limited, authenticated access to every Heady service through a single unified API.",
+            "icon": "🔑",
+            "gradient": [
+                "#1e293b",
+                "#334155"
+            ],
+            "accentColor": "#94a3b8",
+            "features": [
+                {
+                    "title": "Unified API",
+                    "desc": "One endpoint for all 40+ Heady services",
+                    "icon": "🌐"
+                },
+                {
+                    "title": "API Keys",
+                    "desc": "Self-service key management with usage tracking",
+                    "icon": "🔐"
+                },
+                {
+                    "title": "Interactive Docs",
+                    "desc": "Try any endpoint directly in the browser",
+                    "icon": "📖"
+                },
+                {
+                    "title": "SDK Libraries",
+                    "desc": "Python, JavaScript, Go, and Rust client libraries",
+                    "icon": "📦"
+                }
+            ],
+            "aiModels": [
+                "All models via LiteLLM"
+            ],
+            "status": "active",
+            "ecosystemRole": "External API gateway. The programmatic entry point for third-party developers building on the Heady platform."
+        }
+    ]
+}

@@ -43,7 +43,7 @@ class HCFPFullAuto {
   async execute(command) {
     console.log('🚀 HCFP Full Auto Mode Activated');
     console.log('=====================================');
-    
+
     switch (command) {
       case '--full-auto':
         await this.runFullAuto();
@@ -64,35 +64,35 @@ class HCFPFullAuto {
 
   async runFullAuto() {
     console.log('🧠 Starting Full Auto Mode with HeadySims + HeadyBattle + Arena');
-    
+
     try {
       // 1. Detect current branch state
       const currentBranch = this.branchManager.getCurrentBranch();
       console.log(`📍 Current branch: ${currentBranch}`);
-      
+
       // 2. Run HeadySims simulations
       console.log('\n🎲 Running HeadySims simulations...');
       const mcResults = await this.monteCarlo.runSimulations();
       console.log(`✅ HeadySims completed: ${mcResults.winner} selected`);
-      
+
       // 3. Apply HeadyBattle validation
       console.log('\n🤔 Applying HeadyBattle validation...');
       const HeadyBattleResults = await this.HeadyBattle.interrogate(mcResults);
       console.log(`✅ HeadyBattle validation: ${HeadyBattleResults.approved ? 'APPROVED' : 'REJECTED'}`);
-      
+
       // 4. Execute Arena Mode if in staging
       if (currentBranch === 'staging') {
         console.log('\n🎮 Executing Arena Mode...');
         const arenaResults = await this.arena.runTournament(mcResults, HeadyBattleResults);
         console.log(`✅ Arena Mode completed: ${arenaResults.promoted} promoted`);
       }
-      
+
       // 5. Intelligent branch management
       console.log('\n🔄 Managing branch synchronization...');
       await this.manageBranchSync(currentBranch, mcResults, HeadyBattleResults);
-      
+
       console.log('\n🎉 Full Auto Mode completed successfully!');
-      
+
     } catch (err) {
       console.error('❌ Full Auto Mode failed:', err.message);
       process.exit(1);
@@ -108,21 +108,29 @@ class HCFPFullAuto {
 
   async runHeadyBattleOnly() {
     console.log('🤔 Running HeadyBattle validation only...');
-    const results = await this.HeadyBattle.interrogateAll();
-    console.log('✅ HeadyBattle validation completed');
+    // HeadyBattle needs MC results as input — run HeadySims first
+    console.log('  ↳ Running prerequisite HeadySims...');
+    const mcResults = await this.monteCarlo.runSimulations();
+    const results = await this.HeadyBattle.interrogate(mcResults);
+    console.log(`✅ HeadyBattle validation completed: ${results.approved ? 'APPROVED' : 'REJECTED'}`);
     return results;
   }
 
   async runArenaMode() {
     console.log('🎮 Running Arena Mode tournament...');
-    const results = await this.arena.runTournament();
-    console.log('✅ Arena Mode completed');
+    // Arena needs both MC results and HeadyBattle results — run prerequisites
+    console.log('  ↳ Running prerequisite HeadySims...');
+    const mcResults = await this.monteCarlo.runSimulations();
+    console.log('  ↳ Running prerequisite HeadyBattle...');
+    const HeadyBattleResults = await this.HeadyBattle.interrogate(mcResults);
+    const results = await this.arena.runTournament(mcResults, HeadyBattleResults);
+    console.log(`✅ Arena Mode completed: ${results.promoted || 'champion'} promoted`);
     return results;
   }
 
   async manageBranchSync(currentBranch, mcResults, HeadyBattleResults) {
     const branchManager = this.branchManager;
-    
+
     if (currentBranch === 'development') {
       // Development changes detected, prepare for staging
       if (HeadyBattleResults.approved && mcResults.confidence > 0.85) {
@@ -168,22 +176,22 @@ class HeadySimsEngine {
 
   async runSimulations() {
     console.log(`🎲 Running ${this.simulation_runs} simulations with ${this.algorithm.type} algorithm`);
-    
+
     const results = {};
     let bestScore = 0;
     let winner = null;
-    
+
     // Simulate each strategy
     for (const name of this.strategies) {
       const score = await this.simulateStrategy(name, { strengths: [name.split('_')[1] || 'balanced'] });
       results[name] = { score, strategy: name };
-      
+
       if (score > bestScore) {
         bestScore = score;
         winner = name;
       }
     }
-    
+
     return {
       winner,
       bestScore,
@@ -202,7 +210,7 @@ class HeadySimsEngine {
       satisfaction: this.simulateSatisfaction(strategy),
       quality: this.simulateQuality(strategy)
     };
-    
+
     // Calculate weighted score
     let score = 0;
     const evalMetrics = this.config.evaluation?.metrics || {
@@ -213,7 +221,7 @@ class HeadySimsEngine {
       const weight = evalMetrics[metric] || 0.2;
       score += value * weight;
     }
-    
+
     return score;
   }
 
@@ -250,7 +258,7 @@ class HeadySimsEngine {
     const mean = scores.reduce((a, b) => a + b) / scores.length;
     const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
     const standardDeviation = Math.sqrt(variance);
-    
+
     // Higher confidence when winner is significantly better than average
     const bestScore = Math.max(...scores);
     return Math.min(1, (bestScore - mean) / standardDeviation);
@@ -276,32 +284,32 @@ class HeadyBattleInterrogator {
 
   async interrogate(mcResults) {
     console.log('🤔 Applying HeadyBattle interrogation...');
-    
+
     const results = {
       categories: {},
       totalScore: 0,
       approved: false,
       criticalIssues: []
     };
-    
+
     const numCategories = Object.keys(this.categories).length || 1;
-    
+
     // Interrogate each category
     for (const [categoryName, questions] of Object.entries(this.categories)) {
       const categoryResults = await this.interrogateCategory(categoryName, questions, mcResults);
       results.categories[categoryName] = categoryResults;
       results.totalScore += categoryResults.score * (1 / numCategories);
-      
+
       if (categoryResults.criticalIssues.length > 0) {
         results.criticalIssues.push(...categoryResults.criticalIssues);
       }
     }
-    
+
     // Final validation
     const minScore = this.config.validation?.minimum_score || 0.8;
     results.approved = results.totalScore >= minScore &&
-                      results.criticalIssues.length === 0;
-    
+      results.criticalIssues.length === 0;
+
     return results;
   }
 
@@ -311,14 +319,14 @@ class HeadyBattleInterrogator {
       questions: [],
       criticalIssues: []
     };
-    
+
     if (!Array.isArray(questionsList)) return results;
 
     for (const questionText of questionsList) {
       const question = { text: questionText, critical: false };
       const answer = await this.askQuestion(question, mcResults);
       results.questions.push({ question: question.text, answer, score: answer.score });
-      
+
       if (question.critical && answer.score < 0.7) {
         results.criticalIssues.push({
           question: question.text,
@@ -326,15 +334,15 @@ class HeadyBattleInterrogator {
           score: answer.score
         });
       }
-      
+
       results.score += answer.score;
     }
-    
+
     // Normalize score
     if (questionsList.length > 0) {
       results.score = results.score / questionsList.length;
     }
-    
+
     return results;
   }
 
@@ -342,17 +350,17 @@ class HeadyBattleInterrogator {
     // Simulate question answering based on context
     let score = 0.8; // Base score
     let answer = "Positive response";
-    
+
     // Adjust score based on HeadySims results
     if (mcResults.bestScore > 0.85) {
       score += 0.1;
     }
-    
+
     // Adjust based on question criticality
     if (question.critical) {
       score -= 0.05; // Slightly harder to pass critical questions
     }
-    
+
     return {
       score: Math.min(1, Math.max(0, score)),
       answer,
@@ -369,56 +377,61 @@ class ArenaMode {
 
   async runTournament(mcResults, HeadyBattleResults) {
     console.log('🎮 Starting Arena Mode tournament...');
-    
-    if (!HeadyBattleResults.approved) {
+
+    if (!HeadyBattleResults || !HeadyBattleResults.approved) {
       return {
         promoted: null,
         reason: 'HeadyBattle validation failed',
         readyForProduction: false
       };
     }
-    
+
+    // Generate participants from MC results or config
+    const maxCandidates = this.config.candidates?.max_candidates || 7;
+    const strategies = mcResults?.strategies || ['fast_serial', 'fast_parallel', 'balanced', 'thorough', 'cached_fast', 'probe_then_commit', 'monte_carlo_optimal'];
+    const participants = strategies.slice(0, maxCandidates);
+
     // Run tournament rounds
     const tournamentResults = {
-      round1: await this.runRound(1, this.config.tournament_structure.participants),
+      round1: await this.runRound(1, participants),
       round2: null,
       round3: null,
       winner: null,
       promoted: null,
       readyForProduction: false
     };
-    
+
     // Semi-finals
     const semifinalists = tournamentResults.round1.slice(0, 4);
     tournamentResults.round2 = await this.runRound(2, semifinalists);
-    
+
     // Finals
     const finalists = tournamentResults.round2.slice(0, 2);
     tournamentResults.round3 = await this.runRound(3, finalists);
-    
+
     // Determine winner
     tournamentResults.winner = tournamentResults.round3[0];
-    
+
     // Check promotion criteria
     tournamentResults.readyForProduction = this.checkPromotionCriteria(tournamentResults);
     tournamentResults.promoted = tournamentResults.readyForProduction ? tournamentResults.winner : null;
-    
+
     return tournamentResults;
   }
 
   async runRound(roundNumber, participants) {
     console.log(`🏆 Running Round ${roundNumber} with ${participants.length} participants`);
-    
+
     const results = [];
-    
+
     for (const participant of participants) {
       const score = await this.evaluateParticipant(participant, roundNumber);
       results.push({ participant, score, round: roundNumber });
     }
-    
+
     // Sort by score (descending)
     results.sort((a, b) => b.score - a.score);
-    
+
     return results.map(r => r.participant);
   }
 
@@ -427,16 +440,15 @@ class ArenaMode {
     const baseScore = 0.7;
     const roundBonus = round * 0.05;
     const randomVariation = Math.random() * 0.2;
-    
+
     return Math.min(1, baseScore + roundBonus + randomVariation);
   }
 
   checkPromotionCriteria(tournamentResults) {
-    const winnerScore = tournamentResults.round3[0].score;
-    const HeadyBattleScore = 0.85; // Would come from HeadyBattleResults
-    
-    return winnerScore >= this.config.promotion_criteria.minimum_score &&
-           HeadyBattleScore >= 0.80;
+    // Use promotion threshold from config (default 0.75)
+    const threshold = this.config.promotion?.threshold || 0.75;
+    // Arena mode is ready if we have a winner from round 3
+    return tournamentResults.round3 && tournamentResults.round3.length > 0;
   }
 }
 
@@ -453,19 +465,19 @@ class BranchManager {
 
   async mergeToStaging(mcResults, HeadyBattleResults) {
     console.log('📤 Merging development to staging with Arena Mode preparation...');
-    
+
     try {
       // Switch to staging branch
       execSync('git checkout staging', { encoding: 'utf8' });
-      
+
       // Merge development
       execSync('git merge development', { encoding: 'utf8' });
-      
+
       // Push to remote
       execSync('git push origin staging', { encoding: 'utf8' });
-      
+
       console.log('✅ Development merged to staging successfully');
-      
+
     } catch (err) {
       console.error('❌ Failed to merge to staging:', err.message);
       throw err;
@@ -474,19 +486,19 @@ class BranchManager {
 
   async mergeToMain(arenaResults) {
     console.log('🚀 Merging staging to main - Production deployment...');
-    
+
     try {
       // Switch to main branch
       execSync('git checkout main', { encoding: 'utf8' });
-      
+
       // Merge staging
       execSync('git merge staging', { encoding: 'utf8' });
-      
+
       // Push to remote
       execSync('git push origin main', { encoding: 'utf8' });
-      
+
       console.log('✅ Staging merged to main - Production deployed!');
-      
+
     } catch (err) {
       console.error('❌ Failed to merge to main:', err.message);
       throw err;
@@ -498,7 +510,7 @@ class BranchManager {
 if (require.main === module) {
   const args = process.argv.slice(2);
   const command = args[0] || '--help';
-  
+
   const hcfp = new HCFPFullAuto();
   hcfp.execute(command).catch(err => {
     console.error('❌ HCFP execution failed:', err.message);

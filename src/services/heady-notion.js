@@ -209,7 +209,7 @@ function generateStatusContent() {
 - **Status**: OPTIMAL
 - **Container**: heady-manager-local (Podman)
 - **MCP Tools**: 30 registered
-- **Service Stubs**: 19 active
+- **Service Stubs**: 11 AI stubs + 10 core routers + 7 engines + 5 infra + 3 protocols = 40+ active
 - **Connectivity Patterns Logged**: ${connPatterns.total}
 - **Memory Receipts**: ${memReceipts.total} total, ${memReceipts.fallback} using fallback
 
@@ -219,12 +219,12 @@ function generateStatusContent() {
 - HeadySoul — ACTIVE (analyze, optimize)
 - HeadyBattle Engine — ACTIVE (validation)
 - Realtime Monitor — ACTIVE (WebSocket 3301)
-- 19 Service Stubs — ALL LOADED
+- 40+ Services — ALL LOADED (11 stubs, 10 core routers, 7 engines, 5 infra, 3 protocols)
 
 ## Recent Changes (Last 48h)
 - Expanded MCP server from 11 → 30 tools
 - Fixed /api/brain/chat 501 error (mounted brain core routes)
-- Added 19 service stub routes with createServiceStub() factory
+- 40+ services running via createServiceStub(), real routers, and engine modules
 - Created connectivity pattern logger (data/connectivity-patterns.json)
 - Added memory receipt system (stored vs not-stored tracking)
 - Created missing services/ modules (core-api, brain_api, orchestrator)

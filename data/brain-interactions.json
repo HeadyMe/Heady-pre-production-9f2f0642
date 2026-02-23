@@ -1,0 +1,72 @@
+[
+  {
+    "id": "97338db8-495d-4a01-9b49-68b1f4937023",
+    "type": "chat",
+    "input": "hello",
+    "output": "[chat request at 2026-02-23T00:11:53.753Z]",
+    "timestamp": "2026-02-23T00:11:53.754Z"
+  },
+  {
+    "id": "f2cbacbd-c155-460d-892f-557c480c0f0a",
+    "type": "chat_fallback",
+    "input": "hello",
+    "output": "HeadyBrain received your message. Ollama backend is currently unavailable (). Message stored in persistent memory for processing when services restore.",
+    "timestamp": "2026-02-23T00:11:53.761Z"
+  },
+  {
+    "id": "db203b03-4071-495d-95e5-143571973f6b",
+    "type": "chat",
+    "input": "What is Heady?",
+    "output": "[chat request at 2026-02-23T00:15:04.329Z]",
+    "timestamp": "2026-02-23T00:15:04.329Z"
+  },
+  {
+    "id": "5199c80d-e052-4880-90c9-3fe600749a0e",
+    "type": "chat_fallback",
+    "input": "What is Heady?",
+    "output": "HeadyBrain received your message. Ollama backend is currently unavailable (). Message stored in persistent memory for processing when services restore.",
+    "timestamp": "2026-02-23T00:15:04.331Z"
+  },
+  {
+    "id": "95cf1039-7569-4118-a26b-1aee6df9766a",
+    "type": "chat",
+    "input": "Hey, what can Heady do?",
+    "output": "[chat request at 2026-02-23T00:21:59.908Z]",
+    "timestamp": "2026-02-23T00:21:59.908Z"
+  },
+  {
+    "id": "7aa925c0-4007-496b-8946-79fc698eb58c",
+    "type": "chat_fallback",
+    "input": "Hey, what can Heady do?",
+    "output": "HeadyBrain received your message. Ollama backend is currently unavailable (). Message stored in persistent memory for processing when services restore.",
+    "timestamp": "2026-02-23T00:21:59.911Z"
+  },
+  {
+    "id": "f02917a3-d5b7-4668-b6a1-53212d86a614",
+    "type": "chat",
+    "input": "Hey! What can Heady do for me?",
+    "output": "[chat request at 2026-02-23T00:25:15.829Z]",
+    "timestamp": "2026-02-23T00:25:15.829Z"
+  },
+  {
+    "id": "efcf1bb9-3ff9-484d-bbdd-a407f3113a3e",
+    "type": "chat_contextual",
+    "input": "Hey! What can Heady do for me?",
+    "output": "Hey there! 👋 I'm HeadyBrain, part of the Heady AI ecosystem. I'm currently in local-intelligence mode. I can process your questions, and all conversations are stored in persistent 3D vector memory. What would you like to explore?",
+    "timestamp": "2026-02-23T00:25:16.475Z"
+  },
+  {
+    "id": "57f5fcab-14f0-47bc-9d05-9f87b5b5ae26",
+    "type": "chat",
+    "input": "Hey! What is HeadyBuddy and what can it do for me?",
+    "output": "[chat request at 2026-02-23T00:36:13.020Z]",
+    "timestamp": "2026-02-23T00:36:13.020Z"
+  },
+  {
+    "id": "e2e38e59-76c5-4ad0-92fd-18967ba1a7ed",
+    "type": "chat_contextual",
+    "input": "Hey! What is HeadyBuddy and what can it do for me?",
+    "output": "Hey there! 👋 I'm HeadyBuddy, part of the Heady AI ecosystem. I'm currently in local-intelligence mode. I can process your questions, and all conversations are stored in persistent 3D vector memory. What would you like to explore?",
+    "timestamp": "2026-02-23T00:36:13.490Z"
+  }
+]

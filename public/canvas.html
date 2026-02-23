@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeadyVinci Creative Canvas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050508; --glass: rgba(15,15,22,0.5); --border: rgba(255,255,255,0.08);
+      --primary: #a855f7; --secondary: #3b82f6; --accent: #5eead4;
+      --text: #f1f5f9; --muted: #8b9bb4; --danger: #ef4444;
+      --radius: 16px; --font: 'Outfit', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(circle at 20% 40%, rgba(168,85,247,0.06), transparent 50%), radial-gradient(circle at 80% 60%, rgba(59,130,246,0.06), transparent 50%); pointer-events: none; }
+
+    .app { display: grid; grid-template-columns: 320px 1fr 300px; grid-template-rows: 64px 1fr; height: 100vh; gap: 0; }
+    .header { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(20px); z-index: 10; }
+    .header h1 { font-size: 1.2rem; font-weight: 600; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header .status { font-size: 0.75rem; color: var(--accent); font-family: 'Fira Code', monospace; }
+
+    .sidebar { padding: 20px; border-right: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(20px); overflow-y: auto; }
+    .sidebar h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin: 20px 0 10px; }
+    .sidebar h3:first-child { margin-top: 0; }
+
+    .model-card { padding: 10px 14px; margin-bottom: 8px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid transparent; cursor: pointer; transition: all 0.2s; }
+    .model-card:hover { border-color: var(--border); background: rgba(255,255,255,0.06); }
+    .model-card.selected { border-color: var(--primary); background: rgba(168,85,247,0.1); }
+    .model-card .name { font-size: 0.85rem; font-weight: 500; }
+    .model-card .provider { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .model-card .type { font-size: 0.7rem; color: var(--accent); margin-top: 4px; }
+
+    .canvas-area { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+    .canvas-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .canvas-toolbar input { flex: 1; min-width: 200px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); color: white; font-family: var(--font); font-size: 0.9rem; }
+    .canvas-toolbar input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(168,85,247,0.2); }
+    .btn { padding: 10px 20px; border-radius: 10px; border: none; font-family: var(--font); font-weight: 500; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(168,85,247,0.4); }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
+    .btn-accent { background: var(--accent); color: #000; }
+
+    .canvas-board { flex: 1; border-radius: var(--radius); border: 1px solid var(--border); background: rgba(0,0,0,0.3); padding: 24px; min-height: 400px; position: relative; overflow-y: auto; }
+    .canvas-element { padding: 16px; margin-bottom: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(12px); animation: fadeIn 0.4s ease; }
+    .canvas-element .el-header { font-size: 0.7rem; color: var(--primary); font-family: 'Fira Code', monospace; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .canvas-element .el-body { font-size: 0.9rem; line-height: 1.6; }
+    .canvas-element .el-meta { font-size: 0.7rem; color: var(--muted); margin-top: 8px; }
+
+    .props-panel { padding: 20px; border-left: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(20px); overflow-y: auto; }
+    .prop-group { margin-bottom: 20px; }
+    .prop-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+    .vertical-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; margin: 3px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; background: rgba(255,255,255,0.04); }
+    .vertical-chip.active { border-color: var(--primary); background: rgba(168,85,247,0.15); }
+    .vertical-chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .stat .label { font-size: 0.8rem; color: var(--muted); }
+    .stat .value { font-size: 0.8rem; font-weight: 500; color: var(--accent); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>🎨 HeadyVinci Creative Canvas</h1>
+      <div class="status" id="status">Connecting...</div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+      <h3>Creative Models</h3>
+      <div id="model-list"></div>
+    </div>
+
+    <div class="canvas-area">
+      <div class="canvas-toolbar">
+        <input type="text" id="prompt" placeholder="Describe your creative vision..." />
+        <button class="btn btn-primary" onclick="suggest()">✨ Generate</button>
+        <button class="btn btn-secondary" onclick="exportSession()">📦 Export Config</button>
+      </div>
+      <div class="canvas-board" id="board">
+        <div style="text-align:center; padding:40px; color: var(--muted);">
+          Select models in the sidebar and describe your vision above.<br>
+          HeadyVinci + external creative AI models will generate design suggestions.
+        </div>
+      </div>
+    </div>
+
+    <div class="props-panel">
+      <div class="prop-group">
+        <div class="prop-label">Session</div>
+        <input type="text" id="session-name" placeholder="Design name..." style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(0,0,0,0.4);color:white;font-family:var(--font);font-size:0.8rem;" />
+      </div>
+      <div class="prop-group">
+        <div class="prop-label">Heady Verticals</div>
+        <div id="verticals"></div>
+      </div>
+      <div class="prop-group">
+        <div class="prop-label">Canvas Stats</div>
+        <div id="stats">
+          <div class="stat"><span class="label">Elements</span><span class="value" id="stat-elements">0</span></div>
+          <div class="stat"><span class="label">Models Used</span><span class="value" id="stat-models">0</span></div>
+          <div class="stat"><span class="label">Suggestions</span><span class="value" id="stat-suggestions">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api/canvas';
+    let sessionId = null;
+    let selectedModels = new Set(['heady/vinci-v1', 'heady/brain']);
+    let selectedVerticals = new Set(['headyme.com']);
+    let suggestionCount = 0;
+    let modelsUsed = new Set();
+
+    async function init() {
+      const [modelsRes, verticalsRes] = await Promise.all([
+        fetch(`${API}/models`).then(r => r.json()),
+        fetch(`${API}/verticals`).then(r => r.json()),
+      ]);
+      renderModels(modelsRes.providers);
+      renderVerticals(verticalsRes.verticals);
+
+      // Create session
+      const sessionRes = await fetch(`${API}/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'New Canvas', models: [...selectedModels], verticals: [...selectedVerticals] }),
+      }).then(r => r.json());
+      sessionId = sessionRes.session.id;
+      document.getElementById('status').textContent = `Session: ${sessionId.slice(0, 16)}...`;
+
+      // Connect SSE
+      try {
+        const es = new EventSource('/api/stream/connect');
+        es.onmessage = (e) => {
+          const data = JSON.parse(e.data);
+          if (data.type === 'canvas_update') addElementToBoard(data.element);
+        };
+      } catch {}
+    }
+
+    function renderModels(providers) {
+      const list = document.getElementById('model-list');
+      list.innerHTML = '';
+      for (const [provider, models] of Object.entries(providers)) {
+        const header = document.createElement('h3');
+        header.textContent = provider.toUpperCase();
+        header.style.marginTop = '16px';
+        list.appendChild(header);
+        for (const model of models) {
+          const card = document.createElement('div');
+          card.className = `model-card ${selectedModels.has(model.id) ? 'selected' : ''}`;
+          card.innerHTML = `<div class="name">${model.name}</div><div class="provider">${model.provider}</div><div class="type">${model.type}</div>`;
+          card.onclick = () => { toggleModel(model.id); card.classList.toggle('selected'); };
+          list.appendChild(card);
+        }
+      }
+    }
+
+    function renderVerticals(verticals) {
+      const container = document.getElementById('verticals');
+      container.innerHTML = '';
+      for (const [domain, info] of Object.entries(verticals)) {
+        const chip = document.createElement('div');
+        chip.className = `vertical-chip ${selectedVerticals.has(domain) ? 'active' : ''}`;
+        chip.innerHTML = `<span class="dot" style="background:${info.color}"></span>${domain}`;
+        chip.onclick = () => { toggleVertical(domain); chip.classList.toggle('active'); };
+        container.appendChild(chip);
+      }
+    }
+
+    function toggleModel(id) { selectedModels.has(id) ? selectedModels.delete(id) : selectedModels.add(id); }
+    function toggleVertical(d) { selectedVerticals.has(d) ? selectedVerticals.delete(d) : selectedVerticals.add(d); }
+
+    async function suggest() {
+      const prompt = document.getElementById('prompt').value;
+      if (!prompt && selectedModels.size === 0) return;
+
+      for (const modelId of selectedModels) {
+        const res = await fetch(`${API}/session/${sessionId}/suggest`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, model: modelId, category: 'creative' }),
+        }).then(r => r.json());
+        if (res.ok) addSuggestionToBoard(res.suggestion);
+      }
+      document.getElementById('prompt').value = '';
+    }
+
+    function addSuggestionToBoard(sug) {
+      suggestionCount++;
+      modelsUsed.add(sug.modelName);
+      const board = document.getElementById('board');
+      if (board.querySelector('div[style]')) board.innerHTML = '';
+
+      const el = document.createElement('div');
+      el.className = 'canvas-element';
+      el.innerHTML = `
+        <div class="el-header">${sug.modelName} • ${sug.provider}</div>
+        <div class="el-body">${formatResult(sug.result)}</div>
+        <div class="el-meta">Model: ${sug.model} | ${sug.ts}</div>
+      `;
+      board.appendChild(el);
+      updateStats();
+    }
+
+    function addElementToBoard(element) {
+      const board = document.getElementById('board');
+      if (board.querySelector('div[style]')) board.innerHTML = '';
+      const el = document.createElement('div');
+      el.className = 'canvas-element';
+      el.innerHTML = `<div class="el-header">${element.type}</div><div class="el-body">${element.content || ''}</div>`;
+      board.appendChild(el);
+      updateStats();
+    }
+
+    function formatResult(result) {
+      if (!result) return '';
+      let html = `<strong>${result.type || 'output'}</strong><br>`;
+      if (result.description) html += `<p>${result.description}</p>`;
+      if (result.suggestions) html += `<ul>${result.suggestions.map(s => `<li>${s}</li>`).join('')}</ul>`;
+      if (result.nextSteps) html += `<p style="color:var(--accent);font-size:0.8rem;">Next: ${result.nextSteps.join(' → ')}</p>`;
+      if (result.suggestedCombinations) html += result.suggestedCombinations.map(c => `<p>Subject: ${c.subject} | Scene: ${c.scene} | Style: ${c.style}</p>`).join('');
+      if (result.predictedPreference) html += `<p>Layout: ${result.predictedPreference.layout} | Color: ${result.predictedPreference.colorTendency} | Type: ${result.predictedPreference.typographyStyle}</p>`;
+      return html;
+    }
+
+    function updateStats() {
+      document.getElementById('stat-elements').textContent = document.querySelectorAll('.canvas-element').length;
+      document.getElementById('stat-models').textContent = modelsUsed.size;
+      document.getElementById('stat-suggestions').textContent = suggestionCount;
+    }
+
+    async function exportSession() {
+      const res = await fetch(`${API}/session/${sessionId}/export`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      }).then(r => r.json());
+      if (res.ok) {
+        const board = document.getElementById('board');
+        const el = document.createElement('div');
+        el.className = 'canvas-element';
+        el.innerHTML = `<div class="el-header">📦 Exported Configuration</div><div class="el-body"><pre style="font-size:0.75rem;overflow-x:auto;color:var(--accent);font-family:'Fira Code',monospace;">${JSON.stringify(res.export, null, 2)}</pre></div>`;
+        board.appendChild(el);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

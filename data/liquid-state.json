@@ -1,0 +1,163 @@
+{
+  "allocations": {
+    "brain": {
+      "activeInstances": 1,
+      "maxInstances": 4,
+      "presences": [
+        "local",
+        "api-gateway",
+        "mcp-bridge",
+        "canvas"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "soul": {
+      "activeInstances": 1,
+      "maxInstances": 2,
+      "presences": [
+        "local"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "conductor": {
+      "activeInstances": 1,
+      "maxInstances": 1,
+      "presences": [
+        "local"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "battle": {
+      "activeInstances": 0,
+      "maxInstances": 3,
+      "presences": [
+        "local"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "vinci": {
+      "activeInstances": 1,
+      "maxInstances": 3,
+      "presences": [
+        "local",
+        "canvas",
+        "creative-sandbox"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "patterns": {
+      "activeInstances": 1,
+      "maxInstances": 1,
+      "presences": [
+        "local",
+        "system-wide"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "lens": {
+      "activeInstances": 0,
+      "maxInstances": 2,
+      "presences": [
+        "local"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "notion": {
+      "activeInstances": 0,
+      "maxInstances": 2,
+      "presences": [
+        "local"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "ops": {
+      "activeInstances": 1,
+      "maxInstances": 2,
+      "presences": [
+        "local"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "maintenance": {
+      "activeInstances": 1,
+      "maxInstances": 1,
+      "presences": [
+        "local"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "auto-success": {
+      "activeInstances": 1,
+      "maxInstances": 1,
+      "presences": [
+        "local",
+        "background-worker",
+        "timer",
+        "system-wide"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "stream": {
+      "activeInstances": 1,
+      "maxInstances": 1,
+      "presences": [
+        "local",
+        "sse-channel",
+        "websocket",
+        "system-wide"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "buddy": {
+      "activeInstances": 0,
+      "maxInstances": 1,
+      "presences": [
+        "local",
+        "extension",
+        "browser"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    },
+    "cloud": {
+      "activeInstances": 1,
+      "maxInstances": 1,
+      "presences": [
+        "local",
+        "cloudflare-edge",
+        "tunnel",
+        "system-wide"
+      ],
+      "lastAllocatedAt": null,
+      "allocationCount": 0,
+      "avgAffinity": 0
+    }
+  },
+  "totalFlows": 0,
+  "ts": "2026-02-23T04:29:48.675Z"
+}

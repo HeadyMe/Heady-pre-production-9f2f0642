@@ -1,0 +1,36 @@
+{
+    "name": "heady-hive-sdk",
+    "version": "1.0.0",
+    "description": "Official SDK for the Heady AI ecosystem — connect to Brain, Battle, Creative, MCP, and 40+ services",
+    "main": "index.js",
+    "bin": {
+        "heady": "./bin/heady.js"
+    },
+    "keywords": [
+        "heady",
+        "ai",
+        "sdk",
+        "mcp",
+        "brain",
+        "battle",
+        "creative",
+        "hive"
+    ],
+    "author": "Heady Project",
+    "license": "MIT",
+    "homepage": "https://headymcp.com",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/headyme/heady-hive-sdk"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "dependencies": {},
+    "files": [
+        "index.js",
+        "lib/",
+        "bin/",
+        "README.md"
+    ]
+}

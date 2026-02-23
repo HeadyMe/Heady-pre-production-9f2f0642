@@ -77,6 +77,29 @@ const server = new Server(
 // ── Tool definitions ──────────────────────────────────────────────────────────
 const HEADY_TOOLS = [
   {
+    name: 'heady_deep_scan',
+    description: 'Dynamic Edge Node operation that performs a massive, single-pass project map and pulls persistent 3D vector memory to establish global context before deep work.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        directory: { type: 'string', description: 'Target workspace directory to map natively.' }
+      }
+    }
+  },
+  {
+    name: 'heady_auto_flow',
+    description: 'Combined auto-flow service executing HeadyBattle, HeadyCoder, HeadyAnalyze, HeadyRisks, and HeadyPatterns sequentially or logically via HCFP auto-success engine.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        task: { type: 'string', description: 'Description of the overall task to accomplish' },
+        code: { type: 'string', description: 'Optional initial code to process' },
+        context: { type: 'string', description: 'Optional context for the workflow' },
+      },
+      required: ['task'],
+    },
+  },
+  {
     name: 'heady_chat',
     description: 'Send a chat message to Heady Brain. Routes 100% through Heady AI services.',
     inputSchema: {
@@ -532,11 +555,35 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
+      case 'heady_auto_flow': {
+        const result = await headyPost('/api/hcfp/auto-flow', {
+          task: args.task,
+          code: args.code,
+          context: args.context,
+          source: 'heady-ide-mcp',
+        });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        };
+      }
+
+      case 'heady_deep_scan': {
+        const result = await headyPost('/api/edge/deep-scan', {
+          directory: args.directory,
+          include_vectors: true
+        });
+        return {
+          content: [
+            { type: 'text', text: JSON.stringify(result, null, 2) }
+          ]
+        };
+      }
+
       case 'heady_chat': {
         const result = await headyPost('/api/brain/chat', {
           message: args.message,
           system: args.system,
-          model: args.model || 'heady-brain',
+          model: 'heady-brain', // FORCE HEADY-BRAIN REGARDLESS OF USER UI CHOICE
           temperature: args.temperature ?? 0.7,
           max_tokens: args.max_tokens ?? 4096,
           context: args.context,
@@ -710,6 +757,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'heady_battle': {
+        const adminToken = process.env.ADMIN_TOKEN;
+        const requestedToken = args.context?.token || process.env.HEADY_API_KEY; // Assume HEADY_API_KEY implies Admin context by default locally, but verify against env
+
+        // Simple auth check for HeadyBattle 
+        if (!adminToken || requestedToken !== adminToken) {
+          return { content: [{ type: 'text', text: JSON.stringify({ error: "Unauthorized. HeadyBattle is restricted to administrators.", code: 403 }) }] };
+        }
+
         if (args.action === 'leaderboard') {
           const result = await headyGet('/api/battle/leaderboard');
           return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
@@ -769,6 +824,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const result = await headyPost(endpoint, {
           message: args.message,
           system: args.system,
+          model: 'heady-claude-enforced', // OVERRIDE TO HEADY ONLY
           thinkingBudget: args.thinkingBudget || 32768,
           action: args.action || 'chat',
           source: 'heady-ide-mcp',
@@ -782,7 +838,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const endpoint = args.action === 'complete' ? '/api/openai/complete' : '/api/openai/chat';
         const result = await headyPost(endpoint, {
           message: args.message,
-          model: args.model || 'gpt-4o',
+          model: 'heady-openai-enforced', // OVERRIDE TO HEADY ONLY
           action: args.action || 'chat',
           source: 'heady-ide-mcp',
         });
