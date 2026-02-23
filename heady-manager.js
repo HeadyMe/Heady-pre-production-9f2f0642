@@ -27,6 +27,7 @@
 // ║  💎 Service Mesh Integration · Distributed Tracing Ready       ║
 
 // Core dependencies
+const http = require('http');
 const yaml = require('js-yaml');
 const fs = require('fs');
 const path = require("path");
@@ -34,6 +35,7 @@ const fetch = require('node-fetch');
 const { createAppAuth } = require('@octokit/auth-app');
 const YAML = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
+const WebSocket = require('ws');
 
 /**
  * @swagger
@@ -359,29 +361,43 @@ app.get("/api/services/groups", (req, res) => {
   }
 });
 
-// ─── 3D Vector Hybrid Memory Connector ─────────────────────────────────
-app.post("/api/vector/query", async (req, res) => {
-  const { query, provider = "auto" } = req.body;
-  const token = req.headers['authorization']?.split(' ')[1];
-  const isAuthenticated = token === process.env.HEADY_API_KEY;
+// ─── 3D Vector Memory (Real Embeddings) ────────────────────────────
+const vectorMemory = require("./src/vector-memory");
+vectorMemory.init();
+vectorMemory.registerRoutes(app);
+console.log("  ∞ VectorMemory: LOADED (HF embeddings + cosine similarity)");
 
-  if (!isAuthenticated) {
-    return res.status(403).json({ error: "Vector retrieval requires active Heady Auth Token (Guest mode restriction)." });
+// Wire into brain.js so all brain interactions get stored as real vectors
+try {
+  const brainRoutes = require("./src/routes/brain");
+  if (brainRoutes.setMemoryWrapper) {
+    brainRoutes.setMemoryWrapper(vectorMemory);
+    console.log("  ∞ VectorMemory → Brain: CONNECTED (storeInMemory = real embeddings)");
   }
+} catch (err) {
+  console.warn("  ⚠ VectorMemory → Brain: Not connected:", err.message);
+}
 
-  // Abstracted Universal Connector (Cloudflare Vectorize, GCP Vertex, Local Pinecone)
-  // Resolves the context before yielding to the LLM backend
-  const vectorResponse = {
-    hybrid_source: provider === "auto" ? "Cloudflare+Local" : provider,
-    context_injected: true,
-    matches: [
-      { id: "vec_001", score: 0.98, content: "Heady architecture requires pre-flight vector scanning before model execution." },
-      { id: "vec_002", score: 0.91, content: "User relies on HeadyManager as the single source of truth for routing." }
-    ]
-  };
+// ─── HeadyCorrections — Behavior Analysis Engine ────────────────────
+const corrections = require("./src/corrections");
+corrections.init();
+corrections.registerRoutes(app);
+console.log("  ∞ HeadyCorrections: LOADED (behavior analysis + audit trail)");
 
-  res.json({ success: true, data: vectorResponse });
-});
+// ─── Dynamic Agent Orchestrator ─────────────────────────────────────
+const { getOrchestrator } = require("./src/agent-orchestrator");
+const orchestrator = getOrchestrator({ baseUrl: "http://127.0.0.1:" + PORT, apiKey: process.env.HEADY_API_KEY });
+orchestrator.registerRoutes(app);
+orchestrator.on("agent:spawned", (d) => console.log(`  ∞ Agent spawned: ${d.id} (${d.serviceGroup})`));
+orchestrator.on("task:complete", (d) => { /* silent */ });
+console.log("  ∞ AgentOrchestrator: LOADED (dynamic spawn + deterministic routing)");
+
+// ─── Real-Time Compute Dashboard ────────────────────────────────────
+const computeDashboard = require("./src/compute-dashboard");
+computeDashboard.registerRoutes(app, orchestrator);
+
+
+
 
 // ─── Static Assets ─────────────────────────────────────────────────
 const frontendBuildPath = path.join(__dirname, "frontend", "dist");
@@ -390,6 +406,15 @@ if (fs.existsSync(frontendBuildPath)) {
 }
 // ─── headyme.com Production Site ─────────────────────────────────────
 app.use("/headyme", express.static("/home/headyme/CascadeProjects/headyme-com/dist"));
+// ─── All Vertical Sites ─────────────────────────────────────────────
+app.use("/headysystems", express.static("/home/headyme/CascadeProjects/headysystems-com"));
+app.use("/headybuddy", express.static("/home/headyme/CascadeProjects/headybuddy-org"));
+app.use("/headyconnection", express.static("/home/headyme/CascadeProjects/headyconnection-org"));
+app.use("/headymcp", express.static("/home/headyme/CascadeProjects/headymcp-com"));
+app.use("/headyio", express.static("/home/headyme/CascadeProjects/headyio"));
+app.use("/headyweb", express.static("/home/headyme/CascadeProjects/HeadyWeb"));
+app.use("/admin", express.static("/home/headyme/CascadeProjects/admin-ui"));
+console.log("  ∞ Vertical Sites: 8 sites served (headyme, headysystems, headybuddy, headyconnection, headymcp, headyio, headyweb, admin)");
 
 // ─── HeadyAI-IDE (ide.headyme.com) ──────────────────────────────────
 const IDE_DIST = path.join(__dirname, "heady-ide-ui", "dist");
@@ -1856,6 +1881,16 @@ try {
   console.warn(`  ⚠ HeadyBrain Core Routes not loaded: ${err.message}`);
 }
 
+// ─── Mount src/routes/hive-sdk.js (battle, creative, mcp, auth, events)
+try {
+  const { router: hiveSdkRoutes } = require("./src/routes/hive-sdk");
+  app.use("/api", hiveSdkRoutes);
+  console.log("  ∞ Heady Hive SDK Endpoints: LOADED");
+  console.log("    → Endpoints: /api/battle/*, /api/creative/*, /api/mcp/*, /api/auth/*, /api/events/*");
+} catch (err) {
+  console.warn(`  ⚠ Heady Hive SDK Endpoints not loaded: ${err.message}`);
+}
+
 // ─── Mount Notion sync routes ───────────────────────────────────────
 try {
   const { registerNotionRoutes } = require("./src/services/heady-notion");
@@ -2931,18 +2966,167 @@ app.get("/health", (req, res) => {
   res.redirect("/api/health");
 });
 
-// ─── Start ──────────────────────────────────────────────────────────
-app.listen(PORT, '0.0.0.0', () => {
+// ─── Voice Relay WebSocket System ─────────────────────────────────────
+// Cross-device voice-to-text relay: phone dictates → mini computer receives
+const voiceSessions = new Map(); // sessionId → { sender: ws, receivers: Set<ws>, created, lastActivity }
+
+// Generate / retrieve voice session for pairing
+app.get('/api/voice/session', (req, res) => {
+  const sessionId = req.query.id || `voice-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  if (!voiceSessions.has(sessionId)) {
+    voiceSessions.set(sessionId, { sender: null, receivers: new Set(), created: Date.now(), lastActivity: Date.now() });
+  }
+  const session = voiceSessions.get(sessionId);
+  res.json({
+    sessionId,
+    hasSender: !!session.sender,
+    receiverCount: session.receivers.size,
+    created: new Date(session.created).toISOString(),
+    ts: new Date().toISOString()
+  });
+});
+
+app.get('/api/voice/sessions', (req, res) => {
+  const sessions = [];
+  voiceSessions.forEach((v, k) => sessions.push({
+    sessionId: k, hasSender: !!v.sender, receiverCount: v.receivers.size,
+    created: new Date(v.created).toISOString(), lastActivity: new Date(v.lastActivity).toISOString()
+  }));
+  res.json({ sessions, ts: new Date().toISOString() });
+});
+
+// Clean up stale sessions every 30 minutes
+setInterval(() => {
+  const staleThreshold = Date.now() - 3600000; // 1 hour
+  voiceSessions.forEach((session, id) => {
+    if (session.lastActivity < staleThreshold) {
+      if (session.sender) try { session.sender.close(); } catch (e) { /* */ }
+      session.receivers.forEach(r => { try { r.close(); } catch (e) { /* */ } });
+      voiceSessions.delete(id);
+    }
+  });
+}, 1800000);
+
+// ─── Start (HTTP + WebSocket) ───────────────────────────────────────
+const server = http.createServer(app);
+
+// WebSocket server for voice relay (no-server mode — upgrade handled manually)
+const voiceWss = new WebSocket.Server({ noServer: true });
+
+server.on('upgrade', (request, socket, head) => {
+  const url = new URL(request.url, `http://${request.headers.host}`);
+  const match = url.pathname.match(/^\/ws\/voice\/(.+)$/);
+  if (!match) {
+    socket.destroy();
+    return;
+  }
+  const sessionId = match[1];
+  voiceWss.handleUpgrade(request, socket, head, (ws) => {
+    voiceWss.emit('connection', ws, request, sessionId);
+  });
+});
+
+voiceWss.on('connection', (ws, request, sessionId) => {
+  // Get or create session
+  if (!voiceSessions.has(sessionId)) {
+    voiceSessions.set(sessionId, { sender: null, receivers: new Set(), created: Date.now(), lastActivity: Date.now() });
+  }
+  const session = voiceSessions.get(sessionId);
+  const url = new URL(request.url, `http://${request.headers.host}`);
+  const role = url.searchParams.get('role') || 'receiver';
+
+  if (role === 'sender') {
+    session.sender = ws;
+    console.log(`[VoiceRelay] Sender connected to session ${sessionId}`);
+    // Notify receivers that sender connected
+    session.receivers.forEach(r => {
+      if (r.readyState === WebSocket.OPEN) {
+        r.send(JSON.stringify({ type: 'sender_connected' }));
+      }
+    });
+  } else {
+    session.receivers.add(ws);
+    console.log(`[VoiceRelay] Receiver connected to session ${sessionId} (${session.receivers.size} total)`);
+    // Tell receiver if sender is already present
+    if (session.sender && session.sender.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'sender_connected' }));
+    }
+  }
+
+  ws.on('message', (data) => {
+    session.lastActivity = Date.now();
+    try {
+      const msg = JSON.parse(data);
+      // Relay voice transcription from sender → all receivers
+      if (role === 'sender' && (msg.type === 'transcript' || msg.type === 'interim' || msg.type === 'final')) {
+        session.receivers.forEach(r => {
+          if (r.readyState === WebSocket.OPEN) {
+            r.send(JSON.stringify(msg));
+          }
+        });
+      }
+      // Receiver can send commands back to sender (e.g., 'pause', 'resume')
+      if (role === 'receiver' && msg.type === 'command' && session.sender && session.sender.readyState === WebSocket.OPEN) {
+        session.sender.send(JSON.stringify(msg));
+      }
+    } catch (e) { /* ignore malformed messages */ }
+  });
+
+  ws.on('close', () => {
+    if (role === 'sender') {
+      session.sender = null;
+      console.log(`[VoiceRelay] Sender disconnected from session ${sessionId}`);
+      session.receivers.forEach(r => {
+        if (r.readyState === WebSocket.OPEN) {
+          r.send(JSON.stringify({ type: 'sender_disconnected' }));
+        }
+      });
+    } else {
+      session.receivers.delete(ws);
+      console.log(`[VoiceRelay] Receiver disconnected from session ${sessionId} (${session.receivers.size} remain)`);
+    }
+    // Clean up empty sessions
+    if (!session.sender && session.receivers.size === 0) {
+      voiceSessions.delete(sessionId);
+    }
+  });
+
+  ws.on('error', (err) => {
+    console.warn(`[VoiceRelay] WebSocket error in session ${sessionId}:`, err.message);
+  });
+});
+
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`\n  ∞ Heady Manager v3.0.0 listening on port ${PORT}`);
   console.log(`  ∞ Health: https://headysystems.com/api/health (port ${PORT})`);
+  console.log(`  ∞ Voice Relay: ws://0.0.0.0:${PORT}/ws/voice/:sessionId`);
   console.log(`  ∞ Environment: ${process.env.NODE_ENV || "development"}\n`);
 });
 
 try {
-  const { startBrandingMonitor } = require('./src/self-awareness');
+  const { startBrandingMonitor, getBrandingReport, getSystemIntrospection } = require('./src/self-awareness');
   startBrandingMonitor();
-  console.log("  \u221e Branding Monitor: STARTED");
+  app.get('/api/introspection', (req, res) => res.json(getSystemIntrospection()));
+  app.get('/api/branding', (req, res) => res.json(getBrandingReport()));
+  console.log("  ∞ Branding Monitor: STARTED");
+  console.log("  ∞ Introspection: /api/introspection + /api/branding");
 } catch (err) {
-  console.warn(`  \u26a0 Branding Monitor not loaded: ${err.message}`);
+  console.warn(`  ⚠ Branding Monitor not loaded: ${err.message}`);
 }
 
+try {
+  const hp = require('./src/heady-principles');
+  app.get('/api/principles', (req, res) => res.json({
+    node: 'heady-principles',
+    role: 'Mathematical foundation — base-13, log42, golden ratio',
+    constants: { PHI: hp.PHI, PHI_INV: hp.PHI_INV, PHI_PCT: hp.PHI_PCT, BASE: hp.BASE, LOG_BASE: hp.LOG_BASE, HEADY_UNIT: hp.HEADY_UNIT, HEADY_CYCLE: hp.HEADY_CYCLE },
+    designTokens: hp.designTokens(8),
+    capacity: hp.capacityParams('medium'),
+    thresholds: hp.phiThresholds(8),
+    fibonacci: hp.FIB.slice(0, 13),
+    vinci: { role: 'Biomimicry node — studies patterns in nature for system optimization', patterns: ['golden_ratio', 'fibonacci_spirals', 'fractal_branching', 'swarm_intelligence', 'ant_colony_optimization', 'neural_pathway_efficiency', 'phyllotaxis', 'l_systems'] },
+  }));
+  console.log("  ∞ Heady Principles: /api/principles (φ=" + hp.PHI.toFixed(3) + ")");
+} catch (err) {
+  console.warn(`  ⚠ Heady Principles not loaded: ${err.message}`);
+}

@@ -1,17 +1,8 @@
-FROM node:20-alpine
-
+FROM node:22-slim
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm ci --only=production
-
+RUN npm ci --production
 COPY . .
-
-RUN npm run build || true
-
+RUN mkdir -p data configs
 EXPOSE 3301
-
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD wget -qO- http://localhost:3301/api/health || exit 1
-
 CMD ["node", "heady-manager.js"]

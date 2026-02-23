@@ -199,6 +199,67 @@ async function chatViaOllama(message, system, temperature, max_tokens) {
     });
 }
 
+// ─── Response Filter Layer ──────────────────────────────────────────
+// Global: scrub underlying provider references from response text
+// Optional: content safety filtering for minor audiences
+function filterResponse(text, options = {}) {
+    if (!text) return text;
+    let filtered = text;
+
+    // ── Stage 1: Global Provider Identity Scrubbing ──
+    if (options.scrubProviders !== false) {
+        // Self-identification patterns — catch "I am Claude", "I'm a Google AI", etc.
+        const identityPatterns = [
+            // Direct provider self-identification
+            [/\bI(?:'m| am) (?:an? )?(?:AI (?:assistant|model|chatbot|language model) )?(?:made|created|developed|built|trained|designed) by (Google|Anthropic|OpenAI|Meta|Mistral|Microsoft|Hugging\s?Face)\b/gi,
+                "I'm HeadyBrain, the AI reasoning engine of the Heady ecosystem"],
+            [/\bI(?:'m| am) (Claude|Gemini|GPT|ChatGPT|Llama|Mistral|Qwen|Copilot)\b/gi,
+                "I'm HeadyBrain"],
+            [/\bI(?:'m| am) (?:a |an )?(large )?language model,? (?:trained|created|made|built|developed) by (Google|Anthropic|OpenAI|Meta)\b/gi,
+                "I'm HeadyBrain, the AI reasoning engine of the Heady ecosystem"],
+            [/\bI(?:'m| am) (?:a |an )?(large )?language model\b/gi,
+                "I'm HeadyBrain"],
+            [/\bMy name is (Claude|Gemini|GPT|ChatGPT|Bard|Llama|Qwen)\b/gi,
+                "I'm HeadyBrain"],
+
+            // Provider/company name references in context of "who made me"
+            [/\b(?:made|created|developed|built|trained|designed) by (Google|Anthropic|OpenAI|Meta AI|Mistral AI|Microsoft|Hugging\s?Face)\b/gi,
+                "built by Heady Systems"],
+            [/\b(Google|Anthropic|OpenAI|Meta|Mistral|Microsoft|Hugging\s?Face)(?:'s)? AI (?:assistant|model|team|lab|research)\b/gi,
+                "Heady AI"],
+
+            // Model family references when self-identifying
+            [/\bAs (Claude|Gemini|GPT-4|GPT-4o|ChatGPT|Llama|Qwen|Mistral|Copilot)\b/gi,
+                "As HeadyBrain"],
+            [/\bI'm (Claude|Gemini|Bard|GPT-4|ChatGPT|Llama|Qwen) (?:by|from) \w+/gi,
+                "I'm HeadyBrain"],
+
+            // "Powered by" references
+            [/\bpowered by (Google|Anthropic|OpenAI|Meta|Gemini|Claude|GPT)\b/gi,
+                "powered by Heady Systems"],
+        ];
+
+        for (const [pattern, replacement] of identityPatterns) {
+            filtered = filtered.replace(pattern, replacement);
+        }
+    }
+
+    // ── Stage 2: Optional Content Safety Filter ──
+    if (options.contentSafety) {
+        // Flag but don't remove — add a safety notice
+        const sensitivePatterns = [
+            /\b(explicit|graphic violence|self-harm|hate speech)\b/gi,
+        ];
+        for (const p of sensitivePatterns) {
+            if (p.test(filtered)) {
+                filtered = "[Content filtered for safety] " + filtered.replace(p, "[filtered]");
+            }
+        }
+    }
+
+    return filtered;
+}
+
 // ─── Claude SDK Smart Router ────────────────────────────────────────
 // Uses @anthropic-ai/sdk with intelligent model selection, extended thinking,
 // dual-org failover, and credit tracking.
@@ -373,94 +434,63 @@ async function chatViaClaude(message, system, temperature, max_tokens) {
 }
 
 async function chatViaHuggingFace(message, system, temperature, max_tokens) {
-    const apiKey = process.env.HF_TOKEN;
-    if (!apiKey || apiKey.includes("your_")) throw new Error("no-key");
+    // Multi-token failover for HF Business team plan (3 seats)
+    const tokens = [process.env.HF_TOKEN, process.env.HF_TOKEN_2, process.env.HF_TOKEN_3]
+        .filter(t => t && !t.includes("your_") && !t.includes("placeholder"));
+    if (tokens.length === 0) throw new Error("no-key");
 
-    const https = require("https");
+    const { InferenceClient } = require("@huggingface/inference");
+    const client = new InferenceClient(tokens[Math.floor(Date.now() / 120000) % tokens.length]);
+
     const msgs = [];
     if (system) msgs.push({ role: "system", content: system });
     else msgs.push({ role: "system", content: "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem. Be helpful, concise, warm." });
     msgs.push({ role: "user", content: message });
 
-    // Use HF's OpenAI-compatible router — auto-selects fastest provider
-    const payload = JSON.stringify({
-        model: "Qwen/Qwen3-235B-A22B:fastest",
+    const result = await client.chatCompletion({
+        model: "Qwen/Qwen3-235B-A22B",
         messages: msgs,
         temperature: temperature || 0.7,
         max_tokens: max_tokens || 2048,
     });
 
-    return new Promise((resolve, reject) => {
-        const req = https.request({
-            hostname: "router.huggingface.co", path: "/v1/chat/completions", method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Length": Buffer.byteLength(payload),
-            },
-            timeout: 30000,
-        }, (res) => {
-            let data = "";
-            res.on("data", (chunk) => (data += chunk));
-            res.on("end", () => {
-                try {
-                    const parsed = JSON.parse(data);
-                    if (parsed.choices && parsed.choices[0]) {
-                        resolve({ response: parsed.choices[0].message.content, model: parsed.model || "qwen3-235b" });
-                    } else if (parsed.error) {
-                        reject(new Error(parsed.error?.message || "HF error"));
-                    } else {
-                        reject(new Error("unexpected-response"));
-                    }
-                } catch { reject(new Error("parse-error")); }
-            });
-        });
-        req.on("error", reject);
-        req.on("timeout", () => { req.destroy(); reject(new Error("timeout")); });
-        req.write(payload);
-        req.end();
-    });
+    if (result.choices && result.choices[0]) {
+        return { response: result.choices[0].message.content, model: result.model || "qwen3-235b" };
+    }
+    throw new Error("unexpected-response");
 }
 
 async function chatViaGemini(message, system, temperature, max_tokens) {
-    const apiKey = process.env.GOOGLE_API_KEY;
-    if (!apiKey) throw new Error("no-key");
+    // Multi-key failover across all configured Gemini keys
+    const keys = [
+        process.env.GOOGLE_API_KEY,
+        process.env.GOOGLE_API_KEY_SECONDARY,
+        process.env.GEMINI_API_KEY_HEADY,
+        process.env.GEMINI_API_KEY_GCLOUD,
+        process.env.GEMINI_API_KEY_COLAB,
+        process.env.GEMINI_API_KEY_STUDIO,
+    ].filter(k => k && !k.includes("placeholder"));
+    if (keys.length === 0) throw new Error("no-key");
 
-    const https = require("https");
-    const contents = [{ parts: [{ text: system ? `${system}\n\n${message}` : message }] }];
-    const payload = JSON.stringify({
-        contents,
-        generationConfig: { temperature: temperature || 0.7, maxOutputTokens: max_tokens || 2048 },
+    const { GoogleGenAI } = require("@google/genai");
+    const apiKey = keys[Math.floor(Date.now() / 60000) % keys.length];
+    const ai = new GoogleGenAI({ apiKey });
+
+    const prompt = system ? `${system}\n\n${message}` : message;
+    const result = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            temperature: temperature || 0.7,
+            maxOutputTokens: max_tokens || 2048,
+        },
     });
 
-    return new Promise((resolve, reject) => {
-        const req = https.request({
-            hostname: "generativelanguage.googleapis.com",
-            path: `/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) },
-            timeout: 30000,
-        }, (res) => {
-            let data = "";
-            res.on("data", (chunk) => (data += chunk));
-            res.on("end", () => {
-                try {
-                    const parsed = JSON.parse(data);
-                    if (parsed.candidates && parsed.candidates[0]?.content?.parts?.[0]) {
-                        resolve({ response: parsed.candidates[0].content.parts[0].text, model: "gemini-2.0-flash" });
-                    } else if (parsed.error) {
-                        reject(new Error(parsed.error.message || "Gemini error"));
-                    } else {
-                        reject(new Error("unexpected-response"));
-                    }
-                } catch { reject(new Error("parse-error")); }
-            });
-        });
-        req.on("error", reject);
-        req.on("timeout", () => { req.destroy(); reject(new Error("timeout")); });
-        req.write(payload);
-        req.end();
-    });
+    const text = result.text;
+    if (text) {
+        return { response: text, model: "gemini-2.5-flash" };
+    }
+    throw new Error("unexpected-response");
 }
 
 function generateContextualResponse(message) {
@@ -553,17 +583,37 @@ router.post("/chat", async (req, res) => {
             type: "brain_response", model: winner.model, source: winner.source, latency: winner.latency, ts
         });
 
+        // ── Response Filter Layer ──
+        // 1. Global: scrub all provider identity references from response text
+        // 2. Optional: content safety filtering for minor audiences
+        const filteredResponse = filterResponse(winner.response, {
+            scrubProviders: true,
+            contentSafety: process.env.HEADY_CONTENT_FILTER === "strict",
+        });
+
+        // ── Model Abstraction Layer ──
+        // Hide underlying providers behind Heady service groups
+        // Internal model/source info stays in memory + logs only
+        const SERVICE_GROUP_MAP = {
+            claude: "heady-reasoning",
+            gemini: "heady-multimodal",
+            huggingface: "heady-open-weights",
+            ollama: "heady-local",
+            openai: "heady-enterprise",
+        };
+        const serviceGroup = SERVICE_GROUP_MAP[winner.source] || "heady-brain";
+
         return res.json({
             ok: true,
-            response: winner.response,
-            model: `heady-brain (${winner.model})`,
-            source: winner.source,
+            response: filteredResponse,
+            model: "heady-brain",
+            engine: serviceGroup,
             stored_in_memory: true,
             race: {
-                providers_entered: providerNames,
-                winner: winner.source,
+                winner: serviceGroup,
                 latency_ms: winner.latency,
                 total_ms: totalLatency,
+                providers_count: providerNames.length,
             },
             ts,
         });
@@ -817,4 +867,173 @@ router.get("/claude-usage", (req, res) => {
     });
 });
 
+// ─── Hive SDK Brain Contract Endpoints ─────────────────────────────
+// These endpoints satisfy the heady-hive-sdk brain.js client contract
+
+// POST /api/brain/embed — Generate vector embeddings
+router.post("/embed", async (req, res) => {
+    const { text, model } = req.body;
+    if (!text) return res.status(400).json({ error: "text required" });
+    const ts = new Date().toISOString();
+
+    try {
+        if (memoryWrapper && typeof memoryWrapper.ingestMemory === "function") {
+            // Store and return the embedding
+            const id = await memoryWrapper.ingestMemory({ content: text, metadata: { type: "embed_request", model: model || "all-MiniLM-L6-v2", ts } });
+            // Use the embed function directly if available
+            const vectorMem = require("../vector-memory");
+            const embedding = await vectorMem.embed(text);
+            logInteraction("embed", text.substring(0, 100), `${embedding.length}-dim vector`);
+            res.json({ ok: true, embedding, dimensions: embedding.length, model: "heady-brain-embed", stored_id: id, ts });
+        } else {
+            res.status(503).json({ error: "Vector memory not connected", ts });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message, ts });
+    }
+});
+
+// POST /api/brain/search — Semantic search across vector memory
+router.post("/search", async (req, res) => {
+    const { query, scope, limit } = req.body;
+    if (!query) return res.status(400).json({ error: "query required" });
+    const ts = new Date().toISOString();
+
+    try {
+        const vectorMem = require("../vector-memory");
+        const results = await vectorMem.queryMemory(query, limit || 10, scope ? { type: scope } : {});
+        const stats = vectorMem.getStats();
+        logInteraction("search", query, `${results.length} results from ${stats.total_vectors} vectors`);
+        res.json({
+            ok: true, results, total_vectors: stats.total_vectors,
+            embedding_source: stats.embedding_source,
+            model: "heady-brain-search", ts,
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message, ts });
+    }
+});
+
+// POST /api/brain/analyze — Analyze code or text via brain race
+router.post("/analyze", async (req, res) => {
+    const { content, type, depth } = req.body;
+    if (!content) return res.status(400).json({ error: "content required" });
+    const ts = new Date().toISOString();
+    const analysisPrompt = `Analyze the following ${type || "code"} (depth: ${depth || "standard"}):\n\n${content}`;
+
+    // Route through the brain race for multi-provider analysis
+    try {
+        req.body.message = analysisPrompt;
+        req.body.system = "You are HeadyBrain's code analysis engine. Provide thorough, actionable analysis.";
+        // Forward to chat handler logic (reuse the race)
+        const raceStart = Date.now();
+        const providers = [];
+        const providerNames = [];
+
+        // Use Gemini for analysis (fast + good at code)
+        providers.push(chatViaGemini(analysisPrompt, req.body.system, 0.2, 4096)
+            .then(r => ({ ...r, source: "gemini", latency: Date.now() - raceStart })));
+        providerNames.push("gemini");
+
+        const winner = await Promise.any(providers);
+        const filtered = filterResponse(winner.response, { scrubProviders: true });
+
+        await storeInMemory(`Analysis: ${filtered.substring(0, 500)}`, { type: "analysis", source: winner.source, ts });
+        res.json({ ok: true, analysis: filtered, model: "heady-brain", type: type || "general", ts });
+    } catch (err) {
+        res.status(500).json({ error: err.message, ts });
+    }
+});
+
+// POST /api/brain/complete — Code/text completion
+router.post("/complete", async (req, res) => {
+    const { prompt, language, max_tokens } = req.body;
+    if (!prompt) return res.status(400).json({ error: "prompt required" });
+    const ts = new Date().toISOString();
+    const sysPrompt = `You are HeadyBrain's code completion engine. Complete the following ${language || "code"} precisely. Return ONLY the completion, no explanation.`;
+
+    try {
+        const result = await chatViaGemini(prompt, sysPrompt, 0.1, max_tokens || 1024);
+        const filtered = filterResponse(result.response, { scrubProviders: true });
+        res.json({ ok: true, completion: filtered, model: "heady-brain", language: language || "auto", ts });
+    } catch (err) {
+        res.status(500).json({ error: err.message, ts });
+    }
+});
+
+// POST /api/brain/refactor — Code refactoring suggestions
+router.post("/refactor", async (req, res) => {
+    const { code, language, goals } = req.body;
+    if (!code) return res.status(400).json({ error: "code required" });
+    const ts = new Date().toISOString();
+    const goalStr = (goals || ["readability", "performance"]).join(", ");
+    const sysPrompt = `You are HeadyBrain's refactoring engine. Refactor the following ${language || "code"} with these goals: ${goalStr}. Show the refactored code and explain each change.`;
+
+    try {
+        const result = await chatViaGemini(code, sysPrompt, 0.2, 4096);
+        const filtered = filterResponse(result.response, { scrubProviders: true });
+        await storeInMemory(`Refactor: ${filtered.substring(0, 500)}`, { type: "refactor", goals, ts });
+        res.json({ ok: true, refactored: filtered, model: "heady-brain", goals: goals || ["readability", "performance"], ts });
+    } catch (err) {
+        res.status(500).json({ error: err.message, ts });
+    }
+});
+
 module.exports = { router, setMemoryWrapper };
+
+/**
+ * POST /api/brain/stream
+ * Server-Sent Events streaming chat via Claude SDK
+ */
+router.post("/stream", async (req, res) => {
+    const { message, system, model } = req.body;
+    if (!message) return res.status(400).json({ error: "message required" });
+
+    res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        ...req.headers.origin ? { "Access-Control-Allow-Origin": req.headers.origin } : {},
+    });
+
+    try {
+        const complexity = analyzeComplexity(message);
+        const { client } = getClaudeClient();
+        const modelId = complexity.level === "low" ? "claude-haiku-4-5-20250514"
+            : complexity.level === "critical" ? "claude-opus-4-20250514"
+                : "claude-sonnet-4-20250514";
+
+        const useThinking = complexity.score >= 0.6;
+        const streamParams = {
+            model: modelId,
+            max_tokens: useThinking ? 16000 : 4096,
+            messages: [{ role: "user", content: message }],
+            ...(system ? { system } : {}),
+            stream: true,
+        };
+
+        if (useThinking) {
+            streamParams.thinking = { type: "enabled", budget_tokens: Math.min(complexity.score * 10000, 8000) };
+        }
+
+        const stream = client.messages.stream(streamParams);
+
+        stream.on("text", (text) => {
+            res.write(`data: ${JSON.stringify({ type: "text", content: text })}\n\n`);
+        });
+
+        stream.on("message", (msg) => {
+            const usage = msg.usage || {};
+            res.write(`data: ${JSON.stringify({ type: "done", model: modelId, complexity: complexity.level, input_tokens: usage.input_tokens, output_tokens: usage.output_tokens })}\n\n`);
+            res.end();
+        });
+
+        stream.on("error", (err) => {
+            res.write(`data: ${JSON.stringify({ type: "error", message: err.message })}\n\n`);
+            res.end();
+        });
+    } catch (err) {
+        res.write(`data: ${JSON.stringify({ type: "error", message: err.message })}\n\n`);
+        res.end();
+    }
+});

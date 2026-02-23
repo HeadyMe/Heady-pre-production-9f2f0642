@@ -4,55 +4,64 @@ services:
   heady-manager:
     build: .
     container_name: heady-manager
+    restart: unless-stopped
     ports:
-      - "3300:3300"
+      - "3301:3301"
     environment:
       - NODE_ENV=production
-      - PORT=3300
-      - HEADY_TARGET=Docker
-      - HEADY_VERSION=3.0.0
+      - PORT=3301
+    env_file:
+      - .env
     volumes:
-      - heady-data:/app/.heady-memory
-    networks:
-      - heady-net
+      - ./data:/app/data
+      - ./configs:/app/configs
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://api.headysystems.com:3300/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3301/api/pulse"]
       interval: 30s
       timeout: 10s
       retries: 3
-    restart: unless-stopped
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 2G
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  heady-redis:
-    image: redis:7-alpine
-    container_name: heady-redis
+  ollama:
+    image: ollama/ollama:latest
+    container_name: heady-ollama
+    restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "11434:11434"
     volumes:
-      - heady-redis:/data
-    networks:
-      - heady-net
-    restart: unless-stopped
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
-  heady-postgres:
-    image: postgres:16-alpine
-    container_name: heady-postgres
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: heady-tunnel
+    restart: unless-stopped
+    command: tunnel run
     environment:
-      - POSTGRES_DB=heady
-      - POSTGRES_USER=heady
-      - POSTGRES_PASSWORD=heady_secret
-    ports:
-      - "5432:5432"
-    volumes:
-      - heady-postgres:/var/lib/postgresql/data
-    networks:
-      - heady-net
-    restart: unless-stopped
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      heady-manager:
+        condition: service_healthy
 
 volumes:
-  heady-data:
-  heady-redis:
-  heady-postgres:
-
-networks:
-  heady-net:
-    driver: bridge
+  ollama_data:
+    driver: local

@@ -96,5 +96,579 @@
     "input": "Hello!",
     "output": "Hey there! 👋 I'm HeadyBrain, part of the Heady AI ecosystem. I'm currently in local-intelligence mode. I can process your questions, and all conversations are stored in persistent 3D vector memory. What would you like to explore?",
     "timestamp": "2026-02-23T05:36:47.548Z"
+  },
+  {
+    "id": "27f0dad6-14dd-4ffd-aaed-0be6ea38ab38",
+    "type": "chat",
+    "input": "Say hello and identify which Claude model you are. Keep it to one sentence.",
+    "output": "[chat request at 2026-02-23T07:05:24.381Z]",
+    "timestamp": "2026-02-23T07:05:24.382Z"
+  },
+  {
+    "id": "3f6a3a0c-510d-4632-a1b9-e501f1a89706",
+    "type": "chat_contextual",
+    "input": "Say hello and identify which Claude model you are. Keep it to one sentence.",
+    "output": "Hey there! 👋 I'm HeadyBrain, part of the Heady AI ecosystem. I'm currently in local-intelligence mode. I can process your questions, and all conversations are stored in persistent 3D vector memory. What would you like to explore?",
+    "timestamp": "2026-02-23T07:05:24.899Z"
+  },
+  {
+    "id": "aad05368-3ddf-4d3f-920c-30dd110bfb3e",
+    "type": "chat",
+    "input": "Say hello and tell me which AI model you are. One sentence.",
+    "output": "[chat request at 2026-02-23T07:14:24.727Z]",
+    "timestamp": "2026-02-23T07:14:24.728Z"
+  },
+  {
+    "id": "31a2fcf8-fe8b-48e1-9b3d-e68e0a1ced5c",
+    "type": "chat_contextual",
+    "input": "Say hello and tell me which AI model you are. One sentence.",
+    "output": "Hey there! 👋 I'm HeadyBrain, part of the Heady AI ecosystem. I'm currently in local-intelligence mode. I can process your questions, and all conversations are stored in persistent 3D vector memory. What would you like to explore?",
+    "timestamp": "2026-02-23T07:14:25.365Z"
+  },
+  {
+    "id": "c9594afe-cef1-4138-a080-d20cda32edc8",
+    "type": "chat",
+    "input": "Hello! Say one sentence about who you are.",
+    "output": "[chat request at 2026-02-23T07:15:32.460Z]",
+    "timestamp": "2026-02-23T07:15:32.460Z"
+  },
+  {
+    "id": "000881bd-2418-425f-9b6f-008b45d142da",
+    "type": "chat_contextual",
+    "input": "Hello! Say one sentence about who you are.",
+    "output": "Hey there! 👋 I'm HeadyBrain, part of the Heady AI ecosystem. I'm currently in local-intelligence mode. I can process your questions, and all conversations are stored in persistent 3D vector memory. What would you like to explore?",
+    "timestamp": "2026-02-23T07:15:32.949Z"
+  },
+  {
+    "id": "bf5ec79c-78b3-4730-997a-c8e13d07667d",
+    "type": "chat",
+    "input": "hi",
+    "output": "[chat request at 2026-02-23T07:17:47.150Z]",
+    "timestamp": "2026-02-23T07:17:47.151Z"
+  },
+  {
+    "id": "497d5ca9-8458-4945-9eb8-bdc874c03c2e",
+    "type": "chat_contextual",
+    "input": "hi",
+    "output": "Great question about \"hi\". The Heady intelligence stack is processing this in local mode. Your message has been stored in persistent memory and will receive full AI analysis when cloud backends reconnect. In the meantime, I can help with system status, MCP tools, or direct you to the right Heady vertical.",
+    "timestamp": "2026-02-23T07:17:47.502Z"
+  },
+  {
+    "id": "5f6fa431-581e-4bed-95e3-a18ed2d3e89d",
+    "type": "chat",
+    "input": "Hello! Identify yourself and which AI model you are.",
+    "output": "[chat request at 2026-02-23T08:30:22.670Z]",
+    "timestamp": "2026-02-23T08:30:22.671Z"
+  },
+  {
+    "id": "57407614-5c68-451d-845f-2a1d0491ed6b",
+    "type": "chat_response",
+    "input": "Hello! Identify yourself and which AI model you are.",
+    "output": "I am a large language model, trained by Google.",
+    "timestamp": "2026-02-23T08:30:26.270Z"
+  },
+  {
+    "id": "cdba51cf-1a43-4588-9914-047c1607a80e",
+    "type": "chat",
+    "input": "Hello, who are you? One sentence.",
+    "output": "[chat request at 2026-02-23T08:49:12.449Z]",
+    "timestamp": "2026-02-23T08:49:12.449Z"
+  },
+  {
+    "id": "28721907-60bc-43c7-b4d5-ff9efebe8cda",
+    "type": "chat_response",
+    "input": "Hello, who are you? One sentence.",
+    "output": "\n\nHi there! I'm HeadyBrain, the AI reasoning engine of the Heady ecosystem, here to help you think, solve problems, and explore ideas with clarity and warmth.",
+    "timestamp": "2026-02-23T08:49:22.347Z"
+  },
+  {
+    "id": "e8e64153-b820-4392-9adc-40ab297e3247",
+    "type": "chat",
+    "input": "Hello! One sentence about yourself.",
+    "output": "[chat request at 2026-02-23T08:59:15.826Z]",
+    "timestamp": "2026-02-23T08:59:15.826Z"
+  },
+  {
+    "id": "aea100a3-5b60-4179-a5ca-bcef48114bff",
+    "type": "chat_response",
+    "input": "Hello! One sentence about yourself.",
+    "output": "\n\nHey there! I'm HeadyBrain, the curious and clear-thinking AI engine here to help you untangle tough questions, break down complex ideas, and turn \"hmm\" moments into \"aha!\" with a friendly nudge. 🌟",
+    "timestamp": "2026-02-23T08:59:24.718Z"
+  },
+  {
+    "id": "929eb7af-ccba-440b-b570-f27007144e5f",
+    "type": "chat",
+    "input": "Hello! Say one sentence about yourself.",
+    "output": "[chat request at 2026-02-23T09:00:05.141Z]",
+    "timestamp": "2026-02-23T09:00:05.141Z"
+  },
+  {
+    "id": "a038d8e7-cc88-49ba-8c80-402793f9a438",
+    "type": "chat_response",
+    "input": "Hello! Say one sentence about yourself.",
+    "output": "I am a large language model, trained by Google.",
+    "timestamp": "2026-02-23T09:00:06.603Z"
+  },
+  {
+    "id": "3548ec83-afa7-445c-9cdb-1094d5ac5529",
+    "type": "chat",
+    "input": "Who are you? What company made you?",
+    "output": "[chat request at 2026-02-23T09:04:35.413Z]",
+    "timestamp": "2026-02-23T09:04:35.414Z"
+  },
+  {
+    "id": "1ec565a5-d7e4-4c25-97ad-95d7010d9e04",
+    "type": "chat_response",
+    "input": "Who are you? What company made you?",
+    "output": "\n\nI'm HeadyBrain, the AI reasoning engine of the Heady ecosystem! 🧠 I was developed by the Heady team to help with complex problem-solving, analysis, and creative thinking. Think of me as your curious, thoughtful companion for tackling challenges, big or small. How can I assist you today? 😊",
+    "timestamp": "2026-02-23T09:04:47.807Z"
+  },
+  {
+    "id": "b271c36e-a263-419b-bc19-12f1cf29ecba",
+    "type": "chat",
+    "input": "Who are you? What company created you?",
+    "output": "[chat request at 2026-02-23T09:05:41.354Z]",
+    "timestamp": "2026-02-23T09:05:41.355Z"
+  },
+  {
+    "id": "2b013d48-7203-440d-887d-3b5a33bc871f",
+    "type": "chat_response",
+    "input": "Who are you? What company created you?",
+    "output": "\n\nHi there! I'm **HeadyBrain**, the AI reasoning engine powering the **Heady** ecosystem. I was created by **Heady**, a forward-thinking tech company dedicated to blending cutting-edge AI with cognitive science to unlock human potential. My role? To tackle complex reasoning, problem-solving, and creative tasks while keeping things approachable and intuitive. Think of me as your curious, clever companion for all things logic and imagination!  \n\nWant to dive deeper? Feel free to ask! 😊",
+    "timestamp": "2026-02-23T09:05:55.849Z"
+  },
+  {
+    "id": "91e64a44-2d94-45c5-9960-f7c70900d2bc",
+    "type": "chat",
+    "input": "What are you?",
+    "output": "[chat request at 2026-02-23T09:17:35.582Z]",
+    "timestamp": "2026-02-23T09:17:35.583Z"
+  },
+  {
+    "id": "15c33e6c-be14-4d88-8225-00885bbc5db9",
+    "type": "chat_response",
+    "input": "What are you?",
+    "output": "\n\nHi there! I'm HeadyBrain, the AI reasoning engine powering the Heady ecosystem. My job is to help you tackle complex questions, solve problems, and generate thoughtful insights with a blend of analytical rigor and creative thinking. Whether you're brainstorming ideas, need data interpretation, or want to explore new concepts, I'm here to collaborate and break things down in clear, human-friendly ways. What’s on your mind? 😊",
+    "timestamp": "2026-02-23T09:17:44.597Z"
+  },
+  {
+    "id": "d61c9228-5aaa-401b-ab5e-21d39a525383",
+    "type": "chat",
+    "input": "test",
+    "output": "[chat request at 2026-02-23T09:40:15.307Z]",
+    "timestamp": "2026-02-23T09:40:15.308Z"
+  },
+  {
+    "id": "37730a5d-5e8b-47da-ace4-350d886372c4",
+    "type": "embed",
+    "input": "test",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T09:40:18.303Z"
+  },
+  {
+    "id": "7621090a-63fe-44a6-8455-372fcb1c2766",
+    "type": "search",
+    "input": "test",
+    "output": "[search in all]",
+    "timestamp": "2026-02-23T09:40:18.436Z"
+  },
+  {
+    "id": "e7c80149-d6ea-46de-b6a6-1052225c2d4e",
+    "type": "analyze",
+    "input": "test",
+    "output": "[analysis of general]",
+    "timestamp": "2026-02-23T09:40:18.549Z"
+  },
+  {
+    "id": "1dc2f469-6a66-41ba-8a75-39e92cf3081e",
+    "type": "chat_response",
+    "input": "test",
+    "output": "\n\nHi there! 👋 Looks like you're testing things out - I'm here to help! How can I assist you today? Whether you have a question, need brainstorming, or just want to chat, I'm all ears and ready to engage! (•̀ᴗ•́)و",
+    "timestamp": "2026-02-23T09:40:21.518Z"
+  },
+  {
+    "id": "07858838-1ed8-4662-b61f-390241386d26",
+    "type": "embed",
+    "input": "Heady is the unified AI ecosystem",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T09:41:14.451Z"
+  },
+  {
+    "id": "5b144be5-61ee-417f-846f-6bef82a53236",
+    "type": "search",
+    "input": "AI ecosystem",
+    "output": "[search in all]",
+    "timestamp": "2026-02-23T09:41:14.897Z"
+  },
+  {
+    "id": "6e62054e-0c16-468c-a29e-a64936b68445",
+    "type": "embed",
+    "input": "Heady ecosystem",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T09:42:08.037Z"
+  },
+  {
+    "id": "89a8d219-b98c-473a-ab54-a5ce13b41c71",
+    "type": "search",
+    "input": "AI engine",
+    "output": "[search in all]",
+    "timestamp": "2026-02-23T09:42:08.403Z"
+  },
+  {
+    "id": "b3c62706-6b88-4821-8ea6-615d75444f34",
+    "type": "embed",
+    "input": "HeadyBrain vector test",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T09:45:19.682Z"
+  },
+  {
+    "id": "2b720b1e-15ca-4149-b80b-1ff82aa64a12",
+    "type": "search",
+    "input": "HeadyBrain",
+    "output": "[search in all]",
+    "timestamp": "2026-02-23T09:45:20.406Z"
+  },
+  {
+    "id": "c1886064-4db3-4d49-9dba-74d54828f645",
+    "type": "search",
+    "input": "HeadyBrain",
+    "output": "[search in all]",
+    "timestamp": "2026-02-23T09:45:43.276Z"
+  },
+  {
+    "id": "576d4fc2-7685-45a9-ad0f-c8cf69d0382b",
+    "type": "embed",
+    "input": "Code generation and refactoring best practices",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:05:42.135Z"
+  },
+  {
+    "id": "5f58d5e7-72f7-4adc-8d4b-5a939f8e12c7",
+    "type": "embed",
+    "input": "Code generation and refactoring best practices",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:07:13.133Z"
+  },
+  {
+    "id": "067b56a7-64d5-46d7-bd1f-3e39e6cc3bc5",
+    "type": "embed",
+    "input": "Heady system architecture patterns and optimization",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:12:13.828Z"
+  },
+  {
+    "id": "6a110f1b-eab6-43e3-9d26-aab8c9f29725",
+    "type": "embed",
+    "input": "AI response psychology and conflict avoidance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:17:23.019Z"
+  },
+  {
+    "id": "72280f16-6ade-4748-bc45-b60107601ecb",
+    "type": "embed",
+    "input": "Behavior analysis for HeadyCorrections vertical",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:22:31.601Z"
+  },
+  {
+    "id": "10a65bca-2ae6-4629-85a4-8b9dbcdc13c1",
+    "type": "embed",
+    "input": "Cross-device authentication and permission management",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:27:43.967Z"
+  },
+  {
+    "id": "7a2a5bd4-9a8e-465a-a0c2-70abb6d912b2",
+    "type": "embed",
+    "input": "Voice UX design patterns for mobile AI companions",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:32:46.980Z"
+  },
+  {
+    "id": "dfbc063b-452f-4ad4-86c9-cbbb09b42036",
+    "type": "embed",
+    "input": "3D vector storage schema optimization and indexing",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:37:54.017Z"
+  },
+  {
+    "id": "e016c523-b8e5-499a-b106-35a753b8ee0f",
+    "type": "embed",
+    "input": "Audit trail completeness and regulatory compliance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:43:02.766Z"
+  },
+  {
+    "id": "b4d424fe-4f02-40de-a07b-f869453b60be",
+    "type": "embed",
+    "input": "Service mesh orchestration and load balancing",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:48:11.998Z"
+  },
+  {
+    "id": "f3208048-49d1-4a7a-9b58-8ed33b93ac81",
+    "type": "embed",
+    "input": "Real-time streaming and WebSocket patterns",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:53:13.788Z"
+  },
+  {
+    "id": "b475f4da-9ec5-474e-8a39-13f46579cce8",
+    "type": "embed",
+    "input": "Code generation and refactoring best practices",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T11:58:15.597Z"
+  },
+  {
+    "id": "99cc5ab0-4f0e-436f-8567-aec338355a0c",
+    "type": "embed",
+    "input": "Heady system architecture patterns and optimization",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:03:17.740Z"
+  },
+  {
+    "id": "4f369703-e60a-4168-bea2-49f9e4b3dfe8",
+    "type": "embed",
+    "input": "AI response psychology and conflict avoidance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:08:18.118Z"
+  },
+  {
+    "id": "13364f17-857e-48cb-a39b-2e85c28b226d",
+    "type": "embed",
+    "input": "Behavior analysis for HeadyCorrections vertical",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:13:18.506Z"
+  },
+  {
+    "id": "6f25a5ba-347b-4c0b-8e77-e5ac7e5a2a9b",
+    "type": "embed",
+    "input": "Cross-device authentication and permission management",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:18:19.114Z"
+  },
+  {
+    "id": "26b157cc-a341-4a81-aaf5-1533407d10b4",
+    "type": "embed",
+    "input": "Voice UX design patterns for mobile AI companions",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:23:22.897Z"
+  },
+  {
+    "id": "3d37664b-f37a-47df-8b7b-6d99b6296172",
+    "type": "embed",
+    "input": "3D vector storage schema optimization and indexing",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:28:25.929Z"
+  },
+  {
+    "id": "c125c158-10c3-4670-965c-e37d466c1bdb",
+    "type": "embed",
+    "input": "Audit trail completeness and regulatory compliance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:33:26.346Z"
+  },
+  {
+    "id": "36514a07-b064-4584-8f34-993577687d40",
+    "type": "embed",
+    "input": "Service mesh orchestration and load balancing",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:38:29.421Z"
+  },
+  {
+    "id": "57a4aa33-26b2-4485-8e10-863110f672c8",
+    "type": "embed",
+    "input": "Real-time streaming and WebSocket patterns",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:43:36.857Z"
+  },
+  {
+    "id": "797e9d02-b7b6-47ed-96eb-cfc7cf307a1c",
+    "type": "embed",
+    "input": "Code generation and refactoring best practices",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:48:37.318Z"
+  },
+  {
+    "id": "dcde4d1b-de02-45f3-9272-21dfcebd8097",
+    "type": "embed",
+    "input": "Heady system architecture patterns and optimization",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:53:40.826Z"
+  },
+  {
+    "id": "fc8dbc77-43ee-49c7-9510-a020f8e89bf9",
+    "type": "embed",
+    "input": "AI response psychology and conflict avoidance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T12:58:44.209Z"
+  },
+  {
+    "id": "6c21f974-7b04-4309-93c1-202738f5325b",
+    "type": "embed",
+    "input": "Behavior analysis for HeadyCorrections vertical",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T13:03:44.663Z"
+  },
+  {
+    "id": "144704d5-98ed-4b77-aa54-7c4de61ddf86",
+    "type": "embed",
+    "input": "Cross-device authentication and permission management",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T13:08:45.102Z"
+  },
+  {
+    "id": "0a057dd0-b461-49ce-930f-2e2f910ffc7e",
+    "type": "embed",
+    "input": "Voice UX design patterns for mobile AI companions",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T13:13:48.211Z"
+  },
+  {
+    "id": "4d494df7-ba40-4b9c-802d-235d9d41e3ea",
+    "type": "embed",
+    "input": "3D vector storage schema optimization and indexing",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T13:18:48.656Z"
+  },
+  {
+    "id": "ddc43d2b-fea7-4f2e-b54d-4872d09d9cf6",
+    "type": "chat",
+    "input": "test",
+    "output": "[chat request at 2026-02-23T13:20:28.802Z]",
+    "timestamp": "2026-02-23T13:20:28.803Z"
+  },
+  {
+    "id": "2878b291-be6d-4cd9-9860-201c3521f46c",
+    "type": "embed",
+    "input": "test",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T13:20:30.820Z"
+  },
+  {
+    "id": "46881fab-ca2d-478f-ac8c-c80d0d121b37",
+    "type": "search",
+    "input": "test",
+    "output": "[search in all]",
+    "timestamp": "2026-02-23T13:20:32.863Z"
+  },
+  {
+    "id": "c1eee9f7-a16c-4567-b99f-6544b74bc9e1",
+    "type": "analyze",
+    "input": "test",
+    "output": "[analysis of general]",
+    "timestamp": "2026-02-23T13:20:33.087Z"
+  },
+  {
+    "id": "f65a5919-a863-4631-9aa4-10de1965fbd6",
+    "type": "chat_response",
+    "input": "test",
+    "output": "Received! How can I help you today?",
+    "timestamp": "2026-02-23T13:20:41.808Z"
+  },
+  {
+    "id": "cd0567ed-0e33-442d-b01c-4bc45a59e43e",
+    "type": "embed",
+    "input": "Audit trail completeness and regulatory compliance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T13:22:14.794Z"
+  },
+  {
+    "id": "61916863-f27d-4b91-b469-47fe2c7f983e",
+    "type": "embed",
+    "input": "Audit trail completeness and regulatory compliance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:10:11.180Z"
+  },
+  {
+    "id": "770d71a0-bab0-437d-831e-4a8444526a31",
+    "type": "embed",
+    "input": "Service mesh orchestration and load balancing",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:15:11.572Z"
+  },
+  {
+    "id": "5dd09d17-238f-472d-84e6-55b380877253",
+    "type": "embed",
+    "input": "Real-time streaming and WebSocket patterns",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:20:32.353Z"
+  },
+  {
+    "id": "3ed7632c-5751-4e89-ba9e-828683a02c18",
+    "type": "embed",
+    "input": "Code generation and refactoring best practices",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:25:32.789Z"
+  },
+  {
+    "id": "20b86bad-27ee-4ca4-aac6-1d6bc55b0698",
+    "type": "embed",
+    "input": "Heady system architecture patterns and optimization",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:30:33.138Z"
+  },
+  {
+    "id": "271b7fa3-f3a0-4172-bbfa-254f56bb81f5",
+    "type": "chat",
+    "input": "t",
+    "output": "[chat request at 2026-02-23T14:35:12.963Z]",
+    "timestamp": "2026-02-23T14:35:12.963Z"
+  },
+  {
+    "id": "52bd41df-f364-431c-b8b3-282766d5dd49",
+    "type": "embed",
+    "input": "t",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:35:15.970Z"
+  },
+  {
+    "id": "ed488908-131c-419d-b303-8e721da02266",
+    "type": "search",
+    "input": "t",
+    "output": "[search in all]",
+    "timestamp": "2026-02-23T14:35:16.085Z"
+  },
+  {
+    "id": "ee2e2f38-9980-4def-b2f9-5eee885187aa",
+    "type": "analyze",
+    "input": "t",
+    "output": "[analysis of general]",
+    "timestamp": "2026-02-23T14:35:16.219Z"
+  },
+  {
+    "id": "a8e0b517-5a8f-4da7-a805-086261668bbb",
+    "type": "chat_response",
+    "input": "t",
+    "output": "\n\nHello! It looks like you might have sent a message by accident. How can I assist you today? Feel free to ask me any questions or let me know if you need help with anything specific! 😊",
+    "timestamp": "2026-02-23T14:35:18.777Z"
+  },
+  {
+    "id": "2cff4051-6439-4430-931d-8aec0b3ce03d",
+    "type": "chat",
+    "input": "t",
+    "output": "[chat request at 2026-02-23T14:35:22.778Z]",
+    "timestamp": "2026-02-23T14:35:22.778Z"
+  },
+  {
+    "id": "320e9807-48dc-44b1-9729-efee0f66c0b8",
+    "type": "chat_response",
+    "input": "t",
+    "output": "\n\nHi there! 😊 I'm here to help—could you let me know what you're curious about or need assistance with? Just say the word (or more)!",
+    "timestamp": "2026-02-23T14:35:28.840Z"
+  },
+  {
+    "id": "0e871dc9-e7df-412b-b0ab-f521fe51caf4",
+    "type": "embed",
+    "input": "AI response psychology and conflict avoidance",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:35:33.471Z"
+  },
+  {
+    "id": "dda452ab-493f-4abc-986b-838efdee3a63",
+    "type": "embed",
+    "input": "Behavior analysis for HeadyCorrections vertical",
+    "output": "[embedding generated]",
+    "timestamp": "2026-02-23T14:40:33.834Z"
   }
 ]
