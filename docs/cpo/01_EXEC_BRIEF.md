@@ -136,40 +136,52 @@ Competitors ship with hope. Heady ships with tournaments (7 strategies), Monte C
 
 ### 20 API Route Modules
 
-auth, battle, brain (46KB), conductor, config, hcfp, headybuddy-config, hive-sdk, lens, maintenance, memory (24KB), nodes, ops, patterns, registry, soul, system, vinci, vinci-canvas (17KB), index
+auth (5KB), battle (9KB), brain (46KB), conductor (8KB), config (4KB), hcfp (8KB), headybuddy-config (3KB), hive-sdk (13KB), index (1KB), lens (7KB), maintenance (2KB), memory (24KB), nodes (2KB), ops (3KB), patterns (3KB), registry (4KB), soul (2KB), system (2KB), vinci (2KB), vinci-canvas (17KB)
 
 ### 10 Service Modules
 
-arena-mode-service, branch-automation-service, error-sentinel-service, heady-autonomy, heady-branded-output, heady-notion, monte-carlo-service, openai-business, service-manager, socratic-service
+arena-mode-service (19KB), branch-automation-service (19KB), error-sentinel-service (5KB), heady-autonomy (17KB), heady-branded-output (3KB), heady-notion (31KB), monte-carlo-service (17KB), openai-business (10KB), service-manager (16KB), socratic-service (21KB)
 
 ### 17 Product Verticals (from `verticals.json`)
 
 HeadyMe, HeadySystems, HeadyConnection, HeadyMCP, HeadyIO, HeadyBuddy, HeadyBot, HeadyCreator, HeadyMusic, HeadyTube, HeadyCloud, HeadyLearn, HeadyStore, HeadyStudio, HeadyAgent, HeadyData, HeadyAPI
 
-### Key Source Modules
+### Key Source Modules (30 files, sorted by size)
 
 | Module | Size | Purpose |
 |--------|------|---------|
-| `heady-manager.js` | 126KB | Main Express gateway |
+| `heady-manager.js` | 126KB | Main Express gateway (root) |
 | `hc_auto_success.js` | 54KB | Auto-success pipeline |
+| `mcp/heady-mcp-server.js` | 47KB | MCP protocol server |
 | `hc_pipeline.js` | 38KB | Full execution pipeline |
 | `generate-verticals.js` | 31KB | Vertical site generator |
 | `hc_creative.js` | 27KB | Creative engine |
 | `agent-orchestrator.js` | 24KB | Multi-agent coordination |
-| `hc_auth.js` | 24KB | Authentication system |
 | `self-optimizer.js` | 24KB | Self-optimization loops |
+| `hc_auth.js` | 24KB | Authentication system |
 | `hc_scientist.js` | 21KB | Scientific reasoning |
 | `hc_deep_scan.js` | 19KB | Deep project scanning |
 | `vector-memory.js` | 19KB | Vector memory system |
 | `hc_deep_intel.js` | 17KB | Deep intelligence |
 | `hc_liquid.js` | 16KB | Liquid compute |
-| `heady-registry.js` | 14KB | Registry management |
 | `sdk-services.js` | 15KB | SDK service layer |
+| `agents/pipeline-handlers.js` | 15KB | Pipeline agent handlers |
+| `heady-registry.js` | 14KB | Registry management |
 | `continuous-learning.js` | 14KB | Continuous learning engine |
+| `agents/claude-code-agent.js` | 13KB | Claude Code agent integration |
 | `vector-federation.js` | 12KB | Federated vector ops |
 | `heady-principles.js` | 11KB | Core principles engine |
 | `heady-conductor.js` | 11KB | Conductor orchestration |
+| `provider-benchmark.js` | 10KB | AI provider benchmarking |
+| `corrections.js` | 10KB | Error correction engine |
+| `compute-dashboard.js` | 9KB | Compute dashboard |
+| `remote-compute.js` | 6KB | Remote compute bridge |
 | `self-awareness.js` | 6KB | Self-awareness module |
+| `vector-pipeline.js` | 6KB | Vector processing pipeline |
+
+### 224 Configuration Files
+
+Spread across `configs/` — YAML, JSON, and JS covering AI routing, domain architecture, service contracts, security policies, deployment strategies, file governance, and dynamic resource allocation.
 
 ### Domains (from Standing Directive)
 
