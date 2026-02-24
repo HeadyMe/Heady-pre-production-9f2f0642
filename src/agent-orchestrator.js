@@ -60,31 +60,8 @@ class HeadySupervisor {
     }
 }
 
-class DynamicRouter {
-    constructor() {
-        this.routingTable = {
-            embed: "embedding",
-            store: "embedding",
-            search: "search",
-            query: "search",
-            analyze: "reasoning",
-            refactor: "reasoning",
-            complete: "reasoning",
-            chat: "reasoning",
-            validate: "battle",
-            arena: "battle",
-            generate: "creative",
-            remix: "creative",
-            health: "ops",
-            deploy: "ops",
-            status: "ops",
-        };
-    }
-
-    route(task) {
-        return this.routingTable[task.action] || "reasoning";
-    }
-}
+// ─── HeadyConductor (federated routing) ────────────────────────────
+const { getConductor } = require("./heady-conductor");
 
 class AgentOrchestrator extends EventEmitter {
     constructor(options = {}) {
@@ -95,7 +72,8 @@ class AgentOrchestrator extends EventEmitter {
         this.taskQueue = [];
         this.completedTasks = 0;
         this.failedTasks = 0;
-        this.router = new DynamicRouter();
+        this.conductor = getConductor();
+        this.router = this.conductor; // backward compat: this.router.routeSync()
         this.started = Date.now();
         this.scaleEvents = [];
         this.taskHistory = []; // Keep last 100 completed tasks
@@ -361,7 +339,7 @@ class AgentOrchestrator extends EventEmitter {
         // ═══ HeadyValidator: ALWAYS runs first ═══
         const preCheck = await this._headyValidator(task);
 
-        const serviceGroup = this.router.route(task);
+        const serviceGroup = this.conductor.routeSync(task);
         const supervisor = this._getOrCreateSupervisor(serviceGroup);
 
         if (!supervisor) {

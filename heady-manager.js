@@ -404,6 +404,13 @@ orchestrator.on("supervisor:spawned", (d) => console.log(`  ∞ HeadySupervisor 
 orchestrator.on("task:complete", (d) => { /* silent */ });
 console.log("  ∞ AgentOrchestrator: LOADED (dynamic spawn + deterministic routing)");
 
+// ─── HeadyConductor — Federated Liquid Routing ──────────────────────
+const { getConductor } = require("./src/heady-conductor");
+const conductor = getConductor();
+conductor.setOrchestrator(orchestrator);
+conductor.setVectorMemory(vectorMemory);
+conductor.registerRoutes(app);
+
 // ─── Real-Time Compute Dashboard ────────────────────────────────────
 const computeDashboard = require("./src/compute-dashboard");
 computeDashboard.registerRoutes(app, orchestrator);
@@ -1902,7 +1909,7 @@ try {
 
     const action = req.path.replace(/^\//, "").split("/")[0] || "unknown";
     const start = Date.now();
-    const serviceGroup = orchestrator.router.route({ action });
+    const serviceGroup = orchestrator.conductor.routeSync({ action });
 
     // Spawn/find a HeadySupervisor for this service group
     const supervisor = orchestrator._getOrCreateSupervisor(serviceGroup);
