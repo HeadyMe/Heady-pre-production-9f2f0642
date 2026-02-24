@@ -29,7 +29,7 @@
 
 ### 1A — Proof View UI
 
-Render receipts (models, tools, costs, scores, risks) into a readable, shareable format. Used by every surface.
+Display receipts (models, tools, costs, scores, risks) into a readable, shareable format. Used by every surface.
 
 - **Where:** HeadyBuddy, HeadyAI-IDE, HeadyMe Admin
 - **Data source:** Existing receipt system from routes

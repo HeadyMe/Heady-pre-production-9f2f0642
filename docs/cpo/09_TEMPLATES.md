@@ -116,7 +116,7 @@ How to revert if things go wrong.
 - [ ] Security review (no committed secrets, no localhost refs)
 - [ ] File governance check passed
 - [ ] Anti-template policy verified
-- [ ] Proof View receipts rendering correctly
+- [ ] Proof View receipts displaying correctly
 
 ## Staging Validation
 - [ ] Deployed to staging via branch-automation-service

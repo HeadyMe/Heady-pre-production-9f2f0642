@@ -161,7 +161,7 @@ Each follows the same playbook format: buyer → killer workflow → surfaces �
 
 | Primitive | What It Does | Where It's Built |
 |-----------|-------------|------------------|
-| **Proof View** | Renders action receipts (models, tools, costs, scores) | Frontend component + `memory.js` / `hcfp.js` routes |
+| **Proof View** | Displays action receipts (models, tools, costs, scores) | Frontend component + `memory.js` / `hcfp.js` routes |
 | **Policy Ladder** | L0–L3 permission escalation with HeadyBattle gating | HeadyManager middleware |
 | **Connector Trust** | Verified MCP connectors with quality scores | HeadyMCP registry |
 | **Arena Mode** | 7-strategy tournament with Monte Carlo scoring | `arena-mode-service.js` + `monte-carlo-service.js` |

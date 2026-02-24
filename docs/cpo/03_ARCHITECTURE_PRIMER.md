@@ -196,7 +196,7 @@ feature → development (IDE, HeadyBattle interrogation)
 | **Process Manager** | PM2 | 18 processes, 4GB budget (512M core, 64M per site) |
 | **Gateway** | Express.js | Port 3301, Helmet, CORS, rate-limit, Swagger, WebSocket |
 | **Tunnel** | Cloudflare Tunnel | "heady-nexus" → all custom domains |
-| **PaaS** | Coolify | On Bossgame (replaced Render.com) |
+| **PaaS** | Coolify | On Bossgame |
 | **Local Inference** | Ollama | Llama 3.1 8B, CodeLlama 13B, Mistral 7B, nomic-embed-text |
 | **Static Sites** | Cloudflare Pages | GitHub auto-deploy on push |
 | **CDN** | Cloudflare Pro | WAF, Workers, Polish, Mirage |
