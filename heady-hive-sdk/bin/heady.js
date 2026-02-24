@@ -43,6 +43,31 @@ const COMMANDS = {
 
     async search() {
         if (!rest) return console.log("Usage: heady search \"query\"");
+        const edgeUrl = process.env.HEADY_EDGE_URL || "https://heady-edge-node.headyme.workers.dev";
+        const start = Date.now();
+
+        // Try edge worker first (Cloudflare AI + Vectorize)
+        try {
+            const edgeRes = await fetch(`${edgeUrl}/api/search`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query: rest, limit: 10 }),
+                signal: AbortSignal.timeout(5000),
+            });
+            const data = await edgeRes.json();
+            const ms = Date.now() - start;
+
+            if (data.matches?.length > 0) {
+                console.log(`⚡ Edge Search (${data.meta?.colo || "?"} · ${ms}ms · ${data.matches.length} matches)`);
+                if (data.answer) console.log(`\n${data.answer}\n`);
+                for (const m of data.matches.slice(0, 5)) {
+                    console.log(`  [${(m.score * 100).toFixed(0)}%] ${m.content?.substring(0, 100) || m.id} (${m.source})`);
+                }
+                return;
+            }
+        } catch { /* Edge unavailable — fall through to origin */ }
+
+        // Fallback to origin Brain API
         const res = await heady.brain.search(rest);
         console.log(JSON.stringify(res, null, 2));
     },
@@ -77,6 +102,43 @@ const COMMANDS = {
         if (!rest) return console.log("Usage: heady creative \"prompt\"");
         const res = await heady.creative.generate(rest);
         console.log(JSON.stringify(res, null, 2));
+    },
+
+    // ── Lens (Visual Analysis) ──
+    async lens() {
+        const sub = args[1];
+        const target = args.slice(2).join(" ") || args[1];
+        if (!sub) return console.log("Usage: heady lens <analyze|detect|process> <image_path_or_url>\n       heady lens analyze photo.jpg\n       heady lens detect https://example.com/image.png");
+
+        const action = ["analyze", "detect", "process"].includes(sub) ? sub : "analyze";
+        const input = action === sub ? target : args.slice(1).join(" ");
+
+        console.log(`\ud83d\udd0d HeadyLens — ${action}: ${input}`);
+        try {
+            const http = require("http");
+            const body = JSON.stringify({ action, image_url: input, prompt: input });
+            const url = new URL(heady.baseUrl);
+            const req = http.request({
+                hostname: url.hostname === "headyme.com" ? "127.0.0.1" : url.hostname,
+                port: url.port || 3301,
+                path: "/api/lens/" + action,
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+                timeout: 30000,
+            }, (res) => {
+                let data = "";
+                res.on("data", c => data += c);
+                res.on("end", () => {
+                    try { console.log(JSON.stringify(JSON.parse(data), null, 2)); }
+                    catch { console.log(data); }
+                });
+            });
+            req.on("error", e => console.error(`\u274c ${e.message}`));
+            req.write(body);
+            req.end();
+        } catch (err) {
+            console.error(`\u274c ${err.message}`);
+        }
     },
 
     // ── MCP ──
@@ -204,6 +266,9 @@ BRAIN
 SERVICES
   heady battle "change"        Validate changes through HeadyBattle
   heady creative "prompt"      Generate creative content
+  heady lens analyze <image>   Visual analysis of an image (path or URL)
+  heady lens detect <image>    Object/feature detection in an image
+  heady lens process <image>   Process/transform an image
   heady mcp                    List available MCP tools (31+)
   heady decompose "task"       Split complex task across ALL providers (fan-out/merge)
 
@@ -244,7 +309,18 @@ ENVIRONMENT
     try {
         if (flags.has("--version") || flags.has("-v")) return console.log(pkg.version);
         if (!cmd || cmd === "help" || flags.has("--help") || flags.has("-h")) return COMMANDS.help();
-        if (!COMMANDS[cmd]) return console.log(`Unknown command: ${cmd}. Run 'heady --help' for usage.`);
+
+        // Smart dispatch: if the first arg isn't a known command, treat the
+        // ENTIRE input as a natural-language message and route to chat.
+        // This lets you just type:  heady "fix the login page"
+        // instead of:               heady chat "fix the login page"
+        if (!COMMANDS[cmd]) {
+            const fullMessage = args.join(" ");
+            const res = await heady.brain.chat(fullMessage);
+            console.log(res.response || res.text || JSON.stringify(res, null, 2));
+            return;
+        }
+
         await COMMANDS[cmd]();
     } catch (err) {
         console.error(`❌ ${err.message}`);

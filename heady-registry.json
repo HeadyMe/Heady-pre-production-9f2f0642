@@ -747,7 +747,7 @@
       "name": "heady-manager",
       "role": "api-gateway",
       "critical": true,
-      "endpoint": "http://localhost:3301",
+      "endpoint": "https://headyme.com",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 4,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -777,7 +777,7 @@
       "name": "site-headybuddy",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9000",
+      "endpoint": "http://127.0.0.1:9000",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 4,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -787,7 +787,7 @@
       "name": "site-headysystems",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9001",
+      "endpoint": "http://127.0.0.1:9001",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 3,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -797,7 +797,7 @@
       "name": "site-headyconnection",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9002",
+      "endpoint": "http://127.0.0.1:9002",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 3,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -807,7 +807,7 @@
       "name": "site-headymcp",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9003",
+      "endpoint": "http://127.0.0.1:9003",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 2,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -817,7 +817,7 @@
       "name": "site-headyio",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9004",
+      "endpoint": "http://127.0.0.1:9004",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 7,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -827,7 +827,7 @@
       "name": "site-headyme",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9005",
+      "endpoint": "http://127.0.0.1:9005",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 8,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -837,7 +837,7 @@
       "name": "site-headybuddy-org",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9010",
+      "endpoint": "http://127.0.0.1:9010",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 7,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -847,7 +847,7 @@
       "name": "site-headyconnection-org",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9011",
+      "endpoint": "http://127.0.0.1:9011",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 1,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -857,7 +857,7 @@
       "name": "site-headymcp-com",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9012",
+      "endpoint": "http://127.0.0.1:9012",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 5,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -867,7 +867,7 @@
       "name": "site-headyme-com",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9013",
+      "endpoint": "http://127.0.0.1:9013",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 5,
       "lastScannedAt": "2026-02-24T19:34:06.548Z"
@@ -877,7 +877,7 @@
       "name": "site-headysystems-com",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9014",
+      "endpoint": "http://127.0.0.1:9014",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 4,
       "lastScannedAt": "2026-02-24T19:34:06.549Z"
@@ -887,7 +887,7 @@
       "name": "site-instant",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9015",
+      "endpoint": "http://127.0.0.1:9015",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 6,
       "lastScannedAt": "2026-02-24T19:34:06.549Z"
@@ -897,7 +897,7 @@
       "name": "site-1ime1",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:9016",
+      "endpoint": "http://127.0.0.1:9016",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 6,
       "lastScannedAt": "2026-02-24T19:34:06.549Z"
@@ -907,7 +907,7 @@
       "name": "site-headyweb",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:3000",
+      "endpoint": "http://127.0.0.1:3000",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 7,
       "lastScannedAt": "2026-02-24T19:34:06.549Z"
@@ -917,7 +917,7 @@
       "name": "site-admin-ui",
       "role": "web-frontend",
       "critical": false,
-      "endpoint": "http://localhost:5173",
+      "endpoint": "http://127.0.0.1:5173",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 3,
       "lastScannedAt": "2026-02-24T19:34:06.549Z"

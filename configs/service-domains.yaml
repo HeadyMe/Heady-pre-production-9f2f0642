@@ -395,5 +395,5 @@ dns_configuration:
     # K8s service DNS
     namespace: "heady-systems"
     service_discovery: "headless_services"
-    ingress_class: "nginx-internal"
+    ingress_class: "cloudflare-tunnel"
 

@@ -76,18 +76,16 @@ Each package contains:
 
 Copy package contents to any web server:
 
-- Apache
-- Nginx
+- Cloudflare Pages (recommended)
 - Caddy
 - Any static hosting service
 
 ### Docker Deployment
 
 ```dockerfile
-FROM nginx:alpine
-COPY ./HeadyBuddy /usr/share/nginx/html
+FROM caddy:latest
+COPY ./HeadyBuddy /srv
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
 ```
 
 ### Cloud Deployment

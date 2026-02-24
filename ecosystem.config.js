@@ -55,13 +55,13 @@ module.exports = {
         { name: 'site-headyme', script: SERVE, args: '-s dist -l 9005 --no-clipboard', cwd: '/home/headyme/sites/headyme', max_memory_restart: SITE_MEM, autorestart: true },
 
         // ═══ Secondary / Variant Sites ═══════════════════════════════
-        { name: 'site-headybuddy-org', script: SERVE, args: '-s . -l 9010 --no-clipboard', cwd: '/home/headyme/sites/headybuddy-org', max_memory_restart: SITE_MEM, autorestart: true },
-        { name: 'site-headyconnection-org', script: SERVE, args: '-s . -l 9011 --no-clipboard', cwd: '/home/headyme/sites/headyconnection-org', max_memory_restart: SITE_MEM, autorestart: true },
-        { name: 'site-headymcp-com', script: SERVE, args: '-s . -l 9012 --no-clipboard', cwd: '/home/headyme/sites/headymcp-com', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-headybuddy-org', script: SERVE, args: '-s dist -l 9010 --no-clipboard', cwd: '/home/headyme/sites/headybuddy-org', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-headyconnection-org', script: SERVE, args: '-s dist -l 9011 --no-clipboard', cwd: '/home/headyme/sites/headyconnection-org', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-headymcp-com', script: SERVE, args: '-s dist -l 9012 --no-clipboard', cwd: '/home/headyme/sites/headymcp-com', max_memory_restart: SITE_MEM, autorestart: true },
         { name: 'site-headyme-com', script: SERVE, args: '-s dist -l 9013 --no-clipboard', cwd: '/home/headyme/sites/headyme-com', max_memory_restart: SITE_MEM, autorestart: true },
         { name: 'site-headysystems-com', script: SERVE, args: '-s dist -l 9014 --no-clipboard', cwd: '/home/headyme/sites/headysystems-com', max_memory_restart: SITE_MEM, autorestart: true },
-        { name: 'site-instant', script: SERVE, args: '-s . -l 9015 --no-clipboard', cwd: '/home/headyme/sites/INSTANT-SITE', max_memory_restart: SITE_MEM, autorestart: true },
-        { name: 'site-1ime1', script: SERVE, args: '-s . -l 9016 --no-clipboard', cwd: '/home/headyme/sites/1ime1', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-instant', script: SERVE, args: '-s dist -l 9015 --no-clipboard', cwd: '/home/headyme/sites/instant', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-1ime1', script: SERVE, args: '-s dist -l 9016 --no-clipboard', cwd: '/home/headyme/sites/1ime1', max_memory_restart: SITE_MEM, autorestart: true },
 
         // ═══ App Sites ═══════════════════════════════════════════════
         { name: 'site-headyweb', script: SERVE, args: '-s dist -l 3000 --no-clipboard', cwd: '/home/headyme/sites/headyweb', max_memory_restart: SITE_MEM, autorestart: true },
