@@ -1,70 +1,64 @@
-# Heady .gitignore — Clean root, no artifacts in repo
 
-# Runtime artifacts
-server.pid
-*.pid
-
+*~
+audit_logs.jsonl
+*.backup-*
 # Backup files
 *.bak
-*.backup-*
 *.bak.*
-
-# Temp files
-test.txt
-*.tmp
-*.temp
+build/
+# Build artifacts
+.cache/
+!configs/nginx/ssl/*.crt
+!configs/nginx/ssl/*.key
+!configs/nginx/ssl/*.pem
+/coverage/
+coverage/
+**/*-credentials.json
+**/credentials.json
+*.crt
+/data/
+data/
+dist/
+.DS_Store
+.env
+.env.*
+!.env.example
+# Environment
+.env.local
+.env.production
+# Heady .gitignore — Clean root, no artifacts in repo
+.heady-private/
+# ── Heady Security & Ops Ignores (auto-generated) ──
+# IDE
+.idea/
+*.jsonl
+*.key
+*.local
+# Lock files (using npm — pnpm lock should not coexist)
 *.log
-
 # Node
 node_modules/
 npm-debug.log*
-
 # OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.idea/
-*.swp
-*.swo
-
-# Environment
-.env
-.env.local
-*.secret
-*.local
-
-# Build artifacts
-dist/
-build/
-coverage/
-
-# Lock files (using npm — pnpm lock should not coexist)
-# pnpm-lock.yaml
-
-# Private architecture docs
-.heady-private/
-
-# Runtime data (written continuously by HCFP pipeline)
-data/
-
-# Secrets prevention — never commit these patterns
-.env
-.env.*
 *.pem
-*.key
-*.crt
-!configs/nginx/ssl/*.crt
-!configs/nginx/ssl/*.pem
-!configs/nginx/ssl/*.key
-**/credentials.json
-**/service-account.json
-**/*-credentials.json
-**/*secret*
-!**/self-awareness.js
-
-# Runtime / ephemeral state
-data/
 *.pid
-*.log
-audit_logs.jsonl
+# pnpm-lock.yaml
+# Private architecture docs
+# Runtime artifacts
+# Runtime data (written continuously by HCFP pipeline)
+# Runtime / ephemeral state
+**/*secret*
+*.secret
+# Secrets prevention — never commit these patterns
+!**/self-awareness.js
+server.pid
+**/service-account.json
+*.swo
+*.swp
+*.temp
+# Temp files
+test.txt
+*.tgz
+Thumbs.db
+*.tmp
+/tmp/

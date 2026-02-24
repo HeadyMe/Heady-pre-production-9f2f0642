@@ -3014,6 +3014,14 @@ try {
   console.warn(`  \u26a0 Budget Router not loaded: ${err.message}`);
 }
 
+try {
+  const resilienceRoutes = require('./src/routes/resilience-routes');
+  app.use('/api/resilience', resilienceRoutes);
+  console.log("  ∞ Resilience Routes: LOADED — /api/resilience/status, /breakers, /caches, /pools");
+} catch (err) {
+  console.warn(`  ⚠ Resilience routes not loaded: ${err.message}`);
+}
+
 // (Layer management routes already registered above at /api/layer)
 
 // ─── Error Handler ──────────────────────────────────────────────────
