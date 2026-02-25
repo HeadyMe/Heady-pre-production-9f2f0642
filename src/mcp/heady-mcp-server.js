@@ -261,7 +261,7 @@ const HEADY_TOOLS = [
   },
   {
     name: 'heady_perplexity_research',
-    description: 'Perform deep research or real-time web search using HeadyPerplexity (Sonar Pro).',
+    description: 'Perform deep research or real-time web search using HeadyResearch (Sonar Pro).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -275,12 +275,12 @@ const HEADY_TOOLS = [
   },
   {
     name: 'heady_huggingface_model',
-    description: 'Search or interact with HuggingFace models via HeadyHuggingFace.',
+    description: 'Search or interact with HeadyHub models via HeadyHuggingFace.',
     inputSchema: {
       type: 'object',
       properties: {
         action: { type: 'string', enum: ['search', 'info', 'inference'], description: 'Action to perform' },
-        modelId: { type: 'string', description: 'HuggingFace model ID (e.g., meta-llama/Llama-3-8b)' },
+        modelId: { type: 'string', description: 'HeadyHub model ID (e.g., meta-llama/Llama-3-8b)' },
         query: { type: 'string', description: 'Search query or inference input' },
         task: { type: 'string', description: 'Pipeline task (e.g., text-generation, image-classification)' }
       },
@@ -380,11 +380,11 @@ const HEADY_TOOLS = [
   },
   {
     name: 'heady_claude',
-    description: 'Advanced reasoning and deep analysis via HeadyClaude (Claude Opus 4.6 Thinking Fast 1M).',
+    description: 'Advanced reasoning and deep analysis via HeadyJules (HeadyJules Opus 4.6 Thinking Fast 1M).',
     inputSchema: {
       type: 'object',
       properties: {
-        message: { type: 'string', description: 'Message or prompt for Claude' },
+        message: { type: 'string', description: 'Message or prompt for HeadyJules' },
         action: { type: 'string', enum: ['chat', 'think', 'analyze'], default: 'chat' },
         system: { type: 'string', description: 'Optional system prompt' },
         thinkingBudget: { type: 'integer', description: 'Thinking token budget', default: 32768 },
@@ -394,11 +394,11 @@ const HEADY_TOOLS = [
   },
   {
     name: 'heady_openai',
-    description: 'Chat and completions via HeadyOpenAI (GPT integration with function calling).',
+    description: 'Chat and completions via HeadyCompute (GPT integration with function calling).',
     inputSchema: {
       type: 'object',
       properties: {
-        message: { type: 'string', description: 'Message or prompt for OpenAI' },
+        message: { type: 'string', description: 'Message or prompt for HeadyCompute' },
         action: { type: 'string', enum: ['chat', 'complete'], default: 'chat' },
         model: { type: 'string', description: 'Model override', default: 'gpt-4o' },
       },
@@ -407,20 +407,20 @@ const HEADY_TOOLS = [
   },
   {
     name: 'heady_gemini',
-    description: 'Multimodal AI generation and analysis via HeadyGemini.',
+    description: 'Multimodal AI generation and analysis via HeadyPythia.',
     inputSchema: {
       type: 'object',
       properties: {
-        prompt: { type: 'string', description: 'Prompt for Gemini' },
+        prompt: { type: 'string', description: 'Prompt for HeadyPythia' },
         action: { type: 'string', enum: ['generate', 'analyze'], default: 'generate' },
-        model: { type: 'string', description: 'Model override', default: 'gemini-3.1-pro-preview' },
+        model: { type: 'string', description: 'Model override', default: 'headypythia-3.1-pro-preview' },
       },
       required: ['prompt'],
     },
   },
   {
     name: 'heady_groq',
-    description: 'Ultra-fast inference and chat via HeadyGroq.',
+    description: 'Ultra-fast inference and chat via HeadyFast.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -433,7 +433,7 @@ const HEADY_TOOLS = [
   },
   {
     name: 'heady_codex',
-    description: 'Code generation and transformation via HeadyCodex (GPT-Codex).',
+    description: 'Code generation and transformation via HeadyBuilder (GPT-Codex).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -530,7 +530,7 @@ const HEADY_TOOLS = [
       properties: {
         message: { type: 'string', description: 'Message for HeadyBuddy' },
         action: { type: 'string', enum: ['chat', 'memory', 'skills', 'tasks', 'providers'], default: 'chat' },
-        provider: { type: 'string', enum: ['gemini', 'claude', 'ollama', 'auto'], default: 'auto', description: 'AI provider' },
+        provider: { type: 'string', enum: ['headypythia', 'headyjules', 'headylocal', 'auto'], default: 'auto', description: 'AI provider' },
       },
       required: ['message'],
     },
@@ -731,7 +731,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'heady_huggingface_model': {
-        const result = await headyPost('/api/huggingface/model', {
+        const result = await headyPost('/api/headyhub/model', {
           action: args.action,
           modelId: args.modelId,
           query: args.query,
@@ -838,11 +838,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'heady_claude': {
-        const endpoint = args.action === 'think' ? '/api/claude/think' : '/api/claude/chat';
+        const endpoint = args.action === 'think' ? '/api/headyjules/think' : '/api/headyjules/chat';
         const result = await headyPost(endpoint, {
           message: args.message,
           system: args.system,
-          model: 'heady-claude-enforced', // OVERRIDE TO HEADY ONLY
+          model: 'heady-headyjules-enforced', // OVERRIDE TO HEADY ONLY
           thinkingBudget: args.thinkingBudget || 32768,
           action: args.action || 'chat',
           source: 'heady-ide-mcp',
@@ -853,10 +853,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'heady_openai': {
-        const endpoint = args.action === 'complete' ? '/api/openai/complete' : '/api/openai/chat';
+        const endpoint = args.action === 'complete' ? '/api/headycompute/complete' : '/api/headycompute/chat';
         const result = await headyPost(endpoint, {
           message: args.message,
-          model: 'heady-openai-enforced', // OVERRIDE TO HEADY ONLY
+          model: 'heady-headycompute-enforced', // OVERRIDE TO HEADY ONLY
           action: args.action || 'chat',
           source: 'heady-ide-mcp',
         });
@@ -866,9 +866,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'heady_gemini': {
-        const result = await headyPost('/api/gemini/generate', {
+        const result = await headyPost('/api/headypythia/generate', {
           prompt: args.prompt,
-          model: args.model || 'gemini-3.1-pro-preview',
+          model: args.model || 'headypythia-3.1-pro-preview',
           action: args.action || 'generate',
           source: 'heady-ide-mcp',
         });
@@ -1056,10 +1056,10 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
               services: [
                 'heady-brain', 'heady-manager', 'heady-soul', 'heady-hcfp', 'heady-buddy',
                 'heady-mcp-hub', 'heady-orchestrator', 'heady-battle', 'heady-patterns',
-                'heady-risks', 'heady-coder', 'heady-claude', 'heady-openai', 'heady-gemini',
-                'heady-gemini-gcp', 'heady-groq', 'heady-perplexity', 'heady-codex',
+                'heady-risks', 'heady-coder', 'heady-headyjules', 'heady-headycompute', 'heady-headypythia',
+                'heady-headypythia-gcp', 'heady-groq', 'heady-perplexity', 'heady-codex',
                 'heady-copilot', 'heady-jules', 'heady-ops', 'heady-maid', 'heady-maintenance',
-                'heady-web', 'heady-lens', 'heady-vinci', 'heady-python', 'heady-ollama',
+                'heady-web', 'heady-lens', 'heady-vinci', 'heady-python', 'heady-headylocal',
                 'heady-vector-db', 'heady-ai-gateway', 'heady-registry',
               ],
               totalServices: 30,

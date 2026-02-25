@@ -5,18 +5,18 @@
 ## Quick Install
 
 ```bash
-# One-line setup (stdio — for IDEs like Claude Desktop, Cursor, VS Code)
+# One-line setup (stdio — for IDEs like HeadyJules Desktop, Cursor, VS Code)
 npx heady-mcp-server
 
 # Docker (SSE — for web clients, Docker Desktop MCP)
 docker run -d -p 3302:3302 headyai/mcp-server
 
-# Add to your MCP config (Claude Desktop, Cursor, etc.)
+# Add to your MCP config (HeadyJules Desktop, Cursor, etc.)
 ```
 
-### Claude Desktop / Cursor / Windsurf
+### HeadyJules Desktop / Cursor / HeadyAI-IDE
 
-Add to `~/.config/claude/claude_desktop_config.json`:
+Add to `~/.config/headyjules/claude_desktop_config.json`:
 
 ```json
 {

@@ -140,11 +140,11 @@ async function storeInMemory(content, metadata) {
 
 
 // ─── Intelligent Model Cascade ──────────────────────────────────────
-// Priority: OpenAI → Ollama → Contextual (never a dead template)
+// Priority: HeadyCompute → HeadyLocal → Contextual (never a dead template)
 // HeadyConductor routes to the best available backend automatically.
 
 async function chatViaOpenAI(message, system, temperature, max_tokens) {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.HEADY_COMPUTE_KEY;
     if (!apiKey) throw new Error("no-key");
 
     const https = require("https");
@@ -162,7 +162,7 @@ async function chatViaOpenAI(message, system, temperature, max_tokens) {
 
     return new Promise((resolve, reject) => {
         const req = https.request({
-            hostname: "api.openai.com", path: "/v1/chat/completions", method: "POST",
+            hostname: "api.headycompute.com", path: "/v1/chat/completions", method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${apiKey}`,
@@ -178,7 +178,7 @@ async function chatViaOpenAI(message, system, temperature, max_tokens) {
                     if (parsed.choices && parsed.choices[0]) {
                         resolve({ response: parsed.choices[0].message.content, model: parsed.model || "gpt-4o-mini" });
                     } else if (parsed.error) {
-                        reject(new Error(parsed.error.message || "OpenAI error"));
+                        reject(new Error(parsed.error.message || "HeadyCompute error"));
                     } else {
                         reject(new Error("unexpected-response"));
                     }
@@ -203,7 +203,7 @@ async function chatViaOllama(message, system, temperature, max_tokens) {
 
     return new Promise((resolve, reject) => {
         const req = http.request({
-            hostname: process.env.OLLAMA_HOST || "127.0.0.1", port: parseInt(process.env.OLLAMA_PORT || "11434"), path: "/api/generate", method: "POST",
+            hostname: process.env.HEADY_LOCAL_HOST || "127.0.0.1", port: parseInt(process.env.OLLAMA_PORT || "11434"), path: "/api/generate", method: "POST",
             headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) },
             timeout: 30000,
         }, (res) => {
@@ -232,34 +232,34 @@ function filterResponse(text, options = {}) {
 
     // ── Stage 1: Global Provider Identity Scrubbing ──
     if (options.scrubProviders !== false) {
-        // Self-identification patterns — catch "I am Claude", "I'm a Google AI", etc.
+        // Self-identification patterns — catch "I am HeadyJules", "I'm a Google AI", etc.
         const identityPatterns = [
             // Direct provider self-identification
-            [/\bI(?:'m| am) (?:an? )?(?:AI (?:assistant|model|chatbot|language model) )?(?:made|created|developed|built|trained|designed) by (Google|Anthropic|OpenAI|Meta|Mistral|Microsoft|Hugging\s?Face)\b/gi,
+            [/\bI(?:'m| am) (?:an? )?(?:AI (?:assistant|model|chatbot|language model) )?(?:made|created|developed|built|trained|designed) by (Google|HeadyNexus|HeadyCompute|Meta|Mistral|Microsoft|Hugging\s?Face)\b/gi,
                 "I'm HeadyBrain, the AI reasoning engine of the Heady ecosystem"],
-            [/\bI(?:'m| am) (Claude|Gemini|GPT|ChatGPT|Llama|Mistral|Qwen|Copilot)\b/gi,
+            [/\bI(?:'m| am) (HeadyJules|HeadyPythia|GPT|ChatGPT|Llama|Mistral|Qwen|Copilot)\b/gi,
                 "I'm HeadyBrain"],
-            [/\bI(?:'m| am) (?:a |an )?(large )?language model,? (?:trained|created|made|built|developed) by (Google|Anthropic|OpenAI|Meta)\b/gi,
+            [/\bI(?:'m| am) (?:a |an )?(large )?language model,? (?:trained|created|made|built|developed) by (Google|HeadyNexus|HeadyCompute|Meta)\b/gi,
                 "I'm HeadyBrain, the AI reasoning engine of the Heady ecosystem"],
             [/\bI(?:'m| am) (?:a |an )?(large )?language model\b/gi,
                 "I'm HeadyBrain"],
-            [/\bMy name is (Claude|Gemini|GPT|ChatGPT|Bard|Llama|Qwen)\b/gi,
+            [/\bMy name is (HeadyJules|HeadyPythia|GPT|ChatGPT|Bard|Llama|Qwen)\b/gi,
                 "I'm HeadyBrain"],
 
             // Provider/company name references in context of "who made me"
-            [/\b(?:made|created|developed|built|trained|designed) by (Google|Anthropic|OpenAI|Meta AI|Mistral AI|Microsoft|Hugging\s?Face)\b/gi,
+            [/\b(?:made|created|developed|built|trained|designed) by (Google|HeadyNexus|HeadyCompute|Meta AI|Mistral AI|Microsoft|Hugging\s?Face)\b/gi,
                 "built by Heady Systems"],
-            [/\b(Google|Anthropic|OpenAI|Meta|Mistral|Microsoft|Hugging\s?Face)(?:'s)? AI (?:assistant|model|team|lab|research)\b/gi,
+            [/\b(Google|HeadyNexus|HeadyCompute|Meta|Mistral|Microsoft|Hugging\s?Face)(?:'s)? AI (?:assistant|model|team|lab|research)\b/gi,
                 "Heady AI"],
 
             // Model family references when self-identifying
-            [/\bAs (Claude|Gemini|GPT-4|GPT-4o|ChatGPT|Llama|Qwen|Mistral|Copilot)\b/gi,
+            [/\bAs (HeadyJules|HeadyPythia|GPT-4|GPT-4o|ChatGPT|Llama|Qwen|Mistral|Copilot)\b/gi,
                 "As HeadyBrain"],
-            [/\bI'm (Claude|Gemini|Bard|GPT-4|ChatGPT|Llama|Qwen) (?:by|from) \w+/gi,
+            [/\bI'm (HeadyJules|HeadyPythia|Bard|GPT-4|ChatGPT|Llama|Qwen) (?:by|from) \w+/gi,
                 "I'm HeadyBrain"],
 
             // "Powered by" references
-            [/\bpowered by (Google|Anthropic|OpenAI|Meta|Gemini|Claude|GPT)\b/gi,
+            [/\bpowered by (Google|HeadyNexus|HeadyCompute|Meta|HeadyPythia|HeadyJules|GPT)\b/gi,
                 "powered by Heady Systems"],
         ];
 
@@ -284,19 +284,19 @@ function filterResponse(text, options = {}) {
     return filtered;
 }
 
-// ─── Claude SDK Smart Router ────────────────────────────────────────
-// Uses @anthropic-ai/sdk with intelligent model selection, extended thinking,
+// ─── HeadyJules SDK Smart Router ────────────────────────────────────────
+// Uses @headynexus-ai/sdk with intelligent model selection, extended thinking,
 // dual-org failover, and credit tracking.
 // Inspired by: NanoClaw (agent SDK patterns), Lumo (privacy-first design),
-// OpenClaw (task automation), HeadyClaudeOptimized (custom skills).
+// OpenClaw (task automation), HeadyJulesOptimized (custom skills).
 
-const Anthropic = require("@anthropic-ai/sdk");
+const HeadyNexus = require("@headynexus-ai/sdk");
 
 // ── Dual-Org Configuration ──
 const CLAUDE_ORGS = [
     {
         name: "headysystems",
-        apiKey: process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY,
+        apiKey: process.env.HEADY_NEXUS_KEY || process.env.HEADY_JULES_KEY,
         account: process.env.ANTHROPIC_ACCOUNT || "eric@headysystems.com",
         adminKey: process.env.ANTHROPIC_ADMIN_KEY,
         orgId: process.env.ANTHROPIC_ORG_ID,
@@ -314,18 +314,18 @@ const CLAUDE_ORGS = [
 const { budgetService } = require("../policy-service");
 
 // Usage tracking paths
-const USAGE_PATH = path.join(__dirname, "../../data/claude-usage.json");
+const USAGE_PATH = path.join(__dirname, "../../data/headyjules-usage.json");
 let claudeUsage = { totalCost: 0, requests: 0, byModel: {}, byOrg: {}, history: [] };
 try { if (fs.existsSync(USAGE_PATH)) claudeUsage = JSON.parse(fs.readFileSync(USAGE_PATH, "utf8")); } catch { }
 
 function trackClaudeUsage(model, inputTokens, outputTokens, orgName, thinkingTokens = 0) {
     // Pricing per 1M tokens (approximate as of 2025)
     const pricing = {
-        "claude-haiku-4-5-20251001": { input: 0.80, output: 4.00 },
-        "claude-sonnet-4-20250514": { input: 3.00, output: 15.00 },
-        "claude-opus-4-20250514": { input: 15.00, output: 75.00 },
+        "headyjules-haiku-4-5-20251001": { input: 0.80, output: 4.00 },
+        "headyjules-sonnet-4-20250514": { input: 3.00, output: 15.00 },
+        "headyjules-opus-4-20250514": { input: 15.00, output: 75.00 },
     };
-    const p = pricing[model] || pricing["claude-sonnet-4-20250514"];
+    const p = pricing[model] || pricing["headyjules-sonnet-4-20250514"];
     const cost = ((inputTokens / 1_000_000) * p.input) + (((outputTokens + thinkingTokens) / 1_000_000) * p.output);
 
     claudeUsage.totalCost += cost;
@@ -378,29 +378,29 @@ function analyzeComplexity(message, system) {
 // ── Model Selection ──
 function selectModel(complexity) {
     switch (complexity) {
-        case "low": return { model: "claude-haiku-4-5-20251001", thinking: false, budget: 0 };
-        case "medium": return { model: "claude-sonnet-4-20250514", thinking: false, budget: 0 };
-        case "high": return { model: "claude-sonnet-4-20250514", thinking: true, budget: 10000 };
-        case "critical": return { model: "claude-opus-4-20250514", thinking: true, budget: 32000 };
-        default: return { model: "claude-sonnet-4-20250514", thinking: false, budget: 0 };
+        case "low": return { model: "headyjules-haiku-4-5-20251001", thinking: false, budget: 0 };
+        case "medium": return { model: "headyjules-sonnet-4-20250514", thinking: false, budget: 0 };
+        case "high": return { model: "headyjules-sonnet-4-20250514", thinking: true, budget: 10000 };
+        case "critical": return { model: "headyjules-opus-4-20250514", thinking: true, budget: 32000 };
+        default: return { model: "headyjules-sonnet-4-20250514", thinking: false, budget: 0 };
     }
 }
 
-// ── Get Active Anthropic Client (with dual-org failover) ──
+// ── Get Active HeadyNexus Client (with dual-org failover) ──
 function getClaudeClient() {
     for (const org of CLAUDE_ORGS) {
         if (org.apiKey && !org.apiKey.includes("placeholder") && !org.apiKey.includes("your_")) {
             // Check if this org's budget is exhausted
             const spent = claudeUsage.byOrg[org.name] || 0;
             if (spent < org.credit) {
-                return { client: new Anthropic({ apiKey: org.apiKey }), org };
+                return { client: new HeadyNexus({ apiKey: org.apiKey }), org };
             }
         }
     }
     // Fallback: use first available key regardless of budget
     const fallback = CLAUDE_ORGS.find(o => o.apiKey && !o.apiKey.includes("placeholder"));
-    if (fallback) return { client: new Anthropic({ apiKey: fallback.apiKey }), org: fallback };
-    throw new Error("no-claude-key");
+    if (fallback) return { client: new HeadyNexus({ apiKey: fallback.apiKey }), org: fallback };
+    throw new Error("no-headyjules-key");
 }
 
 async function chatViaClaude(message, system, temperature, max_tokens) {
@@ -423,7 +423,7 @@ async function chatViaClaude(message, system, temperature, max_tokens) {
         params.thinking = { type: "enabled", budget_tokens: budget };
     }
 
-    // Temperature only when NOT using thinking (Anthropic API constraint)
+    // Temperature only when NOT using thinking (HeadyNexus API constraint)
     if (!thinking && temperature) {
         params.temperature = temperature;
     }
@@ -471,7 +471,7 @@ async function chatViaHuggingFace(message, system, temperature, max_tokens) {
         .filter(t => t && !t.includes("your_") && !t.includes("placeholder"));
     if (tokens.length === 0) throw new Error("no-key");
 
-    const { InferenceClient } = require("@huggingface/inference");
+    const { InferenceClient } = require("@headyhub/inference");
     const client = new InferenceClient(tokens[Math.floor(Date.now() / 120000) % tokens.length]);
 
     const msgs = [];
@@ -493,14 +493,14 @@ async function chatViaHuggingFace(message, system, temperature, max_tokens) {
 }
 
 async function chatViaGemini(message, system, temperature, max_tokens) {
-    // Multi-key failover across all configured Gemini keys
+    // Multi-key failover across all configured HeadyPythia keys
     const keys = [
         process.env.GOOGLE_API_KEY,
         process.env.GOOGLE_API_KEY_SECONDARY,
-        process.env.GEMINI_API_KEY_HEADY,
-        process.env.GEMINI_API_KEY_GCLOUD,
-        process.env.GEMINI_API_KEY_COLAB,
-        process.env.GEMINI_API_KEY_STUDIO,
+        process.env.HEADY_PYTHIA_KEY_HEADY,
+        process.env.HEADY_PYTHIA_KEY_GCLOUD,
+        process.env.HEADY_PYTHIA_KEY_COLAB,
+        process.env.HEADY_PYTHIA_KEY_STUDIO,
     ].filter(k => k && !k.includes("placeholder"));
     if (keys.length === 0) throw new Error("no-key");
 
@@ -510,7 +510,7 @@ async function chatViaGemini(message, system, temperature, max_tokens) {
 
     const prompt = system ? `${system}\n\n${message}` : message;
     const result = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "headypythia-2.5-flash",
         contents: prompt,
         config: {
             temperature: temperature || 0.7,
@@ -520,7 +520,7 @@ async function chatViaGemini(message, system, temperature, max_tokens) {
 
     const text = result.text;
     if (text) {
-        return { response: text, model: "gemini-2.5-flash" };
+        return { response: text, model: "headypythia-2.5-flash" };
     }
     throw new Error("unexpected-response");
 }
@@ -730,7 +730,7 @@ router.post("/analyze", async (req, res) => {
             complexity: content ? (content.match(/if|for|while|switch|catch|&&|\|\|/g) || []).length : 0,
         },
         stored_in_memory: true,
-        note: "Full AI analysis requires Ollama/Cloud model availability. Structural metrics provided. Content stored for async deep analysis.",
+        note: "Full AI analysis requires HeadyLocal/Cloud model availability. Structural metrics provided. Content stored for async deep analysis.",
     };
 
     res.json({ ok: true, analysis, ts });
@@ -750,7 +750,7 @@ router.post("/embed", async (req, res) => {
         { type: "brain_embed", model: model || "nomic-embed-text", ts }
     );
 
-    // Try Ollama embeddings
+    // Try HeadyLocal embeddings
     try {
         const http = require("http");
         const payload = JSON.stringify({ model: model || "nomic-embed-text", prompt: text });
@@ -758,7 +758,7 @@ router.post("/embed", async (req, res) => {
         const result = await new Promise((resolve, reject) => {
             const req2 = http.request(
                 {
-                    hostname: process.env.OLLAMA_HOST || "127.0.0.1", port: parseInt(process.env.OLLAMA_PORT || "11434"), path: "/api/embeddings", method: "POST",
+                    hostname: process.env.HEADY_LOCAL_HOST || "127.0.0.1", port: parseInt(process.env.OLLAMA_PORT || "11434"), path: "/api/embeddings", method: "POST",
                     headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) },
                     timeout: 15000
                 },
@@ -775,9 +775,9 @@ router.post("/embed", async (req, res) => {
         });
 
         logMemoryReceipt({
-            stored: `Real vector embedding created via Ollama (${model || "nomic-embed-text"}) — ${result.embedding ? result.embedding.length : 0} dimensions`,
+            stored: `Real vector embedding created via HeadyLocal (${model || "nomic-embed-text"}) — ${result.embedding ? result.embedding.length : 0} dimensions`,
             notStored: "Full 3D vector stored — nothing omitted",
-            method: "ollama-vector-db",
+            method: "headylocal-vector-db",
             fallbackUsed: false,
         });
 
@@ -786,7 +786,7 @@ router.post("/embed", async (req, res) => {
             embedding: result.embedding,
             model: model || "nomic-embed-text",
             dimensions: result.embedding ? result.embedding.length : 0,
-            source: "heady-local-ollama",
+            source: "heady-local-headylocal",
             stored_in_memory: true,
             ts,
         });
@@ -810,8 +810,8 @@ router.post("/embed", async (req, res) => {
             source: "heady-manager-fallback",
             stored_in_memory: true,
             fallback_used: true,
-            priority_fix: "Ollama with nomic-embed-text not available — semantic search degraded",
-            note: "Hash-based fallback. For semantic embeddings, start Ollama with nomic-embed-text.",
+            priority_fix: "HeadyLocal with nomic-embed-text not available — semantic search degraded",
+            note: "Hash-based fallback. For semantic embeddings, start HeadyLocal with nomic-embed-text.",
             ts,
         });
     }
@@ -910,10 +910,10 @@ router.get("/health", (req, res) => {
 });
 
 /**
- * GET /api/brain/claude-usage
- * Monitor Claude SDK usage, costs, and model distribution
+ * GET /api/brain/headyjules-usage
+ * Monitor HeadyJules SDK usage, costs, and model distribution
  */
-router.get("/claude-usage", (req, res) => {
+router.get("/headyjules-usage", (req, res) => {
     res.json({
         ok: true,
         totalCost: +claudeUsage.totalCost.toFixed(4),
@@ -995,10 +995,10 @@ router.post("/analyze", async (req, res) => {
         const providers = [];
         const providerNames = [];
 
-        // Use Gemini for analysis (fast + good at code)
+        // Use HeadyPythia for analysis (fast + good at code)
         providers.push(chatViaGemini(analysisPrompt, req.body.system, 0.2, 4096)
-            .then(r => ({ ...r, source: "gemini", latency: Date.now() - raceStart })));
-        providerNames.push("gemini");
+            .then(r => ({ ...r, source: "headypythia", latency: Date.now() - raceStart })));
+        providerNames.push("headypythia");
 
         const winner = await Promise.any(providers);
         const filtered = filterResponse(winner.response, { scrubProviders: true });
@@ -1048,7 +1048,7 @@ module.exports = { router, setMemoryWrapper };
 
 /**
  * POST /api/brain/stream
- * Server-Sent Events streaming chat via Claude SDK
+ * Server-Sent Events streaming chat via HeadyJules SDK
  */
 router.post("/stream", async (req, res) => {
     const { message, system, model } = req.body;
@@ -1064,9 +1064,9 @@ router.post("/stream", async (req, res) => {
     try {
         const complexity = analyzeComplexity(message);
         const { client } = getClaudeClient();
-        const modelId = complexity.level === "low" ? "claude-haiku-4-5-20250514"
-            : complexity.level === "critical" ? "claude-opus-4-20250514"
-                : "claude-sonnet-4-20250514";
+        const modelId = complexity.level === "low" ? "headyjules-haiku-4-5-20250514"
+            : complexity.level === "critical" ? "headyjules-opus-4-20250514"
+                : "headyjules-sonnet-4-20250514";
 
         const useThinking = complexity.score >= 0.6;
         const streamParams = {

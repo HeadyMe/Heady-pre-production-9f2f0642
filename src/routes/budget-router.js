@@ -19,23 +19,23 @@ const router = express.Router();
 
 // ── Model Cost Matrix (per 1K tokens, USD) ──────────────────────────
 const MODEL_COSTS = {
-    // Local (Ollama) — effectively free
-    'llama-3.1-8b': { input: 0.0000, output: 0.0000, quality: 0.65, latencyMs: 200, provider: 'ollama-local' },
-    'codellama-13b': { input: 0.0000, output: 0.0000, quality: 0.60, latencyMs: 300, provider: 'ollama-local' },
-    'mistral-7b': { input: 0.0000, output: 0.0000, quality: 0.62, latencyMs: 250, provider: 'ollama-local' },
+    // Local (HeadyLocal) — effectively free
+    'llama-3.1-8b': { input: 0.0000, output: 0.0000, quality: 0.65, latencyMs: 200, provider: 'headylocal-local' },
+    'codellama-13b': { input: 0.0000, output: 0.0000, quality: 0.60, latencyMs: 300, provider: 'headylocal-local' },
+    'mistral-7b': { input: 0.0000, output: 0.0000, quality: 0.62, latencyMs: 250, provider: 'headylocal-local' },
 
     // Edge (Cloudflare Workers AI) — near-free
     'bge-large-en-v1.5': { input: 0.0001, output: 0.0000, quality: 0.70, latencyMs: 50, provider: 'cloudflare-edge' },
 
     // Mid-tier API
-    'gpt-4o-mini': { input: 0.0003, output: 0.0006, quality: 0.80, latencyMs: 800, provider: 'openai' },
-    'gemini-flash': { input: 0.0004, output: 0.0008, quality: 0.78, latencyMs: 600, provider: 'google' },
+    'gpt-4o-mini': { input: 0.0003, output: 0.0006, quality: 0.80, latencyMs: 800, provider: 'headycompute' },
+    'headypythia-flash': { input: 0.0004, output: 0.0008, quality: 0.78, latencyMs: 600, provider: 'google' },
     'sonar': { input: 0.0010, output: 0.0010, quality: 0.75, latencyMs: 1200, provider: 'perplexity' },
 
     // Premium API
-    'claude-opus-4.6': { input: 0.0150, output: 0.0750, quality: 0.97, latencyMs: 1500, provider: 'anthropic' },
-    'gpt-5.3-codex': { input: 0.0100, output: 0.0300, quality: 0.95, latencyMs: 1200, provider: 'openai' },
-    'gemini-3.1-pro': { input: 0.0070, output: 0.0210, quality: 0.93, latencyMs: 1500, provider: 'google' },
+    'headyjules-opus-4.6': { input: 0.0150, output: 0.0750, quality: 0.97, latencyMs: 1500, provider: 'headynexus' },
+    'gpt-5.3-codex': { input: 0.0100, output: 0.0300, quality: 0.95, latencyMs: 1200, provider: 'headycompute' },
+    'headypythia-3.1-pro': { input: 0.0070, output: 0.0210, quality: 0.93, latencyMs: 1500, provider: 'google' },
     'sonar-pro': { input: 0.0030, output: 0.0150, quality: 0.88, latencyMs: 2000, provider: 'perplexity' },
     'grok-4': { input: 0.0050, output: 0.0150, quality: 0.90, latencyMs: 2000, provider: 'xai' },
 };
@@ -151,7 +151,7 @@ router.post('/route', (req, res) => {
     const selection = selectOptimalModel(taskType, constraints || {});
     const tokens = estimatedTokens || 500;
     const estimatedCost = ((selection.input * tokens / 1000) + (selection.output * tokens / 1000));
-    const maxCost = ((MODEL_COSTS['claude-opus-4.6'].input * tokens / 1000) + (MODEL_COSTS['claude-opus-4.6'].output * tokens / 1000));
+    const maxCost = ((MODEL_COSTS['headyjules-opus-4.6'].input * tokens / 1000) + (MODEL_COSTS['headyjules-opus-4.6'].output * tokens / 1000));
     const savings = maxCost - estimatedCost;
     const savingsPercent = maxCost > 0 ? ((savings / maxCost) * 100).toFixed(1) : 0;
 

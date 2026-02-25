@@ -40,7 +40,7 @@ if (!fs.existsSync(SKILLS_DIR)) fs.mkdirSync(SKILLS_DIR, { recursive: true });
 let optState = {
     cycleCount: 0,
     lastRun: null,
-    routingWeights: { hf: 1.0, gemini: 1.0, claude: 1.0, local: 0.5, edge: 0.8 },
+    routingWeights: { hf: 1.0, headypythia: 1.0, headyjules: 1.0, local: 0.5, edge: 0.8 },
     providerScores: {},
     skills: [],
     connectors: [],
@@ -132,9 +132,9 @@ function discoverSkills() {
         { name: "provider-benchmark", check: () => fs.existsSync(path.join(__dirname, "provider-benchmark.js")), type: "perf" },
         { name: "edge-proxy", check: () => !!process.env.CLOUDFLARE_API_TOKEN, type: "infra" },
         { name: "hf-embeddings", check: () => !!process.env.HF_TOKEN, type: "ai" },
-        { name: "gemini-multimodal", check: () => !!(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY_HEADY), type: "ai" },
-        { name: "claude-reasoning", check: () => !!process.env.ANTHROPIC_API_KEY, type: "ai" },
-        { name: "openai-enterprise", check: () => !!process.env.OPENAI_API_KEY, type: "ai" },
+        { name: "headypythia-multimodal", check: () => !!(process.env.GOOGLE_API_KEY || process.env.HEADY_PYTHIA_KEY_HEADY), type: "ai" },
+        { name: "headyjules-reasoning", check: () => !!process.env.HEADY_NEXUS_KEY, type: "ai" },
+        { name: "headycompute-enterprise", check: () => !!process.env.HEADY_COMPUTE_KEY, type: "ai" },
         { name: "groq-fast", check: () => !!process.env.GROQ_API_KEY, type: "ai" },
         { name: "perplexity-research", check: () => !!process.env.PERPLEXITY_API_KEY, type: "ai" },
         { name: "notion-sync", check: () => !!process.env.NOTION_API_KEY, type: "integration" },
@@ -168,9 +168,9 @@ function discoverConnectors() {
         { name: "http-rest", protocol: "HTTP/1.1", latency: "~2ms local", ready: true },
         { name: "https-tls13", protocol: "HTTPS/TLS1.3", latency: "~5ms local", ready: true },
         { name: "sse-stream", protocol: "Server-Sent Events", latency: "~1ms push", ready: true },
-        { name: "sdk-hf", protocol: "@huggingface/inference", latency: "varies", ready: !!process.env.HF_TOKEN },
-        { name: "sdk-genai", protocol: "@google/genai", latency: "~500ms", ready: !!(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY_HEADY) },
-        { name: "sdk-anthropic", protocol: "@anthropic-ai/sdk", latency: "~800ms", ready: !!process.env.ANTHROPIC_API_KEY },
+        { name: "sdk-hf", protocol: "@headyhub/inference", latency: "varies", ready: !!process.env.HF_TOKEN },
+        { name: "sdk-genai", protocol: "@google/genai", latency: "~500ms", ready: !!(process.env.GOOGLE_API_KEY || process.env.HEADY_PYTHIA_KEY_HEADY) },
+        { name: "sdk-headynexus", protocol: "@headynexus-ai/sdk", latency: "~800ms", ready: !!process.env.HEADY_NEXUS_KEY },
         { name: "edge-worker", protocol: "Cloudflare Workers", latency: "~2ms edge", ready: !!process.env.CLOUDFLARE_API_TOKEN },
         { name: "vector-3d", protocol: "3D-spatial + cosine", latency: "~0.5ms", ready: true },
     ];
@@ -280,9 +280,9 @@ async function runSystemScan() {
     // Env vars — key providers still configured
     const envChecks = {
         HF_TOKEN: !!process.env.HF_TOKEN,
-        GEMINI_KEY: !!(process.env.GEMINI_API_KEY_HEADY || process.env.GOOGLE_API_KEY),
+        GEMINI_KEY: !!(process.env.HEADY_PYTHIA_KEY_HEADY || process.env.GOOGLE_API_KEY),
         GROQ_KEY: !!process.env.GROQ_API_KEY,
-        ANTHROPIC_KEY: !!process.env.ANTHROPIC_API_KEY,
+        ANTHROPIC_KEY: !!process.env.HEADY_NEXUS_KEY,
         PERPLEXITY_KEY: !!process.env.PERPLEXITY_API_KEY,
     };
     const missingEnv = Object.entries(envChecks).filter(([, v]) => !v).map(([k]) => k);

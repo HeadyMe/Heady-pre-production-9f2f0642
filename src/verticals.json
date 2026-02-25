@@ -36,7 +36,7 @@
             "aiModels": [
                 "HeadyBrain",
                 "HeadyVinci",
-                "Gemini Nano"
+                "HeadyPythia Nano"
             ],
             "status": "active",
             "ecosystemRole": "Central hub connecting all Heady verticals. Your personalized entry point to the entire ecosystem."
@@ -198,8 +198,8 @@
             "aiModels": [
                 "HeadyBrain",
                 "GPT-4o",
-                "Claude",
-                "Gemini"
+                "HeadyJules",
+                "HeadyPythia"
             ],
             "status": "active",
             "ecosystemRole": "Developer entry point to the ecosystem. Build, test, and deploy on Heady infrastructure."
@@ -218,7 +218,7 @@
             "features": [
                 {
                     "title": "Multi-Model Chat",
-                    "desc": "Switch between Heady Brain, Gemini, and Claude mid-conversation",
+                    "desc": "Switch between Heady Brain, HeadyPythia, and HeadyJules mid-conversation",
                     "icon": "💬"
                 },
                 {
@@ -239,8 +239,8 @@
             ],
             "aiModels": [
                 "HeadyBrain",
-                "Gemini Pro",
-                "Claude Opus"
+                "HeadyPythia Pro",
+                "HeadyJules Opus"
             ],
             "status": "active",
             "ecosystemRole": "The conversational interface to the entire ecosystem. Ask Buddy anything, and it routes through all Heady services."
@@ -486,7 +486,7 @@
             ],
             "aiModels": [
                 "GPT-4o",
-                "Gemini Nano",
+                "HeadyPythia Nano",
                 "HeadyBrain"
             ],
             "status": "active",
@@ -609,7 +609,7 @@
                 "HeadyBrain",
                 "HeadyConductor",
                 "GPT-4o",
-                "Claude"
+                "HeadyJules"
             ],
             "status": "active",
             "ecosystemRole": "Autonomous agent platform. Extends HeadyBot with user-deployable agents that operate across verticals."

@@ -83,11 +83,11 @@ function getProviderStatus() {
 
     // Check which API keys are configured
     const checks = [
-        { name: "heady-reasoning", keys: ["ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY_SECONDARY"], type: "remote" },
-        { name: "heady-multimodal", keys: ["GOOGLE_API_KEY", "GEMINI_API_KEY_HEADY", "GEMINI_API_KEY_GCLOUD"], type: "remote" },
+        { name: "heady-reasoning", keys: ["HEADY_NEXUS_KEY", "HEADY_NEXUS_KEY_SECONDARY"], type: "remote" },
+        { name: "heady-multimodal", keys: ["GOOGLE_API_KEY", "HEADY_PYTHIA_KEY_HEADY", "HEADY_PYTHIA_KEY_GCLOUD"], type: "remote" },
         { name: "heady-open-weights", keys: ["HF_TOKEN", "HF_TOKEN_2", "HF_TOKEN_3"], type: "remote" },
-        { name: "heady-enterprise", keys: ["OPENAI_API_KEY"], type: "remote" },
-        { name: "heady-local", keys: ["OLLAMA_HOST"], type: "local" },
+        { name: "heady-enterprise", keys: ["HEADY_COMPUTE_KEY"], type: "remote" },
+        { name: "heady-local", keys: ["HEADY_LOCAL_HOST"], type: "local" },
     ];
 
     for (const check of checks) {

@@ -88,7 +88,7 @@ async function edgeVectorize(action, payload) {
 async function gcloudVector(action, payload) {
     // Use Firestore vector search if available
     const projectId = process.env.GCLOUD_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
-    const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY_HEADY;
+    const apiKey = process.env.GOOGLE_API_KEY || process.env.HEADY_PYTHIA_KEY_HEADY;
 
     if (!projectId || !apiKey) return null;
 

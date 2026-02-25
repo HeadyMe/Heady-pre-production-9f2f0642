@@ -7,7 +7,7 @@
  * ═══ Embedding Provider Abstraction — SPEC-3 ═══
  *
  * Unified interface for embedding generation.
- * Supports: LOCAL (Ollama/nomic-embed-text), CLOUD (Workers AI @cf/bge),
+ * Supports: LOCAL (HeadyLocal/nomic-embed-text), CLOUD (Workers AI @cf/bge),
  *           and OPENAI (text-embedding-3-small).
  *
  * Auto-selects provider: tries local → edge → cloud.
@@ -28,18 +28,18 @@ class EmbeddingProvider {
                 model: "@cf/bge-base-en-v1.5",
                 dims: 768,
             },
-            openai: {
+            headycompute: {
                 enabled: opts.openaiEnabled || false,
-                endpoint: "https://api.openai.com/v1/embeddings",
+                endpoint: "https://api.headycompute.com/v1/embeddings",
                 model: opts.openaiModel || "text-embedding-3-small",
                 dims: 1536,
-                apiKey: opts.openaiApiKey || process.env.OPENAI_API_KEY || null,
+                apiKey: opts.openaiApiKey || process.env.HEADY_COMPUTE_KEY || null,
             },
         };
-        this.preferredOrder = opts.preferredOrder || ["local", "edge", "openai"];
+        this.preferredOrder = opts.preferredOrder || ["local", "edge", "headycompute"];
         this.cache = new Map();
         this.maxCacheSize = opts.maxCacheSize || 1000;
-        this.stats = { local: 0, edge: 0, openai: 0, cached: 0, errors: 0 };
+        this.stats = { local: 0, edge: 0, headycompute: 0, cached: 0, errors: 0 };
     }
 
     // ─── Embed text (auto-select provider) ───────────────────────
@@ -98,7 +98,7 @@ class EmbeddingProvider {
                 return this._callLocal(config, text);
             case "edge":
                 return this._callEdge(config, text);
-            case "openai":
+            case "headycompute":
                 return this._callOpenAI(config, text);
             default:
                 throw new Error(`Unknown provider: ${name}`);
@@ -130,7 +130,7 @@ class EmbeddingProvider {
     }
 
     async _callOpenAI(config, text) {
-        if (!config.apiKey) throw new Error("OpenAI API key not configured");
+        if (!config.apiKey) throw new Error("HeadyCompute API key not configured");
         const res = await fetch(config.endpoint, {
             method: "POST",
             headers: {
@@ -140,7 +140,7 @@ class EmbeddingProvider {
             body: JSON.stringify({ model: config.model, input: text }),
             signal: AbortSignal.timeout(15000),
         });
-        if (!res.ok) throw new Error(`OpenAI embed failed: ${res.status}`);
+        if (!res.ok) throw new Error(`HeadyCompute embed failed: ${res.status}`);
         const data = await res.json();
         return data.data?.[0]?.embedding || null;
     }

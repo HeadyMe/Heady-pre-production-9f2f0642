@@ -154,7 +154,7 @@ function getAllBreakers() {
 const CRITICAL_SERVICES = [
     'brain', 'soul', 'conductor', 'hcfp', 'patterns',
     'ops', 'maintenance', 'registry', 'auto-success', 'cloud',
-    'edge-ai', 'claude', 'codex', 'gemini', 'perplexity', 'grok'
+    'edge-ai', 'headyjules', 'codex', 'headypythia', 'perplexity', 'grok'
 ];
 
 for (const svc of CRITICAL_SERVICES) {

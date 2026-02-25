@@ -50,7 +50,10 @@ const DEFAULT_BATCH = 8;
 const POOL_PRIORITY = { hot: 0, warm: 1, cold: 2 };
 
 // ─── TASK CATALOG (135 tasks × 9 categories) ────────────────────────────────
+let extraTasks = [];
+try { extraTasks = require('./auto-flow-200-tasks.json'); } catch(e){}
 const TASK_CATALOG = [
+    ...extraTasks,
     // ═══ LEARNING (20) — Targeted system learning ═══════════════════════════
     {
         id: "learn-001", name: "Analyze config drift patterns", cat: "learning", pool: "warm", w: 3,
@@ -611,15 +614,15 @@ const TASK_CATALOG = [
 
     // ═══ HIVE-INTEGRATION (20) — External APIs, MCP Aggregation, SDK ════════
     {
-        id: "hive-001", name: "OpenAI Assistants API health check", cat: "hive-integration", pool: "warm", w: 4,
-        desc: "Validate OpenAI file search / retrieval API endpoint availability"
+        id: "hive-001", name: "HeadyCompute Assistants API health check", cat: "hive-integration", pool: "warm", w: 4,
+        desc: "Validate HeadyCompute file search / retrieval API endpoint availability"
     },
     {
-        id: "hive-002", name: "OpenAI embeddings endpoint readiness", cat: "hive-integration", pool: "warm", w: 4,
+        id: "hive-002", name: "HeadyCompute embeddings endpoint readiness", cat: "hive-integration", pool: "warm", w: 4,
         desc: "Test text-embedding-3-small endpoint availability and latency"
     },
     {
-        id: "hive-003", name: "OpenAI batch API queue depth", cat: "hive-integration", pool: "cold", w: 2,
+        id: "hive-003", name: "HeadyCompute batch API queue depth", cat: "hive-integration", pool: "cold", w: 2,
         desc: "Check pending batch job status and completion rate"
     },
     {
@@ -675,12 +678,12 @@ const TASK_CATALOG = [
         desc: "Measure Cloudflare Worker response time from origin"
     },
     {
-        id: "hive-017", name: "OpenAI Retrieval index freshness", cat: "hive-integration", pool: "cold", w: 2,
+        id: "hive-017", name: "HeadyCompute Retrieval index freshness", cat: "hive-integration", pool: "cold", w: 2,
         desc: "Check assistant file upload age and vector store status"
     },
     {
         id: "hive-018", name: "Cross-provider model availability sync", cat: "hive-integration", pool: "warm", w: 4,
-        desc: "Ensure model availability consistent across Claude/Codex/Gemini/Grok"
+        desc: "Ensure model availability consistent across HeadyJules/Codex/HeadyPythia/Grok"
     },
     {
         id: "hive-019", name: "SDK client connection pool monitor", cat: "hive-integration", pool: "warm", w: 3,
@@ -995,7 +998,7 @@ class AutoSuccessEngine extends EventEmitter {
             case "hive-integration": {
                 // Check SDK and external API integration health
                 const checks = [];
-                if (process.env.OPENAI_API_KEY) checks.push("OpenAI:key-set");
+                if (process.env.HEADY_COMPUTE_KEY) checks.push("HeadyCompute:key-set");
                 if (process.env.GOOGLE_APPLICATION_CREDENTIALS) checks.push("GCloud:creds-set");
                 if (global.__hiveSDK) checks.push(`SDK:v${global.__hiveSDK.version}`);
                 const liteLLM = process.env.LITELLM_URL || "not-configured";

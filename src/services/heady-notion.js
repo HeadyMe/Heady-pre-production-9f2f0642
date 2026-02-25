@@ -238,12 +238,12 @@ function generateStatusContent() {
 - Container rebuilt 3× and deployed with port fix (3301:3301)
 
 ## Known Issues
-- Vector DB fallback active — Ollama not accessible inside container (priority: HIGH)
+- Vector DB fallback active — HeadyLocal not accessible inside container (priority: HIGH)
 - /api/health registered after SPA fallback (ordering issue, pre-existing)
 - 32 Dependabot vulnerabilities on GitHub (1 critical, 15 high)
 
 ## Plans & Convergence
-- [ ] Fix Ollama container networking for real vector embeddings
+- [ ] Fix HeadyLocal container networking for real vector embeddings
 - [ ] Address Dependabot vulnerabilities
 - [ ] Build user authentication tiers (RBAC + subscription)
 - [ ] Complete Notion Knowledge Vault population
@@ -266,7 +266,7 @@ function generateCommandsContent() {
 
 Just type "heady" followed by what you want:
 - **heady "help me plan my day"** — HeadyBuddy plans your schedule
-- **heady "research topic X"** — HeadyPerplexity deep research
+- **heady "research topic X"** — HeadyResearch deep research
 - **heady "analyze this code"** — HeadyBrain code analysis
 - **heady "what's the system status?"** — Health check all services
 
@@ -289,9 +289,9 @@ Just type "heady" followed by what you want:
 | heady_patterns | Patterns | Code pattern analysis |
 | heady_risks | Risks | Security risk assessment |
 | heady_coder | Coder | Code generation/orchestration |
-| heady_claude | Claude | Anthropic Claude Opus 4.6 |
-| heady_openai | OpenAI | GPT-4o chat/completion |
-| heady_gemini | Gemini | Google Gemini generation |
+| heady_claude | HeadyJules | HeadyNexus HeadyJules Opus 4.6 |
+| heady_openai | HeadyCompute | GPT-4o chat/completion |
+| heady_gemini | HeadyPythia | Google HeadyPythia generation |
 | heady_groq | Groq | Fast inference chat |
 | heady_codex | Codex | Code transformation |
 | heady_copilot | Copilot | Coding suggestions |
@@ -303,7 +303,7 @@ Just type "heady" followed by what you want:
 | heady_buddy | Buddy | Personal assistant chat |
 | heady_perplexity_research | Perplexity | Deep web research |
 | heady_jules_task | Jules | Background coding tasks |
-| heady_huggingface_model | HuggingFace | Model search/inference |
+| heady_huggingface_model | HeadyHub | Model search/inference |
 
 ## API Endpoints
 
@@ -354,7 +354,7 @@ POST /api/connectivity/scan     — Scan all services
 ## Quickstart — Non-Technical
 
 ### Getting Started with Heady
-1. Open your IDE (Windsurf/VS Code)
+1. Open your IDE (HeadyAI-IDE/VS Code)
 2. Type "heady" followed by any request in natural language
 3. All requests prefixed with "heady" are routed through Heady Brain
 4. Ask "heady help" for available commands
@@ -522,8 +522,8 @@ async function syncToNotion() {
                     "## Coding: Coder, Codex, Copilot, Jules, Patterns",
                     "## Security: Battle, Risks, HCFP",
                     "## Infrastructure: Manager, Ops, Maid, Maintenance, Registry",
-                    "## External AI: Claude, OpenAI, Gemini, Groq, HuggingFace",
-                    "## Integration: MCP Hub, Ollama, Python",
+                    "## External AI: HeadyJules, HeadyCompute, HeadyPythia, Groq, HeadyHub",
+                    "## Integration: MCP Hub, HeadyLocal, Python",
                     "---",
                     "Full details in the Comprehensive Guide notebook.",
                 ]

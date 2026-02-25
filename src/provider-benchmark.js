@@ -12,7 +12,7 @@
  *   REST (standard)     — fetch + JSON parse
  *   REST (streaming)    — SSE / chunked transfer
  *   WebSocket           — persistent bidirectional
- *   SDK Direct          — native SDK calls (HF, Gemini, Anthropic)
+ *   SDK Direct          — native SDK calls (HF, HeadyPythia, HeadyNexus)
  *
  * Benchmark stores results in vector memory for pattern learning.
  * ──────────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ function httpPing(url, timeout = 10000) {
 async function benchmarkHF() {
     const start = Date.now();
     try {
-        const { InferenceClient } = require("@huggingface/inference");
+        const { InferenceClient } = require("@headyhub/inference");
         const tokens = [process.env.HF_TOKEN, process.env.HF_TOKEN_2, process.env.HF_TOKEN_3].filter(Boolean);
         if (tokens.length === 0) return { provider: "hf", ok: false, error: "no tokens" };
 
@@ -86,54 +86,54 @@ async function benchmarkHF() {
     }
 }
 
-async function benchmarkGemini() {
+async function benchmarkHeadyPythia() {
     const start = Date.now();
     try {
         const { GoogleGenAI } = require("@google/genai");
-        const keys = [process.env.GOOGLE_API_KEY, process.env.GEMINI_API_KEY_HEADY, process.env.GEMINI_API_KEY_GCLOUD].filter(Boolean);
-        if (keys.length === 0) return { provider: "gemini", ok: false, error: "no keys" };
+        const keys = [process.env.GOOGLE_API_KEY, process.env.HEADY_PYTHIA_KEY_HEADY, process.env.HEADY_PYTHIA_KEY_GCLOUD].filter(Boolean);
+        if (keys.length === 0) return { provider: "headypythia", ok: false, error: "no keys" };
 
         const ai = new GoogleGenAI({ apiKey: keys[0] });
         const sdkInit = Date.now() - start;
 
         const chatStart = Date.now();
-        await ai.models.generateContent({ model: "gemini-2.5-flash", contents: "Say 'benchmark ok' in 5 words or less" });
+        await ai.models.generateContent({ model: "headypythia-2.5-flash", contents: "Say 'benchmark ok' in 5 words or less" });
         const chatLatency = Date.now() - chatStart;
 
         return {
-            provider: "gemini", ok: true, sdkInit, chatLatency,
+            provider: "headypythia", ok: true, sdkInit, chatLatency,
             totalLatency: Date.now() - start, keys: keys.length,
             connectionType: "REST (SDK)", protocol: "HTTPS",
         };
     } catch (err) {
-        return { provider: "gemini", ok: false, error: err.message, totalLatency: Date.now() - start };
+        return { provider: "headypythia", ok: false, error: err.message, totalLatency: Date.now() - start };
     }
 }
 
-async function benchmarkClaude() {
+async function benchmarkHeadyJules() {
     const start = Date.now();
     try {
-        const Anthropic = require("@anthropic-ai/sdk");
-        const keys = [process.env.ANTHROPIC_API_KEY, process.env.ANTHROPIC_API_KEY_SECONDARY].filter(Boolean);
-        if (keys.length === 0) return { provider: "claude", ok: false, error: "no keys" };
+        const HeadyNexus = require("@headynexus-ai/sdk");
+        const keys = [process.env.HEADY_NEXUS_KEY, process.env.HEADY_NEXUS_KEY_SECONDARY].filter(Boolean);
+        if (keys.length === 0) return { provider: "headyjules", ok: false, error: "no keys" };
 
-        const client = new Anthropic({ apiKey: keys[0] });
+        const client = new HeadyNexus({ apiKey: keys[0] });
         const sdkInit = Date.now() - start;
 
         const chatStart = Date.now();
         await client.messages.create({
-            model: "claude-sonnet-4-20250514", max_tokens: 20,
+            model: "headyjules-sonnet-4-20250514", max_tokens: 20,
             messages: [{ role: "user", content: "Say 'benchmark ok' in 5 words or less" }],
         });
         const chatLatency = Date.now() - chatStart;
 
         return {
-            provider: "claude", ok: true, sdkInit, chatLatency,
+            provider: "headyjules", ok: true, sdkInit, chatLatency,
             totalLatency: Date.now() - start, keys: keys.length,
             connectionType: "REST (SDK)", protocol: "HTTPS",
         };
     } catch (err) {
-        return { provider: "claude", ok: false, error: err.message, totalLatency: Date.now() - start };
+        return { provider: "headyjules", ok: false, error: err.message, totalLatency: Date.now() - start };
     }
 }
 
@@ -165,8 +165,8 @@ async function runFullBenchmark(vectorMem) {
         benchmarkLocal(),
         benchmarkEdge(),
         benchmarkHF(),
-        benchmarkGemini(),
-        benchmarkClaude(),
+        benchmarkHeadyPythia(),
+        benchmarkHeadyJules(),
     ]);
 
     const benchmarks = results.map(r => r.status === "fulfilled" ? r.value : { ok: false, error: r.reason?.message });
@@ -188,8 +188,8 @@ async function runFullBenchmark(vectorMem) {
         fastest: sorted[0]?.provider || "none",
         recommended: {
             embedding: "hf",     // HF has best embedding support
-            reasoning: sorted.find(b => ["claude", "gemini"].includes(b.provider))?.provider || "gemini",
-            fast_chat: sorted.find(b => b.provider !== "local-manager")?.provider || "gemini",
+            reasoning: sorted.find(b => ["headyjules", "headypythia"].includes(b.provider))?.provider || "headypythia",
+            fast_chat: sorted.find(b => b.provider !== "local-manager")?.provider || "headypythia",
             edge_cache: "cloudflare-edge",
         },
     };

@@ -9,7 +9,7 @@
  * ACTIVE LEARNING — calls real AI providers every cycle:
  *
  *   1. Pick a learning topic (from codebase, system state, or curriculum)
- *   2. Send to multiple providers in parallel (Gemini, Claude, Groq)
+ *   2. Send to multiple providers in parallel (HeadyPythia, HeadyJules, Groq)
  *   3. Compare responses, score quality
  *   4. Store best knowledge in vector memory
  *   5. Track provider performance for routing optimization
@@ -105,8 +105,8 @@ try {
 let learnStats = {
     totalLearned: 0,
     totalProviderCalls: 0,
-    providerSuccesses: { gemini: 0, groq: 0, perplexity: 0, huggingface: 0 },
-    providerErrors: { gemini: 0, groq: 0, perplexity: 0, huggingface: 0 },
+    providerSuccesses: { headypythia: 0, groq: 0, perplexity: 0, headyhub: 0 },
+    providerErrors: { headypythia: 0, groq: 0, perplexity: 0, headyhub: 0 },
     topicsCompleted: 0,
     lastLearnedAt: null,
     lastTopic: null,
@@ -132,7 +132,7 @@ async function runLearningCycle(vectorMem) {
     // Pick topic
     const pending = curriculum.filter(t => !t.learned);
     if (pending.length === 0) {
-        // Everyone learned — generate new topics by asking Gemini
+        // Everyone learned — generate new topics by asking HeadyPythia
         await generateNewTopics();
         return { ok: true, action: "curriculum_refresh", topicsGenerated: curriculum.filter(t => !t.learned).length };
     }

@@ -26,7 +26,7 @@
  * The Supervisor routes tasks to agents based on skill matching and health.
  *
  * AGENTS:
- *   - claude-code: AI code generation, analysis, refactoring, debugging
+ *   - headyjules-code: AI code generation, analysis, refactoring, debugging
  *   - builder:     Build, deploy, test, lint operations
  *   - researcher:  News ingestion, concept extraction, trend analysis
  *   - deployer:    Render deploy, docker, cloud bridge, env sync
@@ -34,7 +34,7 @@
  *   - observer:    Health checks, metrics, alerts, readiness probes
  */
 
-const { ClaudeCodeAgent } = require("./claude-code-agent");
+const { ClaudeCodeAgent } = require("./headyjules-code-agent");
 
 // ─── GENERIC AGENT BASE ──────────────────────────────────────────────────
 

@@ -1,0 +1,1602 @@
+[
+  {
+    "id": "hfidel-001",
+    "name": "Rotate Quantum Keys [Zone 6]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-5964)"
+  },
+  {
+    "id": "hfidel-002",
+    "name": "Audit Handshake Latency [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-4420)"
+  },
+  {
+    "id": "hfidel-003",
+    "name": "HNSW Index Calibration [Zone 1]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-6676)"
+  },
+  {
+    "id": "hfidel-004",
+    "name": "Snapshot Vector Distances [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-1406)"
+  },
+  {
+    "id": "hfidel-005",
+    "name": "Compact DuckDB WAL [Zone 2]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-5224)"
+  },
+  {
+    "id": "hfidel-006",
+    "name": "Cloudflare Latency Pulse [Zone 2]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-9971)"
+  },
+  {
+    "id": "hfidel-007",
+    "name": "Rate Limiter Window Tuning [Zone 2]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-7192)"
+  },
+  {
+    "id": "hfidel-008",
+    "name": "IP Threat Classification [Zone 6]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-777)"
+  },
+  {
+    "id": "hfidel-009",
+    "name": "Node Affinity Scoring [Zone 4]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-7753)"
+  },
+  {
+    "id": "hfidel-010",
+    "name": "Task Queue Shedding [Zone 9]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-1208)"
+  },
+  {
+    "id": "hfidel-011",
+    "name": "Dynamic Route Recalculation [Zone 6]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-399)"
+  },
+  {
+    "id": "hfidel-012",
+    "name": "Circuit Breaker Drill [Zone 5]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-2881)"
+  },
+  {
+    "id": "hfidel-013",
+    "name": "Orphaned Promise Sweeping [Zone 5]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-6560)"
+  },
+  {
+    "id": "hfidel-014",
+    "name": "Admin UI Socket Health [Zone 8]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-9295)"
+  },
+  {
+    "id": "hfidel-015",
+    "name": "V8 Bytecode Integrity [Zone 7]",
+    "cat": "telemetry",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-2237)"
+  },
+  {
+    "id": "hfidel-016",
+    "name": "HeadyCompute Token Burn [Zone 9]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-3736)"
+  },
+  {
+    "id": "hfidel-017",
+    "name": "HeadyNexus Context Window [Zone 2]",
+    "cat": "hive-integration",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-422)"
+  },
+  {
+    "id": "hfidel-018",
+    "name": "Validate ML-KEM/ML-DSA [Zone 7]",
+    "cat": "pqc-security",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-9529)"
+  },
+  {
+    "id": "hfidel-019",
+    "name": "Rotate Quantum Keys [Zone 7]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-5712)"
+  },
+  {
+    "id": "hfidel-020",
+    "name": "Audit Handshake Latency [Zone 1]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-880)"
+  },
+  {
+    "id": "hfidel-021",
+    "name": "HNSW Index Calibration [Zone 2]",
+    "cat": "duckdb-memory",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-4421)"
+  },
+  {
+    "id": "hfidel-022",
+    "name": "Snapshot Vector Distances [Zone 2]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-5844)"
+  },
+  {
+    "id": "hfidel-023",
+    "name": "Compact DuckDB WAL [Zone 2]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-1869)"
+  },
+  {
+    "id": "hfidel-024",
+    "name": "Cloudflare Latency Pulse [Zone 5]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-8380)"
+  },
+  {
+    "id": "hfidel-025",
+    "name": "Rate Limiter Window Tuning [Zone 8]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-6098)"
+  },
+  {
+    "id": "hfidel-026",
+    "name": "IP Threat Classification [Zone 2]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-2713)"
+  },
+  {
+    "id": "hfidel-027",
+    "name": "Node Affinity Scoring [Zone 5]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-8423)"
+  },
+  {
+    "id": "hfidel-028",
+    "name": "Task Queue Shedding [Zone 6]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-499)"
+  },
+  {
+    "id": "hfidel-029",
+    "name": "Dynamic Route Recalculation [Zone 2]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-6249)"
+  },
+  {
+    "id": "hfidel-030",
+    "name": "Circuit Breaker Drill [Zone 2]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-476)"
+  },
+  {
+    "id": "hfidel-031",
+    "name": "Orphaned Promise Sweeping [Zone 5]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-5631)"
+  },
+  {
+    "id": "hfidel-032",
+    "name": "Admin UI Socket Health [Zone 6]",
+    "cat": "telemetry",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-788)"
+  },
+  {
+    "id": "hfidel-033",
+    "name": "V8 Bytecode Integrity [Zone 8]",
+    "cat": "telemetry",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-9289)"
+  },
+  {
+    "id": "hfidel-034",
+    "name": "HeadyCompute Token Burn [Zone 8]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-5014)"
+  },
+  {
+    "id": "hfidel-035",
+    "name": "HeadyNexus Context Window [Zone 8]",
+    "cat": "hive-integration",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-4498)"
+  },
+  {
+    "id": "hfidel-036",
+    "name": "Validate ML-KEM/ML-DSA [Zone 3]",
+    "cat": "pqc-security",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-3931)"
+  },
+  {
+    "id": "hfidel-037",
+    "name": "Rotate Quantum Keys [Zone 3]",
+    "cat": "pqc-security",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-832)"
+  },
+  {
+    "id": "hfidel-038",
+    "name": "Audit Handshake Latency [Zone 7]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-5577)"
+  },
+  {
+    "id": "hfidel-039",
+    "name": "HNSW Index Calibration [Zone 5]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-3084)"
+  },
+  {
+    "id": "hfidel-040",
+    "name": "Snapshot Vector Distances [Zone 5]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-2015)"
+  },
+  {
+    "id": "hfidel-041",
+    "name": "Compact DuckDB WAL [Zone 6]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-1466)"
+  },
+  {
+    "id": "hfidel-042",
+    "name": "Cloudflare Latency Pulse [Zone 1]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-9699)"
+  },
+  {
+    "id": "hfidel-043",
+    "name": "Rate Limiter Window Tuning [Zone 8]",
+    "cat": "edge-routing",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-5971)"
+  },
+  {
+    "id": "hfidel-044",
+    "name": "IP Threat Classification [Zone 4]",
+    "cat": "edge-routing",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-4052)"
+  },
+  {
+    "id": "hfidel-045",
+    "name": "Node Affinity Scoring [Zone 7]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-6697)"
+  },
+  {
+    "id": "hfidel-046",
+    "name": "Task Queue Shedding [Zone 2]",
+    "cat": "liquid-federation",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-9131)"
+  },
+  {
+    "id": "hfidel-047",
+    "name": "Dynamic Route Recalculation [Zone 5]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-8496)"
+  },
+  {
+    "id": "hfidel-048",
+    "name": "Circuit Breaker Drill [Zone 7]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-4032)"
+  },
+  {
+    "id": "hfidel-049",
+    "name": "Orphaned Promise Sweeping [Zone 3]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-483)"
+  },
+  {
+    "id": "hfidel-050",
+    "name": "Admin UI Socket Health [Zone 6]",
+    "cat": "telemetry",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-8305)"
+  },
+  {
+    "id": "hfidel-051",
+    "name": "V8 Bytecode Integrity [Zone 7]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-8962)"
+  },
+  {
+    "id": "hfidel-052",
+    "name": "HeadyCompute Token Burn [Zone 7]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-173)"
+  },
+  {
+    "id": "hfidel-053",
+    "name": "HeadyNexus Context Window [Zone 3]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-7024)"
+  },
+  {
+    "id": "hfidel-054",
+    "name": "Validate ML-KEM/ML-DSA [Zone 8]",
+    "cat": "pqc-security",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-314)"
+  },
+  {
+    "id": "hfidel-055",
+    "name": "Rotate Quantum Keys [Zone 3]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-8341)"
+  },
+  {
+    "id": "hfidel-056",
+    "name": "Audit Handshake Latency [Zone 1]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-3483)"
+  },
+  {
+    "id": "hfidel-057",
+    "name": "HNSW Index Calibration [Zone 9]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-6339)"
+  },
+  {
+    "id": "hfidel-058",
+    "name": "Snapshot Vector Distances [Zone 2]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-5284)"
+  },
+  {
+    "id": "hfidel-059",
+    "name": "Compact DuckDB WAL [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-3985)"
+  },
+  {
+    "id": "hfidel-060",
+    "name": "Cloudflare Latency Pulse [Zone 7]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-2606)"
+  },
+  {
+    "id": "hfidel-061",
+    "name": "Rate Limiter Window Tuning [Zone 6]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-6009)"
+  },
+  {
+    "id": "hfidel-062",
+    "name": "IP Threat Classification [Zone 4]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-2319)"
+  },
+  {
+    "id": "hfidel-063",
+    "name": "Node Affinity Scoring [Zone 9]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-6090)"
+  },
+  {
+    "id": "hfidel-064",
+    "name": "Task Queue Shedding [Zone 4]",
+    "cat": "liquid-federation",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-9218)"
+  },
+  {
+    "id": "hfidel-065",
+    "name": "Dynamic Route Recalculation [Zone 1]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-4709)"
+  },
+  {
+    "id": "hfidel-066",
+    "name": "Circuit Breaker Drill [Zone 2]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-4040)"
+  },
+  {
+    "id": "hfidel-067",
+    "name": "Orphaned Promise Sweeping [Zone 4]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-1800)"
+  },
+  {
+    "id": "hfidel-068",
+    "name": "Admin UI Socket Health [Zone 4]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-156)"
+  },
+  {
+    "id": "hfidel-069",
+    "name": "V8 Bytecode Integrity [Zone 7]",
+    "cat": "telemetry",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-2013)"
+  },
+  {
+    "id": "hfidel-070",
+    "name": "HeadyCompute Token Burn [Zone 7]",
+    "cat": "hive-integration",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-99)"
+  },
+  {
+    "id": "hfidel-071",
+    "name": "HeadyNexus Context Window [Zone 7]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-146)"
+  },
+  {
+    "id": "hfidel-072",
+    "name": "Validate ML-KEM/ML-DSA [Zone 5]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-2671)"
+  },
+  {
+    "id": "hfidel-073",
+    "name": "Rotate Quantum Keys [Zone 6]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-4102)"
+  },
+  {
+    "id": "hfidel-074",
+    "name": "Audit Handshake Latency [Zone 6]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-7011)"
+  },
+  {
+    "id": "hfidel-075",
+    "name": "HNSW Index Calibration [Zone 6]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-1427)"
+  },
+  {
+    "id": "hfidel-076",
+    "name": "Snapshot Vector Distances [Zone 5]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-7352)"
+  },
+  {
+    "id": "hfidel-077",
+    "name": "Compact DuckDB WAL [Zone 8]",
+    "cat": "duckdb-memory",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-4933)"
+  },
+  {
+    "id": "hfidel-078",
+    "name": "Cloudflare Latency Pulse [Zone 8]",
+    "cat": "edge-routing",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-2828)"
+  },
+  {
+    "id": "hfidel-079",
+    "name": "Rate Limiter Window Tuning [Zone 6]",
+    "cat": "edge-routing",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-9674)"
+  },
+  {
+    "id": "hfidel-080",
+    "name": "IP Threat Classification [Zone 7]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-1192)"
+  },
+  {
+    "id": "hfidel-081",
+    "name": "Node Affinity Scoring [Zone 4]",
+    "cat": "liquid-federation",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-5736)"
+  },
+  {
+    "id": "hfidel-082",
+    "name": "Task Queue Shedding [Zone 3]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-6682)"
+  },
+  {
+    "id": "hfidel-083",
+    "name": "Dynamic Route Recalculation [Zone 8]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-1407)"
+  },
+  {
+    "id": "hfidel-084",
+    "name": "Circuit Breaker Drill [Zone 9]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-5524)"
+  },
+  {
+    "id": "hfidel-085",
+    "name": "Orphaned Promise Sweeping [Zone 4]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-7533)"
+  },
+  {
+    "id": "hfidel-086",
+    "name": "Admin UI Socket Health [Zone 3]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-8135)"
+  },
+  {
+    "id": "hfidel-087",
+    "name": "V8 Bytecode Integrity [Zone 7]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-4114)"
+  },
+  {
+    "id": "hfidel-088",
+    "name": "HeadyCompute Token Burn [Zone 5]",
+    "cat": "hive-integration",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-5193)"
+  },
+  {
+    "id": "hfidel-089",
+    "name": "HeadyNexus Context Window [Zone 2]",
+    "cat": "hive-integration",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-4573)"
+  },
+  {
+    "id": "hfidel-090",
+    "name": "Validate ML-KEM/ML-DSA [Zone 4]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-8605)"
+  },
+  {
+    "id": "hfidel-091",
+    "name": "Rotate Quantum Keys [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-1855)"
+  },
+  {
+    "id": "hfidel-092",
+    "name": "Audit Handshake Latency [Zone 4]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-1453)"
+  },
+  {
+    "id": "hfidel-093",
+    "name": "HNSW Index Calibration [Zone 8]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-1899)"
+  },
+  {
+    "id": "hfidel-094",
+    "name": "Snapshot Vector Distances [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-9130)"
+  },
+  {
+    "id": "hfidel-095",
+    "name": "Compact DuckDB WAL [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-8366)"
+  },
+  {
+    "id": "hfidel-096",
+    "name": "Cloudflare Latency Pulse [Zone 7]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-4426)"
+  },
+  {
+    "id": "hfidel-097",
+    "name": "Rate Limiter Window Tuning [Zone 5]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-1953)"
+  },
+  {
+    "id": "hfidel-098",
+    "name": "IP Threat Classification [Zone 6]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-5436)"
+  },
+  {
+    "id": "hfidel-099",
+    "name": "Node Affinity Scoring [Zone 1]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-8118)"
+  },
+  {
+    "id": "hfidel-100",
+    "name": "Task Queue Shedding [Zone 6]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-2691)"
+  },
+  {
+    "id": "hfidel-101",
+    "name": "Dynamic Route Recalculation [Zone 2]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-7712)"
+  },
+  {
+    "id": "hfidel-102",
+    "name": "Circuit Breaker Drill [Zone 1]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-3191)"
+  },
+  {
+    "id": "hfidel-103",
+    "name": "Orphaned Promise Sweeping [Zone 3]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-3927)"
+  },
+  {
+    "id": "hfidel-104",
+    "name": "Admin UI Socket Health [Zone 5]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-4029)"
+  },
+  {
+    "id": "hfidel-105",
+    "name": "V8 Bytecode Integrity [Zone 4]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-3901)"
+  },
+  {
+    "id": "hfidel-106",
+    "name": "HeadyCompute Token Burn [Zone 7]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-8687)"
+  },
+  {
+    "id": "hfidel-107",
+    "name": "HeadyNexus Context Window [Zone 7]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-895)"
+  },
+  {
+    "id": "hfidel-108",
+    "name": "Validate ML-KEM/ML-DSA [Zone 3]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-2720)"
+  },
+  {
+    "id": "hfidel-109",
+    "name": "Rotate Quantum Keys [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-7109)"
+  },
+  {
+    "id": "hfidel-110",
+    "name": "Audit Handshake Latency [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-2783)"
+  },
+  {
+    "id": "hfidel-111",
+    "name": "HNSW Index Calibration [Zone 2]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-8219)"
+  },
+  {
+    "id": "hfidel-112",
+    "name": "Snapshot Vector Distances [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-7427)"
+  },
+  {
+    "id": "hfidel-113",
+    "name": "Compact DuckDB WAL [Zone 6]",
+    "cat": "duckdb-memory",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-7301)"
+  },
+  {
+    "id": "hfidel-114",
+    "name": "Cloudflare Latency Pulse [Zone 2]",
+    "cat": "edge-routing",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-1883)"
+  },
+  {
+    "id": "hfidel-115",
+    "name": "Rate Limiter Window Tuning [Zone 5]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-2145)"
+  },
+  {
+    "id": "hfidel-116",
+    "name": "IP Threat Classification [Zone 3]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-473)"
+  },
+  {
+    "id": "hfidel-117",
+    "name": "Node Affinity Scoring [Zone 2]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-6523)"
+  },
+  {
+    "id": "hfidel-118",
+    "name": "Task Queue Shedding [Zone 2]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-8534)"
+  },
+  {
+    "id": "hfidel-119",
+    "name": "Dynamic Route Recalculation [Zone 4]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-7066)"
+  },
+  {
+    "id": "hfidel-120",
+    "name": "Circuit Breaker Drill [Zone 2]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-5007)"
+  },
+  {
+    "id": "hfidel-121",
+    "name": "Orphaned Promise Sweeping [Zone 3]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-4690)"
+  },
+  {
+    "id": "hfidel-122",
+    "name": "Admin UI Socket Health [Zone 7]",
+    "cat": "telemetry",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-586)"
+  },
+  {
+    "id": "hfidel-123",
+    "name": "V8 Bytecode Integrity [Zone 4]",
+    "cat": "telemetry",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-1530)"
+  },
+  {
+    "id": "hfidel-124",
+    "name": "HeadyCompute Token Burn [Zone 5]",
+    "cat": "hive-integration",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-1229)"
+  },
+  {
+    "id": "hfidel-125",
+    "name": "HeadyNexus Context Window [Zone 4]",
+    "cat": "hive-integration",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-2569)"
+  },
+  {
+    "id": "hfidel-126",
+    "name": "Validate ML-KEM/ML-DSA [Zone 4]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-5937)"
+  },
+  {
+    "id": "hfidel-127",
+    "name": "Rotate Quantum Keys [Zone 1]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-3609)"
+  },
+  {
+    "id": "hfidel-128",
+    "name": "Audit Handshake Latency [Zone 2]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-794)"
+  },
+  {
+    "id": "hfidel-129",
+    "name": "HNSW Index Calibration [Zone 6]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-5157)"
+  },
+  {
+    "id": "hfidel-130",
+    "name": "Snapshot Vector Distances [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-4919)"
+  },
+  {
+    "id": "hfidel-131",
+    "name": "Compact DuckDB WAL [Zone 5]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-6528)"
+  },
+  {
+    "id": "hfidel-132",
+    "name": "Cloudflare Latency Pulse [Zone 4]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-6053)"
+  },
+  {
+    "id": "hfidel-133",
+    "name": "Rate Limiter Window Tuning [Zone 2]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-3530)"
+  },
+  {
+    "id": "hfidel-134",
+    "name": "IP Threat Classification [Zone 2]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-5311)"
+  },
+  {
+    "id": "hfidel-135",
+    "name": "Node Affinity Scoring [Zone 7]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-7495)"
+  },
+  {
+    "id": "hfidel-136",
+    "name": "Task Queue Shedding [Zone 1]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-4693)"
+  },
+  {
+    "id": "hfidel-137",
+    "name": "Dynamic Route Recalculation [Zone 8]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-3907)"
+  },
+  {
+    "id": "hfidel-138",
+    "name": "Circuit Breaker Drill [Zone 6]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-8473)"
+  },
+  {
+    "id": "hfidel-139",
+    "name": "Orphaned Promise Sweeping [Zone 3]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-5614)"
+  },
+  {
+    "id": "hfidel-140",
+    "name": "Admin UI Socket Health [Zone 2]",
+    "cat": "telemetry",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-8100)"
+  },
+  {
+    "id": "hfidel-141",
+    "name": "V8 Bytecode Integrity [Zone 3]",
+    "cat": "telemetry",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-7255)"
+  },
+  {
+    "id": "hfidel-142",
+    "name": "HeadyCompute Token Burn [Zone 9]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-9444)"
+  },
+  {
+    "id": "hfidel-143",
+    "name": "HeadyNexus Context Window [Zone 9]",
+    "cat": "hive-integration",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-7668)"
+  },
+  {
+    "id": "hfidel-144",
+    "name": "Validate ML-KEM/ML-DSA [Zone 5]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-4314)"
+  },
+  {
+    "id": "hfidel-145",
+    "name": "Rotate Quantum Keys [Zone 3]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-4342)"
+  },
+  {
+    "id": "hfidel-146",
+    "name": "Audit Handshake Latency [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-6090)"
+  },
+  {
+    "id": "hfidel-147",
+    "name": "HNSW Index Calibration [Zone 5]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-4898)"
+  },
+  {
+    "id": "hfidel-148",
+    "name": "Snapshot Vector Distances [Zone 7]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-4062)"
+  },
+  {
+    "id": "hfidel-149",
+    "name": "Compact DuckDB WAL [Zone 7]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-8899)"
+  },
+  {
+    "id": "hfidel-150",
+    "name": "Cloudflare Latency Pulse [Zone 1]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-3755)"
+  },
+  {
+    "id": "hfidel-151",
+    "name": "Rate Limiter Window Tuning [Zone 5]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-9234)"
+  },
+  {
+    "id": "hfidel-152",
+    "name": "IP Threat Classification [Zone 3]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-7462)"
+  },
+  {
+    "id": "hfidel-153",
+    "name": "Node Affinity Scoring [Zone 2]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-3035)"
+  },
+  {
+    "id": "hfidel-154",
+    "name": "Task Queue Shedding [Zone 4]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-3801)"
+  },
+  {
+    "id": "hfidel-155",
+    "name": "Dynamic Route Recalculation [Zone 3]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-3208)"
+  },
+  {
+    "id": "hfidel-156",
+    "name": "Circuit Breaker Drill [Zone 6]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-3696)"
+  },
+  {
+    "id": "hfidel-157",
+    "name": "Orphaned Promise Sweeping [Zone 7]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-7582)"
+  },
+  {
+    "id": "hfidel-158",
+    "name": "Admin UI Socket Health [Zone 4]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-4320)"
+  },
+  {
+    "id": "hfidel-159",
+    "name": "V8 Bytecode Integrity [Zone 6]",
+    "cat": "telemetry",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-6999)"
+  },
+  {
+    "id": "hfidel-160",
+    "name": "HeadyCompute Token Burn [Zone 4]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-578)"
+  },
+  {
+    "id": "hfidel-161",
+    "name": "HeadyNexus Context Window [Zone 8]",
+    "cat": "hive-integration",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-162)"
+  },
+  {
+    "id": "hfidel-162",
+    "name": "Validate ML-KEM/ML-DSA [Zone 5]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-3973)"
+  },
+  {
+    "id": "hfidel-163",
+    "name": "Rotate Quantum Keys [Zone 2]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-6367)"
+  },
+  {
+    "id": "hfidel-164",
+    "name": "Audit Handshake Latency [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-1153)"
+  },
+  {
+    "id": "hfidel-165",
+    "name": "HNSW Index Calibration [Zone 2]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-2794)"
+  },
+  {
+    "id": "hfidel-166",
+    "name": "Snapshot Vector Distances [Zone 7]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-1311)"
+  },
+  {
+    "id": "hfidel-167",
+    "name": "Compact DuckDB WAL [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-4643)"
+  },
+  {
+    "id": "hfidel-168",
+    "name": "Cloudflare Latency Pulse [Zone 1]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-7538)"
+  },
+  {
+    "id": "hfidel-169",
+    "name": "Rate Limiter Window Tuning [Zone 8]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-5888)"
+  },
+  {
+    "id": "hfidel-170",
+    "name": "IP Threat Classification [Zone 4]",
+    "cat": "edge-routing",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-1294)"
+  },
+  {
+    "id": "hfidel-171",
+    "name": "Node Affinity Scoring [Zone 6]",
+    "cat": "liquid-federation",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-5285)"
+  },
+  {
+    "id": "hfidel-172",
+    "name": "Task Queue Shedding [Zone 1]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-9529)"
+  },
+  {
+    "id": "hfidel-173",
+    "name": "Dynamic Route Recalculation [Zone 3]",
+    "cat": "liquid-federation",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-9812)"
+  },
+  {
+    "id": "hfidel-174",
+    "name": "Circuit Breaker Drill [Zone 9]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-4726)"
+  },
+  {
+    "id": "hfidel-175",
+    "name": "Orphaned Promise Sweeping [Zone 7]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-735)"
+  },
+  {
+    "id": "hfidel-176",
+    "name": "Admin UI Socket Health [Zone 8]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-7799)"
+  },
+  {
+    "id": "hfidel-177",
+    "name": "V8 Bytecode Integrity [Zone 3]",
+    "cat": "telemetry",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-1358)"
+  },
+  {
+    "id": "hfidel-178",
+    "name": "HeadyCompute Token Burn [Zone 5]",
+    "cat": "hive-integration",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-4313)"
+  },
+  {
+    "id": "hfidel-179",
+    "name": "HeadyNexus Context Window [Zone 9]",
+    "cat": "hive-integration",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-2175)"
+  },
+  {
+    "id": "hfidel-180",
+    "name": "Validate ML-KEM/ML-DSA [Zone 2]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-7162)"
+  },
+  {
+    "id": "hfidel-181",
+    "name": "Rotate Quantum Keys [Zone 6]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-6144)"
+  },
+  {
+    "id": "hfidel-182",
+    "name": "Audit Handshake Latency [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-1395)"
+  },
+  {
+    "id": "hfidel-183",
+    "name": "HNSW Index Calibration [Zone 8]",
+    "cat": "duckdb-memory",
+    "pool": "cold",
+    "w": 1,
+    "desc": "Rebalance HNSW vector index for conversation memory semantic search (Task ID Alpha-6455)"
+  },
+  {
+    "id": "hfidel-184",
+    "name": "Snapshot Vector Distances [Zone 5]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Compute Euclidean and Cosine drift across recent conversational embedding clusters (Task ID Alpha-9747)"
+  },
+  {
+    "id": "hfidel-185",
+    "name": "Compact DuckDB WAL [Zone 3]",
+    "cat": "duckdb-memory",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Perform Write-Ahead-Log compaction to free memory on local inference node (Task ID Alpha-5594)"
+  },
+  {
+    "id": "hfidel-186",
+    "name": "Cloudflare Latency Pulse [Zone 1]",
+    "cat": "edge-routing",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Ping Edge Worker nodes across 3 distinct zones to map liquid distribution (Task ID Alpha-6284)"
+  },
+  {
+    "id": "hfidel-187",
+    "name": "Rate Limiter Window Tuning [Zone 9]",
+    "cat": "edge-routing",
+    "pool": "cold",
+    "w": 2,
+    "desc": "Analyze Redis sliding-window drop rates to prevent false-positive bans (Task ID Alpha-3231)"
+  },
+  {
+    "id": "hfidel-188",
+    "name": "IP Threat Classification [Zone 8]",
+    "cat": "edge-routing",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Cross-reference IP incoming streams with proprietary threat heuristic rules (Task ID Alpha-5734)"
+  },
+  {
+    "id": "hfidel-189",
+    "name": "Node Affinity Scoring [Zone 5]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Score HeadyJules and HeadyPythia availability and back-pressure latency (Task ID Alpha-5514)"
+  },
+  {
+    "id": "hfidel-190",
+    "name": "Task Queue Shedding [Zone 8]",
+    "cat": "liquid-federation",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Identify and drop low-priority simulation tasks under heavy system load (Task ID Alpha-6896)"
+  },
+  {
+    "id": "hfidel-191",
+    "name": "Dynamic Route Recalculation [Zone 2]",
+    "cat": "liquid-federation",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Pre-compute shortest path to fallback nodes in event of regional outage (Task ID Alpha-2889)"
+  },
+  {
+    "id": "hfidel-192",
+    "name": "Circuit Breaker Drill [Zone 5]",
+    "cat": "mesh-resiliency",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Simulate catastrophic API timeout and verify circuit breaker opens at threshold (Task ID Alpha-3243)"
+  },
+  {
+    "id": "hfidel-193",
+    "name": "Orphaned Promise Sweeping [Zone 8]",
+    "cat": "mesh-resiliency",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Scan Node.js event loop for unhandled rejections and stranded async routes (Task ID Alpha-484)"
+  },
+  {
+    "id": "hfidel-194",
+    "name": "Admin UI Socket Health [Zone 1]",
+    "cat": "telemetry",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Ensure WebSocket telemetry stream to Admin Dashboard 5001 has no packet loss (Task ID Alpha-1018)"
+  },
+  {
+    "id": "hfidel-195",
+    "name": "V8 Bytecode Integrity [Zone 3]",
+    "cat": "telemetry",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Validate checksums of pre-compiled .jsc core logic binaries (Task ID Alpha-2791)"
+  },
+  {
+    "id": "hfidel-196",
+    "name": "HeadyCompute Token Burn [Zone 9]",
+    "cat": "hive-integration",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Measure compute token throughput against Stripe tier limits (Task ID Alpha-7771)"
+  },
+  {
+    "id": "hfidel-197",
+    "name": "HeadyNexus Context Window [Zone 4]",
+    "cat": "hive-integration",
+    "pool": "hot",
+    "w": 4,
+    "desc": "Simulate 100k+ token payload to ensure context fragmentation does not occur (Task ID Alpha-7774)"
+  },
+  {
+    "id": "hfidel-198",
+    "name": "Validate ML-KEM/ML-DSA [Zone 2]",
+    "cat": "pqc-security",
+    "pool": "warm",
+    "w": 3,
+    "desc": "Verify post-quantum cryptography signature integrity on cross-node RPC route (Task ID Alpha-8284)"
+  },
+  {
+    "id": "hfidel-199",
+    "name": "Rotate Quantum Keys [Zone 1]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Simulate 24-hr key rotation lifecycle for ML-KEM-768 seed generators (Task ID Alpha-9866)"
+  },
+  {
+    "id": "hfidel-200",
+    "name": "Audit Handshake Latency [Zone 9]",
+    "cat": "pqc-security",
+    "pool": "hot",
+    "w": 5,
+    "desc": "Measure SSL/mTLS overhead added by PQC encapsulation phase (Task ID Alpha-8574)"
+  }
+]

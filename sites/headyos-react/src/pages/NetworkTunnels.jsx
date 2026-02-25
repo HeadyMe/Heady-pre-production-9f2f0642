@@ -10,7 +10,7 @@ const SITES = [
     { name: 'HeadyBuddy Internal', url: 'localhost:8080', tunnel: 'Active (Mesh Proxy)', traffic: '850 req/hr', health: '99.9%' },
     { name: 'HeadyAPI Gateway', url: 'https://api.headysystems.com', tunnel: 'Active (PQC Encrypted)', traffic: '45K req/hr', health: '100%' },
     { name: 'Heady Docs', url: 'https://docs.headysystems.com', tunnel: 'Active (Edge Cached)', traffic: '2.1K req/hr', health: '100%' },
-    { name: 'HF Space Sync', url: 'https://huggingface.co/spaces/headyme/...', tunnel: 'WebHook Mirror', traffic: '--', health: 'Synced' },
+    { name: 'HF Space Sync', url: 'https://headyhub.co/spaces/headyme/...', tunnel: 'WebHook Mirror', traffic: '--', health: 'Synced' },
 ];
 
 export default function NetworkTunnels() {

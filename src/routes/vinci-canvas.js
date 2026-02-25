@@ -8,7 +8,7 @@
  *
  * Powers a creative sandbox where users design personalized Heady experiences.
  * Integrates HeadyVinci (learning/prediction), HeadyBrain (intelligence),
- * and external creative models (Google, OpenAI, HuggingFace).
+ * and external creative models (Google, HeadyCompute, HeadyHub).
  *
  * Sessions persist in-memory and emit SSE events for real-time canvas updates.
  */
@@ -30,7 +30,7 @@ const MODEL_CATALOG = {
         status: "available",
     },
     "google/nano": {
-        provider: "google", name: "Gemini Nano", type: "on-device-intelligence",
+        provider: "google", name: "HeadyPythia Nano", type: "on-device-intelligence",
         description: "Lightweight on-device model for instant creative suggestions",
         capabilities: ["text-completion", "summarization", "creative-writing"],
         endpoint: "chrome://on-device",
@@ -51,49 +51,49 @@ const MODEL_CATALOG = {
         status: "available",
     },
 
-    // OpenAI Creative AI
-    "openai/gpt-4o": {
-        provider: "openai", name: "GPT-4o", type: "multimodal-intelligence",
+    // HeadyCompute Creative AI
+    "headycompute/gpt-4o": {
+        provider: "headycompute", name: "GPT-4o", type: "multimodal-intelligence",
         description: "Multimodal creative ideation and design critique",
         capabilities: ["design-critique", "layout-suggestion", "copy-generation", "color-theory"],
-        endpoint: "https://api.openai.com/v1/chat/completions",
+        endpoint: "https://api.headycompute.com/v1/chat/completions",
         status: "available",
     },
-    "openai/dall-e-3": {
-        provider: "openai", name: "DALL·E 3", type: "image-generation",
+    "headycompute/dall-e-3": {
+        provider: "headycompute", name: "DALL·E 3", type: "image-generation",
         description: "High-fidelity image generation with precise prompt following",
         capabilities: ["text-to-image", "concept-art", "logo-design", "illustration"],
-        endpoint: "https://api.openai.com/v1/images/generations",
+        endpoint: "https://api.headycompute.com/v1/images/generations",
         status: "available",
     },
 
-    // HuggingFace Open Source
+    // HeadyHub Open Source
     "hf/stable-diffusion-xl": {
-        provider: "huggingface", name: "Stable Diffusion XL", type: "image-generation",
+        provider: "headyhub", name: "Stable Diffusion XL", type: "image-generation",
         description: "Open-source high-resolution image generation",
         capabilities: ["text-to-image", "img2img", "controlnet", "lora-adaptation"],
-        endpoint: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
+        endpoint: "https://api-inference.headyhub.co/models/stabilityai/stable-diffusion-xl-base-1.0",
         status: "available", license: "open-source",
     },
     "hf/flux-1-dev": {
-        provider: "huggingface", name: "FLUX.1 [dev]", type: "image-generation",
+        provider: "headyhub", name: "FLUX.1 [dev]", type: "image-generation",
         description: "State-of-the-art open image model with exceptional prompt adherence",
         capabilities: ["text-to-image", "fine-grained-control", "photorealism"],
-        endpoint: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev",
+        endpoint: "https://api-inference.headyhub.co/models/black-forest-labs/FLUX.1-dev",
         status: "available", license: "open-source",
     },
     "hf/controlnet": {
-        provider: "huggingface", name: "ControlNet", type: "guided-generation",
+        provider: "headyhub", name: "ControlNet", type: "guided-generation",
         description: "Spatial control over diffusion models (edges, depth, pose)",
         capabilities: ["edge-guided", "depth-guided", "pose-guided", "layout-control"],
-        endpoint: "https://api-inference.huggingface.co/models/lllyasviel/control_v11p_sd15_openpose",
+        endpoint: "https://api-inference.headyhub.co/models/lllyasviel/control_v11p_sd15_openpose",
         status: "available", license: "open-source",
     },
     "hf/musicgen": {
-        provider: "huggingface", name: "MusicGen", type: "audio-generation",
+        provider: "headyhub", name: "MusicGen", type: "audio-generation",
         description: "AI music and audio generation from text descriptions",
         capabilities: ["text-to-music", "melody-conditioning", "style-variation"],
-        endpoint: "https://api-inference.huggingface.co/models/facebook/musicgen-large",
+        endpoint: "https://api-inference.headyhub.co/models/facebook/musicgen-large",
         status: "available", license: "open-source",
     },
 

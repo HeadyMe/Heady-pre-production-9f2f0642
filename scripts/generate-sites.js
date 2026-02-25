@@ -119,21 +119,21 @@ const sites = [
   },
   {
     id: 'headybuddy', dir: 'headybuddy',
-    title: 'HeadyBuddy — Your AI Companion',
-    tagline: 'Always learning. Always there. Always yours.',
-    description: 'HeadyBuddy is your personal AI companion — voice-activated, cross-device, with persistent DuckDB vector memory that learns from every interaction and never forgets.',
+    title: 'HeadyBuddy — Swarm Commander',
+    tagline: 'Always learning. Always there. Always executing.',
+    description: 'HeadyBuddy is your personal AI Swarm Commander — voice-activated, cross-device, and equipped with HeadyBees, a fleet of headless browser agents ready to execute workflows on your behalf.',
     gradient: ['#EC4899', '#8B5CF6'], accent: '#F472B6', icon: '🤖',
     geoType: 'Flower of Life',
     buyer: 'Knowledge worker / prosumer',
-    workflow: '"Hey Buddy, summarize my unread messages, draft replies, and add action items to my task list"',
-    integrations: ['Email', 'Calendar', 'Slack', 'Browser Tabs', 'DuckDB Vector Memory', 'Voice-to-Text Relay'],
+    workflow: '"Hey Buddy, swarm the HeadyBees to research competitors, scrape the latest pricing, and generate a report"',
+    integrations: ['Email', 'Slack', 'DuckDB Vector Memory', 'Voice-to-Text Relay', 'HeadySwarm', 'HeadyBees'],
     features: [
       { icon: '🎤', title: 'Voice Activation', desc: 'Talk naturally on any device. HeadyBuddy transcribes, understands context, and acts.' },
+      { icon: '🐝', title: 'Task Completion Swarm', desc: 'Delegate complex workflows to HeadySwarm, orchestrating headless browser HeadyBees to complete tasks autonomously.' },
       { icon: '🧠', title: 'DuckDB Vector Memory', desc: 'Persistent semantic memory that learns your preferences, style, and conversation history.' },
-      { icon: '🔄', title: 'Cross-Device Relay', desc: 'Dictate on your phone, see it on your laptop. Start anywhere, continue everywhere.' },
       { icon: '🛡️', title: 'Arena-Validated', desc: '20 AI nodes compete on every response. HeadyBattle picks the best, Proof View proves it.' },
     ],
-    cta: 'Meet Your Buddy', ctaHref: 'https://app.headybuddy.org', domain: 'headybuddy.org',
+    cta: 'Command Your Swarm', ctaHref: 'https://app.headybuddy.org', domain: 'headybuddy.org',
   }
 ];
 

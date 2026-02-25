@@ -4,14 +4,14 @@
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
 /**
- * OpenAI Business Connector — Full utilization of 2-seat ChatGPT Business plan
+ * HeadyCompute Business Connector — Full utilization of 2-seat ChatGPT Business plan
  * Unlimited model access: GPT-4o, GPT-4o-mini, o1, o1-mini, o3-mini, Codex
- * Includes: Codex CLI, Codex Cloud, OpenAI SDK, Connectors, GPTs
+ * Includes: Codex CLI, Codex Cloud, HeadyCompute SDK, Connectors, GPTs
  *
  * HCFP Policy: Throttle usage to stay within fair-use bounds while maximizing value.
  * Business plan = unlimited, but burst-respect for API stability.
  */
-const OpenAI = require('openai');
+const HeadyCompute = require('headycompute');
 const path = require('path');
 const HeadyGateway = require(path.join(__dirname, '..', '..', 'heady-hive-sdk', 'lib', 'gateway'));
 const { createProviders } = require(path.join(__dirname, '..', '..', 'heady-hive-sdk', 'lib', 'providers'));
@@ -20,8 +20,8 @@ const { createProviders } = require(path.join(__dirname, '..', '..', 'heady-hive
 let _client = null;
 function getClient() {
     if (!_client) {
-        _client = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
+        _client = new HeadyCompute({
+            apiKey: process.env.HEADY_COMPUTE_KEY,
             organization: process.env.OPENAI_ORG_ID || undefined,
         });
     }
@@ -118,7 +118,7 @@ async function chat(message, opts = {}) {
             return {
                 response: result.response,
                 model: result.model || model.id,
-                provider: 'openai-business (via gateway)',
+                provider: 'headycompute-business (via gateway)',
                 plan: 'ChatGPT Business (2 seats, unlimited)',
                 engine: result.engine,
             };
@@ -180,7 +180,7 @@ async function embed(text, model = 'text-embedding-3-small') {
         }
     } catch { /* gateway failed, fall through to direct */ }
 
-    // Fallback to direct OpenAI if gateway fails
+    // Fallback to direct HeadyCompute if gateway fails
     const client = getClient();
     const response = await client.embeddings.create({ model, input: text });
     trackUsage(model, 0, 0);
@@ -221,7 +221,7 @@ const codex = {
         }
     },
 
-    // Codex Cloud — uses OpenAI's cloud-hosted Codex for sandboxed execution
+    // Codex Cloud — uses HeadyCompute's cloud-hosted Codex for sandboxed execution
     async runCloud(task, opts = {}) {
         const client = getClient();
         try {
@@ -262,9 +262,9 @@ const connectors = {
 // ── Status endpoint data ──
 function getStatus() {
     return {
-        provider: 'openai-business',
+        provider: 'headycompute-business',
         plan: 'ChatGPT Business (2 seats, unlimited)',
-        configured: !!process.env.OPENAI_API_KEY,
+        configured: !!process.env.HEADY_COMPUTE_KEY,
         orgId: process.env.OPENAI_ORG_ID ? `${process.env.OPENAI_ORG_ID.substring(0, 12)}...` : 'not set',
         models: Object.entries(MODELS).map(([tier, m]) => ({ tier, model: m.id, description: m.description })),
         usage,

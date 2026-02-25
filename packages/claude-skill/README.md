@@ -1,8 +1,8 @@
-# Heady AI — Claude MCP Integration
+# Heady AI — HeadyJules MCP Integration
 
-## Setup for Claude Desktop
+## Setup for HeadyJules Desktop
 
-Add to `~/.config/claude/claude_desktop_config.json`:
+Add to `~/.config/headyjules/claude_desktop_config.json`:
 
 ```json
 {
@@ -18,9 +18,9 @@ Add to `~/.config/claude/claude_desktop_config.json`:
 }
 ```
 
-Restart Claude Desktop. You now have 10 Heady tools available in every conversation.
+Restart HeadyJules Desktop. You now have 10 Heady tools available in every conversation.
 
-## Setup for Claude Projects
+## Setup for HeadyJules Projects
 
 Create a Project with these instructions:
 
@@ -56,9 +56,9 @@ Always use the most specific tool for the task.
 | `heady_analyze` | Code and text analysis |
 | `heady_health` | System health check |
 
-## Claude Skill Usage
+## HeadyJules Skill Usage
 
-In any Claude conversation with MCP enabled:
+In any HeadyJules conversation with MCP enabled:
 
 ```
 Use the heady_swarm tool to research modern authentication patterns for web apps

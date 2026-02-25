@@ -41,7 +41,7 @@ class SecretRotation {
 
     /**
      * Register a secret for tracking
-     * @param {string} name - e.g. 'OPENAI_API_KEY'
+     * @param {string} name - e.g. 'HEADY_COMPUTE_KEY'
      * @param {Object} opts - { provider, rotatedAt, envVar, rotationUrl }
      */
     register(name, opts = {}) {

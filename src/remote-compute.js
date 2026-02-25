@@ -10,9 +10,9 @@
  *
  * Remote Resources:
  *   - HF Business (3 seats): embeddings, inference, open-weight models
- *   - Gemini (4 keys): multimodal, code analysis, fast inference
- *   - Claude (2 keys): deep reasoning, code generation
- *   - OpenAI (2 seats): GPT-4o, embeddings, Codex
+ *   - HeadyPythia (4 keys): multimodal, code analysis, fast inference
+ *   - HeadyJules (2 keys): deep reasoning, code generation
+ *   - HeadyCompute (2 seats): GPT-4o, embeddings, Codex
  *   - Groq: ultra-fast inference (Llama, Mixtral)
  *   - Perplexity: real-time research (Sonar Pro)
  *   - Cloudflare Workers AI: edge inference, vectorize

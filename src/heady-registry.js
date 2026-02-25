@@ -215,8 +215,8 @@ async function fullPopulate() {
 
     const configs = [
         ["heady-api-key", "HEADY_API_KEY"], ["hf-token", "HF_TOKEN"], ["hf-token-2", "HF_TOKEN_2"],
-        ["google-api-key", "GOOGLE_API_KEY"], ["gemini-key-heady", "GEMINI_API_KEY_HEADY"],
-        ["anthropic-key", "ANTHROPIC_API_KEY"], ["openai-key", "OPENAI_API_KEY"],
+        ["google-api-key", "GOOGLE_API_KEY"], ["headypythia-key-heady", "HEADY_PYTHIA_KEY_HEADY"],
+        ["headynexus-key", "HEADY_NEXUS_KEY"], ["headycompute-key", "HEADY_COMPUTE_KEY"],
         ["groq-key", "GROQ_API_KEY"], ["perplexity-key", "PERPLEXITY_API_KEY"],
         ["cloudflare-token", "CLOUDFLARE_API_TOKEN"],
     ];

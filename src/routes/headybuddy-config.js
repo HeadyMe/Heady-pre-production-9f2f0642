@@ -28,11 +28,11 @@ router.get('/', (req, res) => {
         },
         providers: {
             'heady-brain': { label: 'Heady Brain', icon: '🧠', color: '#34d399' },
-            'claude-haiku': { label: 'Claude Haiku', icon: '⚡', color: '#fbbf24' },
-            'claude-sonnet': { label: 'Claude Sonnet', icon: '⬡', color: '#fb923c' },
-            'claude-opus': { label: 'Claude Opus', icon: '🔮', color: '#f472b6' },
+            'headyjules-haiku': { label: 'HeadyJules Haiku', icon: '⚡', color: '#fbbf24' },
+            'headyjules-sonnet': { label: 'HeadyJules Sonnet', icon: '⬡', color: '#fb923c' },
+            'headyjules-opus': { label: 'HeadyJules Opus', icon: '🔮', color: '#f472b6' },
             'gpt-4o': { label: 'GPT-4o', icon: '◆', color: '#10b981' },
-            'gemini': { label: 'Gemini', icon: '✦', color: '#60a5fa' },
+            'headypythia': { label: 'HeadyPythia', icon: '✦', color: '#60a5fa' },
         },
         auth: {
             firebaseEnabled: !!process.env.FIREBASE_API_KEY,
@@ -62,13 +62,13 @@ router.get('/services', async (req, res) => {
     } catch { checks.manager = 'disconnected'; }
 
     try {
-        const ollama = await fetch('http://127.0.0.1:11434/', { signal: AbortSignal.timeout(2000) });
-        checks.ollama = ollama.ok ? 'connected' : 'disconnected';
-    } catch { checks.ollama = 'disconnected'; }
+        const headylocal = await fetch('http://127.0.0.1:11434/', { signal: AbortSignal.timeout(2000) });
+        checks.headylocal = headylocal.ok ? 'connected' : 'disconnected';
+    } catch { checks.headylocal = 'disconnected'; }
 
-    checks.claude = !!process.env.ANTHROPIC_API_KEY ? 'configured' : 'not_configured';
-    checks.openai = !!process.env.OPENAI_API_KEY ? 'configured' : 'not_configured';
-    checks.gemini = !!process.env.GOOGLE_API_KEY ? 'configured' : 'not_configured';
+    checks.headyjules = !!process.env.HEADY_NEXUS_KEY ? 'configured' : 'not_configured';
+    checks.headycompute = !!process.env.HEADY_COMPUTE_KEY ? 'configured' : 'not_configured';
+    checks.headypythia = !!process.env.GOOGLE_API_KEY ? 'configured' : 'not_configured';
 
     res.json({ services: checks, timestamp: new Date().toISOString() });
 });

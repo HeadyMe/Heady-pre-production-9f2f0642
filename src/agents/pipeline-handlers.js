@@ -23,7 +23,7 @@
  * Pipeline Task Handlers
  *
  * Registers concrete task handlers for HCFullPipeline stages.
- * Connects the Supervisor (with Claude Code agent) to the pipeline engine.
+ * Connects the Supervisor (with HeadyJules Code agent) to the pipeline engine.
  *
  * Each task in hcfullpipeline.yaml gets a handler here.
  * The execute-major-phase tasks route through the Supervisor for
@@ -132,7 +132,7 @@ async function ingestExternalApis(context) {
     task: "ingest_external_apis",
     status: "completed",
     result: "External API status check complete",
-    apis: ["render", "github", "huggingface"],
+    apis: ["render", "github", "headyhub"],
   };
 }
 

@@ -9,7 +9,7 @@
  *
  * Arena Mode pits multiple AI nodes against each other on the same task,
  * scores them, and maintains a cumulative leaderboard — similar to
- * Windsurf-Next arena but using the Heady AI node roster.
+ * HeadyAI-IDE-Next arena but using the Heady AI node roster.
  */
 const express = require("express");
 const router = express.Router();
@@ -19,9 +19,9 @@ const battleLog = [];
 const MAX_LOG = 500;
 
 const leaderboard = {
-    "heady-claude": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
+    "heady-headyjules": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
     "heady-codex": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
-    "heady-gemini": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
+    "heady-headypythia": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
     "heady-grok": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
     "heady-perplexity": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
     "heady-copilot": { wins: 0, losses: 0, totalScore: 0, rounds: 0 },
@@ -45,9 +45,9 @@ function scoreNode(nodeId, content) {
     // Deterministic scoring based on content hash + node characteristics
     const hash = [...(content || "")].reduce((s, c) => (s * 31 + c.charCodeAt(0)) | 0, 0);
     const nodeWeights = {
-        "heady-claude": { elegance: 0.95, speed: 0.70, depth: 0.98, security: 0.92 },
+        "heady-headyjules": { elegance: 0.95, speed: 0.70, depth: 0.98, security: 0.92 },
         "heady-codex": { elegance: 0.85, speed: 0.90, depth: 0.88, security: 0.95 },
-        "heady-gemini": { elegance: 0.90, speed: 0.85, depth: 0.92, security: 0.88 },
+        "heady-headypythia": { elegance: 0.90, speed: 0.85, depth: 0.92, security: 0.88 },
         "heady-grok": { elegance: 0.80, speed: 0.75, depth: 0.85, security: 0.97 },
         "heady-perplexity": { elegance: 0.78, speed: 0.92, depth: 0.90, security: 0.80 },
         "heady-copilot": { elegance: 0.82, speed: 0.98, depth: 0.75, security: 0.78 },

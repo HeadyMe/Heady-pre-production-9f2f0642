@@ -14,15 +14,15 @@
 // ║                                                                  ║
 // ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 // ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-// ║  FILE: src/agents/claude-code-agent.js                                                    ║
+// ║  FILE: src/agents/headyjules-code-agent.js                                                    ║
 // ║  LAYER: backend/src                                                  ║
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
 
 /**
- * Claude Code Agent
+ * HeadyJules Code Agent
  *
- * Integrates Claude Code (Anthropic CLI) as a Supervisor agent in HCFullPipeline.
+ * Integrates HeadyJules Code (HeadyNexus CLI) as a Supervisor agent in HCFullPipeline.
  * Registered with the Supervisor for code-generation, analysis, refactoring,
  * architecture, and debugging tasks.
  *
@@ -30,19 +30,19 @@
  *
  * USAGE:
  *   - Supervisor routes code-related tasks to this agent.
- *   - Agent spawns `claude` CLI process with structured prompts.
+ *   - Agent spawns `headyjules` CLI process with structured prompts.
  *   - Returns structured results for aggregation.
  *
  * REQUIREMENTS:
- *   - `claude` CLI installed and authenticated (ANTHROPIC_API_KEY in env)
- *   - Or fallback to Anthropic HTTP API via @heady/networking
+ *   - `headyjules` CLI installed and authenticated (HEADY_NEXUS_KEY in env)
+ *   - Or fallback to HeadyNexus HTTP API via @heady/networking
  */
 
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
-const AGENT_ID = "claude-code";
+const AGENT_ID = "headyjules-code";
 const AGENT_SKILLS = [
   "code-generation",
   "code-analysis",
@@ -62,7 +62,7 @@ class ClaudeCodeAgent {
     this.skills = AGENT_SKILLS;
     this.projectRoot = options.projectRoot || PROJECT_ROOT;
     this.timeoutMs = options.timeoutMs || DEFAULT_TIMEOUT_MS;
-    this.claudeBin = options.claudeBin || "claude";
+    this.claudeBin = options.claudeBin || "headyjules";
     this.model = options.model || "sonnet";
     this.history = [];
     this.totalTokens = 0;
@@ -70,7 +70,7 @@ class ClaudeCodeAgent {
   }
 
   describe() {
-    return `Claude Code Agent: AI-powered code generation, analysis, refactoring, architecture review, and debugging via Claude CLI. Skills: ${this.skills.join(", ")}`;
+    return `HeadyJules Code Agent: AI-powered code generation, analysis, refactoring, architecture review, and debugging via HeadyJules CLI. Skills: ${this.skills.join(", ")}`;
   }
 
   /**
@@ -130,7 +130,7 @@ class ClaudeCodeAgent {
   }
 
   /**
-   * Build a structured prompt for Claude Code based on task type.
+   * Build a structured prompt for HeadyJules Code based on task type.
    */
   _buildPrompt(request, metadata) {
     const context = [
@@ -218,7 +218,7 @@ class ClaudeCodeAgent {
   }
 
   /**
-   * Execute Claude Code CLI with the given prompt.
+   * Execute HeadyJules Code CLI with the given prompt.
    * Falls back to SDK gateway if CLI is not available.
    */
   async _executeClaudeCode(prompt, request) {
@@ -232,7 +232,7 @@ class ClaudeCodeAgent {
   }
 
   /**
-   * Check if `claude` CLI is available on PATH.
+   * Check if `headyjules` CLI is available on PATH.
    */
   async _isClaudeCliAvailable() {
     return new Promise((resolve) => {
@@ -247,7 +247,7 @@ class ClaudeCodeAgent {
   }
 
   /**
-   * Run Claude CLI in non-interactive mode with a prompt.
+   * Run HeadyJules CLI in non-interactive mode with a prompt.
    */
   _runClaudeCli(prompt, request) {
     return new Promise((resolve, reject) => {
@@ -274,7 +274,7 @@ class ClaudeCodeAgent {
 
       const timeout = setTimeout(() => {
         proc.kill("SIGTERM");
-        reject(new Error(`Claude Code timed out after ${this.timeoutMs}ms`));
+        reject(new Error(`HeadyJules Code timed out after ${this.timeoutMs}ms`));
       }, this.timeoutMs);
 
       proc.stdout.on("data", (data) => { stdout += data.toString(); });
@@ -287,7 +287,7 @@ class ClaudeCodeAgent {
       proc.on("close", (code) => {
         clearTimeout(timeout);
         if (code !== 0) {
-          reject(new Error(`Claude Code exited with code ${code}: ${stderr}`));
+          reject(new Error(`HeadyJules Code exited with code ${code}: ${stderr}`));
           return;
         }
 
@@ -312,7 +312,7 @@ class ClaudeCodeAgent {
 
       proc.on("error", (err) => {
         clearTimeout(timeout);
-        reject(new Error(`Failed to start Claude Code: ${err.message}`));
+        reject(new Error(`Failed to start HeadyJules Code: ${err.message}`));
       });
     });
   }
@@ -347,7 +347,7 @@ class ClaudeCodeAgent {
       // Absolute fallback
       return {
         output: [
-          `[Claude Code Agent — Gateway Fallback]`,
+          `[HeadyJules Code Agent — Gateway Fallback]`,
           `Task Type: ${request.taskType || "general"}`,
           `Target: ${request.target || "N/A"}`,
           `Description: ${request.description || request.prompt || "N/A"}`,

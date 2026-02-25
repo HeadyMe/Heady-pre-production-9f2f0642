@@ -219,7 +219,7 @@ class HCFullPipeline extends EventEmitter {
         }
         // Simulate arena — in production, this dispatches to real AI nodes
         const triage = run.stages[1].result;
-        const nodes = triage?.nodePool || ["HeadyCoder", "HeadyClaude"];
+        const nodes = triage?.nodePool || ["HeadyCoder", "HeadyJules"];
         const outputs = nodes.map(node => ({
             node,
             output: `[${node} output for: ${run.request.task || run.request.prompt || "task"}]`,
@@ -295,12 +295,12 @@ class HCFullPipeline extends EventEmitter {
     // ─── Node pool selection ─────────────────────────────────────
     _selectNodePool(taskType) {
         const pools = {
-            code: ["HeadyCoder", "HeadyClaude", "HeadyCodex", "HeadyGemini"],
-            research: ["HeadyPerplexity", "HeadyClaude", "HeadyGemini"],
-            visual: ["HeadyLens", "HeadyGemini", "HeadyOpenAI"],
-            speed: ["HeadyGroq", "HeadyEdgeAI", "HeadyOpenAI"],
-            security: ["HeadyRisks", "HeadyAnalyze", "HeadyClaude"],
-            general: ["HeadyCoder", "HeadyClaude", "HeadyGemini", "HeadyGroq"],
+            code: ["HeadyCoder", "HeadyJules", "HeadyBuilder", "HeadyPythia"],
+            research: ["HeadyResearch", "HeadyJules", "HeadyPythia"],
+            visual: ["HeadyLens", "HeadyPythia", "HeadyCompute"],
+            speed: ["HeadyFast", "HeadyEdgeAI", "HeadyCompute"],
+            security: ["HeadyRisks", "HeadyAnalyze", "HeadyJules"],
+            general: ["HeadyCoder", "HeadyJules", "HeadyPythia", "HeadyFast"],
         };
         return pools[taskType] || pools.general;
     }
