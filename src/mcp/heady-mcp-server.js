@@ -1,9 +1,9 @@
+#!/usr/bin/env node
 /*
  * © 2026 Heady Systems LLC.
  * PROPRIETARY AND CONFIDENTIAL.
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
-#!/usr/bin/env node
 /**
  * ╔══════════════════════════════════════════════════════════════════════╗
  * ║  HEADY MCP SERVER — HeadyAI-IDE Integration Gateway                ║
@@ -25,9 +25,9 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 // ── Configuration ────────────────────────────────────────────────────────────
-const HEADY_MANAGER_URL = process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com';
+const HEADY_MANAGER_URL = process.env.HEADY_MANAGER_URL || 'http://localhost:3301';
 const HEADY_API_KEY = process.env.HEADY_API_KEY || '';
-const HEADY_BRAIN_URL = process.env.HEADY_BRAIN_URL || HEADY_MANAGER_URL; // Route brain calls through manager which has /api/brain/* handlers
+const HEADY_BRAIN_URL = process.env.HEADY_BRAIN_URL || HEADY_MANAGER_URL;
 const NODE_ENV = process.env.NODE_ENV || 'production';
 
 const headers = {

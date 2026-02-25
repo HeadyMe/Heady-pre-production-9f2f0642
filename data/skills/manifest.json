@@ -1,7 +1,7 @@
 {
   "totalDiscovered": 12,
-  "active": 10,
-  "missing": 2,
+  "active": 8,
+  "missing": 4,
   "skills": [
     {
       "name": "vector-search",
@@ -40,22 +40,22 @@
       "status": "active"
     },
     {
-      "name": "gemini-multimodal",
+      "name": "headypythia-multimodal",
       "type": "ai",
       "available": true,
       "status": "active"
     },
     {
-      "name": "claude-reasoning",
+      "name": "headyjules-reasoning",
       "type": "ai",
-      "available": true,
-      "status": "active"
+      "available": false,
+      "status": "missing"
     },
     {
-      "name": "openai-enterprise",
+      "name": "headycompute-enterprise",
       "type": "ai",
-      "available": true,
-      "status": "active"
+      "available": false,
+      "status": "missing"
     },
     {
       "name": "groq-fast",
@@ -76,5 +76,5 @@
       "status": "missing"
     }
   ],
-  "lastScan": "2026-02-25T04:59:40.111Z"
+  "lastScan": "2026-02-25T06:35:45.356Z"
 }

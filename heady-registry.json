@@ -743,194 +743,194 @@
   ],
   "services": [
     {
-      "id": "heady-manager",
-      "name": "heady-manager",
-      "role": "api-gateway",
+      "id": "brain",
+      "name": "heady-brain",
+      "role": "inference",
       "critical": true,
-      "endpoint": "https://headyme.com",
+      "endpoint": "/api/brain/health",
       "lastScanHealthy": true,
-      "lastScanLatencyMs": 4,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
+      "lastScanLatencyMs": 5,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "hcfp-auto-success",
-      "name": "hcfp-auto-success",
-      "role": "background-pipeline",
+      "id": "soul",
+      "name": "heady-soul",
+      "role": "reflection",
       "critical": true,
-      "endpoint": "/",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 6,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "lens-feeder",
-      "name": "lens-feeder",
-      "role": "telemetry-feeder",
-      "critical": false,
-      "endpoint": "/",
+      "endpoint": "/api/soul/health",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 3,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "headybuddy",
-      "name": "site-headybuddy",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9000",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 4,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headysystems",
-      "name": "site-headysystems",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9001",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 3,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headyconnection",
-      "name": "site-headyconnection",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9002",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 3,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headymcp",
-      "name": "site-headymcp",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9003",
+      "id": "conductor",
+      "name": "heady-conductor",
+      "role": "orchestration",
+      "critical": true,
+      "endpoint": "/api/conductor/health",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 2,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "headyio",
-      "name": "site-headyio",
-      "role": "web-frontend",
+      "id": "battle",
+      "name": "heady-battle",
+      "role": "competition",
       "critical": false,
-      "endpoint": "http://127.0.0.1:9004",
+      "endpoint": "/api/battle/health",
       "lastScanHealthy": true,
-      "lastScanLatencyMs": 7,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "headyme",
-      "name": "site-headyme",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9005",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 8,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headybuddy-org",
-      "name": "site-headybuddy-org",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9010",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 7,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headyconnection-org",
-      "name": "site-headyconnection-org",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9011",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 1,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headymcp-com",
-      "name": "site-headymcp-com",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9012",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 5,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headyme-com",
-      "name": "site-headyme-com",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9013",
-      "lastScanHealthy": true,
-      "lastScanLatencyMs": 5,
-      "lastScannedAt": "2026-02-24T19:34:06.548Z"
-    },
-    {
-      "id": "headysystems-com",
-      "name": "site-headysystems-com",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9014",
+      "id": "hcfp",
+      "name": "heady-hcfp",
+      "role": "pipeline",
+      "critical": true,
+      "endpoint": "/api/hcfp/health",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 4,
-      "lastScannedAt": "2026-02-24T19:34:06.549Z"
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "instant",
-      "name": "site-instant",
-      "role": "web-frontend",
-      "critical": false,
-      "endpoint": "http://127.0.0.1:9015",
+      "id": "patterns",
+      "name": "heady-patterns",
+      "role": "resilience",
+      "critical": true,
+      "endpoint": "/api/patterns/health",
       "lastScanHealthy": true,
-      "lastScanLatencyMs": 6,
-      "lastScannedAt": "2026-02-24T19:34:06.549Z"
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "1ime1",
-      "name": "site-1ime1",
-      "role": "web-frontend",
+      "id": "lens",
+      "name": "heady-lens",
+      "role": "differentials",
       "critical": false,
-      "endpoint": "http://127.0.0.1:9016",
+      "endpoint": "/api/lens/health",
       "lastScanHealthy": true,
-      "lastScanLatencyMs": 6,
-      "lastScannedAt": "2026-02-24T19:34:06.549Z"
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "headyweb",
-      "name": "site-headyweb",
-      "role": "web-frontend",
+      "id": "vinci",
+      "name": "heady-vinci",
+      "role": "creative",
       "critical": false,
-      "endpoint": "http://127.0.0.1:3000",
+      "endpoint": "/api/vinci/health",
       "lastScanHealthy": true,
-      "lastScanLatencyMs": 7,
-      "lastScannedAt": "2026-02-24T19:34:06.549Z"
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "admin-ui",
-      "name": "site-admin-ui",
-      "role": "web-frontend",
+      "id": "notion",
+      "name": "heady-notion",
+      "role": "knowledge",
       "critical": false,
-      "endpoint": "http://127.0.0.1:5173",
+      "endpoint": "/api/notion/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "ops",
+      "name": "heady-ops",
+      "role": "operations",
+      "critical": true,
+      "endpoint": "/api/ops/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "maintenance",
+      "name": "heady-maintenance",
+      "role": "housekeeping",
+      "critical": true,
+      "endpoint": "/api/maintenance/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "registry",
+      "name": "heady-registry",
+      "role": "catalog",
+      "critical": true,
+      "endpoint": "/api/registry",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 4,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "auto-success",
+      "name": "heady-auto-success",
+      "role": "background-tasks",
+      "critical": true,
+      "endpoint": "/api/auto-success/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "stream",
+      "name": "heady-stream",
+      "role": "real-time",
+      "critical": false,
+      "endpoint": "/api/stream/clients",
       "lastScanHealthy": true,
       "lastScanLatencyMs": 3,
-      "lastScannedAt": "2026-02-24T19:34:06.549Z"
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     },
     {
-      "id": "heady-memory-edge",
-      "name": "heady-edge-node",
-      "role": "vector-memory-edge",
+      "id": "cloud",
+      "name": "heady-cloud",
+      "role": "cloud-connector",
       "critical": true,
-      "endpoint": "https://heady-edge-node.emailheadyconnection.workers.dev",
+      "endpoint": "/api/cloud/status",
       "lastScanHealthy": true,
-      "lastScanLatencyMs": 12,
-      "lastScannedAt": "2026-02-24T19:34:06.549Z"
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "memory",
+      "name": "heady-memory",
+      "role": "context-store",
+      "critical": false,
+      "endpoint": "/api/memory/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 4,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "config",
+      "name": "heady-config",
+      "role": "configuration",
+      "critical": false,
+      "endpoint": "/api/config/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 3,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "system",
+      "name": "heady-system",
+      "role": "system-info",
+      "critical": false,
+      "endpoint": "/api/system/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 2,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
+    },
+    {
+      "id": "nodes",
+      "name": "heady-nodes",
+      "role": "ai-node-registry",
+      "critical": false,
+      "endpoint": "/api/nodes/health",
+      "lastScanHealthy": true,
+      "lastScanLatencyMs": 3,
+      "lastScannedAt": "2026-02-25T06:16:44.803Z"
     }
   ],
   "cloudProviders": {
@@ -947,7 +947,7 @@
       ]
     },
     "google": {
-      "status": "active",
+      "status": "configured",
       "services": [
         "Vertex AI",
         "Cloud Run",
@@ -973,70 +973,56 @@
     }
   },
   "patternsSummary": {
-    "circuitBreakers": 16,
-    "pools": 5,
-    "caches": 5,
-    "rateLimiters": 5,
-    "retryPolicies": 1
+    "circuitBreakers": 5,
+    "pools": 3,
+    "caches": 2
   },
   "bestPracticeScores": {
     "resilience": {
       "name": "Circuit Breaker Coverage",
-      "score": 1,
-      "optimal": true,
-      "recommendation": "16 breakers registered: brain, soul, conductor, hcfp, patterns, ops, maintenance, registry, auto-success, cloud, edge-ai, claude, codex, gemini, perplexity, grok"
+      "score": 0,
+      "optimal": false,
+      "recommendation": "Add circuit breakers for: brain, soul, conductor, hcfp, patterns, ops, maintenance, registry, auto-success, cloud"
     },
     "caching": {
       "name": "Hot/Cold Cache Utilization",
-      "score": 1,
-      "optimal": true,
-      "recommendation": "5 named caches active: conductor (5s), registry (30s), patterns (2min), ai (10s), health (15s)"
+      "score": 0,
+      "optimal": false,
+      "recommendation": "Consider adding caches for: conductor-polls, registry-lookups, pattern-evaluations"
     },
     "pooling": {
       "name": "Connection Pool Optimization",
-      "score": 1,
-      "optimal": true,
-      "recommendation": "5 pools active: cloud (8), file (20), ai (6), edge (15), database (10)"
+      "score": 0,
+      "optimal": false,
+      "recommendation": "Add pools for: cloud-requests, file-operations"
     },
     "monitoring": {
       "name": "Service Health Monitoring",
       "score": 1,
       "optimal": true,
-      "recommendation": "All services reporting healthy — /api/resilience/status endpoint live"
+      "recommendation": "All services reporting healthy"
     },
     "redundancy": {
       "name": "Failover & Graceful Degradation",
       "score": 1,
       "optimal": true,
-      "recommendation": "Full redundancy active — circuit breakers + retry with exponential backoff"
+      "recommendation": "Full redundancy active — system self-heals"
     },
     "cloudCoverage": {
       "name": "External Cloud Integration",
-      "score": 1,
-      "optimal": true,
-      "recommendation": "All providers active — google (Vertex/Run) verified"
+      "score": 0.75,
+      "optimal": false,
+      "recommendation": "Configure inactive providers: google"
     },
     "autoSuccess": {
       "name": "Background Task Engine Coverage",
       "score": 1,
       "optimal": true,
       "recommendation": "Auto-Success 100 is cycling — system continuously improving"
-    },
-    "security": {
-      "name": "Security Hardening",
-      "score": 1,
-      "optimal": true,
-      "recommendation": "Full fidelity: Pre-commit hook, secret rotation, mTLS handshake, CSP, structured errors, secrets manifest."
-    },
-    "rateLimiting": {
-      "name": "Rate Limiting Coverage",
-      "score": 1,
-      "optimal": true,
-      "recommendation": "5 tiered limiters: api (100/min), ai (20/min), auth (10/5min), public (200/min), webhook (50/min)"
     }
   },
-  "overallSystemScore": 1,
-  "lastDeepScan": "2026-02-24T22:12:00.000Z",
+  "overallSystemScore": 0.54,
+  "lastDeepScan": "2026-02-25T06:16:44.803Z",
   "nodes": {
     "heady-promoter": {
       "name": "HeadyPromoter",

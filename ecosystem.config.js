@@ -63,6 +63,13 @@ module.exports = {
         { name: 'site-instant', script: SERVE, args: '-s dist -l 9015 --no-clipboard', cwd: '/home/headyme/sites/instant', max_memory_restart: SITE_MEM, autorestart: true },
         { name: 'site-1ime1', script: SERVE, args: '-s dist -l 9016 --no-clipboard', cwd: '/home/headyme/sites/1ime1', max_memory_restart: SITE_MEM, autorestart: true },
 
+        // ═══ New Sites (Docs, API, OS, Discord) ══════════════════════
+        { name: 'site-headyapi', script: SERVE, args: '-s dist -l 9006 --no-clipboard', cwd: '/home/headyme/sites/headyapi', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-headyos', script: SERVE, args: '-s dist -l 9007 --no-clipboard', cwd: '/home/headyme/sites/headyos', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-heady-discord', script: SERVE, args: '-s dist -l 9008 --no-clipboard', cwd: '/home/headyme/sites/heady-discord', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-heady-discord-connection', script: SERVE, args: '-s dist -l 9009 --no-clipboard', cwd: '/home/headyme/sites/heady-discord-connection', max_memory_restart: SITE_MEM, autorestart: true },
+        { name: 'site-headydocs', script: SERVE, args: '-s dist -l 9020 --no-clipboard', cwd: '/home/headyme/sites/headydocs', max_memory_restart: SITE_MEM, autorestart: true },
+
         // ═══ App Sites ═══════════════════════════════════════════════
         { name: 'site-headyweb', script: SERVE, args: '-s dist -l 3000 --no-clipboard', cwd: '/home/headyme/sites/headyweb', max_memory_restart: SITE_MEM, autorestart: true },
         { name: 'site-admin-ui', script: SERVE, args: '-s dist -l 5173 --no-clipboard', cwd: '/home/headyme/sites/admin-ui', max_memory_restart: SITE_MEM, autorestart: true },

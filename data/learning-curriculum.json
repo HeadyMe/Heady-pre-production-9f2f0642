@@ -304,5 +304,80 @@
     "learnedAt": "2026-02-25T03:45:17.556Z",
     "provider": "heady-cloud-fallback",
     "responseLength": 2348
+  },
+  {
+    "topic": "Multi-provider API orchestration patterns with circuit breakers and adaptive routing",
+    "category": "architecture",
+    "priority": 1,
+    "learned": true,
+    "learnedAt": "2026-02-25T05:25:05.695Z",
+    "provider": "heady-multimodal",
+    "responseLength": 1343
+  },
+  {
+    "topic": "Vector database scaling and sharding strategies for high-dimensional embeddings",
+    "category": "infrastructure",
+    "priority": 1,
+    "learned": true,
+    "learnedAt": "2026-02-25T05:25:47.074Z",
+    "provider": "heady-reasoning",
+    "responseLength": 5069
+  },
+  {
+    "topic": "WebRTC signaling architecture and TURN/STUN server deployment for real-time voice",
+    "category": "infrastructure",
+    "priority": 1,
+    "learned": true,
+    "learnedAt": "2026-02-25T05:26:27.820Z",
+    "provider": "heady-reasoning",
+    "responseLength": 6062
+  },
+  {
+    "topic": "Embedding model selection and fine-tuning for domain-specific vector memory",
+    "category": "ai",
+    "priority": 2,
+    "learned": false
+  },
+  {
+    "topic": "Edge computing deployment with Kubernetes multi-cluster federation",
+    "category": "infrastructure",
+    "priority": 2,
+    "learned": false
+  },
+  {
+    "topic": "API rate limiting and cost optimization across multiple LLM providers",
+    "category": "performance",
+    "priority": 1,
+    "learned": true,
+    "learnedAt": "2026-02-25T05:27:09.101Z",
+    "provider": "heady-reasoning",
+    "responseLength": 7462
+  },
+  {
+    "topic": "End-to-end encryption for voice streams and vector data at rest",
+    "category": "security",
+    "priority": 1,
+    "learned": true,
+    "learnedAt": "2026-02-25T05:28:01.773Z",
+    "provider": "heady-reasoning",
+    "responseLength": 6545
+  },
+  {
+    "topic": "Approximate nearest neighbor algorithms optimization for sub-millisecond retrieval",
+    "category": "performance",
+    "priority": 2,
+    "learned": false
+  },
+  {
+    "topic": "Graceful degradation strategies for AI model failures and provider outages",
+    "category": "architecture",
+    "priority": 2,
+    "learned": false
+  },
+  {
+    "topic": "Real-time audio processing pipelines with noise cancellation and speech enhancement",
+    "category": "ai",
+    "priority": 3,
+    "learned": false
   }
 ]

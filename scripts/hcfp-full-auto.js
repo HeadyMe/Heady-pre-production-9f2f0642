@@ -3,7 +3,6 @@
  * PROPRIETARY AND CONFIDENTIAL.
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
-#!/usr/bin/env node
 /**
  * ═══ HCFP Full Auto — HeadySwarm Bootstrap ═══
  *

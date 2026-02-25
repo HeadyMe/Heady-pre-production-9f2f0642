@@ -1,6 +1,6 @@
 {
-  "cycleCount": 5809,
-  "lastRun": "2026-02-25T04:59:40.111Z",
+  "cycleCount": 6024,
+  "lastRun": "2026-02-25T06:35:45.356Z",
   "routingWeights": {
     "hf": 1,
     "gemini": 1,
@@ -47,22 +47,22 @@
       "status": "active"
     },
     {
-      "name": "gemini-multimodal",
+      "name": "headypythia-multimodal",
       "type": "ai",
       "available": true,
       "status": "active"
     },
     {
-      "name": "claude-reasoning",
+      "name": "headyjules-reasoning",
       "type": "ai",
-      "available": true,
-      "status": "active"
+      "available": false,
+      "status": "missing"
     },
     {
-      "name": "openai-enterprise",
+      "name": "headycompute-enterprise",
       "type": "ai",
-      "available": true,
-      "status": "active"
+      "available": false,
+      "status": "missing"
     },
     {
       "name": "groq-fast",
@@ -107,7 +107,7 @@
     },
     {
       "name": "sdk-hf",
-      "protocol": "@huggingface/inference",
+      "protocol": "@headyhub/inference",
       "latency": "varies",
       "ready": true,
       "status": "connected"
@@ -120,11 +120,11 @@
       "status": "connected"
     },
     {
-      "name": "sdk-anthropic",
-      "protocol": "@anthropic-ai/sdk",
+      "name": "sdk-headynexus",
+      "protocol": "@headynexus-ai/sdk",
       "latency": "~800ms",
-      "ready": true,
-      "status": "connected"
+      "ready": false,
+      "status": "available"
     },
     {
       "name": "edge-worker",
@@ -144,8 +144,13 @@
   "improvements": [
     {
       "type": "skill_gap",
-      "message": "2 skills missing: groq-fast, notion-sync",
+      "message": "4 skills missing: headyjules-reasoning, headycompute-enterprise, groq-fast, notion-sync",
       "priority": "medium"
+    },
+    {
+      "type": "connector_gap",
+      "message": "1 connectors not wired",
+      "priority": "low"
     }
   ],
   "started": 1771917094391

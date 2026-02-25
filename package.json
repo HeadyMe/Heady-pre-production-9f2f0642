@@ -2,6 +2,7 @@
   "name": "heady-systems",
   "version": "3.0.0",
   "description": "Heady Systems - Sacred Geometry :: Organic Systems :: Breathing Interfaces",
+  "type": "module",
   "main": "heady-manager.js",
   "scripts": {
     "start:mcp": "node backend/app.js",

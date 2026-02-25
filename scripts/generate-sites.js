@@ -261,6 +261,7 @@ function generateSite(site) {
           <a href="#" class="active">Ecosystem</a>
           <a href="https://headyio.com">Developers</a>
           <a href="https://headymcp.com">Marketplace</a>
+          <a href="https://headyio.com/downloads.html" style="color: var(--accent); font-weight: 700;">Downloads</a>
         </nav>
       </header>
 
@@ -405,4 +406,232 @@ for (const site of allSites) {
   console.log(`✅ ${site.id.padEnd(25)} → ${distDir}/index.html (${(html.length / 1024).toFixed(1)} KB)`);
 }
 
+// ── Generate Downloads Hub ───────────────────────────────────────────
+function generateDownloadsPage() {
+  const site = sites.find(s => s.id === 'headyio');
+  const [g1, g2] = site.gradient;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heady Downloads — SDKs, Tools & Clients</title>
+  <meta name="description" content="Download HeadyBuddy desktop apps, Hive SDKs, CLI tools, and architecture blueprints.">
+  <meta name="theme-color" content="${g1}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📥</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --g1: ${g1}; --g2: ${g2}; --accent: ${site.accent};
+      --bg: #000000; --surface: rgba(15,15,20,0.18);
+      --text: #e2e8f0; --text-muted: rgba(255,255,255,0.6); --border: rgba(255,255,255,0.06);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background: #000000; color: var(--text); line-height: 1.6; overflow-x: hidden; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    #cosmic-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    .site-wrap { position: relative; z-index: 10; display: flex; flex-direction: column; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    
+    header { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+    .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-title { font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; text-shadow: 0 0 10px rgba(96,165,250,0.4); }
+    .logo-sub { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 0.15em; text-transform: uppercase; }
+    nav { display: flex; gap: 8px; background: rgba(20,20,25,0.12); padding: 6px; border-radius: 100px; backdrop-filter: blur(10px); border: 1px solid var(--border); }
+    nav a { padding: 6px 16px; border-radius: 50px; font-size: 0.75rem; font-weight: 500; color: var(--text-muted); text-decoration: none; transition: all 0.3s; }
+    nav a:hover, nav a.active { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
+
+    .hero { padding: 80px 0 40px; text-align: center; }
+    .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; color: var(--accent); margin-bottom: 1rem; letter-spacing: -0.03em; }
+    .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2rem; }
+
+    .dl-section { padding: 40px 0; }
+    .dl-category { margin-bottom: 40px; }
+    .dl-category h2 { font-size: 1.2rem; font-weight: 600; color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    
+    .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .dl-card { background: var(--surface); padding: 24px; border-radius: 20px; border: 1px solid var(--border); backdrop-filter: blur(12px); display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s; }
+    .dl-card:hover { transform: translateY(-3px); border-color: rgba(96,165,250,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .dl-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+    .dl-icon { font-size: 2rem; }
+    .dl-title { font-weight: 700; color: #fff; font-size: 1.1rem; }
+    .dl-version { font-size: 0.7rem; color: var(--accent); background: rgba(96,165,250,0.1); padding: 2px 8px; border-radius: 10px; margin-left: 8px; }
+    .dl-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; flex-grow: 1; }
+    
+    .dl-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.05); color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all 0.2s; border: 1px solid var(--border); width: 100%; }
+    .dl-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+    
+    footer { padding: 40px 0; text-align: center; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 60px; }
+  </style>
+</head>
+<body>
+  <canvas id="cosmic-canvas"></canvas>
+  <div class="site-wrap">
+    <div class="container">
+      <header>
+        <a class="logo-wrap" href="index.html">
+          <div class="logo-title">HeadyIO</div>
+          <div class="logo-sub">Downloads Hub</div>
+        </a>
+        <nav>
+          <a href="https://headyme.com">Ecosystem</a>
+          <a href="https://headyio.com">Developers</a>
+          <a href="https://headymcp.com">Marketplace</a>
+          <a href="#" class="active" style="color: var(--accent); font-weight: 700;">Downloads</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <h1>Heady Downloads Hub</h1>
+        <p>Get the latest HeadyBuddy desktop clients, Hive SDKs, CLI tools, and official platform blueprints.</p>
+      </section>
+
+      <section class="dl-section">
+        <div class="dl-category">
+          <h2>🐝 HeadyBuddy Clients</h2>
+          <div class="dl-grid">
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">🍎</div>
+                  <div><span class="dl-title">macOS Client</span><span class="dl-version">v3.2.1</span></div>
+                </div>
+                <p class="dl-desc">Official HeadyBuddy app for Apple Silicon (M1/M2/M3) and Intel Macs. Includes system tray integration and voice relay.</p>
+              </div>
+              <a href="#" class="dl-btn">Download for macOS (.dmg)</a>
+            </div>
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">🪟</div>
+                  <div><span class="dl-title">Windows Client</span><span class="dl-version">v3.2.1</span></div>
+                </div>
+                <p class="dl-desc">Official HeadyBuddy app for Windows 11. Includes global hotkeys, taskbar integration, and cross-device sync.</p>
+              </div>
+              <a href="#" class="dl-btn">Download for Windows (.exe)</a>
+            </div>
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">🐧</div>
+                  <div><span class="dl-title">Linux AppImage</span><span class="dl-version">v3.2.1</span></div>
+                </div>
+                <p class="dl-desc">Universal AppImage for Debian, Ubuntu, Fedora, and Arch Linux. Built for developers with heavy terminal workflows.</p>
+              </div>
+              <a href="#" class="dl-btn">Download AppImage</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="dl-category">
+          <h2>💻 Developer Tools & SDKs</h2>
+          <div class="dl-grid">
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">⚡</div>
+                  <div><span class="dl-title">Heady CLI</span><span class="dl-version">v2.8.0</span></div>
+                </div>
+                <p class="dl-desc">The official command-line interface for Heady. Deploy configurations, manage edge workers, and interact with the Swarm.</p>
+              </div>
+              <a href="#" class="dl-btn">npm install -g heady-cli</a>
+            </div>
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">🧰</div>
+                  <div><span class="dl-title">Hive SDK (Node.js)</span><span class="dl-version">v1.5.0</span></div>
+                </div>
+                <p class="dl-desc">Integrate 20-node federated routing and Proof View receipts into your JavaScript/TypeScript applications.</p>
+              </div>
+              <a href="#" class="dl-btn">npm install @heady/hive-sdk</a>
+            </div>
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">🐍</div>
+                  <div><span class="dl-title">Hive SDK (Python)</span><span class="dl-version">v1.2.0</span></div>
+                </div>
+                <p class="dl-desc">Python bindings for the Heady Brain API. Perfect for data science and AI pipeline integrations.</p>
+              </div>
+              <a href="#" class="dl-btn">pip install heady-hive</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="dl-category">
+          <h2>📄 Architecture & Resources</h2>
+          <div class="dl-grid">
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">🗺️</div>
+                  <div><span class="dl-title">System Blueprint V3</span></div>
+                </div>
+                <p class="dl-desc">High-resolution architecture diagram of the 20-node Heady ecosystem, federated routing, and PQC mesh.</p>
+              </div>
+              <a href="#" class="dl-btn">Download Blueprint (PDF)</a>
+            </div>
+            <div class="dl-card">
+              <div>
+                <div class="dl-header">
+                  <div class="dl-icon">🎨</div>
+                  <div><span class="dl-title">Brand UI Kit</span></div>
+                </div>
+                <p class="dl-desc">Figma UI kit containing sacred geometry assets, color palettes, and component libraries for all Heady properties.</p>
+              </div>
+              <a href="#" class="dl-btn">Get Figma UI Kit</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        © 2026 Heady Systems LLC — ∞ SACRED GEOMETRY ∞ — Downloads Hub
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+        const canvas = document.getElementById('cosmic-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, cx, cy, stars = [], time = 0;
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            cx = width / 2; cy = height / 2;
+            stars = [];
+            const n = (width * height) / 4000;
+            for(let i=0; i<n; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, z: Math.random() * 2, size: Math.random() * 1.5, speed: Math.random() * 0.005 + 0.002, offset: Math.random() * Math.PI * 2 });
+        }
+        function drawStars() {
+            ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, width, height);
+            stars.forEach(s => {
+                s.y -= s.z * 0.2; s.x += s.z * 0.1;
+                if(s.y < 0) s.y = height; if(s.x > width) s.x = 0;
+                const b = Math.sin(time * s.speed + s.offset) * 0.5 + 0.5;
+                ctx.fillStyle = 'rgba(255,255,255,' + (b * 0.6) + ')';
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
+            });
+        }
+        function animate() { time++; drawStars(); requestAnimationFrame(animate); }
+        window.addEventListener('resize', resize); resize(); animate();
+    })();
+  </script>
+</body>
+</html>`;
+}
+
+const downloadsHtml = generateDownloadsPage();
+for (const dirName of ['headyio', 'headyio-com']) {
+  const p = path.join(SITES_DIR, dirName, 'dist', 'downloads.html');
+  if (fs.existsSync(path.dirname(p))) {
+    fs.writeFileSync(p, downloadsHtml);
+    console.log(`✅ Generated Downloads Hub → ${p}`);
+  }
+}
+
 console.log(`\n🎯 Generated ${count} SACRED GEOMETRY sites in ${SITES_DIR}`);
+

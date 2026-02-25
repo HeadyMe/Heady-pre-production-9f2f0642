@@ -144,7 +144,7 @@ tasks:
     description: "Complex planning, architecture decisions, strategic analysis"
     preferred_providers:
       - openai_o1_pro
-      - claude_code_enterprise
+      - claude_max
     fallback_providers:
       - openai_gpt4o
     max_tokens: 32768
@@ -155,7 +155,7 @@ tasks:
   code_generation:
     description: "Code creation, refactoring, multi-file edits, debugging"
     preferred_providers:
-      - claude_code_enterprise
+      - claude_max
     fallback_providers:
       - openai_gpt4o
       - ollama_codellama_13b
@@ -167,7 +167,7 @@ tasks:
   long_context_analysis:
     description: "Repository analysis, multi-notebook processing, document review"
     preferred_providers:
-      - claude_code_enterprise
+      - claude_max
     fallback_providers:
       - gemini_ultra
     max_tokens: 1000000
@@ -190,7 +190,7 @@ tasks:
     description: "Vision, audio, document processing, image analysis"
     preferred_providers:
       - gemini_ultra
-      - claude_code_enterprise
+      - claude_max
     fallback_providers:
       - openai_gpt4o
     max_tokens: 16384
@@ -202,7 +202,7 @@ tasks:
     description: "Performance tuning, resource allocation, config adjustments"
     preferred_providers:
       - openai_o1_pro
-      - claude_code_enterprise
+      - claude_max
     fallback_providers:
       - openai_gpt4o
     max_tokens: 16384
@@ -213,7 +213,7 @@ tasks:
   error_analysis:
     description: "Debugging, log analysis, incident investigation"
     preferred_providers:
-      - claude_code_enterprise
+      - claude_max
       - openai_gpt4o
     fallback_providers:
       - ollama_codellama_13b
