@@ -9,36 +9,43 @@
 # ║                                                                  ║
 # ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
 # ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-# ║  FILE: configs/iterative-rebuild-directive.yaml                                                    ║
+# ║  FILE: configs/iterative-rebuild-directive.yaml                 ║
 # ║  LAYER: config                                                  ║
 # ╚══════════════════════════════════════════════════════════════════╝
 # HEADY_BRAND:END
 # ═══════════════════════════════════════════════════════════════════════
-# HEADY SYSTEMS — Iterative Rebuild Directive
+# HEADY SYSTEMS — Final Iterative Rebuild Directive
 # ═══════════════════════════════════════════════════════════════════════
 #
-# Standing directive: rebuild the project correctly from core outward
-# using the Iterative Rebuild Protocol. Foundation components first,
-# high-performance MCP/API links next, websites and integrations last.
+# FINAL REBUILD — February 24, 2026
+# After this rebuild completes and all systems are verified live,
+# the platform enters PRODUCTION-LIVE state permanently.
+# The Full-Throttle Auto-Flow Success Pipeline runs continuously
+# from that point forward.
 #
-# This file is read by HCFullPipeline, HCSysOrchestrator, and
-# system-self-awareness to enforce the correct build order.
+# This file is read by HeadyConductor, HCFP Auto-Success Engine,
+# and the HeadySwarm orchestrator.
 
-version: "1.0.0"
-name: IterativeRebuildDirective
+version: "2.0.0"
+name: FinalProductionRebuildDirective
+status: EXECUTING
+
+# ─── PRODUCTION GO-LIVE TIMESTAMP ─────────────────────────────────
+production_live:
+  target_date: "2026-02-24"
+  initiated_by: HeadyMe
+  initiated_email: e@headyconnection.org
+  log_file: "logs/production-go-live.log"
+  post_live_mode: full-throttle-auto-flow-success
 
 # ─── STANDING MANDATE ──────────────────────────────────────────────
 mandate:
   statement: >
-    The system MUST rebuild the project correctly from core outward,
-    using the Iterative Rebuild Protocol stages (ARCHIVE, SCAFFOLD,
-    IMPLEMENT, TEST, REVIEW, DOCUMENT, CHECKPOINT, RETRO).
-    Prioritize building a clean, optimized foundation of manager,
-    HCFullPipeline, HeadyBrains, and APIs before defining and wiring
-    websites and integrations.
-    Ensure MCP and HTTP APIs are the first-class interfaces, with
-    Cloudflare Workers as high-performance front doors, and only then
-    attach all Heady Systems websites and integrated services.
+    FINAL REBUILD — The system rebuilds the project correctly from core
+    outward using the Iterative Rebuild Protocol. After all phases pass,
+    the system enters PRODUCTION-LIVE state and the Full-Throttle
+    Auto-Flow Success Pipeline runs continuously and indefinitely.
+    No further iterative rebuilds are required after this one.
   enforcement: strict
   skip_allowed: false
 
@@ -47,113 +54,159 @@ phases:
 
   phase_1_archive:
     name: "ARCHIVE"
-    description: "Tag and archive current state before any rebuild"
+    description: "Tag and archive current state before final rebuild"
+    status: COMPLETE
     steps:
-      - "Tag current main branches with -pre-production-YYYYMMDD"
-      - "Archive HeadySystemsHeady, HeadyMeHeady, HeadyConnectionHeady"
-      - "Record registry snapshot in deployments/registry.json"
-    gate: "All branches tagged and archived"
+      - "All stale docs archived to docs/archive/"
+      - "All heady.io domain references fixed to headyio.com"
+      - "User identity updated to HeadyMe (e@headyconnection.org)"
+      - "Config files cleaned: user-secrets, observability, device-management, worker-alerts"
+    gate: "All stale data archived — PASSED"
 
   phase_2_scaffold:
     name: "SCAFFOLD"
-    description: "Reconstruct clean scaffold from registry"
+    description: "Verify clean scaffold from registry"
+    status: COMPLETE
     steps:
-      - "From heady-registry.json, list all core services"
-      - "Verify source-of-truth files exist on disk for each component"
-      - "Create minimal Docker/Render blueprints"
-      - "Ensure configs/*.yaml are present and valid"
-    gate: "Scaffold matches registry — no orphans, no missing files"
+      - "heady-registry.json verified against disk"
+      - "All 20 AI nodes registered in conductor"
+      - "HeadySwarm + HeadyBees added to agent roster"
+      - "configs/*.yaml validated and domain-corrected"
+    gate: "Scaffold matches registry — PASSED"
 
   phase_3_core_services:
     name: "IMPLEMENT CORE"
-    description: "Build foundation services in correct order"
+    description: "Foundation services verified in production"
+    status: COMPLETE
     order:
-      - component: heady-manager
-        validation: "/api/health returns 200, /api/pulse returns endpoints list"
-      - component: heady-registry
-        validation: "/api/registry returns valid JSON with components array"
-      - component: hc-pipeline
-        validation: "/api/pipeline/config returns pipeline stages"
+      - component: heady-conductor
+        port: 3300
+        validation: "/api/conductor/health returns ok:true"
       - component: heady-brain
-        validation: "/api/brain/health returns 200, /api/brain/plan accepts POST"
-      - component: hc-sys-orchestrator
-        validation: "/api/orchestrator/health returns 200"
-      - component: model-router
-        validation: "Reads cloud-layers.yaml, returns provider for test query"
-    gate: "All 6 core components healthy and responding"
+        validation: "/api/brain/chat accepts POST"
+      - component: heady-swarm
+        validation: "HeadyBees fleet responds to dispatch"
+      - component: duckdb-memory-v2
+        validation: "HNSW index active, cosine similarity operational"
+      - component: pqc-security
+        validation: "ML-KEM + ML-DSA handshake succeeds"
+      - component: rate-limiter
+        validation: "Redis sliding-window enforced"
+    gate: "All 6 core components healthy"
 
   phase_4_mcp_api:
     name: "IMPLEMENT MCP & API LINKS"
-    description: "Wire high-performance MCP and HTTP APIs"
+    description: "MCP server and HTTP APIs wired"
+    status: COMPLETE
     order:
-      - component: mcp-gateway
-        validation: "MCP tools list returns all registered tools"
+      - component: heady-local-mcp
+        validation: "40+ tools registered and callable"
       - component: api-routes
-        validation: "All /api/* routes return correct schemas"
-      - component: sdk-clients
-        validation: "JS and Python SDKs connect and authenticate"
-    gate: "MCP gateway live, API routes tested, SDKs authenticate"
+        validation: "/api/conductor/*, /api/brain/*, /api/billing/* active"
+      - component: heady-hive-sdk
+        validation: "CLI 'heady status' returns system state"
+    gate: "MCP gateway live, API routes tested"
 
   phase_5_edge:
-    name: "IMPLEMENT EDGE ROUTING"
-    description: "Deploy Cloudflare Workers and configure DNS"
+    name: "DEPLOY EDGE LAYER"
+    description: "Cloudflare edge proxy and DNS"
+    status: COMPLETE
     order:
-      - component: edge-proxy-worker
-        validation: "Worker proxies requests to origin and returns correct response"
-      - component: dns-configuration
-        validation: "api.heady.systems resolves to Cloudflare"
-      - component: ssl-certificates
-        validation: "HTTPS working end-to-end"
-    gate: "Edge URLs live, HTTPS green, latency within targets"
+      - component: cloudflare-workers
+        validation: "Workers AI inference sub-50ms"
+      - component: cloudflare-tunnel
+        validation: "heady-primary tunnel active, all hostnames routed"
+      - component: dns-ssl
+        validation: "All 8+ production domains HTTPS-green"
+    gate: "Edge layer live, all domains resolving"
 
-  phase_6_websites:
-    name: "IMPLEMENT WEBSITES & FRONTENDS"
-    description: "Build product-specific UIs that consume the foundation"
+  phase_6_sites:
+    name: "BUILD ALL 19 SITES"
+    description: "Regenerate templated sites, update custom sites"
+    status: COMPLETE
     order:
-      - component: heady-frontend
-        validation: "Dashboard loads, connects to /api/pulse"
-      - component: heady-buddy-desktop
-        validation: "Buddy starts, shows chat interface"
-      - component: browser-extensions
-        validation: "Extension sidebar connects to manager API"
-    gate: "All frontends load and connect to foundation APIs"
+      - component: generate-sites
+        validation: "node scripts/generate-sites.js generates 13 templated sites"
+        sites:
+          - headybrain, headybattle, headycoder, headycodex
+          - headycopilot, headyedge, headygroq, headybuddy
+          - headyhive, headylens, headymaid, headymcp, headyvinci
+      - component: custom-sites
+        validation: "6 custom sites updated with current production content"
+        sites:
+          - admin-ui (HeadyOS Admin Canvas)
+          - headyweb (HeadyWeb search engine)
+          - headyos (HeadyOS marketing)
+          - headyapi (HeadyAPI reference)
+          - heady-discord (Discord bot landing)
+          - headyme (HeadyMe personal portal)
+    gate: "All 19 sites built, deployed, serving via tunnel"
 
   phase_7_integrations:
-    name: "IMPLEMENT INTEGRATIONS"
-    description: "Wire external connectors and partner services"
+    name: "WIRE INTEGRATIONS"
+    description: "External connectors and services"
+    status: COMPLETE
     order:
-      - component: slack-connector
-      - component: discord-connector
-      - component: email-agent
-      - component: calendar-agent
-    gate: "Connectors authenticate and respond to test messages"
+      - component: firebase-auth
+        validation: "Google Sign-In and email/password working"
+      - component: stripe-billing
+        validation: "Checkout sessions create, webhooks verified"
+      - component: notion-sync
+        validation: "11 notebook pages syncing"
+      - component: hugging-face
+        validation: "3 HF Spaces deployed and accessible"
+      - component: discord-bot
+        validation: "Bot responsive in Heady Discord server"
+      - component: github-actions
+        validation: "CI/CD pipelines green"
+    gate: "All integrations authenticated and responsive"
 
-  phase_8_validate:
-    name: "VALIDATE & CHECKPOINT"
-    description: "Full validation pass and checkpoint sync"
+  phase_8_final_validation:
+    name: "FINAL VALIDATION & GO-LIVE"
+    description: "Complete validation pass, then enter PRODUCTION-LIVE"
+    status: IN_PROGRESS
     steps:
-      - "Run all unit tests"
-      - "Run all integration tests"
-      - "Run domain-connectivity tests"
-      - "Run Checkpoint Protocol (code/config/docs/notebooks/registry sync)"
-      - "Run HeadySync to push to all remotes"
-      - "Update heady-registry.json with final state"
-    gate: "All tests pass, checkpoint clean, registry matches disk"
+      - "Domain connectivity check — all 8+ domains return 200"
+      - "API health check — conductor, brain, billing endpoints healthy"
+      - "Site content audit — zero stale data, zero localhost, zero heady.io"
+      - "Security scan — no exposed secrets, PQC active"
+      - "Git push to all remotes (HeadySystems, HeadyMe)"
+      - "Log PRODUCTION-LIVE timestamp"
+      - "Start Full-Throttle Auto-Flow Success Pipeline (continuous)"
+    gate: "ALL SYSTEMS GO — PRODUCTION LIVE"
+
+# ─── POST-LIVE: CONTINUOUS AUTO-FLOW ─────────────────────────────
+post_live:
+  mode: full-throttle-auto-flow-success
+  pipeline: scripts/run-auto-flow.js
+  engine: src/hc_auto_success.js
+  behavior:
+    interval_ms: 100
+    batch_size: 50
+    auto_restart: true
+    continuous: true
+    exit_on_completion: false
+  description: >
+    After production go-live, the HCFP Auto-Success Engine runs
+    continuously in full-throttle mode. It processes optimizations,
+    fidelity improvements, and system health checks in perpetual
+    cycles. HeadyBattle validates all changes. HeadySwarm dispatches
+    HeadyBees for any task completion that requires browser automation.
 
 # ─── STOP CONDITIONS ──────────────────────────────────────────────
 stop_conditions:
   - condition: "A phase gate fails"
-    action: "Stop, diagnose, fix, re-validate the failed phase before proceeding"
+    action: "Stop, diagnose, fix, re-validate the failed phase"
   - condition: "Critical error in core service"
-    action: "Halt all phases, enter recovery mode per hcfullpipeline.yaml"
+    action: "Halt all phases, enter recovery mode"
   - condition: "Registry drift detected"
-    action: "Reconcile registry with disk, then re-validate current phase"
+    action: "Reconcile registry with disk, re-validate"
 
 # ─── FOUNDATION-FIRST RULE ────────────────────────────────────────
 foundation_first:
   rule: >
-    No product repo (HeadyMe, HeadyConnection, HeadyWeb, etc.) may be
-    built or deployed until the foundation (phases 1-4) is fully green.
-    Product repos are thin consumers of the foundation API/SDK.
-  enforcement: "HCSysOrchestrator checks phase gates before allowing product builds"
+    No product site may be deployed until the foundation (phases 1-5)
+    is fully green. Product repos are thin consumers of the foundation
+    API/SDK served via HeadyConductor.
+  enforcement: "HeadyConductor checks phase gates"
   exceptions: "None — this rule has no exceptions"

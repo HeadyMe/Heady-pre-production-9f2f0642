@@ -89,7 +89,7 @@ Heady exposes a local MCP server (`heady-local`) with 40+ tools:
 | Research | `heady_perplexity_research`, `heady_search` |
 | Memory | `heady_embed`, `heady_deep_scan`, `heady_soul` |
 
-**Configuration:** `~/.config/windsurf-next/mcp_config.json`
+**Configuration:** `~/.config/mcp_config.json`
 
 ---
 

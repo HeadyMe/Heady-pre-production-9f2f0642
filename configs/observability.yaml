@@ -34,7 +34,7 @@ alerts:
       severity: critical
       summary: "Heady Manager is DOWN"
       description: "The main Heady orchestrator is not responding on {{ $labels.instance }}"
-      runbook_url: https://docs.heady.io/runbooks/manager-down
+      runbook_url: https://docs.headyio.com/runbooks/manager-down
       
     - name: DatabaseConnectionFailed
       condition: pg_up == 0
@@ -120,11 +120,11 @@ notifications:
       
   # Secondary - Email for critical only
   email:
-    smtp_server: smtp.heady.io
-    from: alerts@heady.io
+    smtp_server: smtp.headyio.com
+    from: alerts@headyio.com
     to:
-      - devops@heady.io
-      - oncall@heady.io
+      - devops@headyio.com
+      - oncall@headyio.com
     
     routing:
       critical: immediate
@@ -351,23 +351,23 @@ auto_remediation:
 # Dashboard Configuration
 dashboards:
   - name: "Heady System Overview"
-    url: https://grafana.heady.io/d/system-overview
+    url: https://grafana.headyio.com/d/system-overview
     refresh: 30s
     
   - name: "Build Pipeline"
-    url: https://grafana.heady.io/d/build-pipeline
+    url: https://grafana.headyio.com/d/build-pipeline
     refresh: 10s
     
   - name: "Device Fleet Health"
-    url: https://grafana.heady.io/d/device-fleet
+    url: https://grafana.headyio.com/d/device-fleet
     refresh: 60s
     
   - name: "Service Discovery Map"
-    url: https://grafana.heady.io/d/service-map
+    url: https://grafana.headyio.com/d/service-map
     refresh: 5s
     
   - name: "Extension Rollout Status"
-    url: https://grafana.heady.io/d/extensions
+    url: https://grafana.headyio.com/d/extensions
     refresh: 5m
 
 # Alert Acknowledgment & Tracking

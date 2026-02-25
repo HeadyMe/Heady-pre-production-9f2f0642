@@ -18,7 +18,7 @@ alerts:
     condition: "errors/requests > 0.05"
     severity: "critical"
     channels:
-      - "email:admin@heady.io"
+      - "email:admin@headyio.com"
       - "slack:#alerts"
   
   - name: "high-latency"
@@ -29,7 +29,7 @@ alerts:
 
 notification_channels:
   email:
-    admin@heady.io:
+    admin@headyio.com:
       type: "smtp"
   slack:
     "#alerts":

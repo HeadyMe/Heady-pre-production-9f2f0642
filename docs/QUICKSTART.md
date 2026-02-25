@@ -31,7 +31,7 @@ cp .env.example .env
 Required secrets (managed via PQC-rotated vault):
 
 - `HEADY_BRAIN_KEY` — HeadyBrain API master key
-- `REDIS_URL` — Redis connection string (default: `redis://localhost:6379`)
+- `REDIS_URL` — Redis connection string
 - `STRIPE_SECRET_KEY` — Stripe billing integration
 
 Optional:
@@ -100,6 +100,7 @@ HeadyBrain uses the **Liquid Gateway** — an intelligent auto-routing layer tha
 | `POST /api/brain/analyze` | Code/text analysis |
 | `POST /api/brain/embed` | Vector embeddings |
 | `POST /api/brain/search` | Knowledge search |
+| `POST /api/swarm/dispatch` | Deploy HeadyBees for task completion |
 
 ## 7. Admin UI
 
@@ -111,7 +112,7 @@ npm install
 npm run dev
 ```
 
-Access at `http://localhost:5001` — includes Command Center, Fleet Manager, Package Builder, Security Panel, Billing Config, and Network Topology views.
+Access via `https://admin.headysystems.com` when deployed, or the local Vite dev server during development. Includes Command Center, Fleet Manager, Package Builder, Security Panel, Billing Config, and Network Topology views.
 
 ## Architecture Overview
 
@@ -128,6 +129,9 @@ Access at `http://localhost:5001` — includes Command Center, Fleet Manager, Pa
 ├──────────────────────────────────────────────────┤
 │         HeadyBrain + 20 AI Nodes                 │
 │  Arena Mode • Liquid Gateway • Auto-Success       │
+├──────────────────────────────────────────────────┤
+│         HeadySwarm + HeadyBees                   │
+│  Headless Browser Fleet • Task Completion Engine  │
 ├──────────────────────────────────────────────────┤
 │         DuckDB Vector Memory V2                  │
 │  HNSW Index • Cosine Similarity • Session Memory  │
@@ -148,3 +152,4 @@ Access at `http://localhost:5001` — includes Command Center, Fleet Manager, Pa
 | HeadyMCP | <https://headymcp.com> |
 | HeadyConnection | <https://headyconnection.org> |
 | HeadyBuddy | <https://headybuddy.org> |
+| HeadyOS | <https://headyos.com> |

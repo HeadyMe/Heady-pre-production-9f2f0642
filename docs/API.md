@@ -144,6 +144,30 @@ Search the HeadyBrain knowledge vault using hybrid lexical + vector search.
 
 ---
 
+## Swarm API
+
+HeadySwarm delegates complex tasks to HeadyBees — a fleet of headless browser agents orchestrated by HeadyBuddy.
+
+### `POST /api/swarm/dispatch`
+
+Dispatch a task to the HeadyBees swarm.
+
+**Request:**
+
+```json
+{
+  "task": "Fill out the application form at https://example.com/apply",
+  "priority": "high",
+  "maxBees": 3
+}
+```
+
+### `GET /api/swarm/status`
+
+Returns swarm fleet status — active bees, queued tasks, and completion rates.
+
+---
+
 ## Billing API
 
 Stripe-backed subscription management.

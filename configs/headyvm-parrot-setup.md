@@ -143,7 +143,7 @@ sudo docker network create heady_heady-main-network 2>/dev/null || true
 git lfs install --skip-repo
 
 git config --global user.name "Eric (HeadyVM)"
-git config --global user.email "dev@heady.io"
+git config --global user.email "dev@headyio.com"
 git config --global init.defaultBranch main
 git config --global pull.rebase true
 git config --global core.autocrlf input

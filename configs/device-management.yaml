@@ -126,7 +126,7 @@ device_profiles:
         - git:
             config:
               user.name: "Heady Developer"
-              user.email: "dev@heady.io"
+              user.email: "dev@headyio.com"
               init.defaultBranch: main
               pull.rebase: true
               
@@ -193,7 +193,7 @@ sync:
     type: oidc
     provider: auth0
     domains:
-      - heady.io
+      - headyio.com
       - headysystems.com
       - headyconnection.com
       
@@ -294,7 +294,7 @@ extension_management:
         install_mode: force_installed
         
     firefox:
-      - id: heady-assistant@heady.io
+      - id: heady-assistant@headyio.com
         install_type: allowed
         install_mode: force_installed
         
@@ -327,7 +327,7 @@ extension_management:
 automation:
   device_onboarding:
     zero_touch: true
-    enrollment_url: https:// enroll.heady.io
+    enrollment_url: https://enroll.headyio.com
     
   software_updates:
     auto_update_os: false  # Manual for dev machines
@@ -347,8 +347,8 @@ automation:
         
       - type: email
         recipients:
-          - devops@heady.io
-          - admin@heady.io
+          - devops@headyio.com
+          - admin@headyio.com
         severity: critical
         
   backup:
@@ -390,7 +390,7 @@ deployment:
       - user_complaints > threshold
       
   reporting:
-    compliance_dashboard: https://admin.heady.io/devices
+    compliance_dashboard: https://admin.headyio.com/devices
     health_metrics: prometheus
     logs: loki
     traces: jaeger
