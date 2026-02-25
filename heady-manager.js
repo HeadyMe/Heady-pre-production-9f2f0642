@@ -2206,8 +2206,24 @@ setInterval(() => {
   });
 }, 1800000);
 
-// ─── Start (HTTP + WebSocket) ───────────────────────────────────────
-const server = http.createServer(app);
+// ─── Start (HTTP/HTTPS + WebSocket) ───────────────────────────────────────
+const certDir = path.join(__dirname, 'certs');
+let server;
+
+if (fs.existsSync(path.join(certDir, 'server.key')) && fs.existsSync(path.join(certDir, 'server.crt'))) {
+  const options = {
+    key: fs.readFileSync(path.join(certDir, 'server.key')),
+    cert: fs.readFileSync(path.join(certDir, 'server.crt')),
+    ca: fs.existsSync(path.join(certDir, 'ca.crt')) ? fs.readFileSync(path.join(certDir, 'ca.crt')) : undefined,
+    requestCert: true,
+    rejectUnauthorized: false // Set to true for strict mTLS or handle per-route
+  };
+  server = https.createServer(options, app);
+  logger.logNodeActivity("BUILDER", "  🔒 mTLS/HTTPS Server Configured");
+} else {
+  server = http.createServer(app);
+  logger.logNodeActivity("BUILDER", "  ⚠️ No certs found. Falling back to HTTP Server");
+}
 
 // WebSocket server for voice relay (no-server mode — upgrade handled manually)
 const voiceWss = new WebSocket.Server({ noServer: true });

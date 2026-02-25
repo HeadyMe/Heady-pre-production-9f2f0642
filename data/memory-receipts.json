@@ -1,1751 +1,5 @@
 [
   {
-    "id": "1b0518fa-7a2e-4572-8b70-406c4454575d",
-    "stored": "Stored in vector DB: \"Brain response: Received! How can I help you today?...\" (51 chars, type: brain_response)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T13:21:00.664Z"
-  },
-  {
-    "id": "19096465-b436-4839-a408-db9453fa839d",
-    "stored": "Stored in vector DB: \"Embedding request: Audit trail completeness and regulatory compliance...\" (69 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T13:22:14.963Z"
-  },
-  {
-    "id": "59bb972c-f50e-4e59-9315-9003963b6c82",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Audit trail completeness and regulatory compliance...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (50 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T13:22:14.967Z"
-  },
-  {
-    "id": "0f5ab2d2-f5a2-44ba-821f-545fae6a11e6",
-    "stored": "Stored in vector DB: \"Embedding request: Audit trail completeness and regulatory compliance...\" (69 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:10:11.282Z"
-  },
-  {
-    "id": "c62dca7f-cee4-4c55-ab67-23d2531f87d3",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Audit trail completeness and regulatory compliance...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (50 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:10:11.288Z"
-  },
-  {
-    "id": "1eab7ae7-0d5a-4fae-b3a4-5ac760e45419",
-    "stored": "Stored in vector DB: \"Embedding request: Service mesh orchestration and load balancing...\" (64 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:15:31.602Z"
-  },
-  {
-    "id": "87a4aee4-dff1-4470-b1f5-88024f8416de",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Service mesh orchestration and load balancing...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (45 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:15:31.604Z"
-  },
-  {
-    "id": "4aa97fb6-951b-4b7c-832d-9fd09e475b07",
-    "stored": "Stored in vector DB: \"Embedding request: Real-time streaming and WebSocket patterns...\" (61 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:20:32.457Z"
-  },
-  {
-    "id": "fe2835e2-efb6-44a5-a05e-1e9dedfde764",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Real-time streaming and WebSocket patterns...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (42 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:20:32.462Z"
-  },
-  {
-    "id": "4578e432-6aa5-4e4b-b367-1af2eee983ea",
-    "stored": "Stored in vector DB: \"Embedding request: Code generation and refactoring best practices...\" (65 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:25:32.912Z"
-  },
-  {
-    "id": "cc9992ae-23cb-4916-9aa4-63d442dce6e8",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Code generation and refactoring best practices...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (46 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:25:32.920Z"
-  },
-  {
-    "id": "51b63584-d2b0-4718-9b5d-a2a52d530faf",
-    "stored": "Stored in vector DB: \"Embedding request: Heady system architecture patterns and optimization...\" (70 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:30:33.241Z"
-  },
-  {
-    "id": "972ae3d8-9204-4028-b65a-9b6da1aa0f91",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Heady system architecture patterns and optimization...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (51 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:30:33.242Z"
-  },
-  {
-    "id": "2ddabf2c-6bfd-4772-8905-0f745415cdde",
-    "stored": "Stored in vector DB: \"Chat interaction: t...\" (19 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:13.385Z"
-  },
-  {
-    "id": "20d3132b-78a3-4572-bd15-ec1d6fe51c5c",
-    "stored": "Stored in vector DB: \"Embedding request: t...\" (20 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:16.066Z"
-  },
-  {
-    "id": "a7a854e9-ea28-4e4b-b38a-9b7cd480a76a",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"t...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (1 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:35:16.069Z"
-  },
-  {
-    "id": "40b4b88f-a25e-47ec-a4ca-b2389fdadb62",
-    "stored": "Stored in vector DB: \"Knowledge search: t...\" (19 chars, type: brain_search)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:16.203Z"
-  },
-  {
-    "id": "930b0882-0539-4486-9409-92eef78b6c14",
-    "stored": "Stored in vector DB: \"Code analysis (general): t...\" (26 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:16.475Z"
-  },
-  {
-    "id": "67285dd1-6a09-4ec1-bb89-63b6f722fee8",
-    "stored": "Stored in vector DB: \"Brain response: \n\nHello! It looks like you might have sent a message by accident. How can I assist you today? Feel free ...\" (202 chars, type: brain_response)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:18.876Z"
-  },
-  {
-    "id": "23572b3c-a3b9-48e9-a25b-56e289337bd0",
-    "stored": "Stored in vector DB: \"Chat interaction: t...\" (19 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:22.861Z"
-  },
-  {
-    "id": "00ba5a9e-2f4b-4436-b332-90e836cbabb1",
-    "stored": "Stored in vector DB: \"Brain response: \n\nHi there! 😊 I'm here to help—could you let me know what you're curious about or need assistance with?...\" (149 chars, type: brain_response)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:31.979Z"
-  },
-  {
-    "id": "b2b9ce00-5f7a-415c-89bc-3d10981a2e86",
-    "stored": "Stored in vector DB: \"Embedding request: AI response psychology and conflict avoidance...\" (64 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:35:33.571Z"
-  },
-  {
-    "id": "9a4f4fc1-507d-4041-98bf-4cb7173e7cca",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"AI response psychology and conflict avoidance...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (45 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:35:33.575Z"
-  },
-  {
-    "id": "530632b5-5c3f-4392-9664-f8b258344c53",
-    "stored": "Stored in vector DB: \"Embedding request: Behavior analysis for HeadyCorrections vertical...\" (66 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:40:35.246Z"
-  },
-  {
-    "id": "5a0670f4-5555-4ab3-ae0e-81065bde7f33",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Behavior analysis for HeadyCorrections vertical...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (47 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:40:35.250Z"
-  },
-  {
-    "id": "c70bd30f-aeb1-44cf-a176-6c39b898067f",
-    "stored": "Stored in vector DB: \"Embedding request: Cross-device authentication and permission management...\" (72 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:45:36.014Z"
-  },
-  {
-    "id": "f68c0d27-272b-4178-8303-a82e8494266f",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Cross-device authentication and permission management...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (53 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:45:36.018Z"
-  },
-  {
-    "id": "cf85c3fc-ad78-4df1-a478-e3b00a01aef1",
-    "stored": "Stored in vector DB: \"Embedding request: Voice UX design patterns for mobile AI companions...\" (68 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:50:36.439Z"
-  },
-  {
-    "id": "d43b0241-4e05-4905-b0e6-e0802202c9be",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"Voice UX design patterns for mobile AI companions...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (49 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:50:36.442Z"
-  },
-  {
-    "id": "0fe939bb-b595-42f5-971e-1c51e49b7394",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector storage schema optimiza...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T14:55:51.216Z"
-  },
-  {
-    "id": "6ff72f8c-6540-4fb5-8705-419b9a561b61",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T14:55:51.221Z"
-  },
-  {
-    "id": "b8ec9ed8-e07a-440d-9078-6fe2205a161b",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail completeness and regu...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:00:54.976Z"
-  },
-  {
-    "id": "32fe05bf-f4e6-4b87-bdf3-0b8a0368bbb1",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:00:54.980Z"
-  },
-  {
-    "id": "85ba824b-4251-403d-ba1f-e10b1484f760",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh orchestration and lo...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:05:58.789Z"
-  },
-  {
-    "id": "1d57a09f-3207-4c0a-8d45-18c6571906a7",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:05:58.791Z"
-  },
-  {
-    "id": "84e49af2-144a-40ed-afbc-c5f8410ea2f0",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time streaming and WebSocket...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:11:05.849Z"
-  },
-  {
-    "id": "3f0f1cc1-40f4-4cd4-b1b8-c8b27f3ee8ab",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (300 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:11:05.851Z"
-  },
-  {
-    "id": "265ec631-ac7c-4f2b-9dbd-26eca900d46a",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generation and refactoring b...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:16:12.435Z"
-  },
-  {
-    "id": "e6dccd6a-b5d8-4da2-83c6-e7db348e4602",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generat...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (316 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:16:12.437Z"
-  },
-  {
-    "id": "05b14e2c-a4ef-4b13-9532-f94f945951f5",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system architecture pattern...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:21:42.731Z"
-  },
-  {
-    "id": "797d9a5f-a540-4272-a4c4-7e6b725e6724",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (336 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:21:42.734Z"
-  },
-  {
-    "id": "fdb54d4a-c42e-41c5-be63-3ad01633e6c1",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response psychology and confli...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:26:52.831Z"
-  },
-  {
-    "id": "81712d90-9ed6-4def-b6b1-918a9ecc9a3f",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:26:52.833Z"
-  },
-  {
-    "id": "c0954fe8-cc04-4918-83b7-4f01d5e095ca",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior analysis for HeadyCorrec...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:31:53.614Z"
-  },
-  {
-    "id": "1717a9bd-e7c3-4e6f-b424-a1c9ac67fb61",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior ana...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (320 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:31:53.617Z"
-  },
-  {
-    "id": "8152726c-e712-4f72-a915-9a1648dbeda1",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device authentication and p...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:37:05.770Z"
-  },
-  {
-    "id": "5c3320a2-b931-4b5b-9a5a-db621b82beae",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (344 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:37:05.773Z"
-  },
-  {
-    "id": "3299e4f3-e8c4-44c4-89ae-f922163083b4",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX design patterns for mobi...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:42:12.550Z"
-  },
-  {
-    "id": "62d687e2-5546-4725-809f-8bc99a70dae0",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX des...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (328 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:42:12.553Z"
-  },
-  {
-    "id": "bdbe1e35-c24a-4c23-bbc3-e95f5a57d0d1",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector storage schema optimiza...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:47:13.182Z"
-  },
-  {
-    "id": "13d1be9c-6d72-4d2c-a660-f78eed657294",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:47:13.186Z"
-  },
-  {
-    "id": "346f464b-9c57-4082-970b-287fd5cbf6f6",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail completeness and regu...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:52:13.801Z"
-  },
-  {
-    "id": "226579c5-8f5e-41a0-b60a-ade181f9d0b4",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:52:13.804Z"
-  },
-  {
-    "id": "31e90942-e0b9-4d45-bb15-bf6563c73037",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh orchestration and lo...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T15:57:14.550Z"
-  },
-  {
-    "id": "563c8bf2-9875-45f8-8114-6c3a1ce12ea0",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T15:57:14.553Z"
-  },
-  {
-    "id": "d23dc8f3-df66-4487-a694-153002f7f6b6",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time streaming and WebSocket...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:02:15.093Z"
-  },
-  {
-    "id": "4f5b6aae-99e9-4e0a-babf-93cdb46a6136",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (300 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:02:15.095Z"
-  },
-  {
-    "id": "2dca0228-69f3-49e4-a9e6-cf0627e93095",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generation and refactoring b...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:07:15.593Z"
-  },
-  {
-    "id": "ad143319-5ed1-4671-999e-75d3976f0e93",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generat...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (316 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:07:15.596Z"
-  },
-  {
-    "id": "f90b130b-e5c0-4cc4-a14c-3e55c2e65849",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system architecture pattern...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:12:16.211Z"
-  },
-  {
-    "id": "ace562ab-b607-4e74-851d-9a1e61b6471f",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (336 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:12:16.213Z"
-  },
-  {
-    "id": "fe6767f3-cec4-40db-9129-26e57ae05987",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response psychology and confli...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:17:16.764Z"
-  },
-  {
-    "id": "5d9c5c4d-7715-44df-85d8-3d33bc8f6b6b",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:17:16.767Z"
-  },
-  {
-    "id": "f9726c37-ce78-4b4a-8785-8646f864fc22",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior analysis for HeadyCorrec...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:22:19.884Z"
-  },
-  {
-    "id": "4196328b-9e4a-4406-8067-1202a202372f",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior ana...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (320 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:22:19.887Z"
-  },
-  {
-    "id": "d2fd1f24-96c5-4504-9698-8e2724a5b406",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device authentication and p...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:27:26.277Z"
-  },
-  {
-    "id": "ed0c9aa0-56f3-48ed-a598-749475715626",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (344 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:27:26.280Z"
-  },
-  {
-    "id": "c64ad6ca-8460-4d93-9a73-4e69b2cba6b4",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX design patterns for mobi...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:32:26.820Z"
-  },
-  {
-    "id": "ab0799fb-f8a2-4e9a-b028-6e6d4bdbefad",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX des...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (328 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:32:26.823Z"
-  },
-  {
-    "id": "8bcce69a-b078-40f5-8b09-d122b349e129",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector storage schema optimiza...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:37:29.483Z"
-  },
-  {
-    "id": "baa80400-338f-4f11-96e0-1c3387d2eee0",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:37:29.486Z"
-  },
-  {
-    "id": "6df2d962-ba4e-4d46-9652-0b869636ad31",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail completeness and regu...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:42:38.109Z"
-  },
-  {
-    "id": "830dbfb1-0675-4379-95f9-977a769ad705",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:42:38.111Z"
-  },
-  {
-    "id": "e9c2e641-9d76-40fd-a9db-6a097d336755",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh orchestration and lo...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:47:38.644Z"
-  },
-  {
-    "id": "c146c6f3-e169-4d6a-a4cd-bb5539623a32",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:47:38.646Z"
-  },
-  {
-    "id": "6e68a537-4d07-410e-a815-1a0578440ad6",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time streaming and WebSocket...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:52:39.250Z"
-  },
-  {
-    "id": "9898fd11-9fd0-4669-bab0-5b7ba02fc5bd",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (300 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:52:39.253Z"
-  },
-  {
-    "id": "6c68ddd5-6836-4226-815e-534d72815606",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generation and refactoring b...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T16:57:40.177Z"
-  },
-  {
-    "id": "d5d570a4-f54e-4527-91dc-08b32dbf2158",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generat...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (316 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T16:57:40.180Z"
-  },
-  {
-    "id": "0b246c8a-02cb-40ac-9890-ac0c021af583",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system architecture pattern...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:02:41.133Z"
-  },
-  {
-    "id": "c5e77d1d-e6bd-4160-94f3-a3c0b3440d3a",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (336 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:02:41.137Z"
-  },
-  {
-    "id": "49974098-b119-4ca3-9cc9-2837880defba",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response psychology and confli...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:07:41.653Z"
-  },
-  {
-    "id": "a7b9c85c-145a-4820-a70b-c220699dafdd",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:07:41.656Z"
-  },
-  {
-    "id": "84fb255f-11d0-4e31-84ba-c3200770cae6",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior analysis for HeadyCorrec...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:12:42.479Z"
-  },
-  {
-    "id": "6b224fb2-c894-4fc4-912b-c75ec14c59e7",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior ana...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (320 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:12:42.481Z"
-  },
-  {
-    "id": "a24309ab-b116-4607-946d-c9b6f46e97c0",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device authentication and p...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:17:43.012Z"
-  },
-  {
-    "id": "de2a74dd-c5e7-4135-aba1-3b707ab6b918",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (344 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:17:43.015Z"
-  },
-  {
-    "id": "cf9f9db9-31f1-4368-8696-5bfc73b8cd83",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX design patterns for mobi...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:22:55.366Z"
-  },
-  {
-    "id": "6e633e74-b3e0-4c16-881b-2b07ff07850f",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX des...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (328 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:22:55.369Z"
-  },
-  {
-    "id": "a55a0040-c7da-4708-a8ba-89214c8dcf71",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector storage schema optimiza...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:27:58.633Z"
-  },
-  {
-    "id": "e810f936-b16c-4c07-8e22-170ab6373d8c",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:27:58.635Z"
-  },
-  {
-    "id": "594d2277-761a-4407-be9c-d7792116220b",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail completeness and regu...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:32:59.107Z"
-  },
-  {
-    "id": "39544ee7-37c9-4f72-8f70-306eb4c2ba97",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:32:59.111Z"
-  },
-  {
-    "id": "08013586-9b60-4f69-9906-0a526d70e97b",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh orchestration and lo...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:38:10.193Z"
-  },
-  {
-    "id": "11b39562-16dd-4bcf-819d-afbc82b44057",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:38:10.195Z"
-  },
-  {
-    "id": "6b6c6ad0-8d1a-4bfa-8e65-ea14be985bfd",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time streaming and WebSocket...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:43:11.019Z"
-  },
-  {
-    "id": "ab99119c-ccb9-4692-abc4-c07db2584f13",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (300 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:43:11.023Z"
-  },
-  {
-    "id": "06a31dd7-f562-4bdd-9d29-b35d7626e997",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generation and refactoring b...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:48:11.618Z"
-  },
-  {
-    "id": "45357ecd-a4f0-4989-8a15-bd7726f26f1b",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generat...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (316 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:48:11.621Z"
-  },
-  {
-    "id": "5764606f-9473-406a-8cfa-88cf30fcd9cb",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system architecture pattern...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:53:12.279Z"
-  },
-  {
-    "id": "06b1b4ac-5857-47c9-be84-b46586e9c31e",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (336 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:53:12.281Z"
-  },
-  {
-    "id": "176ec603-2cc4-4590-a679-0359c7b37da2",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response psychology and confli...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T17:58:12.865Z"
-  },
-  {
-    "id": "39396721-bba5-4e2e-a727-535f4ae3f22a",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T17:58:12.868Z"
-  },
-  {
-    "id": "aad3595c-679f-4a0a-9315-f71c0ea4999e",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior analysis for HeadyCorrec...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:03:13.399Z"
-  },
-  {
-    "id": "d7804e91-a16f-4688-92a8-3fdcd4851e82",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior ana...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (320 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:03:13.403Z"
-  },
-  {
-    "id": "6c31c6d7-283e-474c-a2a6-0277864d50a5",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device authentication and p...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:08:14.005Z"
-  },
-  {
-    "id": "365b27f5-37f0-49af-9736-0e43f893a1c1",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (344 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:08:14.009Z"
-  },
-  {
-    "id": "734e8cf6-83f1-4fc9-bc63-00319a51ce72",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX design patterns for mobi...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:13:14.583Z"
-  },
-  {
-    "id": "0693e7b6-5b1b-4436-86c8-8d9b234f3a2e",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Voice UX des...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (328 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:13:14.585Z"
-  },
-  {
-    "id": "fe3eb261-0f90-4174-b085-971bfe4f8c19",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector storage schema optimiza...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:18:16.771Z"
-  },
-  {
-    "id": "225eeb49-61c3-4e28-b505-bf5ccd620344",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: 3D vector st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:18:16.774Z"
-  },
-  {
-    "id": "f5a604b2-cb44-49d9-aeab-2f8aa9b9606e",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail completeness and regu...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:23:17.419Z"
-  },
-  {
-    "id": "81d7b2de-716b-4628-9712-2fc994f24ae3",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Audit trail ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (332 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:23:17.421Z"
-  },
-  {
-    "id": "793310a1-15a3-40cf-ad08-0e27ea3e225f",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh orchestration and lo...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:28:27.852Z"
-  },
-  {
-    "id": "51e032a8-18d3-44a3-8add-0286cae3d5b5",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Service mesh...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:28:27.856Z"
-  },
-  {
-    "id": "0a700147-5962-4114-8c75-0ffa5c17bf73",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time streaming and WebSocket...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:33:31.431Z"
-  },
-  {
-    "id": "23a46984-3058-4d8a-8653-063ee31fce31",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Real-time st...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (300 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:33:31.433Z"
-  },
-  {
-    "id": "734a96de-157e-40b0-ab49-632d0b95618e",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generation and refactoring b...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:38:32.019Z"
-  },
-  {
-    "id": "2e2311bf-4e72-4a66-a621-f9c03fccb0b1",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Code generat...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (316 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:38:32.022Z"
-  },
-  {
-    "id": "9c5b415f-f3d0-4c9a-932e-232b2810e147",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system architecture pattern...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:43:32.479Z"
-  },
-  {
-    "id": "fe033e77-888c-4cb4-849c-e87f5601d192",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady system...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (336 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:43:32.481Z"
-  },
-  {
-    "id": "6a51ff83-4b03-4b00-b607-fdbf84de3a1f",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response psychology and confli...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:48:33.565Z"
-  },
-  {
-    "id": "67256219-676d-4cb0-8087-3baad63562be",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: AI response ...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (312 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:48:33.569Z"
-  },
-  {
-    "id": "ed3b950f-ee70-4e8c-9317-075b748ef8e7",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior analysis for HeadyCorrec...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:53:34.134Z"
-  },
-  {
-    "id": "ff3f90ca-ed9a-4aa6-818a-117a2373500b",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Behavior ana...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (320 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:53:34.138Z"
-  },
-  {
-    "id": "88312954-86ec-414a-8970-4b69af6b7465",
-    "stored": "Stored in vector DB: \"Embedding request: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device authentication and p...\" (219 chars, type: brain_embed)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-23T18:58:34.646Z"
-  },
-  {
-    "id": "e1508335-1685-4d8c-b5cf-c13255197db2",
-    "stored": "Hash-based pseudo-embedding (32 dims) — structural match only, NOT semantic: \"[HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Cross-device...\"",
-    "notStored": "Semantic meaning NOT captured — real nomic-embed-text embedding failed (connect ECONNREFUSED 127.0.0.1:11434). Full text (344 chars) has no 3D vector representation.",
-    "method": "hash-fallback",
-    "fallbackUsed": true,
-    "priorityFix": "⚠ VECTOR DB FALLBACK — hash-based pseudo-embedding used instead of 3D vector storage. Fix priority: HIGH.",
-    "ts": "2026-02-23T18:58:34.649Z"
-  },
-  {
-    "id": "119294a8-361c-4b3e-84fc-c487c136b5be",
-    "stored": "Stored in vector DB: \"Code analysis (code): function add(a,b) { return a+b; }...\" (55 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T07:12:30.631Z"
-  },
-  {
-    "id": "e87db936-43f2-4394-be0c-2f7e1abc42f7",
-    "stored": "Stored in vector DB: \"Code analysis (general): [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: [HeadyBrain Context — 3 rel...\" (225 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T07:16:24.756Z"
-  },
-  {
-    "id": "c64bb612-83c3-4f37-8831-31ab669a8b72",
-    "stored": "Stored in vector DB: \"Code analysis (code): [HeadyBrain Context — 3 relevant memories found]\nKnowledge search: test\n---\nKnowledge search: test...\" (177 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T07:20:53.567Z"
-  },
-  {
-    "id": "3f9cfc1f-1231-4fd3-8ac2-345de0e128b3",
-    "stored": "Stored in vector DB: \"Code analysis (code): [HeadyBrain Context — 1 relevant memories found]\nCode analysis (code): function add(a,b) { return ...\" (176 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T07:25:07.376Z"
-  },
-  {
-    "id": "39dfbf0d-5b55-487f-83de-f93cf4c4f0e2",
-    "stored": "Stored in vector DB: \"Code analysis (code): [HeadyBrain Context — 2 relevant memories found]\nKnowledge search: test\n---\nKnowledge search: test...\" (140 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T07:25:14.676Z"
-  },
-  {
-    "id": "4ab72b21-24b1-4d3f-9d85-01ac420dd024",
-    "stored": "Stored in vector DB: \"Chat interaction: Say hello...\" (27 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:22:48.377Z"
-  },
-  {
-    "id": "5ae1942e-5464-434f-a50f-0659b9766c4c",
-    "stored": "Stored in vector DB: \"Brain response: \n\nHello! How can I assist you today? 😊...\" (55 chars, type: brain_response)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:22:52.668Z"
-  },
-  {
-    "id": "34b3b2db-1645-43a0-a674-3d0f375a0436",
-    "stored": "Stored in vector DB: \"Code analysis (general): [HeadyBrain Context — 3 relevant memories found]\nKnowledge search: test\n---\nKnowledge search: t...\" (225 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:22:53.042Z"
-  },
-  {
-    "id": "952605af-302b-4bea-b176-bc5a2a52c239",
-    "stored": "Stored in vector DB: \"Chat interaction: Say WORKING in one word...\" (41 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:23:03.129Z"
-  },
-  {
-    "id": "c7e1d905-db81-444a-adf3-b89f65849d92",
-    "stored": "Stored in vector DB: \"Brain response: \n\nFUNCTIONAL...\" (28 chars, type: brain_response)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:23:09.523Z"
-  },
-  {
-    "id": "2b47570d-449f-4efa-a40e-bfeb0a15b4d5",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nKnowledge search: test\n---\nKnowledge search: test\n---...\" (281 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:24:26.938Z"
-  },
-  {
-    "id": "4c5bf2b0-f1b9-4764-be80-f2cd27c6c14c",
-    "stored": "Stored in vector DB: \"Brain response: [HeadyBrain Context — 3 relevant memories found]\nKnowledge search: test\n---\nKnowledge search: test\n---\nC...\" (279 chars, type: brain_response)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:24:30.272Z"
-  },
-  {
-    "id": "eb41a7ad-9934-484e-bbd6-43c9e5eace11",
-    "stored": "Stored in vector DB: \"Code analysis (general): [HeadyBrain Context — 3 relevant memories found]\nKnowledge search: test\n---\nKnowledge search: t...\" (225 chars, type: brain_analyze)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:24:30.515Z"
-  },
-  {
-    "id": "fb62cb35-999f-4bf0-b0f1-2ba0f7eba606",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nHeadyBrain is the AI reasoning engine for the Heady e...\" (541 chars, type: brain_chat)",
-    "notStored": "41 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:28:21.057Z"
-  },
-  {
-    "id": "c9e7e01d-e1c1-4fe2-a2c9-4a7f7a9cceec",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 2 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (950 chars, type: brain_chat)",
-    "notStored": "450 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:28:22.197Z"
-  },
-  {
-    "id": "803f8866-7166-433e-8611-e0b046089224",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (1905 chars, type: brain_chat)",
-    "notStored": "1405 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:28:53.583Z"
-  },
-  {
-    "id": "2c4a275c-4bbf-4dba-a84a-6d09296d4590",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (3780 chars, type: brain_chat)",
-    "notStored": "3280 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:29:30.276Z"
-  },
-  {
-    "id": "78b955e2-9b91-4693-9c4f-9e7c17c71680",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (3875 chars, type: brain_chat)",
-    "notStored": "3375 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:29:31.441Z"
-  },
-  {
-    "id": "f50b1412-6182-4121-adec-b3bc7564bf34",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (3780 chars, type: brain_chat)",
-    "notStored": "3280 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:29:50.912Z"
-  },
-  {
-    "id": "e36d3704-c41f-42d1-b817-a8f0c8417506",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (3780 chars, type: brain_chat)",
-    "notStored": "3280 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:29:54.579Z"
-  },
-  {
-    "id": "0268dac9-58fe-41b8-84fb-cd41a9d70d40",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (3780 chars, type: brain_chat)",
-    "notStored": "3280 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:30:23.217Z"
-  },
-  {
-    "id": "7ae3936e-f6f7-4042-9661-65b158772ece",
-    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, an expert AI system architect, I emphasize that Node.js event loop optimization is critic...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:30:33.728Z"
-  },
-  {
-    "id": "7f51cf61-12da-4efe-b385-9da0f72eb0a4",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: You are HeadyBrain, an expert AI system architect....\" (4194 chars, type: brain_chat)",
-    "notStored": "3694 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:30:34.528Z"
-  },
-  {
-    "id": "40b174e9-8961-4223-8818-8601b7ed755b",
-    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, an expert AI system architect, managing 150+ concurrent async tasks in Node.js requires s...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:30:45.361Z"
-  },
-  {
-    "id": "9b1db0b1-0693-497a-94f5-b63237d87307",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nEmbedding request: Heady is the unified AI ecosystem\n...\" (474 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:30:57.024Z"
-  },
-  {
-    "id": "e3cb7c6a-bdf6-4fb9-b754-bf837b085e8f",
-    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I anticipate the semantic search landscape in 2025-2026 will be dominated by further refi...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:31:08.433Z"
-  },
-  {
-    "id": "c205283a-3186-4e82-89bd-e76b3aefab99",
-    "stored": "Stored in vector DB: \"Chat interaction: You are HeadyBrain, an expert AI system architect. Answer concisely and practically. Focus on actionab...\" (313 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:31:20.101Z"
-  },
-  {
-    "id": "d0934d41-2ccf-452b-b855-23fcfc53c431",
-    "stored": "Stored in vector DB: \"Chat interaction: You are HeadyBrain, an expert AI system architect. Answer concisely and practically. Focus on actionab...\" (313 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:31:51.384Z"
-  },
-  {
-    "id": "8091757c-9701-4b4b-b697-4e95910cea21",
-    "stored": "Stored in vector DB: \"Brain response: \n\nTo implement RAG with 3D spatial vector indexing, follow this structured approach:\n\n### 1. **Data Prep...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:32:17.735Z"
-  },
-  {
-    "id": "ee120426-87b7-4daf-a1fc-8d3340e7e673",
-    "stored": "Stored in vector DB: \"Chat interaction: You are HeadyBrain, an expert AI system architect. Answer concisely and practically. Focus on actionab...\" (313 chars, type: brain_chat)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:32:22.719Z"
-  },
-  {
-    "id": "a48e678e-8da7-499c-aa2a-327669dcaa60",
-    "stored": "Stored in vector DB: \"Brain response: Implementing RAG with 3D spatial vector indexing extends traditional RAG by allowing retrieval based on ...\" (455 chars, type: brain_response)",
-    "notStored": "Full content stored — nothing omitted",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:32:34.747Z"
-  },
-  {
-    "id": "a4c6ef28-ca4b-46fe-abb1-71540599fe9c",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (6296 chars, type: brain_chat)",
-    "notStored": "5796 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:32:46.456Z"
-  },
-  {
-    "id": "e1727861-3b22-449e-8458-0274af2e2f7c",
-    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, an expert AI system architect, I emphasize these critical security practices for API key ...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:32:54.979Z"
-  },
-  {
-    "id": "acb6deee-b770-4a00-8b97-e7825cd4079e",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, an expert AI system ar...\" (1462 chars, type: brain_chat)",
-    "notStored": "962 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:33:06.693Z"
-  },
-  {
-    "id": "fcabf3a0-03c1-4c6a-b57a-1e51b84c0f46",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (2872 chars, type: brain_chat)",
-    "notStored": "2372 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:33:38.159Z"
-  },
-  {
-    "id": "7535b0ab-c393-48f8-8521-2270446743fb",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (4356 chars, type: brain_chat)",
-    "notStored": "3856 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:34:15.807Z"
-  },
-  {
-    "id": "47997226-7930-4ea3-8bc4-f5fb6af42de6",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (4356 chars, type: brain_chat)",
-    "notStored": "3856 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:34:47.417Z"
-  },
-  {
-    "id": "831bf807-d68f-4811-a42f-9de413ccac3e",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, an expert AI system architect, implementing federated routing across edge, cloud, and l...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:35:04.975Z"
-  },
-  {
-    "id": "fc7b2ca7-d518-44cd-a3f7-954ea8b63777",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: \n\nAs HeadyBrain, an expert AI system ...\" (2648 chars, type: brain_chat)",
-    "notStored": "2148 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:35:18.643Z"
-  },
-  {
-    "id": "585c0b67-8fd4-4395-84f6-34b51c2d9f18",
-    "stored": "Stored in vector DB: \"Brain response: \n\n**Federated routing across edge, cloud, and local compute layers** requires dynamic decision-making to...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:35:40.460Z"
-  },
-  {
-    "id": "78629103-bf9d-4e5d-b4be-b4c579d61378",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: \n\nAs HeadyBrain, an expert AI system ...\" (2648 chars, type: brain_chat)",
-    "notStored": "2148 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:35:49.991Z"
-  },
-  {
-    "id": "df508975-ca89-48b7-9f9f-3ef2de8bc74e",
-    "stored": "Stored in vector DB: \"Brain response: \n\n**Implementing Federated Routing Across Edge, Cloud, and Local Compute Layers**  \nFederated routing re...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:36:21.042Z"
-  },
-  {
-    "id": "af6385b2-a65a-4540-814c-f24e7d70630f",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: \n\nAs HeadyBrain, an expert AI system ...\" (1884 chars, type: brain_chat)",
-    "notStored": "1384 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:36:21.321Z"
-  },
-  {
-    "id": "72828b5e-aa4f-47dc-bfeb-4cb42461eea4",
-    "stored": "Stored in vector DB: \"Brain response: Implementing federated routing across edge, cloud, and local compute layers requires a unified control p...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:36:32.512Z"
-  },
-  {
-    "id": "fa54321b-f580-4919-b865-42e9d3f710a5",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (6288 chars, type: brain_chat)",
-    "notStored": "5788 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:36:44.223Z"
-  },
-  {
-    "id": "9082f772-4c4f-45c0-bc34-5c1eaaa874d8",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, implementing federated routing across edge, cloud, and local compute layers requires ba...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:36:46.203Z"
-  },
-  {
-    "id": "8ac89d8c-4583-498e-937c-2f5f2eb4f956",
-    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, an expert AI system architect, optimizing core functionalities like cross-device state sy...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:36:55.741Z"
-  },
-  {
-    "id": "5501468d-e58e-4848-8af0-cbd86ddb7c3b",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: You are HeadyBrain, an expert AI system architect....\" (5590 chars, type: brain_chat)",
-    "notStored": "5090 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:37:07.548Z"
-  },
-  {
-    "id": "95ac40c9-2268-4570-a097-00eea31709af",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: You are HeadyBrain, an expert AI system architect....\" (5685 chars, type: brain_chat)",
-    "notStored": "5185 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:37:38.775Z"
-  },
-  {
-    "id": "739ba479-43f6-4ef9-af7e-e66d7f18fb57",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: You are HeadyBrain, an expert AI system architect....\" (5685 chars, type: brain_chat)",
-    "notStored": "5185 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:38:10.125Z"
-  },
-  {
-    "id": "ed342167-daf2-4e01-b9cc-59990957a31b",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, an expert AI system architect, here are the best practices for implementing circuit bre...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:38:11.538Z"
-  },
-  {
-    "id": "a18fd1f3-d4d1-4bc5-9de1-52c64277e213",
-    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, an expert AI system architect, I emphasize these critical practices for handling circuit ...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:38:21.162Z"
-  },
-  {
-    "id": "19be9f32-978f-413b-af16-fef9fdafa273",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, an expert AI system architect, here are actionable best practices for implementing circ...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:38:33.050Z"
-  },
-  {
-    "id": "379f6a88-521a-4db5-a263-a1b211f4c339",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: You are HeadyBrain, an expert AI system architect....\" (5673 chars, type: brain_chat)",
-    "notStored": "5173 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:38:38.082Z"
-  },
-  {
-    "id": "028fbf7c-4e5d-47a8-8ff1-94d13f2c9b69",
-    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, an expert AI system architect, selecting an LLM provider involves a critical balancing ac...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:38:49.729Z"
-  },
-  {
-    "id": "710058f9-9a30-45e0-af43-071b1e069fa1",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, an expert AI system ar...\" (4358 chars, type: brain_chat)",
-    "notStored": "3858 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:39:01.466Z"
-  },
-  {
-    "id": "915ccf71-c8c2-421d-8dcf-6d85510acd35",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, an expert AI system ar...\" (4358 chars, type: brain_chat)",
-    "notStored": "3858 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:39:32.786Z"
-  },
-  {
-    "id": "e37624be-036a-4768-bf73-3ef3e46c7a90",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, here's a structured approach to handle rate limiting across multiple API providers in p...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:39:53.457Z"
-  },
-  {
-    "id": "1199930f-d0d8-4c63-a249-365ae30a8286",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: You are HeadyBrain, an expert AI system architect....\" (2706 chars, type: brain_chat)",
-    "notStored": "2206 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:40:23.221Z"
-  },
-  {
-    "id": "7aa68c19-29fc-48f8-be32-25e731d7aef0",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, an expert AI system architect, handling rate limiting across multiple API providers in ...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:40:35.459Z"
-  },
-  {
-    "id": "ab3c8456-461e-43c6-860f-a17b952677f0",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: \n\nAs HeadyBrain, an expert AI system ...\" (3484 chars, type: brain_chat)",
-    "notStored": "2984 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:40:59.402Z"
-  },
-  {
-    "id": "9433e306-5ef5-4676-a485-e7fc695a02a5",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, here’s a concise, actionable framework for handling rate limiting across multiple API p...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:41:32.988Z"
-  },
-  {
-    "id": "29ae9ee3-3687-428c-8883-7c763f271085",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (4190 chars, type: brain_chat)",
-    "notStored": "3690 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:41:37.363Z"
-  },
-  {
-    "id": "8f2bcaca-2209-4db1-9bab-17bb8f7da30c",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, here's a concise, actionable guide to handling rate limiting across multiple API provid...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:41:50.654Z"
-  },
-  {
-    "id": "125211b7-21d2-47d3-9d1c-0bb70d4383b6",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (4896 chars, type: brain_chat)",
-    "notStored": "4396 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:41:59.653Z"
-  },
-  {
-    "id": "169e0215-9145-4443-892c-e99540153162",
-    "stored": "Stored in vector DB: \"Brain response: \n\nAs HeadyBrain, here’s a concise, actionable strategy for handling rate limiting across multiple API pr...\" (516 chars, type: brain_response)",
-    "notStored": "16 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:42:27.555Z"
-  },
-  {
-    "id": "5769c2a4-e037-4a8f-8027-36660ce7a4da",
-    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 3 relevant me...\" (6380 chars, type: brain_chat)",
-    "notStored": "5880 chars of extended content trimmed from vector index",
-    "method": "vector-db",
-    "fallbackUsed": false,
-    "priorityFix": null,
-    "ts": "2026-02-24T08:42:36.027Z"
-  },
-  {
     "id": "19c48f1f-a2fb-4081-b2d4-b3addd8578f6",
     "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, an expert AI system architect, handling rate limiting across multiple API providers in pr...\" (516 chars, type: brain_response)",
     "notStored": "16 chars of extended content trimmed from vector index",
@@ -8998,5 +7252,1751 @@
     "fallbackUsed": false,
     "priorityFix": null,
     "ts": "2026-02-25T10:44:53.787Z"
+  },
+  {
+    "id": "cbee9e99-d779-4c46-a665-60292c30d5bc",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2307 chars, type: brain_chat)",
+    "notStored": "1807 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.143Z"
+  },
+  {
+    "id": "fdaafaa4-8e87-481d-b5e4-30105d0ed15f",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1741 chars, type: brain_chat)",
+    "notStored": "1241 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.247Z"
+  },
+  {
+    "id": "2383f41c-fe9d-4426-b13d-a75264d87e1b",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (2928 chars, type: brain_chat)",
+    "notStored": "2428 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.263Z"
+  },
+  {
+    "id": "2a22ac51-25c0-4d5a-aca7-e2e6ef9935a0",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3465 chars, type: brain_chat)",
+    "notStored": "2965 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.300Z"
+  },
+  {
+    "id": "550cf64f-96a8-4067-bfb8-8b2165cb2ce6",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1726 chars, type: brain_chat)",
+    "notStored": "1226 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.333Z"
+  },
+  {
+    "id": "79e730cd-10ae-408e-8d63-62679014dc52",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.488Z"
+  },
+  {
+    "id": "05a40ded-34b4-4c71-b9c3-609767e0c4ec",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (2929 chars, type: brain_chat)",
+    "notStored": "2429 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.555Z"
+  },
+  {
+    "id": "1a92f90a-4019-4da5-9fbf-1344677eef5d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.607Z"
+  },
+  {
+    "id": "0bc023f9-0049-4820-bbe6-094e64b00469",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2308 chars, type: brain_chat)",
+    "notStored": "1808 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.650Z"
+  },
+  {
+    "id": "d9c55b91-7b40-4676-b1fa-d1b961271c73",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3493 chars, type: brain_chat)",
+    "notStored": "2993 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.694Z"
+  },
+  {
+    "id": "a20867cb-b78b-46a4-8031-1df664d17a0e",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3445 chars, type: brain_chat)",
+    "notStored": "2945 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.701Z"
+  },
+  {
+    "id": "c7d7dc49-931a-4f9d-96f4-fce71a476175",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.710Z"
+  },
+  {
+    "id": "1c710dbb-3348-4331-a59b-c4e30f72b1f1",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (2929 chars, type: brain_chat)",
+    "notStored": "2429 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.763Z"
+  },
+  {
+    "id": "32aa6260-a759-44d0-b02b-97a83a6e92f5",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.828Z"
+  },
+  {
+    "id": "84bc8115-cfc5-439f-8c11-b1f5208a7049",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.833Z"
+  },
+  {
+    "id": "4cdf2519-752d-494c-92b9-3026da8b0f73",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.870Z"
+  },
+  {
+    "id": "d5cef682-5afb-4f5e-ac8c-246a69e9b07e",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3466 chars, type: brain_chat)",
+    "notStored": "2966 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.896Z"
+  },
+  {
+    "id": "f18007e6-de93-4992-894a-f2172ed638f9",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3466 chars, type: brain_chat)",
+    "notStored": "2966 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.902Z"
+  },
+  {
+    "id": "e589b94e-133e-40b7-82fd-740a41e6cf99",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.923Z"
+  },
+  {
+    "id": "6f5d2cda-225e-4069-b1d0-578bf30e456e",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.949Z"
+  },
+  {
+    "id": "b653495e-5bc6-4035-acdb-31b3a05211ec",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2308 chars, type: brain_chat)",
+    "notStored": "1808 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:48.985Z"
+  },
+  {
+    "id": "bb8ea426-05d3-4399-938d-156aadfc2026",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4380 chars, type: brain_chat)",
+    "notStored": "3880 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.021Z"
+  },
+  {
+    "id": "7ad263b6-beae-4816-bfe6-caeb38e3e95d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.061Z"
+  },
+  {
+    "id": "5e1cdb53-b2e2-4b50-9b0d-95f6dce8e8e4",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2308 chars, type: brain_chat)",
+    "notStored": "1808 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.115Z"
+  },
+  {
+    "id": "3a927d98-ada8-409b-ae4c-b66c3d871ab0",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.122Z"
+  },
+  {
+    "id": "ff2f52f7-9b18-4e95-bc20-41283a165ab1",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3466 chars, type: brain_chat)",
+    "notStored": "2966 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.130Z"
+  },
+  {
+    "id": "60e3e563-97d2-4d01-8b78-959af59f0a02",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2308 chars, type: brain_chat)",
+    "notStored": "1808 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.214Z"
+  },
+  {
+    "id": "877277eb-13b5-4fb3-9c0c-1769056748cb",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.268Z"
+  },
+  {
+    "id": "94d726d4-a1df-4796-ba94-d35ede611c08",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.276Z"
+  },
+  {
+    "id": "f012afd2-e3ed-4d9c-a5b5-4d86bd958607",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (2929 chars, type: brain_chat)",
+    "notStored": "2429 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.282Z"
+  },
+  {
+    "id": "f08c3628-8c0d-4a0a-84b5-a32156eab91c",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.357Z"
+  },
+  {
+    "id": "bf0f1938-6d97-43ce-a821-01db65d962b2",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.374Z"
+  },
+  {
+    "id": "706f53ff-def0-4252-8e40-27729c7b2a3d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.405Z"
+  },
+  {
+    "id": "f7bf320a-7494-498b-86b7-bfb96ad4b054",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3465 chars, type: brain_chat)",
+    "notStored": "2965 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.434Z"
+  },
+  {
+    "id": "66fc9399-5c87-41a0-81ce-47d27fc9804d",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.456Z"
+  },
+  {
+    "id": "a953c3a8-e933-4e4f-ab1e-5a32dad8ad84",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.472Z"
+  },
+  {
+    "id": "c9602b7b-d1fe-4c6a-a9b1-9120922e4e13",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (2929 chars, type: brain_chat)",
+    "notStored": "2429 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.489Z"
+  },
+  {
+    "id": "ec4d9f52-5a05-495a-a12d-7cb797420905",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.507Z"
+  },
+  {
+    "id": "ecc052e4-9070-4395-9bda-f3e32088e40a",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.527Z"
+  },
+  {
+    "id": "1445d285-323d-41ec-ae7c-0bf5bf4b5ab6",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (2929 chars, type: brain_chat)",
+    "notStored": "2429 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.574Z"
+  },
+  {
+    "id": "78031af3-4b40-4403-9eb4-e2093e620471",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.591Z"
+  },
+  {
+    "id": "b2f08ae2-d01f-4d29-a2ef-7317013ce3a3",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.620Z"
+  },
+  {
+    "id": "5c45a71e-d15a-433f-9bea-19f27994b222",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2887 chars, type: brain_chat)",
+    "notStored": "2387 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.635Z"
+  },
+  {
+    "id": "fc885564-98a8-4937-9f76-4f38fdfee8c3",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.651Z"
+  },
+  {
+    "id": "d201aa06-8c41-4153-a10c-00058d02099e",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.709Z"
+  },
+  {
+    "id": "15c497bd-d3a6-4743-8a1a-ff0274388501",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.725Z"
+  },
+  {
+    "id": "c2f3e7ee-c068-4bec-82c6-1c2453ee0b3d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.733Z"
+  },
+  {
+    "id": "875404e8-9d84-475a-9da7-7d1967bd1d57",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2308 chars, type: brain_chat)",
+    "notStored": "1808 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.750Z"
+  },
+  {
+    "id": "804c6db1-6c9d-4d3f-af8c-c9080d15961c",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.756Z"
+  },
+  {
+    "id": "eebfc216-1264-4578-9795-ad318fc9f9b8",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4380 chars, type: brain_chat)",
+    "notStored": "3880 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.773Z"
+  },
+  {
+    "id": "7a5bcdab-46e7-4fae-a2ba-508c14bf9a2d",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.800Z"
+  },
+  {
+    "id": "606a0d19-90e0-46ab-b63e-a42c95dadd45",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.818Z"
+  },
+  {
+    "id": "93cfddf2-766f-47c3-bbf3-2990ada77619",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.824Z"
+  },
+  {
+    "id": "f4e41a37-95e5-4b36-8a7f-7b7aeb02ef82",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2308 chars, type: brain_chat)",
+    "notStored": "1808 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.908Z"
+  },
+  {
+    "id": "baf5b834-9ee0-496c-9a72-dc3510f58946",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.927Z"
+  },
+  {
+    "id": "af5530b2-b73a-4e86-8fc0-60f2eb3f2bce",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3465 chars, type: brain_chat)",
+    "notStored": "2965 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:49.968Z"
+  },
+  {
+    "id": "3e58190a-ad7e-49f6-b0cd-464abc4f6478",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.051Z"
+  },
+  {
+    "id": "76d0d159-3e26-4e10-9c68-5d909901830a",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3803 chars, type: brain_chat)",
+    "notStored": "3303 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.057Z"
+  },
+  {
+    "id": "29b2da18-d187-4ec9-804a-05f8b30ec660",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.083Z"
+  },
+  {
+    "id": "74d31b0b-38c4-4212-9357-3754e2f773fc",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.124Z"
+  },
+  {
+    "id": "0ccf76dc-eaa6-4aa0-8d47-e6b7d42bde3f",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2887 chars, type: brain_chat)",
+    "notStored": "2387 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.129Z"
+  },
+  {
+    "id": "c6d5a396-f9b1-4b3b-9398-3f713c9af27d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3465 chars, type: brain_chat)",
+    "notStored": "2965 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.164Z"
+  },
+  {
+    "id": "315b3f19-f426-4e57-9510-ccaefcfd1d3b",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3397 chars, type: brain_chat)",
+    "notStored": "2897 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.171Z"
+  },
+  {
+    "id": "33f812d4-37c2-425c-a050-fb9d1a7c0b82",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (3522 chars, type: brain_chat)",
+    "notStored": "3022 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.198Z"
+  },
+  {
+    "id": "e913e1eb-a705-4709-86da-67298e118149",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.225Z"
+  },
+  {
+    "id": "31730101-7e8c-41c6-bf63-c544aa05b0a3",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.273Z"
+  },
+  {
+    "id": "4c7f9f05-ed12-4fe9-8cb9-0468668df37d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3465 chars, type: brain_chat)",
+    "notStored": "2965 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.299Z"
+  },
+  {
+    "id": "84060816-ce02-4c5e-9d01-4c5ef1928f4c",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.305Z"
+  },
+  {
+    "id": "a28f87c7-b2ab-4718-9530-f5f16f000e7b",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.335Z"
+  },
+  {
+    "id": "049a0163-541b-4692-8a67-5fb12f1b1772",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4379 chars, type: brain_chat)",
+    "notStored": "3879 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.342Z"
+  },
+  {
+    "id": "288dc315-4eb7-40a4-b0cc-4c2c54719ab0",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.359Z"
+  },
+  {
+    "id": "a207bce0-ecf5-4ebb-9d4c-1aa6909ae3a8",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain engaged. Refactoring a 10,000-line monolithic React application into a micro-frontend archite...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.368Z"
+  },
+  {
+    "id": "ea43ae02-d8da-4e1a-82f1-7b521203ae22",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.374Z"
+  },
+  {
+    "id": "7f19892c-82a2-4764-90c2-5b92a2824450",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.392Z"
+  },
+  {
+    "id": "dac863e4-e91c-40ff-b94c-514bb767c3ee",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.399Z"
+  },
+  {
+    "id": "752bbeed-2578-4a5b-b707-0e783b8d9890",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.414Z"
+  },
+  {
+    "id": "fc6f8324-8cb2-4a5b-91cb-8ca8b714428c",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.429Z"
+  },
+  {
+    "id": "7f79bc21-c6d2-4299-b172-f5654a5b205d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Analyze the optimal architecture for a quantum-res...\" (3494 chars, type: brain_chat)",
+    "notStored": "2994 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.452Z"
+  },
+  {
+    "id": "a347ccc9-9b8f-4d77-a622-0976ca229f4c",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4380 chars, type: brain_chat)",
+    "notStored": "3880 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.466Z"
+  },
+  {
+    "id": "f55766e0-62c2-4020-8635-8ceeb6cae495",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Create a comprehensive markdown guide for masterin...\" (3398 chars, type: brain_chat)",
+    "notStored": "2898 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.480Z"
+  },
+  {
+    "id": "bf8bcd40-bb8f-4a5b-bf5e-0961682a74dc",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.508Z"
+  },
+  {
+    "id": "c4ec337c-d1e3-4a9e-b0b8-7c6a3ee1baec",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.525Z"
+  },
+  {
+    "id": "799b84ba-d1f7-46f4-98b2-237479438b53",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.535Z"
+  },
+  {
+    "id": "0256cfe2-0a5c-4aa5-becc-563afd4b7d62",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain engaged. Refactoring a 10,000-line monolithic React application into a micro-frontend archite...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.543Z"
+  },
+  {
+    "id": "426d8331-9e56-4502-bc22-355492d16659",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.556Z"
+  },
+  {
+    "id": "5aa9ad52-b23c-4e7b-838e-cc2f1fa18c78",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.562Z"
+  },
+  {
+    "id": "8c8e19c1-6d6a-4bcc-9fef-53121fc17994",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.603Z"
+  },
+  {
+    "id": "a974a654-351f-43ad-a3db-17a87494d8a4",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.614Z"
+  },
+  {
+    "id": "b7f97279-6c45-4339-b056-8d729f85e432",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.620Z"
+  },
+  {
+    "id": "8075372f-876f-47ae-835b-35714658b289",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.672Z"
+  },
+  {
+    "id": "dec23ce7-909d-4094-905d-ddb5a190a81d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.698Z"
+  },
+  {
+    "id": "0435d961-e2b1-402a-9d21-ac818c122057",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.730Z"
+  },
+  {
+    "id": "062d1330-0f44-4e41-8fb4-47a9bd8b4043",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.737Z"
+  },
+  {
+    "id": "8b1e82d7-9375-4ec8-915f-9c2f4ad9925d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.753Z"
+  },
+  {
+    "id": "70ac82e0-f2f6-4227-8cdf-12289e0b5c74",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.935Z"
+  },
+  {
+    "id": "b6473698-453a-462c-b118-596ac8ab3cae",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.941Z"
+  },
+  {
+    "id": "f89bfa38-1d1f-45e8-bf83-0a19c0df8fe6",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.957Z"
+  },
+  {
+    "id": "93ff6b77-370b-4706-8ea1-ffce442c0c7e",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.964Z"
+  },
+  {
+    "id": "bc32d2b8-0bd2-4cc7-970f-c8a14afc8fcf",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:50.970Z"
+  },
+  {
+    "id": "e430ed32-fde1-4d76-8738-d104c3e1f0bb",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain engaged. Refactoring a 10,000-line monolithic React application into a micro-frontend archite...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.631Z"
+  },
+  {
+    "id": "76a52b02-3158-45ff-b0e1-3925ceae2257",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Refactor a 10,000 line monolithic React applicatio...\" (2887 chars, type: brain_chat)",
+    "notStored": "2387 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.638Z"
+  },
+  {
+    "id": "c7b61918-f168-471d-b09a-dd57c854f6fd",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.645Z"
+  },
+  {
+    "id": "fde3fdc9-af41-41e9-ab3e-10c4891443e5",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.653Z"
+  },
+  {
+    "id": "63da1298-a30e-40d0-a8cd-e7e49708d03c",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.659Z"
+  },
+  {
+    "id": "ee3cc1d3-70e9-479f-b6fe-7a970cefc35a",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.666Z"
+  },
+  {
+    "id": "64bbea6a-fd9f-491e-b0f7-1e834adfee7b",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.697Z"
+  },
+  {
+    "id": "18263b3b-7b40-4b22-8a9f-4598846ca74c",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.715Z"
+  },
+  {
+    "id": "27a6193f-069d-41e0-b75e-e2256126624f",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (3522 chars, type: brain_chat)",
+    "notStored": "3022 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.723Z"
+  },
+  {
+    "id": "24985357-2a6b-4a6a-9d7a-9df5876c95a9",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.741Z"
+  },
+  {
+    "id": "17daee03-4cfd-49bd-95dc-795c5fa6c719",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.766Z"
+  },
+  {
+    "id": "6034b168-ffd1-425b-ae3d-b529a3e319bc",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.772Z"
+  },
+  {
+    "id": "d44d6487-133a-4351-b207-b7101a2e93c2",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain engaged. Refactoring a 10,000-line monolithic React application into a micro-frontend archite...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.780Z"
+  },
+  {
+    "id": "e6453dad-30d6-46e8-a56a-ba7a535f34dd",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.799Z"
+  },
+  {
+    "id": "23d63a8d-d4fd-4f03-8195-93e94055c733",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.805Z"
+  },
+  {
+    "id": "95ffb329-de37-4277-9bec-30eadb4f214e",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.842Z"
+  },
+  {
+    "id": "6789da09-745d-4031-a1b8-5fc7eae3bf92",
+    "stored": "Stored in vector DB: \"Brain response: Understood. Refactoring a 10,000-line monolithic React application into micro-frontends is a critical in...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.849Z"
+  },
+  {
+    "id": "91f1cf24-4667-429b-84a7-f37db9bbadac",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.858Z"
+  },
+  {
+    "id": "bb3cda22-44de-4b9e-b369-2d74c40838e6",
+    "stored": "Stored in vector DB: \"Brain response: Understood. Refactoring a 10,000-line monolithic React application into micro-frontends is a critical in...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.864Z"
+  },
+  {
+    "id": "807e291d-61ae-45a4-8f35-3a6f97ea88f3",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (1034 chars, type: brain_chat)",
+    "notStored": "534 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.872Z"
+  },
+  {
+    "id": "51727c58-96ef-4700-b46a-9cce91ac9895",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.878Z"
+  },
+  {
+    "id": "beb06cb2-cc0e-4ff8-8013-afc71e384dfb",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.884Z"
+  },
+  {
+    "id": "b0932772-a88f-494a-a9db-90e4aca8c996",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.891Z"
+  },
+  {
+    "id": "73d8866a-f062-4f6b-8915-c5d047f7919a",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.902Z"
+  },
+  {
+    "id": "78bf85a4-a6ac-460a-b128-bc09fa722756",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.913Z"
+  },
+  {
+    "id": "37ae6bbc-25ff-4794-acf0-cbe32590ca69",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.919Z"
+  },
+  {
+    "id": "61ff181a-2a41-4f23-a645-e65c41f8c4b2",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.927Z"
+  },
+  {
+    "id": "3bb62763-e928-4ca3-93f0-d8e56ad77133",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.938Z"
+  },
+  {
+    "id": "7b849b8f-054a-424c-9475-417e12b9ba25",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (1034 chars, type: brain_chat)",
+    "notStored": "534 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.944Z"
+  },
+  {
+    "id": "fd6d9ad0-360b-4534-8f1b-34b30d3e6683",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.952Z"
+  },
+  {
+    "id": "071728b9-2892-4b03-a74b-8717e0cbf9d3",
+    "stored": "Stored in vector DB: \"Brain response: Understood. Refactoring a 10,000-line monolithic React application into micro-frontends is a critical in...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.957Z"
+  },
+  {
+    "id": "a95a53bd-5702-4b77-a8c2-6924319246b3",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.964Z"
+  },
+  {
+    "id": "63bf96d4-ad6b-4e85-9011-b72e9ef424d1",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.971Z"
+  },
+  {
+    "id": "4b58fb2b-ff43-4321-8c99-25a87b91b3a5",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:51.991Z"
+  },
+  {
+    "id": "d39b83a1-e91b-4c81-9117-9f3dee83861a",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.061Z"
+  },
+  {
+    "id": "c7727af3-3872-4abd-b91d-b2acec8b8d6a",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.083Z"
+  },
+  {
+    "id": "a7d4f25f-0e93-41a5-81e2-85cd13aa27ef",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.094Z"
+  },
+  {
+    "id": "c039a390-6198-48fb-9392-49f20a809b97",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.169Z"
+  },
+  {
+    "id": "b0bd2d49-d2f3-45ef-b3e4-3bd2cad0833b",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.240Z"
+  },
+  {
+    "id": "bbfb1fb7-1455-427e-986d-dedf48b43434",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.295Z"
+  },
+  {
+    "id": "97aa434c-eb71-4783-844d-68207b2882ee",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.310Z"
+  },
+  {
+    "id": "975b9dfd-7bc3-4b5d-866f-3a05e20cd958",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain is online. The request for a complete Python script for Monte Carlo simulation on options pri...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:52.457Z"
+  },
+  {
+    "id": "ffa4140a-0706-402f-b2e9-cca69b2d1e2d",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:53.878Z"
+  },
+  {
+    "id": "878a70eb-08b7-43a1-b2cc-3e09b31a8065",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:53.910Z"
+  },
+  {
+    "id": "f17b029d-52b4-42a2-b83a-f42dd797c428",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (2929 chars, type: brain_chat)",
+    "notStored": "2429 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:53.926Z"
+  },
+  {
+    "id": "7c856203-0220-433b-b5ad-9a9b001209d4",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:53.963Z"
+  },
+  {
+    "id": "9d42fda4-eb92-4c0d-97e0-2e487d766a18",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:53.969Z"
+  },
+  {
+    "id": "34d12720-9792-448e-8714-b152c8dbc997",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.002Z"
+  },
+  {
+    "id": "329af050-da5e-4dfc-9a7e-39c509081537",
+    "stored": "Stored in vector DB: \"Brain response: Understood. Refactoring a 10,000-line monolithic React application into micro-frontends is a critical in...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.008Z"
+  },
+  {
+    "id": "0850502c-76fa-40c9-b1cb-2910792d7ffd",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain engaged. Refactoring a 10,000-line monolithic React application into a micro-frontend archite...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.024Z"
+  },
+  {
+    "id": "5e3f080d-c84c-4bf3-b8dc-f9b1be60f569",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.039Z"
+  },
+  {
+    "id": "1dc5a499-e8af-4ba9-b2ce-f8fff6e3464c",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.057Z"
+  },
+  {
+    "id": "18b748b4-912f-4279-b950-94570eeb20c4",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.065Z"
+  },
+  {
+    "id": "4743befa-6027-46fd-bae6-64355f72c066",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I understand the reque...\" (3804 chars, type: brain_chat)",
+    "notStored": "3304 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.103Z"
+  },
+  {
+    "id": "fdf974e0-9aa5-4e91-8222-6df28fef1584",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3465 chars, type: brain_chat)",
+    "notStored": "2965 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.109Z"
+  },
+  {
+    "id": "968760cb-6ffb-4a29-b65b-bcefe019599b",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.122Z"
+  },
+  {
+    "id": "ff4d7d34-b01c-4e21-ac66-72d8798416fc",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4380 chars, type: brain_chat)",
+    "notStored": "3880 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.159Z"
+  },
+  {
+    "id": "d5a028ae-e0ff-4204-95a4-c5860b424a32",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.182Z"
+  },
+  {
+    "id": "dd6625e9-cc05-4442-826f-bbd4df1936e1",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.190Z"
+  },
+  {
+    "id": "2ac269d6-0a9d-448f-8d17-438f71e3b5fc",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.225Z"
+  },
+  {
+    "id": "59f0590a-6384-407f-bde7-d61a9c00d0e6",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.231Z"
+  },
+  {
+    "id": "d11e890a-e5c8-4d71-994b-01bb5f748ef3",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4380 chars, type: brain_chat)",
+    "notStored": "3880 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.240Z"
+  },
+  {
+    "id": "20cfac81-21ed-4006-bb17-85a706ed3d53",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a detailed security audit checklist for a No...\" (3465 chars, type: brain_chat)",
+    "notStored": "2965 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.585Z"
+  },
+  {
+    "id": "b22b6347-42b5-43aa-99b3-c19bd641b9fc",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.594Z"
+  },
+  {
+    "id": "1fee7293-3515-4230-a115-34218d46c7d3",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.620Z"
+  },
+  {
+    "id": "f0d7ad0b-d77c-4821-b3fa-ab43e12a08dd",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.643Z"
+  },
+  {
+    "id": "fc63be74-2530-4295-b99e-0917680f355a",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.654Z"
+  },
+  {
+    "id": "28dafe2e-fa2a-44d9-97ee-8e8856be83a1",
+    "stored": "Stored in vector DB: \"Brain response: The optimal architecture for a quantum-resistant federated routing mesh within the Heady ecosystem is ce...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.662Z"
+  },
+  {
+    "id": "33c51169-b573-4303-948d-5584c3a7e1a7",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.669Z"
+  },
+  {
+    "id": "527aa473-27ca-4fba-bf22-9183d7cbb6b8",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:54.678Z"
+  },
+  {
+    "id": "8cdc79c8-4331-455d-9c59-6a10f564be8a",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.022Z"
+  },
+  {
+    "id": "348c8e5d-8cae-4bad-aa1f-7cf51c5f7186",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4380 chars, type: brain_chat)",
+    "notStored": "3880 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.029Z"
+  },
+  {
+    "id": "964bcf42-847f-4f52-b426-b9b69c34c2f3",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain engaged. Refactoring a 10,000-line monolithic React application into a micro-frontend archite...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.044Z"
+  },
+  {
+    "id": "121a9ae2-6590-42df-a8e0-00b407e82d26",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Write a fully functional Tetris game in a single H...\" (4380 chars, type: brain_chat)",
+    "notStored": "3880 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.051Z"
+  },
+  {
+    "id": "049ecc65-aafc-4975-85c2-4c844cc74444",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.058Z"
+  },
+  {
+    "id": "49833c89-c5a0-48e1-be65-7ee38d7d9c11",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.120Z"
+  },
+  {
+    "id": "89e6a09b-b97d-4e56-a790-5a9ee0228259",
+    "stored": "Stored in vector DB: \"Brain response: ```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" con...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.134Z"
+  },
+  {
+    "id": "5deefaeb-f782-4a9a-b105-5ce62c86d4e8",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Design an Arena Mode orchestration system where 20...\" (3446 chars, type: brain_chat)",
+    "notStored": "2946 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.143Z"
+  },
+  {
+    "id": "670954b2-e4e1-4130-b0f0-aa0a554d1ccc",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nQ: Generate a complete Python script to perform Monte...\" (3522 chars, type: brain_chat)",
+    "notStored": "3022 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.172Z"
+  },
+  {
+    "id": "7e514029-874d-4f98-8646-d0c96d19e47f",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I understand the request to build a semantic search engine from scratch using DuckDB and ...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.179Z"
+  },
+  {
+    "id": "2621fe82-1615-4199-a5f6-44deaceead57",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.184Z"
+  },
+  {
+    "id": "37f32b13-2307-4d2d-a23f-8d118dd4c987",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.210Z"
+  },
+  {
+    "id": "1954fd11-d2ee-4664-976e-7c481620ffa0",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine, I recognize the critical necessity of securing Personally Identi...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.217Z"
+  },
+  {
+    "id": "fb768550-7ed7-4476-8962-cff5695fa38f",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I will construct a comprehensive Markdown guide to mastering Vim, covering essential conc...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.228Z"
+  },
+  {
+    "id": "6c049210-9b04-41d5-a880-98651ae4c955",
+    "stored": "Stored in vector DB: \"Brain response: HeadyBrain, processing the request for a Monte Carlo simulation on options pricing. The context emphasiz...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.294Z"
+  },
+  {
+    "id": "1a4e9702-d672-4606-8f27-217de891d012",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: The provided context regarding the \"D...\" (1727 chars, type: brain_chat)",
+    "notStored": "1227 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.335Z"
+  },
+  {
+    "id": "e22b663e-99d1-445b-9759-cf5b87759e48",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, I can delineate the theoretical limits governing Transformer context windows and the inhe...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.341Z"
+  },
+  {
+    "id": "c6c5a39c-945a-4fb3-a702-258b1fae8026",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nBrain response: As HeadyBrain, I can explain the theo...\" (1742 chars, type: brain_chat)",
+    "notStored": "1242 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.374Z"
+  },
+  {
+    "id": "5467f485-3ddb-49c3-b5fa-49d43639a4fa",
+    "stored": "Stored in vector DB: \"Brain response: The implications of cross-origin isolation on `SharedArrayBuffer` are fundamental, critical, and primari...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:55.465Z"
+  },
+  {
+    "id": "c43a95f5-5d22-4a58-9de0-4a9dd556ae2f",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine of the Heady ecosystem, I will design the Arena Mode orchestratio...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:47:59.622Z"
+  },
+  {
+    "id": "b2fa306a-e638-4f05-9281-acc222e40ed1",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine of the Heady ecosystem, I will design the Arena Mode orchestratio...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:48:00.572Z"
+  },
+  {
+    "id": "e1f3e8c5-7159-438a-a137-2d6c1e87d4c8",
+    "stored": "Stored in vector DB: \"Brain response: As HeadyBrain, the AI reasoning engine of the Heady ecosystem, I will design the Arena Mode orchestratio...\" (516 chars, type: brain_response)",
+    "notStored": "16 chars of extended content trimmed from vector index",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:48:00.725Z"
+  },
+  {
+    "id": "51bb05fa-37b0-47cd-b323-e53f8db0a661",
+    "stored": "Stored in vector DB: \"Chat interaction: [HeadyBrain Context — 3 relevant memories found]\nChat interaction: [HeadyBrain Context — 1 relevant me...\" (370 chars, type: brain_chat)",
+    "notStored": "Full content stored — nothing omitted",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:48:56.100Z"
+  },
+  {
+    "id": "2c548441-08aa-496e-886d-5e8175b68d27",
+    "stored": "Stored in vector DB: \"Brain response: \n\npong...\" (22 chars, type: brain_response)",
+    "notStored": "Full content stored — nothing omitted",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:48:56.355Z"
+  },
+  {
+    "id": "91387c9b-86bc-4bbf-89b6-37db3749e2c0",
+    "stored": "Stored in vector DB: \"Code analysis (general): [HeadyBrain Context — 3 relevant memories found]\nCode analysis (general): test\n---\nChat interac...\" (225 chars, type: brain_analyze)",
+    "notStored": "Full content stored — nothing omitted",
+    "method": "vector-db",
+    "fallbackUsed": false,
+    "priorityFix": null,
+    "ts": "2026-02-25T10:48:56.614Z"
   }
 ]
