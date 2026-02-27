@@ -37,7 +37,6 @@ const yaml = require('js-yaml');
 const path = require("path");
 const fetch = require('node-fetch');
 const { createAppAuth } = require('@octokit/auth-app');
-const YAML = require('yamljs');
 const swaggerUi = require('swagger-ui-express');
 const WebSocket = require('ws');
 
@@ -250,7 +249,7 @@ app.use("/api", coreApi);
 
 // ─── Swagger UI Setup ─────────────────────────────────────────────────
 try {
-  const swaggerDocument = YAML.load('./docs/api/openapi.yaml');
+  const swaggerDocument = yaml.load(fs.readFileSync('./docs/api/openapi.yaml', 'utf8'));
   const swaggerOptions = {
     customCssUrl: '/css/heady-swagger.css',
     customSiteTitle: 'Heady Systems API — Developer Platform',
@@ -1041,281 +1040,23 @@ let continuousPipeline = {
   intervalId: null,
 };
 
-// ─── Intelligent Resource Manager ────────────────────────────────────
-let resourceManager = null;
-try {
-  const { HCResourceManager, registerRoutes: registerResourceRoutes } = require("./src/hc_resource_manager");
-  resourceManager = new HCResourceManager({ pollIntervalMs: 5000 });
-  registerResourceRoutes(app, resourceManager);
-  resourceManager.start();
-
-  resourceManager.on("resource_event", (event) => {
-    if (event.severity === "WARN_HARD" || event.severity === "CRITICAL") {
-      logger.logNodeActivity("CONDUCTOR", `  ⚠ Resource ${event.severity}: ${event.resourceType} at ${event.currentUsagePercent}%`);
-    }
-  });
-
-  resourceManager.on("escalation_required", (data) => {
-    logger.logNodeActivity("CONDUCTOR", `  ⚠ ESCALATION: ${data.event.resourceType} at ${data.event.currentUsagePercent}% — user prompt required`);
-  });
-
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Resource Manager: LOADED (polling every 5s)");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Resource Manager not loaded: ${err.message}`);
-
-  // Fallback inline resource health endpoint
-  app.post("/api/system/production", (req, res) => {
-    const expectedAdminToken = process.env.ADMIN_TOKEN || process.env.HEADY_ADMIN_TOKEN || "";
-    if (expectedAdminToken) {
-      const authHeader = req.headers.authorization || "";
-      const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-      const providedToken = req.headers["x-admin-token"] || bearerToken;
-      if (providedToken !== expectedAdminToken) {
-        return res.status(401).json({ success: false, error: "Unauthorized" });
-      }
-    }
-
-    const reg = loadRegistry();
-    const ts = new Date().toISOString();
-    const report = { nodes: [], tools: [], workflows: [], services: [] };
-
-    const osLib = require("os");
-    const totalMem = osLib.totalmem();
-    const freeMem = osLib.freemem();
-    const usedMem = totalMem - freeMem;
-    const cpuCount = osLib.cpus().length;
-    const ramPercent = Math.round((usedMem / totalMem) * 100);
-
-    res.json({
-      cpu: { currentPercent: 0, cores: cpuCount, unit: "%" },
-      ram: { currentPercent: ramPercent, absoluteValue: Math.round(usedMem / 1048576), capacity: Math.round(totalMem / 1048576), unit: "MB" },
-      disk: { currentPercent: 0, absoluteValue: 0, capacity: 0, unit: "GB" },
-      gpu: null,
-      safeMode: false,
-      status: "fallback",
-      ts: new Date().toISOString(),
-    });
-  });
-}
-
-// ─── Task Scheduler ──────────────────────────────────────────────────
-let taskScheduler = null;
-try {
-  const { HCTaskScheduler, registerSchedulerRoutes } = require("./src/hc_task_scheduler");
-  taskScheduler = new HCTaskScheduler();
-  registerSchedulerRoutes(app, taskScheduler);
-
-  // Wire resource manager safe mode into scheduler
-  if (resourceManager) {
-    resourceManager.on("mitigation:safe_mode_activated", () => {
-      taskScheduler.enterSafeMode();
-    });
-    resourceManager.on("mitigation:batch_paused", () => {
-      taskScheduler.adjustConcurrency("batch", 1);
-    });
-    resourceManager.on("mitigation:concurrency_lowered", () => {
-      taskScheduler.adjustConcurrency("batch", 1);
-      taskScheduler.adjustConcurrency("training", 0);
-    });
-  }
-
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Task Scheduler: LOADED");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Task Scheduler not loaded: ${err.message}`);
-}
-
-// ─── Resource Diagnostics ────────────────────────────────────────────
-let resourceDiagnostics = null;
-try {
-  const { HCResourceDiagnostics, registerDiagnosticRoutes } = require("./src/hc_resource_diagnostics");
-  resourceDiagnostics = new HCResourceDiagnostics({
-    resourceManager,
-    taskScheduler,
-  });
-  registerDiagnosticRoutes(app, resourceDiagnostics);
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Resource Diagnostics: LOADED");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Resource Diagnostics not loaded: ${err.message}`);
-}
-
-// ─── HeadySims Plan Scheduler ──────────────────────────────────────
-let mcPlanScheduler = null;
-let mcGlobal = null;
-try {
-  const { mcPlanScheduler: _mcPS, mcGlobal: _mcG, registerHeadySimsRoutes } = require("./src/hc_monte_carlo");
-  mcPlanScheduler = _mcPS;
-  mcGlobal = _mcG;
-  registerHeadySimsRoutes(app, mcPlanScheduler, mcGlobal);
-
-  // Wire MC plan scheduler drift alerts into pattern engine (loaded below)
-  mcPlanScheduler.on("drift:detected", (alert) => {
-    logger.logNodeActivity("CONDUCTOR", `  ⚠ MC Drift: ${alert.taskType}/${alert.strategyId} at ${alert.medianMs}ms (target ${alert.targetMs}ms)`);
-  });
-
-  // Bind MC global to pipeline if available
-  if (pipeline) {
-    mcGlobal.bind({ pipeline, registry: loadRegistry });
-  }
-
-  // Start background MC cycles
-  mcGlobal.startAutoRun();
-
-  // Default to speed_priority mode — speed is a first-class objective
-  mcPlanScheduler.setSpeedMode("on");
-
-  logger.logNodeActivity("CONDUCTOR", "  ∞ HeadySims Plan Scheduler: LOADED (speed_priority mode)");
-  logger.logNodeActivity("CONDUCTOR", "  ∞ HeadySims Global: AUTO-RUN started (60s cycles)");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadySims not loaded: ${err.message}`);
-}
-
-// ─── Pattern Recognition Engine ──────────────────────────────────────
-let patternEngine = null;
-try {
-  const { patternEngine: _pe, registerPatternRoutes } = require("./src/hc_pattern_engine");
-  patternEngine = _pe;
-  registerPatternRoutes(app, patternEngine);
-
-  // Wire MC drift alerts into pattern engine
-  if (mcPlanScheduler) {
-    mcPlanScheduler.on("drift:detected", (alert) => {
-      patternEngine.observeLatency(`mc_drift:${alert.taskType}`, alert.medianMs, {
-        strategyId: alert.strategyId, targetMs: alert.targetMs,
-        tags: ["drift", "monte_carlo"],
-      });
-    });
-    mcPlanScheduler.on("result:recorded", (data) => {
-      patternEngine.observeLatency(`task:${data.taskType}`, data.actualLatencyMs, {
-        strategyId: data.strategyId, reward: data.reward,
-        tags: ["monte_carlo", "execution"],
-      });
-    });
-  }
-
-  // Wire task scheduler into pattern engine
-  if (taskScheduler) {
-    taskScheduler.on("task:completed", (task) => {
-      const execMs = (task.metrics.completedAt || 0) - (task.metrics.startedAt || 0);
-      patternEngine.observeSuccess(`scheduler:${task.type}`, execMs, {
-        tier: task.resourceTier, taskClass: task.taskClass,
-        tags: ["scheduler"],
-      });
-    });
-    taskScheduler.on("task:failed", (task) => {
-      patternEngine.observeError(`scheduler:${task.type}`, task.error || "unknown", {
-        tier: task.resourceTier, tags: ["scheduler", "failure"],
-      });
-    });
-  }
-
-  // Wire resource manager into pattern engine
-  if (resourceManager) {
-    resourceManager.on("resource_event", (event) => {
-      if (event.severity === "WARN_HARD" || event.severity === "CRITICAL") {
-        patternEngine.observe("reliability", `resource:${event.resourceType}`, event.currentUsagePercent, {
-          severity: event.severity, tags: ["resource", event.resourceType],
-        });
-      }
-    });
-  }
-
-  // Start continuous pattern analysis
-  patternEngine.start();
-
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Pattern Engine: LOADED (30s analysis cycles)");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Pattern Engine not loaded: ${err.message}`);
-}
-
-// ─── Story Driver ────────────────────────────────────────────────────
-let storyDriver = null;
-try {
-  const { HCStoryDriver, registerStoryRoutes } = require("./src/hc_story_driver");
-  storyDriver = new HCStoryDriver();
-  registerStoryRoutes(app, storyDriver);
-
-  // Wire resource manager events into story driver
-  if (resourceManager) {
-    resourceManager.on("resource_event", (event) => {
-      if (event.severity === "WARN_HARD" || event.severity === "CRITICAL") {
-        storyDriver.ingestSystemEvent({
-          type: `RESOURCE_${event.severity}`,
-          refs: {
-            resourceType: event.resourceType,
-            percent: event.currentUsagePercent,
-            mitigation: event.mitigationApplied || "pending",
-          },
-          source: "resource_manager",
-        });
-      }
-    });
-  }
-
-  // Wire pattern engine events into story driver
-  if (patternEngine) {
-    patternEngine.on("pattern:converged", (data) => {
-      storyDriver.ingestSystemEvent({
-        type: "PATTERN_CONVERGED",
-        refs: { patternId: data.id, name: data.name },
-        source: "pattern_engine",
-      });
-    });
-    patternEngine.on("anomaly:error_burst", (data) => {
-      storyDriver.ingestSystemEvent({
-        type: "ERROR_BURST_DETECTED",
-        refs: { patternId: data.patternId, name: data.name, count: data.count },
-        source: "pattern_engine",
-      });
-    });
-    patternEngine.on("anomaly:correlated_slowdown", (data) => {
-      storyDriver.ingestSystemEvent({
-        type: "CORRELATED_SLOWDOWN",
-        refs: { patterns: data.patterns, count: data.count },
-        source: "pattern_engine",
-      });
-    });
-  }
-
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Story Driver: LOADED");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Story Driver not loaded: ${err.message}`);
-}
-
-// ─── Self-Critique & Optimization Engine ─────────────────────────────
-let selfCritiqueEngine = null;
-try {
-  const { selfCritique, registerSelfCritiqueRoutes } = require("./src/hc_self_critique");
-  selfCritiqueEngine = selfCritique;
-  registerSelfCritiqueRoutes(app, selfCritiqueEngine);
-
-  // Wire MC drift into self-critique as bottleneck diagnostic data
-  if (mcPlanScheduler) {
-    mcPlanScheduler.on("drift:detected", (alert) => {
-      selfCritiqueEngine.recordCritique({
-        context: `mc_drift:${alert.taskType}`,
-        weaknesses: [`Latency drift on ${alert.taskType}: ${alert.medianMs}ms vs ${alert.targetMs}ms target`],
-        severity: alert.medianMs > alert.targetMs * 2 ? "critical" : "high",
-        suggestedImprovements: ["Run MC re-optimization", "Check warm pool availability"],
-      });
-    });
-  }
-
-  // Wire pattern stagnation into self-critique
-  if (patternEngine) {
-    patternEngine.on("improvement:created", (task) => {
-      selfCritiqueEngine.recordImprovement({
-        description: task.title || "Pattern improvement task",
-        type: "routing_change",
-        status: "proposed",
-      });
-    });
-  }
-
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Self-Critique Engine: LOADED");
-  logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/self/*, /api/pricing/*");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Self-Critique Engine not loaded: ${err.message}`);
-}
+// ─── Engine Wiring Bootstrap (Phase 2 Liquid Architecture) ──────────
+// Extracted from monolith → src/bootstrap/engine-wiring.js
+const { wireEngines } = require("./src/bootstrap/engine-wiring");
+const _engines = wireEngines(app, {
+  pipeline,
+  loadRegistry,
+  eventBus,
+  projectRoot: __dirname,
+  PORT,
+});
+// Destructure for downstream compatibility
+const {
+  resourceManager, taskScheduler, resourceDiagnostics,
+  mcPlanScheduler, mcGlobal, patternEngine,
+  storyDriver, selfCritiqueEngine,
+  autoSuccessEngine, scientistEngine, qaEngine,
+} = _engines;
 
 // ─── Auto-Task Conversion Hook ──────────────────────────────────────
 function setupAutoTaskConversion() {
@@ -1379,81 +1120,8 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Improvement Scheduler not loaded: ${err.message}`);
 }
 
-// ─── Auto-Success Task Engine (135 tasks × 9 categories, φ-aligned) ──
-let autoSuccessEngine = null;
-try {
-  const { AutoSuccessEngine, registerAutoSuccessRoutes } = require("./src/hc_auto_success");
-  autoSuccessEngine = new AutoSuccessEngine({
-    interval: 16180, // φ × 10000 = 16.18s (golden ratio aligned)
-    batchSize: 13,   // Fibonacci number
-  });
-
-  // Wire into all available subsystems for feedback loops
-  autoSuccessEngine.wire({
-    patternEngine: patternEngine || null,
-    selfCritique: selfCritiqueEngine || null,
-    storyDriver: storyDriver || null,
-    resourceManager: resourceManager || null,
-    eventBus: eventBus,
-  });
-
-  registerAutoSuccessRoutes(app, autoSuccessEngine);
-  autoSuccessEngine.start();
-
-  // Wire into HeadyConductor for task orchestration awareness
-  try {
-    const conductorModule = require("./src/routes/conductor");
-    if (conductorModule.bindAutoSuccess) {
-      conductorModule.bindAutoSuccess(autoSuccessEngine);
-      logger.logNodeActivity("CONDUCTOR", "    → Auto-Success ↔ Conductor: WIRED");
-    }
-  } catch { /* conductor bind optional */ }
-
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Auto-Success Engine: LOADED (135 tasks, 9 categories, φ-aligned 16.18s, 13/batch)");
-  logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/auto-success/health, /status, /tasks, /history, /force-cycle");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Auto-Success Engine not loaded: ${err.message}`);
-}
-
-// ─── HeadyScientist — System Integrity & Determinism Protocol ────────
-let scientistEngine = null;
-try {
-  const { HeadyScientist, registerScientistRoutes } = require("./src/hc_scientist");
-  scientistEngine = new HeadyScientist({ projectRoot: __dirname });
-
-  // Wire into eventBus for drift detection
-  scientistEngine.wireEventBus(eventBus);
-
-  // Wire into DeepIntel for 3D vector storage of findings
-  if (typeof deepIntelEngine !== "undefined" && deepIntelEngine) {
-    scientistEngine.wireDeepIntel(deepIntelEngine);
-  }
-
-  // Wire into Auto-Success for in-process runtime checks (avoids HTTP deadlock)
-  if (typeof autoSuccessEngine !== "undefined" && autoSuccessEngine) {
-    scientistEngine.wireAutoSuccess(autoSuccessEngine);
-  }
-
-  registerScientistRoutes(app, scientistEngine);
-  scientistEngine.start();
-
-  logger.logNodeActivity("CONDUCTOR", "  🔬 HeadyScientist: LOADED (integrity protocol, determinism proof, drift detection)");
-  logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/scientist/health, /status, /scan, /proof-chain, /predictions");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyScientist not loaded: ${err.message}`);
-}
-
-// ─── HeadyQA — Live Quality Assurance Engine ─────────────────────────
-let qaEngine = null;
-try {
-  const { HeadyQA, registerQARoutes } = require("./src/hc_qa");
-  qaEngine = new HeadyQA({ projectRoot: __dirname, managerPort: PORT });
-  registerQARoutes(app, qaEngine);
-  qaEngine.startContinuousLoop();
-  logger.logNodeActivity("CONDUCTOR", "  ✅ HeadyQA: LOADED (endpoint probes + schema validation + integration smoke tests)");
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyQA not loaded: ${err.message}`);
-}
+// NOTE: autoSuccessEngine, scientistEngine, qaEngine are now initialized
+// by the engine-wiring bootstrapper (src/bootstrap/engine-wiring.js)
 
 // ─── SSE Text Streaming Engine (Pillar Module) ──────────────────────
 const { sseBroadcast } = require("./src/routes/sse-streaming")(app);
