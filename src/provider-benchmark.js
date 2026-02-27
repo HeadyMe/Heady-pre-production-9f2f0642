@@ -57,7 +57,7 @@ function httpPing(url, timeout = 10000) {
 async function benchmarkHF() {
     const start = Date.now();
     try {
-        const { InferenceClient } = require("@headyhub/inference");
+        const { InferenceClient } = require("@huggingface/inference");
         const tokens = [process.env.HF_TOKEN, process.env.HF_TOKEN_2, process.env.HF_TOKEN_3].filter(Boolean);
         if (tokens.length === 0) return { provider: "hf", ok: false, error: "no tokens" };
 
@@ -113,7 +113,7 @@ async function benchmarkHeadyPythia() {
 async function benchmarkHeadyJules() {
     const start = Date.now();
     try {
-        const HeadyNexus = require("@headynexus-ai/sdk");
+        const HeadyNexus = require("@anthropic-ai/sdk");
         const keys = [process.env.HEADY_NEXUS_KEY, process.env.HEADY_NEXUS_KEY_SECONDARY].filter(Boolean);
         if (keys.length === 0) return { provider: "headyjules", ok: false, error: "no keys" };
 

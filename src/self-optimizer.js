@@ -168,9 +168,9 @@ function discoverConnectors() {
         { name: "http-rest", protocol: "HTTP/1.1", latency: "~2ms local", ready: true },
         { name: "https-tls13", protocol: "HTTPS/TLS1.3", latency: "~5ms local", ready: true },
         { name: "sse-stream", protocol: "Server-Sent Events", latency: "~1ms push", ready: true },
-        { name: "sdk-hf", protocol: "@headyhub/inference", latency: "varies", ready: !!process.env.HF_TOKEN },
+        { name: "sdk-hf", protocol: "@huggingface/inference", latency: "varies", ready: !!process.env.HF_TOKEN },
         { name: "sdk-genai", protocol: "@google/genai", latency: "~500ms", ready: !!(process.env.GOOGLE_API_KEY || process.env.HEADY_PYTHIA_KEY_HEADY) },
-        { name: "sdk-headynexus", protocol: "@headynexus-ai/sdk", latency: "~800ms", ready: !!process.env.HEADY_NEXUS_KEY },
+        { name: "sdk-headynexus", protocol: "@anthropic-ai/sdk", latency: "~800ms", ready: !!process.env.HEADY_NEXUS_KEY },
         { name: "edge-worker", protocol: "Cloudflare Workers", latency: "~2ms edge", ready: !!process.env.CLOUDFLARE_API_TOKEN },
         { name: "vector-3d", protocol: "3D-spatial + cosine", latency: "~0.5ms", ready: true },
     ];

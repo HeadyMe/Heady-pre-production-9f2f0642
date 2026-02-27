@@ -285,7 +285,7 @@ function filterResponse(text, options = {}) {
 }
 
 // ─── HeadyJules SDK Smart Router ────────────────────────────────────────
-// Uses @headynexus-ai/sdk with intelligent model selection, extended thinking,
+// Uses @anthropic-ai/sdk with intelligent model selection, extended thinking,
 // dual-org failover, and credit tracking.
 // Inspired by: NanoClaw (agent SDK patterns), Lumo (privacy-first design),
 // OpenClaw (task automation), HeadyJulesOptimized (custom skills).
