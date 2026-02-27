@@ -336,7 +336,9 @@ function saveTaskCache() {
 }
 
 function getTaskCacheKey(taskName, configHashes) {
-  const input = taskName + JSON.stringify(configHashes || {});
+  // Include code version in cache key so deployments auto-invalidate
+  const codeVersion = process.env.GITHUB_SHA || process.env.npm_package_version || 'dev';
+  const input = taskName + codeVersion + JSON.stringify(configHashes || {});
   return crypto.createHash("sha256").update(input).digest("hex").slice(0, 16);
 }
 
@@ -424,13 +426,18 @@ async function executeTask(taskName, context) {
   if (handler) {
     return await handler(context);
   }
-  // Default: simulated task execution with success
-  return {
-    task: taskName,
-    status: "completed",
-    result: `Task '${taskName}' executed (default handler)`,
-    durationMs: 0,
-  };
+  // FAIL-CLOSED: Unregistered tasks must fail explicitly.
+  // In simulation mode (for testing), allow default execution.
+  if (process.env.PIPELINE_SIMULATION_MODE === 'true') {
+    return {
+      task: taskName,
+      status: "completed",
+      result: `Task '${taskName}' executed (simulation mode)`,
+      simulated: true,
+      durationMs: 0,
+    };
+  }
+  throw new Error(`FAIL-CLOSED: No handler registered for task '${taskName}'. Register a handler via registerTaskHandler() before executing.`);
 }
 
 // ─── STAGE EXECUTOR ─────────────────────────────────────────────────────────

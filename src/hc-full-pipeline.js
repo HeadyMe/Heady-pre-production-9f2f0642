@@ -48,6 +48,17 @@ class HCFullPipeline extends EventEmitter {
         this.incidentManager = opts.incidentManager || null;
     }
 
+    // ─── Seeded PRNG (Mulberry32) for deterministic pipeline execution ──
+    _createSeededRng(seed) {
+        let s = seed | 0;
+        return () => {
+            s = (s + 0x6D2B79F5) | 0;
+            let t = Math.imul(s ^ (s >>> 15), 1 | s);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
     // ─── Create a new pipeline run ───────────────────────────────
     createRun(request = {}) {
         const runId = crypto.randomUUID();
@@ -217,32 +228,36 @@ class HCFullPipeline extends EventEmitter {
         if (!run.config.arenaEnabled) {
             return { skipped: true, reason: "arena_disabled" };
         }
-        // Simulate arena — in production, this dispatches to real AI nodes
+        // Deterministic arena — seeded PRNG ensures reproducible audit trails
+        const rng = this._createSeededRng(run.seed);
         const triage = run.stages[1].result;
         const nodes = triage?.nodePool || ["HeadyCoder", "HeadyJules"];
         const outputs = nodes.map(node => ({
             node,
             output: `[${node} output for: ${run.request.task || run.request.prompt || "task"}]`,
-            score: Math.random() * 40 + 60, // 60-100
-            latencyMs: Math.floor(Math.random() * 3000) + 500,
+            score: rng() * 40 + 60, // 60-100
+            latencyMs: Math.floor(rng() * 3000) + 500,
         }));
         outputs.sort((a, b) => b.score - a.score);
-        return { entries: outputs, winner: outputs[0], nodeCount: outputs.length };
+        return { entries: outputs, winner: outputs[0], nodeCount: outputs.length, deterministic: true };
     }
 
     _stageJudge(run) {
         const arena = run.stages[3].result;
         if (arena?.skipped) return { skipped: true, reason: "no_arena" };
+        // Deterministic judging — seeded PRNG offset by +1000 to avoid arena correlation
+        const rng = this._createSeededRng(run.seed + 1000);
         const winner = arena.winner;
         return {
             winner: winner.node,
             score: winner.score,
+            deterministic: true,
             criteria: {
-                correctness: +(Math.random() * 20 + 80).toFixed(1),
-                quality: +(Math.random() * 20 + 75).toFixed(1),
-                performance: +(Math.random() * 25 + 70).toFixed(1),
-                safety: +(Math.random() * 15 + 85).toFixed(1),
-                creativity: +(Math.random() * 30 + 65).toFixed(1),
+                correctness: +(rng() * 20 + 80).toFixed(1),
+                quality: +(rng() * 20 + 75).toFixed(1),
+                performance: +(rng() * 25 + 70).toFixed(1),
+                safety: +(rng() * 15 + 85).toFixed(1),
+                creativity: +(rng() * 30 + 65).toFixed(1),
             },
         };
     }
@@ -305,15 +320,19 @@ class HCFullPipeline extends EventEmitter {
         return pools[taskType] || pools.general;
     }
 
-    // ─── Rollback ────────────────────────────────────────────────
+    // ─── Rollback with audit logging ─────────────────────────────
     async _rollback(run, failedIndex) {
+        run.rollbackLog = [];
+        this.emit("rollback:started", { runId: run.id, failedStage: run.stages[failedIndex]?.name });
         for (let i = failedIndex - 1; i >= 0; i--) {
             const stage = run.stages[i];
             if (stage.status === STATUS.COMPLETED) {
                 stage.status = STATUS.ROLLED_BACK;
+                run.rollbackLog.push({ stage: stage.name, rolledBackAt: new Date().toISOString() });
                 this.emit("stage:rolledback", { runId: run.id, stage: stage.name });
             }
         }
+        this.emit("rollback:completed", { runId: run.id, log: run.rollbackLog });
     }
 
     // ─── Resume after approval ───────────────────────────────────

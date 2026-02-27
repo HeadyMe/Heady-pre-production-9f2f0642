@@ -54,36 +54,78 @@
   // ─── DOM ───
   const fab = document.createElement('button');
   fab.id = 'heady-buddy-fab';
-  fab.innerHTML = '🧠';
+  fab.textContent = '🧠';
   fab.title = 'HeadyBuddy';
   fab.onclick = () => togglePanel();
 
-  const panel = document.createElement('div');
-  panel.id = 'heady-buddy-panel';
-  panel.innerHTML = `
-    <div class="hb-header">
-      <h3>🧠 HeadyBuddy</h3>
-      <div>
-        <button onclick="document.getElementById('heady-buddy-panel').classList.remove('open')" title="Close">✕</button>
-      </div>
-    </div>
-    <div class="hb-auth" id="hb-auth-section">
-      <button class="hb-auth-btn" id="hb-auth-btn">Sign In with Google</button>
-      <div class="hb-user" id="hb-user-info"></div>
-    </div>
-    <div class="hb-messages" id="hb-messages">
-      <div class="hb-msg system" style="text-align: left; padding-bottom: 8px;">
-        <strong>🧠 DEFAULT INTELLIGENCE PROCESSING:</strong><br><br>
-        All data handled by Heady is processed intelligently by default. Heady evaluates tasks and provides what it determines is the best action in response. You can trigger this explicitly by providing <strong>"stuff for heady to intelligently process"</strong> or by using <strong>"heady's intelligence processing shortcut"</strong>.<br><br>
-        <em>If ever necessary, you can directly access any of the 24 specialized services (e.g., HeadyJules for deep reasoning, HeadyBuilder for code, HeadyObserver for monitoring, etc.) which are fully available to use.</em>
-      </div>
-      <div class="hb-msg system">Welcome! Ask me anything about Heady.</div>
-    </div>
-    <div class="hb-input-row">
-      <input class="hb-input" id="hb-input" placeholder="Ask HeadyBuddy..." />
-      <button class="hb-send" id="hb-send" onclick="window._hbSend()">▶</button>
-    </div>
-  `;
+  // ─── Build panel DOM safely (no innerHTML) ───
+  function buildPanel() {
+    const header = document.createElement('div');
+    header.className = 'hb-header';
+    const h3 = document.createElement('h3');
+    h3.textContent = '🧠 HeadyBuddy';
+    const btnWrap = document.createElement('div');
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.title = 'Close';
+    closeBtn.onclick = () => panel.classList.remove('open');
+    btnWrap.appendChild(closeBtn);
+    header.appendChild(h3);
+    header.appendChild(btnWrap);
+    panel.appendChild(header);
+
+    const authSection = document.createElement('div');
+    authSection.className = 'hb-auth';
+    authSection.id = 'hb-auth-section';
+    const authBtn = document.createElement('button');
+    authBtn.className = 'hb-auth-btn';
+    authBtn.id = 'hb-auth-btn';
+    authBtn.textContent = 'Sign In with Google';
+    const userInfoEl = document.createElement('div');
+    userInfoEl.className = 'hb-user';
+    userInfoEl.id = 'hb-user-info';
+    authSection.appendChild(authBtn);
+    authSection.appendChild(userInfoEl);
+    panel.appendChild(authSection);
+
+    const messages = document.createElement('div');
+    messages.className = 'hb-messages';
+    messages.id = 'hb-messages';
+    // Default intelligence processing message
+    const infoMsg = document.createElement('div');
+    infoMsg.className = 'hb-msg system';
+    infoMsg.style.textAlign = 'left';
+    infoMsg.style.paddingBottom = '8px';
+    const infoTitle = document.createElement('strong');
+    infoTitle.textContent = '🧠 DEFAULT INTELLIGENCE PROCESSING:';
+    infoMsg.appendChild(infoTitle);
+    infoMsg.appendChild(document.createElement('br'));
+    infoMsg.appendChild(document.createElement('br'));
+    infoMsg.appendChild(document.createTextNode('All data handled by Heady is processed intelligently by default. Heady evaluates tasks and provides what it determines is the best action in response.'));
+    messages.appendChild(infoMsg);
+    // Welcome message
+    const welcomeMsg = document.createElement('div');
+    welcomeMsg.className = 'hb-msg system';
+    welcomeMsg.textContent = 'Welcome! Ask me anything about Heady.';
+    messages.appendChild(welcomeMsg);
+    panel.appendChild(messages);
+
+    const inputRow = document.createElement('div');
+    inputRow.className = 'hb-input-row';
+    const inputEl = document.createElement('input');
+    inputEl.className = 'hb-input';
+    inputEl.id = 'hb-input';
+    inputEl.placeholder = 'Ask HeadyBuddy...';
+    const sendBtnEl = document.createElement('button');
+    sendBtnEl.className = 'hb-send';
+    sendBtnEl.id = 'hb-send';
+    sendBtnEl.textContent = '▶';
+    sendBtnEl.onclick = () => window._hbSend();
+    inputRow.appendChild(inputEl);
+    inputRow.appendChild(sendBtnEl);
+    panel.appendChild(inputRow);
+  }
+  buildPanel();
 
   document.body.appendChild(fab);
   document.body.appendChild(panel);
