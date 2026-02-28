@@ -554,13 +554,20 @@ function registerAuthRoutes(app, authEngine) {
         const { code } = req.query;
         if (!code) return res.status(400).json({ error: "No auth code received" });
 
-        const session = await authEngine.handleGoogleCallback(code, {
-            userAgent: req.headers["user-agent"],
-            ip: req.ip,
-        });
+        try {
+            const session = await authEngine.handleGoogleCallback(code, {
+                userAgent: req.headers["user-agent"],
+                ip: req.ip,
+            });
 
-        // Redirect to frontend with token
-        res.redirect(`/?auth_token=${session.token}&method=google&tier=${session.tier}`);
+            // Redirect back to the FRONTEND (headyme.com), not the API server
+            const frontendUrl = authEngine.baseUrl || "https://headyme.com";
+            res.redirect(`${frontendUrl}/?auth_token=${session.token}&method=google&tier=${session.tier}`);
+        } catch (err) {
+            console.error("[Auth] Google callback error:", err.message);
+            const frontendUrl = authEngine.baseUrl || "https://headyme.com";
+            res.redirect(`${frontendUrl}/?auth_error=${encodeURIComponent(err.message)}`);
+        }
     });
 
     // Google unavailable fallback

@@ -25,7 +25,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 // ── Configuration ────────────────────────────────────────────────────────────
-const HEADY_MANAGER_URL = process.env.HEADY_MANAGER_URL || 'https://localhost:3301';
+const HEADY_MANAGER_URL = process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com';
 const HEADY_API_KEY = process.env.HEADY_API_KEY || '';
 const HEADY_BRAIN_URL = process.env.HEADY_BRAIN_URL || HEADY_MANAGER_URL;
 const NODE_ENV = process.env.NODE_ENV || 'production';

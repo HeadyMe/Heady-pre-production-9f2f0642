@@ -47,6 +47,53 @@ module.exports = {
             log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
         },
 
+        // ── 1ime1 — Direct HeadyBuddy Interface (uses server.js with API proxy) ──
+        {
+            name: 'site-1ime1',
+            script: 'server.js',
+            cwd: '/home/headyme/sites/1ime1',
+            instances: 1,
+            exec_mode: 'fork',
+            env: {
+                NODE_ENV: 'production',
+                PORT: 9016,
+                API_TARGET: 'https://127.0.0.1:3301',
+            },
+            max_memory_restart: '128M',
+            min_uptime: '5s',
+            max_restarts: 5,
+            restart_delay: 2000,
+            watch: false,
+            autorestart: true,
+            error_file: '/home/headyme/Heady/logs/1ime1-error.log',
+            out_file: '/home/headyme/Heady/logs/1ime1-out.log',
+            merge_logs: true,
+        },
+
+        // ── headyme.com — THE entry point (uses server.js with API proxy) ──
+        {
+            name: 'site-headyme',
+            script: 'server.js',
+            cwd: '/home/headyme/sites/headyme',
+            instances: 1,
+            exec_mode: 'fork',
+            env: {
+                NODE_ENV: 'production',
+                PORT: 9005,
+                API_TARGET: 'https://manager.headysystems.com',
+                HEADY_API_KEY: process.env.HEADY_API_KEY || '',
+            },
+            max_memory_restart: '128M',
+            min_uptime: '5s',
+            max_restarts: 5,
+            restart_delay: 2000,
+            watch: false,
+            autorestart: true,
+            error_file: '/home/headyme/Heady/logs/headyme-error.log',
+            out_file: '/home/headyme/Heady/logs/headyme-out.log',
+            merge_logs: true,
+        },
+
         // ── Site Servers ──
         // Each site runs a static file server on its assigned port
         ...[
@@ -56,7 +103,7 @@ module.exports = {
             { name: 'headyconnection', port: 9002 },
             { name: 'headymcp', port: 9003 },
             { name: 'headyio', port: 9004 },
-            { name: 'headyme', port: 9005 },
+            // headyme uses its own server.js (dedicated block above)
             { name: 'headyapi', port: 9006 },
             { name: 'headyos', port: 9007 },
             { name: 'heady-discord', port: 9008 },
@@ -67,7 +114,7 @@ module.exports = {
             { name: 'headyme-com', port: 9013 },
             { name: 'headymcp-com', port: 9014 },
             { name: 'headysystems-com', port: 9015 },
-            { name: '1ime1', port: 9016 },
+            // 1ime1 uses its own server.js (moved to dedicated block below)
             { name: 'admin-ui', port: 9017 },
             { name: 'instant', port: 9018 },
             { name: 'headydocs', port: 9019 },

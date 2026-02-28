@@ -318,6 +318,57 @@ function registerServiceRoutes(app, deps = {}) {
     if (Handshake) {
         require("../routes/service-stubs")(app, Handshake);
     }
+
+    // ─── Config File API (serves task matrix, etc. to frontends) ──────
+    app.get("/api/config/:filename", (req, res) => {
+        const safe = req.params.filename.replace(/[^a-zA-Z0-9._-]/g, "");
+        const candidates = [
+            path.join(projectRoot || __dirname, "src", safe),
+            path.join(projectRoot || __dirname, "configs", safe),
+            path.join(projectRoot || __dirname, "data", safe),
+        ];
+        for (const fp of candidates) {
+            if (fs.existsSync(fp)) {
+                try {
+                    const data = JSON.parse(fs.readFileSync(fp, "utf8"));
+                    res.setHeader("Access-Control-Allow-Origin", "*");
+                    return res.json(data);
+                } catch (err) {
+                    return res.status(500).json({ ok: false, error: "Parse error" });
+                }
+            }
+        }
+        res.status(404).json({ ok: false, error: "Not found" });
+    });
+
+    // ─── Auto-Success API (live task completion data for frontends) ────
+    app.get("/api/auto-success/status", (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        if (autoSuccessEngine) {
+            return res.json(autoSuccessEngine.getStatus());
+        }
+        res.json({ engine: "heady-auto-success", running: false, note: "Engine not initialized" });
+    });
+
+    app.get("/api/auto-success/history", (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        const limit = parseInt(req.query.limit) || 50;
+        if (autoSuccessEngine) {
+            return res.json({ ok: true, tasks: autoSuccessEngine.getHistory(limit) });
+        }
+        res.json({ ok: true, tasks: [] });
+    });
+
+    app.get("/api/auto-success/tasks", (req, res) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        const category = req.query.category || null;
+        if (autoSuccessEngine) {
+            return res.json({ ok: true, tasks: autoSuccessEngine.getTaskCatalog(category) });
+        }
+        res.json({ ok: true, tasks: [] });
+    });
+
+    logger.logNodeActivity("CONDUCTOR", "  📋 Config API + Auto-Success API: LOADED → /api/config/*, /api/auto-success/*");
 }
 
 module.exports = { registerServiceRoutes };

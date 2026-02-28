@@ -8,8 +8,8 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 # Copy package files for dependency caching
-COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable pnpm && pnpm install --frozen-lockfile --prod
 
 # ── Stage 2: App ─────────────────────────────────────────────────
 FROM node:22-alpine AS runner
@@ -43,9 +43,9 @@ USER heady
 
 # Environment
 ENV NODE_ENV=production \
-    PORT=3301 \
+    PORT=8080 \
     LOG_LEVEL=info
 
-EXPOSE 3301
+EXPOSE 8080
 
 CMD ["node", "heady-manager.js"]

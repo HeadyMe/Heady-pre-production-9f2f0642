@@ -2134,5 +2134,165 @@
     "pool": "hot",
     "w": 5,
     "desc": "Module 4: Continuously scan telemetry for inefficiencies, predict architectural fixes, and drop tasks into Auto-Success Engine."
+  },
+  {
+    "id": "apex-001",
+    "name": "BFG Repo-Cleaner Credential Purge",
+    "cat": "security",
+    "pool": "hot",
+    "w": 10,
+    "desc": "Execute git filter-repo or BFG Repo-Cleaner to irrevocably expunge .env.hybrid and all credential artifacts from full Git history across all branches."
+  },
+  {
+    "id": "apex-002",
+    "name": "GitHub Advanced Security Secret Scanning",
+    "cat": "security",
+    "pool": "hot",
+    "w": 9,
+    "desc": "Activate GitHub Advanced Security secret scanning alerts with push protection to prevent future credential leakage during rapid model iteration."
+  },
+  {
+    "id": "apex-003",
+    "name": "Unified Build Script Consolidation",
+    "cat": "devops",
+    "pool": "warm",
+    "w": 7,
+    "desc": "Consolidate hcautobuild.ps1, hc_autobuild.ps1, hcautobuild_enhanced.ps1, and hcautobuild_optimizer.ps1 into a single parameterized deployment script with environment flags."
+  },
+  {
+    "id": "apex-004",
+    "name": "Semantic Versioning Pre-Commit Hooks",
+    "cat": "devops",
+    "pool": "warm",
+    "w": 6,
+    "desc": "Enforce unified SemVer across package.json, .env.example, and docs via pre-commit hooks. Eliminate v2.0.0/v2.1.0/v3.0.0 desynchronization."
+  },
+  {
+    "id": "apex-005",
+    "name": "Balanced Ternary Logic Engine ({-1,0,+1})",
+    "cat": "core",
+    "pool": "hot",
+    "w": 9,
+    "desc": "Implement Setun-inspired balanced ternary logic matrix for sparse computation. Skip -1 (repel) positions to reduce inference latency during high-volatility events."
+  },
+  {
+    "id": "apex-006",
+    "name": "Epistemic Hold Verification Window",
+    "cat": "core",
+    "pool": "hot",
+    "w": 10,
+    "desc": "Implement the ternary 0-state as a time-bounded verification window between trade proposition (+1) and capital commitment. Multi-agent loop verifies risk, liquidity, and news before execution."
+  },
+  {
+    "id": "apex-007",
+    "name": "Alpha Agent — Market Data Ingestion Node",
+    "cat": "trading",
+    "pool": "hot",
+    "w": 8,
+    "desc": "Deploy specialized Alpha Agent for continuous ingestion of technical price action, Level 2 order book depth, and fundamental data via Rithmic/Tradovate feeds."
+  },
+  {
+    "id": "apex-008",
+    "name": "Risk Agent — Drawdown Guardian with Veto Power",
+    "cat": "trading",
+    "pool": "hot",
+    "w": 10,
+    "desc": "Deploy isolated Risk Agent with ultimate veto power. Continuously monitors margin, open equity, and Apex intraday trailing drawdown. Dynamically adjusts hard stop-losses on sub-second tick-by-tick basis."
+  },
+  {
+    "id": "apex-009",
+    "name": "Execution Agent — Latency-Optimized Order Router",
+    "cat": "trading",
+    "pool": "hot",
+    "w": 8,
+    "desc": "Deploy zero-overhead Execution Agent focused purely on order routing, slippage minimization, and direct matching engine interaction via Tradovate/Rithmic APIs."
+  },
+  {
+    "id": "apex-010",
+    "name": "Hummingbot MCP Server Integration",
+    "cat": "mcp",
+    "pool": "warm",
+    "w": 7,
+    "desc": "Integrate Hummingbot MCP for portfolio balance queries, real-time funding rates, position management, and cross-asset swaps across DEX/CEX."
+  },
+  {
+    "id": "apex-011",
+    "name": "MetaTrader 5 MCP Bridge",
+    "cat": "mcp",
+    "pool": "warm",
+    "w": 7,
+    "desc": "Integrate MT5 MCP server for algorithmic forex/futures execution, leverage monitoring, and real-time tick data processing."
+  },
+  {
+    "id": "apex-012",
+    "name": "AlphaVantage MCP Data Pipeline",
+    "cat": "mcp",
+    "pool": "warm",
+    "w": 6,
+    "desc": "Integrate AlphaVantage MCP for 100+ APIs covering stock prices, historical fundamentals, and macroeconomic data for DeepRL training."
+  },
+  {
+    "id": "apex-013",
+    "name": "DDPG Continuous Action Space Training",
+    "cat": "ml",
+    "pool": "cold",
+    "w": 8,
+    "desc": "Implement Deep Deterministic Policy Gradient for continuous position sizing. Output exact lot sizes (e.g., 3.4 standard lots) instead of binary buy/sell."
+  },
+  {
+    "id": "apex-014",
+    "name": "PPO Stable Policy Optimization",
+    "cat": "ml",
+    "pool": "cold",
+    "w": 8,
+    "desc": "Deploy Proximal Policy Optimization to prevent aggressive gradient updates from anomalous market crashes destroying accumulated model edge."
+  },
+  {
+    "id": "apex-015",
+    "name": "Hindsight Experience Replay (HER) Memory",
+    "cat": "ml",
+    "pool": "cold",
+    "w": 7,
+    "desc": "Implement HER to learn from stop-loss failures by reframing events in the replay buffer, maximizing data efficiency for market reversal contours."
+  },
+  {
+    "id": "apex-016",
+    "name": "Apex 30% Consistency Rule Enforcer",
+    "cat": "compliance",
+    "pool": "hot",
+    "w": 10,
+    "desc": "Hardcode Apex consistency rule: no single trade may exceed 30% of total generated profits. Risk Agent dynamically programmes micro-trades to dilute outsized wins."
+  },
+  {
+    "id": "apex-017",
+    "name": "Apex Contract Scaling Limiter",
+    "cat": "compliance",
+    "pool": "hot",
+    "w": 9,
+    "desc": "Enforce evaluation-phase contract limits: max 40 micros (4 minis) until end-of-day balance > $52,600. Unlock full 80 micros (8 minis) only after threshold."
+  },
+  {
+    "id": "apex-018",
+    "name": "Apex Payout Safety Net Calculator",
+    "cat": "compliance",
+    "pool": "warm",
+    "w": 8,
+    "desc": "Implement payout safety net for first 3 withdrawals: maintain balance > StartingBalance + TrailingThreshold + $100 after withdrawal. Lock first $2,600 as non-withdrawable equity buffer."
+  },
+  {
+    "id": "apex-019",
+    "name": "TradersPost Multi-Account Router",
+    "cat": "trading",
+    "pool": "warm",
+    "w": 7,
+    "desc": "Integrate TradersPost hub to route single algorithmic decisions into multiple Apex evaluation and funded accounts simultaneously while respecting per-account drawdown rules."
+  },
+  {
+    "id": "apex-020",
+    "name": "Ternary Trader Widget (TradingView Overlay)",
+    "cat": "ui",
+    "pool": "warm",
+    "w": 6,
+    "desc": "Build real-time trader widget displaying ternary logic band (+1 buy, -1 sell, 0 epistemic hold) beneath price chart with color-coded regime dots and per-session signal cap indicator."
   }
 ]

@@ -12,5 +12,5 @@ npx vite preview --port $PORT --host 0.0.0.0 >> "$LOG" 2>&1 &
 PID=$!
 echo $PID > /tmp/heady-io.pid
 sleep 2
-xdg-open "http://localhost:$PORT" 2>/dev/null
-echo "[$(date)] HeadyIO running (PID=$PID) at http://localhost:$PORT"
+xdg-open "https://headyio.com" 2>/dev/null
+echo "[$(date)] HeadyIO running (PID=$PID) → https://headyio.com"

@@ -53,7 +53,7 @@ try {
         const arena = getArenaConfig(model);
 
         try {
-            const brainUrl = process.env.HEADY_BRAIN_URL || 'https://localhost:3301';
+            const brainUrl = process.env.HEADY_BRAIN_URL || 'https://manager.headysystems.com';
             const lastMessage = messages[messages.length - 1]?.content || '';
 
             const brainRes = await fetch(`${brainUrl}/api/brain/chat`, {

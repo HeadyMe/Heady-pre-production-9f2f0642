@@ -12,5 +12,5 @@ PORT=$PORT node src/server.js >> "$LOG" 2>&1 &
 PID=$!
 echo $PID > /tmp/heady-manager.pid
 sleep 2
-xdg-open "http://localhost:$PORT" 2>/dev/null
-echo "[$(date)] Heady Manager running (PID=$PID) at http://localhost:$PORT"
+xdg-open "https://manager.headysystems.com" 2>/dev/null
+echo "[$(date)] Heady Manager running (PID=$PID) → https://manager.headysystems.com"

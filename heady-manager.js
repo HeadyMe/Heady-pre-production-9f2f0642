@@ -1,6 +1,7 @@
 // Allow self-signed certs for internal HTTPS self-calls (manager runs mTLS)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 const logger = require("./src/utils/logger");
+const redisPool = require("./src/utils/redis-pool");
 // HEADY_BRAND:BEGIN
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
@@ -627,6 +628,7 @@ let continuousPipeline = {
 // ─── Engine Wiring Bootstrap (Phase 2 Liquid Architecture) ──────────
 // Extracted from monolith → src/bootstrap/engine-wiring.js
 const { wireEngines } = require("./src/bootstrap/engine-wiring");
+const { loadRegistry } = require("./src/routes/registry");
 const _engines = wireEngines(app, {
   pipeline,
   loadRegistry,
@@ -983,19 +985,21 @@ voiceWss.on('connection', (ws, request, sessionId) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  const c = { reset: "\x1b[0m", bold: "\x1b[1m", cyan: "\x1b[36m", blue: "\x1b[34m", purple: "\x1b[35m", green: "\x1b[32m", yellow: "\x1b[33m", dim: "\x1b[2m" };
+redisPool.init().then(() => {
+  server.listen(PORT, '0.0.0.0', () => {
+    const c = { reset: "\x1b[0m", bold: "\x1b[1m", cyan: "\x1b[36m", blue: "\x1b[34m", purple: "\x1b[35m", green: "\x1b[32m", yellow: "\x1b[33m", dim: "\x1b[2m" };
 
-  logger.logNodeActivity("CONDUCTOR", `\n${c.bold}${c.purple}╭────────────────────────────────────────────────────────╮${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.cyan}⚡ HEADY SYSTEMS CORE — OS V3.0${c.reset}                         ${c.bold}${c.purple}│${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}├────────────────────────────────────────────────────────┤${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Environment:${c.reset}  ${c.yellow}${process.env.NODE_ENV || "development"}${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Core Node:${c.reset}    ${c.green}Online (PID: ${process.pid})${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Gateway:${c.reset}      ${c.bold}${c.cyan}http://0.0.0.0:${PORT}${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Voice Relay:${c.reset}  ${c.purple}ws://0.0.0.0:${PORT}/ws/voice/:sessionId${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}API Docs:${c.reset}     ${c.blue}http://0.0.0.0:${PORT}/api-docs${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Health/Pulse:${c.reset} ${c.green}/api/health | /api/pulse${c.reset}`);
-  logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}╰────────────────────────────────────────────────────────╯${c.reset}\n`);
+    logger.logNodeActivity("CONDUCTOR", `\n${c.bold}${c.purple}╭────────────────────────────────────────────────────────╮${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.cyan}⚡ HEADY SYSTEMS CORE — OS V3.0${c.reset}                         ${c.bold}${c.purple}│${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}├────────────────────────────────────────────────────────┤${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Environment:${c.reset}  ${c.yellow}${process.env.NODE_ENV || "development"}${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Core Node:${c.reset}    ${c.green}Online (PID: ${process.pid})${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Gateway:${c.reset}      ${c.bold}${c.cyan}http://0.0.0.0:${PORT}${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Voice Relay:${c.reset}  ${c.purple}ws://0.0.0.0:${PORT}/ws/voice/:sessionId${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}API Docs:${c.reset}     ${c.blue}http://0.0.0.0:${PORT}/api-docs${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Health/Pulse:${c.reset} ${c.green}/api/health | /api/pulse${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}╰────────────────────────────────────────────────────────╯${c.reset}\n`);
+  });
 });
 
 try {

@@ -1079,6 +1079,23 @@ class AutoSuccessEngine extends EventEmitter {
         return this.history.slice(-limit);
     }
 
+    /** Merge external tasks (from auto-flow-200-tasks.json) into the live catalog. */
+    loadExternalTasks(externalTasks) {
+        let added = 0;
+        for (const task of externalTasks) {
+            if (this.taskStates.has(task.id)) continue; // skip duplicates
+            TASK_CATALOG.push(task);
+            this.taskStates.set(task.id, {
+                ...task,
+                runs: 0, successes: 0,
+                lastRunTs: null, lastDurationMs: 0, avgDurationMs: 0,
+                status: "idle", lastFinding: null,
+            });
+            added++;
+        }
+        return added;
+    }
+
     /** Summary for HeadyConductor integration. */
     getConductorSummary() {
         const byPool = { hot: 0, warm: 0, cold: 0 };

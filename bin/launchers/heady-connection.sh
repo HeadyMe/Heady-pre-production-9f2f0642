@@ -12,5 +12,5 @@ npx next start -p $PORT >> "$LOG" 2>&1 &
 PID=$!
 echo $PID > /tmp/heady-connection.pid
 sleep 3
-xdg-open "http://localhost:$PORT" 2>/dev/null
-echo "[$(date)] HeadyConnection running (PID=$PID) at http://localhost:$PORT"
+xdg-open "https://headyconnection.org" 2>/dev/null
+echo "[$(date)] HeadyConnection running (PID=$PID) → https://headyconnection.org"

@@ -14,5 +14,5 @@ echo "Running optimized production build preview..." | tee -a "$LOG"
 npx vite preview --port $CLIENT_PORT --host 0.0.0.0 >> "$LOG" 2>&1 &
 echo $! > /tmp/heady-admin-client.pid
 sleep 2
-xdg-open "http://localhost:$CLIENT_PORT" 2>/dev/null
+xdg-open "https://admin.headysystems.com" 2>/dev/null
 echo "[$(date)] Heady Admin running — server :$SERVER_PORT, UI :$CLIENT_PORT"

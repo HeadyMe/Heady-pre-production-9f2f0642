@@ -1,6 +1,6 @@
 {
-  "cycleCount": 9138,
-  "lastRun": "2026-02-26T02:12:23.995Z",
+  "cycleCount": 10804,
+  "lastRun": "2026-02-28T04:23:30.754Z",
   "routingWeights": {
     "hf": 1,
     "gemini": 1,
@@ -107,7 +107,7 @@
     },
     {
       "name": "sdk-hf",
-      "protocol": "@headyhub/inference",
+      "protocol": "@huggingface/inference",
       "latency": "varies",
       "ready": true,
       "status": "connected"
@@ -121,7 +121,7 @@
     },
     {
       "name": "sdk-headynexus",
-      "protocol": "@headynexus-ai/sdk",
+      "protocol": "@anthropic-ai/sdk",
       "latency": "~800ms",
       "ready": false,
       "status": "available"
