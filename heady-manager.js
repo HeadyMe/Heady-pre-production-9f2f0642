@@ -399,6 +399,16 @@ app.get("/api/services/groups", (req, res) => {
 const vectorMemory = require("./src/vector-memory");
 vectorMemory.init();
 
+// ─── Self-Awareness Telemetry (loaded EARLY for pipeline + buddy wiring) ────
+let selfAwareness = null;
+try {
+  selfAwareness = require('./src/self-awareness');
+  selfAwareness.startSelfAwareness();
+  logger.logNodeActivity("CONDUCTOR", "  ∞ Self-Awareness: LOADED (telemetry ingestion + system state assessment)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Self-Awareness not loaded: ${err.message}`);
+}
+
 // ─── Vector-Augmented Response Pipeline (THE CRITICAL PIECE) ────────
 // Queries vector memory BEFORE every /brain/* response, injects context
 const vectorPipeline = require("./src/vector-pipeline");
@@ -803,8 +813,16 @@ try {
   if (pipeline && buddy) {
     pipeline.errorInterceptor = buddy.errorInterceptor;
     pipeline.vectorMemory = vectorMemory;
+    // ─── CRITICAL: Wire self-awareness + buddy metacognition into pipeline ───
+    // This enables the Metacognitive Gate in _stageExecute() and
+    // auto-telemetry wiring in _wireAutoTelemetry() for real-time feedback.
+    if (selfAwareness) {
+      pipeline.selfAwareness = selfAwareness;
+      logger.logNodeActivity("CONDUCTOR", "  ∞ Pipeline←→Self-Awareness: BI-DIRECTIONAL WIRED");
+    }
+    pipeline.buddyMetacognition = buddy.metacognition;
     buddy.setPipeline(pipeline);
-    logger.logNodeActivity("CONDUCTOR", "  ∞ Self-Healing Pipeline: WIRED (error interceptor + vector memory + Buddy orchestration)");
+    logger.logNodeActivity("CONDUCTOR", "  ∞ Self-Healing Pipeline: WIRED (error interceptor + vector memory + Buddy metacognition + self-awareness)");
   }
 } catch (err) {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Self-Healing Pipeline wiring failed: ${err.message}`);
@@ -1272,15 +1290,17 @@ redisPool.init().then(() => {
   });
 });
 
+// ─── Self-Awareness Endpoints (module loaded early, routes registered here) ─
 try {
-  const { startBrandingMonitor, getBrandingReport, getSystemIntrospection } = require('./src/self-awareness');
-  startBrandingMonitor();
-  app.get('/api/introspection', (req, res) => res.json(getSystemIntrospection()));
-  app.get('/api/branding', (req, res) => res.json(getBrandingReport()));
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Branding Monitor: STARTED");
-  logger.logNodeActivity("CONDUCTOR", "  ∞ Introspection: /api/introspection + /api/branding");
+  if (selfAwareness) {
+    selfAwareness.startBrandingMonitor();
+    app.get('/api/introspection', (req, res) => res.json(selfAwareness.getSystemIntrospection()));
+    app.get('/api/branding', (req, res) => res.json(selfAwareness.getBrandingReport()));
+    logger.logNodeActivity("CONDUCTOR", "  ∞ Branding Monitor: STARTED");
+    logger.logNodeActivity("CONDUCTOR", "  ∞ Introspection: /api/introspection + /api/branding");
+  }
 } catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Branding Monitor not loaded: ${err.message}`);
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Branding routes not loaded: ${err.message}`);
 }
 
 try {
