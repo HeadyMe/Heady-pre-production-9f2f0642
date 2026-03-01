@@ -1,0 +1,98 @@
+[
+    {
+        "id": "headyos-001",
+        "name": "Implement Liquid Gateway Provider Racing Protocol",
+        "cat": "optimization",
+        "pool": "hot",
+        "w": 10,
+        "desc": "Build an L2 edge proxy to dynamically race LLM providers based on token cost, context availability, and latency, routing to the optimal node instantly."
+    },
+    {
+        "id": "headyos-002",
+        "name": "Deploy HCFP Battle Validation Protocol",
+        "cat": "verification",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Fork critical L3 tasks into 3 parallel streams and employ a Critic Agent to evaluate outputs using strict JSON schemas and logical coherence rubrics."
+    },
+    {
+        "id": "headyos-003",
+        "name": "Swarm-to-Creative Context Translation",
+        "cat": "creative",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Implement a semantic-to-aesthetic data translation pipeline that converts statistical/logical data into aesthetic visual tokens before AI image generation."
+    },
+    {
+        "id": "headyos-004",
+        "name": "Integrate Network MIDI 2.0 UDP over MCP",
+        "cat": "hive-integration",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Establish real-time hardware-agent control by translating low-level UDP UMP streams to standard JSON-RPC 2.0 messages via MCP."
+    },
+    {
+        "id": "headyos-005",
+        "name": "Deploy Maestro 3 Pilares Architecture",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Implement the Mensageiro, Tradutor, and Maestro endpoints (powered by Tone.js) to achieve sub-15ms latency for LLM-driven complex MIDI execution."
+    },
+    {
+        "id": "headyos-006",
+        "name": "Establish Context Compaction Pipeline",
+        "cat": "deep-intel",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Route conversational inputs through an LLM distillation step (Context Compaction) to extract constraints and facts before atomic storage into the Vector Engine."
+    },
+    {
+        "id": "headyos-007",
+        "name": "Re-index Semantic Memory via pgvectorscale",
+        "cat": "optimization",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Dynamically partition PostgreSQL vector memory, swapping between HNSW for <100M items and DiskANN for billion-scale cost efficiency."
+    },
+    {
+        "id": "headyos-008",
+        "name": "Inject Cryptographic Provenance Hashes",
+        "cat": "maintenance",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Apply SHA-256 origin hashes to all chunks ingested into 3D Vector Memory to protect against Agentic Memory Poisoning."
+    },
+    {
+        "id": "headyos-009",
+        "name": "Activate Edge Proactive Recall Loop",
+        "cat": "learning",
+        "pool": "hot",
+        "w": 10,
+        "desc": "Deploy an L1 edge pre-processor to perform sub-millisecond similarity searches and inject relevant PostgreSQL vector snippets directly into the HeadyBuddy prompt."
+    },
+    {
+        "id": "headyos-010",
+        "name": "Construct Agentic Observability Dashboard Core",
+        "cat": "discovery",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Initialize a Node/React service consuming OpenTelemetry logs to graph HeadyBuddy's schema validations, tool invocations, and memory recalls in real-time."
+    },
+    {
+        "id": "headyos-011",
+        "name": "Enforce Schema-Guided Agentic Reasoning",
+        "cat": "verification",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Eliminate free-text logic parsing in HeadyBuddy. Validate all AI planning, tool selections, and synthetic outputs firmly against pre-defined JSON schemas."
+    },
+    {
+        "id": "headyos-012",
+        "name": "Implement Dynamic Permission Scope Monitoring",
+        "cat": "monitoring",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Continuously monitor and apply the principle of least privilege to agent schemas, requiring human-in-the-loop override for destructive actions."
+    }
+]

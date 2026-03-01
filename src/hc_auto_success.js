@@ -83,10 +83,22 @@ let nonprofitTasks = [];
 try { nonprofitTasks = require('./nonprofit-tasks.json'); } catch (e) { }
 let buddyTasks = [];
 try { buddyTasks = require('./buddy-tasks.json'); } catch (e) { }
+let long814Tasks = [];
+try { long814Tasks = require('./long814-tasks.json'); } catch (e) { }
+let headyosTasks = [];
+try { headyosTasks = require('./headyos-tasks.json'); } catch (e) { }
+let orchProtocolTasks = [];
+try { orchProtocolTasks = require('./orchestration-protocol-tasks.json'); } catch (e) { }
+let phase5Tasks = [];
+try { phase5Tasks = require('./phase5-hardening-tasks.json'); } catch (e) { }
 const TASK_CATALOG = [
     ...extraTasks,
     ...nonprofitTasks,
     ...buddyTasks,
+    ...long814Tasks,
+    ...headyosTasks,
+    ...orchProtocolTasks,
+    ...phase5Tasks,
     // ═══ LEARNING (20) — Targeted system learning ═══════════════════════════
     {
         id: "learn-001", name: "Analyze config drift patterns", cat: "learning", pool: "warm", w: 3,
