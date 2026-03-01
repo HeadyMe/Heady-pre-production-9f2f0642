@@ -40,6 +40,7 @@ function wireEngines(app, deps = {}) {
         autoSuccessEngine: null,
         scientistEngine: null,
         qaEngine: null,
+        cloudOrchestrator: null,
     };
 
     // ─── 1. Resource Manager ──────────────────────────────────────────
@@ -354,6 +355,31 @@ function wireEngines(app, deps = {}) {
         logger.logNodeActivity("CONDUCTOR", "  ✅ HeadyQA: LOADED (endpoint probes + schema validation + integration smoke tests)");
     } catch (err) {
         logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyQA not loaded: ${err.message}`);
+    }
+
+    // ─── 11. Cloud Orchestrator ──────────────────────────────────────
+    try {
+        const { HeadyCloudOrchestrator, registerOrchestratorRoutes } = require("../orchestration/cloud-orchestrator");
+        engines.cloudOrchestrator = new HeadyCloudOrchestrator({
+            githubToken: process.env.GITHUB_TOKEN,
+            cfToken: process.env.CLOUDFLARE_API_TOKEN,
+            gcpCreds: process.env.GCP_SA_KEY,
+        });
+
+        registerOrchestratorRoutes(app, engines.cloudOrchestrator);
+        engines.cloudOrchestrator.start();
+
+        // Wire auto-success events into orchestrator for awareness
+        if (engines.autoSuccessEngine) {
+            engines.autoSuccessEngine.on("cycle:completed", (event) => {
+                engines.cloudOrchestrator.emit("swarm:heartbeat", event);
+            });
+        }
+
+        logger.logNodeActivity("CONDUCTOR", "  ⚡ Cloud Orchestrator: LOADED (10 worker nodes, 3D vector merge, auto-deploy pipeline)");
+        logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/orchestrator/cloud/health, /status, /workers, /merges, /deploys");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Cloud Orchestrator not loaded: ${err.message}`);
     }
 
     return engines;
