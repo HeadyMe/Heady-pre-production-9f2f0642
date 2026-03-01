@@ -34,50 +34,147 @@ const TIERS = {
     free: {
         name: "Free",
         price: 0,
+        billing: "free",
+        seats: 1,
         limits: {
-            requestsPerMinute: 10,
-            requestsPerDay: 500,
+            requestsPerMinute: 5,
+            requestsPerDay: 200,
             maxTokensPerRequest: 2000,
-            concurrentRequests: 2,
+            concurrentRequests: 1,
         },
-        models: ["groq"],  // Free tier: Groq only (free provider)
+        models: ["groq"],
         features: ["chat", "services-explorer"],
         support: "community",
         badge: "🆓",
     },
-    pro: {
-        name: "Pro",
+    "pro-individual": {
+        name: "Pro+ Individual",
         price: 29,
+        billing: "monthly",
+        seats: 1,
+        limits: {
+            requestsPerMinute: 50,
+            requestsPerDay: 5000,
+            maxTokensPerRequest: 8000,
+            concurrentRequests: 5,
+        },
+        models: ["groq", "huggingface", "gemini"],
+        features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel"],
+        support: "email",
+        badge: "⚡",
+    },
+    "pro-business": {
+        name: "Pro+ Business Team",
+        price: 29,
+        billing: "monthly-per-seat",
+        seats: null,  // unlimited seats, billed per seat
         limits: {
             requestsPerMinute: 100,
             requestsPerDay: 10000,
             maxTokensPerRequest: 8000,
             concurrentRequests: 10,
         },
-        models: ["groq", "huggingface", "gemini"],  // Pro: free + biz seats + credits
-        features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel"],
-        support: "email",
-        badge: "⚡",
+        models: ["groq", "huggingface", "gemini"],
+        features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel",
+            "team-management", "shared-workspaces", "audit-logs"],
+        support: "priority-email",
+        badge: "👥",
     },
-    enterprise: {
-        name: "Enterprise",
-        price: null,  // Custom pricing
+    "max": {
+        name: "Heady Max",
+        price: 99,
+        billing: "monthly",
+        seats: 1,
+        limits: {
+            requestsPerMinute: 500,
+            requestsPerDay: 50000,
+            maxTokensPerRequest: 32000,
+            concurrentRequests: 25,
+        },
+        models: ["groq", "huggingface", "gemini", "openai", "claude", "perplexity"],
+        features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel",
+            "battle", "quantum", "vector-memory", "custom-models", "auto-success"],
+        support: "priority",
+        badge: "🚀",
+    },
+    "family": {
+        name: "Family",
+        price: 99,
+        billing: "monthly",
+        seats: 6,
+        limits: {
+            requestsPerMinute: 500,
+            requestsPerDay: 50000,
+            maxTokensPerRequest: 32000,
+            concurrentRequests: 25,
+        },
+        models: ["groq", "huggingface", "gemini", "openai", "claude", "perplexity"],
+        features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel",
+            "battle", "quantum", "vector-memory", "custom-models", "auto-success",
+            "family-sharing", "parental-controls"],
+        support: "priority",
+        badge: "👨‍👩‍👧‍👦",
+    },
+    "enterprise-max": {
+        name: "Enterprise Max",
+        price: 99,
+        billing: "monthly-per-seat",
+        seats: null,
         limits: {
             requestsPerMinute: 1000,
             requestsPerDay: 100000,
-            maxTokensPerRequest: 32000,
+            maxTokensPerRequest: 64000,
             concurrentRequests: 50,
         },
-        models: ["groq", "huggingface", "gemini", "openai", "claude"],  // All providers
+        models: ["groq", "huggingface", "gemini", "openai", "claude", "perplexity", "vertex"],
         features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel",
-            "battle", "quantum", "vector-memory", "custom-models", "dedicated-support",
-            "sla-99.9", "audit-logs", "sso"],
+            "battle", "quantum", "vector-memory", "custom-models", "auto-success",
+            "sso", "sla-99.9", "audit-logs", "dedicated-support", "custom-integrations"],
         support: "dedicated",
         badge: "🏢",
+    },
+    "enterprise-payg": {
+        name: "Enterprise Pay-As-You-Go",
+        price: null,
+        billing: "usage-based",
+        seats: null,
+        limits: {
+            requestsPerMinute: Infinity,
+            requestsPerDay: Infinity,
+            maxTokensPerRequest: 64000,
+            concurrentRequests: 100,
+        },
+        models: ["groq", "huggingface", "gemini", "openai", "claude", "perplexity", "vertex"],
+        features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel",
+            "battle", "quantum", "vector-memory", "custom-models", "auto-success",
+            "sso", "sla-99.99", "audit-logs", "dedicated-support", "custom-integrations",
+            "on-prem-option", "volume-discounts"],
+        support: "dedicated-tam",
+        badge: "💳",
+    },
+    "nonprofit": {
+        name: "Nonprofit & Govt Assistance",
+        price: null,
+        billing: "custom",
+        seats: null,
+        description: "Custom rates for nonprofits. Government assistance qualifies for free Pro+ or discounted Max.",
+        limits: {
+            requestsPerMinute: 500,
+            requestsPerDay: 50000,
+            maxTokensPerRequest: 32000,
+            concurrentRequests: 25,
+        },
+        models: ["groq", "huggingface", "gemini", "openai", "claude"],
+        features: ["chat", "ide", "services-explorer", "gateway", "creative", "deep-intel",
+            "battle", "vector-memory", "nonprofit-dashboard"],
+        support: "priority",
+        badge: "🤝",
     },
     internal: {
         name: "Internal",
         price: 0,
+        billing: "internal",
+        seats: null,
         limits: {
             requestsPerMinute: Infinity,
             requestsPerDay: Infinity,
@@ -85,7 +182,7 @@ const TIERS = {
             concurrentRequests: Infinity,
         },
         models: ["groq", "huggingface", "gemini", "openai", "claude", "perplexity", "vertex", "colab"],
-        features: ["*"],  // All features
+        features: ["*"],
         support: "self",
         badge: "🐝",
     },
@@ -100,7 +197,12 @@ function _saveKeys() {
 }
 
 function generateApiKey(tier, meta = {}) {
-    const prefix = tier === "enterprise" ? "hdy_ent_" : tier === "pro" ? "hdy_pro_" : "hdy_free_";
+    const prefixes = {
+        "free": "hdy_free_", "pro-individual": "hdy_pro_", "pro-business": "hdy_biz_",
+        "max": "hdy_max_", "family": "hdy_fam_", "enterprise-max": "hdy_ent_",
+        "enterprise-payg": "hdy_epg_", "nonprofit": "hdy_npo_", "internal": "hdy_int_",
+    };
+    const prefix = prefixes[tier] || "hdy_";
     const key = prefix + crypto.randomBytes(24).toString("hex");
     const record = {
         key,
@@ -383,8 +485,13 @@ function registerTierRoutes(app) {
             ok: true,
             pricing: {
                 free: { price: "$0/mo", cta: "Get Started", url: "/api/keys/create?tier=free" },
-                pro: { price: "$29/mo", cta: "Upgrade to Pro", url: "/api/keys/create?tier=pro" },
-                enterprise: { price: "Custom", cta: "Contact Sales", url: "/api/enterprise/inquire" },
+                "pro-individual": { price: "$29/mo", cta: "Go Pro+", url: "/api/keys/create?tier=pro-individual" },
+                "pro-business": { price: "$29/mo/seat", cta: "Team Pro+", url: "/api/keys/create?tier=pro-business" },
+                max: { price: "$99/mo", cta: "Go Max", url: "/api/keys/create?tier=max" },
+                family: { price: "$99/mo (6 seats)", cta: "Family Plan", url: "/api/keys/create?tier=family" },
+                "enterprise-max": { price: "$99/mo/seat", cta: "Enterprise Max", url: "/api/enterprise/inquire" },
+                "enterprise-payg": { price: "Pay-as-you-go", cta: "Contact Sales", url: "/api/enterprise/inquire" },
+                nonprofit: { price: "Custom/Free", cta: "Apply", url: "/api/enterprise/inquire" },
             },
         });
     });
@@ -392,8 +499,9 @@ function registerTierRoutes(app) {
     // API key management
     app.post("/api/keys/create", (req, res) => {
         const { tier = "free", email, name, org } = req.body || {};
-        if (!["free", "pro"].includes(tier)) {
-            return res.status(400).json({ error: "Use /api/enterprise/inquire for enterprise keys" });
+        const selfServiceTiers = ["free", "pro-individual", "max", "family"];
+        if (!selfServiceTiers.includes(tier)) {
+            return res.status(400).json({ error: "Use /api/enterprise/inquire for enterprise and nonprofit tiers" });
         }
         const key = generateApiKey(tier, { email, name, org });
         res.json({ ok: true, apiKey: key.key, tier, message: "Store this key securely — it won't be shown again" });

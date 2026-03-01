@@ -962,63 +962,136 @@
                     Choose Your Plan</h2>
                 <p style="color:var(--text-dim);margin-top:8px;">From prototype to production — scale with Heady AI</p>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto;">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:1200px;margin:0 auto;">
                 <!-- Free -->
                 <div
-                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:center;">
-                    <div style="font-size:1.5rem;">🆓</div>
-                    <h3 style="margin:8px 0;">Free</h3>
-                    <div style="font-size:2rem;font-weight:800;color:var(--success);margin:12px 0;">$0<span
-                            style="font-size:.8rem;color:var(--text-dim);">/mo</span></div>
-                    <ul style="list-style:none;padding:0;font-size:.85rem;color:var(--text-dim);text-align:left;">
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 10 req/min</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 500 req/day</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ Groq (free tier)</li>
-                        <li style="padding:6px 0;">✅ Chat + Service Explorer</li>
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;">
+                    <div style="font-size:1.3rem;">🆓</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Free</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--success);margin:8px 0;">$0<span
+                            style="font-size:.7rem;color:var(--text-dim);">/mo</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 5 req/min</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 200 req/day</li>
+                        <li style="padding:4px 0;">✅ Chat + Explorer</li>
                     </ul>
-                    <button onclick="window.open('https://manager.headysystems.com/api/tiers','_blank')"
-                        style="margin-top:16px;padding:10px 24px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-weight:600;width:100%;">Get
+                    <button onclick="window.open('https://headyme.com','_blank')"
+                        style="margin-top:12px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-weight:600;width:100%;font-size:.8rem;">Get
                         Started</button>
                 </div>
-                <!-- Pro -->
+                <!-- Pro+ Individual -->
                 <div
-                    style="background:var(--surface);border:2px solid var(--primary);border-radius:var(--radius);padding:28px;text-align:center;position:relative;box-shadow:0 0 30px var(--primary-glow);">
-                    <div
-                        style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:white;padding:4px 14px;border-radius:12px;font-size:.75rem;font-weight:700;">
-                        MOST POPULAR</div>
-                    <div style="font-size:1.5rem;">⚡</div>
-                    <h3 style="margin:8px 0;">Pro</h3>
-                    <div style="font-size:2rem;font-weight:800;color:var(--primary);margin:12px 0;">$29<span
-                            style="font-size:.8rem;color:var(--text-dim);">/mo</span></div>
-                    <ul style="list-style:none;padding:0;font-size:.85rem;color:var(--text-dim);text-align:left;">
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 100 req/min</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 10,000 req/day</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ Groq + HF + Gemini</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ IDE + Gateway + Deep Intel
-                        </li>
-                        <li style="padding:6px 0;">✅ Email support</li>
+                    style="background:var(--surface);border:1px solid var(--primary);border-radius:var(--radius);padding:20px;text-align:center;">
+                    <div style="font-size:1.3rem;">⚡</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Pro+ Individual</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--primary);margin:8px 0;">$29<span
+                            style="font-size:.7rem;color:var(--text-dim);">/mo</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 50 req/min</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 5,000 req/day</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 3 AI providers</li>
+                        <li style="padding:4px 0;">✅ IDE, Gateway, Intel</li>
                     </ul>
-                    <button onclick="window.open('https://manager.headysystems.com/api/tiers','_blank')"
-                        style="margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;width:100%;">Upgrade
-                        to Pro</button>
+                    <button onclick="window.open('https://headyme.com','_blank')"
+                        style="margin-top:12px;padding:8px 16px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%;font-size:.8rem;">Go
+                        Pro+</button>
                 </div>
-                <!-- Enterprise -->
+                <!-- Pro+ Business -->
                 <div
-                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:center;">
-                    <div style="font-size:1.5rem;">🏢</div>
-                    <h3 style="margin:8px 0;">Enterprise</h3>
-                    <div style="font-size:2rem;font-weight:800;color:var(--accent);margin:12px 0;">Custom</div>
-                    <ul style="list-style:none;padding:0;font-size:.85rem;color:var(--text-dim);text-align:left;">
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 1,000+ req/min</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ Unlimited daily</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ All 5 AI providers</li>
-                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ SSO + Audit logs + SLA 99.9%
-                        </li>
-                        <li style="padding:6px 0;">✅ Dedicated support</li>
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;">
+                    <div style="font-size:1.3rem;">👥</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Pro+ Business Team</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--primary);margin:8px 0;">$29<span
+                            style="font-size:.7rem;color:var(--text-dim);">/mo/seat</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 100 req/min/seat</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ Team workspaces</li>
+                        <li style="padding:4px 0;">✅ Audit logs</li>
+                    </ul>
+                    <button onclick="window.open('https://headyme.com','_blank')"
+                        style="margin-top:12px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-weight:600;width:100%;font-size:.8rem;">Team
+                        Pro+</button>
+                </div>
+                <!-- Heady Max (highlighted) -->
+                <div
+                    style="background:var(--surface);border:2px solid var(--accent);border-radius:var(--radius);padding:20px;text-align:center;position:relative;box-shadow:0 0 30px rgba(240,194,127,0.2);">
+                    <div
+                        style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),#e89b3e);color:#0a0a12;padding:3px 12px;border-radius:10px;font-size:.65rem;font-weight:700;">
+                        BEST VALUE</div>
+                    <div style="font-size:1.3rem;">🚀</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Heady Max</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--accent);margin:8px 0;">$99<span
+                            style="font-size:.7rem;color:var(--text-dim);">/mo</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 500 req/min (10X Pro+)</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ All services</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 6 AI providers</li>
+                        <li style="padding:4px 0;">✅ Battle mode + Auto-Success</li>
+                    </ul>
+                    <button onclick="window.open('https://headyme.com','_blank')"
+                        style="margin-top:12px;padding:8px 16px;background:linear-gradient(135deg,var(--accent),#e89b3e);color:#0a0a12;border:none;border-radius:8px;cursor:pointer;font-weight:700;width:100%;font-size:.8rem;">Go
+                        Max 🚀</button>
+                </div>
+                <!-- Family -->
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;">
+                    <div style="font-size:1.3rem;">👨‍👩‍👧‍👦</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Family</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--success);margin:8px 0;">$99<span
+                            style="font-size:.7rem;color:var(--text-dim);">/mo · 6 seats</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ All Max benefits</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ Up to 6 members</li>
+                        <li style="padding:4px 0;">✅ Parental controls</li>
+                    </ul>
+                    <button onclick="window.open('https://headyme.com','_blank')"
+                        style="margin-top:12px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-weight:600;width:100%;font-size:.8rem;">Family
+                        Plan</button>
+                </div>
+                <!-- Enterprise Max -->
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;">
+                    <div style="font-size:1.3rem;">🏢</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Enterprise Max</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--primary);margin:8px 0;">$99<span
+                            style="font-size:.7rem;color:var(--text-dim);">/mo/seat</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ 1,000+ req/min</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ SSO + SLA 99.9%</li>
+                        <li style="padding:4px 0;">✅ Dedicated support</li>
                     </ul>
                     <button onclick="document.getElementById('enterpriseForm').style.display='block'"
-                        style="margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,var(--accent),#e89b3e);color:#0a0a12;border:none;border-radius:10px;cursor:pointer;font-weight:700;width:100%;">Contact
+                        style="margin-top:12px;padding:8px 16px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%;font-size:.8rem;">Contact
                         Sales</button>
+                </div>
+                <!-- Enterprise PAYG -->
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;">
+                    <div style="font-size:1.3rem;">💳</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Enterprise PAYG</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--accent);margin:8px 0;">Pay-as-you-go</div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ Unlimited requests</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ SLA 99.99%</li>
+                        <li style="padding:4px 0;">✅ Volume discounts</li>
+                    </ul>
+                    <button onclick="document.getElementById('enterpriseForm').style.display='block'"
+                        style="margin-top:12px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-weight:600;width:100%;font-size:.8rem;">Contact
+                        Sales</button>
+                </div>
+                <!-- Nonprofit / Govt Assistance -->
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;">
+                    <div style="font-size:1.3rem;">🤝</div>
+                    <h3 style="margin:6px 0;font-size:.95rem;">Nonprofit & Govt</h3>
+                    <div style="font-size:1.6rem;font-weight:800;color:var(--success);margin:8px 0;">Custom / Free</div>
+                    <ul style="list-style:none;padding:0;font-size:.75rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ Custom nonprofit rates</li>
+                        <li style="padding:4px 0;border-bottom:1px solid var(--border);">✅ Free Pro+ w/ govt aid</li>
+                        <li style="padding:4px 0;">✅ Discounted Max</li>
+                    </ul>
+                    <button onclick="document.getElementById('enterpriseForm').style.display='block'"
+                        style="margin-top:12px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer;font-weight:600;width:100%;font-size:.8rem;">Apply</button>
                 </div>
             </div>
             <!-- Enterprise Inquiry Form -->
@@ -1143,7 +1216,7 @@
                 "🛡️ Enterprise-grade governance with policy compliance and audit logs",
             ],
             onboarding: "Head over to headyme.com for instant, fun, and convenient onboarding! You'll be up and running in minutes.",
-            pricing: "We offer Free ($0 — 10 req/min, Groq), Pro ($29/mo — 100 req/min, 3 AI providers), and Enterprise (custom — unlimited, all providers, SSO, dedicated support). Check the 💎 Pricing tab above!",
+            pricing: "We have 8 plans to fit everyone:\\n🆓 Free — $0/mo (5 req/min)\\n⚡ Pro+ Individual — $29/mo (50 req/min, 3 AI providers)\\n👥 Pro+ Business Team — $29/mo/seat (100 req/min, team workspaces)\\n🚀 Heady Max — $99/mo (500 req/min, ALL services, 6 AI providers) ← BEST VALUE\\n👨‍👩‍👧‍👦 Family — $99/mo for up to 6 seats (all Max benefits)\\n🏢 Enterprise Max — $99/mo/seat (1000+ req/min, SSO, SLA 99.9%)\\n💳 Enterprise PAYG — Pay-as-you-go (unlimited, SLA 99.99%)\\n🤝 Nonprofit & Govt — Custom rates, free Pro+ with govt assistance, discounted Max\\n\\nCheck the 💎 Pricing tab above! Visit headyme.com to get started.",
         };
 
         function getLocalResponse(msg) {
