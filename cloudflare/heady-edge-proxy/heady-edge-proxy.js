@@ -1128,8 +1128,8 @@ var SERVICE_GROUPS = {
   "ai-engine": {
     desc: "AI inference, arena orchestration, and prompt routing",
     services: [
-      { id: "heady-brain", url: "https://heady-edge-proxy.headysystems.workers.dev", role: "primary", weight: 1 },
-      { id: "heady-brain-assistant-1", url: "https://heady-edge-proxy.headysystems.workers.dev", role: "assistant", weight: 0.7 }
+      { id: "heady-brain", url: "https://heady-edge-proxy.emailheadyconnection.workers.dev", role: "primary", weight: 1 },
+      { id: "heady-brain-assistant-1", url: "https://heady-edge-proxy.emailheadyconnection.workers.dev", role: "assistant", weight: 0.7 }
     ],
     scaling: { min: 1, max: 6, current: 1, optimal: null },
     healthCheck: "/v1/health",
@@ -1139,7 +1139,7 @@ var SERVICE_GROUPS = {
   "compute": {
     desc: "GPU compute nodes (deep analysis, ML inference)",
     services: [
-      { id: "deep-analysis", url: "https://heady-edge-proxy.headysystems.workers.dev/v1/deep-analysis", role: "primary", weight: 1 }
+      { id: "deep-analysis", url: "https://heady-edge-proxy.emailheadyconnection.workers.dev/v1/deep-analysis", role: "primary", weight: 1 }
     ],
     scaling: { min: 1, max: 8, current: 1, optimal: null },
     healthCheck: "/v1/deep-analysis",

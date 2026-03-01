@@ -30,4 +30,4 @@ Examples:
 
 ## Testing
 - Run `curl localhost:4800/health` to verify HeadyBuddy
-- Run `curl https://heady-edge-proxy.headysystems.workers.dev/health` for edge proxy
+- Run `curl https://heady-edge-proxy.emailheadyconnection.workers.dev/health` for edge proxy

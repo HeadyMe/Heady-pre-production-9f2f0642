@@ -685,7 +685,7 @@ app.get("/api/pulse", (req, res) => {
 });
 
 // ─── Edge Proxy Status (Cloudflare Intelligence Layer) ──────────────
-const EDGE_PROXY_URL = process.env.HEADY_EDGE_PROXY_URL || 'https://heady-edge-proxy.headysystems.workers.dev';
+const EDGE_PROXY_URL = process.env.HEADY_EDGE_PROXY_URL || 'https://heady-edge-proxy.emailheadyconnection.workers.dev';
 
 app.get("/api/edge/status", async (req, res) => {
   try {

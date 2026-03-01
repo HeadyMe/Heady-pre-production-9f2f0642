@@ -40,8 +40,12 @@ var EDGE_SITES = /* @__PURE__ */ new Set([
   "www.headyio.com",
   "headyconnection.org",
   "www.headyconnection.org",
+  "headyconnection.com",
+  "www.headyconnection.com",
   "headybuddy.org",
   "www.headybuddy.org",
+  "headybuddy.com",
+  "www.headybuddy.com",
   "buddy.headysystems.com",
   "headysystems.com",
   "www.headysystems.com",
@@ -57,7 +61,9 @@ var SERVICE_MAP = {
   "api.headyio.com": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "api.headymcp.com": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "api.headybuddy.org": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
+  "api.headybuddy.com": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "api.headyconnection.org": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
+  "api.headyconnection.com": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "headyme.com": { origin: "https://headyme-site-bf4q4zywhq-uc.a.run.app", mtls: false, public: true },
   "www.headyme.com": { origin: "https://headyme-site-bf4q4zywhq-uc.a.run.app", mtls: false, public: true }
 };
@@ -334,8 +340,8 @@ var SERVICE_GROUPS = {
   "ai-engine": {
     desc: "AI inference, arena orchestration, and prompt routing",
     services: [
-      { id: "heady-brain", url: "https://heady-edge-proxy.headysystems.workers.dev", role: "primary", weight: 1 },
-      { id: "heady-brain-assistant-1", url: "https://heady-edge-proxy.headysystems.workers.dev", role: "assistant", weight: 0.7 }
+      { id: "heady-brain", url: "https://heady-edge-proxy.emailheadyconnection.workers.dev", role: "primary", weight: 1 },
+      { id: "heady-brain-assistant-1", url: "https://heady-edge-proxy.emailheadyconnection.workers.dev", role: "assistant", weight: 0.7 }
     ],
     scaling: { min: 1, max: 6, current: 1, optimal: null },
     healthCheck: "/v1/health",
@@ -345,7 +351,7 @@ var SERVICE_GROUPS = {
   "compute": {
     desc: "GPU compute nodes (deep analysis, ML inference)",
     services: [
-      { id: "deep-analysis", url: "https://heady-edge-proxy.headysystems.workers.dev/v1/deep-analysis", role: "primary", weight: 1 }
+      { id: "deep-analysis", url: "https://heady-edge-proxy.emailheadyconnection.workers.dev/v1/deep-analysis", role: "primary", weight: 1 }
     ],
     scaling: { min: 1, max: 8, current: 1, optimal: null },
     healthCheck: "/v1/deep-analysis",
@@ -2413,7 +2419,11 @@ async function proxyToService(request, service, env2, meta) {
 __name(proxyToService, "proxyToService");
 function getEdgeSitePage(hostname) {
   const domain2 = hostname.replace(/^www\./, "");
-  const resolved = domain2 === "buddy.headysystems.com" ? "headybuddy.org" : domain2;
+  // Normalize .com variants to canonical .org and subdomain aliases
+  let resolved = domain2;
+  if (resolved === "buddy.headysystems.com") resolved = "headybuddy.org";
+  if (resolved === "headybuddy.com") resolved = "headybuddy.org";
+  if (resolved === "headyconnection.com") resolved = "headyconnection.org";
   switch (resolved) {
     case "headymcp.com":
       return getHeadyMCPPage();

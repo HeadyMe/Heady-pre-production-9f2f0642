@@ -62,7 +62,7 @@ const SERVICES = [
     },
     {
         name: "edge-proxy",
-        url: "https://heady-edge-proxy.headysystems.workers.dev",
+        url: "https://heady-edge-proxy.emailheadyconnection.workers.dev",
         critical: false,
         redeployHook: null,
     },

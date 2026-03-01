@@ -61,7 +61,7 @@ const ENDPOINTS = [
     // Edge proxy — re-enable after Cloudflare Worker is deployed
     // {
     //     name: "Cloudflare Edge Proxy",
-    //     url: "https://heady-edge-proxy.headysystems.workers.dev",
+    //     url: "https://heady-edge-proxy.emailheadyconnection.workers.dev",
     //     expectedStatus: [200, 301, 302, 403],
     //     timeoutMs: 10000,
     //     critical: false,

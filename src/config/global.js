@@ -38,7 +38,7 @@ const LOG_LEVEL = optionalEnv('LOG_LEVEL', IS_PRODUCTION ? 'info' : 'debug');
 // ═══════════════════════════════════════════════════════════════════════
 const URLS = Object.freeze({
     MANAGER: optionalEnv('HEADY_MANAGER_URL', 'https://manager.headysystems.com'),
-    EDGE_PROXY: optionalEnv('HEADY_EDGE_PROXY_URL', 'https://heady-edge-proxy.headysystems.workers.dev'),
+    EDGE_PROXY: optionalEnv('HEADY_EDGE_PROXY_URL', 'https://heady-edge-proxy.emailheadyconnection.workers.dev'),
     BRAIN: optionalEnv('HEADY_BRAIN_URL', 'https://manager.headysystems.com'),
     CLOUDRUN: optionalEnv('HEADY_CLOUDRUN_URL', 'https://manager.headysystems.com'),
     QDRANT: optionalEnv('QDRANT_URL', 'https://qdrant.headysystems.com'),
