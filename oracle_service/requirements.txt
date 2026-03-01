@@ -1,8 +1,8 @@
 # HeadyField Oracle Dependencies
 paho-mqtt==1.6.1
 influxdb-client==1.38.0
-cryptography==41.0.7
-requests==2.31.0
+cryptography==46.0.5
+requests==2.32.4
 fastapi==0.104.1
 uvicorn==0.24.0
 pydantic==2.5.0
@@ -11,5 +11,5 @@ numpy==1.24.3
 pandas==2.0.3
 scipy==1.11.4
 aiofiles==23.2.1
-jinja2==3.1.2
-python-multipart==0.0.6
+jinja2==3.1.6
+python-multipart==0.0.22
