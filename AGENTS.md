@@ -22,6 +22,7 @@
 3. **No God classes.** Files exceeding 1500 lines must be decomposed into domain-specific modules.
 4. **Tests in `/tests/` only.** All test files must reside in the `tests/` directory. Root-level test files are forbidden.
 5. **All modules expose health checks.** Every service module must register a health endpoint under `/health/` or `/api/<module>/health`.
+6. **Structured logging only.** All production output must use the pino-based logger (`src/utils/logger.js`). Raw `console.log/warn/error` is forbidden in `src/routes/` and `src/orchestration/`.
 
 ### Provider Budget Rules
 
@@ -35,6 +36,7 @@
 2. **Dependency audit on every build.** `pnpm audit` runs as a CI gate. Block deployment on high/critical CVEs.
 3. **No `|| true` in quality gates.** CI steps for ESLint, tests, audit, and build must never suppress failures.
 4. **SAST on every push.** CodeQL and TruffleHog secret scanning run on every push and PR.
+5. **Container scanning required.** Trivy container scan and CycloneDX SBOM generation must pass before deployment.
 
 ---
 
@@ -80,6 +82,7 @@ When **any** anomaly is detected — stack trace, test failure, logical hallucin
 
 - Replay the failing call graph under controlled conditions
 - Virtualize non-deterministic sources (network latency, thread scheduling, randomness)
+- Use the seeded PRNG (`_createSeededRng`) to eliminate pipeline randomness
 - Test for semantic equivalence across controlled execution paths
 - Confirm whether the error is in code semantics vs. environmental phantom
 
@@ -93,6 +96,7 @@ When **any** anomaly is detected — stack trace, test failure, logical hallucin
 - Trace constraint violations backward through Boolean logic
 - Identify the specific configuration, regex, API call, or data transform that diverged
 - The failure is now a mathematically reproducible flaw, not an ambiguous anomaly
+- Persist the root-cause analysis in vector memory with `type: "error_resolution"`
 
 **Rationale:** With deterministic state, the error is a specific, traceable constraint violation — not a vague "it broke."
 
@@ -104,30 +108,64 @@ When **any** anomaly is detected — stack trace, test failure, logical hallucin
 - Formulate as a **rigid constraint**, not a suggestion or hint
 - Append the rule to the **Learned Rules** section below
 - Update HCFullPipeline schemas if applicable
+- Ingest the rule into 3D vector memory for semantic retrieval
 - The rule is enforced **before** agents write code (deterministic prevention, not probabilistic review)
 
 **Rationale:** Shifts enforcement upstream. Future agents are governed by rule lookup before writing code. The divergent path is mathematically blocked from being considered.
 
 ### Buddy Orchestration Directives
 
-#### Real-Time Execution
+#### Real-Time Execution via Event-Driven Protocols
 
-- Route high-velocity state changes through event-driven protocols (MIDI 2.0 UMP / WebSocket)
+- Route high-velocity state changes through MIDI 2.0 UMP / WebSocket event-driven protocols
 - Bypass REST polling for latency-sensitive generation flows
-- Map architectural commands to lightweight event packets for instant agent coordination
+- Map architectural commands to System Exclusive 8 messages for instant agent coordination
+- Use Mixed Data Set Messages for transferring JSON payloads between decentralized agents
+- The RTP-MIDI standard provides session management and lost-packet regeneration
 
-#### 3D Vector Memory Management
+#### 3D Vector Memory Management (Hybrid RAG)
 
-- All system knowledge, user context, and deterministic rules are stored as multi-dimensional embeddings
-- Related items cluster spatially (Sacred Geometry paradigm)
-- Context retrieval via nearest-neighbor search in vector space
-- New data is immediately embedded and persisted — the system never re-learns solved problems
+The vector memory system operates as a **Hybrid RAG** architecture combining:
+
+**Vector Layer (Breadth):**
+
+- All system knowledge, user context, and deterministic rules stored as 384-dim embeddings
+- 3D PCA-lite projection into 8-octant spatial zones for locality-optimized search
+- Zone-first query with automatic expansion to adjacent octants
+- Sharded across 5 Fibonacci shards for parallel scan
+
+**Graph Layer (Depth):**
+
+- Explicit entity-relationship edges stored alongside vector embeddings
+- Causal chains between errors, resolutions, and rules are traversable
+- Multi-hop reasoning: "How did error X lead to rule Y which prevented issue Z?"
+- Temporal awareness: relationships track creation time for version-aware retrieval
+
+**Retrieval Strategy:**
+
+1. Query enters → embed → project to 3D → identify octant zone
+2. Zone-first vector search for semantic similarity (breadth)
+3. Graph traversal from top results for relationship depth
+4. Merge results: vector score × relationship proximity = final rank
+5. Return enriched results with both content and relationship context
 
 #### Provider Orchestration
 
 - Always check `configs/provider-budgets.yaml` before routing provider calls
 - Prefer spatially-proximate nodes in the Sacred Geometry lattice
 - Cascade through provider tiers on failure: primary → secondary → edge fallback
+- Record all provider transitions in vector memory for pattern detection
+
+#### Self-Healing Pipeline Protocol
+
+When HCFullPipeline detects a stage failure:
+
+1. **Capture**: Record full stage context (inputs, config, timing, error)
+2. **Analyze**: Check vector memory for similar past failures using semantic search
+3. **Remediate**: If a matching resolution exists, attempt automatic retry with the learned fix
+4. **Escalate**: If no resolution exists, trigger Buddy's 5-Phase Optimization Loop
+5. **Persist**: Store the resolution in vector memory with `type: "pipeline_resolution"`
+6. **Harden**: Synthesize a new Learned Rule if the error class is novel
 
 ---
 
@@ -153,3 +191,21 @@ When **any** anomaly is detected — stack trace, test failure, logical hallucin
 - **Error:** Potential port exhaustion under sustained swarm load from unbounded Redis connections
 - **Root Cause:** `redis-pool.js` had no `connectTimeout`, no `maxRetriesPerRequest`, and no graceful shutdown
 - **Rule:** Redis pool must enforce: `connectTimeout: 5000ms`, `maxRetries: 10`, capped backoff (`Math.min(retries * 100, 3000)`), and register `close()` with graceful shutdown lifecycle
+
+### LR-004: Console.log in Production Routes (2026-03-01)
+
+- **Error:** Unstructured log output in `src/routes/` disrupting JSON log aggregation in Cloud Run
+- **Root Cause:** 23 `console.log/warn/error` calls across 9 route files bypassing the pino logger
+- **Rule:** All log output in `src/routes/` and `src/orchestration/` must use `require('../utils/logger')` methods. Raw `console.*` calls are forbidden in these paths.
+
+### LR-005: Host Header Loop in Edge Proxy (2026-03-01)
+
+- **Error:** 503 Service Unavailable on `manager.headysystems.com` caused by infinite proxy loop
+- **Root Cause:** `proxyToService` was forwarding the original Host header to Cloud Run, causing the request to loop back to the worker
+- **Rule:** Edge proxy must delete the `Host` header before forwarding to Cloud Run origins. The `fetch()` call to the origin must not carry the original hostname.
+
+### LR-006: Structured Logging Enforcement (2026-03-01)
+
+- **Error:** Mixed structured and unstructured log output causing JSON parse failures in log aggregation
+- **Root Cause:** `src/orchestration/buddy-core.js` and `src/vector-memory.js` contained raw `console.log` calls alongside the pino logger
+- **Rule:** ALL modules in `src/` must use `logger.logSystem()`, `logger.logError()`, or `logger.logNodeActivity()`. Zero tolerance for `console.*` in production code paths.
