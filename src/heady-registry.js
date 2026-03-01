@@ -164,7 +164,7 @@ async function incrementalScan() {
     const stale = Object.values(entries).filter(e => e.confidence < 0.5).sort((a, b) => a.confidence - b.confidence);
 
     let scanned = 0;
-    for (const entry of stale.slice(0, 5)) { // Max 5 per cycle
+    for (const entry of stale) { // Dynamic: process ALL stale entries — no batch limit
         if (entry.type === "endpoint" && entry.url) {
             await scanEndpoint(entry.name, entry.url);
             scanned++;
