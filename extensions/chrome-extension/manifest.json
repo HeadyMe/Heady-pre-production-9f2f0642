@@ -2,13 +2,14 @@
     "manifest_version": 3,
     "name": "Heady AI — Brain in Every Tab",
     "short_name": "Heady",
-    "version": "1.0.0",
-    "description": "AI assistant powered by the Heady Intelligence Layer. Chat, code, analyze, and create from any webpage. 9 service groups, 77 AI nodes.",
+    "version": "2.0.0",
+    "description": "AI assistant powered by the Heady Intelligence Layer. Chat, code, analyze, and create from any webpage. 9 service groups, 20 AI nodes.",
     "permissions": [
         "activeTab",
         "contextMenus",
         "storage",
-        "sidePanel"
+        "sidePanel",
+        "tabs"
     ],
     "host_permissions": [
         "https://headyme.com/*",
@@ -31,6 +32,18 @@
     "background": {
         "service_worker": "background.js"
     },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "options_page": "options.html",
     "icons": {
         "16": "icons/heady-16.png",
         "48": "icons/heady-48.png",
