@@ -944,8 +944,12 @@ var EDGE_SITES = /* @__PURE__ */ new Set([
   "www.headyio.com",
   "headyconnection.org",
   "www.headyconnection.org",
+  "headyconnection.com",
+  "www.headyconnection.com",
   "headybuddy.org",
   "www.headybuddy.org",
+  "headybuddy.com",
+  "www.headybuddy.com",
   "buddy.headysystems.com",
   "headyme.com",
   "www.headyme.com",
@@ -962,7 +966,9 @@ var SERVICE_MAP = {
   "api.headyio.com": { origin: "https://manager.headysystems.com", mtls: true, public: false },
   "api.headymcp.com": { origin: "https://manager.headysystems.com", mtls: true, public: false },
   "api.headybuddy.org": { origin: "https://manager.headysystems.com", mtls: true, public: false },
-  "api.headyconnection.org": { origin: "https://manager.headysystems.com", mtls: true, public: false }
+  "api.headybuddy.com": { origin: "https://manager.headysystems.com", mtls: true, public: false },
+  "api.headyconnection.org": { origin: "https://manager.headysystems.com", mtls: true, public: false },
+  "api.headyconnection.com": { origin: "https://manager.headysystems.com", mtls: true, public: false }
 };
 var MTLS_REQUIRED_PATHS = ["/api/", "/admin/", "/internal/"];
 var MTLS_EXEMPT_PATHS = ["/api/auto-success/", "/api/config/", "/api/health", "/api/pulse", "/api/brain/chat", "/api/brain/health", "/api/auth/"];
@@ -3030,7 +3036,11 @@ async function proxyToService(request, service, env2, meta) {
 __name(proxyToService, "proxyToService");
 function getEdgeSitePage(hostname) {
   const domain2 = hostname.replace(/^www\./, "");
-  const resolved = domain2 === "buddy.headysystems.com" ? "headybuddy.org" : domain2;
+  // Normalize .com variants to canonical .org and subdomain aliases
+  let resolved = domain2;
+  if (resolved === "buddy.headysystems.com") resolved = "headybuddy.org";
+  if (resolved === "headybuddy.com") resolved = "headybuddy.org";
+  if (resolved === "headyconnection.com") resolved = "headyconnection.org";
   switch (resolved) {
     case "headymcp.com":
       return getHeadyMCPPage();
