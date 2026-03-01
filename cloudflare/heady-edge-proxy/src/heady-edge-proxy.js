@@ -64,8 +64,8 @@ var SERVICE_MAP = {
   "api.headybuddy.com": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "api.headyconnection.org": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "api.headyconnection.com": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
-  "headyme.com": { origin: "https://headyme-site-bf4q4zywhq-uc.a.run.app", mtls: false, public: true },
-  "www.headyme.com": { origin: "https://headyme-site-bf4q4zywhq-uc.a.run.app", mtls: false, public: true }
+  "headyme.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true },
+  "www.headyme.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true }
 };
 var MTLS_REQUIRED_PATHS = ["/api/", "/admin/", "/internal/"];
 var MTLS_EXEMPT_PATHS = ["/api/auto-success/", "/api/config/", "/api/health", "/api/pulse", "/api/brain/chat", "/api/brain/health", "/api/auth/", "/api/orchestrator/"];
