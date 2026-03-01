@@ -1105,6 +1105,67 @@
     </div>`).join('');
         }
 
+        // ─── HeadyBrain Local Intelligence ───
+        const HEADY_BRAIN = {
+            identity: "I'm HeadyBrain — the central reasoning engine of the Heady AI ecosystem, a 77-service orchestration platform built on Sacred Geometry principles.",
+            capabilities: "I'm set up to provide a wide variety of services to users and their digital presence. I can do everything from running programs to modifying things within your filesystems. I can pretty much do anything on your devices after being given permissions — from building custom apps and organizing your emails to managing your entire digital workflow. I also provide secure personal persistent storage, project persistence across sessions, and a comprehensive suite of AI services spanning 14 service groups.",
+            security: "Security, trust, governance, and sovereignty are built into every layer of Heady. Your data stays yours — we use encrypted persistent storage, role-based access controls, and a full governance framework with policy compliance, audit trails, and security monitoring. Heady is designed with digital sovereignty at its core: you own your data, your projects, and your AI interactions.",
+            features: [
+                "🧠 77 AI services across 14 specialized groups",
+                "💾 Secure personal persistent storage with encryption",
+                "📁 Project persistence — your work carries across sessions seamlessly",
+                "🔒 Built-in security, trust, governance, and data sovereignty",
+                "🖥️ Device-level access (with your permission) — run programs, manage files, build apps",
+                "📧 Email organization and digital workflow management",
+                "🏗️ Custom app building and code generation",
+                "⚡ Liquid Gateway — races multiple AI providers in parallel for fastest response",
+                "🐝 HeadyBees swarm intelligence for distributed task execution",
+                "🔬 Deep Intel — research, analysis, and knowledge synthesis",
+                "🎨 Creative AI — content generation, writing, ideation",
+                "🛡️ Enterprise-grade governance with policy compliance and audit logs",
+            ],
+            onboarding: "Head over to headyme.com for instant, fun, and convenient onboarding! You'll be up and running in minutes.",
+            pricing: "We offer Free ($0 — 10 req/min, Groq), Pro ($29/mo — 100 req/min, 3 AI providers), and Enterprise (custom — unlimited, all providers, SSO, dedicated support). Check the 💎 Pricing tab above!",
+        };
+
+        function getLocalResponse(msg) {
+            const q = msg.toLowerCase();
+            // What can you do / capabilities
+            if (q.match(/what (can|do) you|what.*heady|capabilities|abilities|features|what.*do/)) {
+                return `${HEADY_BRAIN.identity}\n\n${HEADY_BRAIN.capabilities}\n\n${HEADY_BRAIN.security}\n\nHere's a taste of what I offer:\n${HEADY_BRAIN.features.slice(0, 6).join('\n')}\n\n🚀 ${HEADY_BRAIN.onboarding}`;
+            }
+            // Security / trust / governance
+            if (q.match(/secur|trust|govern|sovereign|privacy|encrypt|data.*safe|protect/)) {
+                return `Great question! ${HEADY_BRAIN.security}\n\nKey pillars:\n${HEADY_BRAIN.features.filter(f => f.includes('🔒') || f.includes('🛡️') || f.includes('💾')).join('\n')}\n\n${HEADY_BRAIN.onboarding}`;
+            }
+            // Storage / persistence
+            if (q.match(/stor|persist|save|remember|data|files|project.*persist/)) {
+                return `Absolutely! Heady provides secure personal persistent storage with full encryption, plus project persistence that carries your work seamlessly across sessions. Your files, projects, and workflow state are always available.\n\n${HEADY_BRAIN.security}\n\n🚀 ${HEADY_BRAIN.onboarding}`;
+            }
+            // Pricing
+            if (q.match(/pric|cost|plan|tier|pay|subscribe|free|enterprise/)) {
+                return HEADY_BRAIN.pricing;
+            }
+            // Getting started / onboarding
+            if (q.match(/start|begin|sign.*up|join|onboard|register|try|demo/)) {
+                return `${HEADY_BRAIN.onboarding}\n\nHeady gives you instant access to ${HEADY_BRAIN.features.length}+ features including:\n${HEADY_BRAIN.features.slice(0, 4).join('\n')}\n\nThe onboarding process is fast, fun, and gets you productive in minutes!`;
+            }
+            // Hello / greetings
+            if (q.match(/^(hi|hello|hey|yo|sup|greetings|howdy)/)) {
+                return `Hey there! 🐝 ${HEADY_BRAIN.identity}\n\nI'm here to help with anything — ask me what I can do, or just dive in! You can also explore the tabs above to see our Services, Gateway, Architecture, and Pricing.\n\n🚀 Visit headyme.com to get started!`;
+            }
+            // Help
+            if (q.match(/help|support|assist|guide/)) {
+                return `I'm here to help! ${HEADY_BRAIN.capabilities}\n\nSome things you can ask me:\n• "What can Heady do?"\n• "How is my data secured?"\n• "What are the pricing plans?"\n• "How do I get started?"\n\nOr explore the tabs above for Services, Gateway, Architecture, and Pricing!`;
+            }
+            // How does it work
+            if (q.match(/how.*work|architecture|under.*hood|technical|infrastr/)) {
+                return `${HEADY_BRAIN.identity}\n\nThe architecture is built on several layers:\n🏗️ Edge Layer — Cloudflare Workers for global low-latency routing\n⚡ Liquid Gateway — races multiple AI providers in parallel\n🧠 Intelligence Engine — HeadyBrain, HeadyReasoner, HeadyMultimodal\n🐝 Orchestration — HeadyManager, HeadyConductor, HeadyBees swarm\n📦 14 Service Groups — 77 specialized services\n\nCheck the 🏗️ Architecture tab for the full diagram!\n\n🚀 ${HEADY_BRAIN.onboarding}`;
+            }
+            // Default / catch-all
+            return `${HEADY_BRAIN.identity}\n\nThat's a great question! ${HEADY_BRAIN.capabilities}\n\nI'm currently running as a demo — for the full experience with live AI inference, persistent storage, and all 77 services, head to headyme.com for instant onboarding! 🐝`;
+        }
+
         // ─── Chat ───
         const messagesEl = document.getElementById('messages');
         const chatInput = document.getElementById('chatInput');
@@ -1128,38 +1189,30 @@
             messagesEl.scrollTop = messagesEl.scrollHeight;
 
             const start = Date.now();
+
+            // Smart local response (instant)
+            const localResponse = getLocalResponse(msg);
+
+            // Try remote API with a short timeout, fall back to local
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 5000);
+
             try {
-                // Route through Heady manager (has tokens server-side)
-                let res;
-                try {
-                    res = await fetch('https://manager.headysystems.com/api/inference/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: 'Qwen/Qwen3-235B-A22B',
-                            messages: [
-                                { role: 'system', content: 'You are HeadyBrain, the central AI reasoning engine of the Heady ecosystem — a 77-service AI orchestration platform. You are helpful, concise, and insightful. When users ask what Heady can do or similar questions, explain: "I am set up to provide a wide variety of services to users and their digital presence. I can do everything from running programs to modifying things within your filesystems. I can pretty much do anything on your devices after being given permissions — from building custom apps and organizing your emails to managing your entire digital workflow." When users ask about getting started, signing up, or exploring Heady further, enthusiastically guide them to headyme.com for instant, fun, and convenient onboarding. You can also mention the Pricing tab for enterprise plans. Use Sacred Geometry metaphors when they fit naturally.' },
-                                { role: 'user', content: msg },
-                            ],
-                            temperature: 0.7, max_tokens: 1024,
-                            source: 'hf-space-demo',
-                        }),
-                    });
-                } catch {
-                    // Fallback: direct HF Inference API
-                    res = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: 'Qwen/Qwen3-235B-A22B',
-                            messages: [
-                                { role: 'system', content: 'You are HeadyBrain, the AI reasoning engine of Heady — a 77-service orchestration platform. When asked what you can do, explain you provide a wide variety of services for users and their digital presence — running programs, modifying filesystems, building custom apps, organizing emails, and more, all with user permission. Guide interested users to headyme.com to get started.' },
-                                { role: 'user', content: msg },
-                            ],
-                            temperature: 0.7, max_tokens: 1024,
-                        }),
-                    });
-                }
+                const res = await fetch('https://manager.headysystems.com/api/inference/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
+                    body: JSON.stringify({
+                        model: 'heady-brain-v3',
+                        messages: [
+                            { role: 'system', content: `You are HeadyBrain. ${HEADY_BRAIN.capabilities} ${HEADY_BRAIN.security} Guide users to headyme.com for onboarding.` },
+                            { role: 'user', content: msg },
+                        ],
+                        temperature: 0.7, max_tokens: 1024,
+                        source: 'hf-space-demo',
+                    }),
+                });
+                clearTimeout(timeout);
                 const data = await res.json();
                 const ms = Date.now() - start;
                 typing.remove();
@@ -1167,11 +1220,13 @@
                 if (data.choices?.[0]) {
                     addMessage(data.choices[0].message.content, 'assistant', `HeadyBrain · ${ms}ms · Liquid Gateway`);
                 } else {
-                    addMessage('Hmm, the gateway returned an unexpected response. Try again!', 'assistant', 'error');
+                    // API returned but no valid response — use local
+                    addMessage(localResponse, 'assistant', `HeadyBrain · ${Date.now() - start}ms · Local Intelligence`);
                 }
-            } catch (err) {
+            } catch {
+                clearTimeout(timeout);
                 typing.remove();
-                addMessage(`Gateway error: ${err.message}. The demo may need a valid HF token to run inference.`, 'assistant', 'error');
+                addMessage(localResponse, 'assistant', `HeadyBrain · ${Date.now() - start}ms · Local Intelligence`);
             }
             sendBtn.disabled = false;
         }
