@@ -59,7 +59,7 @@ var SERVICE_MAP = {
   "www.headyme.com": { origin: "https://headyme-site-bf4q4zywhq-uc.a.run.app", mtls: false, public: true }
 };
 var MTLS_REQUIRED_PATHS = ["/api/", "/admin/", "/internal/"];
-var MTLS_EXEMPT_PATHS = ["/api/auto-success/", "/api/config/", "/api/health", "/api/pulse", "/api/brain/chat", "/api/brain/health", "/api/auth/"];
+var MTLS_EXEMPT_PATHS = ["/api/auto-success/", "/api/config/", "/api/health", "/api/pulse", "/api/brain/chat", "/api/brain/health", "/api/auth/", "/api/orchestrator/"];
 var PROVIDERS = [
   { id: "edge-ai", type: "edge", weight: 1 },
   // ★ First: Workers AI — instant, concurrent, always-on
