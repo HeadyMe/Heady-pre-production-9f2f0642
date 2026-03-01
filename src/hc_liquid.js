@@ -37,11 +37,12 @@ const COMPONENT_REGISTRY = {
         stateless: true,
         providers: {
             primary: { service: "groq", model: "llama-3.1-70b-versatile", cost: "free", latency: "100ms" },
-            secondary: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
+            secondary: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            tertiary: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
             quality: { service: "claude", model: "claude-sonnet-4-20250514", cost: "$60-api", latency: "800ms" },
             fallback: { service: "openai-biz", model: "gpt-4o", cost: "biz-seat", latency: "600ms" },
         },
-        providerPriority: ["groq", "gemini", "openai-biz", "claude"],
+        providerPriority: ["groq", "hf-biz", "gemini", "openai-biz", "claude"],
     },
     "soul": {
         capabilities: ["reflection", "introspection", "quality-eval", "depth-analysis"],
@@ -94,11 +95,12 @@ const COMPONENT_REGISTRY = {
         maxInstances: 3,
         stateless: false,
         providers: {
-            primary: { service: "ai-studio", model: "gemini-2.0-flash", cost: "free", latency: "300ms" },
-            creative: { service: "hf-biz", model: "stabilityai/sdxl", cost: "biz-seat", latency: "2s" },
+            primary: { service: "hf-biz", model: "stabilityai/sdxl", cost: "biz-seat", latency: "2s" },
+            inference: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            secondary: { service: "ai-studio", model: "gemini-2.0-flash", cost: "free", latency: "300ms" },
             fallback: { service: "vertex-ai", model: "gemini-1.5-pro", cost: "gcloud", latency: "600ms" },
         },
-        providerPriority: ["ai-studio", "hf-biz", "vertex-ai"],
+        providerPriority: ["hf-biz", "ai-studio", "vertex-ai"],
     },
     "patterns": {
         capabilities: ["circuit-breaking", "pool-management", "cache-control", "resilience"],
@@ -135,11 +137,12 @@ const COMPONENT_REGISTRY = {
         maxInstances: 2,
         stateless: false,
         providers: {
-            primary: { service: "perplexity", model: "sonar-pro", cost: "api-key", latency: "500ms" },
-            vectordb: { service: "hf-biz", platform: "HF Datasets", cost: "biz-seat", latency: "200ms" },
+            primary: { service: "hf-biz", platform: "HF Datasets", cost: "biz-seat", latency: "200ms" },
+            inference: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            research: { service: "perplexity", model: "sonar-pro", cost: "api-key", latency: "500ms" },
             fallback: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
         },
-        providerPriority: ["perplexity", "hf-biz", "gemini"],
+        providerPriority: ["hf-biz", "perplexity", "gemini"],
     },
     "ops": {
         capabilities: ["operations", "deployment", "infrastructure-management"],
@@ -163,10 +166,11 @@ const COMPONENT_REGISTRY = {
         maxInstances: 1,
         stateless: true,
         providers: {
-            primary: { service: "colab", platform: "Google Colab", cost: "free", latency: "batch" },
-            secondary: { service: "gcloud-run", platform: "Cloud Run Jobs", cost: "gcloud", latency: "5min" },
+            primary: { service: "hf-biz", platform: "HF Spaces", cost: "biz-seat", latency: "batch" },
+            secondary: { service: "colab", platform: "Google Colab", cost: "free", latency: "batch" },
+            fallback: { service: "gcloud-run", platform: "Cloud Run Jobs", cost: "gcloud", latency: "5min" },
         },
-        providerPriority: ["colab", "gcloud-run"],
+        providerPriority: ["hf-biz", "colab", "gcloud-run"],
     },
     "auto-success": {
         capabilities: ["background-optimization", "continuous-improvement", "task-cycling"],
@@ -177,11 +181,11 @@ const COMPONENT_REGISTRY = {
         stateless: false,
         alwaysPresent: true,
         providers: {
-            inference: { service: "groq", model: "llama-3.1-70b-versatile", cost: "free", latency: "100ms" },
-            heavy: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            primary: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            speed: { service: "groq", model: "llama-3.1-70b-versatile", cost: "free", latency: "100ms" },
             reasoning: { service: "claude", model: "claude-3-haiku-20240307", cost: "$60-api", latency: "300ms" },
         },
-        providerPriority: ["groq", "hf-biz", "claude"],
+        providerPriority: ["hf-biz", "groq", "claude"],
     },
     "stream": {
         capabilities: ["real-time-delivery", "text-streaming", "live-updates"],
@@ -206,10 +210,11 @@ const COMPONENT_REGISTRY = {
         stateless: true,
         providers: {
             primary: { service: "groq", model: "llama-3.1-8b-instant", cost: "free", latency: "50ms" },
+            inference: { service: "hf-biz", model: "Llama-3.1-8B-Instruct", cost: "biz-seat", latency: "200ms" },
             research: { service: "perplexity", model: "sonar", cost: "api-key", latency: "500ms" },
             fallback: { service: "ai-studio", model: "gemini-2.0-flash", cost: "free", latency: "300ms" },
         },
-        providerPriority: ["groq", "perplexity", "ai-studio"],
+        providerPriority: ["groq", "hf-biz", "perplexity", "ai-studio"],
     },
     "cloud": {
         capabilities: ["external-connectivity", "provider-management", "domain-routing"],
@@ -226,6 +231,78 @@ const COMPONENT_REGISTRY = {
             ci: { service: "github-ent", platform: "GitHub Actions", cost: "biz-seat", latency: "30s" },
         },
         providerPriority: ["cloudflare", "gcloud-run", "gcloud", "github-ent"],
+    },
+};
+
+// ─── Distributed Storage Topology ────────────────────────────────────
+// Maps data types to optimal storage providers across HF, GCloud, Cloudflare, GitHub.
+// Each entry defines primary, replica, and cache layers for redundancy + speed.
+const STORAGE_TOPOLOGY = {
+    "models": {
+        description: "ML models, fine-tuned weights, LoRAs",
+        primary: { service: "hf-biz", platform: "HF Model Hub", cost: "biz-seat", latency: "200ms" },
+        replica: { service: "gcloud", platform: "Cloud Storage", cost: "gcloud-$530", latency: "100ms" },
+        cache: { service: "cloudflare", platform: "R2 Storage", cost: "free", latency: "20ms" },
+        priority: ["hf-biz", "gcloud", "cloudflare"],
+    },
+    "datasets": {
+        description: "Training data, embeddings, vector DBs",
+        primary: { service: "hf-biz", platform: "HF Datasets", cost: "biz-seat", latency: "200ms" },
+        replica: { service: "gcloud", platform: "Cloud Storage", cost: "gcloud", latency: "100ms" },
+        cache: { service: "cloudflare", platform: "R2 Storage", cost: "free", latency: "20ms" },
+        priority: ["hf-biz", "gcloud", "cloudflare"],
+    },
+    "code": {
+        description: "Source code, configs, infra-as-code, CI/CD",
+        primary: { service: "github-ent", platform: "GitHub Enterprise", cost: "biz-seat", latency: "100ms" },
+        replica: { service: "gcloud", platform: "Cloud Source Repos", cost: "gcloud", latency: "200ms" },
+        mirror: { service: "hf-biz", platform: "HF Spaces (deploy)", cost: "biz-seat", latency: "500ms" },
+        priority: ["github-ent", "gcloud", "hf-biz"],
+    },
+    "static-assets": {
+        description: "Images, fonts, CSS, JS bundles, public files",
+        primary: { service: "cloudflare", platform: "Pages / R2", cost: "free", latency: "5ms" },
+        replica: { service: "gcloud", platform: "Cloud Storage", cost: "gcloud", latency: "100ms" },
+        origin: { service: "github-ent", platform: "GitHub Pages", cost: "biz-seat", latency: "200ms" },
+        priority: ["cloudflare", "gcloud", "github-ent"],
+    },
+    "edge-cache": {
+        description: "KV pairs, session state, config, feature flags",
+        primary: { service: "cloudflare", platform: "Workers KV", cost: "free", latency: "5ms" },
+        replica: { service: "gcloud", platform: "Memorystore / Redis", cost: "gcloud", latency: "50ms" },
+        priority: ["cloudflare", "gcloud"],
+    },
+    "logs-telemetry": {
+        description: "Audit logs, traces, metrics, observability data",
+        primary: { service: "gcloud", platform: "Cloud Logging / BigQuery", cost: "gcloud-$530", latency: "200ms" },
+        replica: { service: "hf-biz", platform: "HF Datasets (archive)", cost: "biz-seat", latency: "batch" },
+        priority: ["gcloud", "hf-biz"],
+    },
+    "secrets": {
+        description: "API keys, tokens, certificates, env vars",
+        primary: { service: "gcloud", platform: "Secret Manager", cost: "gcloud", latency: "50ms" },
+        replica: { service: "cloudflare", platform: "Workers Secrets", cost: "free", latency: "5ms" },
+        priority: ["gcloud", "cloudflare"],
+    },
+    "user-content": {
+        description: "User-generated files, uploads, avatars",
+        primary: { service: "cloudflare", platform: "R2 Storage", cost: "free", latency: "20ms" },
+        replica: { service: "gcloud", platform: "Cloud Storage", cost: "gcloud", latency: "100ms" },
+        priority: ["cloudflare", "gcloud"],
+    },
+    "vector-memory": {
+        description: "Episodic/semantic/procedural memory vectors (3D storage)",
+        primary: { service: "gcloud", platform: "Cloud SQL (pgvector)", cost: "gcloud-$530", latency: "50ms" },
+        replica: { service: "hf-biz", platform: "HF Datasets (export)", cost: "biz-seat", latency: "batch" },
+        cache: { service: "cloudflare", platform: "Workers KV (hot)", cost: "free", latency: "5ms" },
+        priority: ["gcloud", "hf-biz", "cloudflare"],
+    },
+    "notebooks": {
+        description: "Jupyter notebooks, experiments, research",
+        primary: { service: "hf-biz", platform: "HF Spaces", cost: "biz-seat", latency: "1s" },
+        replica: { service: "gcloud", platform: "Colab / Vertex Workbench", cost: "free", latency: "2s" },
+        backup: { service: "github-ent", platform: "GitHub Repos", cost: "biz-seat", latency: "200ms" },
+        priority: ["hf-biz", "gcloud", "github-ent"],
     },
 };
 
@@ -497,9 +574,13 @@ function registerLiquidRoutes(app, allocator) {
         }
         res.json({ ok: true, components: comps });
     });
+    // Storage topology — where data lives
+    app.get("/api/liquid/storage", (req, res) => {
+        res.json({ ok: true, storage: STORAGE_TOPOLOGY });
+    });
 
     logger.logSystem("  💧 HeadyLiquid: LOADED (dynamic allocation, context-aware routing)");
-    logger.logSystem("    → Endpoints: /api/liquid/health, /allocate, /state, /flows, /query, /components");
+    logger.logSystem("    → Endpoints: /api/liquid/health, /allocate, /state, /flows, /query, /components, /storage");
 }
 
-module.exports = { LiquidAllocator, registerLiquidRoutes, analyzeContext, calculateAffinity, COMPONENT_REGISTRY };
+module.exports = { LiquidAllocator, registerLiquidRoutes, analyzeContext, calculateAffinity, COMPONENT_REGISTRY, STORAGE_TOPOLOGY };
