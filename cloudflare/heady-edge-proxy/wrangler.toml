@@ -5,6 +5,41 @@ compatibility_date = "2024-02-23"
 compatibility_flags = ["nodejs_compat"]
 no_bundle = true
 
+# ═══ Custom Domain Routes ═══
+# These routes make the worker intercept requests for these domains
+# instead of Cloudflare Pages serving old cached content.
+routes = [
+  { pattern = "headyme.com/*", zone_name = "headyme.com" },
+  { pattern = "www.headyme.com/*", zone_name = "headyme.com" },
+  { pattern = "headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "www.headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "manager.headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "api.headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "admin.headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "buddy.headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "headymcp.com/*", zone_name = "headymcp.com" },
+  { pattern = "www.headymcp.com/*", zone_name = "headymcp.com" },
+  { pattern = "headyio.com/*", zone_name = "headyio.com" },
+  { pattern = "www.headyio.com/*", zone_name = "headyio.com" },
+  { pattern = "headyconnection.org/*", zone_name = "headyconnection.org" },
+  { pattern = "www.headyconnection.org/*", zone_name = "headyconnection.org" },
+  { pattern = "headyconnection.com/*", zone_name = "headyconnection.com" },
+  { pattern = "www.headyconnection.com/*", zone_name = "headyconnection.com" },
+  { pattern = "headybuddy.org/*", zone_name = "headybuddy.org" },
+  { pattern = "www.headybuddy.org/*", zone_name = "headybuddy.org" },
+  { pattern = "headybuddy.com/*", zone_name = "headybuddy.com" },
+  { pattern = "www.headybuddy.com/*", zone_name = "headybuddy.com" },
+  { pattern = "headybot.com/*", zone_name = "headybot.com" },
+  { pattern = "www.headybot.com/*", zone_name = "headybot.com" },
+  { pattern = "api.headyme.com/*", zone_name = "headyme.com" },
+  { pattern = "api.headyio.com/*", zone_name = "headyio.com" },
+  { pattern = "api.headymcp.com/*", zone_name = "headymcp.com" },
+  { pattern = "api.headybuddy.org/*", zone_name = "headybuddy.org" },
+  { pattern = "api.headybuddy.com/*", zone_name = "headybuddy.com" },
+  { pattern = "api.headyconnection.org/*", zone_name = "headyconnection.org" },
+  { pattern = "api.headyconnection.com/*", zone_name = "headyconnection.com" },
+]
+
 # ═══ Workers AI Binding — powers edge-ai provider ═══
 [ai]
 binding = "AI"
