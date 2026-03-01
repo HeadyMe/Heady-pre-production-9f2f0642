@@ -32,19 +32,29 @@ const { EventEmitter } = require("events");
 // No steps. No categories. A smooth dial from 1 → maxBees.
 // Like liquid filling the exact shape of the obstacle.
 //
-// The formula: bees = ceil( workItems × urgency × resources × efficiency )
-//   - workItems:  how many independent pieces of work (the obstacle's shape)
-//   - urgency:    0.0–1.0 sliding dial (how fast must this complete?)
-//   - resources:  0.0–1.0 available system capacity
-//   - efficiency: decays as concurrency rises (diminishing returns curve)
+// All constants derive from φ (golden ratio = 1.618...):
+//   - Efficiency decays to 1/φ at the golden proportion of capacity
+//   - Default urgency = 1/φ (the natural resting state)
+//   - Resource floor = 1/φ³ (the minimum before emergency mode)
+//   - History factor slides between 1/φ and 1.0
 //
+// The formula: bees = ceil( workItems × urgency × resources × efficiency × history )
+//
+const PHI = (1 + Math.sqrt(5)) / 2;                // 1.6180339887...
+const PHI_INV = 1 / PHI;                           // 0.6180339887... (1/φ)
+const LN_PHI = Math.log(PHI);                      // 0.4812118250...
+
 const SWARM_PARAMS = {
+    phi: PHI,
     minBees: 1,
-    maxBees: 50,           // Hard ceiling — even liquid has physical limits
-    baseLatencyMs: 50,     // Expected per-bee overhead
-    resourceFloor: 0.10,   // Below 10% resources = emergency single-bee mode
-    efficiencyDecay: 0.03, // Each active bee reduces efficiency by this much
-    defaultUrgency: 0.7,   // Default urgency when not specified (0.0–1.0)
+    maxBees: 50,
+    baseLatencyMs: 50,
+    // Decay constant: φ × ln(φ) / maxBees
+    // At maxBees/φ active bees → efficiency = exactly 1/φ (0.618)
+    // At maxBees active bees   → efficiency ≈ 0.459
+    efficiencyDecay: (PHI * LN_PHI) / 50,           // ≈ 0.01557
+    defaultUrgency: PHI_INV,                        // 0.618... (golden complement)
+    resourceFloor: 1 / (PHI * PHI * PHI),           // 1/φ³ ≈ 0.146
 };
 
 // ─── SINGLE BEE ────────────────────────────────────────────────────────────
@@ -283,23 +293,21 @@ class HeadyBees extends EventEmitter {
         return this.blast({ name: "deploy-blast", urgency: 1.0, work });
     }
 
-    // ═══ SWARM INTELLIGENCE — CONTINUOUS SLIDING SCALE ═════════════════════
+    // ═══ SWARM INTELLIGENCE — GOLDEN RATIO SLIDING SCALE ═══════════════════
 
     /**
      * Calculate the EXACT number of bees on a continuous sliding scale.
      *
-     * No steps. No categories. The formula slides smoothly:
+     * No steps. No categories. Golden ratio governs the curve.
      *
-     *   bees = ceil( workItems × urgency × resources × efficiency )
+     *   bees = ⌈ workItems × urgency × resources × efficiency × history ⌉
      *
-     * Where:
-     *   workItems  = the shape of the obstacle (how many pieces)
-     *   urgency    = 0.0–1.0 dial (default 0.7) — how fast to blast
-     *   resources  = 0.0–1.0 available system capacity (heap, concurrency)
-     *   efficiency = decays smoothly as active concurrency rises
-     *
-     * The result is always a whole number (you can't have 0.3 of a bee)
-     * but the INPUTS are all continuous — the scale slides, not steps.
+     * Golden ratio properties:
+     *   • Efficiency = e^(-k × activeBees) where k = φ·ln(φ)/maxBees
+     *   • At maxBees/φ active bees → efficiency = exactly 1/φ (0.618...)
+     *   • Default urgency = 1/φ (natural resting state)
+     *   • Resource floor = 1/φ³ (emergency threshold)
+     *   • History factor slides [1/φ, 1.0] — past performance shapes future
      */
     _calculateBeeCount(task) {
         const workItems = (task.work && task.work.length) || 1;
@@ -309,38 +317,41 @@ class HeadyBees extends EventEmitter {
         const resources = this._getResourceAvailability();
         const resourceFactor = resources.available;
 
-        // Emergency mode — system is critically low, single bee only
+        // Emergency mode — below 1/φ³ resources, single bee only
         if (resourceFactor < SWARM_PARAMS.resourceFloor) {
             return SWARM_PARAMS.minBees;
         }
 
-        // Efficiency — smooth exponential decay as active bees increase
-        // At 0 active bees: efficiency = 1.0
-        // At maxBees active:  efficiency ≈ 0.22
-        // The decay is continuous, not stepped.
+        // Efficiency — golden ratio exponential decay
+        //   k = φ × ln(φ) / maxBees
+        //   efficiency = e^(-k × activeBees)
+        //
+        // This gives a natural curve where:
+        //   0 active → efficiency = 1.0 (full capacity)
+        //   maxBees/φ active (~31) → efficiency = 1/φ ≈ 0.618 (golden point)
+        //   maxBees active (50) → efficiency ≈ 0.459 (still useful, never zero)
+        //
+        // The decay is continuous and smooth — no thresholds, no steps.
         const currentActive = this.activeBees.size;
         const efficiency = Math.exp(-SWARM_PARAMS.efficiencyDecay * currentActive);
 
         // Historical adjustment — learn from past blast performance
-        // If recent blasts were fast, we can be slightly more conservative
-        // If recent blasts were slow, lean toward more bees
+        // Factor slides between 1/φ (0.618) and 1.0
+        // Fast history → closer to 1/φ (conserve)
+        // Slow history → closer to 1.0   (more bees needed)
         let historyFactor = 1.0;
         if (this.blastHistory.length > 0) {
             const recent = this.blastHistory.slice(-10);
             const avgDuration = recent.reduce((s, b) => s + b.durationMs, 0) / recent.length;
-            // Smooth factor: slow history pushes toward 1.2, fast history toward 0.8
-            historyFactor = 0.8 + (Math.min(avgDuration, 5000) / 5000) * 0.4;
+            // Map [0ms, 5000ms] → [1/φ, 1.0] (golden range)
+            const t = Math.min(avgDuration, 5000) / 5000;
+            historyFactor = PHI_INV + t * (1.0 - PHI_INV);
         }
 
-        // THE FORMULA — continuous, liquid, no steps:
-        //   Start from the exact number of work items (the obstacle's shape)
-        //   Scale by urgency (how fast)
-        //   Scale by resources (what's available)
-        //   Scale by efficiency (diminishing returns curve)
-        //   Adjust by history (learned performance)
+        // THE FORMULA — continuous, liquid, golden:
         const rawBees = workItems * urgency * resourceFactor * efficiency * historyFactor;
 
-        // Round up — if the math says 3.1 bees, you need 4 (liquid fills completely)
+        // Round up — liquid fills completely
         const beeCount = Math.ceil(rawBees);
 
         // Clamp to bounds
