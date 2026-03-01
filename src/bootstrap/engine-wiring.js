@@ -298,8 +298,8 @@ function wireEngines(app, deps = {}) {
     try {
         const { AutoSuccessEngine, registerAutoSuccessRoutes } = require("../hc_auto_success");
         engines.autoSuccessEngine = new AutoSuccessEngine({
-            interval: 16180,
-            batchSize: 13,
+            interval: 10000,   // 10s cycles — full throttle
+            batchSize: 42,     // covers all 38 categories + extras every cycle
         });
 
         engines.autoSuccessEngine.wire({
