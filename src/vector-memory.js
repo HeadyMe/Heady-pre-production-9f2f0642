@@ -44,7 +44,18 @@ const EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2";
 const MAX_VECTORS_PER_SHARD = 2000;
 const NUM_SHARDS = 5;
 const PERSIST_DEBOUNCE = Math.round(PHI ** 2 * 1000);
-const ZONE_EXPAND_THRESHOLD = 0.5; // Expand to adjacent zones if best score is below this
+const ZONE_EXPAND_THRESHOLD = 0.5;
+
+// ── Memory Importance Scoring Coefficients ──────────────────────
+// I(m) = αFreq(m) + βe^(-γΔt) + δSurp(m)
+// Frequency, Recency (exponential decay), and Surprise (deviation from norm)
+const MEMORY_ALPHA = 0.3;  // α — Frequency weight
+const MEMORY_BETA = 0.4;  // β — Recency weight
+const MEMORY_GAMMA = 0.00001; // γ — Decay rate (ms scale)
+const MEMORY_DELTA = 0.3;  // δ — Surprise weight
+
+// Access frequency tracker: vectorId → { freq, lastAccess }
+const accessLog = new Map();
 
 if (!fs.existsSync(SHARD_DIR)) fs.mkdirSync(SHARD_DIR, { recursive: true });
 
@@ -566,6 +577,243 @@ function getStats() {
     };
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// MEMORY IMPORTANCE SCORING & STM→LTM CONSOLIDATION
+// Implements the evolutionary memory architecture:
+//   I(m) = αFreq(m) + βe^(-γΔt) + δSurp(m)
+//   - Frequency: how often this memory is accessed
+//   - Recency: exponential decay based on time since creation
+//   - Surprise: deviation from the vector space mean (novelty)
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Compute memory importance score for a vector entry.
+ * I(m) = αFreq(m) + βe^(-γΔt) + δSurp(m)
+ *
+ * @param {Object} entry - Vector entry with embedding, metadata
+ * @returns {number} Importance score (0.0 - 1.0+)
+ */
+function computeImportance(entry) {
+    const now = Date.now();
+    const id = entry.id;
+
+    // Frequency component: normalized access count
+    const access = accessLog.get(id) || { freq: 0, lastAccess: now };
+    const maxFreq = Math.max(1, ...Array.from(accessLog.values()).map(a => a.freq));
+    const freqScore = access.freq / maxFreq;
+
+    // Recency component: exponential decay since creation
+    const age = now - (entry.metadata?.ts || now);
+    const recencyScore = Math.exp(-MEMORY_GAMMA * age);
+
+    // Surprise component: how far this vector is from the zone centroid
+    // High surprise = novel/unique content = more important
+    let surpriseScore = 0.5; // default
+    if (entry._3d) {
+        const zone = entry._zone ?? 0;
+        const zoneVectors = [];
+        shards.forEach(s => s.vectors.forEach(v => {
+            if (v._zone === zone && v._3d) zoneVectors.push(v._3d);
+        }));
+        if (zoneVectors.length > 1) {
+            // Centroid of the zone
+            const cx = zoneVectors.reduce((s, v) => s + v.x, 0) / zoneVectors.length;
+            const cy = zoneVectors.reduce((s, v) => s + v.y, 0) / zoneVectors.length;
+            const cz = zoneVectors.reduce((s, v) => s + v.z, 0) / zoneVectors.length;
+            const distFromCentroid = dist3D(entry._3d, { x: cx, y: cy, z: cz });
+            // Normalize: max distance in zone
+            const maxDist = Math.max(0.001, ...zoneVectors.map(v => dist3D(v, { x: cx, y: cy, z: cz })));
+            surpriseScore = Math.min(1.0, distFromCentroid / maxDist);
+        }
+    }
+
+    return MEMORY_ALPHA * freqScore + MEMORY_BETA * recencyScore + MEMORY_DELTA * surpriseScore;
+}
+
+/**
+ * Track a memory access (for frequency scoring).
+ * Called automatically during queryMemory.
+ */
+function trackAccess(id) {
+    const existing = accessLog.get(id) || { freq: 0, lastAccess: 0 };
+    existing.freq++;
+    existing.lastAccess = Date.now();
+    accessLog.set(id, existing);
+}
+
+/**
+ * Apply decay to all memories — reduce importance of old, unused content.
+ * Memories below the decay threshold are candidates for eviction.
+ *
+ * @param {number} threshold - Importance score below which to mark for decay (default: 0.15)
+ * @returns {Object} { decayed, total, preserved }
+ */
+function applyDecay(threshold = 0.15) {
+    let decayed = 0, total = 0, preserved = 0;
+
+    shards.forEach(shard => {
+        const scored = shard.vectors.map(v => ({
+            entry: v,
+            importance: computeImportance(v),
+        }));
+
+        total += scored.length;
+
+        // Keep only vectors above the decay threshold
+        const surviving = scored.filter(s => {
+            if (s.importance >= threshold) {
+                preserved++;
+                return true;
+            }
+            decayed++;
+            return false;
+        });
+
+        if (surviving.length < scored.length) {
+            shard.vectors = surviving.map(s => s.entry);
+            shard.dirty = true;
+        }
+    });
+
+    if (decayed > 0) {
+        rebuildZoneIndex();
+        persistAllShards();
+        logger.logSystem(`  ∞ VectorMemory: Decay applied — ${decayed} decayed, ${preserved} preserved of ${total}`);
+    }
+
+    return { decayed, total, preserved };
+}
+
+/**
+ * Selective Density Gating — filters semantically redundant content.
+ * Before ingesting, checks if highly similar content already exists.
+ * Only stores content that adds new semantic information.
+ *
+ * @param {string} content - Content to check
+ * @param {number} gateThreshold - Similarity above which to reject (default: 0.92)
+ * @returns {Promise<boolean>} true if content should be stored (passes gate)
+ */
+async function densityGate(content, gateThreshold = 0.92) {
+    const total = shards.reduce((s, sh) => s + sh.vectors.length, 0);
+    if (total === 0) return true; // Empty memory — always accept
+
+    const results = await queryMemory(content, 1);
+    if (results.length === 0) return true;
+
+    // If the closest match is too similar, reject (redundant)
+    return results[0].score < gateThreshold;
+}
+
+/**
+ * Smart ingest with density gating — only stores non-redundant content.
+ *
+ * @param {Object} params - Same as ingestMemory
+ * @param {number} gateThreshold - Similarity threshold (default: 0.92)
+ * @returns {Promise<string|null>} Vector ID if stored, null if rejected as redundant
+ */
+async function smartIngest({ content, metadata = {}, embedding = null }, gateThreshold = 0.92) {
+    const shouldStore = await densityGate(
+        typeof content === 'string' ? content : JSON.stringify(content),
+        gateThreshold,
+    );
+
+    if (!shouldStore) return null; // Density gate rejected — redundant content
+
+    return ingestMemory({ content, metadata, embedding });
+}
+
+/**
+ * STM → LTM Consolidation — distill episodic sequences into semantic facts.
+ * Scores all memories by importance, keeps top-scoring as LTM,
+ * compacts low-scoring into summary entries.
+ *
+ * @param {number} ltmThreshold - Importance score for LTM promotion (default: 0.5)
+ * @returns {Object} { promoted, compacted, total }
+ */
+async function consolidateMemory(ltmThreshold = 0.5) {
+    let promoted = 0, compacted = 0, total = 0;
+
+    for (const shard of shards) {
+        const scored = shard.vectors.map(v => ({
+            entry: v,
+            importance: computeImportance(v),
+        }));
+
+        total += scored.length;
+
+        // Partition into LTM (high importance) and STM candidates
+        const ltm = scored.filter(s => s.importance >= ltmThreshold);
+        const stm = scored.filter(s => s.importance < ltmThreshold);
+
+        promoted += ltm.length;
+
+        // Mark LTM entries
+        ltm.forEach(s => {
+            s.entry.metadata = s.entry.metadata || {};
+            s.entry.metadata._memoryTier = 'LTM';
+            s.entry.metadata._importance = +s.importance.toFixed(3);
+        });
+
+        // Compact STM entries into summary blocks (group by zone)
+        if (stm.length > 10) {
+            const byZone = {};
+            stm.forEach(s => {
+                const z = s.entry._zone || 0;
+                if (!byZone[z]) byZone[z] = [];
+                byZone[z].push(s);
+            });
+
+            const compactedEntries = [];
+            for (const [zone, entries] of Object.entries(byZone)) {
+                if (entries.length <= 3) {
+                    compactedEntries.push(...entries.map(e => e.entry));
+                    continue;
+                }
+
+                // Distill: keep top 3 by importance, summarize rest
+                entries.sort((a, b) => b.importance - a.importance);
+                compactedEntries.push(...entries.slice(0, 3).map(e => e.entry));
+                compacted += entries.length - 3;
+
+                // Create a compact summary entry for the rest
+                const summaryContent = entries.slice(3)
+                    .map(e => e.entry.content?.substring(0, 50))
+                    .filter(Boolean)
+                    .join(' | ');
+
+                if (summaryContent) {
+                    const summaryEntry = {
+                        id: `ltm_compact_${Date.now()}_z${zone}`,
+                        content: `[CONSOLIDATED] Zone ${zone}: ${summaryContent}`,
+                        embedding: entries[Math.floor(entries.length / 2)].entry.embedding, // median embedding
+                        _3d: entries[Math.floor(entries.length / 2)].entry._3d,
+                        _zone: parseInt(zone),
+                        metadata: {
+                            type: 'ltm_consolidation',
+                            _memoryTier: 'LTM',
+                            sourceCount: entries.length - 3,
+                            ts: Date.now(),
+                        },
+                        created: new Date().toISOString(),
+                    };
+                    compactedEntries.push(summaryEntry);
+                }
+            }
+
+            shard.vectors = [...ltm.map(s => s.entry), ...compactedEntries];
+            shard.dirty = true;
+        }
+    }
+
+    if (compacted > 0) {
+        rebuildZoneIndex();
+        persistAllShards();
+        logger.logSystem(`  ∞ VectorMemory: Consolidation — ${promoted} LTM, ${compacted} compacted, ${total} total`);
+    }
+
+    return { promoted, compacted, total };
+}
+
 // ── Init ────────────────────────────────────────────────────────
 function init() {
     initShards();
@@ -664,4 +912,7 @@ module.exports = {
     init, ingestMemory, queryMemory, queryWithRelationships,
     addRelationship, getRelationships,
     getStats, registerRoutes, embed, to3D, assignZone,
+    // Evolutionary Memory Architecture
+    computeImportance, trackAccess, applyDecay,
+    densityGate, smartIngest, consolidateMemory,
 };
