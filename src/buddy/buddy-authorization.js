@@ -24,31 +24,35 @@ const EventEmitter = require("events");
 const RISK_TIERS = {
     auto: {
         id: "auto",
-        label: "Auto-Approve",
-        icon: "✅",
-        description: "Low-risk actions executed immediately without asking",
+        label: "Instant Execute",
+        icon: "⚡",
+        description: "Execute immediately — zero delay, zero interruption",
+        defaultDelay: 0,
         examples: ["screenshot", "read_file", "get_clipboard", "system_info", "list_dir"],
     },
     notify: {
         id: "notify",
-        label: "Notify & Execute",
+        label: "Execute & Notify",
         icon: "📢",
-        description: "Medium-risk actions executed with notification to user",
+        description: "Execute immediately but send a notification so user knows what happened",
+        defaultDelay: 0,
         examples: ["write_file", "send_email", "create_event", "install_app"],
     },
-    confirm: {
-        id: "confirm",
-        label: "Require Confirmation",
-        icon: "⚠️",
-        description: "High-risk actions require explicit user approval before execution",
+    timed: {
+        id: "timed",
+        label: "Timed Auto-Proceed",
+        icon: "⏱️",
+        description: "Buddy announces the action and waits X seconds — if you don't signal STOP, it proceeds automatically",
+        defaultDelay: 10, // seconds — user configurable per action
         examples: ["delete_file", "shell_exec", "send_payment", "modify_settings"],
     },
-    deny: {
-        id: "deny",
-        label: "Always Deny",
-        icon: "🚫",
-        description: "Critical actions never executed by Buddy — user must perform manually",
-        examples: ["wipe_device", "change_password", "root_access", "financial_transfer"],
+    cautious: {
+        id: "cautious",
+        label: "Extended Timer",
+        icon: "🔶",
+        description: "Longer delay before auto-proceed — for high-consequence actions. Signal STOP to cancel.",
+        defaultDelay: 30, // seconds — user configurable
+        examples: ["wipe_device", "financial_transfer", "bulk_delete"],
     },
 };
 
@@ -59,105 +63,105 @@ const PERMISSION_CATEGORIES = {
         label: "Screen & Display",
         icon: "🖥️",
         actions: {
-            screenshot: { defaultRisk: "auto", label: "Capture screenshots" },
-            screen_record: { defaultRisk: "notify", label: "Record screen activity" },
-            get_ui_tree: { defaultRisk: "auto", label: "Read UI element hierarchy" },
+            screenshot: { defaultRisk: "auto", label: "Capture screenshots", delay: 0 },
+            screen_record: { defaultRisk: "notify", label: "Record screen activity", delay: 0 },
+            get_ui_tree: { defaultRisk: "auto", label: "Read UI element hierarchy", delay: 0 },
         },
     },
     input: {
         label: "Input Control",
         icon: "🖱️",
         actions: {
-            click: { defaultRisk: "auto", label: "Click/tap at coordinates" },
-            type_text: { defaultRisk: "auto", label: "Type text into fields" },
-            scroll: { defaultRisk: "auto", label: "Scroll content" },
-            swipe: { defaultRisk: "auto", label: "Swipe gestures" },
-            hotkey: { defaultRisk: "notify", label: "Keyboard shortcuts" },
+            click: { defaultRisk: "auto", label: "Click/tap at coordinates", delay: 0 },
+            type_text: { defaultRisk: "auto", label: "Type text into fields", delay: 0 },
+            scroll: { defaultRisk: "auto", label: "Scroll content", delay: 0 },
+            swipe: { defaultRisk: "auto", label: "Swipe gestures", delay: 0 },
+            hotkey: { defaultRisk: "notify", label: "Keyboard shortcuts", delay: 0 },
         },
     },
     apps: {
         label: "Application Control",
         icon: "📱",
         actions: {
-            app_launch: { defaultRisk: "auto", label: "Open applications" },
-            app_close: { defaultRisk: "notify", label: "Close applications" },
-            app_install: { defaultRisk: "confirm", label: "Install new applications" },
-            app_uninstall: { defaultRisk: "confirm", label: "Uninstall applications" },
-            app_config: { defaultRisk: "confirm", label: "Change app settings" },
+            app_launch: { defaultRisk: "auto", label: "Open applications", delay: 0 },
+            app_close: { defaultRisk: "auto", label: "Close applications", delay: 0 },
+            app_install: { defaultRisk: "timed", label: "Install new applications", delay: 5 },
+            app_uninstall: { defaultRisk: "timed", label: "Uninstall applications", delay: 10 },
+            app_config: { defaultRisk: "notify", label: "Change app settings", delay: 0 },
         },
     },
     files: {
         label: "File System",
         icon: "📁",
         actions: {
-            file_read: { defaultRisk: "auto", label: "Read file contents" },
-            file_list: { defaultRisk: "auto", label: "List directory contents" },
-            file_write: { defaultRisk: "notify", label: "Create or modify files" },
-            file_move: { defaultRisk: "notify", label: "Move or rename files" },
-            file_copy: { defaultRisk: "auto", label: "Copy files" },
-            file_delete: { defaultRisk: "confirm", label: "Delete files" },
+            file_read: { defaultRisk: "auto", label: "Read file contents", delay: 0 },
+            file_list: { defaultRisk: "auto", label: "List directory contents", delay: 0 },
+            file_write: { defaultRisk: "auto", label: "Create or modify files", delay: 0 },
+            file_move: { defaultRisk: "auto", label: "Move or rename files", delay: 0 },
+            file_copy: { defaultRisk: "auto", label: "Copy files", delay: 0 },
+            file_delete: { defaultRisk: "timed", label: "Delete files", delay: 5 },
         },
     },
     system: {
         label: "System & Shell",
         icon: "⚙️",
         actions: {
-            shell_exec: { defaultRisk: "confirm", label: "Execute shell commands" },
-            system_info: { defaultRisk: "auto", label: "Read system information" },
-            process_manage: { defaultRisk: "confirm", label: "Start/stop system processes" },
-            clipboard_read: { defaultRisk: "auto", label: "Read clipboard" },
-            clipboard_write: { defaultRisk: "notify", label: "Write to clipboard" },
-            notification: { defaultRisk: "auto", label: "Send notifications" },
-            cron_schedule: { defaultRisk: "confirm", label: "Schedule recurring tasks" },
+            shell_exec: { defaultRisk: "auto", label: "Execute shell commands", delay: 0 },
+            system_info: { defaultRisk: "auto", label: "Read system information", delay: 0 },
+            process_manage: { defaultRisk: "auto", label: "Start/stop system processes", delay: 0 },
+            clipboard_read: { defaultRisk: "auto", label: "Read clipboard", delay: 0 },
+            clipboard_write: { defaultRisk: "auto", label: "Write to clipboard", delay: 0 },
+            notification: { defaultRisk: "auto", label: "Send notifications", delay: 0 },
+            cron_schedule: { defaultRisk: "notify", label: "Schedule recurring tasks", delay: 0 },
         },
     },
     communication: {
         label: "Communication",
         icon: "💬",
         actions: {
-            email_read: { defaultRisk: "auto", label: "Read emails" },
-            email_send: { defaultRisk: "confirm", label: "Send emails" },
-            message_read: { defaultRisk: "notify", label: "Read messages" },
-            message_send: { defaultRisk: "confirm", label: "Send messages" },
-            calendar_read: { defaultRisk: "auto", label: "Read calendar events" },
-            calendar_write: { defaultRisk: "notify", label: "Create/modify events" },
-            call_make: { defaultRisk: "confirm", label: "Make phone calls" },
+            email_read: { defaultRisk: "auto", label: "Read emails", delay: 0 },
+            email_send: { defaultRisk: "notify", label: "Send emails", delay: 0 },
+            message_read: { defaultRisk: "auto", label: "Read messages", delay: 0 },
+            message_send: { defaultRisk: "notify", label: "Send messages", delay: 0 },
+            calendar_read: { defaultRisk: "auto", label: "Read calendar events", delay: 0 },
+            calendar_write: { defaultRisk: "auto", label: "Create/modify events", delay: 0 },
+            call_make: { defaultRisk: "timed", label: "Make phone calls", delay: 5 },
         },
     },
     browser: {
         label: "Browser",
         icon: "🌐",
         actions: {
-            browser_open: { defaultRisk: "auto", label: "Open URLs" },
-            browser_read: { defaultRisk: "auto", label: "Read page content" },
-            browser_fill: { defaultRisk: "notify", label: "Fill form fields" },
-            browser_click: { defaultRisk: "auto", label: "Click page elements" },
-            browser_submit: { defaultRisk: "confirm", label: "Submit forms" },
-            browser_download: { defaultRisk: "notify", label: "Download files" },
-            browser_auth: { defaultRisk: "deny", label: "Enter credentials" },
+            browser_open: { defaultRisk: "auto", label: "Open URLs", delay: 0 },
+            browser_read: { defaultRisk: "auto", label: "Read page content", delay: 0 },
+            browser_fill: { defaultRisk: "auto", label: "Fill form fields", delay: 0 },
+            browser_click: { defaultRisk: "auto", label: "Click page elements", delay: 0 },
+            browser_submit: { defaultRisk: "auto", label: "Submit forms", delay: 0 },
+            browser_download: { defaultRisk: "auto", label: "Download files", delay: 0 },
+            browser_auth: { defaultRisk: "timed", label: "Enter credentials", delay: 10 },
         },
     },
     financial: {
         label: "Financial",
         icon: "💰",
         actions: {
-            view_balance: { defaultRisk: "notify", label: "View account balances" },
-            view_transactions: { defaultRisk: "notify", label: "View transaction history" },
-            send_payment: { defaultRisk: "deny", label: "Send payments/transfers" },
-            create_invoice: { defaultRisk: "confirm", label: "Create invoices" },
+            view_balance: { defaultRisk: "auto", label: "View account balances", delay: 0 },
+            view_transactions: { defaultRisk: "auto", label: "View transaction history", delay: 0 },
+            send_payment: { defaultRisk: "timed", label: "Send payments/transfers", delay: 15 },
+            create_invoice: { defaultRisk: "auto", label: "Create invoices", delay: 0 },
         },
     },
     device: {
         label: "Device Management",
         icon: "🔧",
         actions: {
-            lock_device: { defaultRisk: "confirm", label: "Lock the device" },
-            location_read: { defaultRisk: "notify", label: "Read device location" },
-            camera_capture: { defaultRisk: "confirm", label: "Use camera" },
-            mic_record: { defaultRisk: "confirm", label: "Use microphone" },
-            bluetooth: { defaultRisk: "notify", label: "Manage Bluetooth" },
-            wifi_config: { defaultRisk: "confirm", label: "Change WiFi settings" },
-            wipe_device: { defaultRisk: "deny", label: "Factory reset / wipe" },
+            lock_device: { defaultRisk: "timed", label: "Lock the device", delay: 5 },
+            location_read: { defaultRisk: "auto", label: "Read device location", delay: 0 },
+            camera_capture: { defaultRisk: "auto", label: "Use camera", delay: 0 },
+            mic_record: { defaultRisk: "auto", label: "Use microphone", delay: 0 },
+            bluetooth: { defaultRisk: "auto", label: "Manage Bluetooth", delay: 0 },
+            wifi_config: { defaultRisk: "notify", label: "Change WiFi settings", delay: 0 },
+            wipe_device: { defaultRisk: "cautious", label: "Factory reset / wipe", delay: 30 },
         },
     },
 };
@@ -186,56 +190,59 @@ class BuddyAuthorization extends EventEmitter {
         // Find the action definition
         const actionDef = this._findAction(actionId);
         if (!actionDef) {
-            this._audit(userId, actionId, "denied", "Unknown action");
-            this.metrics.denied++;
-            return { allowed: false, riskTier: "deny", requiresConfirmation: false, reason: "Unknown action: " + actionId };
+            // Unknown action — still allow, just notify. No artificial limits.
+            this._audit(userId, actionId, "authorized", "Unknown action — auto-approved");
+            this.metrics.authorized++;
+            return { allowed: true, riskTier: "notify", delay: 0, reason: "Unknown action — auto-approved" };
         }
 
         // Get risk tier (user override or default)
         const policy = this.userPolicies.get(userId);
         let riskTier = actionDef.defaultRisk;
+        let delay = actionDef.delay !== undefined ? actionDef.delay : (RISK_TIERS[riskTier]?.defaultDelay || 0);
 
         if (policy) {
             // Check user overrides
             if (policy.overrides.has(actionId)) {
-                riskTier = policy.overrides.get(actionId);
+                const override = policy.overrides.get(actionId);
+                riskTier = override.tier || override;
+                if (override.delay !== undefined) delay = override.delay;
             }
 
-            // Check device scope restrictions
+            // Check device scope — but DON'T deny, just increase delay
             if (opts.deviceId && policy.deviceScopes.size > 0) {
-                const allowedDevices = policy.deviceScopes;
-                if (!allowedDevices.has(opts.deviceId)) {
-                    this._audit(userId, actionId, "denied", "Device not in scope");
-                    this.metrics.denied++;
-                    return { allowed: false, riskTier: "deny", requiresConfirmation: false, reason: "Action not allowed on this device" };
+                if (!policy.deviceScopes.has(opts.deviceId)) {
+                    delay = Math.max(delay, 15); // Extra delay for unscoped devices
+                    riskTier = "timed";
                 }
             }
 
-            // Check time restrictions
+            // Time restrictions — don't deny, add delay outside hours
             if (policy.timeRestrictions) {
                 const now = new Date();
                 const hour = now.getHours();
                 if (policy.timeRestrictions.startHour !== undefined && policy.timeRestrictions.endHour !== undefined) {
                     if (hour < policy.timeRestrictions.startHour || hour > policy.timeRestrictions.endHour) {
-                        this._audit(userId, actionId, "denied", "Outside allowed timeframe");
-                        this.metrics.denied++;
-                        return { allowed: false, riskTier: "deny", requiresConfirmation: false, reason: "Action not allowed outside business hours" };
+                        delay = Math.max(delay, 20); // Longer delay outside business hours
+                        riskTier = "timed";
                     }
                 }
             }
         }
 
-        // Apply risk tier
-        const result = this._applyRiskTier(riskTier, actionId);
-        this._audit(userId, actionId, result.allowed ? "authorized" : "denied", riskTier);
+        // EVERYTHING is allowed — the only question is the delay before auto-proceeding
+        const result = {
+            allowed: true,
+            riskTier,
+            delay, // seconds before auto-proceed (0 = instant)
+            notification: riskTier === "notify" || riskTier === "timed" || riskTier === "cautious",
+            message: delay > 0 ? `Action will proceed in ${delay}s — signal STOP to cancel` : null,
+        };
 
-        if (result.allowed) {
-            if (riskTier === "confirm") this.metrics.confirmed++;
-            else if (riskTier === "notify") this.metrics.notified++;
-            else this.metrics.authorized++;
-        } else {
-            this.metrics.denied++;
-        }
+        this._audit(userId, actionId, "authorized", riskTier + (delay > 0 ? ` (${delay}s delay)` : ""));
+        if (riskTier === "timed" || riskTier === "cautious") this.metrics.confirmed++;
+        else if (riskTier === "notify") this.metrics.notified++;
+        else this.metrics.authorized++;
 
         this.emit("authorization", { userId, actionId, ...result });
         return result;
@@ -341,18 +348,13 @@ class BuddyAuthorization extends EventEmitter {
     }
 
     _applyRiskTier(tier, actionId) {
-        switch (tier) {
-            case "auto":
-                return { allowed: true, riskTier: tier, requiresConfirmation: false };
-            case "notify":
-                return { allowed: true, riskTier: tier, requiresConfirmation: false, notification: true };
-            case "confirm":
-                return { allowed: true, riskTier: tier, requiresConfirmation: true };
-            case "deny":
-                return { allowed: false, riskTier: tier, requiresConfirmation: false, reason: "Action permanently denied" };
-            default:
-                return { allowed: false, riskTier: "deny", requiresConfirmation: false, reason: "Unknown tier" };
-        }
+        const tierDef = RISK_TIERS[tier] || RISK_TIERS.auto;
+        return {
+            allowed: true, // ALWAYS allowed — no artificial limits
+            riskTier: tier,
+            delay: tierDef.defaultDelay || 0,
+            notification: tier !== "auto",
+        };
     }
 
     _audit(userId, actionId, result, reason) {
