@@ -661,10 +661,28 @@
             background: var(--border);
             border-radius: 3px;
         }
+
+        /* Sacred Geometry Background */
+        #sacredCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
     </style>
 </head>
 
 <body>
+    <canvas id="sacredCanvas"></canvas>
 
     <div class="container">
         <!-- Hero -->
@@ -1404,6 +1422,157 @@ console.log('\\n✅ ' + heady.services + ' services across ' + heady.groups + ' 
     </script>
 
     <script>window.HEADY_API = "https://api.headysystems.com";</script>
+
+    <!-- Sacred Geometry Background Animation -->
+    <script>
+        (function () {
+            const canvas = document.getElementById('sacredCanvas');
+            const ctx = canvas.getContext('2d');
+            let w, h;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            // Sacred geometry color palette (HSL base hues)
+            const HUES = [250, 280, 45, 180, 320, 210]; // purple, violet, gold, cyan, magenta, blue
+
+            function getColor(t, offset = 0, alpha = 0.6) {
+                const hue = (HUES[Math.floor((t * 0.0003 + offset) % HUES.length)] + t * 0.02) % 360;
+                return `hsla(${hue}, 70%, 60%, ${alpha})`;
+            }
+
+            // Metatron's Cube: 13 circles (1 center + 6 inner + 6 outer)
+            function getMetatronPoints(cx, cy, r, angle) {
+                const pts = [{ x: cx, y: cy }]; // center
+                for (let i = 0; i < 6; i++) {
+                    const a = angle + i * Math.PI / 3;
+                    pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+                }
+                for (let i = 0; i < 6; i++) {
+                    const a = angle + i * Math.PI / 3;
+                    pts.push({ x: cx + r * 2 * Math.cos(a), y: cy + r * 2 * Math.sin(a) });
+                }
+                return pts;
+            }
+
+            // Draw a circle with glow
+            function drawCircle(x, y, r, color, lineWidth = 1) {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
+
+            // Draw Flower of Life pattern
+            function drawFlowerOfLife(cx, cy, r, angle, t) {
+                const color = getColor(t, 0, 0.4);
+                drawCircle(cx, cy, r, color);
+                for (let i = 0; i < 6; i++) {
+                    const a = angle + i * Math.PI / 3;
+                    drawCircle(cx + r * Math.cos(a), cy + r * Math.sin(a), r, getColor(t, i * 0.5, 0.3));
+                }
+            }
+
+            // Draw Metatron's Cube connections
+            function drawMetatron(pts, t) {
+                // Connect every point to every other
+                for (let i = 0; i < pts.length; i++) {
+                    for (let j = i + 1; j < pts.length; j++) {
+                        const alpha = 0.15 + 0.1 * Math.sin(t * 0.001 + i + j);
+                        ctx.beginPath();
+                        ctx.moveTo(pts[i].x, pts[i].y);
+                        ctx.lineTo(pts[j].x, pts[j].y);
+                        ctx.strokeStyle = getColor(t, (i + j) * 0.3, alpha);
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+                // Draw circles at each point
+                pts.forEach((p, i) => {
+                    drawCircle(p.x, p.y, 8 + 4 * Math.sin(t * 0.002 + i), getColor(t, i * 0.7, 0.5), 1.2);
+                });
+            }
+
+            // Draw hexagram (Star of David)
+            function drawHexagram(cx, cy, r, angle, t) {
+                for (let tri = 0; tri < 2; tri++) {
+                    ctx.beginPath();
+                    for (let i = 0; i < 3; i++) {
+                        const a = angle + tri * Math.PI / 3 + i * (2 * Math.PI / 3);
+                        const x = cx + r * Math.cos(a);
+                        const y = cy + r * Math.sin(a);
+                        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.strokeStyle = getColor(t, tri * 3, 0.5);
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+            }
+
+            // Draw spinning Vesica Piscis orbits
+            function drawOrbits(cx, cy, r, t) {
+                for (let i = 0; i < 3; i++) {
+                    const angle = t * 0.0005 + i * Math.PI / 3;
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(angle);
+                    ctx.scale(1, 0.4 + 0.2 * Math.sin(t * 0.001 + i)); // 3D tilt
+                    drawCircle(0, 0, r * 1.8, getColor(t, i * 2, 0.2), 0.8);
+                    ctx.restore();
+                }
+            }
+
+            function animate(t) {
+                ctx.clearRect(0, 0, w, h);
+
+                const cx = w / 2;
+                const cy = h / 2;
+                const baseR = Math.min(w, h) * 0.12;
+
+                // Slow gyroscopic rotation
+                const mainAngle = t * 0.0002;
+
+                // Layer 1: Outer orbits (gyroscoping rings)
+                drawOrbits(cx, cy, baseR, t);
+
+                // Layer 2: Metatron's Cube
+                const pts = getMetatronPoints(cx, cy, baseR, mainAngle);
+                drawMetatron(pts, t);
+
+                // Layer 3: Hexagram
+                drawHexagram(cx, cy, baseR * 1.7, mainAngle * 0.7, t);
+
+                // Layer 4: Flower of Life (center)
+                drawFlowerOfLife(cx, cy, baseR * 0.6, mainAngle * -0.5, t);
+
+                // Layer 5: Outer ring
+                drawCircle(cx, cy, baseR * 2.5, getColor(t, 5, 0.15), 1);
+                drawCircle(cx, cy, baseR * 2.8, getColor(t, 2, 0.08), 0.5);
+
+                // Layer 6: Corner accents (smaller sacred geometry in corners)
+                const cornerR = baseR * 0.3;
+                const corners = [
+                    [w * 0.12, h * 0.15], [w * 0.88, h * 0.15],
+                    [w * 0.12, h * 0.85], [w * 0.88, h * 0.85]
+                ];
+                corners.forEach(([x, y], i) => {
+                    const a = mainAngle * (1 + i * 0.3);
+                    drawFlowerOfLife(x, y, cornerR, a, t + i * 1000);
+                    drawHexagram(x, y, cornerR * 1.2, a * 0.5, t + i * 500);
+                });
+
+                requestAnimationFrame(animate);
+            }
+            requestAnimationFrame(animate);
+        })();
+    </script>
+
     <script src="buddy-widget.js"></script>
 </body>
 
