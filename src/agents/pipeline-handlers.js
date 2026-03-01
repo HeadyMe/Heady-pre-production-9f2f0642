@@ -329,15 +329,18 @@ async function sendCheckpointEmail(context) {
     ts: new Date().toISOString(),
   };
   try {
-    const http = require("http");
+    const https = require("https");
+    const managerUrl = process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com';
     const payload = JSON.stringify({ type: "checkpoint", input: JSON.stringify(summary), output: "checkpoint_logged" });
-    const req = http.request({
-      hostname: "127.0.0.1", port: 3301, path: "/api/brain/log", method: "POST",
+    const url = new URL('/api/brain/log', managerUrl);
+    const req = https.request(url, {
+      method: "POST",
       headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) }
     });
+    req.on('error', (err) => console.error(`[pipeline-handlers] Checkpoint log failed: ${err.message}`));
     req.write(payload);
     req.end();
-  } catch { /* non-blocking */ }
+  } catch (err) { console.error(`[pipeline-handlers] Checkpoint log error: ${err.message}`); }
   return { task: "send_checkpoint_email", status: "completed", result: `Checkpoint logged for run ${context.runId || "unknown"}` };
 }
 

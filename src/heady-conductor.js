@@ -74,8 +74,8 @@ const ROUTING_TABLE = {
     "heady-multimodal": "heady-multimodal",
     "heady-enterprise": "heady-enterprise",
     "heady-open-weights": "heady-open-weights",
-    "heady-cloud-fallback": "heady-cloud-fallback",
-    "heady-local": "heady-local",
+    "heady-cloud-vertex": "heady-cloud-vertex",
+    "heady-edge-local": "heady-edge-local",
     "heady-edge-native": "heady-edge-native",
 };
 
@@ -102,7 +102,7 @@ const GROUP_WEIGHTS = {
     // Provider groups (lower priority for base scaling)
     "heady-reasoning": 0.5, "heady-multimodal": 0.5,
     "heady-enterprise": 0.4, "heady-open-weights": 0.3,
-    "heady-cloud-fallback": 0.2, "heady-local": 0.1,
+    "heady-cloud-vertex": 0.2, "heady-edge-local": 0.1,
     "heady-edge-native": 0.2
 };
 
@@ -159,7 +159,7 @@ class HeadyConductor extends EventEmitter {
      * @param {Object} task - { action, payload }
      * @returns {Object} - { serviceGroup, vectorZone, pattern, weight, routeId }
      */
-    async route(task, requestIp = '127.0.0.1') {
+    async route(task, requestIp = '') {
         const start = Date.now();
         const action = task.action || "unknown";
 

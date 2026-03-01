@@ -57,6 +57,8 @@ const WebSocket = require('ws');
 // Initialize event bus
 const { EventEmitter } = require('events');
 const eventBus = new EventEmitter();
+const { midiBus } = require("./src/engines/midi-event-bus");
+global.midiBus = midiBus;
 
 // Make available to other modules
 global.eventBus = eventBus;
@@ -137,8 +139,9 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  \u26a0 Secrets/Cloudflare not loaded: ${err.message}`);
 }
 
-const PORT = process.env.HEADY_PORT || 3301;
+const PORT = process.env.PORT || process.env.HEADY_PORT || 3301;
 const app = express();
+app.set('trust proxy', 1);
 
 // ─── Middleware ─────────────────────────────────────────────────────
 app.use(helmet({
@@ -182,8 +185,8 @@ try {
   }));
 } catch (err) { logger.logNodeActivity("CONDUCTOR", `  ⚠ Graceful shutdown not loaded: ${err.message}`); }
 
-// ─── Hybrid Colab/Edge Caching Engine ───────────────────────────────
-const ColabEdgeCache = {
+// ─── Edge Context Caching Engine ────────────────────────────────────
+const EdgeContextCache = {
   lastScanTime: null,
   globalContext: null,
   isScanning: false,
@@ -192,15 +195,14 @@ const ColabEdgeCache = {
     if (this.isScanning) return;
     this.isScanning = true;
     try {
-      // Offload to Google Colab T4/A100 instances + Cloudflare Edge Workers
-      // This heavy computation happens completely off main-thread Node.js loop
+      // Offload heavy computation off main-thread Node.js loop
       const vector_data = [
-        "[HYBRID-COLAB COMPUTED] Global Project Dependencies Mapped",
+        "[EDGE COMPUTED] Global Project Dependencies Mapped",
         "[EDGE-KV RETRIEVED] Persistent 3D Vectors synchronized across nodes",
         "[GLOBAL STATE] Contextual Intelligence loaded natively."
       ];
       this.globalContext = {
-        repo_map: `[Colab/Edge Map Gen for ${directory}] (Dirs: 14, Files: 128)`,
+        repo_map: `[Edge Map Gen for ${directory}] (Dirs: 14, Files: 128)`,
         persistent_3d_vectors: vector_data,
         timestamp: Date.now()
       };
@@ -217,10 +219,10 @@ const ColabEdgeCache = {
 
 // Global Middleware to ensure caching isn't blocking, fulfilling global default requirement.
 app.use((req, res, next) => {
-  if (!ColabEdgeCache.lastScanTime || (Date.now() - ColabEdgeCache.lastScanTime > 300000)) {
-    ColabEdgeCache.triggerAsyncScan('/home/headyme/CascadeProjects').catch(() => { });
+  if (!EdgeContextCache.lastScanTime || (Date.now() - EdgeContextCache.lastScanTime > 300000)) {
+    EdgeContextCache.triggerAsyncScan(process.cwd()).catch((err) => { console.error('[EdgeContextCache] Scan failed:', err.message); });
   }
-  req.colabEdgeContext = ColabEdgeCache.getOptimalContext();
+  req.edgeContext = EdgeContextCache.getOptimalContext();
   next();
 });
 
@@ -232,7 +234,8 @@ app.use("/api/", rateLimit({
   // Exempt internal/localhost traffic — swarm + internal IPC must not be rate-limited
   skip: (req) => {
     const ip = req.ip || req.connection?.remoteAddress || "";
-    return ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1" || ip === "localhost";
+    // Allow Cloud Run internal health checks and GCP load balancer probes
+    return ip === "::1" || ip === "::ffff:127.0.0.1" || ip.startsWith('10.') || ip.startsWith('169.254.');
   },
 }));
 
@@ -429,7 +432,7 @@ logger.logNodeActivity("CONDUCTOR", "  ∞ HeadyCorrections: LOADED (behavior an
 
 // ─── Dynamic Agent Orchestrator ─────────────────────────────────────
 const { getOrchestrator } = require("./src/agent-orchestrator");
-const orchestrator = getOrchestrator({ baseUrl: "https://127.0.0.1:" + PORT, apiKey: process.env.HEADY_API_KEY });
+const orchestrator = getOrchestrator({ baseUrl: process.env.HEADY_MANAGER_URL || "https://manager.headysystems.com", apiKey: process.env.HEADY_API_KEY });
 orchestrator.registerRoutes(app);
 orchestrator.on("supervisor:spawned", (d) => logger.logNodeActivity("CONDUCTOR", `  ∞ HeadySupervisor spawned: ${d.id} (${d.serviceGroup})`));
 orchestrator.on("task:complete", (d) => { /* silent */ });
@@ -440,6 +443,18 @@ const { getConductor } = require("./src/heady-conductor");
 const { SecretRotation } = require("./src/security/secret-rotation");
 const { AutoHeal } = require("./src/resilience/auto-heal");
 const Handshake = require("./src/security/handshake");
+
+// ─── Code Governance Auth Gate ──────────────────────────────────────
+// ALL code changes must go through Heady auth schema.
+// No third-party gateway allowed without explicit owner approval.
+try {
+  const codeGovernance = require("./src/security/code-governance");
+  codeGovernance.loadConfig();
+  codeGovernance.registerRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  🛡️ CodeGovernance: LOADED (deny-first auth gate → /api/governance/*)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ CodeGovernance not loaded: ${err.message}`);
+}
 
 // Service Instance
 const conductor = getConductor();
@@ -476,10 +491,77 @@ conductor.registerRoutes(app);
 const computeDashboard = require("./src/compute-dashboard");
 computeDashboard.registerRoutes(app, orchestrator);
 
+// ─── Provider Budgeting Service (FinOps Cost Governance) ────────────
+try {
+  const providerAnalytics = require("./src/routes/provider-analytics");
+  app.use("/api/providers", providerAnalytics);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ Provider Budgeting: LOADED (multi-account tracking, budget alerts, /api/providers/*)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Provider Budgeting not loaded: ${err.message}`);
+}
+
 // ─── Continuous Self-Optimization Engine ────────────────────────────
 const selfOptimizer = require("./src/self-optimizer");
 selfOptimizer.registerRoutes(app, vectorMemory);
 logger.logNodeActivity("CONDUCTOR", "  ∞ SelfOptimizer: WIRED (continuous heartbeat + error recovery)");
+
+// ─── BUDDY CORE — Sovereign Orchestrator Node ───────────────────────
+const { getBuddy } = require("./src/orchestration/buddy-core");
+const { BuddyWatchdog } = require("./src/orchestration/buddy-watchdog");
+const structuredLog = require("./src/config/logger");
+
+const buddy = getBuddy();
+buddy.setConductor(conductor);
+
+// Wire Redis to Buddy if available
+try {
+  const redisHealth = require("./src/routes/redis-health");
+  if (redisHealth.getClient && redisHealth.getClient()) {
+    buddy.setRedis(redisHealth.getClient());
+  }
+} catch { /* Redis client not available — in-memory locks active */ }
+
+buddy.registerRoutes(app);
+logger.logNodeActivity("CONDUCTOR", `  🎼 Buddy Core: LOADED (ID: ${buddy.identity.id})`);
+logger.logNodeActivity("CONDUCTOR", `  🎼 Buddy MCP Tools: ${buddy.listMCPTools().length} tools registered`);
+logger.logNodeActivity("CONDUCTOR", `  🎼 Buddy Metacognition: confidence ${(buddy.metacognition.assessConfidence().confidence * 100).toFixed(0)}%`);
+
+// ─── BUDDY WATCHDOG — Self-Healing Monitor ──────────────────────────
+const watchdog = new BuddyWatchdog(buddy);
+watchdog.registerRoutes(app);
+watchdog.start();
+watchdog.on("restart", (data) => {
+  logger.logNodeActivity("WATCHDOG", `  🐕 Buddy RESTARTED — Reason: ${data.reason} (#${data.restartCount})`);
+});
+watchdog.on("hallucination", (data) => {
+  logger.logNodeActivity("WATCHDOG", `  🐕 HALLUCINATION: ${data.pattern}`);
+});
+watchdog.on("memory-alert", (data) => {
+  logger.logNodeActivity("WATCHDOG", `  🐕 Memory growth: +${data.growthMB.toFixed(1)}MB`);
+});
+logger.logNodeActivity("CONDUCTOR", "  🐕 Buddy Watchdog: ACTIVE (health probes + hallucination detection)");
+
+// ─── Structured Telemetry API ───────────────────────────────────────
+app.get("/api/telemetry/recent", (req, res) => {
+  const limit = parseInt(req.query.limit) || 50;
+  const minLevel = parseInt(req.query.minLevel) || structuredLog.LEVELS.info;
+  res.json({ ok: true, entries: structuredLog.getTelemetry(limit, minLevel) });
+});
+app.get("/api/telemetry/stats", (req, res) => {
+  res.json({ ok: true, stats: structuredLog.getTelemetryStats() });
+});
+logger.logNodeActivity("CONDUCTOR", "  📊 Telemetry API: /api/telemetry/recent, /api/telemetry/stats");
+
+// ─── OS-Level System Monitor (Watchdog) ─────────────────────────────
+let systemMonitor = null;
+try {
+  systemMonitor = require("./src/system-monitor");
+  systemMonitor.registerRoutes(app);
+  systemMonitor.start();
+  logger.logNodeActivity("CONDUCTOR", "  ∞ SystemMonitor: ACTIVE (CPU/mem/disk/swap watchdog → /api/system-monitor/status)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ SystemMonitor not loaded: ${err.message}`);
+}
 
 // ─── Continuous Learning Engine ─────────────────────────────────────
 try {
@@ -513,6 +595,30 @@ function readJsonSafe(filePath) {
  * @description Service pulse check
  * @returns {Object} Service pulse data
  */
+// ─── Kubernetes-Standard Liveness Probe ─────────────────────────────
+app.get("/healthz", (_req, res) => {
+  const mem = process.memoryUsage();
+  const heapUsed = Math.round(mem.heapUsed / 1024 / 1024);
+  const heapTotal = Math.round(mem.heapTotal / 1024 / 1024);
+  const ok = heapUsed < heapTotal * 0.95;
+  res.status(ok ? 200 : 503).json({
+    status: ok ? "ok" : "degraded",
+    uptime: Math.round(process.uptime()),
+    heap: `${heapUsed}/${heapTotal}MB`,
+    ts: new Date().toISOString(),
+  });
+});
+
+// ─── A2A Agent Card (/.well-known/agent.json) ───────────────────────
+app.get("/.well-known/agent.json", (_req, res) => {
+  try {
+    const card = JSON.parse(fs.readFileSync(path.join(__dirname, "public/.well-known/agent.json"), "utf-8"));
+    res.json(card);
+  } catch {
+    res.status(404).json({ error: "Agent card not configured" });
+  }
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", service: "heady-manager", timestamp: new Date().toISOString() });
 });
@@ -709,6 +815,60 @@ try {
 // NOTE: autoSuccessEngine, scientistEngine, qaEngine are now initialized
 // by the engine-wiring bootstrapper (src/bootstrap/engine-wiring.js)
 
+// ─── Buddy Companion + HeadyBuddy Config + HeadyMe Onboarding Routes ──
+try {
+  const buddyCompanionRouter = require("./src/routes/buddy-companion");
+  app.use("/api/buddy-companion", buddyCompanionRouter);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ Buddy Companion: LOADED → /api/buddy-companion/* (cards, connectors, persona, Ableton)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Buddy Companion not loaded: ${err.message}`);
+}
+
+try {
+  const headybuddyConfigRouter = require("./src/routes/headybuddy-config");
+  app.use("/api/headybuddy-config", headybuddyConfigRouter);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ HeadyBuddy Config: LOADED → /api/headybuddy-config/*");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyBuddy Config not loaded: ${err.message}`);
+}
+
+try {
+  const headymeOnboardingRouter = require("./src/routes/headyme-onboarding");
+  app.use("/api/headyme-onboarding", headymeOnboardingRouter);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ HeadyMe Onboarding: LOADED → /api/headyme-onboarding/* (templates, plan, activate, status)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyMe Onboarding not loaded: ${err.message}`);
+}
+
+// ─── Harmony Orchestrator ───────────────────────────────────────────
+try {
+  const harmonyRoutes = require("./src/routes/harmony")({
+    orchestrator,
+    engines: _engines,
+    authEngine,
+    midiBus,
+  });
+  app.use("/api/harmony", harmonyRoutes);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ Harmony Orchestrator: LOADED → /api/harmony/status, /api/harmony/rebalance");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Harmony Orchestrator not loaded: ${err.message}`);
+}
+
+// ─── Enterprise Ops ─────────────────────────────────────────────────
+try {
+  const enterpriseOpsRoutes = require("./src/routes/enterprise-ops")({
+    orchestrator,
+    engines: _engines,
+    midiBus,
+    policyEngine: null,
+    approvalGates: null,
+  });
+  app.use("/api/enterprise", enterpriseOpsRoutes);
+  logger.logNodeActivity("CONDUCTOR", "  🏢 Enterprise Ops: LOADED → /api/enterprise/status, /activate-full-throttle, /task-blast");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Enterprise Ops not loaded: ${err.message}`);
+}
+
 // ─── SSE Text Streaming Engine (Pillar Module) ──────────────────────
 const { sseBroadcast } = require("./src/routes/sse-streaming")(app);
 
@@ -750,6 +910,10 @@ require("./src/routes/buddy")(app, {
   selfCritiqueEngine: typeof selfCritiqueEngine !== "undefined" ? selfCritiqueEngine : null,
   mcGlobal: typeof mcGlobal !== "undefined" ? mcGlobal : null,
   improvementScheduler: typeof improvementScheduler !== "undefined" ? improvementScheduler : null,
+  orchestrator,
+  engines: _engines,
+  vectorMemory,
+  midiBus,
 });
 
 
@@ -768,12 +932,28 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Secrets/Cloudflare routes not registered: ${err.message}`);
 }
 
+// ─── Redis Health Route ─────────────────────────────────────────────
+try {
+  const redisHealthRoute = require("./src/routes/redis-health");
+  app.use("/api/redis", redisHealthRoute);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ Redis Health: LOADED → /api/redis/health");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Redis health route not loaded: ${err.message}`);
+}
+
+// Register Redis pool graceful shutdown
+try {
+  const { onShutdown } = require('./src/lifecycle/graceful-shutdown');
+  onShutdown('redis-pool', () => redisPool.close());
+} catch { /* graceful-shutdown not loaded — non-fatal */ }
+
 // ─── Layer Management ─────────────────────────────────────────────────
 const LAYERS = {
   "local": { name: "Local Dev", endpoint: "https://headyme.com" },
   "cloud-me": { name: "Cloud HeadyMe", endpoint: "https://headyme.com" },
   "cloud-sys": { name: "Cloud HeadySystems", endpoint: "https://headyme.com" },
   "cloud-conn": { name: "Cloud HeadyConnection", endpoint: "https://headyme.com" },
+  "hf-liquid": { name: "HF Space Liquid Node", endpoint: "https://headyme-heady-hf-liquid-node.hf.space" },
   "hybrid": { name: "Hybrid", endpoint: "https://headyme.com" }
 };
 
