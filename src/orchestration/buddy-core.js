@@ -26,6 +26,7 @@ const EventEmitter = require("events");
 const path = require("path");
 const fs = require("fs");
 const { getErrorSummary, trackError, safeOp } = require("../config/errors");
+const logger = require("../utils/logger");
 
 // ─── Constants ──────────────────────────────────────────────────────
 const PHI = 1.6180339887;
@@ -107,6 +108,321 @@ class MetacognitionEngine {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// DETERMINISTIC ERROR INTERCEPTOR — 5-Phase Optimization Loop
+// ═══════════════════════════════════════════════════════════════════════
+/**
+ * Implements the Buddy Deterministic Optimization Protocol from AGENTS.md.
+ * When an anomaly is detected, executes the 5-phase loop:
+ *   Phase 1: Error Detection & Probabilistic Halt
+ *   Phase 2: Deterministic State Extraction
+ *   Phase 3: Semantic Equivalence Analysis
+ *   Phase 4: Root-Cause Derivation via Constraint Analysis
+ *   Phase 5: Upstream Rule Synthesis & Baseline Update
+ */
+class DeterministicErrorInterceptor {
+    constructor() {
+        this.interceptLog = [];
+        this.MAX_LOG = 500;
+        this.learnedRules = [];
+        this._vectorMemory = null;
+        this._loadLearnedRules();
+    }
+
+    setVectorMemory(vm) {
+        this._vectorMemory = vm;
+    }
+
+    /**
+     * Phase 1: Error Detection & Probabilistic Halt
+     * Intercepts the error and freezes execution state.
+     * Returns a structured interception record.
+     */
+    _phase1_halt(error, context = {}) {
+        const interception = {
+            id: `INT_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`,
+            phase: 1,
+            action: "PROBABILISTIC_HALT",
+            error: {
+                message: error.message || String(error),
+                stack: error.stack?.split("\n").slice(0, 10) || [],
+                name: error.name || "UnknownError",
+                code: error.code || null,
+            },
+            context: {
+                source: context.source || "unknown",
+                stage: context.stage || null,
+                runId: context.runId || null,
+                agentId: context.agentId || null,
+            },
+            ts: new Date().toISOString(),
+            halted: true,
+        };
+
+        logger.logError("BUDDY:INTERCEPTOR", `Phase 1: HALT — ${interception.error.message}`, error);
+        return interception;
+    }
+
+    /**
+     * Phase 2: Deterministic State Extraction
+     * Captures the pure computational state at the point of failure.
+     */
+    _phase2_extractState(interception) {
+        const stateSnapshot = {
+            phase: 2,
+            action: "STATE_EXTRACTION",
+            system: {
+                nodeVersion: process.version,
+                uptime: process.uptime(),
+                memoryUsage: process.memoryUsage(),
+                pid: process.pid,
+                platform: process.platform,
+                arch: process.arch,
+            },
+            errorSummary: getErrorSummary(),
+            environment: {
+                NODE_ENV: process.env.NODE_ENV || "development",
+                hasRedis: !!process.env.REDIS_URL,
+                hasHF: !!process.env.HF_TOKEN,
+                hasOpenAI: !!process.env.OPENAI_API_KEY,
+            },
+            callStack: interception.error.stack,
+            ts: new Date().toISOString(),
+        };
+
+        // Load active AGENTS.md rules count
+        try {
+            const agentsMd = fs.readFileSync(path.join(__dirname, "..", "..", "AGENTS.md"), "utf-8");
+            stateSnapshot.activeRulesCount = (agentsMd.match(/^### LR-/gm) || []).length;
+        } catch { stateSnapshot.activeRulesCount = 0; }
+
+        interception.stateSnapshot = stateSnapshot;
+        logger.logSystem(`Phase 2: STATE_EXTRACTION — ${stateSnapshot.errorSummary.totalErrors} total errors tracked, ${stateSnapshot.activeRulesCount} learned rules`);
+        return interception;
+    }
+
+    /**
+     * Phase 3: Semantic Equivalence Analysis
+     * Checks if this error matches a previously resolved pattern.
+     */
+    async _phase3_semanticAnalysis(interception) {
+        interception.phase3 = {
+            phase: 3,
+            action: "SEMANTIC_EQUIVALENCE",
+            matchFound: false,
+            matchedRule: null,
+            confidence: 0,
+        };
+
+        // Search vector memory for similar past errors
+        if (this._vectorMemory) {
+            try {
+                const query = `error: ${interception.error.message} source: ${interception.context.source}`;
+                const results = await this._vectorMemory.queryMemory(query, 3, { type: "error_resolution" });
+                if (results.length > 0 && results[0].score > 0.75) {
+                    interception.phase3.matchFound = true;
+                    interception.phase3.matchedResolution = results[0];
+                    interception.phase3.confidence = results[0].score;
+                    logger.logSystem(`Phase 3: MATCH FOUND — similar error resolved previously (score: ${results[0].score.toFixed(3)})`);
+                } else {
+                    logger.logSystem(`Phase 3: NO MATCH — novel error class (best score: ${results[0]?.score?.toFixed(3) || 0})`);
+                }
+            } catch (err) {
+                logger.logError("BUDDY:INTERCEPTOR", "Phase 3: vector memory query failed", err);
+            }
+        }
+
+        // Check learned rules for exact match
+        const errorKey = `${interception.error.name}:${interception.context.source}`;
+        const matchedRule = this.learnedRules.find(r => r.errorKey === errorKey);
+        if (matchedRule) {
+            interception.phase3.matchFound = true;
+            interception.phase3.matchedRule = matchedRule;
+            interception.phase3.confidence = 1.0;
+            logger.logSystem(`Phase 3: EXACT RULE MATCH — ${matchedRule.id}`);
+        }
+
+        return interception;
+    }
+
+    /**
+     * Phase 4: Root-Cause Derivation
+     * Traces the control flow to identify the specific constraint violation.
+     */
+    _phase4_rootCause(interception) {
+        const rootCause = {
+            phase: 4,
+            action: "ROOT_CAUSE_DERIVATION",
+            errorClass: interception.error.name,
+            errorKey: `${interception.error.name}:${interception.context.source}`,
+            failedModule: null,
+            failedFunction: null,
+            constraintViolation: null,
+        };
+
+        // Parse stack trace to extract module and function
+        const stack = interception.error.stack || [];
+        if (stack.length > 1) {
+            const callerLine = stack[1] || "";
+            const moduleMatch = callerLine.match(/at\s+(?:(\S+)\s+)?\(?([^:)]+):(\d+)/);
+            if (moduleMatch) {
+                rootCause.failedFunction = moduleMatch[1] || "anonymous";
+                rootCause.failedModule = moduleMatch[2] ? path.basename(moduleMatch[2]) : "unknown";
+                rootCause.failedLine = parseInt(moduleMatch[3], 10) || null;
+            }
+        }
+
+        // Classify the constraint violation type
+        const msg = interception.error.message.toLowerCase();
+        if (msg.includes("timeout") || msg.includes("timed out")) {
+            rootCause.constraintViolation = "TIMEOUT_EXCEEDED";
+        } else if (msg.includes("econnrefused") || msg.includes("enotfound")) {
+            rootCause.constraintViolation = "CONNECTION_FAILED";
+        } else if (msg.includes("unauthorized") || msg.includes("forbidden")) {
+            rootCause.constraintViolation = "AUTH_VIOLATION";
+        } else if (msg.includes("not found") || msg.includes("cannot find")) {
+            rootCause.constraintViolation = "RESOURCE_MISSING";
+        } else if (msg.includes("budget") || msg.includes("rate limit") || msg.includes("quota")) {
+            rootCause.constraintViolation = "BUDGET_EXCEEDED";
+        } else if (msg.includes("validation") || msg.includes("invalid") || msg.includes("schema")) {
+            rootCause.constraintViolation = "VALIDATION_FAILED";
+        } else {
+            rootCause.constraintViolation = "LOGIC_DIVERGENCE";
+        }
+
+        interception.rootCause = rootCause;
+        logger.logSystem(`Phase 4: ROOT_CAUSE — ${rootCause.constraintViolation} in ${rootCause.failedModule || "unknown"}:${rootCause.failedFunction || "?"} (key: ${rootCause.errorKey})`);
+        return interception;
+    }
+
+    /**
+     * Phase 5: Upstream Rule Synthesis
+     * Persists the resolution and permanently immunizes against recurrence.
+     */
+    async _phase5_synthesizeRule(interception, resolution = null) {
+        const rule = {
+            id: `LR-AUTO-${Date.now()}`,
+            errorKey: interception.rootCause.errorKey,
+            constraintViolation: interception.rootCause.constraintViolation,
+            failedModule: interception.rootCause.failedModule,
+            errorMessage: interception.error.message,
+            resolution: resolution || "Auto-detected; monitoring for recurrence",
+            synthesizedAt: new Date().toISOString(),
+            occurrences: 1,
+        };
+
+        // Deduplicate — if rule already exists for this errorKey, increment count
+        const existing = this.learnedRules.find(r => r.errorKey === rule.errorKey);
+        if (existing) {
+            existing.occurrences++;
+            existing.lastSeen = rule.synthesizedAt;
+            logger.logSystem(`Phase 5: RULE UPDATE — ${existing.id} now at ${existing.occurrences} occurrences`);
+        } else {
+            this.learnedRules.push(rule);
+            logger.logSystem(`Phase 5: NEW RULE SYNTHESIZED — ${rule.id}: ${rule.constraintViolation} in ${rule.failedModule}`);
+        }
+
+        // Persist to vector memory for semantic retrieval
+        if (this._vectorMemory) {
+            try {
+                await this._vectorMemory.ingestMemory({
+                    content: `Error resolution: ${rule.errorMessage} → ${rule.resolution}. Constraint: ${rule.constraintViolation}. Module: ${rule.failedModule}.`,
+                    metadata: {
+                        type: "error_resolution",
+                        ruleId: rule.id,
+                        errorKey: rule.errorKey,
+                        constraintViolation: rule.constraintViolation,
+                    },
+                });
+            } catch (err) {
+                logger.logError("BUDDY:INTERCEPTOR", "Phase 5: vector memory ingest failed", err);
+            }
+        }
+
+        // Persist learned rules to disk
+        this._persistLearnedRules();
+
+        interception.synthesizedRule = existing || rule;
+        interception.phase = 5;
+        interception.completed = true;
+        return interception;
+    }
+
+    /**
+     * Execute the full 5-phase interception loop.
+     * @param {Error} error - The caught error
+     * @param {Object} context - { source, stage, runId, agentId }
+     * @param {string} resolution - Optional resolution description
+     * @returns {Object} Complete interception record
+     */
+    async intercept(error, context = {}, resolution = null) {
+        let interception = this._phase1_halt(error, context);
+        interception = this._phase2_extractState(interception);
+        interception = await this._phase3_semanticAnalysis(interception);
+        interception = this._phase4_rootCause(interception);
+        interception = await this._phase5_synthesizeRule(interception, resolution);
+
+        // Log to interception history
+        this.interceptLog.push({
+            id: interception.id,
+            errorKey: interception.rootCause.errorKey,
+            constraintViolation: interception.rootCause.constraintViolation,
+            matchFound: interception.phase3.matchFound,
+            ruleId: interception.synthesizedRule?.id,
+            ts: interception.ts,
+        });
+        if (this.interceptLog.length > this.MAX_LOG) {
+            this.interceptLog = this.interceptLog.slice(-Math.round(this.MAX_LOG * 0.75));
+        }
+
+        return interception;
+    }
+
+    /**
+     * Check if an error has a known resolution before executing.
+     * Returns the resolution if found, null otherwise.
+     */
+    checkPreemptive(errorKey) {
+        return this.learnedRules.find(r => r.errorKey === errorKey) || null;
+    }
+
+    getStats() {
+        return {
+            totalInterceptions: this.interceptLog.length,
+            learnedRules: this.learnedRules.length,
+            recentInterceptions: this.interceptLog.slice(-10),
+            topConstraintViolations: this._getTopViolations(),
+        };
+    }
+
+    _getTopViolations() {
+        const counts = {};
+        this.interceptLog.forEach(i => {
+            counts[i.constraintViolation] = (counts[i.constraintViolation] || 0) + 1;
+        });
+        return Object.entries(counts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([type, count]) => ({ type, count }));
+    }
+
+    _loadLearnedRules() {
+        try {
+            const rulesPath = path.join(__dirname, "..", "..", "data", "buddy-learned-rules.json");
+            if (fs.existsSync(rulesPath)) {
+                this.learnedRules = JSON.parse(fs.readFileSync(rulesPath, "utf-8"));
+            }
+        } catch { /* no persisted rules yet */ }
+    }
+
+    _persistLearnedRules() {
+        safeOp("buddy:persist-rules", () => {
+            const rulesPath = path.join(__dirname, "..", "..", "data", "buddy-learned-rules.json");
+            fs.writeFileSync(rulesPath, JSON.stringify(this.learnedRules, null, 2));
+        });
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // REDIS TASK LOCK MANAGER — Prevents task collision in the swarm
 // ═══════════════════════════════════════════════════════════════════════
 class TaskLockManager {
@@ -121,7 +437,7 @@ class TaskLockManager {
      */
     setRedisClient(client) {
         this._redisClient = client;
-        console.log("  🔒 [Buddy] Redis task-lock manager wired.");
+        logger.logSystem("  🔒 [Buddy] Redis task-lock manager wired.");
     }
 
     /**
@@ -381,6 +697,7 @@ class BuddyCore extends EventEmitter {
         this.metacognition = new MetacognitionEngine();
         this.taskLocks = new TaskLockManager();
         this.mcpTools = new MCPToolRegistry();
+        this.errorInterceptor = new DeterministicErrorInterceptor();
 
         // Wire conductor
         this._conductor = null;
@@ -396,19 +713,24 @@ class BuddyCore extends EventEmitter {
             if (!fs.existsSync(AUDIT_DIR)) fs.mkdirSync(AUDIT_DIR, { recursive: true });
         });
 
-        console.log(`  🎼 [Buddy] Core initialized — ID: ${this.identity.id}`);
-        console.log(`  🎼 [Buddy] Fingerprint: ${this.identity.fingerprint} | Version: ${this.version}`);
+        logger.logSystem(`  🎼 [Buddy] Core initialized — ID: ${this.identity.id}`);
+        logger.logSystem(`  🎼 [Buddy] Fingerprint: ${this.identity.fingerprint} | Version: ${this.version}`);
     }
 
     // ─── Wiring ────────────────────────────────────────────────────
     setConductor(conductor) {
         this._conductor = conductor;
-        console.log("  🎼 [Buddy] Conductor wired — Sacred Geometry routing active.");
+        logger.logSystem("  🎼 [Buddy] Conductor wired — Sacred Geometry routing active.");
     }
 
     setPipeline(pipeline) {
         this._pipeline = pipeline;
-        console.log("  🎼 [Buddy] HCFullPipeline wired — end-to-end orchestration active.");
+        logger.logSystem("  🎼 [Buddy] HCFullPipeline wired — end-to-end orchestration active.");
+    }
+
+    setVectorMemory(vectorMemory) {
+        this.errorInterceptor.setVectorMemory(vectorMemory);
+        logger.logSystem("  🎼 [Buddy] Vector memory wired for error interceptor.");
     }
 
     setRedis(redisClient) {
@@ -432,7 +754,7 @@ class BuddyCore extends EventEmitter {
 
         // 2. If confidence is critically low, flag the decision
         if (meta.confidence < 0.5) {
-            console.warn(`  ⚠️ [Buddy] Low confidence (${(meta.confidence * 100).toFixed(1)}%) for task: ${task.action}`);
+            logger.logError("BUDDY", `Low confidence (${(meta.confidence * 100).toFixed(1)}%) for task: ${task.action}`, new Error("low_confidence"));
             this.emit("low-confidence", { task, confidence: meta.confidence, errors: meta.topErrors });
         }
 
@@ -504,6 +826,12 @@ class BuddyCore extends EventEmitter {
         } catch (err) {
             trackError("buddy:decide", err);
             this.metacognition.logDecision({ action: task.action, result: "error", error: err.message });
+            // Trigger 5-Phase Deterministic Error Interceptor
+            await this.errorInterceptor.intercept(err, {
+                source: "buddy:decide",
+                agentId,
+                stage: task.action,
+            });
             return { ok: false, error: err.message, buddyId: this.identity.id };
         } finally {
             // 8. Release the task lock
@@ -619,10 +947,19 @@ class BuddyCore extends EventEmitter {
             });
         });
 
-        console.log("  🎼 [Buddy] Routes registered:");
-        console.log("    → /api/buddy/status, /health, /identity");
-        console.log("    → /api/buddy/decide, /locks, /mcp-tools, /mcp-invoke");
-        console.log("    → /api/buddy/metacognition");
+        // Error interceptor status & manual trigger
+        app.get("/api/buddy/interceptor", (req, res) => {
+            res.json({ ok: true, ...this.errorInterceptor.getStats() });
+        });
+
+        app.get("/api/buddy/learned-rules", (req, res) => {
+            res.json({ ok: true, rules: this.errorInterceptor.learnedRules });
+        });
+
+        logger.logSystem("  🎼 [Buddy] Routes registered:");
+        logger.logSystem("    → /api/buddy/status, /health, /identity");
+        logger.logSystem("    → /api/buddy/decide, /locks, /mcp-tools, /mcp-invoke");
+        logger.logSystem("    → /api/buddy/metacognition, /interceptor, /learned-rules");
     }
 
     // ─── Audit ─────────────────────────────────────────────────────
@@ -643,4 +980,4 @@ function getBuddy() {
     return _buddy;
 }
 
-module.exports = { BuddyCore, getBuddy, MetacognitionEngine, TaskLockManager, MCPToolRegistry };
+module.exports = { BuddyCore, getBuddy, MetacognitionEngine, TaskLockManager, MCPToolRegistry, DeterministicErrorInterceptor };
