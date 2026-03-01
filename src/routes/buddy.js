@@ -9,6 +9,7 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const logger = require("../utils/logger");
 const router = express.Router();
 
 const REGISTRY_PATH = path.join(__dirname, "..", "..", ".heady", "registry.json");
@@ -284,5 +285,5 @@ module.exports = function mountBuddyRoutes(app, deps = {}) {
         req.on('close', () => clearInterval(interval));
     });
 
-    console.log("  ∞ HeadyBuddy API: LOADED (pillar module) → /api/buddy/*");
+    logger.logSystem("  ∞ HeadyBuddy API: LOADED (pillar module) → /api/buddy/*");
 };

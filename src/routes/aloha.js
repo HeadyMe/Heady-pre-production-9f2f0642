@@ -9,6 +9,7 @@
  */
 const fs = require("fs");
 const yaml = require("js-yaml");
+const logger = require("../utils/logger");
 
 module.exports = function mountAlohaRoutes(app, deps = {}) {
     const {
@@ -39,9 +40,9 @@ module.exports = function mountAlohaRoutes(app, deps = {}) {
     // Expose alohaState for pulse endpoint
     app.locals.alohaState = alohaState;
 
-    if (alohaProtocol) console.log("  ∞ Aloha Protocol: LOADED (always-on)");
-    if (deOptProtocol) console.log("  ∞ De-Optimization Protocol: LOADED (simplicity > speed)");
-    if (stabilityFirst) console.log("  ∞ Stability First: LOADED (the canoe must not sink)");
+    if (alohaProtocol) logger.logSystem("  ∞ Aloha Protocol: LOADED (always-on)");
+    if (deOptProtocol) logger.logSystem("  ∞ De-Optimization Protocol: LOADED (simplicity > speed)");
+    if (stabilityFirst) logger.logSystem("  ∞ Stability First: LOADED (the canoe must not sink)");
 
     app.get("/api/aloha/status", (req, res) => {
         res.json({
@@ -100,14 +101,14 @@ module.exports = function mountAlohaRoutes(app, deps = {}) {
             storyDriver.ingestSystemEvent({ type: "STABILITY_CRASH_REPORTED", refs: { crashId: report.id, description: report.description }, source: "aloha_protocol" });
         }
 
-        console.warn(`[ALOHA CRASH REPORT] ${report.id}: ${report.description} (${report.severity})`);
+        logger.logError('HCFP', `CRASH REPORT ${report.id}: ${report.description}`, report.severity);
         const recentCrashes = alohaState.crashReports.filter(r => new Date(r.ts) > new Date(Date.now() - 3600000));
 
         let emergencyActivated = false;
         if (recentCrashes.length >= 3) {
             alohaState.mode = "emergency_stability";
             emergencyActivated = true;
-            console.error("[ALOHA] Emergency stability mode activated - multiple crashes detected");
+            logger.logError('HCFP', 'Emergency stability mode activated - multiple crashes detected', new Error('crash_threshold'));
 
             if (resourceManager && !resourceManager.safeMode) {
                 try { resourceManager.enterSafeMode("aloha_crash_threshold"); } catch { }

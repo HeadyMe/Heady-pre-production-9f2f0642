@@ -10,6 +10,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const logger = require("../utils/logger");
 
 const CONNECTIVITY_PATTERNS_PATH = path.join(__dirname, "..", "..", "data", "connectivity-patterns.json");
 
@@ -62,7 +63,7 @@ function logConnectivityPattern(service, endpoint, status, details) {
         if (patterns.length > 2000) patterns = patterns.slice(-2000);
         fs.writeFileSync(CONNECTIVITY_PATTERNS_PATH, JSON.stringify(patterns, null, 2));
     } catch (err) {
-        console.warn(`  ⚠ Connectivity pattern log error: ${err.message}`);
+        logger.logError('SYSTEM', `Connectivity pattern log error: ${err.message}`, err);
     }
 }
 
@@ -88,7 +89,7 @@ module.exports = function mountServiceStubs(app, Handshake) {
     // Register all service stubs
     for (const [svc, endpoints] of Object.entries(SERVICE_STUBS)) {
         app.use(`/api/${svc}`, Handshake.middleware, createServiceStub(`heady-${svc}`, endpoints));
-        console.log(`  ∞ Heady${svc.charAt(0).toUpperCase() + svc.slice(1)} stub routes: PROTECTED (mTLS) → /api/${svc}/*`);
+        logger.logSystem(`  ∞ Heady${svc.charAt(0).toUpperCase() + svc.slice(1)} stub routes: PROTECTED (mTLS) → /api/${svc}/*`);
     }
 
     // Connectivity patterns API
@@ -124,7 +125,7 @@ module.exports = function mountServiceStubs(app, Handshake) {
         res.json({ ok: true, scanned: results.length, results, ts: new Date().toISOString() });
     });
 
-    console.log("  ∞ Service Stubs + Connectivity: LOADED (pillar module)");
+    logger.logSystem("  ∞ Service Stubs + Connectivity: LOADED (pillar module)");
 };
 
 module.exports.SERVICE_STUBS = SERVICE_STUBS;

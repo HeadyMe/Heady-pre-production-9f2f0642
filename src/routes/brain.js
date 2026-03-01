@@ -23,6 +23,7 @@ const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const logger = require("../utils/logger");
 
 // ── SDK Gateway — single source of truth for all AI traffic ──
 const HeadyGateway = require(path.join(__dirname, "..", "..", "heady-hive-sdk", "lib", "gateway"));
@@ -33,12 +34,12 @@ function getSDKGateway(req) {
         _sdkGateway = new HeadyGateway({ cacheTTL: 300000 });
         const providers = createProviders(process.env);
         for (const p of providers) _sdkGateway.registerProvider(p);
-        console.log(`⚡ SDK Gateway initialized: ${providers.length} providers [${providers.map(p => p.name).join(', ')}]`);
+        logger.logSystem(`⚡ SDK Gateway initialized: ${providers.length} providers [${providers.map(p => p.name).join(', ')}]`);
     }
     // Attach vector memory for semantic deterministic cache (lazy — first request wires it)
     if (!_sdkGateway._vectorMemory && req?.app?.locals?.vectorMemory) {
         _sdkGateway.setVectorMemory(req.app.locals.vectorMemory);
-        console.log(`⚡ SDK Gateway: 3D vector memory attached for semantic caching`);
+        logger.logSystem(`⚡ SDK Gateway: 3D vector memory attached for semantic caching`);
     }
     return _sdkGateway;
 }
@@ -69,7 +70,7 @@ function logInteraction(type, input, output) {
         if (log.length > 1000) log = log.slice(-1000);
         fs.writeFileSync(BRAIN_LOG_PATH, JSON.stringify(log, null, 2));
     } catch (err) {
-        console.warn("⚠ Brain log write error:", err.message);
+        logger.logError('HCFP', 'Brain log write error', err);
     }
 }
 
@@ -100,7 +101,7 @@ function logMemoryReceipt({ stored, notStored, method, fallbackUsed }) {
         if (receipts.length > 1000) receipts = receipts.slice(-1000);
         fs.writeFileSync(MEMORY_RECEIPTS_PATH, JSON.stringify(receipts, null, 2));
     } catch (err) {
-        console.warn("⚠ Memory receipt log error:", err.message);
+        logger.logError('HCFP', 'Memory receipt log error', err);
     }
 }
 
@@ -632,7 +633,7 @@ router.post("/chat", async (req, res) => {
         });
     } catch (err) {
         // Gateway crashed — absolute fallback
-        console.error("⚠ Gateway error:", err.message);
+        logger.logError('HCFP', 'Gateway error', err);
         const contextualResponse = generateContextualResponse(message);
         return res.json({
             ok: true,

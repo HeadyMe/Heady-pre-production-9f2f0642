@@ -19,6 +19,7 @@ const path = require("path");
 const http = require("http");
 const https = require("https");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const logger = require("../utils/logger");
 
 // ── Vision Provider Setup (lazy — reads env at request time) ──
 let _genAI = null;
@@ -413,7 +414,7 @@ router.post("/observe", (req, res) => {
 // Full system differential analysis or Image Analysis
 router.post("/analyze", async (req, res) => {
     const { focus, depth, timeRange, action, image_url } = req.body;
-    
+
     // Check if this is an image analysis request (from CLI)
     if (action === "analyze" && typeof image_url === "string" && image_url.trim()) {
         return handleImageAnalysis(req, res, "analyze");
@@ -521,7 +522,7 @@ async function handleImageAnalysis(req, res, actionType) {
                 const result = await model.generateContent(parts);
                 analysisText = result.response.text();
             } catch (geminiErr) {
-                console.warn(`⚠ HeadyLens Gemini failed: ${geminiErr.message}, falling back to OpenAI`);
+                logger.logError('OBSERVER', `HeadyLens Gemini failed: ${geminiErr.message}, falling back to OpenAI`, geminiErr);
                 analysisText = "";
             }
         }
@@ -558,7 +559,7 @@ async function handleImageAnalysis(req, res, actionType) {
                     analysisText = data.choices?.[0]?.message?.content || "";
                 }
             } catch (oaiErr) {
-                console.warn(`⚠ HeadyLens OpenAI fallback failed: ${oaiErr.message}`);
+                logger.logError('OBSERVER', `HeadyLens OpenAI fallback failed: ${oaiErr.message}`, oaiErr);
             }
         }
 
@@ -594,7 +595,7 @@ async function handleImageAnalysis(req, res, actionType) {
             ts: new Date().toISOString(),
         });
     } catch (err) {
-        console.error(`✖ HeadyLens vision error:`, err.message);
+        logger.logError('OBSERVER', 'HeadyLens vision error', err);
         res.status(500).json({ ok: false, service: "heady-lens", error: err.message });
     }
 }

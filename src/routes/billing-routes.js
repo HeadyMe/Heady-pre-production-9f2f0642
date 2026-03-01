@@ -8,6 +8,7 @@
  */
 const express = require('express');
 const { PaymentGateway, AuthMiddleware } = require('../api/payment-gateway');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -28,20 +29,20 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
     const sig = req.headers['stripe-signature'];
     try {
         const event = await PaymentGateway.verifyWebhookSignature(req.body, sig);
-        console.log('✅ [Stripe] Webhook event received:', event.type);
+        logger.logSystem(`✅ [Stripe] Webhook event received: ${event.type}`);
 
         // In production, update user record in Firestore here
 
         res.json({ received: true });
     } catch (err) {
-        console.error('🚨 [Stripe] Webhook signature verification failed.', err.message);
-        res.status(400).send(\`Webhook Error: \${err.message}\`);
-  }
+        logger.logError('SYSTEM', 'Stripe webhook signature verification failed', err);
+        res.status(400).send(`Webhook Error: ${err.message}`);
+    }
 });
 
 // Example protected route
 router.get('/pro-features', AuthMiddleware.requireProPlan, (req, res) => {
-  res.json({ message: "Welcome to the Heady Pro tier. Unlimited inference active." });
+    res.json({ message: "Welcome to the Heady Pro tier. Unlimited inference active." });
 });
 
 module.exports = router;

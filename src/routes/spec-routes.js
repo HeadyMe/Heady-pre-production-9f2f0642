@@ -224,7 +224,7 @@ function registerSpecRoutes(app) {
         res.json(drift.getLatest(50).filter(e => e.kind === "CONNECTIVITY"));
     });
 
-    console.log("📋 SPEC routes registered: monte-carlo, knowledge, mcp, observability, tracking, privacy");
+    require("../utils/logger").logSystem("📋 SPEC routes registered: monte-carlo, knowledge, mcp, observability, tracking, privacy");
 }
 
 module.exports = registerSpecRoutes;

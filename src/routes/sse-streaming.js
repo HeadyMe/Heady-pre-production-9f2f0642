@@ -79,7 +79,7 @@ module.exports = function mountSSEStreaming(app) {
     // Expose sseBroadcast globally for other modules
     global.__sseBroadcast = sseBroadcast;
 
-    console.log("  📡 SSE Text Streaming: LOADED (pillar module) → /api/stream/*");
+    require("../utils/logger").logSystem("  📡 SSE Text Streaming: LOADED (pillar module) → /api/stream/*");
 
     return { sseBroadcast, sseClients };
 };

@@ -1065,6 +1065,31 @@ class AutoSuccessEngine extends EventEmitter {
                 return { finding: `Hive: ${checks.join(", ")} — ${task.name}` };
             }
 
+            case "trading": {
+                // Real Apex trading system checks
+                try {
+                    const { APEX_RULES } = require('./trading/apex-risk-agent');
+                    const tiers = Object.keys(APEX_RULES.accounts);
+                    const activeTier = process.env.APEX_ACCOUNT_TIER || '50K';
+                    const tierRules = APEX_RULES.accounts[activeTier];
+                    const safetyNet = tierRules.balance + tierRules.trailingDrawdown + tierRules.safetyNetBuffer;
+
+                    // Record trading audit entry
+                    this._recordAudit('trading_check', task.id, {
+                        name: task.name, tier: activeTier,
+                        trailingDrawdown: tierRules.trailingDrawdown,
+                        maeRule: `${APEX_RULES.maeRule * 100}%`,
+                        safetyNet, tiers: tiers.length,
+                    });
+
+                    return {
+                        finding: `Apex ${activeTier}: drawdown=$${tierRules.trailingDrawdown}, MAE=$${tierRules.initialMAE}, safety=$${safetyNet}, ${tiers.length} tiers — ${task.name}`
+                    };
+                } catch (err) {
+                    return { finding: `Trading module loading: ${err.message} — ${task.name}` };
+                }
+            }
+
             default:
                 return { finding: `Completed: ${task.name}` };
         }

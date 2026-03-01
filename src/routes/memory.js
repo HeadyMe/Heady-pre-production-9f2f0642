@@ -29,6 +29,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const http = require("http");
+const logger = require("../utils/logger");
 
 // Qdrant configuration
 const QDRANT_URL = process.env.QDRANT_URL || "http://127.0.0.1:6333";
@@ -530,7 +531,7 @@ async function upsertToQdrant(memory, vector) {
         });
     } catch (err) {
         // Qdrant write is best-effort, don't fail the memory process
-        console.warn(`Qdrant upsert failed for ${memory.id}: ${err.message}`);
+        logger.logError('HCFP', `Qdrant upsert failed for ${memory.id}`, err);
     }
 }
 
@@ -607,7 +608,7 @@ function detectTags(text) {
                     stats.totalProcessed++;
                 } catch { /* skip malformed lines */ }
             }
-            console.log(`  ∞ HeadyMemory: loaded ${memories.size} memories from disk`);
+            logger.logSystem(`  ∞ HeadyMemory: loaded ${memories.size} memories from disk`);
         }
     } catch { /* no persisted data yet */ }
 })();

@@ -820,6 +820,44 @@ try {
 // NOTE: autoSuccessEngine, scientistEngine, qaEngine are now initialized
 // by the engine-wiring bootstrapper (src/bootstrap/engine-wiring.js)
 
+// ─── Apex 3.0 Risk Agent — Autonomous Trading Compliance ────────────
+let apexRiskAgent = null;
+try {
+  const { ApexRiskAgent, registerApexRoutes } = require("./src/trading/apex-risk-agent");
+  apexRiskAgent = new ApexRiskAgent(process.env.APEX_ACCOUNT_TIER || '50K');
+  registerApexRoutes(app, apexRiskAgent);
+
+  // Wire risk agent events into pattern engine for trading analytics
+  if (patternEngine) {
+    apexRiskAgent.on('risk:violation', (data) => {
+      patternEngine.observeError('apex:risk_violation', data.violations.join('; '), {
+        equity: data.equity, openPnL: data.openPnL, tags: ['trading', 'apex', 'violation'],
+      });
+    });
+    apexRiskAgent.on('risk:caution', (data) => {
+      patternEngine.observe('reliability', 'apex:caution', 1, {
+        reason: data.reason, tags: ['trading', 'apex', 'caution'],
+      });
+    });
+  }
+
+  logger.logNodeActivity("CONDUCTOR", `  📈 Apex Risk Agent: LOADED (tier: ${apexRiskAgent.tier}, drawdown: $${apexRiskAgent.rules.trailingDrawdown})`);
+  logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/apex/status, /rules, /check, /payout-check, /session/*");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Apex Risk Agent not loaded: ${err.message}`);
+}
+
+// ─── Load Trading Tasks into Auto-Success Engine ────────────────────
+try {
+  if (autoSuccessEngine) {
+    const tradingTasks = require("./src/trading-tasks");
+    const added = autoSuccessEngine.loadExternalTasks(tradingTasks);
+    logger.logNodeActivity("CONDUCTOR", `  📈 Trading Tasks: ${added} tasks loaded into Auto-Success (Apex + TRM)`);
+  }
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Trading tasks not loaded: ${err.message}`);
+}
+
 // ─── Buddy Companion + HeadyBuddy Config + HeadyMe Onboarding Routes ──
 try {
   const buddyCompanionRouter = require("./src/routes/buddy-companion");
