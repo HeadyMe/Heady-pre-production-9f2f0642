@@ -25,15 +25,23 @@ const logger = require("./utils/logger");
 const LIQUID_STATE_PATH = path.join(__dirname, "..", "data", "liquid-state.json");
 
 // ─── Component Capability Definitions ────────────────────────────────
-// Each component is defined by WHAT IT CAN DO, not WHERE it lives.
+// Each component defines WHAT IT CAN DO + WHERE it runs (provider topology).
+// Provider topology maps each component to the optimal service/platform.
 const COMPONENT_REGISTRY = {
     "brain": {
         capabilities: ["inference", "reasoning", "decision-making", "model-override"],
         contexts: ["api-request", "orchestration", "user-chat", "system-eval", "canvas-design"],
-        weight: 10, // importance weight for allocation priority
+        weight: 10,
         minInstances: 1,
         maxInstances: 4,
         stateless: true,
+        providers: {
+            primary: { service: "groq", model: "llama-3.1-70b-versatile", cost: "free", latency: "100ms" },
+            secondary: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
+            quality: { service: "claude", model: "claude-sonnet-4-20250514", cost: "$60-api", latency: "800ms" },
+            fallback: { service: "openai-biz", model: "gpt-4o", cost: "biz-seat", latency: "600ms" },
+        },
+        providerPriority: ["groq", "gemini", "openai-biz", "claude"],
     },
     "soul": {
         capabilities: ["reflection", "introspection", "quality-eval", "depth-analysis"],
@@ -42,6 +50,12 @@ const COMPONENT_REGISTRY = {
         minInstances: 1,
         maxInstances: 2,
         stateless: true,
+        providers: {
+            primary: { service: "claude", model: "claude-sonnet-4-20250514", cost: "$60-api", latency: "800ms" },
+            secondary: { service: "perplexity", model: "sonar-pro", cost: "api-key", latency: "500ms" },
+            fallback: { service: "gemini", model: "gemini-1.5-pro", cost: "gcloud", latency: "600ms" },
+        },
+        providerPriority: ["claude", "perplexity", "gemini"],
     },
     "conductor": {
         capabilities: ["orchestration", "health-polling", "decision-routing", "macro-view"],
@@ -50,6 +64,11 @@ const COMPONENT_REGISTRY = {
         minInstances: 1,
         maxInstances: 1,
         stateless: false,
+        providers: {
+            primary: { service: "gcloud-run", platform: "Cloud Run", cost: "gcloud-$530", latency: "50ms" },
+            edge: { service: "cloudflare", platform: "Workers/Edge", cost: "free", latency: "10ms" },
+        },
+        providerPriority: ["gcloud-run", "cloudflare"],
     },
     "battle": {
         capabilities: ["multi-model-competition", "solution-ranking", "quality-comparison"],
@@ -58,6 +77,14 @@ const COMPONENT_REGISTRY = {
         minInstances: 0,
         maxInstances: 3,
         stateless: true,
+        providers: {
+            // Battle intentionally uses ALL providers for diversity
+            racer_a: { service: "claude", model: "claude-sonnet-4-20250514", cost: "$60-api" },
+            racer_b: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud" },
+            racer_c: { service: "openai-biz", model: "gpt-4o", cost: "biz-seat" },
+            judge: { service: "groq", model: "llama-3.1-70b-versatile", cost: "free" },
+        },
+        providerPriority: ["claude", "gemini", "openai-biz", "groq"],
     },
     "vinci": {
         capabilities: ["creative-learning", "prediction", "pattern-recognition", "design-assist"],
@@ -66,6 +93,12 @@ const COMPONENT_REGISTRY = {
         minInstances: 1,
         maxInstances: 3,
         stateless: false,
+        providers: {
+            primary: { service: "ai-studio", model: "gemini-2.0-flash", cost: "free", latency: "300ms" },
+            creative: { service: "hf-biz", model: "stabilityai/sdxl", cost: "biz-seat", latency: "2s" },
+            fallback: { service: "vertex-ai", model: "gemini-1.5-pro", cost: "gcloud", latency: "600ms" },
+        },
+        providerPriority: ["ai-studio", "hf-biz", "vertex-ai"],
     },
     "patterns": {
         capabilities: ["circuit-breaking", "pool-management", "cache-control", "resilience"],
@@ -75,6 +108,11 @@ const COMPONENT_REGISTRY = {
         maxInstances: 1,
         stateless: false,
         alwaysPresent: true,
+        providers: {
+            primary: { service: "cloudflare", platform: "Workers KV", cost: "free", latency: "5ms" },
+            secondary: { service: "gcloud-run", platform: "Cloud Run", cost: "gcloud", latency: "50ms" },
+        },
+        providerPriority: ["cloudflare", "gcloud-run"],
     },
     "lens": {
         capabilities: ["differential-tracking", "micro-change-detection", "perspective-comparison"],
@@ -83,6 +121,11 @@ const COMPONENT_REGISTRY = {
         minInstances: 0,
         maxInstances: 2,
         stateless: true,
+        providers: {
+            primary: { service: "github-ent", platform: "GitHub Enterprise", cost: "biz-seat", latency: "200ms" },
+            secondary: { service: "groq", model: "llama-3.1-8b-instant", cost: "free", latency: "50ms" },
+        },
+        providerPriority: ["github-ent", "groq"],
     },
     "notion": {
         capabilities: ["knowledge-management", "documentation", "context-synthesis"],
@@ -91,6 +134,12 @@ const COMPONENT_REGISTRY = {
         minInstances: 0,
         maxInstances: 2,
         stateless: false,
+        providers: {
+            primary: { service: "perplexity", model: "sonar-pro", cost: "api-key", latency: "500ms" },
+            vectordb: { service: "hf-biz", platform: "HF Datasets", cost: "biz-seat", latency: "200ms" },
+            fallback: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
+        },
+        providerPriority: ["perplexity", "hf-biz", "gemini"],
     },
     "ops": {
         capabilities: ["operations", "deployment", "infrastructure-management"],
@@ -99,6 +148,12 @@ const COMPONENT_REGISTRY = {
         minInstances: 1,
         maxInstances: 2,
         stateless: true,
+        providers: {
+            primary: { service: "gcloud-run", platform: "Cloud Run", cost: "gcloud-$530", latency: "100ms" },
+            ci: { service: "github-ent", platform: "GitHub Actions", cost: "biz-seat", latency: "30s" },
+            edge: { service: "cloudflare", platform: "Pages/Workers", cost: "free", latency: "10ms" },
+        },
+        providerPriority: ["gcloud-run", "github-ent", "cloudflare"],
     },
     "maintenance": {
         capabilities: ["cleanup", "rotation", "compaction", "housekeeping"],
@@ -107,6 +162,11 @@ const COMPONENT_REGISTRY = {
         minInstances: 1,
         maxInstances: 1,
         stateless: true,
+        providers: {
+            primary: { service: "colab", platform: "Google Colab", cost: "free", latency: "batch" },
+            secondary: { service: "gcloud-run", platform: "Cloud Run Jobs", cost: "gcloud", latency: "5min" },
+        },
+        providerPriority: ["colab", "gcloud-run"],
     },
     "auto-success": {
         capabilities: ["background-optimization", "continuous-improvement", "task-cycling"],
@@ -116,6 +176,12 @@ const COMPONENT_REGISTRY = {
         maxInstances: 1,
         stateless: false,
         alwaysPresent: true,
+        providers: {
+            inference: { service: "groq", model: "llama-3.1-70b-versatile", cost: "free", latency: "100ms" },
+            heavy: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            reasoning: { service: "claude", model: "claude-3-haiku-20240307", cost: "$60-api", latency: "300ms" },
+        },
+        providerPriority: ["groq", "hf-biz", "claude"],
     },
     "stream": {
         capabilities: ["real-time-delivery", "text-streaming", "live-updates"],
@@ -125,6 +191,11 @@ const COMPONENT_REGISTRY = {
         maxInstances: 1,
         stateless: true,
         alwaysPresent: true,
+        providers: {
+            primary: { service: "cloudflare", platform: "Workers SSE", cost: "free", latency: "5ms" },
+            origin: { service: "gcloud-run", platform: "Cloud Run", cost: "gcloud", latency: "50ms" },
+        },
+        providerPriority: ["cloudflare", "gcloud-run"],
     },
     "buddy": {
         capabilities: ["browser-extension", "user-assist", "guest-mode", "quick-access"],
@@ -133,6 +204,12 @@ const COMPONENT_REGISTRY = {
         minInstances: 0,
         maxInstances: 1,
         stateless: true,
+        providers: {
+            primary: { service: "groq", model: "llama-3.1-8b-instant", cost: "free", latency: "50ms" },
+            research: { service: "perplexity", model: "sonar", cost: "api-key", latency: "500ms" },
+            fallback: { service: "ai-studio", model: "gemini-2.0-flash", cost: "free", latency: "300ms" },
+        },
+        providerPriority: ["groq", "perplexity", "ai-studio"],
     },
     "cloud": {
         capabilities: ["external-connectivity", "provider-management", "domain-routing"],
@@ -142,6 +219,13 @@ const COMPONENT_REGISTRY = {
         maxInstances: 1,
         stateless: true,
         alwaysPresent: true,
+        providers: {
+            edge: { service: "cloudflare", platform: "Edge Proxy", cost: "free", latency: "5ms" },
+            origin: { service: "gcloud-run", platform: "Cloud Run", cost: "gcloud-$530", latency: "50ms" },
+            storage: { service: "gcloud", platform: "Cloud Storage (2)", cost: "gcloud", latency: "100ms" },
+            ci: { service: "github-ent", platform: "GitHub Actions", cost: "biz-seat", latency: "30s" },
+        },
+        providerPriority: ["cloudflare", "gcloud-run", "gcloud", "github-ent"],
     },
 };
 
