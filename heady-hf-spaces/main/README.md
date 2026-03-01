@@ -17,7 +17,7 @@ tags:
   - multi-agent
   - code-generation
   - sacred-geometry
-short_description: Interactive demo of Heady's 77-service AI ecosystem with live code editor
+short_description: Interactive AI demo with chat, IDE, and gateway
 ---
 
 # 🐝 Heady AI — Brain Demo
