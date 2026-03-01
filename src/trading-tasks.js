@@ -12,77 +12,77 @@
 module.exports = [
     // ═══ APEX RISK MONITORING (15) ═══════════════════════════════════════════
     {
-        id: "apex-001", name: "Verify trailing drawdown calculation",
+        id: "apx-001", name: "Verify trailing drawdown calculation",
         cat: "trading", pool: "hot", w: 5,
         desc: "Confirm trailing drawdown tracks highest intraday equity correctly"
     },
     {
-        id: "apex-002", name: "Validate MAE 30% rule enforcement",
+        id: "apx-002", name: "Validate MAE 30% rule enforcement",
         cat: "trading", pool: "hot", w: 5,
         desc: "Ensure max adverse excursion never exceeds 30% of day profit balance"
     },
     {
-        id: "apex-003", name: "Check consistency rule compliance",
+        id: "apx-003", name: "Check consistency rule compliance",
         cat: "trading", pool: "hot", w: 5,
         desc: "Verify no single day exceeds 30% of total profit"
     },
     {
-        id: "apex-004", name: "Calculate safety net threshold",
+        id: "apx-004", name: "Calculate safety net threshold",
         cat: "trading", pool: "warm", w: 4,
         desc: "Compute Safety_Net = Starting_Balance + Trailing_Threshold + 100"
     },
     {
-        id: "apex-005", name: "Monitor payout eligibility",
+        id: "apx-005", name: "Monitor payout eligibility",
         cat: "trading", pool: "warm", w: 3,
         desc: "Track trading days (≥8) and profitable days (≥5 at $100+) for payout"
     },
     {
-        id: "apex-006", name: "Validate position flattening before close",
+        id: "apx-006", name: "Validate position flattening before close",
         cat: "trading", pool: "hot", w: 5,
         desc: "Ensure all positions flatten before CME Globex session close"
     },
     {
-        id: "apex-007", name: "Check news blackout enforcement",
+        id: "apx-007", name: "Check news blackout enforcement",
         cat: "trading", pool: "warm", w: 4,
         desc: "Verify no entries within 5 minutes of major economic releases"
     },
     {
-        id: "apex-008", name: "Monitor account tier parameters",
+        id: "apx-008", name: "Monitor account tier parameters",
         cat: "trading", pool: "warm", w: 3,
         desc: "Validate current account tier rules match Apex 3.0 specifications"
     },
     {
-        id: "apex-009", name: "Track risk agent signal distribution",
+        id: "apx-009", name: "Track risk agent signal distribution",
         cat: "trading", pool: "warm", w: 3,
         desc: "Monitor ternary signal balance: REPEL(-1), HOLD(0), ENGAGE(+1)"
     },
     {
-        id: "apex-010", name: "Audit violation history",
+        id: "apx-010", name: "Audit violation history",
         cat: "trading", pool: "warm", w: 4,
         desc: "Review and categorize all risk violations for pattern analysis"
     },
     {
-        id: "apex-011", name: "Validate daily P&L tracking accuracy",
+        id: "apx-011", name: "Validate daily P&L tracking accuracy",
         cat: "trading", pool: "warm", w: 4,
         desc: "Cross-check daily P&L records against session start/end balances"
     },
     {
-        id: "apex-012", name: "Monitor drawdown proximity alerts",
+        id: "apx-012", name: "Monitor drawdown proximity alerts",
         cat: "trading", pool: "hot", w: 5,
         desc: "Trigger early warning when equity approaches 80% of drawdown threshold"
     },
     {
-        id: "apex-013", name: "Verify session state persistence",
+        id: "apx-013", name: "Verify session state persistence",
         cat: "trading", pool: "cold", w: 2,
         desc: "Ensure trading session state survives service restarts"
     },
     {
-        id: "apex-014", name: "Check multi-account isolation",
+        id: "apx-014", name: "Check multi-account isolation",
         cat: "trading", pool: "warm", w: 3,
         desc: "Verify risk parameters are isolated per account instance"
     },
     {
-        id: "apex-015", name: "Monitor execution latency budget",
+        id: "apx-015", name: "Monitor execution latency budget",
         cat: "trading", pool: "hot", w: 5,
         desc: "Track total execution latency targeting 20ms via PTX hot path"
     },

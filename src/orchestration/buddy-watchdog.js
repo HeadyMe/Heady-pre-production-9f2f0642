@@ -20,6 +20,7 @@
 
 const EventEmitter = require("events");
 const { trackError, getErrorSummary } = require("../config/errors");
+const logger = require("../utils/logger");
 
 const PHI = 1.6180339887;
 const WATCHDOG_INTERVAL_MS = Math.round(PHI * PHI * PHI * PHI * 1000); // ~6.85 seconds
@@ -60,7 +61,7 @@ class BuddyWatchdog extends EventEmitter {
         this._running = true;
         this.stats.startedAt = new Date().toISOString();
 
-        console.log(`  🐕 [Watchdog] Started — checking Buddy every ${(WATCHDOG_INTERVAL_MS / 1000).toFixed(1)}s`);
+        logger.logSystem(`  🐕 [Watchdog] Started — checking Buddy every ${(WATCHDOG_INTERVAL_MS / 1000).toFixed(1)}s`);
 
         this._intervalId = setInterval(() => this._check(), WATCHDOG_INTERVAL_MS);
         // Initial check after 2 seconds
@@ -73,7 +74,7 @@ class BuddyWatchdog extends EventEmitter {
     stop() {
         if (this._intervalId) clearInterval(this._intervalId);
         this._running = false;
-        console.log("  🐕 [Watchdog] Stopped.");
+        logger.logSystem("  🐕 [Watchdog] Stopped.");
     }
 
     /**
@@ -88,7 +89,7 @@ class BuddyWatchdog extends EventEmitter {
             if (!healthOk) {
                 this._consecutiveFailures++;
                 this.stats.failures++;
-                console.warn(`  🐕 [Watchdog] Buddy health FAIL (${this._consecutiveFailures}/${MAX_CONSECUTIVE_FAILURES})`);
+                logger.logError("WATCHDOG", `Buddy health FAIL (${this._consecutiveFailures}/${MAX_CONSECUTIVE_FAILURES})`, new Error("health_fail"));
 
                 if (this._consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
                     await this._triggerRestart("consecutive_health_failures");
@@ -102,7 +103,7 @@ class BuddyWatchdog extends EventEmitter {
             const hallucinationDetected = this._detectHallucinationLoop();
             if (hallucinationDetected) {
                 this.stats.hallucinationDetections++;
-                console.error(`  🐕 [Watchdog] HALLUCINATION LOOP DETECTED: "${hallucinationDetected}"`);
+                logger.logError("WATCHDOG", `HALLUCINATION LOOP DETECTED: "${hallucinationDetected}"`, new Error("hallucination_loop"));
                 this.emit("hallucination", { pattern: hallucinationDetected });
                 await this._triggerRestart("hallucination_loop");
                 return;
@@ -113,7 +114,7 @@ class BuddyWatchdog extends EventEmitter {
             const growthMB = (currentRSS - this._baselineRSS) / (1024 * 1024);
             if (growthMB > MEMORY_GROWTH_THRESHOLD_MB) {
                 this.stats.memoryAlerts++;
-                console.warn(`  🐕 [Watchdog] Memory growth alert: +${growthMB.toFixed(1)}MB since baseline`);
+                logger.logError("WATCHDOG", `Memory growth alert: +${growthMB.toFixed(1)}MB since baseline`, new Error("memory_growth"));
                 this.emit("memory-alert", { growthMB, currentRSS, baselineRSS: this._baselineRSS });
             }
 
@@ -202,7 +203,7 @@ class BuddyWatchdog extends EventEmitter {
         this._restartCount++;
         this.stats.restarts++;
 
-        console.error(`  🐕 [Watchdog] TRIGGERING BUDDY RESTART — Reason: ${reason} (restart #${this._restartCount})`);
+        logger.logError("WATCHDOG", `TRIGGERING BUDDY RESTART — Reason: ${reason} (restart #${this._restartCount})`, new Error(reason));
         this.emit("restart", { reason, restartCount: this._restartCount });
 
         try {
@@ -221,7 +222,7 @@ class BuddyWatchdog extends EventEmitter {
                 this._buddy.started = Date.now();
                 this._buddy.status = "active";
 
-                console.log(`  🐕 [Watchdog] Buddy restarted — new ID: ${this._buddy.identity.id}`);
+                logger.logSystem(`  🐕 [Watchdog] Buddy restarted — new ID: ${this._buddy.identity.id}`);
             }
 
             // Reset failure counters
@@ -231,7 +232,7 @@ class BuddyWatchdog extends EventEmitter {
 
         } catch (err) {
             trackError("watchdog:restart", err);
-            console.error(`  🐕 [Watchdog] Restart failed: ${err.message}`);
+            logger.logError("WATCHDOG", `Restart failed: ${err.message}`, err);
         }
     }
 
@@ -258,7 +259,7 @@ class BuddyWatchdog extends EventEmitter {
             res.json({ ok: true, watchdog: this.getStatus() });
         });
 
-        console.log("  🐕 [Watchdog] Route registered: /api/watchdog/status");
+        logger.logSystem("  🐕 [Watchdog] Route registered: /api/watchdog/status");
     }
 }
 

@@ -31,6 +31,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 const HeadyGateway = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "gateway"));
 const { createProviders } = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "providers"));
 
@@ -60,6 +61,13 @@ let localFallbackCount = 0;
 const zoneIndex = new Map(); // zoneId → [vectorRefs]
 const zoneStats = { queries: 0, zoneHits: 0, expansions: 0 };
 for (let i = 0; i < 8; i++) zoneIndex.set(i, []);
+
+// ── Graph Layer (Hybrid RAG) ────────────────────────────────────
+// Stores explicit entity-relationship edges alongside vector embeddings
+// Enables multi-hop reasoning: "How did error X → rule Y → prevent Z?"
+const graphEdges = new Map(); // nodeId → [{ target, relation, weight, ts }]
+const GRAPH_PATH = path.join(__dirname, "..", "data", "vector-graph.json");
+let graphEdgeCount = 0;
 
 /**
  * PCA-lite: project 384-dim embedding → (x, y, z) coordinates
@@ -125,15 +133,19 @@ function initShards() {
             const data = JSON.parse(fs.readFileSync(VECTOR_STORE_PATH, "utf-8"));
             const oldVectors = Array.isArray(data) ? data : data.vectors || [];
             if (oldVectors.length > 0 && shards.every(s => s.vectors.length === 0)) {
-                console.log(`  ∞ VectorMemory: Migrating ${oldVectors.length} vectors into ${NUM_SHARDS} shards`);
+                logger.logSystem(`  \u221e VectorMemory: Migrating ${oldVectors.length} vectors into ${NUM_SHARDS} shards`);
                 oldVectors.forEach((v, i) => {
                     shards[i % NUM_SHARDS].vectors.push(v);
                     shards[i % NUM_SHARDS].dirty = true;
                 });
                 persistAllShards();
+                // Optionally remove old file after migration
+                // fs.unlinkSync(VECTOR_STORE_PATH);
             }
         }
-    } catch { }
+    } catch (e) {
+        logger.warn(`  \u221e VectorMemory: Error during old vector store migration: ${e.message}`);
+    }
 
     // Build 3D zone index from all existing vectors
     let indexed = 0;
@@ -152,8 +164,22 @@ function initShards() {
     const total = shards.reduce((s, sh) => s + sh.vectors.length, 0);
     const zoneDistribution = {};
     zoneIndex.forEach((refs, zone) => { if (refs.length > 0) zoneDistribution[zone] = refs.length; });
-    console.log(`  ∞ VectorMemory: ${NUM_SHARDS} shards, ${total} vectors, ${indexed} indexed in 3D`);
-    console.log(`  ∞ VectorMemory: Zone distribution: ${JSON.stringify(zoneDistribution)}`);
+    logger.logSystem(`  \u221e VectorMemory: ${NUM_SHARDS} shards, ${total} vectors, ${indexed} indexed in 3D`);
+    logger.logSystem(`  \u221e VectorMemory: Zone distribution: ${JSON.stringify(zoneDistribution)}`);
+
+    // Load graph edges from disk
+    try {
+        if (fs.existsSync(GRAPH_PATH)) {
+            const graphData = JSON.parse(fs.readFileSync(GRAPH_PATH, "utf-8"));
+            for (const [nodeId, edges] of Object.entries(graphData)) {
+                graphEdges.set(nodeId, edges);
+                graphEdgeCount += edges.length;
+            }
+            logger.logSystem(`  \u221e VectorMemory: ${graphEdgeCount} graph edges loaded`);
+        }
+    } catch (e) {
+        logger.warn(`  \u221e VectorMemory: No graph data found or error loading graph: ${e.message}`);
+    }
 }
 
 // ── SDK Gateway for Embeddings ───────────────────────────────────
@@ -169,7 +195,7 @@ function getGateway() {
 
 function initHFClients() {
     // Legacy — SDK gateway handles provider selection now
-    console.log(`  ∞ VectorMemory: Embeddings via SDK Gateway (${EMBEDDING_MODEL})`);
+    logger.logSystem(`  \u221e VectorMemory: Embeddings via SDK Gateway (${EMBEDDING_MODEL})`);
 }
 
 // ── Embedding ───────────────────────────────────────────────────
@@ -414,6 +440,93 @@ function persistAllShards() {
     });
 }
 
+// ── Graph Layer Functions ─────────────────────────────────────
+
+/**
+ * Add a directional relationship edge between two memory nodes.
+ * @param {string} sourceId - Source vector ID
+ * @param {string} targetId - Target vector ID  
+ * @param {string} relation - Relationship type (e.g., "caused_by", "resolved_by", "led_to")
+ * @param {number} weight - Edge weight (0.0 - 1.0)
+ */
+function addRelationship(sourceId, targetId, relation, weight = 1.0) {
+    if (!graphEdges.has(sourceId)) graphEdges.set(sourceId, []);
+    const edges = graphEdges.get(sourceId);
+    // Deduplicate
+    if (!edges.find(e => e.target === targetId && e.relation === relation)) {
+        edges.push({ target: targetId, relation, weight, ts: Date.now() });
+        graphEdgeCount++;
+        _persistGraph();
+    }
+    return { sourceId, targetId, relation, weight };
+}
+
+/**
+ * Get all relationships for a given node.
+ */
+function getRelationships(nodeId) {
+    return graphEdges.get(nodeId) || [];
+}
+
+/**
+ * Hybrid RAG query: vector similarity + graph traversal.
+ * 1. Run standard vector query for top-K
+ * 2. For each result, traverse graph edges (1-hop)
+ * 3. Score = vector_score × (1 + relationship_weight)
+ * 4. Return merged, enriched results
+ */
+async function queryWithRelationships(query, topK = 5, filter = {}, maxHops = 1) {
+    // Phase 1: Vector search (breadth)
+    const vectorResults = await queryMemory(query, topK * 2, filter);
+
+    // Phase 2: Graph traversal (depth)
+    const enriched = vectorResults.map(result => {
+        const relationships = getRelationships(result.id);
+        const relatedContent = [];
+
+        // 1-hop traversal
+        for (const edge of relationships) {
+            // Find the target vector across shards
+            for (const shard of shards) {
+                const target = shard.vectors.find(v => v.id === edge.target);
+                if (target) {
+                    relatedContent.push({
+                        id: target.id,
+                        content: target.content?.substring(0, 200),
+                        relation: edge.relation,
+                        weight: edge.weight,
+                        metadata: target.metadata,
+                    });
+                    break;
+                }
+            }
+        }
+
+        // Boost score based on relationship density
+        const relationBoost = relationships.length > 0 ? 1 + (relationships.length * 0.05) : 1;
+
+        return {
+            ...result,
+            score: result.score * relationBoost,
+            relationships: relatedContent,
+            graphEdges: relationships.length,
+            hybrid: true,
+        };
+    });
+
+    // Re-sort with boosted scores
+    enriched.sort((a, b) => b.score - a.score);
+    return enriched.slice(0, topK);
+}
+
+function _persistGraph() {
+    try {
+        const data = {};
+        graphEdges.forEach((edges, nodeId) => { data[nodeId] = edges; });
+        fs.writeFileSync(GRAPH_PATH, JSON.stringify(data, null, 0));
+    } catch { /* best-effort */ }
+}
+
 // ── Stats ───────────────────────────────────────────────────────
 function getStats() {
     const shardStats = shards.map(s => ({ id: s.id, vectors: s.vectors.length, dirty: s.dirty }));
@@ -438,6 +551,11 @@ function getStats() {
             zone_hits: zoneStats.zoneHits,
             expansions: zoneStats.expansions,
             zone_hit_rate: zoneStats.queries > 0 ? +(zoneStats.zoneHits / zoneStats.queries * 100).toFixed(1) : 0,
+        },
+        graph: {
+            totalEdges: graphEdgeCount,
+            totalNodes: graphEdges.size,
+            architecture: "hybrid-rag",
         },
         ingest_count: ingestCount,
         query_count: queryCount,
@@ -514,6 +632,36 @@ function registerRoutes(app) {
             zones,
         });
     });
+
+    // ── Graph RAG Endpoints ─────────────────────────────────────
+    app.post("/api/vector/graph/query", async (req, res) => {
+        try {
+            const { query, top_k, filter } = req.body;
+            if (!query) return res.status(400).json({ error: "query required" });
+            const results = await queryWithRelationships(query, top_k || 5, filter || {});
+            res.json({ ok: true, results, architecture: "hybrid-rag" });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+
+    app.post("/api/vector/graph/edge", (req, res) => {
+        const { sourceId, targetId, relation, weight } = req.body;
+        if (!sourceId || !targetId || !relation) {
+            return res.status(400).json({ error: "sourceId, targetId, relation required" });
+        }
+        const edge = addRelationship(sourceId, targetId, relation, weight || 1.0);
+        res.json({ ok: true, edge, totalEdges: graphEdgeCount });
+    });
+
+    app.get("/api/vector/graph/edges/:nodeId", (req, res) => {
+        const edges = getRelationships(req.params.nodeId);
+        res.json({ ok: true, nodeId: req.params.nodeId, edges, count: edges.length });
+    });
 }
 
-module.exports = { init, ingestMemory, queryMemory, getStats, registerRoutes, embed, to3D, assignZone };
+module.exports = {
+    init, ingestMemory, queryMemory, queryWithRelationships,
+    addRelationship, getRelationships,
+    getStats, registerRoutes, embed, to3D, assignZone,
+};

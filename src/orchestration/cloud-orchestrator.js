@@ -439,7 +439,7 @@ class HeadyCloudOrchestrator extends EventEmitter {
         this.bootTime = Date.now();
 
         const nodeCount = this.workerPool.spinUp();
-        console.log(`  ⚡ Cloud Orchestrator: STARTED — ${nodeCount} worker nodes active`);
+        require("../utils/logger").logSystem(`  ⚡ Cloud Orchestrator: STARTED — ${nodeCount} worker nodes active`);
 
         this.emit("orchestrator:started", { nodes: nodeCount, ts: new Date().toISOString() });
         return nodeCount;
