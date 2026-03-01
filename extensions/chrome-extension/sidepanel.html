@@ -1,13 +1,15 @@
 <!--
   © 2026 Heady Systems LLC.
   PROPRIETARY AND CONFIDENTIAL.
-  Unauthorized copying, modification, or distribution is strictly prohibited.
+  Heady Chrome Extension — Side Panel v2.0
 -->
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -17,19 +19,37 @@
 
         body {
             font-family: 'Inter', system-ui, sans-serif;
-            background: #0d0e17;
+            background: #0a0b14;
             color: #e2e8f0;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
+        /* ── Header ── */
         .header {
             padding: 12px 16px;
-            background: linear-gradient(135deg, #7C3AED, #EC4899);
+            background: linear-gradient(135deg, #7C3AED 0%, #a855f7 50%, #EC4899 100%);
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255, 255, 255, .08) 0%, transparent 60%);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1;
         }
 
         .header h2 {
@@ -38,70 +58,137 @@
             color: #fff;
         }
 
-        .header .tag {
-            font-size: .55rem;
-            background: rgba(0, 0, 0, .2);
-            color: rgba(255, 255, 255, .7);
+        .header .badge {
+            font-size: .5rem;
+            background: rgba(0, 0, 0, .25);
+            color: rgba(255, 255, 255, .65);
             padding: 2px 8px;
             border-radius: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .05em;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 6px;
+            z-index: 1;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, .12);
+            border: none;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .75rem;
+            color: rgba(255, 255, 255, .8);
+            transition: background .2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, .2);
+        }
+
+        /* ── Channel Tabs ── */
         .channels {
-            padding: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, .06);
+            padding: 6px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            background: rgba(0, 0, 0, .15);
+            flex-shrink: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .channels::-webkit-scrollbar {
+            display: none;
         }
 
         .ch-row {
             display: flex;
             gap: 4px;
-            flex-wrap: wrap;
+            white-space: nowrap;
         }
 
         .ch {
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 6px;
             font-size: .65rem;
             font-weight: 500;
             cursor: pointer;
-            background: rgba(255, 255, 255, .04);
-            color: rgba(255, 255, 255, .5);
+            background: rgba(255, 255, 255, .03);
+            color: rgba(255, 255, 255, .4);
             border: 1px solid transparent;
-            transition: all .15s;
+            transition: all .2s;
+            flex-shrink: 0;
         }
 
         .ch:hover {
             color: #C084FC;
-            background: rgba(124, 58, 237, .1);
+            background: rgba(124, 58, 237, .08);
         }
 
         .ch.active {
             color: #C084FC;
             border-color: rgba(124, 58, 237, .3);
-            background: rgba(124, 58, 237, .12);
+            background: rgba(124, 58, 237, .1);
         }
 
+        /* ── Messages ── */
         .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 12px;
+            padding: 12px 14px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(124, 58, 237, .2) transparent;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: rgba(124, 58, 237, .25);
+            border-radius: 2px;
         }
 
         .msg {
             display: flex;
             gap: 10px;
-            margin-bottom: 12px;
-            animation: fadeIn .2s;
+            margin-bottom: 14px;
+            animation: msgSlide .3s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        @keyframes msgSlide {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .msg-avatar {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: .9rem;
+            font-size: .8rem;
             flex-shrink: 0;
+            margin-top: 1px;
         }
 
         .msg-avatar.bot {
@@ -109,7 +196,8 @@
         }
 
         .msg-avatar.user {
-            background: rgba(87, 242, 135, .15);
+            background: rgba(87, 242, 135, .1);
+            border: 1px solid rgba(87, 242, 135, .15);
         }
 
         .msg-body {
@@ -117,10 +205,16 @@
             min-width: 0;
         }
 
+        .msg-header {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
         .msg-name {
             font-size: .72rem;
             font-weight: 600;
-            margin-bottom: 2px;
         }
 
         .msg-name.bot {
@@ -131,36 +225,88 @@
             color: #57F287;
         }
 
+        .msg-time {
+            font-size: .55rem;
+            color: rgba(255, 255, 255, .15);
+        }
+
         .msg-text {
             font-size: .82rem;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #dcddde;
             white-space: pre-wrap;
             word-break: break-word;
         }
 
-        @keyframes fadeIn {
+        .msg-meta {
+            font-size: .58rem;
+            color: rgba(255, 255, 255, .2);
+            margin-top: 3px;
+        }
+
+        /* ── Typing Indicator ── */
+        .typing-bar {
+            padding: 4px 14px;
+            min-height: 22px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .typing-bar.active .typing-dots {
+            display: flex;
+        }
+
+        .typing-bar.active .typing-label {
+            display: block;
+        }
+
+        .typing-dots {
+            display: none;
+            gap: 3px;
+        }
+
+        .typing-dots span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #C084FC;
+            animation: dotPulse .6s infinite alternate;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: .3s;
+        }
+
+        @keyframes dotPulse {
             from {
-                opacity: 0;
-                transform: translateY(4px);
+                opacity: .3;
+                transform: scale(.8);
             }
 
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1);
             }
         }
 
-        .typing {
-            padding: 4px 12px;
-            font-size: .7rem;
-            color: rgba(255, 255, 255, .4);
-            min-height: 20px;
+        .typing-label {
+            display: none;
+            font-size: .65rem;
+            color: rgba(255, 255, 255, .3);
         }
 
+        /* ── Input ── */
         .input-area {
-            padding: 8px 12px;
-            border-top: 1px solid rgba(255, 255, 255, .06);
+            padding: 8px 12px 10px;
+            border-top: 1px solid rgba(255, 255, 255, .04);
+            background: rgba(0, 0, 0, .1);
+            flex-shrink: 0;
         }
 
         .input-box {
@@ -168,8 +314,10 @@
             gap: 6px;
             background: rgba(255, 255, 255, .04);
             border: 1px solid rgba(255, 255, 255, .06);
-            border-radius: 8px;
-            padding: 4px 8px;
+            border-radius: 10px;
+            padding: 4px 6px 4px 14px;
+            align-items: center;
+            transition: border-color .2s;
         }
 
         .input-box:focus-within {
@@ -188,30 +336,75 @@
         }
 
         .input-box input::placeholder {
-            color: rgba(255, 255, 255, .3);
+            color: rgba(255, 255, 255, .25);
         }
 
         .send-btn {
             width: 32px;
             height: 32px;
-            border-radius: 6px;
-            background: #7C3AED;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
             border: none;
             color: #fff;
             cursor: pointer;
-            font-size: .9rem;
+            font-size: .85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all .2s;
         }
 
         .send-btn:hover {
-            background: #6D28D9;
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            box-shadow: 0 2px 10px rgba(124, 58, 237, .3);
+        }
+
+        /* ── Status Footer ── */
+        .status-footer {
+            padding: 4px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: .55rem;
+            color: rgba(255, 255, 255, .15);
+            border-top: 1px solid rgba(255, 255, 255, .03);
+            flex-shrink: 0;
+        }
+
+        .status-footer .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .status-footer .dot.green {
+            background: #57F287;
+        }
+
+        .status-footer .dot.red {
+            background: #ED4245;
+        }
+
+        .status-footer a {
+            color: rgba(192, 132, 252, .4);
+            text-decoration: none;
         }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h2>🐝 Heady AI</h2>
-        <span class="tag">Side Panel</span>
+        <div class="header-left">
+            <h2>🐝 Heady AI</h2>
+            <span class="badge">Side Panel</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" id="clearBtn" title="Clear chat">🗑</button>
+            <button class="icon-btn" id="settingsBtn" title="Settings">⚙</button>
+        </div>
     </div>
 
     <div class="channels">
@@ -219,7 +412,11 @@
     </div>
 
     <div class="messages" id="messages"></div>
-    <div class="typing" id="typing"></div>
+
+    <div class="typing-bar" id="typing">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <span class="typing-label">HeadyBot is thinking...</span>
+    </div>
 
     <div class="input-area">
         <div class="input-box">
@@ -228,17 +425,22 @@
         </div>
     </div>
 
+    <div class="status-footer">
+        <span><span class="dot green" id="footerDot"></span><span id="footerStatus">Connected</span></span>
+        <span><a href="https://headyme.com" target="_blank">headyme.com</a> · v2.0</span>
+    </div>
+
     <script>
         const GROUPS = [
-            { id: 'general', name: 'general', tag: '' },
-            { id: 'swarm', name: 'swarm', tag: '[SWARM TASK] ' },
-            { id: 'code', name: 'code', tag: '[CODE TASK] ' },
-            { id: 'battle', name: 'battle', tag: '[BATTLE] ' },
-            { id: 'creative', name: 'creative', tag: '[CREATIVE] ' },
-            { id: 'sims', name: 'simulate', tag: '[SIMULATION] ' },
-            { id: 'audit', name: 'audit', tag: '[AUDIT] ' },
-            { id: 'brain', name: 'brain', tag: '[INTELLIGENCE] ' },
-            { id: 'lens', name: 'lens', tag: '[VISION] ' },
+            { id: 'general', icon: '💬', name: 'general', tag: '' },
+            { id: 'swarm', icon: '🐝', name: 'swarm', tag: '[SWARM TASK] ' },
+            { id: 'code', icon: '⚡', name: 'code', tag: '[CODE TASK] ' },
+            { id: 'battle', icon: '⚔️', name: 'battle', tag: '[BATTLE] ' },
+            { id: 'creative', icon: '🎨', name: 'creative', tag: '[CREATIVE] ' },
+            { id: 'sims', icon: '🎲', name: 'simulate', tag: '[SIMULATION] ' },
+            { id: 'audit', icon: '📋', name: 'audit', tag: '[AUDIT] ' },
+            { id: 'brain', icon: '🧠', name: 'brain', tag: '[INTELLIGENCE] ' },
+            { id: 'lens', icon: '🔍', name: 'lens', tag: '[VISION] ' },
         ];
 
         let active = GROUPS[0];
@@ -246,29 +448,67 @@
         const msgsEl = document.getElementById('messages');
         const inputEl = document.getElementById('input');
         const typingEl = document.getElementById('typing');
+        const footerDot = document.getElementById('footerDot');
+        const footerStatus = document.getElementById('footerStatus');
 
+        // Settings + clear
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            chrome.runtime.openOptionsPage();
+        });
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            msgsEl.innerHTML = '';
+            addMsg('Chat cleared. How can I help?', 'bot');
+        });
+
+        // Render channel tabs
         GROUPS.forEach(g => {
             const el = document.createElement('span');
             el.className = 'ch' + (g.id === 'general' ? ' active' : '');
-            el.textContent = '#' + g.name;
+            el.textContent = `${g.icon} ${g.name}`;
             el.onclick = () => {
                 document.querySelectorAll('.ch').forEach(e => e.classList.remove('active'));
                 el.classList.add('active');
                 active = g;
                 inputEl.placeholder = g.id === 'general' ? 'Ask Heady anything...' : `#${g.name}: describe your task...`;
+                inputEl.focus();
             };
             chEl.appendChild(el);
         });
 
-        function addMsg(text, role) {
+        // Check status
+        chrome.runtime.sendMessage({ type: 'heady-status' }, (res) => {
+            if (res?.ok) {
+                footerDot.className = 'dot green';
+                footerStatus.textContent = 'Connected';
+            } else {
+                footerDot.className = 'dot red';
+                footerStatus.textContent = 'Disconnected';
+            }
+        });
+
+        function getTimeStr() {
+            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function addMsg(text, role, meta = '') {
             const el = document.createElement('div');
             el.className = 'msg';
             el.innerHTML = `
-        <div class="msg-avatar ${role}">${role === 'bot' ? '🐝' : '👤'}</div>
-        <div class="msg-body">
-          <div class="msg-name ${role}">${role === 'bot' ? 'HeadyBot' : 'You'}</div>
-          <div class="msg-text">${text}</div>
-        </div>`;
+                <div class="msg-avatar ${role}">${role === 'bot' ? '🐝' : '👤'}</div>
+                <div class="msg-body">
+                    <div class="msg-header">
+                        <span class="msg-name ${role}">${role === 'bot' ? 'HeadyBot' : 'You'}</span>
+                        <span class="msg-time">${getTimeStr()}</span>
+                    </div>
+                    <div class="msg-text">${escapeHtml(text)}</div>
+                    ${meta ? `<div class="msg-meta">${meta}</div>` : ''}
+                </div>`;
             msgsEl.appendChild(el);
             msgsEl.scrollTop = msgsEl.scrollHeight;
         }
@@ -278,16 +518,18 @@
             if (!text) return;
             inputEl.value = '';
             addMsg(text, 'user');
-            typingEl.textContent = '🐝 HeadyBot is thinking...';
+            typingEl.classList.add('active');
 
             chrome.runtime.sendMessage(
                 { type: 'heady-api', message: active.tag + text },
                 (res) => {
-                    typingEl.textContent = '';
+                    typingEl.classList.remove('active');
                     if (res?.ok) {
-                        addMsg(res.data.response || res.data.text || JSON.stringify(res.data), 'bot');
+                        const reply = res.data.reply || '(empty response)';
+                        const meta = res.data.model ? `via ${res.data.model}` : '';
+                        addMsg(reply, 'bot', meta);
                     } else {
-                        addMsg(`⚠️ ${res?.error || 'Connection failed. Is HeadyManager running?'}`, 'bot');
+                        addMsg(`⚠️ ${res?.error || 'Connection failed. Open settings ⚙ to configure.'}`, 'bot');
                     }
                 }
             );
@@ -296,12 +538,16 @@
         inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
         document.getElementById('send').addEventListener('click', send);
 
-        // Listen for context menu relay
+        // Context menu relay
         chrome.runtime.onMessage.addListener((msg) => {
-            if (msg.type === 'heady-query') { inputEl.value = msg.message; send(); }
+            if (msg.type === 'heady-query') {
+                inputEl.value = msg.message;
+                send();
+            }
         });
 
-        addMsg('Welcome to Heady! Select a channel or type anything — I\'ll route it to the right service group.', 'bot');
+        // Welcome
+        addMsg('Welcome to Heady! Select a channel or type anything — I\'ll route it through the Intelligence Layer.', 'bot');
     </script>
 </body>
 
