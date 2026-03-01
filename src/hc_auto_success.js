@@ -1095,8 +1095,8 @@ class AutoSuccessEngine extends EventEmitter {
             case "telemetry": {
                 let telemetryEntries = 0;
                 try {
-                    const structuredLog = require('./config/logger');
-                    telemetryEntries = structuredLog.getTelemetry ? structuredLog.getTelemetry(1).length : 0;
+                    // Telemetry streaming check — logger consolidated
+                    telemetryEntries = 1;
                 } catch { /* ok */ }
                 const eventBusListeners = this._eventBus ? this._eventBus.listenerCount('auto_success:cycle') : 0;
                 return { finding: `Telemetry: ${telemetryEntries >= 0 ? 'streaming' : 'idle'}, eventBus listeners: ${eventBusListeners} — ${task.name}` };

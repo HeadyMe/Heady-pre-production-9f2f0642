@@ -128,7 +128,7 @@ function registerServiceRoutes(app, deps = {}) {
 
     // ─── HCSysOrchestrator ─────────────────────────────────────────────
     try {
-        const orchestratorRoutes = require("../../services/orchestrator/hc_sys_orchestrator");
+        const orchestratorRoutes = require("../orchestration/hc_sys_orchestrator");
         app.use("/api/orchestrator", orchestratorRoutes);
         logger.logNodeActivity("CONDUCTOR", "  ∞ HCSysOrchestrator: LOADED");
         logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/orchestrator/health, /route, /brains, /layers, /contract, /rebuild-status");
@@ -138,7 +138,7 @@ function registerServiceRoutes(app, deps = {}) {
 
     // ─── HeadyBrain API ────────────────────────────────────────────────
     try {
-        const brainApiRoutes = require("../../services/orchestrator/brain_api");
+        const brainApiRoutes = require("../orchestration/brain_api");
         app.use("/api/brain", brainApiRoutes);
         logger.logNodeActivity("CONDUCTOR", "  ∞ HeadyBrain API: LOADED");
         logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/brain/health, /plan, /feedback, /status");

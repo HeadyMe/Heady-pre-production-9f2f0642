@@ -9,8 +9,8 @@
  * Masks internal details in production, logs full stack traces.
  */
 
-const { getLogger } = require('../observability/logger');
-const log = getLogger('error-handler');
+const logger = require('../utils/logger');
+const log = { error: (msg, data) => logger.logError('ERROR-HANDLER', msg, data), info: (msg) => logger.logSystem(msg), warn: (msg) => logger.logNodeActivity('ERROR-HANDLER', msg) };
 
 class AppError extends Error {
     constructor(message, statusCode = 500, code = 'INTERNAL_ERROR', details = null) {

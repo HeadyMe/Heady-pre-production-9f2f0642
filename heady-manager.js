@@ -508,7 +508,7 @@ logger.logNodeActivity("CONDUCTOR", "  ∞ SelfOptimizer: WIRED (continuous hear
 // ─── BUDDY CORE — Sovereign Orchestrator Node ───────────────────────
 const { getBuddy } = require("./src/orchestration/buddy-core");
 const { BuddyWatchdog } = require("./src/orchestration/buddy-watchdog");
-const structuredLog = require("./src/config/logger");
+const structuredLog = require("./src/structured-logger");
 
 const buddy = getBuddy();
 buddy.setConductor(conductor);
@@ -546,11 +546,10 @@ logger.logNodeActivity("CONDUCTOR", "  🐕 Buddy Watchdog: ACTIVE (health probe
 // ─── Structured Telemetry API ───────────────────────────────────────
 app.get("/api/telemetry/recent", (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
-  const minLevel = parseInt(req.query.minLevel) || structuredLog.LEVELS.info;
-  res.json({ ok: true, entries: structuredLog.getTelemetry(limit, minLevel) });
+  res.json({ ok: true, entries: structuredLog.getTelemetry ? structuredLog.getTelemetry(limit) : [] });
 });
 app.get("/api/telemetry/stats", (req, res) => {
-  res.json({ ok: true, stats: structuredLog.getTelemetryStats() });
+  res.json({ ok: true, stats: structuredLog.getTelemetryStats ? structuredLog.getTelemetryStats() : {} });
 });
 logger.logNodeActivity("CONDUCTOR", "  📊 Telemetry API: /api/telemetry/recent, /api/telemetry/stats");
 
@@ -882,6 +881,28 @@ try {
   }
 } catch (err) {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Architecture tasks not loaded: ${err.message}`);
+}
+
+// ─── Load Config Build-Out Tasks (wire every aspirational config) ────
+try {
+  if (autoSuccessEngine) {
+    const cfgTasks = require("./src/config-buildout-tasks");
+    const added = autoSuccessEngine.loadExternalTasks(cfgTasks);
+    logger.logNodeActivity("CONDUCTOR", `  🔧 Config Build-Out Tasks: ${added} tasks loaded (wire ${cfgTasks.length} aspirational configs into live code)`);
+  }
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Config Build-Out tasks not loaded: ${err.message}`);
+}
+
+// ─── Load Decomposition Tasks (god class → HeadyBees workers) ───────
+try {
+  if (autoSuccessEngine) {
+    const decompTasks = require("./src/decomposition-tasks");
+    const added = autoSuccessEngine.loadExternalTasks(decompTasks);
+    logger.logNodeActivity("CONDUCTOR", `  🐝 Decomposition Tasks: ${added} tasks loaded (break god classes into blastable HeadyBees workers)`);
+  }
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Decomposition tasks not loaded: ${err.message}`);
 }
 
 // ─── Buddy Companion + HeadyBuddy Config + HeadyMe Onboarding Routes ──

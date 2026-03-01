@@ -293,6 +293,50 @@ class HeadyBees extends EventEmitter {
         return this.blast({ name: "deploy-blast", urgency: 1.0, work });
     }
 
+    /**
+     * Blast-decompose a god class into domain-specific work units.
+     *
+     * Takes a module's responsibilities as domain-keyed work functions,
+     * and blasts them all simultaneously. The swarm decides how many
+     * bees to fire up — not the developer.
+     *
+     * @param {string} name - Name of the decomposition blast
+     * @param {Object} domains - { domainName: workFunction, ... }
+     * @param {number} [urgency] - 0-1 urgency dial (default: golden ratio)
+     * @returns {Object} Blast result with per-domain outputs
+     */
+    async blastDecompose(name, domains, urgency) {
+        const work = Object.entries(domains).map(([domain, fn]) => {
+            return async (bee) => {
+                const result = await fn(bee);
+                return { domain, result, bee: bee.id };
+            };
+        });
+        return this.blast({ name: `decompose-${name}`, work, urgency });
+    }
+
+    /**
+     * Blast all registered bee workers from the registry.
+     * Auto-discovers available workers and blasts them all.
+     * The swarm decides parallelism — not the developer.
+     *
+     * @param {Object} context - Context passed to all workers
+     * @returns {Object[]} Array of blast results
+     */
+    async blastRegistry(context = {}) {
+        try {
+            const registry = require("../bees/registry");
+            const tasks = registry.getAllWork(context);
+            const results = [];
+            for (const task of tasks) {
+                results.push(await this.blast(task));
+            }
+            return results;
+        } catch (err) {
+            return [{ ok: false, error: `Registry blast failed: ${err.message}` }];
+        }
+    }
+
     // ═══ SWARM INTELLIGENCE — GOLDEN RATIO SLIDING SCALE ═══════════════════
 
     /**

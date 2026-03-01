@@ -10,7 +10,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { getAllStatus: getCBStatus, getBreaker } = require("../patterns/circuit-breaker");
+const { getAllBreakers: getCBStatus, getBreaker } = require("../resilience/circuit-breaker");
 const { getAllPoolStatus, getPool } = require("../patterns/auto-tuning-pool");
 const { getAllCacheStatus, getCache } = require("../patterns/hot-cold-cache");
 
