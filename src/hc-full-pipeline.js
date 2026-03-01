@@ -51,7 +51,67 @@ class HCFullPipeline extends EventEmitter {
         this.incidentManager = opts.incidentManager || null;
         this.errorInterceptor = opts.errorInterceptor || null;
         this.vectorMemory = opts.vectorMemory || null;
+        this.selfAwareness = opts.selfAwareness || null;
+        this.buddyMetacognition = opts.buddyMetacognition || null;
         this.selfHealStats = { attempts: 0, successes: 0, failures: 0 };
+
+        // Wire telemetry into self-awareness loop if available
+        this._wireAutoTelemetry();
+    }
+
+    /**
+     * Auto-wire pipeline events into the self-awareness telemetry loop.
+     * Every stage completion/failure is ingested as a telemetry event,
+     * creating the recursive feedback loop for true self-awareness.
+     */
+    _wireAutoTelemetry() {
+        if (!this.selfAwareness) return;
+        const sa = this.selfAwareness;
+
+        this.on('stage:completed', ({ runId, stage, metrics }) => {
+            sa.ingestTelemetry({
+                type: 'pipeline_stage_complete',
+                summary: `Stage ${stage} completed (${metrics?.durationMs || 0}ms)`,
+                data: { runId, stage, durationMs: metrics?.durationMs },
+                severity: 'info',
+            }).catch(() => { });
+        });
+
+        this.on('stage:failed', ({ runId, stage, error }) => {
+            sa.ingestTelemetry({
+                type: 'pipeline_stage_failure',
+                summary: `Stage ${stage} FAILED: ${error}`,
+                data: { runId, stage, error },
+                severity: 'error',
+            }).catch(() => { });
+        });
+
+        this.on('self-heal:match', ({ runId, stage, confidence }) => {
+            sa.ingestTelemetry({
+                type: 'self_heal_success',
+                summary: `Self-healed stage ${stage} (confidence: ${confidence})`,
+                data: { runId, stage, confidence },
+                severity: 'info',
+            }).catch(() => { });
+        });
+
+        this.on('run:completed', ({ runId }) => {
+            sa.ingestTelemetry({
+                type: 'pipeline_run_complete',
+                summary: `Pipeline run ${runId.substring(0, 8)} completed`,
+                data: { runId },
+                severity: 'info',
+            }).catch(() => { });
+        });
+
+        this.on('run:failed', ({ runId, error }) => {
+            sa.ingestTelemetry({
+                type: 'pipeline_run_failure',
+                summary: `Pipeline run ${runId.substring(0, 8)} FAILED: ${error}`,
+                data: { runId, error },
+                severity: 'error',
+            }).catch(() => { });
+        });
     }
 
     // ─── Seeded PRNG (Mulberry32) for deterministic pipeline execution ──
@@ -352,14 +412,59 @@ class HCFullPipeline extends EventEmitter {
         return { approved: false, pending: true, reason: "human_approval_required" };
     }
 
-    _stageExecute(run) {
+    /**
+     * EXECUTE — Metacognitive Gate
+     * Before executing, Buddy assesses system confidence.
+     * If self-awareness reports critically low confidence, execution is blocked.
+     * This implements the "Agentic Metacognition" subroutine from the blueprint.
+     */
+    async _stageExecute(run) {
         const judge = run.stages[4].result;
+        let metacognition = null;
+
+        // ═══ METACOGNITIVE ASSESSMENT ═══════════════════════════════
+        // Query self-awareness for system confidence before executing
+        if (this.selfAwareness && typeof this.selfAwareness.assessSystemState === 'function') {
+            try {
+                const stimulus = run.request.task || run.request.prompt || 'pipeline execution';
+                metacognition = await this.selfAwareness.assessSystemState(stimulus);
+
+                // If confidence is critically low, block execution
+                if (metacognition.confidence < 0.2) {
+                    throw new Error(
+                        `Metacognitive halt: system confidence ${(metacognition.confidence * 100).toFixed(0)}% ` +
+                        `(error rate 1m: ${metacognition.errorRate1m}%). ` +
+                        `Recommendations: ${metacognition.recommendations.join('; ') || 'investigate'}`
+                    );
+                }
+
+                // Inject self-awareness context into run for downstream use
+                run._metacognition = metacognition;
+            } catch (err) {
+                if (err.message.startsWith('Metacognitive halt')) throw err;
+                // Metacognition unavailable — proceed without it
+            }
+        }
+
+        // Also check Buddy's metacognition engine if available
+        if (this.buddyMetacognition && typeof this.buddyMetacognition.assessConfidence === 'function') {
+            try {
+                const buddyAssessment = await this.buddyMetacognition.assessConfidence();
+                run._buddyConfidence = buddyAssessment;
+            } catch { /* non-critical */ }
+        }
+
         return {
             executed: true,
             winner: judge?.winner || "default",
             ts: new Date().toISOString(),
             contextDepth: run._contextDepth || 0,
             groundedInMemory: (run._vectorContext?.length || 0) > 0,
+            metacognition: metacognition ? {
+                confidence: metacognition.confidence,
+                errorRate1m: metacognition.errorRate1m,
+                recommendations: metacognition.recommendations,
+            } : null,
         };
     }
 

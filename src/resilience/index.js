@@ -14,6 +14,7 @@ const { HeadyCache, getCache, getAllCacheMetrics, caches } = require('./cache');
 const { ConnectionPool, PoolExhaustedError, PoolTimeoutError, getPool, getAllPoolStatus, pools } = require('./pool');
 const { RateLimiter, limiters } = require('./rate-limiter');
 const { retry, DEFAULT_OPTIONS: RETRY_DEFAULTS } = require('./retry');
+const { phiDelay, withBackoff, createResilientFn, delayTable, PHI: PHI_RATIO } = require('./exponential-backoff');
 
 /**
  * Get full resilience status for all primitives
@@ -55,6 +56,8 @@ module.exports = {
     RateLimiter, limiters,
     // Retry
     retry, RETRY_DEFAULTS,
+    // φ-Scaled Exponential Backoff
+    phiDelay, withBackoff, createResilientFn, delayTable, PHI_RATIO,
     // Unified
     getResilienceStatus,
 };
