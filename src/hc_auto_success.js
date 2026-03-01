@@ -42,8 +42,23 @@ const fs = require("fs");
 const path = require("path");
 
 const HISTORY_PATH = path.join(__dirname, "..", "data", "auto-success-tasks.json");
+const AUDIT_PATH = path.join(__dirname, "..", "data", "auto-success-audit.json");
 const MAX_HISTORY = 2000;
+const MAX_AUDIT = 10000;
 const DEFAULT_INTERVAL = 30000;  // 30 seconds
+
+// Production domains for real health probes
+const PROBE_TARGETS = [
+    { name: "headysystems.com", url: "https://headysystems.com", critical: true },
+    { name: "manager", url: "https://manager.headysystems.com/api/health", critical: true },
+    { name: "api", url: "https://api.headysystems.com/api/health", critical: true },
+    { name: "headyio.com", url: "https://headyio.com", critical: false },
+    { name: "headybuddy.org", url: "https://headybuddy.org", critical: false },
+    { name: "headymcp.com", url: "https://headymcp.com", critical: false },
+    { name: "headyconnection.org", url: "https://headyconnection.org", critical: false },
+    { name: "headyme.com", url: "https://headyme.com", critical: false },
+    { name: "admin", url: "https://admin.headysystems.com", critical: false },
+];
 const DEFAULT_BATCH = 8;
 
 // ─── POOL PRIORITIES ────────────────────────────────────────────────────────
@@ -868,6 +883,12 @@ class AutoSuccessEngine extends EventEmitter {
             finding = `Absorbed: ${err.message}`;
             absorbed = true;
 
+            // Record error to audit trail
+            this._recordAudit('task_error_absorbed', task.id, {
+                name: task.name, cat: task.cat, error: err.message,
+                cycle: this.cycleCount,
+            });
+
             // Feed errors to self-critique
             if (this._selfCritique && typeof this._selfCritique.recordCritique === "function") {
                 try {
@@ -898,6 +919,12 @@ class AutoSuccessEngine extends EventEmitter {
         };
 
         this.emit("task:succeeded", result);
+
+        // Record to comprehensive audit trail
+        this._recordAudit('task_completed', task.id, {
+            name: task.name, cat: task.cat, pool: task.pool,
+            durationMs, finding, absorbed, cycle: this.cycleCount,
+        });
 
         // Feed success to pattern engine
         if (this._patternEngine && typeof this._patternEngine.observeSuccess === "function") {
@@ -947,9 +974,29 @@ class AutoSuccessEngine extends EventEmitter {
             }
 
             case "monitoring": {
-                const rssMB = Math.round(mem.rss / 1048576);
-                const extMB = Math.round(mem.external / 1048576);
-                return { finding: `RSS ${rssMB}MB, External ${extMB}MB, uptime ${uptimeSec}s — ${task.name}` };
+                // Real HTTP health probes against production domains
+                const probeResults = [];
+                const probeTarget = PROBE_TARGETS[this.cycleCount % PROBE_TARGETS.length];
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 5000);
+                    const probeStart = Date.now();
+                    const resp = await fetch(probeTarget.url, { signal: controller.signal });
+                    clearTimeout(timeout);
+                    const latency = Date.now() - probeStart;
+                    probeResults.push({ name: probeTarget.name, status: resp.status, latencyMs: latency });
+                    // Record to audit trail
+                    this._recordAudit('health_probe', probeTarget.name, {
+                        url: probeTarget.url, status: resp.status, latencyMs: latency,
+                        critical: probeTarget.critical, task: task.name,
+                    });
+                    return { finding: `Probe ${probeTarget.name}: HTTP ${resp.status} in ${latency}ms — ${task.name}` };
+                } catch (err) {
+                    this._recordAudit('health_probe_fail', probeTarget.name, {
+                        url: probeTarget.url, error: err.message, critical: probeTarget.critical, task: task.name,
+                    });
+                    return { finding: `Probe ${probeTarget.name}: FAILED (${err.message}) — ${task.name}` };
+                }
             }
 
             case "maintenance": {
@@ -1021,6 +1068,58 @@ class AutoSuccessEngine extends EventEmitter {
             default:
                 return { finding: `Completed: ${task.name}` };
         }
+    }
+
+    // ─── AUDIT TRAIL ────────────────────────────────────────────────────────
+    _recordAudit(action, target, data = {}) {
+        if (!this._auditTrail) this._auditTrail = this._loadAudit();
+        const entry = {
+            id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            action, target, cycle: this.cycleCount,
+            ts: new Date().toISOString(), ...data,
+        };
+        this._auditTrail.push(entry);
+        if (this._auditTrail.length > MAX_AUDIT) {
+            this._auditTrail = this._auditTrail.slice(-MAX_AUDIT);
+        }
+        // Persist every 20 entries
+        if (this._auditTrail.length % 20 === 0) this._saveAudit();
+    }
+
+    _loadAudit() {
+        try {
+            if (fs.existsSync(AUDIT_PATH)) {
+                return JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf8'));
+            }
+        } catch { /* ok */ }
+        return [];
+    }
+
+    _saveAudit() {
+        try {
+            const dir = path.dirname(AUDIT_PATH);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(AUDIT_PATH, JSON.stringify((this._auditTrail || []).slice(-MAX_AUDIT), null, 2));
+        } catch { /* non-critical */ }
+    }
+
+    getAuditTrail(opts = {}) {
+        const trail = this._auditTrail || [];
+        let filtered = trail;
+        if (opts.action) filtered = filtered.filter(e => e.action === opts.action);
+        if (opts.target) filtered = filtered.filter(e => e.target === opts.target);
+        if (opts.since) {
+            const sinceTs = new Date(opts.since).getTime();
+            filtered = filtered.filter(e => new Date(e.ts).getTime() >= sinceTs);
+        }
+        const limit = opts.limit || 200;
+        return {
+            total: trail.length,
+            filtered: filtered.length,
+            entries: filtered.slice(-limit),
+            actions: [...new Set(trail.map(e => e.action))],
+            targets: [...new Set(trail.map(e => e.target))],
+        };
     }
 
     // ─── ACCESSORS ──────────────────────────────────────────────────────────
@@ -1131,6 +1230,7 @@ class AutoSuccessEngine extends EventEmitter {
             const dir = path.dirname(HISTORY_PATH);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             fs.writeFileSync(HISTORY_PATH, JSON.stringify(this.history.slice(-MAX_HISTORY), null, 2));
+            this._saveAudit(); // Persist audit trail alongside history
         } catch (err) {
             console.warn(`  ⚠ AutoSuccess: history save failed: ${err.message}`);
         }
@@ -1157,8 +1257,27 @@ function registerAutoSuccessRoutes(app, engine) {
     });
 
     router.get("/history", (req, res) => {
-        const limit = parseInt(req.query.limit) || 50;
+        const limit = parseInt(req.query.limit) || 200;
         res.json({ ok: true, total: engine.history.length, history: engine.getHistory(limit), ts: new Date().toISOString() });
+    });
+
+    router.get("/audit", (req, res) => {
+        const opts = {
+            action: req.query.action || null,
+            target: req.query.target || null,
+            since: req.query.since || null,
+            limit: parseInt(req.query.limit) || 200,
+        };
+        const audit = engine.getAuditTrail(opts);
+        res.json({
+            ok: true,
+            engine: "heady-auto-success",
+            running: engine.running,
+            cycleCount: engine.cycleCount,
+            totalSucceeded: engine.totalSucceeded,
+            audit,
+            ts: new Date().toISOString(),
+        });
     });
 
     router.post("/force-cycle", async (req, res) => {
