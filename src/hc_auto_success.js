@@ -812,6 +812,16 @@ class AutoSuccessEngine extends EventEmitter {
             }, nextInterval);
         };
         scheduleNext();
+
+        // ═══ AUTO-COMMIT/PUSH/DEPLOY — Permanent pipeline automation ════════
+        try {
+            const autoCommitDeploy = require("./auto-commit-deploy");
+            autoCommitDeploy.start();
+            logger.logSystem("  ∞ AutoCommitDeploy: WIRED — auto-commit/push/deploy cycle active");
+        } catch (e) {
+            logger.logSystem("  ∞ AutoCommitDeploy: could not start — " + e.message);
+        }
+
         logger.logSystem(`  ∞ AutoSuccess: STARTED (dynamic adaptive cycles, ALL ${TASK_CATALOG.length} tasks/cycle — instantaneous, no fixed interval)`);
     }
 
