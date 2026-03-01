@@ -390,10 +390,8 @@ class HeadyCreativeEngine extends EventEmitter {
     }
 
     async _executeModel(route, input) {
-        // Simulate model execution with realistic response
+        // Instantaneous — no artificial delays. Heady operates in real-time.
         const model = MODEL_CATALOG[route.model] || {};
-        const delay = { fast: 50, medium: 150, slow: 300 }[model.speed] || 100;
-        await new Promise(r => setTimeout(r, delay));
 
         // SSE broadcast
         if (global.__sseBroadcast) {

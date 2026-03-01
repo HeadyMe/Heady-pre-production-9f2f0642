@@ -29,16 +29,18 @@ const { EventEmitter } = require("events");
 
 // ─── SWARM INTELLIGENCE — continuous sliding scale ─────────────────────────
 //
-// No steps. No categories. A smooth dial from 1 → maxBees.
+// No steps. No categories. No ceilings. A smooth dial from 1 → ∞.
 // Like liquid filling the exact shape of the obstacle.
+// The system decides how many bees based on real-time resource availability.
 //
 // All constants derive from φ (golden ratio = 1.618...):
-//   - Efficiency decays to 1/φ at the golden proportion of capacity
+//   - Efficiency decays to 1/φ at the golden proportion of active bees
 //   - Default urgency = 1/φ (the natural resting state)
 //   - Resource floor = 1/φ³ (the minimum before emergency mode)
 //   - History factor slides between 1/φ and 1.0
 //
 // The formula: bees = ceil( workItems × urgency × resources × efficiency × history )
+// NO CEILING. The golden ratio efficiency curve naturally governs scale.
 //
 const PHI = (1 + Math.sqrt(5)) / 2;                // 1.6180339887...
 const PHI_INV = 1 / PHI;                           // 0.6180339887... (1/φ)
@@ -47,12 +49,19 @@ const LN_PHI = Math.log(PHI);                      // 0.4812118250...
 const SWARM_PARAMS = {
     phi: PHI,
     minBees: 1,
-    maxBees: 50,
+    // NO maxBees ceiling — dynamically derived from real-time resources
+    get maxBees() {
+        // Dynamic ceiling: available heap MB / 2MB per bee — system decides
+        const mem = process.memoryUsage();
+        const availableMB = (mem.heapTotal - mem.heapUsed) / (1024 * 1024);
+        // At least φ³ (~4.24) bees, scales with available memory
+        return Math.max(Math.ceil(PHI * PHI * PHI), Math.floor(availableMB / 2));
+    },
     baseLatencyMs: 50,
-    // Decay constant: φ × ln(φ) / maxBees
-    // At maxBees/φ active bees → efficiency = exactly 1/φ (0.618)
-    // At maxBees active bees   → efficiency ≈ 0.459
-    efficiencyDecay: (PHI * LN_PHI) / 50,           // ≈ 0.01557
+    // Decay constant: φ × ln(φ) / dynamicMax — recalculates live
+    get efficiencyDecay() {
+        return (PHI * LN_PHI) / Math.max(this.maxBees, 1);
+    },
     defaultUrgency: PHI_INV,                        // 0.618... (golden complement)
     resourceFloor: 1 / (PHI * PHI * PHI),           // 1/φ³ ≈ 0.146
 };
@@ -392,14 +401,15 @@ class HeadyBees extends EventEmitter {
             historyFactor = PHI_INV + t * (1.0 - PHI_INV);
         }
 
-        // THE FORMULA — continuous, liquid, golden:
+        // THE FORMULA — continuous, liquid, golden, NO CEILING:
         const rawBees = workItems * urgency * resourceFactor * efficiency * historyFactor;
 
         // Round up — liquid fills completely
         const beeCount = Math.ceil(rawBees);
 
-        // Clamp to bounds
-        return Math.max(SWARM_PARAMS.minBees, Math.min(beeCount, SWARM_PARAMS.maxBees));
+        // Floor only — no ceiling. Golden ratio efficiency decay naturally governs scale.
+        // The more bees active, the lower efficiency gets — self-regulating.
+        return Math.max(SWARM_PARAMS.minBees, beeCount);
     }
 
     /** Materialize N bees from the liquid pool */

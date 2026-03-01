@@ -140,9 +140,15 @@ const GCP = Object.freeze({
 // ═══════════════════════════════════════════════════════════════════════
 const LIMITS = Object.freeze({
     DAILY_BUDGET: parseFloat(optionalEnv('HEADY_DAILY_BUDGET', '50')),
-    RATE_LIMIT_MAX: 1000,
-    RATE_LIMIT_WINDOW_MS: 15 * 60 * 1000,
-    JSON_BODY_LIMIT: '5mb',
+    // Dynamic — scales with system resources. No fixed ceiling.
+    get RATE_LIMIT_MAX() {
+        const mem = process.memoryUsage();
+        const availableMB = (mem.heapTotal - mem.heapUsed) / (1024 * 1024);
+        // 1 req per (~0.1MB overhead) — system capacity governs the limit
+        return Math.max(500, Math.floor(availableMB * 10));
+    },
+    RATE_LIMIT_WINDOW_MS: 60 * 1000,  // 1 minute window (was 15min — instantaneous system)
+    JSON_BODY_LIMIT: '50mb',  // No artificial body size cap
     CONTENT_FILTER: optionalEnv('HEADY_CONTENT_FILTER', 'standard'),
 });
 

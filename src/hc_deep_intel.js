@@ -275,8 +275,7 @@ class DeepIntelEngine extends EventEmitter {
 
     // ── Perspective Scanner ──
     async _scanPerspective(projectPath, perspName, persp) {
-        const delay = 20 + Math.random() * 80;
-        await new Promise(r => setTimeout(r, delay));
+        // Instantaneous — no artificial delays
 
         const score = 0.5 + Math.random() * 0.4; // 0.5 - 0.9 range
         return {
@@ -291,7 +290,7 @@ class DeepIntelEngine extends EventEmitter {
 
     // ── Node Invocation ──
     async _invokeNode(nodeName, nodeConfig, scan) {
-        await new Promise(r => setTimeout(r, 10));
+        // Instantaneous — no artificial delays
 
         // SSE broadcast
         if (global.__sseBroadcast) {

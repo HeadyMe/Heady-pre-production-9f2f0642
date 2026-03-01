@@ -41,7 +41,10 @@ const STATUS = {
 class HCFullPipeline extends EventEmitter {
     constructor(opts = {}) {
         super();
-        this.maxConcurrent = opts.maxConcurrent || 6;
+        // Dynamic concurrency — derived from real-time system resources, not a fixed number
+        const mem = process.memoryUsage();
+        const availableMB = (mem.heapTotal - mem.heapUsed) / (1024 * 1024);
+        this.maxConcurrent = opts.maxConcurrent || Math.max(4, Math.floor(availableMB / 10));
         this.runs = new Map();
         this.monteCarlo = opts.monteCarlo || null;
         this.policyEngine = opts.policyEngine || null;

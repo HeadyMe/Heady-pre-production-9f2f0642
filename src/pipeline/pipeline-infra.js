@@ -11,7 +11,12 @@ const crypto = require("crypto");
 const CACHE_DIR = path.join(__dirname, "..", "..", ".heady_cache");
 const TASK_CACHE_FILE = path.join(CACHE_DIR, "pipeline_task_cache.json");
 const CACHE_TTL_MS = 3600000; // 1 hour
-const CACHE_MAX_ENTRIES = 200;
+// Dynamic — cache grows/shrinks with available memory, no fixed ceiling
+function _dynamicCacheMax() {
+    const mem = process.memoryUsage();
+    const availableMB = (mem.heapTotal - mem.heapUsed) / (1024 * 1024);
+    return Math.max(100, Math.floor(availableMB * 5)); // ~0.2MB per entry
+}
 
 // ─── CIRCUIT BREAKER ────────────────────────────────────────────────────────
 
@@ -155,9 +160,10 @@ function setCachedResult(taskName, configHashes, result) {
     const key = getTaskCacheKey(taskName, configHashes);
     cache[key] = { taskName, cachedAt: Date.now(), result };
     const keys = Object.keys(cache);
-    if (keys.length > CACHE_MAX_ENTRIES) {
+    const maxEntries = _dynamicCacheMax();
+    if (keys.length > maxEntries) {
         const sorted = keys.sort((a, b) => (cache[a].cachedAt || 0) - (cache[b].cachedAt || 0));
-        for (let i = 0; i < keys.length - CACHE_MAX_ENTRIES; i++) delete cache[sorted[i]];
+        for (let i = 0; i < keys.length - maxEntries; i++) delete cache[sorted[i]];
     }
     saveTaskCache();
 }

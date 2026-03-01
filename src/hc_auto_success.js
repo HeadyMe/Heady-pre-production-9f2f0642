@@ -46,7 +46,18 @@ const HISTORY_PATH = path.join(__dirname, "..", "data", "auto-success-tasks.json
 const AUDIT_PATH = path.join(__dirname, "..", "data", "auto-success-audit.json");
 const MAX_HISTORY = 2000;
 const MAX_AUDIT = 10000;
-const DEFAULT_INTERVAL = 30000;  // 30 seconds
+const PHI = (1 + Math.sqrt(5)) / 2;
+
+// Dynamic interval — adapts based on real-time system load
+// Fast when resources plentiful, self-throttles under pressure
+function _dynamicInterval() {
+    const mem = process.memoryUsage();
+    const heapUsed = mem.heapUsed / mem.heapTotal;
+    // Golden ratio scaling: fast (φ*1000 ≈ 1.6s) when idle, slows under load
+    // Never fixed — recalculated every cycle
+    const baseMs = Math.round(PHI * 1000); // ~1618ms baseline
+    return Math.round(baseMs * (1 + heapUsed * PHI)); // Scales with memory pressure
+}
 
 // Production domains for real health probes
 const PROBE_TARGETS = [
@@ -779,14 +790,23 @@ class AutoSuccessEngine extends EventEmitter {
         this.running = true;
         this.startedAt = Date.now();
         this.runCycle(); // immediate first cycle
-        this.timer = setInterval(() => this.runCycle(), this.interval);
-        logger.logSystem(`  ∞ AutoSuccess: STARTED (${this.interval / 1000}s cycles, ALL ${TASK_CATALOG.length} tasks/cycle — dynamic, no batching)`);
+        // Adaptive scheduling — recalculates interval every cycle based on real-time resources
+        const scheduleNext = () => {
+            if (!this.running) return;
+            const nextInterval = _dynamicInterval();
+            this.timer = setTimeout(() => {
+                this.runCycle();
+                scheduleNext(); // re-schedule with fresh dynamic interval
+            }, nextInterval);
+        };
+        scheduleNext();
+        logger.logSystem(`  ∞ AutoSuccess: STARTED (dynamic adaptive cycles, ALL ${TASK_CATALOG.length} tasks/cycle — instantaneous, no fixed interval)`);
     }
 
     stop() {
         if (!this.running) return;
         this.running = false;
-        if (this.timer) { clearInterval(this.timer); this.timer = null; }
+        if (this.timer) { clearTimeout(this.timer); this.timer = null; }
         this._saveHistory();
         logger.logSystem(`  ∞ AutoSuccess: STOPPED after ${this.cycleCount} cycles, ${this.totalSucceeded} tasks succeeded`);
     }

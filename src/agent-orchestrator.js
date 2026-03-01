@@ -29,8 +29,19 @@ const logger = require("./utils/logger");
 
 const AUDIT_PATH = path.join(__dirname, "..", "data", "agent-orchestrator-audit.jsonl");
 const PHI = 1.6180339887;
-const MIN_CONCURRENT = 150;  // MINIMUM supervisors running at all times
-const MAX_CONCURRENT = 500;  // Ceiling
+
+// ─── DYNAMIC LIMITS — derived from real-time system resources, never hardcoded ───
+function _dynamicConcurrency() {
+    const mem = process.memoryUsage();
+    const availableMB = (mem.heapTotal - mem.heapUsed) / (1024 * 1024);
+    // Each supervisor is lightweight (~0.5MB overhead). Scale to what the system can handle.
+    const resourceBased = Math.floor(availableMB / 0.5);
+    return {
+        min: Math.max(Math.ceil(PHI ** 5), Math.floor(resourceBased * (1 / PHI))),  // φ⁵ floor, golden proportion of capacity
+        max: Math.max(Math.ceil(PHI ** 7), resourceBased),  // φ⁷ floor, full capacity
+    };
+}
+
 const IDLE_RECLAIM_MS = Math.round(PHI ** 6 * 1000); // φ⁶ ≈ 17,944ms
 const SCALE_THRESHOLD = 3;
 const SCALE_CHECK_MS = Math.round(PHI ** 4 * 1000);  // φ⁴ ≈ 6,854ms
@@ -72,8 +83,10 @@ const { getConductor } = require("./heady-conductor");
 class AgentOrchestrator extends EventEmitter {
     constructor(options = {}) {
         super();
-        this.minConcurrent = options.minConcurrent || MIN_CONCURRENT;
-        this.maxConcurrent = options.maxConcurrent || MAX_CONCURRENT;
+        // Dynamic — recalculated from real-time resources, no fixed ceilings
+        const dynamic = _dynamicConcurrency();
+        this.minConcurrent = options.minConcurrent || dynamic.min;
+        this.maxConcurrent = options.maxConcurrent || dynamic.max;
         this.supervisors = new Map();
         this.taskQueue = [];
         this.completedTasks = 0;
@@ -89,21 +102,29 @@ class AgentOrchestrator extends EventEmitter {
 
         // Per-group node counts for liquid scaling
         this.groupCounts = {};
-        this.groupLimits = {
-            // Tier 1: Core Agents
-            reasoning: 40, embedding: 30, search: 25,
-            creative: 25, battle: 15, ops: 15,
-
+        // Group limits scale dynamically — proportional to total capacity
+        // Each group gets a golden-ratio-proportioned share of the dynamic max
+        const proportions = {
+            // Tier 1: Core Agents (φ proportion each)
+            reasoning: PHI / 5, embedding: PHI / 6, search: PHI / 7,
+            creative: PHI / 7, battle: PHI / 10, ops: PHI / 10,
             // Tier 2: Extended Logic
-            coding: 40, governance: 15, vision: 20,
-            sims: 40, swarm: 30, intelligence: 35,
-
+            coding: PHI / 5, governance: PHI / 10, vision: PHI / 7,
+            sims: PHI / 5, swarm: PHI / 6, intelligence: PHI / 6,
             // Tier 3: AI Provider Groups (Direct Orchestration)
-            "heady-reasoning": 25, "heady-multimodal": 20,
-            "heady-enterprise": 20, "heady-open-weights": 15,
-            "heady-cloud-fallback": 10, "heady-local": 10,
-            "heady-edge-native": 15,
+            "heady-reasoning": PHI / 7, "heady-multimodal": PHI / 8,
+            "heady-enterprise": PHI / 8, "heady-open-weights": PHI / 10,
+            "heady-cloud-fallback": PHI / 12, "heady-local": PHI / 12,
+            "heady-edge-native": PHI / 10,
         };
+        this.groupLimits = new Proxy(proportions, {
+            get: (target, group) => {
+                if (typeof group !== 'string') return undefined;
+                const proportion = target[group] || PHI / 10;
+                // Dynamically scale to current max capacity
+                return Math.max(5, Math.floor(this.maxConcurrent * proportion));
+            }
+        });
 
         // Ensure data dir
         const dir = path.dirname(AUDIT_PATH);
