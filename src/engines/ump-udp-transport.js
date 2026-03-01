@@ -19,6 +19,7 @@
 const dgram = require("dgram");
 const EventEmitter = require("events");
 const { midiBus, CHANNELS, MSG } = require("./midi-event-bus");
+const logger = require("../utils/logger");
 
 // ═══ UMP Message Types (MIDI 2.0) ═══
 const UMP_TYPE = {
@@ -199,26 +200,26 @@ class UmpUdpTransport extends EventEmitter {
 
     // ═══ Init ═══
     async init() {
-        console.log("[UMP-UDP] Initializing transport...");
+        logger.logSystem("[UMP-UDP] Initializing transport...");
         midiBus.taskStarted("UMP-UDP-Init", CHANNELS.PIPELINE);
 
         // RX socket
         this._rxSocket = dgram.createSocket({ type: "udp4", reuseAddr: true });
         this._rxSocket.on("message", (buf, rinfo) => this._onReceive(buf, rinfo));
-        this._rxSocket.on("error", (err) => console.error(`[UMP-UDP] RX error: ${err.message}`));
+        this._rxSocket.on("error", (err) => logger.error(`[UMP-UDP] RX error: ${err.message}`));
         this._rxSocket.bind(this.config.listenPort, () => {
             // Tune socket buffers
             try {
                 this._rxSocket.setRecvBufferSize(this.config.rcvBufSize);
             } catch {
-                console.log("[UMP-UDP] Could not set RX buffer size (may need elevated privileges)");
+                logger.logSystem("[UMP-UDP] Could not set RX buffer size (may need elevated privileges)");
             }
-            console.log(`[UMP-UDP] RX listening on port ${this.config.listenPort}`);
+            logger.logSystem(`[UMP-UDP] RX listening on port ${this.config.listenPort}`);
         });
 
         // TX socket
         this._txSocket = dgram.createSocket("udp4");
-        this._txSocket.on("error", (err) => console.error(`[UMP-UDP] TX error: ${err.message}`));
+        this._txSocket.on("error", (err) => logger.error(`[UMP-UDP] TX error: ${err.message}`));
         try {
             this._txSocket.setSendBufferSize(this.config.sndBufSize);
         } catch {}
@@ -227,7 +228,7 @@ class UmpUdpTransport extends EventEmitter {
         this._flushTimer = setInterval(() => this._flushTx(), this.config.flushIntervalMs);
 
         midiBus.taskCompleted("UMP-UDP-Init", CHANNELS.PIPELINE);
-        console.log("[UMP-UDP] Transport initialized.");
+        logger.logSystem("[UMP-UDP] Transport initialized.");
         return this;
     }
 
@@ -328,7 +329,7 @@ class UmpUdpTransport extends EventEmitter {
         this._flushTx(); // Final flush
         if (this._rxSocket) this._rxSocket.close();
         if (this._txSocket) this._txSocket.close();
-        console.log("[UMP-UDP] Transport shut down.");
+        logger.logSystem("[UMP-UDP] Transport shut down.");
     }
 
     // ═══ Express Routes ═══

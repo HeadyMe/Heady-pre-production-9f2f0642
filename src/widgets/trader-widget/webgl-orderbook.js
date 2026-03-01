@@ -6,13 +6,14 @@
  * ════════════════════════════════════════════════════════════════════
  */
 
+const logger = require("../../utils/logger");
 class HolographicOrderBook {
     constructor(canvasElement) {
         this.canvas = canvasElement;
         this.gl = this.canvas.getContext('webgl2', { antialias: true, alpha: true });
 
         if (!this.gl) {
-            console.warn('WebGL2 not supported, falling back to 2D tensor map.');
+            logger.warn('WebGL2 not supported, falling back to 2D tensor map.');
             return;
         }
 

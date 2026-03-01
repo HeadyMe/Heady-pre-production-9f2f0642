@@ -26,6 +26,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
+const logger = require("./utils/logger");
 
 // ─── Constants ──────────────────────────────────────────────────────
 const TOKEN_LENGTHS = {
@@ -67,7 +68,7 @@ class HeadyAuth extends EventEmitter {
     // ─── Wire DeepIntel ───────────────────────────────────────────────
     wireDeepIntel(engine) {
         this.deepIntel = engine;
-        if (engine) console.log("    → HeadyAuth ↔ DeepIntel: WIRED (3D vector prereq)");
+        if (engine) logger.logSystem("    → HeadyAuth ↔ DeepIntel: WIRED (3D vector prereq)");
     }
 
     // ─── Token Generation ─────────────────────────────────────────────
@@ -564,7 +565,7 @@ function registerAuthRoutes(app, authEngine) {
             const frontendUrl = authEngine.baseUrl || "https://headyme.com";
             res.redirect(`${frontendUrl}/?auth_token=${session.token}&method=google&tier=${session.tier}`);
         } catch (err) {
-            console.error("[Auth] Google callback error:", err.message);
+            logger.error("[Auth] Google callback error:", err.message);
             const frontendUrl = authEngine.baseUrl || "https://headyme.com";
             res.redirect(`${frontendUrl}/?auth_error=${encodeURIComponent(err.message)}`);
         }

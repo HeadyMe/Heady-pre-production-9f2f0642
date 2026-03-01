@@ -22,6 +22,7 @@ const net = require("net");
 const dgram = require("dgram");
 const EventEmitter = require("events");
 const { midiBus, CHANNELS, MSG, NOTES } = require("../engines/midi-event-bus");
+const logger = require("../utils/logger");
 
 // ═══ Configuration ═══
 const CONFIG = {
@@ -149,7 +150,7 @@ class DawMcpBridge extends EventEmitter {
     // ═══ Initialization ═══
 
     async init() {
-        console.log("[DAW-MCP] Initializing DAW MCP Bridge...");
+        logger.logSystem("[DAW-MCP] Initializing DAW MCP Bridge...");
         midiBus.taskStarted("DAW-MCP-Init", CHANNELS.PIPELINE);
 
         try {
@@ -163,10 +164,10 @@ class DawMcpBridge extends EventEmitter {
             await this._connectToRemoteScript();
 
             midiBus.taskCompleted("DAW-MCP-Init", CHANNELS.PIPELINE);
-            console.log("[DAW-MCP] Bridge initialized successfully.");
+            logger.logSystem("[DAW-MCP] Bridge initialized successfully.");
         } catch (err) {
             midiBus.taskFailed("DAW-MCP-Init", err.message, CHANNELS.PIPELINE);
-            console.error(`[DAW-MCP] Init error: ${err.message}`);
+            logger.error(`[DAW-MCP] Init error: ${err.message}`);
             // Don't throw — allow graceful degradation
         }
 
@@ -185,7 +186,7 @@ class DawMcpBridge extends EventEmitter {
             let dataBuffer = "";
 
             this._tcpClient.connect(this.config.remotePort, this.config.remoteHost, () => {
-                console.log(`[DAW-MCP] Connected to Ableton Remote Script at ${this.config.remoteHost}:${this.config.remotePort}`);
+                logger.logSystem(`[DAW-MCP] Connected to Ableton Remote Script at ${this.config.remoteHost}:${this.config.remotePort}`);
                 this._connected = true;
                 this._reconnectAttempts = 0;
                 this._startHeartbeat();
@@ -214,19 +215,19 @@ class DawMcpBridge extends EventEmitter {
                         const msg = JSON.parse(line);
                         this._handleRemoteMessage(msg);
                     } catch (err) {
-                        console.error(`[DAW-MCP] Parse error: ${err.message}`);
+                        logger.error(`[DAW-MCP] Parse error: ${err.message}`);
                     }
                 }
             });
 
             this._tcpClient.on("error", (err) => {
-                console.error(`[DAW-MCP] TCP error: ${err.message}`);
+                logger.error(`[DAW-MCP] TCP error: ${err.message}`);
                 this._connected = false;
                 if (this._reconnectAttempts === 0) reject(err);
             });
 
             this._tcpClient.on("close", () => {
-                console.log("[DAW-MCP] Connection to Remote Script closed.");
+                logger.logSystem("[DAW-MCP] Connection to Remote Script closed.");
                 this._connected = false;
                 this._stopHeartbeat();
                 this._scheduleReconnect();
@@ -239,14 +240,14 @@ class DawMcpBridge extends EventEmitter {
         if (this._reconnectTimer) return;
         const max = this.config.maxReconnectAttempts;
         if (max > 0 && this._reconnectAttempts >= max) {
-            console.log("[DAW-MCP] Max reconnect attempts reached.");
+            logger.logSystem("[DAW-MCP] Max reconnect attempts reached.");
             return;
         }
         this._reconnectAttempts++;
         this._metrics.reconnections++;
         this._reconnectTimer = setTimeout(async () => {
             this._reconnectTimer = null;
-            console.log(`[DAW-MCP] Reconnecting (attempt ${this._reconnectAttempts})...`);
+            logger.logSystem(`[DAW-MCP] Reconnecting (attempt ${this._reconnectAttempts})...`);
             try {
                 await this._connectToRemoteScript();
             } catch {
@@ -279,10 +280,10 @@ class DawMcpBridge extends EventEmitter {
             this._handleUdpMidiData(buf, rinfo);
         });
         this._udpSocket.on("error", (err) => {
-            console.error(`[DAW-MCP] UDP error: ${err.message}`);
+            logger.error(`[DAW-MCP] UDP error: ${err.message}`);
         });
         this._udpSocket.bind(this.config.udpPort, () => {
-            console.log(`[DAW-MCP] UDP MIDI listener on port ${this.config.udpPort}`);
+            logger.logSystem(`[DAW-MCP] UDP MIDI listener on port ${this.config.udpPort}`);
         });
     }
 
@@ -311,7 +312,7 @@ class DawMcpBridge extends EventEmitter {
 
     _initMcpServer() {
         this._mcpServer = net.createServer((socket) => {
-            console.log("[DAW-MCP] MCP client connected.");
+            logger.logSystem("[DAW-MCP] MCP client connected.");
             let buffer = "";
 
             socket.on("data", (chunk) => {
@@ -331,12 +332,12 @@ class DawMcpBridge extends EventEmitter {
             });
 
             socket.on("error", (err) => {
-                console.error(`[DAW-MCP] MCP client error: ${err.message}`);
+                logger.error(`[DAW-MCP] MCP client error: ${err.message}`);
             });
         });
 
         this._mcpServer.listen(this.config.mcpPort, () => {
-            console.log(`[DAW-MCP] MCP Server listening on port ${this.config.mcpPort}`);
+            logger.logSystem(`[DAW-MCP] MCP Server listening on port ${this.config.mcpPort}`);
         });
     }
 
@@ -536,7 +537,7 @@ class DawMcpBridge extends EventEmitter {
             this._tcpClient.write(JSON.stringify(obj) + "\n");
             return true;
         } catch (err) {
-            console.error(`[DAW-MCP] Send error: ${err.message}`);
+            logger.error(`[DAW-MCP] Send error: ${err.message}`);
             return false;
         }
     }
@@ -710,7 +711,7 @@ class DawMcpBridge extends EventEmitter {
     // ═══ Shutdown ═══
 
     async shutdown() {
-        console.log("[DAW-MCP] Shutting down...");
+        logger.logSystem("[DAW-MCP] Shutting down...");
         this._stopHeartbeat();
         if (this._reconnectTimer) clearTimeout(this._reconnectTimer);
 

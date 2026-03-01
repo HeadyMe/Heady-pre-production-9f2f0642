@@ -23,6 +23,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const CORRECTIONS_LOG = path.join(__dirname, "..", "data", "corrections-audit.jsonl");
 const BEHAVIOR_STORE = path.join(__dirname, "..", "data", "behavior-patterns.json");
@@ -123,10 +124,10 @@ function init() {
     try {
         if (fs.existsSync(BEHAVIOR_STORE)) {
             behaviorModel = JSON.parse(fs.readFileSync(BEHAVIOR_STORE, "utf-8"));
-            console.log(`  ∞ HeadyCorrections: Loaded behavior model (${behaviorModel.interactionCount} interactions)`);
+            logger.logSystem(`  ∞ HeadyCorrections: Loaded behavior model (${behaviorModel.interactionCount} interactions)`);
         }
     } catch (err) {
-        console.warn("  ⚠ HeadyCorrections: Starting fresh behavior model");
+        logger.warn("  ⚠ HeadyCorrections: Starting fresh behavior model");
     }
 }
 

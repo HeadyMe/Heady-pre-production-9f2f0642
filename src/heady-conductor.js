@@ -38,14 +38,15 @@ const path = require("path");
 const { headyPQC } = require("./security/pqc");
 const Handshake = require("./security/handshake");
 const rateLimiter = require("./security/rate-limiter");
+const logger = require("./utils/logger");
 
 if (!headyPQC || !Handshake) {
-    console.error("🚨 [FATAL] PQC or Handshake modules missing. Core IP protection degraded. Halting Conductor.");
+    logger.error("🚨 [FATAL] PQC or Handshake modules missing. Core IP protection degraded. Halting Conductor.");
     process.exit(1);
 }
 
-console.log("🛡️ [Conductor] PQC Quantum-Resistant Hybrid Signatures ACTIVE for all mesh RPCs.");
-console.log("🛡️ [Conductor] Redis Sliding-Window Rate Limiter Armed.");
+logger.logSystem("🛡️ [Conductor] PQC Quantum-Resistant Hybrid Signatures ACTIVE for all mesh RPCs.");
+logger.logSystem("🛡️ [Conductor] Redis Sliding-Window Rate Limiter Armed.");
 
 const PHI = 1.6180339887;
 const AUDIT_PATH = path.join(__dirname, "..", "data", "conductor-audit.jsonl");
@@ -166,7 +167,7 @@ class HeadyConductor extends EventEmitter {
         // ── 0. DEFENSE IN DEPTH (Rate Limiting) ──
         const limitStatus = await rateLimiter.checkLimit(requestIp, action);
         if (!limitStatus.allowed) {
-            console.warn(`⛔ [DEFENSE] Conductor blocked request from ${requestIp}. Reason: ${limitStatus.reason}`);
+            logger.warn(`⛔ [DEFENSE] Conductor blocked request from ${requestIp}. Reason: ${limitStatus.reason}`);
             throw new Error(`429 Too Many Requests: ${limitStatus.reason}. Retry after ${limitStatus.retryAfter}s`);
         }
 
@@ -302,9 +303,9 @@ class HeadyConductor extends EventEmitter {
             }
         });
 
-        console.log("  ∞ HeadyConductor: LOADED (federated liquid routing)");
-        console.log("    → Endpoints: /api/conductor/status, /route-map, /health, /analyze-route");
-        console.log(`    → Layers: ${Object.entries(this.layers).filter(([, v]) => v.active).map(([k]) => k).join(", ")}`);
+        logger.logSystem("  ∞ HeadyConductor: LOADED (federated liquid routing)");
+        logger.logSystem("    → Endpoints: /api/conductor/status, /route-map, /health, /analyze-route");
+        logger.logSystem(`    → Layers: ${Object.entries(this.layers).filter(([, v]) => v.active).map(([k]) => k).join(", ")}`);
     }
 
     _audit(entry) {
@@ -325,12 +326,12 @@ function getConductor() {
             const duckdbMem = require('./intelligence/duckdb-memory');
             duckdbMem.init().then(() => {
                 _conductor.setVectorMemory(duckdbMem);
-                console.log("  🧠 [Conductor] DuckDB V2 Vector Memory WIRED for zone-aware routing.");
+                logger.logSystem("  🧠 [Conductor] DuckDB V2 Vector Memory WIRED for zone-aware routing.");
             }).catch(err => {
-                console.warn(`  ⚠️ [Conductor] DuckDB init deferred: ${err.message}`);
+                logger.warn(`  ⚠️ [Conductor] DuckDB init deferred: ${err.message}`);
             });
         } catch (e) {
-            console.warn(`  ⚠️ [Conductor] DuckDB not available: ${e.message}`);
+            logger.warn(`  ⚠️ [Conductor] DuckDB not available: ${e.message}`);
         }
 
         // ═══ AUTO-WIRE: Secret Rotation Audit ═══
@@ -338,12 +339,12 @@ function getConductor() {
             const { SecretRotation } = require('./security/secret-rotation');
             const sr = new SecretRotation();
             const audit = sr.audit();
-            console.log(`  🔐 [Conductor] Secret Rotation Audit: ${audit.score} healthy (${audit.total} tracked, ${audit.expired.length} expired)`);
+            logger.logSystem(`  🔐 [Conductor] Secret Rotation Audit: ${audit.score} healthy (${audit.total} tracked, ${audit.expired.length} expired)`);
             if (audit.expired.length > 0) {
-                console.warn(`  ⚠️ [Conductor] EXPIRED SECRETS: ${audit.expired.map(s => s.name).join(', ')}`);
+                logger.warn(`  ⚠️ [Conductor] EXPIRED SECRETS: ${audit.expired.map(s => s.name).join(', ')}`);
             }
         } catch (e) {
-            console.warn(`  ⚠️ [Conductor] Secret rotation audit skipped: ${e.message}`);
+            logger.warn(`  ⚠️ [Conductor] Secret rotation audit skipped: ${e.message}`);
         }
 
         // ═══ AUTO-WIRE: DAG Engine & MLOps ═══
@@ -352,9 +353,9 @@ function getConductor() {
             const { getMLOpsLogger } = require('./ops/mlops-logger');
             _conductor.dagEngine = getDAGEngine();
             _conductor.mlops = getMLOpsLogger();
-            console.log("  🔗 [Conductor] DAG Engine and MLOps Telemetry auto-wired.");
+            logger.logSystem("  🔗 [Conductor] DAG Engine and MLOps Telemetry auto-wired.");
         } catch (e) {
-            console.warn(`  ⚠️ [Conductor] DAG framework deferred: ${e.message}`);
+            logger.warn(`  ⚠️ [Conductor] DAG framework deferred: ${e.message}`);
         }
 
         // ═══ AUTO-WIRE: Governance (RBAC & Approval Gates) ═══
@@ -363,9 +364,9 @@ function getConductor() {
             const { getApprovalGates } = require('./governance/approval-gates');
             _conductor.rbac = getRBACVendor();
             _conductor.gates = getApprovalGates();
-            console.log("  🛑 [Conductor] Governance Layer (RBAC + HITL Gates) auto-wired.");
+            logger.logSystem("  🛑 [Conductor] Governance Layer (RBAC + HITL Gates) auto-wired.");
         } catch (e) {
-            console.warn(`  ⚠️ [Conductor] Governance framework deferred: ${e.message}`);
+            logger.warn(`  ⚠️ [Conductor] Governance framework deferred: ${e.message}`);
         }
     }
     return _conductor;

@@ -38,6 +38,7 @@ const { SystemBrain } = require(path.join(__dirname, "..", "..", "packages", "hc
 const { ReadinessEvaluator } = require(path.join(__dirname, "..", "..", "packages", "hc-readiness", "src"));
 const { HealthCheckRunner, createDefaultChecks } = require(path.join(__dirname, "..", "..", "packages", "hc-health", "src"));
 const { mcGlobal } = require(path.join(__dirname, "..", "hc_monte_carlo"));
+const logger = require("../utils/logger");
 
 // ─── SHARED INSTANCES ────────────────────────────────────────────────────
 
@@ -337,10 +338,10 @@ async function sendCheckpointEmail(context) {
       method: "POST",
       headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(payload) }
     });
-    req.on('error', (err) => console.error(`[pipeline-handlers] Checkpoint log failed: ${err.message}`));
+    req.on('error', (err) => logger.error(`[pipeline-handlers] Checkpoint log failed: ${err.message}`));
     req.write(payload);
     req.end();
-  } catch (err) { console.error(`[pipeline-handlers] Checkpoint log error: ${err.message}`); }
+  } catch (err) { logger.error(`[pipeline-handlers] Checkpoint log error: ${err.message}`); }
   return { task: "send_checkpoint_email", status: "completed", result: `Checkpoint logged for run ${context.runId || "unknown"}` };
 }
 

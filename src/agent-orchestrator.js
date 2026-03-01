@@ -25,6 +25,7 @@
 const EventEmitter = require("events");
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const AUDIT_PATH = path.join(__dirname, "..", "data", "agent-orchestrator-audit.jsonl");
 const PHI = 1.6180339887;
@@ -151,7 +152,7 @@ class AgentOrchestrator extends EventEmitter {
         }
 
         this._audit({ type: "minimum:enforced", minConcurrent: this.minConcurrent, spawned, total: this.supervisors.size });
-        console.log(`  ∞ Orchestrator: MIN_CONCURRENT enforced — ${this.supervisors.size} HeadySupervisors active (min ${this.minConcurrent})`);
+        logger.logSystem(`  ∞ Orchestrator: MIN_CONCURRENT enforced — ${this.supervisors.size} HeadySupervisors active (min ${this.minConcurrent})`);
     }
 
     /**
@@ -163,7 +164,7 @@ class AgentOrchestrator extends EventEmitter {
      */
     registerHandler(action, handler) {
         this.handlers.set(action, handler);
-        console.log(`  ∞ Orchestrator: handler registered for '${action}'`);
+        logger.logSystem(`  ∞ Orchestrator: handler registered for '${action}'`);
     }
 
     _getOrCreateSupervisor(serviceGroup) {
@@ -275,7 +276,7 @@ class AgentOrchestrator extends EventEmitter {
      */
     setVectorMemory(vectorMem) {
         this.vectorMem = vectorMem;
-        console.log("  ∞ Orchestrator: vector memory attached (memory-first scanning ACTIVE)");
+        logger.logSystem("  ∞ Orchestrator: vector memory attached (memory-first scanning ACTIVE)");
     }
 
     /**

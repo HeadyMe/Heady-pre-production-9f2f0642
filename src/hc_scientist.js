@@ -28,6 +28,7 @@ const EventEmitter = require("events");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const logger = require("./utils/logger");
 
 // φ-derived constants
 const PHI = 1.618033988749895;
@@ -135,7 +136,7 @@ class HeadyScientist extends EventEmitter {
     start() {
         if (this.running) return;
         this.running = true;
-        console.log(`  🔬 HeadyScientist: STARTED (scan every ${(this.scanInterval / 1000).toFixed(1)}s)`);
+        logger.logSystem(`  🔬 HeadyScientist: STARTED (scan every ${(this.scanInterval / 1000).toFixed(1)}s)`);
 
         // Initial scan
         setTimeout(() => this.runConsistencyScan("startup"), 5000);
@@ -184,14 +185,14 @@ class HeadyScientist extends EventEmitter {
         });
 
         this.eventBus = eventBus;
-        console.log("    → HeadyScientist ↔ EventBus: WIRED");
+        logger.logSystem("    → HeadyScientist ↔ EventBus: WIRED");
     }
 
     // ─── Wire into DeepIntel ──────────────────────────────────────────
     wireDeepIntel(deepIntelEngine) {
         this.deepIntel = deepIntelEngine;
         if (deepIntelEngine) {
-            console.log("    → HeadyScientist ↔ DeepIntel: WIRED (3D vector storage)");
+            logger.logSystem("    → HeadyScientist ↔ DeepIntel: WIRED (3D vector storage)");
         }
     }
 
@@ -199,7 +200,7 @@ class HeadyScientist extends EventEmitter {
     wireAutoSuccess(asEngine) {
         this.autoSuccessEngine = asEngine;
         if (asEngine) {
-            console.log("    → HeadyScientist ↔ AutoSuccess: WIRED (direct in-process)");
+            logger.logSystem("    → HeadyScientist ↔ AutoSuccess: WIRED (direct in-process)");
         }
     }
 

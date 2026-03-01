@@ -23,6 +23,7 @@ const { EventEmitter } = require("events");
 const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
+const logger = require("./utils/logger");
 
 // ─── ANALYSIS PERSPECTIVES ─────────────────────────────────────────────
 // Every project scan stores data from ALL these angles simultaneously
@@ -377,7 +378,7 @@ function registerDeepIntelRoutes(app, engine) {
     });
 
     app.use("/api/deep-intel", router);
-    console.log("  ∞ HeadyDeepIntel: LOADED → /api/deep-intel/* (10 perspectives, 10 nodes, 3D vector storage)");
+    logger.logSystem("  ∞ HeadyDeepIntel: LOADED → /api/deep-intel/* (10 perspectives, 10 nodes, 3D vector storage)");
 }
 
 module.exports = { DeepIntelEngine, VectorStore3D, registerDeepIntelRoutes, PERSPECTIVES, NODE_ROLES };

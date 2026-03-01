@@ -14,6 +14,7 @@
  */
 
 'use strict';
+const logger = require("../utils/logger");
 
 const ENV_SCHEMA = {
     // ── Required for ALL environments ──
@@ -110,21 +111,21 @@ function validateEnv(options = {}) {
     const valid = errors.length === 0;
 
     if (errors.length > 0) {
-        console.error('\n🔴 Environment Validation FAILED:');
-        errors.forEach(e => console.error(`  ${e}`));
+        logger.error('\n🔴 Environment Validation FAILED:');
+        errors.forEach(e => logger.error(`  ${e}`));
     }
 
     if (warnings.length > 0) {
-        console.warn('\n🟡 Environment Warnings:');
-        warnings.forEach(w => console.warn(`  ${w}`));
+        logger.warn('\n🟡 Environment Warnings:');
+        warnings.forEach(w => logger.warn(`  ${w}`));
     }
 
     if (valid) {
-        console.log('✅ Environment validation passed');
+        logger.logSystem('✅ Environment validation passed');
     }
 
     if (!valid && exitOnError) {
-        console.error('\n💀 Refusing to start with invalid environment. Fix the above errors.\n');
+        logger.error('\n💀 Refusing to start with invalid environment. Fix the above errors.\n');
         process.exit(1);
     }
 

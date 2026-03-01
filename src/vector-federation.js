@@ -28,6 +28,7 @@
 
 const https = require("https");
 const http = require("http");
+const logger = require("./utils/logger");
 const PHI = 1.6180339887;
 
 // ── Tier Metrics ────────────────────────────────────────────────
@@ -278,7 +279,7 @@ function registerRoutes(app) {
         });
     });
 
-    console.log("  ∞ VectorFederation: LOADED (edge → gcloud → colab → local cascade)");
+    logger.logSystem("  ∞ VectorFederation: LOADED (edge → gcloud → colab → local cascade)");
 }
 
 module.exports = { federatedInsert, federatedQuery, registerRoutes, tierMetrics };

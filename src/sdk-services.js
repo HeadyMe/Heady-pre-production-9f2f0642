@@ -16,6 +16,7 @@ const { EventEmitter } = require("events");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const AUDIT = path.join(__dirname, "..", "data", "sdk-services-audit.jsonl");
 
@@ -291,7 +292,7 @@ function registerRoutes(app, orchestrator) {
         res.json({ ok: true, sessions: [], total: 0 });
     });
 
-    console.log("  ∞ SDK Services: Battle, Creative, MCP, Auth, Events — ALL LOADED");
+    logger.logSystem("  ∞ SDK Services: Battle, Creative, MCP, Auth, Events — ALL LOADED");
 }
 
 module.exports = { registerRoutes, broadcastEvent };

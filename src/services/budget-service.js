@@ -11,6 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const logger = require("../utils/logger");
 
 class BudgetService {
     constructor(opts = {}) {
@@ -95,7 +96,7 @@ class BudgetService {
      * Internal: Update spent amount (simulated)
      */
     async _updateSpent(scopeType, scopeId, amount) {
-        console.log(`[Budget] Recorded $${amount} for ${scopeType}:${scopeId}`);
+        logger.logSystem(`[Budget] Recorded $${amount} for ${scopeType}:${scopeId}`);
     }
 }
 

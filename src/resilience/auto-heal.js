@@ -12,6 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
+const logger = require("../utils/logger");
 
 class AutoHeal {
     constructor(conductor) {
@@ -63,7 +64,7 @@ class AutoHeal {
 
     log(msg) {
         const entry = `[AUTO-HEAL] [${new Date().toISOString()}] ${msg}`;
-        console.log(entry);
+        logger.logSystem(entry);
         this.logs.push(entry);
         if (this.logs.length > 100) this.logs.shift();
     }

@@ -10,6 +10,7 @@
  */
 
 const { ethers } = require("ethers");
+const logger = require("../utils/logger");
 require("dotenv").config();
 
 // Defaulting to Base Goerli/Sepolia or Arbitrum for low-cost anchoring
@@ -32,7 +33,7 @@ const ANCHOR_ABI = [
 async function anchorToLedger(sha256Hash, metadata = {}) {
     try {
         if (!process.env.WEB3_PRIVATE_KEY) {
-            console.warn("⚠️ [HeadyScientist] WEB3_PRIVATE_KEY missing. Simulating anchor execution.");
+            logger.warn("⚠️ [HeadyScientist] WEB3_PRIVATE_KEY missing. Simulating anchor execution.");
             return `0xsimulated_tx_hash_${Date.now()}`;
         }
 
@@ -42,16 +43,16 @@ async function anchorToLedger(sha256Hash, metadata = {}) {
 
         const metadataString = JSON.stringify(metadata);
 
-        console.log(`📡 [HeadyScientist] Anchoring hash ${sha256Hash} to ledger...`);
+        logger.logSystem(`📡 [HeadyScientist] Anchoring hash ${sha256Hash} to ledger...`);
         const tx = await contract.anchorHash(sha256Hash, metadataString);
 
-        console.log(`🔗 [HeadyScientist] Transaction submitted: ${tx.hash}`);
+        logger.logSystem(`🔗 [HeadyScientist] Transaction submitted: ${tx.hash}`);
         await tx.wait(1); // Wait for 1 block confirmation
 
-        console.log(`✅ [HeadyScientist] Proof-of-Inference anchored successfully.`);
+        logger.logSystem(`✅ [HeadyScientist] Proof-of-Inference anchored successfully.`);
         return tx.hash;
     } catch (error) {
-        console.error(`❌ [HeadyScientist] Ledger Anchor Failed: ${error.message}`);
+        logger.error(`❌ [HeadyScientist] Ledger Anchor Failed: ${error.message}`);
         throw error;
     }
 }

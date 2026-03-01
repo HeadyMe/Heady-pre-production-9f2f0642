@@ -28,6 +28,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const EventEmitter = require("events");
+const logger = require("../utils/logger");
 
 const LEDGER_PATH = path.join(__dirname, "..", "..", "data", "error-pipeline-ledger.jsonl");
 const ERROR_FLOWERS_PATH = path.join(__dirname, "..", "..", "data", "error-flowers.json");
@@ -69,7 +70,7 @@ class ErrorPipelineBridge extends EventEmitter {
 
         // Flush any pending errors that arrived before swarm was ready
         if (this._pending.length > 0) {
-            console.log(`  🔗 ErrorPipeline: flushing ${this._pending.length} pending errors to swarm`);
+            logger.logSystem(`  🔗 ErrorPipeline: flushing ${this._pending.length} pending errors to swarm`);
             for (const err of this._pending) {
                 this._injectToSwarm(err);
             }
@@ -79,7 +80,7 @@ class ErrorPipelineBridge extends EventEmitter {
         // Load any error flowers saved to disk from a previous session
         this._loadPendingFlowers();
 
-        console.log("  🔗 ErrorPipelineBridge → HeadySwarm CONNECTED");
+        logger.logSystem("  🔗 ErrorPipelineBridge → HeadySwarm CONNECTED");
     }
 
     /**
@@ -138,7 +139,7 @@ class ErrorPipelineBridge extends EventEmitter {
 
         // Only log critical/warning to avoid noise
         if (severity !== "info") {
-            console.log(`  🚨 ErrorPipeline: [${severity.toUpperCase()}] ${source} → "${message.substring(0, 80)}" → injected to swarm`);
+            logger.logSystem(`  🚨 ErrorPipeline: [${severity.toUpperCase()}] ${source} → "${message.substring(0, 80)}" → injected to swarm`);
         }
 
         return errorRecord;
@@ -264,7 +265,7 @@ class ErrorPipelineBridge extends EventEmitter {
             if (fs.existsSync(ERROR_FLOWERS_PATH)) {
                 const data = JSON.parse(fs.readFileSync(ERROR_FLOWERS_PATH, "utf8"));
                 if (Array.isArray(data) && data.length > 0) {
-                    console.log(`  🔗 ErrorPipeline: loading ${data.length} saved error flowers from disk`);
+                    logger.logSystem(`  🔗 ErrorPipeline: loading ${data.length} saved error flowers from disk`);
                     for (const err of data) {
                         this._injectToSwarm(err);
                     }
@@ -295,7 +296,7 @@ class ErrorPipelineBridge extends EventEmitter {
     flush() {
         this._savePendingFlowers();
         this._stats.flushed++;
-        console.log(`  🔗 ErrorPipeline: flushed (${this._stats.captured} captured, ${this._stats.injected} injected, ${this._stats.deduplicated} deduped)`);
+        logger.logSystem(`  🔗 ErrorPipeline: flushed (${this._stats.captured} captured, ${this._stats.injected} injected, ${this._stats.deduplicated} deduped)`);
     }
 
     /**

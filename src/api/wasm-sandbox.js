@@ -20,7 +20,7 @@ class WasmSandbox {
     }
 
     async executeUntrustedCode(userCode, injectedContext) {
-        console.log(`🛡️ [WASM Sandbox] Spinning up isolated runtime (Limit: ${this.isolateConfig.memoryLimitMB}MB)`);
+        logger.logSystem(`🛡️ [WASM Sandbox] Spinning up isolated runtime (Limit: ${this.isolateConfig.memoryLimitMB}MB)`);
 
         // In production, this wires into `isolated-vm` or a WASM-compiled JS engine (like QuickJS-WASM)
         try {
@@ -30,15 +30,16 @@ class WasmSandbox {
 
             const safeEval = new Function('context', `
         "use strict";
+const logger = require("../utils/logger");
         const console = { log: () => {} }; // Silence
         ${userCode}
       `);
 
             const result = safeEval(injectedContext);
-            console.log(`✅ [WASM Sandbox] Execution finished cleanly within ${this.isolateConfig.cpuTimeLimitMs}ms.`);
+            logger.logSystem(`✅ [WASM Sandbox] Execution finished cleanly within ${this.isolateConfig.cpuTimeLimitMs}ms.`);
             return { success: true, result };
         } catch (err) {
-            console.warn(`🚨 [WASM Sandbox] Threat blocked: ${err.message}`);
+            logger.warn(`🚨 [WASM Sandbox] Threat blocked: ${err.message}`);
             return { success: false, error: err.message };
         }
     }

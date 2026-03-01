@@ -14,6 +14,7 @@
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
+const logger = require("../utils/logger");
 
 class ArenaModeService extends EventEmitter {
   constructor(config = {}) {
@@ -80,11 +81,11 @@ class ArenaModeService extends EventEmitter {
 
   async start() {
     if (this.isRunning) {
-      console.log('🎮 Arena Mode Service already running');
+      logger.logSystem('🎮 Arena Mode Service already running');
       return;
     }
 
-    console.log('🚀 Starting Arena Mode Service - 100% Continuous Mode');
+    logger.logSystem('🚀 Starting Arena Mode Service - 100% Continuous Mode');
     this.isRunning = true;
     this.startTime = Date.now();
     
@@ -109,7 +110,7 @@ class ArenaModeService extends EventEmitter {
     }, 15000); // Monitor every 15 seconds
     
     this.emit('started');
-    console.log('✅ Arena Mode Service started successfully');
+    logger.logSystem('✅ Arena Mode Service started successfully');
     
     // Start first tournament immediately
     setTimeout(() => this.runTournamentCycle(), 1000);
@@ -117,11 +118,11 @@ class ArenaModeService extends EventEmitter {
 
   async stop() {
     if (!this.isRunning) {
-      console.log('🎮 Arena Mode Service already stopped');
+      logger.logSystem('🎮 Arena Mode Service already stopped');
       return;
     }
 
-    console.log('🛑 Stopping Arena Mode Service');
+    logger.logSystem('🛑 Stopping Arena Mode Service');
     this.isRunning = false;
     
     clearInterval(this.tournamentLoop);
@@ -135,7 +136,7 @@ class ArenaModeService extends EventEmitter {
     }
     
     this.emit('stopped');
-    console.log('✅ Arena Mode Service stopped');
+    logger.logSystem('✅ Arena Mode Service stopped');
   }
 
   async queueTournament(context = {}) {
@@ -158,7 +159,7 @@ class ArenaModeService extends EventEmitter {
     });
     
     this.emit('tournament_queued', tournament);
-    console.log(`🎮 Tournament queued: ${tournament.id}`);
+    logger.logSystem(`🎮 Tournament queued: ${tournament.id}`);
     
     return tournament.id;
   }
@@ -182,7 +183,7 @@ class ArenaModeService extends EventEmitter {
   }
 
   async runTournament(tournament) {
-    console.log(`🏆 Starting Arena Mode Tournament: ${tournament.id}`);
+    logger.logSystem(`🏆 Starting Arena Mode Tournament: ${tournament.id}`);
     
     this.activeTournaments.set(tournament.id, {
       ...tournament,
@@ -240,15 +241,15 @@ class ArenaModeService extends EventEmitter {
       const promotion = this.evaluatePromotion(tournament);
       
       this.emit('tournament_completed', { tournament, promotion });
-      console.log(`🏆 Tournament completed: ${champion.strategy} wins with score ${champion.score.toFixed(3)}`);
+      logger.logSystem(`🏆 Tournament completed: ${champion.strategy} wins with score ${champion.score.toFixed(3)}`);
       
       if (promotion.ready) {
-        console.log(`🚀 Champion ${champion.strategy} ready for promotion!`);
+        logger.logSystem(`🚀 Champion ${champion.strategy} ready for promotion!`);
         this.emit('champion_ready', promotion);
       }
       
     } catch (error) {
-      console.error(`❌ Tournament failed: ${tournament.id} - ${error.message}`);
+      logger.error(`❌ Tournament failed: ${tournament.id} - ${error.message}`);
       
       tournament.status = 'failed';
       tournament.error = error.message;
@@ -258,7 +259,7 @@ class ArenaModeService extends EventEmitter {
   }
 
   async runRound(tournament, roundNumber, participants) {
-    console.log(`🏆 Running Round ${roundNumber} with ${participants.length} participants`);
+    logger.logSystem(`🏆 Running Round ${roundNumber} with ${participants.length} participants`);
     
     const results = [];
     const simulationRuns = this.config.simulation_runs * roundNumber; // More runs in later rounds
@@ -466,7 +467,7 @@ class ArenaModeService extends EventEmitter {
       const recentAvg = recentScores.reduce((sum, s) => sum + s, 0) / recentScores.length;
       
       if (recentAvg < 0.75) {
-        console.log(`⚠️  Champion ${currentChampion} underperforming: ${recentAvg.toFixed(3)}`);
+        logger.logSystem(`⚠️  Champion ${currentChampion} underperforming: ${recentAvg.toFixed(3)}`);
         this.emit('champion_underperforming', {
           champion: currentChampion,
           recentAverage: recentAvg,
@@ -567,17 +568,17 @@ if (require.main === module) {
   const service = getArenaModeService();
   
   service.start().then(() => {
-    console.log('🎮 Arena Mode Service started - 100% Continuous Mode');
+    logger.logSystem('🎮 Arena Mode Service started - 100% Continuous Mode');
     
     // Graceful shutdown
     process.on('SIGINT', async () => {
-      console.log('\n🛑 Shutting down Arena Mode Service...');
+      logger.logSystem('\n🛑 Shutting down Arena Mode Service...');
       await service.stop();
       process.exit(0);
     });
     
     process.on('SIGTERM', async () => {
-      console.log('\n🛑 Shutting down Arena Mode Service...');
+      logger.logSystem('\n🛑 Shutting down Arena Mode Service...');
       await service.stop();
       process.exit(0);
     });
@@ -591,7 +592,7 @@ if (require.main === module) {
     }, 2000);
     
   }).catch(err => {
-    console.error('❌ Failed to start Arena Mode Service:', err);
+    logger.error('❌ Failed to start Arena Mode Service:', err);
     process.exit(1);
   });
 }

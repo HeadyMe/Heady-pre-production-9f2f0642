@@ -8,6 +8,7 @@
  * Wires Firebase Auth for identity and Stripe for subscription billing.
  */
 const Stripe = (()=>{try{return require('stripe')}catch(e){return class{constructor(){this.checkout={sessions:{create:async()=>({url:'#'})}}};}}})();
+const logger = require("../utils/logger");
 
 class PaymentGateway {
     constructor() {
@@ -20,7 +21,7 @@ class PaymentGateway {
     }
 
     async createCheckoutSession(userId, planType, successUrl, cancelUrl) {
-        console.log(`💳 [Payment Gateway] Generating checkout for User:${userId} -> Plan:${planType}`);
+        logger.logSystem(`💳 [Payment Gateway] Generating checkout for User:${userId} -> Plan:${planType}`);
 
         // Mock simulation for development
         if (process.env.NODE_ENV !== 'production' && !process.env.STRIPE_SECRET_KEY) {
@@ -38,7 +39,7 @@ class PaymentGateway {
             });
             return { url: session.url };
         } catch (err) {
-            console.error(`🚨 [Payment Gateway] Failed to create checkout:`, err.message);
+            logger.error(`🚨 [Payment Gateway] Failed to create checkout:`, err.message);
             throw err;
         }
     }

@@ -2,6 +2,7 @@
  * © 2026 Heady Systems LLC.
  * PROPRIETARY AND CONFIDENTIAL.
  */
+const logger = require("../utils/logger");
 let Redis, redis;
 
 try {
@@ -24,9 +25,9 @@ class HeadyRateLimiter {
     constructor() {
         this.redis = redis;
         if (redis) {
-            console.log("[SECURITY] Heady Sliding-Window Rate Limiter Armed (Redis).");
+            logger.logSystem("[SECURITY] Heady Sliding-Window Rate Limiter Armed (Redis).");
         } else {
-            console.log("[SECURITY] Heady Rate Limiter Armed (in-memory fallback — Redis unavailable).");
+            logger.logSystem("[SECURITY] Heady Rate Limiter Armed (in-memory fallback — Redis unavailable).");
         }
     }
 
@@ -66,7 +67,7 @@ class HeadyRateLimiter {
 
             if (requestCount > MAX_REQUESTS_PER_WINDOW) {
                 await this.redis.setex(banKey, PENALTY_BAN_SECS, "1");
-                console.warn(`[DEFENSE] IP ${ip} banned for ${PENALTY_BAN_SECS}s due to rate limit violation.`);
+                logger.warn(`[DEFENSE] IP ${ip} banned for ${PENALTY_BAN_SECS}s due to rate limit violation.`);
                 return {
                     allowed: false,
                     reason: 'Rate limit exceeded. Temporary ban applied.',
@@ -80,7 +81,7 @@ class HeadyRateLimiter {
             };
 
         } catch (err) {
-            console.error("[SECURITY] Redis Rate Limiter Error (Failing Open):", err.message);
+            logger.error("[SECURITY] Redis Rate Limiter Error (Failing Open):", err.message);
             return { allowed: true };
         }
     }

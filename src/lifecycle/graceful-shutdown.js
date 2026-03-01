@@ -9,6 +9,7 @@
  * Drains connections, flushes caches, and logs cleanly before exit.
  */
 
+const logger = require("../utils/logger");
 const shutdownHandlers = [];
 let isShuttingDown = false;
 
@@ -29,26 +30,26 @@ async function gracefulShutdown(signal) {
     if (isShuttingDown) return;
     isShuttingDown = true;
 
-    console.log(`\n🛑 [Heady] Graceful shutdown initiated (${signal})`);
+    logger.logSystem(`\n🛑 [Heady] Graceful shutdown initiated (${signal})`);
     const start = Date.now();
 
     // Run handlers in reverse order (LIFO — most recently registered first)
     for (let i = shutdownHandlers.length - 1; i >= 0; i--) {
         const { name, fn } = shutdownHandlers[i];
         try {
-            console.log(`  ↳ Shutting down: ${name}...`);
+            logger.logSystem(`  ↳ Shutting down: ${name}...`);
             await Promise.race([
                 fn(),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
             ]);
-            console.log(`  ✓ ${name} shut down cleanly`);
+            logger.logSystem(`  ✓ ${name} shut down cleanly`);
         } catch (err) {
-            console.error(`  ✗ ${name} shutdown error: ${err.message}`);
+            logger.error(`  ✗ ${name} shutdown error: ${err.message}`);
         }
     }
 
     const elapsed = Date.now() - start;
-    console.log(`🛑 [Heady] Shutdown complete in ${elapsed}ms\n`);
+    logger.logSystem(`🛑 [Heady] Shutdown complete in ${elapsed}ms\n`);
     process.exit(0);
 }
 
@@ -61,17 +62,17 @@ function installShutdownHooks() {
     process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
     process.on('uncaughtException', (err) => {
-        console.error('💥 [Heady] Uncaught Exception:', err.message);
-        console.error(err.stack);
+        logger.error('💥 [Heady] Uncaught Exception:', err.message);
+        logger.error(err.stack);
         gracefulShutdown('uncaughtException');
     });
 
     process.on('unhandledRejection', (reason) => {
-        console.error('💥 [Heady] Unhandled Rejection:', reason);
+        logger.error('💥 [Heady] Unhandled Rejection:', reason);
         gracefulShutdown('unhandledRejection');
     });
 
-    console.log('  ∞ Graceful Shutdown Hooks: INSTALLED');
+    logger.logSystem('  ∞ Graceful Shutdown Hooks: INSTALLED');
 }
 
 module.exports = { onShutdown, gracefulShutdown, installShutdownHooks, isShuttingDown: () => isShuttingDown };

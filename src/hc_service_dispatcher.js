@@ -13,6 +13,7 @@
  * Every dispatch is logged to the cognitive telemetry audit trail.
  */
 const EventEmitter = require("events");
+const logger = require("./utils/logger");
 
 // ─── Service Catalog ─────────────────────────────────────────────────
 // Maps every service to its API endpoint and semantic capabilities.
@@ -285,9 +286,9 @@ function registerServiceRoutes(app, dispatcher) {
         });
     });
 
-    console.log("  🔀 HeadyService Dispatcher: LOADED (unified intelligent routing)");
-    console.log(`    → ${Object.keys(SERVICE_CATALOG).length} services in catalog`);
-    console.log("    → Endpoints: /api/service, /catalog, /health, /history, /resolve");
+    logger.logSystem("  🔀 HeadyService Dispatcher: LOADED (unified intelligent routing)");
+    logger.logSystem(`    → ${Object.keys(SERVICE_CATALOG).length} services in catalog`);
+    logger.logSystem("    → Endpoints: /api/service, /catalog, /health, /history, /resolve");
 }
 
 module.exports = { HeadyServiceDispatcher, registerServiceRoutes, SERVICE_CATALOG, INTENT_KEYWORDS };

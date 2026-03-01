@@ -20,6 +20,7 @@ const { mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } = require
 const path = require("path");
 const os = require("os");
 const crypto = require("crypto");
+const logger = require("./utils/logger");
 
 class SandboxExecutor {
     constructor(opts = {}) {
@@ -117,7 +118,7 @@ global.process.exit = () => { throw new Error("process.exit not allowed"); };
 try {
 ${code}
 } catch (e) {
-    console.error("Sandbox error:", e.message);
+    logger.error("Sandbox error:", e.message);
     process.exitCode = 1;
 }
 `;

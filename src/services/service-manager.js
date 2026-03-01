@@ -16,6 +16,7 @@ const { getHeadyBattleService } = require('./HeadyBattle-service');
 const { getArenaModeService } = require('./arena-mode-service');
 const { getBranchAutomationService } = require('./branch-automation-service');
 const { getErrorSentinel } = require('./error-sentinel-service');
+const logger = require("../utils/logger");
 
 class ServiceManager extends EventEmitter {
   constructor(config = {}) {
@@ -91,16 +92,16 @@ class ServiceManager extends EventEmitter {
       health_score: 1.0
     });
 
-    console.log(`📝 Service registered: ${name} - ${serviceConfig.description}`);
+    logger.logSystem(`📝 Service registered: ${name} - ${serviceConfig.description}`);
   }
 
   async start() {
     if (this.isRunning) {
-      console.log('🎛️ Service Manager already running');
+      logger.logSystem('🎛️ Service Manager already running');
       return;
     }
 
-    console.log('🚀 Starting Service Manager - 100% Continuous Mode');
+    logger.logSystem('🚀 Starting Service Manager - 100% Continuous Mode');
     this.isRunning = true;
     this.startTime = Date.now();
 
@@ -122,16 +123,16 @@ class ServiceManager extends EventEmitter {
     }, 1000);
 
     this.emit('started');
-    console.log('✅ Service Manager started successfully');
+    logger.logSystem('✅ Service Manager started successfully');
   }
 
   async stop() {
     if (!this.isRunning) {
-      console.log('🎛️ Service Manager already stopped');
+      logger.logSystem('🎛️ Service Manager already stopped');
       return;
     }
 
-    console.log('🛑 Stopping Service Manager');
+    logger.logSystem('🛑 Stopping Service Manager');
     this.isRunning = false;
 
     clearInterval(this.monitoringLoop);
@@ -142,11 +143,11 @@ class ServiceManager extends EventEmitter {
     await this.stopAllServices();
 
     this.emit('stopped');
-    console.log('✅ Service Manager stopped');
+    logger.logSystem('✅ Service Manager stopped');
   }
 
   async startAllServices() {
-    console.log('🔄 Starting all services...');
+    logger.logSystem('🔄 Starting all services...');
 
     const startPromises = [];
     for (const [name, config] of this.services) {
@@ -154,7 +155,7 @@ class ServiceManager extends EventEmitter {
     }
 
     await Promise.allSettled(startPromises);
-    console.log('✅ All services start sequence completed');
+    logger.logSystem('✅ All services start sequence completed');
   }
 
   async startService(name) {
@@ -166,11 +167,11 @@ class ServiceManager extends EventEmitter {
     }
 
     if (status.state === 'running') {
-      console.log(`⚠️  Service ${name} already running`);
+      logger.logSystem(`⚠️  Service ${name} already running`);
       return;
     }
 
-    console.log(`🚀 Starting service: ${name}`);
+    logger.logSystem(`🚀 Starting service: ${name}`);
 
     try {
       // Create service instance
@@ -190,11 +191,11 @@ class ServiceManager extends EventEmitter {
       // Store service instance
       serviceConfig.instance = service;
 
-      console.log(`✅ Service started: ${name}`);
+      logger.logSystem(`✅ Service started: ${name}`);
       this.emit('service_started', { name, service });
 
     } catch (error) {
-      console.error(`❌ Failed to start service ${name}:`, error.message);
+      logger.error(`❌ Failed to start service ${name}:`, error.message);
 
       status.state = 'failed';
       status.error = error.message;
@@ -213,11 +214,11 @@ class ServiceManager extends EventEmitter {
     const status = this.serviceStatus.get(name);
 
     if (!serviceConfig || !serviceConfig.instance) {
-      console.log(`⚠️  Service ${name} not running`);
+      logger.logSystem(`⚠️  Service ${name} not running`);
       return;
     }
 
-    console.log(`🛑 Stopping service: ${name}`);
+    logger.logSystem(`🛑 Stopping service: ${name}`);
 
     try {
       await serviceConfig.instance.stop();
@@ -227,11 +228,11 @@ class ServiceManager extends EventEmitter {
 
       delete serviceConfig.instance;
 
-      console.log(`✅ Service stopped: ${name}`);
+      logger.logSystem(`✅ Service stopped: ${name}`);
       this.emit('service_stopped', { name });
 
     } catch (error) {
-      console.error(`❌ Failed to stop service ${name}:`, error.message);
+      logger.error(`❌ Failed to stop service ${name}:`, error.message);
 
       status.state = 'error';
       status.error = error.message;
@@ -241,7 +242,7 @@ class ServiceManager extends EventEmitter {
   }
 
   async stopAllServices() {
-    console.log('🛑 Stopping all services...');
+    logger.logSystem('🛑 Stopping all services...');
 
     // Stop in reverse order (dependencies first)
     const serviceNames = Array.from(this.services.keys()).reverse();
@@ -250,18 +251,18 @@ class ServiceManager extends EventEmitter {
       await this.stopService(name);
     }
 
-    console.log('✅ All services stopped');
+    logger.logSystem('✅ All services stopped');
   }
 
   setupServiceListeners(name, service) {
     // Service started
     service.on('started', () => {
-      console.log(`📢 Service event: ${name} started`);
+      logger.logSystem(`📢 Service event: ${name} started`);
     });
 
     // Service stopped
     service.on('stopped', () => {
-      console.log(`📢 Service event: ${name} stopped`);
+      logger.logSystem(`📢 Service event: ${name} stopped`);
 
       const status = this.serviceStatus.get(name);
       if (status.state === 'running') {
@@ -272,7 +273,7 @@ class ServiceManager extends EventEmitter {
 
     // Service errors
     service.on('error', (error) => {
-      console.error(`📢 Service error: ${name} - ${error.message}`);
+      logger.error(`📢 Service error: ${name} - ${error.message}`);
 
       const status = this.serviceStatus.get(name);
       status.state = 'error';
@@ -301,13 +302,13 @@ class ServiceManager extends EventEmitter {
     const status = this.serviceStatus.get(name);
 
     if (!serviceConfig.auto_restart || status.restarts >= serviceConfig.max_restarts) {
-      console.log(`❌ Service ${name} exceeded max restarts, giving up`);
+      logger.logSystem(`❌ Service ${name} exceeded max restarts, giving up`);
       return;
     }
 
     const delay = serviceConfig.restart_delay * Math.pow(2, status.restarts); // Exponential backoff
 
-    console.log(`🔄 Scheduling restart for ${name} in ${delay}ms (restart #${status.restarts + 1})`);
+    logger.logSystem(`🔄 Scheduling restart for ${name} in ${delay}ms (restart #${status.restarts + 1})`);
 
     setTimeout(async () => {
       await this.restartService(name);
@@ -317,7 +318,7 @@ class ServiceManager extends EventEmitter {
   async restartService(name) {
     const status = this.serviceStatus.get(name);
 
-    console.log(`🔄 Restarting service: ${name}`);
+    logger.logSystem(`🔄 Restarting service: ${name}`);
 
     status.restarts++;
     status.last_restart = Date.now();
@@ -349,7 +350,7 @@ class ServiceManager extends EventEmitter {
       if (status.state === 'running' && config.instance) {
         const metrics = this.healthMetrics.get(name);
         if (metrics && (Date.now() - metrics.timestamp) > 30000) { // 30 seconds
-          console.log(`⚠️  Service ${name} appears stale (no recent metrics)`);
+          logger.logSystem(`⚠️  Service ${name} appears stale (no recent metrics)`);
 
           if (config.critical && config.auto_restart) {
             this.scheduleRestart(name);
@@ -394,13 +395,13 @@ class ServiceManager extends EventEmitter {
 
           // Alert on low health
           if (healthScore < 0.7) {
-            console.log(`⚠️  Service ${name} health degraded: ${(healthScore * 100).toFixed(1)}%`);
+            logger.logSystem(`⚠️  Service ${name} health degraded: ${(healthScore * 100).toFixed(1)}%`);
             this.emit('service_health_degraded', { name, healthScore, serviceStatus });
           }
         }
 
       } catch (error) {
-        console.error(`❌ Health check failed for ${name}:`, error.message);
+        logger.error(`❌ Health check failed for ${name}:`, error.message);
         status.health_score = 0.0;
 
         if (config.critical && config.auto_restart) {
@@ -542,13 +543,13 @@ class ServiceManager extends EventEmitter {
   }
 
   async restartAllServices() {
-    console.log('🔄 Restarting all services...');
+    logger.logSystem('🔄 Restarting all services...');
 
     await this.stopAllServices();
     await this.sleep(2000); // Brief pause
     await this.startAllServices();
 
-    console.log('✅ All services restarted');
+    logger.logSystem('✅ All services restarted');
   }
 
   sleep(ms) {
@@ -571,17 +572,17 @@ if (require.main === module) {
   const manager = getServiceManager();
 
   manager.start().then(() => {
-    console.log('🎛️ Service Manager started - All services running continuously');
+    logger.logSystem('🎛️ Service Manager started - All services running continuously');
 
     // Graceful shutdown
     process.on('SIGINT', async () => {
-      console.log('\n🛑 Shutting down Service Manager...');
+      logger.logSystem('\n🛑 Shutting down Service Manager...');
       await manager.stop();
       process.exit(0);
     });
 
     process.on('SIGTERM', async () => {
-      console.log('\n🛑 Shutting down Service Manager...');
+      logger.logSystem('\n🛑 Shutting down Service Manager...');
       await manager.stop();
       process.exit(0);
     });
@@ -589,11 +590,11 @@ if (require.main === module) {
     // Status reporting
     setInterval(() => {
       const status = manager.getStatus();
-      console.log(`📊 Service Status: ${status.summary.running}/${status.summary.total} running`);
+      logger.logSystem(`📊 Service Status: ${status.summary.running}/${status.summary.total} running`);
     }, 30000);
 
   }).catch(err => {
-    console.error('❌ Failed to start Service Manager:', err);
+    logger.error('❌ Failed to start Service Manager:', err);
     process.exit(1);
   });
 }

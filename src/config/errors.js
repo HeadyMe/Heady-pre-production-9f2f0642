@@ -10,6 +10,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const logger = require("../utils/logger");
 
 const ERROR_LOG = path.join(__dirname, '..', '..', 'data', 'error-audit.jsonl');
 const errorCounts = new Map();
@@ -63,7 +64,7 @@ function trackError(context, err, opts = {}) {
     // Always log to console unless explicitly silenced AND non-critical
     if (!opts.silent || opts.critical) {
         const prefix = opts.critical ? '🚨 CRITICAL' : '⚠️';
-        console.error(`${prefix} [${context}] ${entry.message} (occurrence #${count})`);
+        logger.error(`${prefix} [${context}] ${entry.message} (occurrence #${count})`);
     }
 
     // Append to error audit log

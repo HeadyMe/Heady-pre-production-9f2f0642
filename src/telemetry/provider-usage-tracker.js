@@ -22,6 +22,7 @@
 const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
+const logger = require("../utils/logger");
 
 const DATA_DIR = path.join(__dirname, "..", "..", "data");
 const USAGE_LOG = path.join(DATA_DIR, "provider-usage.jsonl");
@@ -99,7 +100,7 @@ function loadBudgetConfig() {
             return yaml.load(fs.readFileSync(BUDGET_CONFIG_PATH, "utf8"));
         }
     } catch (err) {
-        console.error("[ProviderTracker] Budget config load error:", err.message);
+        logger.error("[ProviderTracker] Budget config load error:", err.message);
     }
     return { budgets: {}, alerts: { warning_threshold: 0.80, critical_threshold: 1.00 } };
 }
@@ -193,7 +194,7 @@ function record(event) {
     try {
         fs.appendFileSync(USAGE_LOG, JSON.stringify(entry) + "\n");
     } catch (err) {
-        console.error("[ProviderTracker] Write error:", err.message);
+        logger.error("[ProviderTracker] Write error:", err.message);
     }
 
     // ── 2. Update in-memory aggregates ──────────────────────────────
@@ -472,9 +473,9 @@ function hydrateFromLog() {
         if (aggregates.latencyBuckets.length > 1000) {
             aggregates.latencyBuckets = aggregates.latencyBuckets.slice(-1000);
         }
-        console.log(`[ProviderTracker] Hydrated ${lines.length} entries from log`);
+        logger.logSystem(`[ProviderTracker] Hydrated ${lines.length} entries from log`);
     } catch (err) {
-        console.error("[ProviderTracker] Hydration error:", err.message);
+        logger.error("[ProviderTracker] Hydration error:", err.message);
     }
 }
 

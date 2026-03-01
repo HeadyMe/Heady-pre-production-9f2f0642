@@ -28,6 +28,7 @@
 const fs = require("fs");
 const { PHI_INTERVALS } = require("./vector-pipeline");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const OPT_FILE = path.join(__dirname, "..", "data", "optimization-state.json");
 const OPT_AUDIT = path.join(__dirname, "..", "data", "optimization-audit.jsonl");
@@ -227,7 +228,7 @@ async function runOptimizationCycle(vectorMem) {
                 metadata: { type: "optimization_cycle", cycle: optState.cycleCount },
             });
         } catch (err) {
-            console.warn(`  ⚠ Optimizer: failed to store in vector memory: ${err.message}`);
+            logger.warn(`  ⚠ Optimizer: failed to store in vector memory: ${err.message}`);
         }
     }
 
@@ -305,9 +306,9 @@ function startContinuousLoop(vectorMem) {
     let learningEngine = null;
     try {
         learningEngine = require("./continuous-learning");
-        console.log("  🧠 Optimizer: Learning engine WIRED");
+        logger.logSystem("  🧠 Optimizer: Learning engine WIRED");
     } catch (err) {
-        console.warn(`  ⚠ Optimizer: Learning engine not loaded: ${err.message}`);
+        logger.warn(`  ⚠ Optimizer: Learning engine not loaded: ${err.message}`);
     }
 
     function scheduleNext() {
@@ -339,7 +340,7 @@ function startContinuousLoop(vectorMem) {
                     try {
                         learnResult = await learningEngine.runLearningCycle(vectorMemRef);
                     } catch (learnErr) {
-                        console.warn(`  ⚠ Learning cycle error: ${learnErr.message}`);
+                        logger.warn(`  ⚠ Learning cycle error: ${learnErr.message}`);
                         audit({ type: "learning:error", error: learnErr.message });
                     }
                 }
@@ -371,7 +372,7 @@ function startContinuousLoop(vectorMem) {
                 heartbeat.lastErrorAt = Date.now();
                 heartbeat.status = "error";
 
-                console.error(`  ✘ Optimizer cycle error (${heartbeat.consecutiveErrors} consecutive): ${err.message}`);
+                logger.error(`  ✘ Optimizer cycle error (${heartbeat.consecutiveErrors} consecutive): ${err.message}`);
                 audit({ type: "optimization:error", error: err.message, consecutive: heartbeat.consecutiveErrors });
 
                 // Auto-recovery: exponential backoff
@@ -380,7 +381,7 @@ function startContinuousLoop(vectorMem) {
                     heartbeat.recoveries++;
                     // Double the interval up to 5 minutes max
                     heartbeat.intervalMs = Math.min(heartbeat.intervalMs * 2, 300000);
-                    console.warn(`  ⚠ Optimizer: ${heartbeat.consecutiveErrors} errors — backing off to ${Math.round(heartbeat.intervalMs / 1000)}s`);
+                    logger.warn(`  ⚠ Optimizer: ${heartbeat.consecutiveErrors} errors — backing off to ${Math.round(heartbeat.intervalMs / 1000)}s`);
                     audit({ type: "optimization:backoff", newInterval: heartbeat.intervalMs, recoveries: heartbeat.recoveries });
                 }
             }
@@ -397,14 +398,14 @@ function startContinuousLoop(vectorMem) {
             heartbeat.lastCycleAt = Date.now();
             heartbeat.cycleCount++;
             heartbeat.status = "running";
-            console.log(`  ∞ First optimization: ${result.skills.active} skills, ${result.connectors.ready} connectors, ${result.tunings.length} tunings`);
+            logger.logSystem(`  ∞ First optimization: ${result.skills.active} skills, ${result.connectors.ready} connectors, ${result.tunings.length} tunings`);
         } catch (err) {
             heartbeat.consecutiveErrors++;
             heartbeat.totalErrors++;
             heartbeat.lastError = err.message;
             heartbeat.lastErrorAt = Date.now();
             heartbeat.status = "error";
-            console.error(`  ✘ First optimization failed: ${err.message}`);
+            logger.error(`  ✘ First optimization failed: ${err.message}`);
         }
         scheduleNext();
     }, PHI_INTERVALS.medium);
@@ -480,7 +481,7 @@ function registerRoutes(app, vectorMem) {
     // Start the continuous loop
     startContinuousLoop(vectorMem);
 
-    console.log(`  ∞ SelfOptimizer: CONTINUOUS (${Math.round(heartbeat.baseIntervalMs / 1000)}s cycle, heartbeat active, error recovery enabled)`);
+    logger.logSystem(`  ∞ SelfOptimizer: CONTINUOUS (${Math.round(heartbeat.baseIntervalMs / 1000)}s cycle, heartbeat active, error recovery enabled)`);
 }
 
 module.exports = { runOptimizationCycle, registerRoutes, optState, heartbeat, startContinuousLoop, stopContinuousLoop };

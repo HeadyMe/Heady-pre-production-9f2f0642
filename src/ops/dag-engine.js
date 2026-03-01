@@ -10,11 +10,12 @@ let redisClient = null;
 
 try {
     const redis = require('redis');
+const logger = require("../utils/logger");
     redisClient = redis.createClient({ url: process.env.REDIS_URL || 'redis://127.0.0.1:6379' });
-    redisClient.on('error', (err) => console.warn('Redis Cluster not connected. Using in-memory state.'));
+    redisClient.on('error', (err) => logger.warn('Redis Cluster not connected. Using in-memory state.'));
     redisClient.connect().catch(() => { });
 } catch (e) {
-    console.warn('redis package not found. Using in-memory state fallback.');
+    logger.warn('redis package not found. Using in-memory state fallback.');
 }
 
 const inMemoryStore = {};
@@ -33,7 +34,7 @@ class DAGEngine extends EventEmitter {
      */
     registerGraph(graphId, nodes) {
         this.graphs.set(graphId, nodes);
-        console.log(`[DAG Engine] Registered workflow: ${graphId} with ${nodes.length} nodes.`);
+        logger.logSystem(`[DAG Engine] Registered workflow: ${graphId} with ${nodes.length} nodes.`);
     }
 
     async saveState(runId, state) {

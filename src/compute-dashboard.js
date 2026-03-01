@@ -19,6 +19,7 @@ const os = require("os");
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
+const logger = require("./utils/logger");
 
 const AUDIT_DIR = path.join(__dirname, "..", "data");
 
@@ -211,7 +212,7 @@ function registerRoutes(app, orchestrator) {
     });
 
     startSSEBroadcast(orchestrator);
-    console.log("  ∞ ComputeDashboard: LOADED (GET /api/compute/dashboard + SSE /api/compute/stream)");
+    logger.logSystem("  ∞ ComputeDashboard: LOADED (GET /api/compute/dashboard + SSE /api/compute/stream)");
 }
 
 module.exports = { registerRoutes, getDashboard, getLocalResources, getProviderStatus };

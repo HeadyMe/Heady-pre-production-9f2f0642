@@ -20,6 +20,7 @@ const fs = require("fs");
 const express = require("express");
 const { renderSite, resolveSite, resolveSiteBySlug } = require("../sites/site-renderer");
 const registry = require("../sites/site-registry.json");
+const logger = require("../utils/logger");
 
 const USER_SITES_PATH = path.join(__dirname, "..", "..", "data", "user-sites.json");
 
@@ -174,10 +175,10 @@ function mountStaticHosting(app, projectRoot) {
         next();
     });
 
-    console.log(`  ∞ Dynamic Site Hosting: ${Object.keys(registry.preconfigured).length} preconfigured sites`);
-    console.log(`    → Domains: ${Object.keys(registry.preconfigured).join(", ")}`);
-    console.log(`    → Custom sites via POST /api/sites/create`);
-    console.log(`    → Slug access via /v/:slug`);
+    logger.logSystem(`  ∞ Dynamic Site Hosting: ${Object.keys(registry.preconfigured).length} preconfigured sites`);
+    logger.logSystem(`    → Domains: ${Object.keys(registry.preconfigured).join(", ")}`);
+    logger.logSystem(`    → Custom sites via POST /api/sites/create`);
+    logger.logSystem(`    → Slug access via /v/:slug`);
 }
 
 /**

@@ -18,6 +18,7 @@
  */
 
 const EventEmitter = require('events');
+const logger = require("../utils/logger");
 
 class HeadyErrorSentinel extends EventEmitter {
     constructor(config = {}) {
@@ -44,7 +45,7 @@ class HeadyErrorSentinel extends EventEmitter {
 
     start() {
         if (this.isRunning) return;
-        console.log('🛡️ Starting HeadyErrorSentinel Service');
+        logger.logSystem('🛡️ Starting HeadyErrorSentinel Service');
         this.isRunning = true;
 
         this.aggregationLoop = setInterval(() => {
@@ -56,7 +57,7 @@ class HeadyErrorSentinel extends EventEmitter {
 
     stop() {
         if (!this.isRunning) return;
-        console.log('🛑 Stopping HeadyErrorSentinel Service');
+        logger.logSystem('🛑 Stopping HeadyErrorSentinel Service');
         this.isRunning = false;
         clearInterval(this.aggregationLoop);
         this.emit('stopped');
@@ -64,7 +65,7 @@ class HeadyErrorSentinel extends EventEmitter {
 
     reportError(layer, errorDetails) {
         if (!this.layers[layer]) {
-            console.warn(`[Sentinel] Unknown layer reported: ${layer}`);
+            logger.warn(`[Sentinel] Unknown layer reported: ${layer}`);
             layer = 'Core'; // default fallback
         }
 
@@ -89,7 +90,7 @@ class HeadyErrorSentinel extends EventEmitter {
     }
 
     handleCriticalImmediate(errorEntry) {
-        console.error(`🚨 [CRITICAL ANOMALY] Layer: ${errorEntry.layer} | ${errorEntry.message}`);
+        logger.error(`🚨 [CRITICAL ANOMALY] Layer: ${errorEntry.layer} | ${errorEntry.message}`);
         // Immediately feed to Risk and MC to isolate the faulty strategy or component
         this.emit('circuit_breaker_trigger', errorEntry);
     }
@@ -101,7 +102,7 @@ class HeadyErrorSentinel extends EventEmitter {
         const recentErrors = this.errorLog.splice(0, this.errorLog.length);
         if (recentErrors.length === 0) return;
 
-        console.log(`[Sentinel] Analyzing ${recentErrors.length} recent errors...`);
+        logger.logSystem(`[Sentinel] Analyzing ${recentErrors.length} recent errors...`);
 
         const summary = {
             total: recentErrors.length,
@@ -145,7 +146,7 @@ if (require.main === module) {
 
     setTimeout(() => {
         sentinel.stop();
-        console.log(sentinel.getStatus());
+        logger.logSystem(sentinel.getStatus());
         process.exit(0);
     }, 6000);
 }

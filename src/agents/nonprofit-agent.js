@@ -35,6 +35,7 @@
 
 const path = require("path");
 const fs = require("fs");
+const logger = require("../utils/logger");
 
 // Load template catalog at module init
 let TEMPLATE_CATALOG = { templates: [] };
@@ -42,7 +43,7 @@ try {
     const catalogPath = path.join(__dirname, "..", "nonprofit-templates.json");
     TEMPLATE_CATALOG = JSON.parse(fs.readFileSync(catalogPath, "utf8"));
 } catch (e) {
-    console.warn("  ⚠ NonprofitConsultantAgent: Could not load template catalog:", e.message);
+    logger.warn("  ⚠ NonprofitConsultantAgent: Could not load template catalog:", e.message);
 }
 
 // ─── TEMPLATE INDEX ─────────────────────────────────────────────────────────

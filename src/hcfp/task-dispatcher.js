@@ -21,6 +21,7 @@
 const path = require('path');
 const fs = require('fs');
 const { midiBus, CHANNELS } = require("../engines/midi-event-bus");
+const logger = require("../utils/logger");
 
 // ═══ Pipeline Source ═══
 const PIPELINE_FILE = path.join(__dirname, '..', 'auto-flow-200-tasks.json');
@@ -183,7 +184,7 @@ function loadPipeline(opts = {}) {
 
         return tasks.slice(0, limit);
     } catch (err) {
-        console.error(`[TaskDispatcher] Pipeline load error: ${err.message}`);
+        logger.error(`[TaskDispatcher] Pipeline load error: ${err.message}`);
         return [];
     }
 }

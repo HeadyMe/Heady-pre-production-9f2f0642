@@ -20,6 +20,7 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const logger = require("../utils/logger");
 
 const DATA_DIR = path.join(__dirname, "..", "..", "data");
 const AUDIT_LOG = path.join(DATA_DIR, "cognitive-audit.jsonl");
@@ -132,7 +133,7 @@ function persistAuditEntry(entry) {
     try {
         const line = JSON.stringify(entry) + "\n";
         fs.appendFile(AUDIT_LOG, line, (err) => {
-            if (err) console.error("[CogTel] Audit log write error:", err.message);
+            if (err) logger.error("[CogTel] Audit log write error:", err.message);
         });
     } catch { /* never crash the hot path */ }
 }

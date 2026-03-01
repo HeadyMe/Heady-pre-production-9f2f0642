@@ -6,6 +6,7 @@
  * ════════════════════════════════════════════════════════════════════
  */
 
+const logger = require("../../utils/logger");
 class BiometricHITL {
     constructor(apiEndpoint = '/api/auth/webauthn') {
         this.apiEndpoint = apiEndpoint;
@@ -21,7 +22,7 @@ class BiometricHITL {
             throw new Error('Biometric HITL requires a WebAuthn compatible device.');
         }
 
-        console.log(`[BIOMETRIC] Requesting challenge for transaction: ${tradeContext.id}`);
+        logger.logSystem(`[BIOMETRIC] Requesting challenge for transaction: ${tradeContext.id}`);
 
         try {
             // 1. Fetch challenge from Manager
@@ -66,11 +67,11 @@ class BiometricHITL {
                 throw new Error('Biometric validation failed cryptographic check.');
             }
 
-            console.log(`[BIOMETRIC] HitL validation approved for trade ${tradeContext.id}.`);
+            logger.logSystem(`[BIOMETRIC] HitL validation approved for trade ${tradeContext.id}.`);
             return true;
 
         } catch (err) {
-            console.error(`[BIOMETRIC] Flow aborted: ${err.message}`);
+            logger.error(`[BIOMETRIC] Flow aborted: ${err.message}`);
             return false;
         }
     }

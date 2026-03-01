@@ -26,6 +26,7 @@ const fs = require("fs");
 const path = require("path");
 const HeadyGateway = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "gateway"));
 const { createProviders } = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "providers"));
+const logger = require("./utils/logger");
 
 const DISPATCH_AUDIT = path.join(__dirname, "..", "data", "remote-dispatch-audit.jsonl");
 const dir = path.dirname(DISPATCH_AUDIT);
@@ -153,7 +154,7 @@ function registerRoutes(app, vectorMem) {
         res.json({ ok: true, results: mapped, total: mapped.length, succeeded: mapped.filter(r => r.ok).length });
     });
 
-    console.log("  ∞ RemoteCompute: LOADED (dispatch + race + batch → vector storage)");
+    logger.logSystem("  ∞ RemoteCompute: LOADED (dispatch + race + batch → vector storage)");
 }
 
 module.exports = { dispatch, dispatchRace, registerRoutes, stats };

@@ -11,6 +11,7 @@
  * Exports: startBrandingMonitor(), getBrandingReport(), getSystemIntrospection()
  */
 
+const logger = require("./utils/logger");
 let vectorMemory = null;
 try { vectorMemory = require('./vector-memory'); } catch (e) { /* loaded later */ }
 
@@ -121,7 +122,7 @@ async function runBrandingScan() {
     }
 
     if (monitorState.alerts.length > 0) {
-        console.log(`  🔍 BrandingMonitor: ${monitorState.healthy}/${DOMAINS.length} healthy, ${monitorState.alerts.length} alerts`);
+        logger.logSystem(`  🔍 BrandingMonitor: ${monitorState.healthy}/${DOMAINS.length} healthy, ${monitorState.alerts.length} alerts`);
     }
 }
 
@@ -129,18 +130,18 @@ function startBrandingMonitor() {
     // Initial scan after 30s startup delay
     setTimeout(() => {
         runBrandingScan().catch(err => {
-            console.warn(`  ⚠ BrandingMonitor scan error: ${err.message}`);
+            logger.warn(`  ⚠ BrandingMonitor scan error: ${err.message}`);
         });
     }, 30000);
 
     // Periodic scan every 6 hours
     setInterval(() => {
         runBrandingScan().catch(err => {
-            console.warn(`  ⚠ BrandingMonitor scan error: ${err.message}`);
+            logger.warn(`  ⚠ BrandingMonitor scan error: ${err.message}`);
         });
     }, 6 * 60 * 60 * 1000);
 
-    console.log('  ∞ BrandingMonitor: STARTED (initial scan in 30s, then every 6h)');
+    logger.logSystem('  ∞ BrandingMonitor: STARTED (initial scan in 30s, then every 6h)');
 }
 
 function getBrandingReport() {

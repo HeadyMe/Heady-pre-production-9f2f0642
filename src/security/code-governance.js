@@ -21,6 +21,7 @@ const fs = require("fs");
 const path = require("path");
 const yaml = require("js-yaml");
 const crypto = require("crypto");
+const logger = require("../utils/logger");
 
 const GOVERNANCE_CONFIG = path.join(__dirname, "../../configs/code-governance.yaml");
 const AUDIT_LOG = path.join(__dirname, "../../data/code-governance-audit.jsonl");
@@ -42,10 +43,10 @@ function loadConfig() {
         if (newHash !== _configHash) {
             _config = yaml.load(raw);
             _configHash = newHash;
-            console.log(`  ∞ CodeGovernance: Config loaded (hash: ${_configHash})`);
+            logger.logSystem(`  ∞ CodeGovernance: Config loaded (hash: ${_configHash})`);
         }
     } catch (err) {
-        console.error(`  ✗ CodeGovernance: Failed to load config: ${err.message}`);
+        logger.error(`  ✗ CodeGovernance: Failed to load config: ${err.message}`);
         // Fail closed — if config can't load, deny everything
         _config = { approved_developers: [], approved_agents: [], blocked_gateways: [], auth_gate: { block_unknown_emails: true } };
     }
@@ -360,7 +361,7 @@ function registerRoutes(router) {
         });
     });
 
-    console.log("  ∞ CodeGovernance: Routes registered (authorize, check-dev, check-agent, approve, revoke, status)");
+    logger.logSystem("  ∞ CodeGovernance: Routes registered (authorize, check-dev, check-agent, approve, revoke, status)");
 }
 
 module.exports = {

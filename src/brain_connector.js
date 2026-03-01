@@ -7,6 +7,7 @@
  * Provides 100% uptime guarantee through failover and health monitoring.
  */
 const EventEmitter = require("events");
+const logger = require("./utils/logger");
 
 class BrainConnector extends EventEmitter {
     constructor(opts = {}) {
@@ -22,7 +23,7 @@ class BrainConnector extends EventEmitter {
 
         // Start health checker
         this._healthInterval = setInterval(() => this._runHealthChecks(), this.healthCheckInterval);
-        console.log(`  ∞ BrainConnector: pool=${this.poolSize}, healthCheck=${this.healthCheckInterval}ms`);
+        logger.logSystem(`  ∞ BrainConnector: pool=${this.poolSize}, healthCheck=${this.healthCheckInterval}ms`);
     }
 
     _registerEndpoint(id, config) {

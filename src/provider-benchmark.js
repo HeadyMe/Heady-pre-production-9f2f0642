@@ -58,6 +58,7 @@ async function benchmarkHF() {
     const start = Date.now();
     try {
         const { InferenceClient } = require("@huggingface/inference");
+const logger = require("./utils/logger");
         const tokens = [process.env.HF_TOKEN, process.env.HF_TOKEN_2, process.env.HF_TOKEN_3].filter(Boolean);
         if (tokens.length === 0) return { provider: "hf", ok: false, error: "no tokens" };
 
@@ -229,7 +230,7 @@ function registerRoutes(app, vectorMem) {
         res.json({ ok: true, history: benchResults.history || [], total: (benchResults.history || []).length });
     });
 
-    console.log("  ∞ ProviderBenchmark: LOADED (GET /api/benchmark/latest, POST /run, GET /history)");
+    logger.logSystem("  ∞ ProviderBenchmark: LOADED (GET /api/benchmark/latest, POST /run, GET /history)");
 }
 
 module.exports = { runFullBenchmark, registerRoutes, benchResults };

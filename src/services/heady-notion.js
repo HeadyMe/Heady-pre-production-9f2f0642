@@ -17,6 +17,7 @@
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
+const logger = require("../utils/logger");
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const NOTION_VERSION = "2022-06-28";
@@ -404,7 +405,7 @@ Add to your MCP config:
 
 async function syncToNotion() {
     if (!NOTION_TOKEN) {
-        console.error("NOTION_TOKEN not set");
+        logger.error("NOTION_TOKEN not set");
         return { ok: false, error: "No token" };
     }
 
@@ -416,7 +417,7 @@ async function syncToNotion() {
         let vaultId = state.pages.vault;
 
         if (!vaultId) {
-            console.log("Creating Heady Knowledge Vault...");
+            logger.logSystem("Creating Heady Knowledge Vault...");
             const vault = await createPage(null, "🧠 Heady Knowledge Vault", "🧠", [
                 {
                     object: "block", type: "callout", callout: {
@@ -439,12 +440,12 @@ async function syncToNotion() {
             vaultId = vault.id;
             state.pages.vault = vaultId;
             results.created.push("Knowledge Vault");
-            console.log(`  ✅ Knowledge Vault created: ${vaultId}`);
+            logger.logSystem(`  ✅ Knowledge Vault created: ${vaultId}`);
         }
 
         // ─── Notebook 1: Comprehensive Guide ───────
         if (!state.pages.guide) {
-            console.log("Creating Notebook 1: Comprehensive Guide...");
+            logger.logSystem("Creating Notebook 1: Comprehensive Guide...");
             const guideMd = fs.existsSync(path.join(NOTEBOOKS_DIR, "01-comprehensive-guide.md"))
                 ? fs.readFileSync(path.join(NOTEBOOKS_DIR, "01-comprehensive-guide.md"), "utf8")
                 : "# Comprehensive Guide\nContent will be synced on next update.";
@@ -452,29 +453,29 @@ async function syncToNotion() {
             const guide = await createPage(vaultId, "📖 Comprehensive Guide — Architecture, IP & Services", "📖", guideBlocks);
             state.pages.guide = guide.id;
             results.created.push("Comprehensive Guide");
-            console.log(`  ✅ Comprehensive Guide: ${guide.id}`);
+            logger.logSystem(`  ✅ Comprehensive Guide: ${guide.id}`);
         }
 
         // ─── Notebook 2: System Status ───────
         if (!state.pages.status) {
-            console.log("Creating Notebook 2: System Status...");
+            logger.logSystem("Creating Notebook 2: System Status...");
             const statusContent = generateStatusContent();
             const statusBlocks = markdownToBlocks(statusContent);
             const status = await createPage(vaultId, "📊 System Status & Updates (Rolling 2-Day)", "📊", statusBlocks);
             state.pages.status = status.id;
             results.created.push("System Status");
-            console.log(`  ✅ System Status: ${status.id}`);
+            logger.logSystem(`  ✅ System Status: ${status.id}`);
         }
 
         // ─── Notebook 3: Commands Reference ───────
         if (!state.pages.commands) {
-            console.log("Creating Notebook 3: Commands Reference...");
+            logger.logSystem("Creating Notebook 3: Commands Reference...");
             const commandsContent = generateCommandsContent();
             const commandsBlocks = markdownToBlocks(commandsContent);
             const commands = await createPage(vaultId, "⚡ Commands & Services Reference", "⚡", commandsBlocks);
             state.pages.commands = commands.id;
             results.created.push("Commands Reference");
-            console.log(`  ✅ Commands Reference: ${commands.id}`);
+            logger.logSystem(`  ✅ Commands Reference: ${commands.id}`);
         }
 
         // ─── Knowledge Vault Sub-Pages ───────
@@ -580,12 +581,12 @@ async function syncToNotion() {
 
         for (const section of vaultSections) {
             if (!state.pages[section.key]) {
-                console.log(`Creating vault section: ${section.title}...`);
+                logger.logSystem(`Creating vault section: ${section.title}...`);
                 const blocks = markdownToBlocks(section.content.join("\n"));
                 const page = await createPage(vaultId, section.title, section.icon, blocks);
                 state.pages[section.key] = page.id;
                 results.created.push(section.title);
-                console.log(`  ✅ ${section.title}: ${page.id}`);
+                logger.logSystem(`  ✅ ${section.title}: ${page.id}`);
                 // Small delay to avoid rate limits
                 await new Promise(r => setTimeout(r, 500));
             }
@@ -595,12 +596,12 @@ async function syncToNotion() {
         state.syncCount++;
         saveState(state);
 
-        console.log(`\nSync complete! Created: ${results.created.length}, Errors: ${results.errors.length}`);
+        logger.logSystem(`\nSync complete! Created: ${results.created.length}, Errors: ${results.errors.length}`);
         return { ok: true, ...results, state };
 
     } catch (err) {
         results.errors.push(err.message);
-        console.error(`Sync error: ${err.message}`);
+        logger.error(`Sync error: ${err.message}`);
         saveState(state);
         return { ok: false, ...results, error: err.message };
     }
@@ -710,19 +711,19 @@ if (require.main === module) {
 
     if (cliAction === "audit") {
         const details = process.argv[3] || `Git push audit at ${new Date().toISOString()}`;
-        console.log("📋 Appending audit entry to Notion...");
+        logger.logSystem("📋 Appending audit entry to Notion...");
         updateNotionStatus({ source: "git-hook", action: "git-push", details })
-            .then((r) => { console.log(JSON.stringify(r)); process.exit(r.ok ? 0 : 1); })
-            .catch((e) => { console.error(e); process.exit(1); });
+            .then((r) => { logger.logSystem(JSON.stringify(r)); process.exit(r.ok ? 0 : 1); })
+            .catch((e) => { logger.error(e); process.exit(1); });
     } else {
-        console.log("🧠 Heady → Notion Sync Starting...");
+        logger.logSystem("🧠 Heady → Notion Sync Starting...");
         syncToNotion()
             .then((result) => {
-                console.log(JSON.stringify(result, null, 2));
+                logger.logSystem(JSON.stringify(result, null, 2));
                 process.exit(result.ok ? 0 : 1);
             })
             .catch((err) => {
-                console.error(err);
+                logger.error(err);
                 process.exit(1);
             });
     }

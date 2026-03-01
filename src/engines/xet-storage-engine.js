@@ -30,6 +30,7 @@
 const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
+const logger = require("../utils/logger");
 
 class XetStorageEngine {
     constructor(opts = {}) {
@@ -46,8 +47,8 @@ class XetStorageEngine {
     _log(level, msg) {
         const ts = new Date().toISOString();
         const line = `[xet-storage] [${ts}] [${level.toUpperCase()}] ${msg}`;
-        if (level === 'error') console.error(line);
-        else console.log(line);
+        if (level === 'error') logger.error(line);
+        else logger.logSystem(line);
         if (global.eventBus) global.eventBus.emit('log', { source: 'xet-storage', level, msg });
     }
 

@@ -11,6 +11,7 @@
  * completions, failures, and receipts as they happen.
  */
 
+const logger = require("./utils/logger");
 class EventStream {
     constructor() {
         this.clients = new Map();  // clientId → { res, filters }
@@ -69,7 +70,7 @@ class EventStream {
             res.json(this.status());
         });
 
-        console.log("📡 SSE event stream registered: /api/events/pipeline");
+        logger.logSystem("📡 SSE event stream registered: /api/events/pipeline");
     }
 
     // ─── Connect pipeline events to SSE ──────────────────────────

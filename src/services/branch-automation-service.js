@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const EventEmitter = require('events');
+const logger = require("../utils/logger");
 
 class BranchAutomationService extends EventEmitter {
   constructor(config = {}) {
@@ -84,11 +85,11 @@ class BranchAutomationService extends EventEmitter {
 
   async start() {
     if (this.isRunning) {
-      console.log('🔄 Branch Automation Service already running');
+      logger.logSystem('🔄 Branch Automation Service already running');
       return;
     }
 
-    console.log('🚀 Starting Branch Automation Service - 100% Continuous Mode');
+    logger.logSystem('🚀 Starting Branch Automation Service - 100% Continuous Mode');
     this.isRunning = true;
     this.startTime = Date.now();
 
@@ -116,16 +117,16 @@ class BranchAutomationService extends EventEmitter {
     }, 10000); // Monitor every 10 seconds
 
     this.emit('started');
-    console.log('✅ Branch Automation Service started successfully');
+    logger.logSystem('✅ Branch Automation Service started successfully');
   }
 
   async stop() {
     if (!this.isRunning) {
-      console.log('🔄 Branch Automation Service already stopped');
+      logger.logSystem('🔄 Branch Automation Service already stopped');
       return;
     }
 
-    console.log('🛑 Stopping Branch Automation Service');
+    logger.logSystem('🛑 Stopping Branch Automation Service');
     this.isRunning = false;
 
     clearInterval(this.syncLoop);
@@ -139,7 +140,7 @@ class BranchAutomationService extends EventEmitter {
     }
 
     this.emit('stopped');
-    console.log('✅ Branch Automation Service stopped');
+    logger.logSystem('✅ Branch Automation Service stopped');
   }
 
   async updateGitStatus() {
@@ -155,7 +156,7 @@ class BranchAutomationService extends EventEmitter {
       };
 
     } catch (err) {
-      console.error('❌ Failed to update git status:', err.message);
+      logger.error('❌ Failed to update git status:', err.message);
     }
   }
 
@@ -185,7 +186,7 @@ class BranchAutomationService extends EventEmitter {
     });
 
     this.emit('sync_queued', sync);
-    console.log(`📤 Sync queued: ${branchName} → ${branch.destination} (${sync.id})`);
+    logger.logSystem(`📤 Sync queued: ${branchName} → ${branch.destination} (${sync.id})`);
 
     return sync.id;
   }
@@ -204,7 +205,7 @@ class BranchAutomationService extends EventEmitter {
   }
 
   async processSync(sync) {
-    console.log(`🔄 Processing sync: ${sync.branch} → ${sync.destination} (${sync.id})`);
+    logger.logSystem(`🔄 Processing sync: ${sync.branch} → ${sync.destination} (${sync.id})`);
 
     this.activeSyncs.set(sync.id, {
       ...sync,
@@ -249,10 +250,10 @@ class BranchAutomationService extends EventEmitter {
       this.metrics.lastSync = Date.now();
 
       this.emit('sync_completed', completedSync);
-      console.log(`✅ Sync completed: ${sync.branch} → ${sync.destination}`);
+      logger.logSystem(`✅ Sync completed: ${sync.branch} → ${sync.destination}`);
 
     } catch (error) {
-      console.error(`❌ Sync failed: ${sync.branch} → ${sync.destination} - ${error.message}`);
+      logger.error(`❌ Sync failed: ${sync.branch} → ${sync.destination} - ${error.message}`);
 
       // Attempt rollback if enabled
       if (this.config.rollback_capability) {
@@ -412,7 +413,7 @@ class BranchAutomationService extends EventEmitter {
       try {
         execSync(`git checkout ${this.currentBranch}`, { encoding: 'utf8' });
       } catch (branchErr) {
-        console.error('Failed to return to original branch:', branchErr.message);
+        logger.error('Failed to return to original branch:', branchErr.message);
       }
 
       throw err;
@@ -432,7 +433,7 @@ class BranchAutomationService extends EventEmitter {
   }
 
   async attemptRollback(sync, error) {
-    console.log(`🔄 Attempting rollback for failed sync: ${sync.id}`);
+    logger.logSystem(`🔄 Attempting rollback for failed sync: ${sync.id}`);
 
     try {
       // Switch to destination branch
@@ -457,11 +458,11 @@ class BranchAutomationService extends EventEmitter {
       this.rollbackHistory.push(rollback);
       this.metrics.rollbackRate = this.rollbackHistory.length / this.metrics.syncsCompleted;
 
-      console.log(`✅ Rollback completed for sync: ${sync.id}`);
+      logger.logSystem(`✅ Rollback completed for sync: ${sync.id}`);
       this.emit('rollback_completed', rollback);
 
     } catch (rollbackErr) {
-      console.error(`❌ Rollback failed for sync: ${sync.id} - ${rollbackErr.message}`);
+      logger.error(`❌ Rollback failed for sync: ${sync.id} - ${rollbackErr.message}`);
 
       const rollback = {
         syncId: sync.id,
@@ -616,17 +617,17 @@ if (require.main === module) {
   const service = getBranchAutomationService();
 
   service.start().then(() => {
-    console.log('🔄 Branch Automation Service started - 100% Continuous Mode');
+    logger.logSystem('🔄 Branch Automation Service started - 100% Continuous Mode');
 
     // Graceful shutdown
     process.on('SIGINT', async () => {
-      console.log('\n🛑 Shutting down Branch Automation Service...');
+      logger.logSystem('\n🛑 Shutting down Branch Automation Service...');
       await service.stop();
       process.exit(0);
     });
 
     process.on('SIGTERM', async () => {
-      console.log('\n🛑 Shutting down Branch Automation Service...');
+      logger.logSystem('\n🛑 Shutting down Branch Automation Service...');
       await service.stop();
       process.exit(0);
     });
@@ -637,7 +638,7 @@ if (require.main === module) {
     }, 5000);
 
   }).catch(err => {
-    console.error('❌ Failed to start Branch Automation Service:', err);
+    logger.error('❌ Failed to start Branch Automation Service:', err);
     process.exit(1);
   });
 }

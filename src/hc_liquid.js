@@ -20,6 +20,7 @@
 const EventEmitter = require("events");
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const LIQUID_STATE_PATH = path.join(__dirname, "..", "data", "liquid-state.json");
 
@@ -413,8 +414,8 @@ function registerLiquidRoutes(app, allocator) {
         res.json({ ok: true, components: comps });
     });
 
-    console.log("  💧 HeadyLiquid: LOADED (dynamic allocation, context-aware routing)");
-    console.log("    → Endpoints: /api/liquid/health, /allocate, /state, /flows, /query, /components");
+    logger.logSystem("  💧 HeadyLiquid: LOADED (dynamic allocation, context-aware routing)");
+    logger.logSystem("    → Endpoints: /api/liquid/health, /allocate, /state, /flows, /query, /components");
 }
 
 module.exports = { LiquidAllocator, registerLiquidRoutes, analyzeContext, calculateAffinity, COMPONENT_REGISTRY };

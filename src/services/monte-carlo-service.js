@@ -13,6 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
+const logger = require("../utils/logger");
 
 class HeadySimsService extends EventEmitter {
   constructor(config = {}) {
@@ -121,11 +122,11 @@ class HeadySimsService extends EventEmitter {
 
   async start() {
     if (this.isRunning) {
-      console.log('🎲 HeadySims Service already running');
+      logger.logSystem('🎲 HeadySims Service already running');
       return;
     }
 
-    console.log('🚀 Starting HeadySims Service - 100% Continuous Mode');
+    logger.logSystem('🚀 Starting HeadySims Service - 100% Continuous Mode');
     this.isRunning = true;
     this.startTime = Date.now();
     
@@ -150,7 +151,7 @@ class HeadySimsService extends EventEmitter {
     }, 30000); // Learn every 30 seconds
     
     this.emit('started');
-    console.log('✅ HeadySims Service started successfully');
+    logger.logSystem('✅ HeadySims Service started successfully');
     
     // Process any existing tasks
     await this.processTaskQueue();
@@ -158,11 +159,11 @@ class HeadySimsService extends EventEmitter {
 
   async stop() {
     if (!this.isRunning) {
-      console.log('🎲 HeadySims Service already stopped');
+      logger.logSystem('🎲 HeadySims Service already stopped');
       return;
     }
 
-    console.log('🛑 Stopping HeadySims Service');
+    logger.logSystem('🛑 Stopping HeadySims Service');
     this.isRunning = false;
     
     clearInterval(this.optimizationLoop);
@@ -176,7 +177,7 @@ class HeadySimsService extends EventEmitter {
     }
     
     this.emit('stopped');
-    console.log('✅ HeadySims Service stopped');
+    logger.logSystem('✅ HeadySims Service stopped');
   }
 
   async addTask(task) {
@@ -204,7 +205,7 @@ class HeadySimsService extends EventEmitter {
     }
     
     this.emit('task_added', taskWithId);
-    console.log(`📝 Task added: ${taskWithId.type} (${taskWithId.id})`);
+    logger.logSystem(`📝 Task added: ${taskWithId.type} (${taskWithId.id})`);
     
     return taskWithId.id;
   }
@@ -223,7 +224,7 @@ class HeadySimsService extends EventEmitter {
   }
 
   async processTask(task) {
-    console.log(`⚙️  Processing task: ${task.type} (${task.id})`);
+    logger.logSystem(`⚙️  Processing task: ${task.type} (${task.id})`);
     
     this.processingTasks.set(task.id, {
       ...task,
@@ -259,10 +260,10 @@ class HeadySimsService extends EventEmitter {
       this.metrics.tasksProcessed++;
       
       this.emit('task_completed', { task, strategy, result });
-      console.log(`✅ Task completed: ${task.type} with ${strategy} (${result.score.toFixed(3)})`);
+      logger.logSystem(`✅ Task completed: ${task.type} with ${strategy} (${result.score.toFixed(3)})`);
       
     } catch (error) {
-      console.error(`❌ Task failed: ${task.type} - ${error.message}`);
+      logger.error(`❌ Task failed: ${task.type} - ${error.message}`);
       
       this.processingTasks.delete(task.id);
       this.learningData.failures.push({
@@ -544,17 +545,17 @@ if (require.main === module) {
   const service = getHeadySimsService();
   
   service.start().then(() => {
-    console.log('🎲 HeadySims Service started - 100% Continuous Mode');
+    logger.logSystem('🎲 HeadySims Service started - 100% Continuous Mode');
     
     // Graceful shutdown
     process.on('SIGINT', async () => {
-      console.log('\n🛑 Shutting down HeadySims Service...');
+      logger.logSystem('\n🛑 Shutting down HeadySims Service...');
       await service.stop();
       process.exit(0);
     });
     
     process.on('SIGTERM', async () => {
-      console.log('\n🛑 Shutting down HeadySims Service...');
+      logger.logSystem('\n🛑 Shutting down HeadySims Service...');
       await service.stop();
       process.exit(0);
     });
@@ -569,7 +570,7 @@ if (require.main === module) {
     }, 5000);
     
   }).catch(err => {
-    console.error('❌ Failed to start HeadySims Service:', err);
+    logger.error('❌ Failed to start HeadySims Service:', err);
     process.exit(1);
   });
 }

@@ -31,6 +31,7 @@
 const fs = require("fs");
 const path = require("path");
 const http = require("http");
+const logger = require("./utils/logger");
 
 const REG_FILE = path.join(__dirname, "..", "data", "heady-registry.json");
 const REG_AUDIT = path.join(__dirname, "..", "data", "registry-audit.jsonl");
@@ -325,7 +326,7 @@ function registerRoutes(app, vectorMem) {
     // Full populate on startup (2s), then start adaptive loop
     setTimeout(async () => { await fullPopulate().catch(() => { }); adaptiveScan(); }, 2000);
 
-    console.log(`  ∞ HeadyRegistry: LOADED (adaptive scan, confidence-driven, →vector memory)`);
+    logger.logSystem(`  ∞ HeadyRegistry: LOADED (adaptive scan, confidence-driven, →vector memory)`);
 }
 
 module.exports = { registerRoutes, getSummary, getAllWithConfidence, fullPopulate, incrementalScan, registry };

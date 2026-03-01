@@ -15,6 +15,7 @@
 const fs = require("fs");
 const path = require("path");
 const registry = require("./site-registry.json");
+const logger = require("../utils/logger");
 
 const USER_SITES_PATH = path.join(__dirname, "..", "..", "data", "user-sites.json");
 
@@ -279,7 +280,7 @@ function renderAuthJS(site) {
     localStorage.setItem(TK,tok);
   }
   const days=Math.round((JSON.parse(atob(tok)).exp-Date.now())/86400000);
-  console.log('🔐 ${site.name}:',days+'d auth |',warp?'WARP':'Device','|',localStorage.getItem(DK).slice(0,8));
+  logger.logSystem('🔐 ${site.name}:',days+'d auth |',warp?'WARP':'Device','|',localStorage.getItem(DK).slice(0,8));
 })();`;
 }
 

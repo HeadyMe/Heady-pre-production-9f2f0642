@@ -27,6 +27,7 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
+const logger = require("./utils/logger");
 
 // ─── INPUT TYPES ────────────────────────────────────────────────────────
 const INPUT_TYPES = {
@@ -557,7 +558,7 @@ function registerCreativeRoutes(app, engine) {
     });
 
     app.use("/api/creative", router);
-    console.log("  ∞ HeadyCreative: LOADED → /api/creative/* (13 models, 8 pipelines, 9 input types, 8 output types)");
+    logger.logSystem("  ∞ HeadyCreative: LOADED → /api/creative/* (13 models, 8 pipelines, 9 input types, 8 output types)");
 }
 
 module.exports = { HeadyCreativeEngine, registerCreativeRoutes, MODEL_CATALOG, PIPELINES, INPUT_TYPES, OUTPUT_TYPES };

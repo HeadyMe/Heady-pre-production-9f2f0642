@@ -28,6 +28,7 @@ const fs = require("fs");
 const path = require("path");
 const HeadyGateway = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "gateway"));
 const { createProviders } = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "providers"));
+const logger = require("./utils/logger");
 
 const LEARN_LOG = path.join(__dirname, "..", "data", "learning-log.jsonl");
 const CURRICULUM_FILE = path.join(__dirname, "..", "data", "learning-curriculum.json");
@@ -190,7 +191,7 @@ async function runLearningCycle(vectorMem) {
                 },
             });
         } catch (err) {
-            console.warn(`  ⚠ Learning: vector store failed: ${err.message}`);
+            logger.warn(`  ⚠ Learning: vector store failed: ${err.message}`);
         }
     }
 
@@ -220,7 +221,7 @@ async function runLearningCycle(vectorMem) {
     };
 
     logLearn({ type: "learn:success", ...result });
-    console.log(`  🧠 Learned: [${topic.category}] "${topic.topic.substring(0, 60)}..." via ${best.provider} (${best.latency}ms)`);
+    logger.logSystem(`  🧠 Learned: [${topic.category}] "${topic.topic.substring(0, 60)}..." via ${best.provider} (${best.latency}ms)`);
 
     return result;
 }
@@ -247,7 +248,7 @@ async function generateNewTopics() {
             }
         }
     } catch (err) {
-        console.warn(`  ⚠ Learning: topic generation failed: ${err.message}`);
+        logger.warn(`  ⚠ Learning: topic generation failed: ${err.message}`);
     }
 }
 
@@ -293,9 +294,9 @@ function registerRoutes(app) {
         }
     });
 
-    console.log("  🧠 ContinuousLearning: LOADED (multi-provider active learning)");
-    console.log(`    → Curriculum: ${curriculum.length} topics, ${curriculum.filter(t => t.learned).length} learned`);
-    console.log("    → Endpoints: /api/learn/status, /curriculum, /run");
+    logger.logSystem("  🧠 ContinuousLearning: LOADED (multi-provider active learning)");
+    logger.logSystem(`    → Curriculum: ${curriculum.length} topics, ${curriculum.filter(t => t.learned).length} learned`);
+    logger.logSystem("    → Endpoints: /api/learn/status, /curriculum, /run");
 }
 
 module.exports = {

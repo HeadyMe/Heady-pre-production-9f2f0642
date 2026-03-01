@@ -4,6 +4,7 @@
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
 const Redis = (()=>{try{return require('ioredis')}catch(e){return class{constructor(){};on(){};defineCommand(){};get(){};set(){};pipeline(){return{exec:async()=>[]}}}}})();
+const logger = require("../utils/logger");
 
 /**
  * HeadyVinci Predictive Edge Cache
@@ -32,7 +33,7 @@ class HeadyVinciCache {
     // Preemptively execute and cache heavy AI orchestrations for predicted routes
     async predictivePreWarm(srcUserId, currentRoute) {
         const likelyHits = await this.predictNext(currentRoute);
-        console.log(`🧠 [HeadyVinci] Current route: ${currentRoute}. Pre-warming likely next targets:`, likelyHits);
+        logger.logSystem(`🧠 [HeadyVinci] Current route: ${currentRoute}. Pre-warming likely next targets:`, likelyHits);
 
         // In production, this would dispatch worker threads to generate payloads for `likelyHits`
         return likelyHits;

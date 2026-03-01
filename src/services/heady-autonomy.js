@@ -20,6 +20,7 @@
 const EventEmitter = require("events");
 const fs = require("fs");
 const path = require("path");
+const logger = require("../utils/logger");
 
 const MODES = {
     AUTONOMOUS: "autonomous_learning",
@@ -89,9 +90,9 @@ class HeadyAutonomy extends EventEmitter {
             }
         }, 10000);
 
-        console.log("∞ HeadyAutonomy: STARTED (mode: autonomous_learning)");
-        console.log("  → Idle → 100% knowledge gathering");
-        console.log("  → User acts → instant 100% pivot");
+        logger.logSystem("∞ HeadyAutonomy: STARTED (mode: autonomous_learning)");
+        logger.logSystem("  → Idle → 100% knowledge gathering");
+        logger.logSystem("  → User acts → instant 100% pivot");
         this.emit("started", { mode: this.mode });
     }
 
@@ -104,7 +105,7 @@ class HeadyAutonomy extends EventEmitter {
         clearInterval(this._knowledgeGatherInterval);
         clearTimeout(this._rampTimer);
         this._activeTasks.clear();
-        console.log("∞ HeadyAutonomy: STOPPED");
+        logger.logSystem("∞ HeadyAutonomy: STOPPED");
         this.emit("stopped");
     }
 
@@ -148,7 +149,7 @@ class HeadyAutonomy extends EventEmitter {
                 this.stats.pivotCount;
             this.stats.lastPivotAt = new Date().toISOString();
 
-            console.log(`⚡ PIVOT: ${previousMode} → user_priority (${pivotLatency}ms)`);
+            logger.logSystem(`⚡ PIVOT: ${previousMode} → user_priority (${pivotLatency}ms)`);
 
             this.emit("pivot", {
                 from: previousMode,
@@ -178,7 +179,7 @@ class HeadyAutonomy extends EventEmitter {
         if (this.mode === MODES.TRANSITIONING) return;
         this.mode = MODES.TRANSITIONING;
 
-        console.log("🔄 User idle — transitioning back to autonomous learning");
+        logger.logSystem("🔄 User idle — transitioning back to autonomous learning");
 
         // Stage 1: 50/50 split (immediate)
         this.allocation.user_task = 50;
@@ -209,7 +210,7 @@ class HeadyAutonomy extends EventEmitter {
                     health_monitoring: 10,
                     user_task: 0,
                 };
-                console.log("✅ Back to autonomous_learning mode (100% knowledge gathering)");
+                logger.logSystem("✅ Back to autonomous_learning mode (100% knowledge gathering)");
                 this._restoreLearnState();
                 this.emit("mode_changed", { mode: MODES.AUTONOMOUS });
             }, 60000);
@@ -248,7 +249,7 @@ class HeadyAutonomy extends EventEmitter {
                 stats: { ...this.stats },
             });
         } catch (err) {
-            console.warn("⚠ Knowledge gathering error:", err.message);
+            logger.warn("⚠ Knowledge gathering error:", err.message);
         } finally {
             this._activeTasks.delete(taskId);
         }
@@ -340,7 +341,7 @@ class HeadyAutonomy extends EventEmitter {
                 const stats = fs.statSync(storeFile);
                 const sizeMb = stats.size / (1024 * 1024);
                 if (sizeMb > 400) {
-                    console.warn(`⚠ Memory store is ${sizeMb.toFixed(1)}MB — consider compaction`);
+                    logger.warn(`⚠ Memory store is ${sizeMb.toFixed(1)}MB — consider compaction`);
                     this.emit("storage_warning", { type: "size", sizeMb });
                 }
             }
@@ -349,7 +350,7 @@ class HeadyAutonomy extends EventEmitter {
             if (this.memoryWrapper && this.memoryWrapper.initialized) {
                 const health = await this.memoryWrapper.vectorService.healthCheck();
                 if (health && !health.ok) {
-                    console.warn("⚠ Vector DB health check failed — using fallback storage");
+                    logger.warn("⚠ Vector DB health check failed — using fallback storage");
                 }
             }
         } catch (err) {
@@ -383,7 +384,7 @@ class HeadyAutonomy extends EventEmitter {
             if (fs.existsSync(stateFile)) {
                 const state = JSON.parse(fs.readFileSync(stateFile, "utf8"));
                 this.stats = { ...this.stats, ...state.stats };
-                console.log(`🔄 Restored learning state (${state.stats.memoriesGathered} memories gathered)`);
+                logger.logSystem(`🔄 Restored learning state (${state.stats.memoriesGathered} memories gathered)`);
             }
         } catch (err) {
             // Non-critical

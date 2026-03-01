@@ -14,6 +14,7 @@
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
+const logger = require("../utils/logger");
 
 class HeadyBattleService extends EventEmitter {
   constructor(config = {}) {
@@ -212,11 +213,11 @@ class HeadyBattleService extends EventEmitter {
 
   async start() {
     if (this.isRunning) {
-      console.log('🤔 HeadyBattle Service already running');
+      logger.logSystem('🤔 HeadyBattle Service already running');
       return;
     }
 
-    console.log('🚀 Starting HeadyBattle Service - 100% Continuous Mode');
+    logger.logSystem('🚀 Starting HeadyBattle Service - 100% Continuous Mode');
     this.isRunning = true;
     this.startTime = Date.now();
     
@@ -241,16 +242,16 @@ class HeadyBattleService extends EventEmitter {
     }, 10000); // Monitor every 10 seconds
     
     this.emit('started');
-    console.log('✅ HeadyBattle Service started successfully');
+    logger.logSystem('✅ HeadyBattle Service started successfully');
   }
 
   async stop() {
     if (!this.isRunning) {
-      console.log('🤔 HeadyBattle Service already stopped');
+      logger.logSystem('🤔 HeadyBattle Service already stopped');
       return;
     }
 
-    console.log('🛑 Stopping HeadyBattle Service');
+    logger.logSystem('🛑 Stopping HeadyBattle Service');
     this.isRunning = false;
     
     clearInterval(this.validationLoop);
@@ -264,7 +265,7 @@ class HeadyBattleService extends EventEmitter {
     }
     
     this.emit('stopped');
-    console.log('✅ HeadyBattle Service stopped');
+    logger.logSystem('✅ HeadyBattle Service stopped');
   }
 
   async validate(subject, context = {}) {
@@ -286,7 +287,7 @@ class HeadyBattleService extends EventEmitter {
     });
     
     this.emit('validation_queued', validation);
-    console.log(`🤔 Validation queued: ${subject} (${validation.id})`);
+    logger.logSystem(`🤔 Validation queued: ${subject} (${validation.id})`);
     
     return validation.id;
   }
@@ -305,7 +306,7 @@ class HeadyBattleService extends EventEmitter {
   }
 
   async processValidation(validation) {
-    console.log(`🤔 Processing validation: ${validation.subject} (${validation.id})`);
+    logger.logSystem(`🤔 Processing validation: ${validation.subject} (${validation.id})`);
     
     this.processingValidations.set(validation.id, {
       ...validation,
@@ -335,10 +336,10 @@ class HeadyBattleService extends EventEmitter {
       this.metrics.validationsProcessed++;
       
       this.emit('validation_completed', completedValidation);
-      console.log(`✅ Validation completed: ${validation.subject} (${results.approved ? 'APPROVED' : 'REJECTED'})`);
+      logger.logSystem(`✅ Validation completed: ${validation.subject} (${results.approved ? 'APPROVED' : 'REJECTED'})`);
       
     } catch (error) {
-      console.error(`❌ Validation failed: ${validation.subject} - ${error.message}`);
+      logger.error(`❌ Validation failed: ${validation.subject} - ${error.message}`);
       
       this.processingValidations.delete(validation.id);
       this.emit('validation_failed', { validation, error });
@@ -534,7 +535,7 @@ class HeadyBattleService extends EventEmitter {
     const ethicalIssues = recentValidations.filter(v => v.results.ethicalConcerns.length > 0);
     
     if (ethicalIssues.length > 5) {
-      console.log('⚠️  High number of ethical concerns detected - review recommended');
+      logger.logSystem('⚠️  High number of ethical concerns detected - review recommended');
       this.emit('ethical_alert', { count: ethicalIssues.length, validations: ethicalIssues });
     }
   }
@@ -644,17 +645,17 @@ if (require.main === module) {
   const service = getHeadyBattleService();
   
   service.start().then(() => {
-    console.log('🤔 HeadyBattle Service started - 100% Continuous Mode');
+    logger.logSystem('🤔 HeadyBattle Service started - 100% Continuous Mode');
     
     // Graceful shutdown
     process.on('SIGINT', async () => {
-      console.log('\n🛑 Shutting down HeadyBattle Service...');
+      logger.logSystem('\n🛑 Shutting down HeadyBattle Service...');
       await service.stop();
       process.exit(0);
     });
     
     process.on('SIGTERM', async () => {
-      console.log('\n🛑 Shutting down HeadyBattle Service...');
+      logger.logSystem('\n🛑 Shutting down HeadyBattle Service...');
       await service.stop();
       process.exit(0);
     });
@@ -669,7 +670,7 @@ if (require.main === module) {
     }, 8000);
     
   }).catch(err => {
-    console.error('❌ Failed to start HeadyBattle Service:', err);
+    logger.error('❌ Failed to start HeadyBattle Service:', err);
     process.exit(1);
   });
 }

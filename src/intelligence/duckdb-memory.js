@@ -12,6 +12,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 const DB_PATH = process.env.HEADY_MEMORY_DB || path.join(require('os').homedir(), '.headyme', 'heady-brain-v2.duckdb');
+const logger = require("../utils/logger");
 
 class HeadyEmbeddedDuckDB {
   constructor() {
@@ -37,9 +38,9 @@ class HeadyEmbeddedDuckDB {
         // Install and load VSS extension for vector similarity search
         this.conn.run("INSTALL vss; LOAD vss;", (err) => {
           if (err) {
-            console.warn(`⚠️ [DuckDB] VSS extension not available, falling back to manual cosine similarity: ${err.message}`);
+            logger.warn(`⚠️ [DuckDB] VSS extension not available, falling back to manual cosine similarity: ${err.message}`);
           } else {
-            console.log("💿 [DuckDB] VSS Extension loaded successfully.");
+            logger.logSystem("💿 [DuckDB] VSS Extension loaded successfully.");
           }
 
           // Create the actual conversation vectors table
@@ -62,12 +63,12 @@ class HeadyEmbeddedDuckDB {
                             CREATE INDEX IF NOT EXISTS idx_vectors_ts ON conversation_vectors(ts);
                         `, () => {
               this.initialized = true;
-              console.log(`🧠 [HeadyBrain V2] Production DuckDB Vector Store LIVE at ${this.dbPath}`);
+              logger.logSystem(`🧠 [HeadyBrain V2] Production DuckDB Vector Store LIVE at ${this.dbPath}`);
 
               // Log table stats
               this.conn.all("SELECT COUNT(*) as cnt FROM conversation_vectors", (err, rows) => {
                 if (!err && rows && rows.length > 0) {
-                  console.log(`   → Existing vectors: ${rows[0].cnt}`);
+                  logger.logSystem(`   → Existing vectors: ${rows[0].cnt}`);
                 }
                 resolve(true);
               });
@@ -88,7 +89,7 @@ class HeadyEmbeddedDuckDB {
     await this.init();
 
     if (!embedding || embedding.length === 0) {
-      console.warn("⚠️ [DuckDB] Insertion skipped: Empty embedding vector provided.");
+      logger.warn("⚠️ [DuckDB] Insertion skipped: Empty embedding vector provided.");
       return null;
     }
 
@@ -107,7 +108,7 @@ class HeadyEmbeddedDuckDB {
         [id, ts, role, content, embeddingStr, tokenCount, sessionId, meta],
         (err) => {
           if (err) {
-            console.error(`❌ [DuckDB] Insert failed: ${err.message}`);
+            logger.error(`❌ [DuckDB] Insert failed: ${err.message}`);
             return reject(err);
           }
           resolve(id);
@@ -141,7 +142,7 @@ class HeadyEmbeddedDuckDB {
             `, [embeddingStr, topK], (err, rows) => {
         if (err) {
           // Fallback: if list_cosine_similarity isn't available, use recent context
-          console.warn(`⚠️ [DuckDB] Cosine similarity failed, falling back to recency: ${err.message}`);
+          logger.warn(`⚠️ [DuckDB] Cosine similarity failed, falling back to recency: ${err.message}`);
           this.conn.all(
             `SELECT id, ts, role, content, token_count, session_id, metadata 
                          FROM conversation_vectors 
@@ -208,7 +209,7 @@ class HeadyEmbeddedDuckDB {
     if (this.db) {
       return new Promise((resolve) => {
         this.db.close(() => {
-          console.log("💿 [DuckDB] Database closed cleanly.");
+          logger.logSystem("💿 [DuckDB] Database closed cleanly.");
           resolve();
         });
       });

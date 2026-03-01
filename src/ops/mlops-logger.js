@@ -8,6 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
+const logger = require("../utils/logger");
 
 const LOG_PATH = path.join(__dirname, '../../data', 'mlops-telemetry.jsonl');
 
@@ -42,7 +43,7 @@ class MLOpsLogger extends EventEmitter {
 
         // write line
         fs.appendFile(LOG_PATH, JSON.stringify(payload) + '\n', (err) => {
-            if (err) console.error('[MLOps] Discarded telemetry log entry.', err);
+            if (err) logger.error('[MLOps] Discarded telemetry log entry.', err);
         });
 
         // Drift Detection Engine
@@ -70,7 +71,7 @@ class MLOpsLogger extends EventEmitter {
         const avgRecent = recent.reduce((sum, r) => sum + r.latencyMs, 0) / recent.length;
 
         if (avgRecent > avgHistorical * 2.5) {
-            console.warn(`🚨 [MLOps] DRIFT ALERT - Latency Spike on ${targetModel}. Avg Baseline: ${avgHistorical.toFixed(0)}ms, Recent: ${avgRecent.toFixed(0)}ms.`);
+            logger.warn(`🚨 [MLOps] DRIFT ALERT - Latency Spike on ${targetModel}. Avg Baseline: ${avgHistorical.toFixed(0)}ms, Recent: ${avgRecent.toFixed(0)}ms.`);
             this.emit('drift_alert', {
                 model: targetModel, type: 'LATENCY_SPIKE', baseline: avgHistorical, current: avgRecent
             });
@@ -82,7 +83,7 @@ let _mlops = null;
 function getMLOpsLogger() {
     if (!_mlops) {
         _mlops = new MLOpsLogger();
-        console.log("  📊 [MLOpsLogger] Telemetry & Drift Engine WIRED.");
+        logger.logSystem("  📊 [MLOpsLogger] Telemetry & Drift Engine WIRED.");
     }
     return _mlops;
 }

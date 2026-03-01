@@ -9,6 +9,7 @@
  * Import this module: const config = require('../config/global');
  */
 
+const logger = require("../utils/logger");
 require('dotenv').config();
 
 // ─── Helper: Required env var (fails loud, never hides) ─────────────
@@ -166,7 +167,7 @@ function validate() {
 
     if (errors.length > 0) {
         const msg = `\n${'═'.repeat(60)}\n⚠️  CONFIG VALIDATION ERRORS (${errors.length}):\n${errors.map(e => `  • ${e}`).join('\n')}\n${'═'.repeat(60)}`;
-        console.error(msg);
+        logger.error(msg);
         // In production, these are fatal
         if (IS_PRODUCTION && errors.some(e => e.includes('FATAL'))) {
             process.exit(1);

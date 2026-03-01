@@ -40,6 +40,7 @@
 const EventEmitter = require("events");
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const HISTORY_PATH = path.join(__dirname, "..", "data", "auto-success-tasks.json");
 const AUDIT_PATH = path.join(__dirname, "..", "data", "auto-success-audit.json");
@@ -779,7 +780,7 @@ class AutoSuccessEngine extends EventEmitter {
         this.startedAt = Date.now();
         this.runCycle(); // immediate first cycle
         this.timer = setInterval(() => this.runCycle(), this.interval);
-        console.log(`  ∞ AutoSuccess: STARTED (${this.interval / 1000}s cycles, ALL ${TASK_CATALOG.length} tasks/cycle — dynamic, no batching)`);
+        logger.logSystem(`  ∞ AutoSuccess: STARTED (${this.interval / 1000}s cycles, ALL ${TASK_CATALOG.length} tasks/cycle — dynamic, no batching)`);
     }
 
     stop() {
@@ -787,17 +788,17 @@ class AutoSuccessEngine extends EventEmitter {
         this.running = false;
         if (this.timer) { clearInterval(this.timer); this.timer = null; }
         this._saveHistory();
-        console.log(`  ∞ AutoSuccess: STOPPED after ${this.cycleCount} cycles, ${this.totalSucceeded} tasks succeeded`);
+        logger.logSystem(`  ∞ AutoSuccess: STOPPED after ${this.cycleCount} cycles, ${this.totalSucceeded} tasks succeeded`);
     }
 
     enterSafeMode() {
         this.safeMode = true;
-        console.log("  ∞ AutoSuccess: SAFE MODE — reducing concurrency");
+        logger.logSystem("  ∞ AutoSuccess: SAFE MODE — reducing concurrency");
     }
 
     exitSafeMode() {
         this.safeMode = false;
-        console.log("  ∞ AutoSuccess: SAFE MODE OFF — resuming full throughput");
+        logger.logSystem("  ∞ AutoSuccess: SAFE MODE OFF — resuming full throughput");
     }
 
     // ─── CYCLE EXECUTION — ALL TASKS, PARALLEL, INSTANTANEOUS ────────────
@@ -1377,7 +1378,7 @@ class AutoSuccessEngine extends EventEmitter {
                 return JSON.parse(fs.readFileSync(HISTORY_PATH, "utf8"));
             }
         } catch (err) {
-            console.warn(`  ⚠ AutoSuccess: history load failed: ${err.message}`);
+            logger.warn(`  ⚠ AutoSuccess: history load failed: ${err.message}`);
         }
         return [];
     }
@@ -1389,7 +1390,7 @@ class AutoSuccessEngine extends EventEmitter {
             fs.writeFileSync(HISTORY_PATH, JSON.stringify(this.history.slice(-MAX_HISTORY), null, 2));
             this._saveAudit(); // Persist audit trail alongside history
         } catch (err) {
-            console.warn(`  ⚠ AutoSuccess: history save failed: ${err.message}`);
+            logger.warn(`  ⚠ AutoSuccess: history save failed: ${err.message}`);
         }
     }
 }

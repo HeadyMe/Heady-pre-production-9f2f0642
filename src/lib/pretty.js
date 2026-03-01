@@ -22,6 +22,7 @@
  */
 
 // ─── ANSI Color Codes ────────────────────────────────────────────
+const logger = require("../utils/logger");
 const C = {
     reset: "\x1b[0m",
     bold: "\x1b[1m",
@@ -104,24 +105,24 @@ function pp(data, opts = {}) {
     const pad = "  ".repeat(indent);
 
     if (title) {
-        console.log(`\n${pad}${C.bold}${C.cyan}═══ ${title} ═══${C.reset}`);
+        logger.logSystem(`\n${pad}${C.bold}${C.cyan}═══ ${title} ═══${C.reset}`);
     }
 
     if (data === null || data === undefined) {
-        console.log(`${pad}${C.dim}(empty)${C.reset}`);
+        logger.logSystem(`${pad}${C.dim}(empty)${C.reset}`);
         return;
     }
 
     // Primitives
     if (typeof data !== "object") {
-        console.log(`${pad}${fmtValue(data)}`);
+        logger.logSystem(`${pad}${fmtValue(data)}`);
         return;
     }
 
     // Arrays
     if (Array.isArray(data)) {
         if (data.length === 0) {
-            console.log(`${pad}${C.dim}(no items)${C.reset}`);
+            logger.logSystem(`${pad}${C.dim}(no items)${C.reset}`);
             return;
         }
 
@@ -133,7 +134,7 @@ function pp(data, opts = {}) {
 
         // Simple array → numbered list
         data.forEach((item, i) => {
-            console.log(`${pad}  ${C.dim}${i + 1}.${C.reset} ${fmtValue(item)}`);
+            logger.logSystem(`${pad}  ${C.dim}${i + 1}.${C.reset} ${fmtValue(item)}`);
         });
         return;
     }
@@ -147,30 +148,30 @@ function pp(data, opts = {}) {
 
         // Nested objects/arrays
         if (value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 3 && !compact) {
-            console.log(`${pad}  ${C.bold}${C.magenta}┌─ ${hk}${C.reset}`);
+            logger.logSystem(`${pad}  ${C.bold}${C.magenta}┌─ ${hk}${C.reset}`);
             pp(value, { indent: indent + 2, compact: true });
             continue;
         }
 
         if (Array.isArray(value) && value.length > 0 && typeof value[0] === "object") {
-            console.log(`${pad}  ${C.bold}${C.magenta}┌─ ${hk} (${value.length})${C.reset}`);
+            logger.logSystem(`${pad}  ${C.bold}${C.magenta}┌─ ${hk} (${value.length})${C.reset}`);
             ppTable(value, { indent: indent + 2, compact: true });
             continue;
         }
 
         if (Array.isArray(value)) {
             const items = value.map(v => typeof v === "string" ? v : JSON.stringify(v)).join(", ");
-            console.log(`${pad}  ${C.yellow}${hk.padEnd(maxKeyLen)}${C.reset} │ ${items}`);
+            logger.logSystem(`${pad}  ${C.yellow}${hk.padEnd(maxKeyLen)}${C.reset} │ ${items}`);
             continue;
         }
 
         if (value && typeof value === "object") {
             const inline = Object.entries(value).map(([k, v]) => `${k}=${typeof v === "number" ? v : String(v)}`).join(" · ");
-            console.log(`${pad}  ${C.yellow}${hk.padEnd(maxKeyLen)}${C.reset} │ ${C.white}${inline}${C.reset}`);
+            logger.logSystem(`${pad}  ${C.yellow}${hk.padEnd(maxKeyLen)}${C.reset} │ ${C.white}${inline}${C.reset}`);
             continue;
         }
 
-        console.log(`${pad}  ${C.yellow}${hk.padEnd(maxKeyLen)}${C.reset} │ ${fmtValue(value, key)}`);
+        logger.logSystem(`${pad}  ${C.yellow}${hk.padEnd(maxKeyLen)}${C.reset} │ ${fmtValue(value, key)}`);
     }
 }
 
@@ -203,8 +204,8 @@ function ppTable(rows, opts = {}) {
     // Header
     const headerLine = keys.map((_, i) => headers[i].padEnd(widths[i])).join(" │ ");
     const divider = widths.map(w => "─".repeat(w)).join("─┼─");
-    console.log(`${pad}  ${C.bold}${headerLine}${C.reset}`);
-    console.log(`${pad}  ${C.dim}${divider}${C.reset}`);
+    logger.logSystem(`${pad}  ${C.bold}${headerLine}${C.reset}`);
+    logger.logSystem(`${pad}  ${C.dim}${divider}${C.reset}`);
 
     // Rows
     for (const row of rows.slice(0, 50)) {
@@ -217,11 +218,11 @@ function ppTable(rows, opts = {}) {
             else s = String(v);
             return s.substring(0, widths[i]).padEnd(widths[i]);
         });
-        console.log(`${pad}  ${cells.join(" │ ")}`);
+        logger.logSystem(`${pad}  ${cells.join(" │ ")}`);
     }
 
     if (rows.length > 50) {
-        console.log(`${pad}  ${C.dim}... and ${rows.length - 50} more rows${C.reset}`);
+        logger.logSystem(`${pad}  ${C.dim}... and ${rows.length - 50} more rows${C.reset}`);
     }
 }
 
@@ -357,13 +358,13 @@ function banner(title, subtitle) {
         const left = Math.floor((w - len) / 2);
         return " ".repeat(Math.max(0, left)) + s;
     };
-    console.log();
-    console.log(top);
-    console.log(pad(`${C.cyan}${geo}${C.reset}`, width));
-    console.log(pad(`${C.bold}${C.white}🐝  ${title}  🐝${C.reset}`, width));
-    if (subtitle) console.log(pad(`${C.dim}${subtitle}${C.reset}`, width));
-    console.log(pad(`${C.cyan}${geo}${C.reset}`, width));
-    console.log(btm);
+    logger.logSystem();
+    logger.logSystem(top);
+    logger.logSystem(pad(`${C.cyan}${geo}${C.reset}`, width));
+    logger.logSystem(pad(`${C.bold}${C.white}🐝  ${title}  🐝${C.reset}`, width));
+    if (subtitle) logger.logSystem(pad(`${C.dim}${subtitle}${C.reset}`, width));
+    logger.logSystem(pad(`${C.cyan}${geo}${C.reset}`, width));
+    logger.logSystem(btm);
 }
 
 /**
@@ -373,7 +374,7 @@ function banner(title, subtitle) {
  */
 function barChart(items, opts = {}) {
     const { width = 30, title, showPercent = true } = opts;
-    if (title) console.log(`\n  ${C.bold}${C.magenta}${title}${C.reset}`);
+    if (title) logger.logSystem(`\n  ${C.bold}${C.magenta}${title}${C.reset}`);
 
     const maxVal = opts.maxVal || Math.max(...items.map(i => i.value), 1);
     const maxLabel = Math.max(...items.map(i => i.label.length), 0);
@@ -387,7 +388,7 @@ function barChart(items, opts = {}) {
         const val = showPercent
             ? `${C.cyan}${Math.round(pct * 100)}%${C.reset}`
             : `${C.cyan}${item.value}${C.reset}`;
-        console.log(`  ${C.yellow}${label}${C.reset} │${bar}│ ${val}`);
+        logger.logSystem(`  ${C.yellow}${label}${C.reset} │${bar}│ ${val}`);
     }
 }
 
@@ -405,7 +406,7 @@ function progressBar(label, current, total, opts = {}) {
     const empty = width - filled;
     const color = pct >= 0.9 ? C.green : pct >= 0.5 ? C.yellow : C.red;
     const bar = `${color}${"█".repeat(filled)}${C.dim}${"░".repeat(empty)}${C.reset}`;
-    console.log(`  ${C.yellow}${label.padEnd(18)}${C.reset} │${bar}│ ${color}${current}/${total} (${Math.round(pct * 100)}%)${C.reset}`);
+    logger.logSystem(`  ${C.yellow}${label.padEnd(18)}${C.reset} │${bar}│ ${color}${current}/${total} (${Math.round(pct * 100)}%)${C.reset}`);
 }
 
 /**
@@ -442,7 +443,7 @@ function statusLine(label, status, detail) {
     };
     const s = statusMap[status] || statusMap.active;
     const d = detail ? ` ${C.dim}(${detail})${C.reset}` : "";
-    console.log(`  ${s.icon} ${C.yellow}${label.padEnd(20)}${C.reset} ${s.color}${s.text}${C.reset}${d}`);
+    logger.logSystem(`  ${s.icon} ${C.yellow}${label.padEnd(20)}${C.reset} ${s.color}${s.text}${C.reset}${d}`);
 }
 
 /**
@@ -450,7 +451,7 @@ function statusLine(label, status, detail) {
  * @param {string} label
  */
 function section(label) {
-    console.log(`\n  ${C.cyan}${C.bold}─── ${label} ${"─".repeat(Math.max(0, 40 - label.length))}${C.reset}`);
+    logger.logSystem(`\n  ${C.cyan}${C.bold}─── ${label} ${"─".repeat(Math.max(0, 40 - label.length))}${C.reset}`);
 }
 
 /**
@@ -463,7 +464,7 @@ function kvBox(data, title) {
     const entries = Object.entries(data);
     const maxKey = Math.max(...entries.map(([k]) => k.length), 0);
     for (const [k, v] of entries) {
-        console.log(`  ${C.yellow}${k.padEnd(maxKey)}${C.reset} │ ${fmtValue(v, k)}`);
+        logger.logSystem(`  ${C.yellow}${k.padEnd(maxKey)}${C.reset} │ ${fmtValue(v, k)}`);
     }
 }
 

@@ -8,6 +8,7 @@
  * Parses service group logic from HeadyConductor and drives
  * horizontal scaling up/down via local Docker or K8s API.
  */
+const logger = require("../utils/logger");
 class ServiceGroupScaler {
     constructor() {
         this.groups = ['reasoning', 'coding', 'search', 'creative'];
@@ -15,7 +16,7 @@ class ServiceGroupScaler {
     }
 
     async evaluateGroupHealth(groupName, currentCpuLoad) {
-        console.log(`[HeadyOps] Evaluating Service Group: ${groupName} (Load: ${currentCpuLoad * 100}%)`);
+        logger.logSystem(`[HeadyOps] Evaluating Service Group: ${groupName} (Load: ${currentCpuLoad * 100}%)`);
 
         if (currentCpuLoad > this.utilizationThresholds.scaleUp) {
             return this.dispatchScaleEvent(groupName, 'UP');
@@ -27,7 +28,7 @@ class ServiceGroupScaler {
     }
 
     dispatchScaleEvent(groupName, direction) {
-        console.log(`🚀 [HeadyOps] Auto-Scaling Group [${groupName}] -> ${direction}`);
+        logger.logSystem(`🚀 [HeadyOps] Auto-Scaling Group [${groupName}] -> ${direction}`);
         // In production, executes `kubectl scale deployment <groupName> --replicas=+1`
         return { status: `SCALED_${direction}`, group: groupName };
     }

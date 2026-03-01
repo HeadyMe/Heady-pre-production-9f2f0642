@@ -13,6 +13,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const MANAGER_URL = "https://127.0.0.1:3301";
 const HEADY_DIR = path.join(__dirname, "..");
@@ -310,7 +311,7 @@ function _solidifyRegistry(scanData) {
 
         fs.writeFileSync(REGISTRY_PATH, JSON.stringify(registry, null, 2));
     } catch (err) {
-        console.warn(`Registry solidification failed: ${err.message}`);
+        logger.warn(`Registry solidification failed: ${err.message}`);
     }
 }
 
@@ -334,7 +335,7 @@ function _saveScanHistory(scanResult) {
         if (history.length > 500) history.splice(0, history.length - 500);
         fs.writeFileSync(SCAN_HISTORY_PATH, JSON.stringify(history, null, 2));
     } catch (err) {
-        console.warn(`Scan history save failed: ${err.message}`);
+        logger.warn(`Scan history save failed: ${err.message}`);
     }
 }
 
@@ -456,7 +457,7 @@ function registerDeepScanRoutes(app) {
         });
     });
 
-    console.log("  🔬 Deep Scan & Control API: LOADED (/api/system/deep-scan, /control, /controls)");
+    logger.logSystem("  🔬 Deep Scan & Control API: LOADED (/api/system/deep-scan, /control, /controls)");
 }
 
 module.exports = { runDeepScan, registerDeepScanRoutes, INTERNAL_SERVICES, BEST_PRACTICES };

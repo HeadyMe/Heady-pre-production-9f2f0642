@@ -16,6 +16,7 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 // ── Configuration ───────────────────────────────────────────────
 const CONFIG = {
@@ -89,7 +90,7 @@ let intervalId = null;
 // ── Logging ─────────────────────────────────────────────────────
 function log(level, msg) {
     const line = `[WATCHDOG] [${new Date().toISOString()}] [${level}] ${msg}`;
-    console.log(line);
+    logger.logSystem(line);
     try {
         const dir = path.dirname(CONFIG.logFile);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });

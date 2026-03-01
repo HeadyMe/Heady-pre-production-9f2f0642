@@ -12,6 +12,7 @@
  */
 const fs = require("fs");
 const path = require("path");
+const logger = require("./utils/logger");
 
 const VERTICALS_PATH = path.join(__dirname, "verticals.json");
 const OUTPUT_DIR = path.join(__dirname, "..", "public", "verticals");
@@ -416,9 +417,9 @@ async function sendHeadyChat(){var input=document.getElementById('heady-chat-inp
         tok = d.token;
         localStorage.setItem(TK, tok);
         updateUI({ valid: true, tier: d.tier, method: d.method, warp: d.warp });
-        console.log('🔐', d.warp ? 'WARP 365d' : d.method + ' ' + (d.sessionDays||90) + 'd', '| device:', deviceId.slice(0,8));
+        logger.logSystem('🔐', d.warp ? 'WARP 365d' : d.method + ' ' + (d.sessionDays||90) + 'd', '| device:', deviceId.slice(0,8));
       }
-    } catch(e) { console.warn('Auth fallback:', e); }
+    } catch(e) { logger.warn('Auth fallback:', e); }
   }
 
   function updateUI(session) {
@@ -468,7 +469,7 @@ async function sendHeadyChat(){var input=document.getElementById('heady-chat-inp
 
   // Register service worker for PWA install
   if('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(r => console.log('🔧 SW registered')).catch(() => {});
+    navigator.serviceWorker.register('/sw.js').then(r => logger.logSystem('🔧 SW registered')).catch(() => {});
   }
 })();
 </script>
@@ -480,7 +481,7 @@ for (const v of verticals) {
     const slug = v.domain.replace(/\.(com|org|io)$/, "");
     fs.writeFileSync(path.join(OUTPUT_DIR, slug + ".html"), gen(v, verticals));
     count++;
-    console.log("  ✓ " + v.name + " → " + slug + ".html");
+    logger.logSystem("  ✓ " + v.name + " → " + slug + ".html");
 }
-console.log("\\n  ✅ " + count + " sites (v5 — Direct from live headybuddy.org + Canvas engine)");
+logger.logSystem("\\n  ✅ " + count + " sites (v5 — Direct from live headybuddy.org + Canvas engine)");
 module.exports = { gen, verticals, THEMES };

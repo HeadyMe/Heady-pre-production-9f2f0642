@@ -24,6 +24,7 @@
  * ──────────────────────────────────────────────────────────────────
  */
 
+const logger = require("./utils/logger");
 const PHI = 1.6180339887; // Golden ratio
 
 // φ-derived intervals (ms)
@@ -43,7 +44,7 @@ const PHI_INTERVALS = {
  */
 function createVectorAugmentedMiddleware(vectorMem) {
     if (!vectorMem || typeof vectorMem.queryMemory !== "function") {
-        console.warn("  ⚠ VectorPipeline: No vector memory — responses will not be augmented");
+        logger.warn("  ⚠ VectorPipeline: No vector memory — responses will not be augmented");
         return (req, res, next) => next();
     }
 
@@ -96,7 +97,7 @@ function createVectorAugmentedMiddleware(vectorMem) {
             };
         } catch (err) {
             // Don't block the request if vector memory fails
-            console.warn("  ⚠ VectorPipeline: augment failed:", err.message);
+            logger.warn("  ⚠ VectorPipeline: augment failed:", err.message);
         }
 
         next();

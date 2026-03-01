@@ -4,6 +4,7 @@
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
 const Redis = (()=>{try{return require('ioredis')}catch(e){return class{constructor(){};on(){};defineCommand(){};get(){};set(){};pipeline(){return{exec:async()=>[]}}}}})();
+const logger = require("../utils/logger");
 
 /**
  * HeadyBuddy Voice Relay
@@ -23,14 +24,14 @@ class VoiceRelay {
             text: payloadText
         };
         await this.redis.publish(`voice_relay:${userId}`, JSON.stringify(packet));
-        console.log(`🎙️ [Voice Relay] Transmitted ${payloadText.length} chars from mobile to desktop.`);
+        logger.logSystem(`🎙️ [Voice Relay] Transmitted ${payloadText.length} chars from mobile to desktop.`);
     }
 
     listenForDesktop(userId, uiCallback) {
         this.sub.subscribe(`voice_relay:${userId}`);
         this.sub.on('message', (channel, message) => {
             const data = JSON.parse(message);
-            console.log(`💻 [Desktop Receive] Dictation arrived: "${data.text.substring(0, 20)}..."`);
+            logger.logSystem(`💻 [Desktop Receive] Dictation arrived: "${data.text.substring(0, 20)}..."`);
             uiCallback(data.text);
         });
     }

@@ -34,6 +34,7 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const EventEmitter = require("events");
+const logger = require("../utils/logger");
 
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const LOCK_FILE = path.join(REPO_ROOT, ".git", "heady-auto-commit.lock");
@@ -62,9 +63,9 @@ class AutoCommitEngine extends EventEmitter {
         const ts = new Date().toISOString();
         const line = `[auto-commit] [${ts}] [${level.toUpperCase()}] ${msg}`;
         if (level === "error") {
-            console.error(line);
+            logger.error(line);
         } else {
-            console.log(line);
+            logger.logSystem(line);
         }
         this.emit("log", { ts, level, message: msg });
     }

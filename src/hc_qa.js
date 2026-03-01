@@ -23,6 +23,7 @@ const http = require("http");
 const path = require("path");
 const crypto = require("crypto");
 const EventEmitter = require("events");
+const logger = require("./utils/logger");
 
 const QA_REPORT_DIR = path.join(__dirname, "..", "data", "qa-reports");
 const QA_LOG = path.join(__dirname, "..", "data", "qa-audit.jsonl");
@@ -281,7 +282,7 @@ class HeadyQA extends EventEmitter {
             proto.get(url.href, { timeout: 5000 }, (res) => {
                 let body = "";
                 res.on("data", (d) => (body += d));
-                res.on("end", () => { try { resolve(JSON.parse(body)); } catch (e) { console.warn(`[QA] JSON parse failed for ${urlPath}: ${e.message}`); resolve(body); } });
+                res.on("end", () => { try { resolve(JSON.parse(body)); } catch (e) { logger.warn(`[QA] JSON parse failed for ${urlPath}: ${e.message}`); resolve(body); } });
             }).on("error", reject);
         });
     }
@@ -291,7 +292,7 @@ class HeadyQA extends EventEmitter {
         if (this.running) return;
         this.running = true;
         const intervalMs = Math.round(PHI * PHI * PHI * PHI * PHI * 60000); // ~11.1 minutes
-        console.log(`  ∞ HeadyQA: Continuous loop started (interval: ${Math.round(intervalMs / 1000)}s)`);
+        logger.logSystem(`  ∞ HeadyQA: Continuous loop started (interval: ${Math.round(intervalMs / 1000)}s)`);
         this.loopId = setInterval(() => this.runFullSuite("continuous"), intervalMs);
         // Run immediately
         setTimeout(() => this.runFullSuite("startup"), 5000);
@@ -346,7 +347,7 @@ function registerQARoutes(app, qa) {
         }
     });
 
-    console.log("  ∞ HeadyQA: LOADED (endpoint probes + schema validation + integration smoke tests)");
+    logger.logSystem("  ∞ HeadyQA: LOADED (endpoint probes + schema validation + integration smoke tests)");
 }
 
 module.exports = { HeadyQA, registerQARoutes };
