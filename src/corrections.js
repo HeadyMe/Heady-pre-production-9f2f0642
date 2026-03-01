@@ -76,7 +76,7 @@ const TONE_ADJUSTMENTS = {
             "Execute in parallel where possible",
             "Minimize research, maximize building",
             "Show progress constantly",
-            "Batch related operations",
+            "Parallelize all operations",
         ],
     },
     satisfaction: {

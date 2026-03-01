@@ -378,13 +378,7 @@ function registerDeepScanRoutes(app) {
                     }
                     return { applied: false, reason: "Engine not available" };
                 },
-                "set-batch-size": (p) => {
-                    if (global.__autoSuccessEngine) {
-                        global.__autoSuccessEngine.batchSize = Math.min(p.size || 5, 15);
-                        return { applied: true, newBatchSize: global.__autoSuccessEngine.batchSize };
-                    }
-                    return { applied: false, reason: "Engine not available" };
-                },
+
                 "force-cycle": async () => {
                     if (global.__autoSuccessEngine) {
                         await global.__autoSuccessEngine.runCycle();
@@ -452,7 +446,7 @@ function registerDeepScanRoutes(app) {
         res.json({
             ok: true,
             controls: {
-                "auto-success": ["set-interval", "set-batch-size", "force-cycle"],
+                "auto-success": ["set-interval", "force-cycle"],
                 "patterns": ["reset-breaker", "clear-cache"],
                 "cloud": ["refresh-status"],
                 "stream": ["broadcast"],

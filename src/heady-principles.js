@@ -215,7 +215,6 @@ function capacityParams(tier = 'medium') {
     return {
         maxConnections: Math.round(base * PHI),                // ~274
         maxVectors: Math.round(base * PHI_SQ * BASE),      // ~57k
-        batchSize: Math.round(BASE * PHI),                 // 21
         cacheEntries: Math.round(base * PHI_CUBE),            // ~716
         retryLimit: BASE,                                   // 13
         timeoutMs: Math.round(base * LOG_BASE),            // 7098

@@ -53,7 +53,7 @@ const SERVICE_CATALOG = {
     orchestrator: { endpoint: "/api/orchestrator/send", method: "POST", caps: ["task-routing", "wavelength-align", "coordination"], component: "conductor" },
 
     // ─── Pipeline & System ──────────────────────────────────────────
-    "auto-flow": { endpoint: "/api/hcfp/auto-flow", method: "POST", caps: ["pipeline", "batch-processing", "auto-success"], component: "auto-success" },
+    "auto-flow": { endpoint: "/api/hcfp/auto-flow", method: "POST", caps: ["pipeline", "parallel-processing", "auto-success"], component: "auto-success" },
     "deep-scan": { endpoint: "/api/edge/deep-scan", method: "POST", caps: ["project-mapping", "deep-analysis", "context"], component: "brain" },
     "auto-success": { endpoint: "/api/auto-success/status", method: "GET", caps: ["engine-status", "task-cycling", "optimization"], component: "auto-success" },
     health: { endpoint: "/api/health", method: "GET", caps: ["health-check", "system-status", "uptime"], component: "conductor" },

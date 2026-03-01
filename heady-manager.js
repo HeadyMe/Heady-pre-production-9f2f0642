@@ -512,6 +512,7 @@ const structuredLog = require("./src/config/logger");
 
 const buddy = getBuddy();
 buddy.setConductor(conductor);
+buddy.setVectorMemory(vectorMemory);  // Activates 5-Phase Error Interceptor learning loop + GraphRAG
 
 // Wire Redis to Buddy if available
 try {
@@ -525,6 +526,7 @@ buddy.registerRoutes(app);
 logger.logNodeActivity("CONDUCTOR", `  🎼 Buddy Core: LOADED (ID: ${buddy.identity.id})`);
 logger.logNodeActivity("CONDUCTOR", `  🎼 Buddy MCP Tools: ${buddy.listMCPTools().length} tools registered`);
 logger.logNodeActivity("CONDUCTOR", `  🎼 Buddy Metacognition: confidence ${(buddy.metacognition.assessConfidence().confidence * 100).toFixed(0)}%`);
+logger.logNodeActivity("CONDUCTOR", `  🎼 Buddy Error Interceptor: WIRED to vector memory (5-Phase loop active)`);
 
 // ─── BUDDY WATCHDOG — Self-Healing Monitor ──────────────────────────
 const watchdog = new BuddyWatchdog(buddy);
@@ -794,6 +796,19 @@ try {
   logger.logNodeActivity("CONDUCTOR", "  ∞ Pipeline bound to MC + Patterns + Self-Critique");
 } catch (err) {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Pipeline bind failed: ${err.message}`);
+}
+
+// Wire Self-Healing Pipeline: connect Buddy's error interceptor + vector memory
+// so pipeline stage failures trigger automatic remediation before rollback
+try {
+  if (pipeline && buddy) {
+    pipeline.errorInterceptor = buddy.errorInterceptor;
+    pipeline.vectorMemory = vectorMemory;
+    buddy.setPipeline(pipeline);
+    logger.logNodeActivity("CONDUCTOR", "  ∞ Self-Healing Pipeline: WIRED (error interceptor + vector memory + Buddy orchestration)");
+  }
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Self-Healing Pipeline wiring failed: ${err.message}`);
 }
 
 // ─── Continuous Improvement Scheduler ─────────────────────────────────

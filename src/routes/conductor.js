@@ -193,7 +193,7 @@ function bindAutoSuccess(engine) {
     engine.on("cycle:completed", (evt) => {
         const entry = {
             id: `conductor-as-${Date.now()}`, action: "auto-success-cycle",
-            cycle: evt.cycle, batchSize: evt.batchSize,
+            cycle: evt.cycle, tasksRun: evt.tasksRun,
             succeeded: evt.succeeded, durationMs: evt.durationMs,
             safeMode: evt.safeMode, ts: evt.ts,
         };

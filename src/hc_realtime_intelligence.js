@@ -16,7 +16,6 @@ const EventEmitter = require("node:events");
 
 const DEFAULTS = {
     flushIntervalMs: parseInt(process.env.HEADY_REALTIME_FLUSH_INTERVAL, 10) || 2000,
-    batchSize: parseInt(process.env.HEADY_REALTIME_BATCH_SIZE, 10) || 32,
     maxQueueDepth: parseInt(process.env.HEADY_REALTIME_MAX_QUEUE, 10) || 4096,
     apiEndpoint: process.env.HEADY_REALTIME_API_ENDPOINT || null,
     httpsEndpoint: process.env.HEADY_REALTIME_HTTPS_ENDPOINT || null,
@@ -58,7 +57,7 @@ class RealtimeIntelligenceEngine extends EventEmitter {
             metrics: { ...this.metrics },
             config: {
                 flushIntervalMs: this.cfg.flushIntervalMs,
-                batchSize: this.cfg.batchSize,
+                mode: "dynamic-full-drain",
                 maxQueueDepth: this.cfg.maxQueueDepth,
             },
             transports: {
@@ -157,7 +156,6 @@ class RealtimeIntelligenceEngine extends EventEmitter {
                 this._timer = setInterval(() => this._flush(), this.cfg.flushIntervalMs);
             }
         }
-        if (patch.batchSize) this.cfg.batchSize = patch.batchSize;
         if (patch.maxQueueDepth) this.cfg.maxQueueDepth = patch.maxQueueDepth;
         return this.cfg;
     }
@@ -166,7 +164,8 @@ class RealtimeIntelligenceEngine extends EventEmitter {
     async _flush() {
         if (this.queue.length === 0) return;
 
-        const batch = this.queue.splice(0, this.cfg.batchSize);
+        // Dynamic: drain entire queue — no batch limit
+        const batch = this.queue.splice(0);
         this.metrics.flushes++;
 
         // 1. Vector Memory persistence (primary)

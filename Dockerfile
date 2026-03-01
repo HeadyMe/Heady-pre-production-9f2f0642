@@ -3,13 +3,15 @@
 # Multi-stage build: install → run
 # Aligned with Phase 3 blueprint: container optimization, non-root,
 # minimal attack surface, multi-stage separation.
+# LR-004: pnpm-only, no npm. Errors must surface, never suppress.
 # ═══════════════════════════════════════════════════════════════════
 
 # ── Stage 1: Install deps ────────────────────────────────────────
 FROM node:22-alpine AS deps
 WORKDIR /app
-COPY package.json ./
-RUN npm install --omit=dev --ignore-scripts 2>/dev/null; exit 0
+RUN corepack enable && corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --prod --frozen-lockfile || pnpm install --prod
 
 # ── Stage 2: Production runner ───────────────────────────────────
 FROM node:22-alpine AS runner

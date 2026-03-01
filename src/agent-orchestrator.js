@@ -352,7 +352,7 @@ class AgentOrchestrator extends EventEmitter {
         // ── 4. PATTERN CHECK: Known optimization opportunities ──
         const knownPatterns = {
             chat: { optimization: "stream-first", note: "prefer streaming for chat" },
-            analyze: { optimization: "batch-friendly", note: "can batch multiple analyses" },
+            analyze: { optimization: "parallel-instant", note: "analyses fire in parallel — no batching" },
             embed: { optimization: "cache-embeddings", note: "cache identical text embeddings" },
             search: { optimization: "zone-first", note: "use 3D spatial zone for locality" },
         };
@@ -507,13 +507,13 @@ class AgentOrchestrator extends EventEmitter {
     }
 
     /** Submit multiple tasks in parallel */
-    async submitBatch(tasks) {
+    async submitParallel(tasks) {
         return Promise.allSettled(tasks.map(t => this.submit(t)));
     }
 
     /** Deterministic parallel execution with results */
     async parallel(tasks) {
-        const results = await this.submitBatch(tasks);
+        const results = await this.submitParallel(tasks);
         return results.map((r, i) => ({
             task: tasks[i].action,
             ...(r.status === "fulfilled" ? r.value : { ok: false, error: r.reason?.message }),
@@ -588,7 +588,7 @@ class AgentOrchestrator extends EventEmitter {
             }
         });
 
-        app.post("/api/orchestrator/batch", async (req, res) => {
+        app.post("/api/orchestrator/parallel", async (req, res) => {
             try {
                 const { tasks } = req.body;
                 if (!Array.isArray(tasks)) return res.status(400).json({ error: "tasks array required" });

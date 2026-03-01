@@ -36,8 +36,8 @@ const SUB_AGENTS = {
     "heady-bot": {
         name: "HeadyBot",
         endpoint: process.env.HEADY_BOT_URL || "https://heady-bot.headyme.com/api",
-        capabilities: ["automate", "script", "cron", "worker", "spawn", "batch"],
-        keywords: ["automate", "script", "cron", "schedule", "batch", "worker", "spawn", "run", "execute", "deploy", "build"],
+        capabilities: ["automate", "script", "cron", "worker", "spawn", "parallel"],
+        keywords: ["automate", "script", "cron", "schedule", "parallel", "worker", "spawn", "run", "execute", "deploy", "build"],
     },
     "heady-mcp": {
         name: "HeadyMCP",

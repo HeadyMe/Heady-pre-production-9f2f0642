@@ -82,7 +82,7 @@ const ROUTING_TABLE = {
 // ─── Pattern Optimizations ──────────────────────────────────────────
 const PATTERN_OPTIMIZATIONS = {
     chat: { strategy: "stream-first", cache: false, priority: "high", note: "prefer streaming for real-time feel" },
-    analyze: { strategy: "batch-friendly", cache: true, priority: "medium", note: "can batch multiple analyses" },
+    analyze: { strategy: "parallel-instant", cache: true, priority: "medium", note: "analyses fire in parallel — no batching" },
     embed: { strategy: "cache-embeddings", cache: true, priority: "low", note: "identical text → cached embedding" },
     search: { strategy: "zone-first", cache: true, priority: "high", note: "3D spatial zone for locality" },
     complete: { strategy: "context-window", cache: false, priority: "medium", note: "fill context window optimally" },

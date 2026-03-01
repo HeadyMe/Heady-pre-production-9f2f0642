@@ -104,11 +104,7 @@ function wireEngines(app, deps = {}) {
             engines.resourceManager.on("mitigation:safe_mode_activated", () => {
                 engines.taskScheduler.enterSafeMode();
             });
-            engines.resourceManager.on("mitigation:batch_paused", () => {
-                engines.taskScheduler.adjustConcurrency("batch", 1);
-            });
             engines.resourceManager.on("mitigation:concurrency_lowered", () => {
-                engines.taskScheduler.adjustConcurrency("batch", 1);
                 engines.taskScheduler.adjustConcurrency("training", 0);
             });
         }
@@ -298,8 +294,7 @@ function wireEngines(app, deps = {}) {
     try {
         const { AutoSuccessEngine, registerAutoSuccessRoutes } = require("../hc_auto_success");
         engines.autoSuccessEngine = new AutoSuccessEngine({
-            interval: 10000,   // 10s cycles — full throttle
-            batchSize: 42,     // covers all 38 categories + extras every cycle
+            interval: 10000,   // 10s cycles — full throttle, ALL tasks every cycle
         });
 
         engines.autoSuccessEngine.wire({
@@ -321,7 +316,7 @@ function wireEngines(app, deps = {}) {
             }
         } catch { /* conductor bind optional */ }
 
-        logger.logNodeActivity("CONDUCTOR", "  ∞ Auto-Success Engine: LOADED (135 tasks, 9 categories, φ-aligned 16.18s, 13/batch)");
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Auto-Success Engine: LOADED (ALL tasks, 9 categories, dynamic parallel — no batching)");
         logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/auto-success/health, /status, /tasks, /history, /force-cycle");
     } catch (err) {
         logger.logNodeActivity("CONDUCTOR", `  ⚠ Auto-Success Engine not loaded: ${err.message}`);

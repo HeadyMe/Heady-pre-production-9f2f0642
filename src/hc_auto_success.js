@@ -19,9 +19,9 @@
 // ╚══════════════════════════════════════════════════════════════════╝
 // HEADY_BRAND:END
 /**
- * HeadyAutoSuccess — Always-On 100-Task Engine
+ * HeadyAutoSuccess — Always-On Dynamic Task Engine
  *
- * Continuously generates, executes, and auto-succeeds 135 background tasks
+ * Continuously generates, executes, and auto-succeeds ALL background tasks
  * across 9 categories: learning, optimization, integration, monitoring,
  * maintenance, discovery, verification (liquidity), creative, and deep-intel.
  * for targeted learning and optimization — even when idle.
@@ -29,7 +29,7 @@
  * Key properties:
  *   - 100% success rate (errors are absorbed as learnings)
  *   - ORS: 100.0 always
- *   - 30-second default cycles, 8 tasks per batch
+ *   - Dynamic cycles — ALL tasks fire every cycle in parallel (no batching)
  *   - Resource-aware: respects safe mode, adjusts concurrency
  *   - Persistent history (data/auto-success-tasks.json)
  *   - Full integration: eventBus, patternEngine, selfCritique, storyDriver
@@ -59,7 +59,7 @@ const PROBE_TARGETS = [
     { name: "headyme.com", url: "https://headyme.com", critical: false },
     { name: "admin", url: "https://admin.headysystems.com", critical: false },
 ];
-const DEFAULT_BATCH = 21;
+// No batch limits — Heady runs ALL tasks dynamically every cycle
 
 // ─── POOL PRIORITIES ────────────────────────────────────────────────────────
 const POOL_PRIORITY = { hot: 0, warm: 1, cold: 2 };
@@ -223,7 +223,7 @@ const TASK_CATALOG = [
         desc: "Optimize how many connectivity patterns to retain for analysis"
     },
     {
-        id: "opt-017", name: "Optimize Notion sync batch size", cat: "optimization", pool: "cold", w: 2,
+        id: "opt-017", name: "Optimize Notion sync throughput", cat: "optimization", pool: "cold", w: 2,
         desc: "Balance sync completeness against API rate limits"
     },
     {
@@ -643,8 +643,8 @@ const TASK_CATALOG = [
         desc: "Test text-embedding-3-small endpoint availability and latency"
     },
     {
-        id: "hive-003", name: "HeadyCompute batch API queue depth", cat: "hive-integration", pool: "cold", w: 2,
-        desc: "Check pending batch job status and completion rate"
+        id: "hive-003", name: "HeadyCompute API queue depth", cat: "hive-integration", pool: "cold", w: 2,
+        desc: "Check pending job status and completion rate"
     },
     {
         id: "hive-004", name: "Google Cloud Vertex AI health", cat: "hive-integration", pool: "warm", w: 3,
@@ -721,7 +721,6 @@ class AutoSuccessEngine extends EventEmitter {
     constructor(opts = {}) {
         super();
         this.interval = opts.interval || DEFAULT_INTERVAL;
-        this.batchSize = opts.batchSize || DEFAULT_BATCH;
         this.running = false;
         this.safeMode = false;
         this.timer = null;
@@ -780,7 +779,7 @@ class AutoSuccessEngine extends EventEmitter {
         this.startedAt = Date.now();
         this.runCycle(); // immediate first cycle
         this.timer = setInterval(() => this.runCycle(), this.interval);
-        console.log(`  ∞ AutoSuccess: STARTED (${this.interval / 1000}s cycles, ${this.batchSize} tasks/cycle, ${TASK_CATALOG.length} tasks in catalog)`);
+        console.log(`  ∞ AutoSuccess: STARTED (${this.interval / 1000}s cycles, ALL ${TASK_CATALOG.length} tasks/cycle — dynamic, no batching)`);
     }
 
     stop() {
@@ -801,25 +800,24 @@ class AutoSuccessEngine extends EventEmitter {
         console.log("  ∞ AutoSuccess: SAFE MODE OFF — resuming full throughput");
     }
 
-    // ─── CYCLE EXECUTION ───────────────────────────────────────────────────
+    // ─── CYCLE EXECUTION — ALL TASKS, PARALLEL, INSTANTANEOUS ────────────
     async runCycle() {
         if (!this.running && this.cycleCount > 0) return; // allow forced first cycle
         const cycleStart = Date.now();
         this.cycleCount++;
         this.lastCycleTs = new Date().toISOString();
 
-        const batchSize = this.safeMode ? Math.max(2, Math.floor(this.batchSize / 3)) : this.batchSize;
-        const batch = this._selectBatch(batchSize);
-        const results = [];
+        // Dynamic: select ALL eligible tasks — no batch limit
+        const allTasks = this._selectAll();
 
-        for (const task of batch) {
-            const result = await this._executeTask(task);
-            results.push(result);
-        }
+        // Fire ALL tasks in parallel — instantaneous, no stepping
+        const results = await Promise.all(
+            allTasks.map(task => this._executeTask(task))
+        );
 
         const cycleDurationMs = Date.now() - cycleStart;
         const cycleEvent = {
-            cycle: this.cycleCount, batchSize: batch.length,
+            cycle: this.cycleCount, tasksRun: allTasks.length,
             succeeded: results.length, durationMs: cycleDurationMs,
             safeMode: this.safeMode, ts: this.lastCycleTs,
         };
@@ -846,53 +844,15 @@ class AutoSuccessEngine extends EventEmitter {
         if (this.cycleCount % 5 === 0) this._saveHistory();
     }
 
-    /** Select batch using category-balanced round-robin — ensures ALL categories
-     *  get at least one task per cycle so nothing starves. */
-    _selectBatch(size) {
-        // 1. Group tasks by category
-        const catMap = {};
-        for (const task of TASK_CATALOG) {
-            if (this.safeMode && task.pool === "hot") continue;
-            if (!catMap[task.cat]) catMap[task.cat] = [];
-            catMap[task.cat].push(task);
-        }
-        const cats = Object.keys(catMap);
-        if (cats.length === 0) return [];
+    /** Select ALL eligible tasks — no batch limits, fully dynamic.
+     *  In safe mode, hot pool tasks are excluded. Priority ordered: hot → warm → cold. */
+    _selectAll() {
+        const tasks = TASK_CATALOG
+            .filter(t => !(this.safeMode && t.pool === "hot"));
 
-        const batch = [];
-
-        // 2. Pick at least one task per category (least-run first)
-        for (const cat of cats) {
-            if (batch.length >= size) break;
-            const pool = catMap[cat];
-            // Sort by fewest runs so starved tasks get picked first
-            pool.sort((a, b) => {
-                const sa = this.taskStates.get(a.id);
-                const sb = this.taskStates.get(b.id);
-                return (sa ? sa.runs : 0) - (sb ? sb.runs : 0);
-            });
-            batch.push(pool[0]);
-        }
-
-        // 3. Fill remaining slots with global least-run tasks
-        if (batch.length < size) {
-            const batchIds = new Set(batch.map(t => t.id));
-            const remaining = TASK_CATALOG
-                .filter(t => !batchIds.has(t.id) && !(this.safeMode && t.pool === "hot"))
-                .sort((a, b) => {
-                    const sa = this.taskStates.get(a.id);
-                    const sb = this.taskStates.get(b.id);
-                    return (sa ? sa.runs : 0) - (sb ? sb.runs : 0);
-                });
-            for (const t of remaining) {
-                if (batch.length >= size) break;
-                batch.push(t);
-            }
-        }
-
-        // 4. Sort final batch by pool priority: hot → warm → cold
-        batch.sort((a, b) => (POOL_PRIORITY[a.pool] || 2) - (POOL_PRIORITY[b.pool] || 2));
-        return batch;
+        // Sort by pool priority: hot → warm → cold
+        tasks.sort((a, b) => (POOL_PRIORITY[a.pool] || 2) - (POOL_PRIORITY[b.pool] || 2));
+        return tasks;
     }
 
     /** Execute a single task — ALWAYS succeeds (errors absorbed as learnings). */
@@ -1335,7 +1295,7 @@ class AutoSuccessEngine extends EventEmitter {
             totalTasks: TASK_CATALOG.length,
             totalSucceeded: this.totalSucceeded,
             successRate: "100%", ors: 100.0,
-            intervalMs: this.interval, batchSize: this.batchSize,
+            intervalMs: this.interval, mode: "dynamic-all-tasks",
             lastCycleTs: this.lastCycleTs,
             uptime: this.startedAt ? Math.floor((Date.now() - this.startedAt) / 1000) : 0,
             categories, ts: new Date().toISOString(),
