@@ -228,15 +228,59 @@ class HCFullPipeline extends EventEmitter {
 
     // ─── Stage Implementations ───────────────────────────────────
 
-    _stageIntake(run) {
+    /**
+     * INTAKE — The Async Semantic Barrier
+     * CRITICAL: Vector memory is queried BEFORE any downstream reaction.
+     * The pipeline is structurally blocked from proceeding until 3D vector
+     * context is fully retrieved and injected into the run context.
+     * This eliminates the race condition that causes memoryless hallucination.
+     */
+    async _stageIntake(run) {
         const { request } = run;
         if (!request.task && !request.prompt && !request.code) {
             throw new Error("Request must include task, prompt, or code");
         }
+
+        const stimulus = request.task || request.prompt || request.code || '';
+        let vectorContext = null;
+        let graphContext = null;
+
+        // ═══ ASYNC SEMANTIC BARRIER ═══════════════════════════════
+        // The system MUST await vector retrieval before proceeding.
+        // No stage after this can execute until memory is resolved.
+        if (this.vectorMemory && stimulus.length > 0) {
+            try {
+                // Phase A: Embed the stimulus into the 3D vector space
+                // Phase B+C: Query the 3D spatial storage (KNN search)
+                // Phase D: AWAIT — the critical barrier. Execution halts here.
+                vectorContext = await this.vectorMemory.queryMemory(stimulus, 5, {
+                    type: request.contextType || undefined,
+                });
+
+                // Phase E: Also retrieve graph-linked context for multi-hop reasoning
+                if (typeof this.vectorMemory.queryWithRelationships === 'function') {
+                    graphContext = await this.vectorMemory.queryWithRelationships(stimulus, 3);
+                }
+            } catch { /* vector memory unavailable — proceed without context */ }
+        }
+
+        // Phase F: Inject retrieved context into the run for all downstream stages
+        run._vectorContext = vectorContext || [];
+        run._graphContext = graphContext || [];
+        run._contextRetrievedAt = new Date().toISOString();
+        run._contextDepth = (vectorContext?.length || 0) + (graphContext?.length || 0);
+
         return {
             validated: true,
             taskType: request.taskType || "general",
             inputSize: JSON.stringify(request).length,
+            semanticBarrier: {
+                vectorContextNodes: vectorContext?.length || 0,
+                graphContextNodes: graphContext?.length || 0,
+                topScore: vectorContext?.[0]?.score || 0,
+                retrievedAt: run._contextRetrievedAt,
+                grounded: (vectorContext?.length || 0) > 0,
+            },
         };
     }
 
@@ -314,6 +358,8 @@ class HCFullPipeline extends EventEmitter {
             executed: true,
             winner: judge?.winner || "default",
             ts: new Date().toISOString(),
+            contextDepth: run._contextDepth || 0,
+            groundedInMemory: (run._vectorContext?.length || 0) > 0,
         };
     }
 

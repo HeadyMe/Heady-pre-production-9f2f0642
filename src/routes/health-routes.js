@@ -73,6 +73,37 @@ router.get('/ready', async (req, res) => {
         lagMs,
     };
 
+    // Check vector memory (3D spatial storage)
+    try {
+        const vectorMem = require('../vector-memory');
+        const stats = vectorMem.getStats();
+        checks.vectorMemory = {
+            status: 'ok',
+            totalVectors: stats.total_vectors,
+            shards: stats.num_shards,
+            architecture: stats.architecture,
+        };
+    } catch {
+        checks.vectorMemory = { status: 'unavailable' };
+    }
+
+    // Check self-awareness telemetry
+    try {
+        const selfAwareness = require('../self-awareness');
+        const introspection = selfAwareness.getSystemIntrospection();
+        checks.selfAwareness = {
+            status: 'ok',
+            telemetryEvents: introspection.telemetry.totalEvents,
+            errorRate1m: introspection.telemetry.errorRate1m,
+        };
+        if (introspection.telemetry.errorRate1m > 50) {
+            checks.selfAwareness.status = 'degraded';
+            allReady = false;
+        }
+    } catch {
+        checks.selfAwareness = { status: 'unavailable' };
+    }
+
     res.status(allReady ? 200 : 503).json({
         status: allReady ? 'ready' : 'not_ready',
         checks,
@@ -90,6 +121,11 @@ router.get('/full', async (req, res) => {
         resilienceStatus = require('../resilience').getResilienceStatus();
     } catch { /* ignore */ }
 
+    let introspection = null;
+    try {
+        introspection = require('../self-awareness').getSystemIntrospection();
+    } catch { /* ignore */ }
+
     res.json({
         service: 'heady-manager',
         version: pkg.version || 'unknown',
@@ -102,6 +138,7 @@ router.get('/full', async (req, res) => {
         memory: process.memoryUsage(),
         cpu: process.cpuUsage(),
         resilience: resilienceStatus?.summary || null,
+        introspection: introspection || null,
         timestamp: new Date().toISOString(),
     });
 });
