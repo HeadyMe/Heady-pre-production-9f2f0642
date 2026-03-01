@@ -101,10 +101,21 @@ function getAllWork(context = {}) {
     return tasks;
 }
 
+// ─── DYNAMIC BEE FACTORY ────────────────────────────────────────────────
+// Heady can create any type of bee on the fly — no pre-definition needed
+const factory = require('./bee-factory');
+
 module.exports = {
     discover,
     getWork,
     listDomains,
     getAllWork,
     registry: _registry,
+    // Dynamic bee creation — available everywhere
+    createBee: factory.createBee,
+    spawnBee: factory.spawnBee,
+    createWorkUnit: factory.createWorkUnit,
+    createFromTemplate: factory.createFromTemplate,
+    listDynamicBees: factory.listDynamicBees,
+    dissolveBee: factory.dissolveBee,
 };
