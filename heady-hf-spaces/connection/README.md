@@ -7,11 +7,11 @@
 title: HeadyConnection — AI for Nonprofit Impact
 emoji: 🤝
 colorFrom: yellow
-colorTo: orange
+colorTo: yellow
 sdk: static
 pinned: false
 license: mit
-short_description: AI-powered grant writing, impact reporting, and donor engagement for nonprofits
+short_description: AI-powered grant writing and impact reporting
 ---
 
 # HeadyConnection — AI for Nonprofit Impact

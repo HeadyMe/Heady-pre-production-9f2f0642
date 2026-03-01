@@ -21,12 +21,17 @@ const { router: registryRouter, loadRegistry, saveRegistry, readJsonSafe } = req
 const nodesRouter = require("./nodes");
 const systemRouter = require("./system");
 const { router: configRouter, loadYamlConfig } = require("./config");
+const { tierMiddleware, registerTierRoutes } = require("../subscription-tiers");
 
 module.exports = {
     registry: registryRouter,
     nodes: nodesRouter,
     system: systemRouter,
     config: configRouter,
+
+    // Subscription tier system
+    tierMiddleware,
+    registerTierRoutes,
 
     // Shared utilities for other modules
     utils: { loadRegistry, saveRegistry, readJsonSafe, loadYamlConfig },

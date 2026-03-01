@@ -11,7 +11,7 @@ colorTo: blue
 sdk: static
 pinned: false
 license: mit
-short_description: Self-healing infrastructure demo — service groups, ops console, drift detection
+short_description: Self-healing infrastructure and ops console
 ---
 
 # HeadySystems — Platform Operations Intelligence
