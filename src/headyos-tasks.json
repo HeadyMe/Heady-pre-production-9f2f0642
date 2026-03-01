@@ -94,5 +94,21 @@
         "pool": "hot",
         "w": 9,
         "desc": "Continuously monitor and apply the principle of least privilege to agent schemas, requiring human-in-the-loop override for destructive actions."
+    },
+    {
+        "id": "headyos-013",
+        "name": "Construct 3D Vector Digital Twin Engine",
+        "cat": "deep-intel",
+        "pool": "hot",
+        "w": 10,
+        "desc": "Build a spatial memory system using 3D vectors to mathematically map physical environments, constructing live Digital Twins fed by bi-directional real-time telemetry for autonomous simulation and predictive execution."
+    },
+    {
+        "id": "headyos-014",
+        "name": "Deploy Sovereign LLM Execution System",
+        "cat": "integration",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Implement an air-gapped, locally-hosted LLM execution loop (sovereign_llm_system) fully decoupled from cloud dependencies, enabling autonomous operation in restricted environments with zero external API latency."
     }
 ]
