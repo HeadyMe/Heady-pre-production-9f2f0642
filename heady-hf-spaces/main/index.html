@@ -689,6 +689,7 @@
             <button class="tab" data-tab="gateway">⚡ Gateway</button>
             <button class="tab" data-tab="architecture">🏗️ Architecture</button>
             <button class="tab" data-tab="quantum">⚛️ Quantum IP</button>
+            <button class="tab" data-tab="pricing">💎 Pricing</button>
         </div>
 
         <!-- Chat Panel -->
@@ -935,6 +936,100 @@
             </div>
         </div>
 
+        <!-- Pricing Panel -->
+        <div id="pricing" class="panel">
+            <div style="text-align:center;margin-bottom:30px;">
+                <h2
+                    style="font-size:1.8rem;background:linear-gradient(135deg,var(--primary),var(--accent));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                    Choose Your Plan</h2>
+                <p style="color:var(--text-dim);margin-top:8px;">From prototype to production — scale with Heady AI</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto;">
+                <!-- Free -->
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:center;">
+                    <div style="font-size:1.5rem;">🆓</div>
+                    <h3 style="margin:8px 0;">Free</h3>
+                    <div style="font-size:2rem;font-weight:800;color:var(--success);margin:12px 0;">$0<span
+                            style="font-size:.8rem;color:var(--text-dim);">/mo</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.85rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 10 req/min</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 500 req/day</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ Groq (free tier)</li>
+                        <li style="padding:6px 0;">✅ Chat + Service Explorer</li>
+                    </ul>
+                    <button onclick="window.open('https://manager.headysystems.com/api/tiers','_blank')"
+                        style="margin-top:16px;padding:10px 24px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;font-weight:600;width:100%;">Get
+                        Started</button>
+                </div>
+                <!-- Pro -->
+                <div
+                    style="background:var(--surface);border:2px solid var(--primary);border-radius:var(--radius);padding:28px;text-align:center;position:relative;box-shadow:0 0 30px var(--primary-glow);">
+                    <div
+                        style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:white;padding:4px 14px;border-radius:12px;font-size:.75rem;font-weight:700;">
+                        MOST POPULAR</div>
+                    <div style="font-size:1.5rem;">⚡</div>
+                    <h3 style="margin:8px 0;">Pro</h3>
+                    <div style="font-size:2rem;font-weight:800;color:var(--primary);margin:12px 0;">$29<span
+                            style="font-size:.8rem;color:var(--text-dim);">/mo</span></div>
+                    <ul style="list-style:none;padding:0;font-size:.85rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 100 req/min</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 10,000 req/day</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ Groq + HF + Gemini</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ IDE + Gateway + Deep Intel
+                        </li>
+                        <li style="padding:6px 0;">✅ Email support</li>
+                    </ul>
+                    <button onclick="window.open('https://manager.headysystems.com/api/tiers','_blank')"
+                        style="margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,var(--primary),var(--secondary));color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;width:100%;">Upgrade
+                        to Pro</button>
+                </div>
+                <!-- Enterprise -->
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;text-align:center;">
+                    <div style="font-size:1.5rem;">🏢</div>
+                    <h3 style="margin:8px 0;">Enterprise</h3>
+                    <div style="font-size:2rem;font-weight:800;color:var(--accent);margin:12px 0;">Custom</div>
+                    <ul style="list-style:none;padding:0;font-size:.85rem;color:var(--text-dim);text-align:left;">
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ 1,000+ req/min</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ Unlimited daily</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ All 5 AI providers</li>
+                        <li style="padding:6px 0;border-bottom:1px solid var(--border);">✅ SSO + Audit logs + SLA 99.9%
+                        </li>
+                        <li style="padding:6px 0;">✅ Dedicated support</li>
+                    </ul>
+                    <button onclick="document.getElementById('enterpriseForm').style.display='block'"
+                        style="margin-top:16px;padding:10px 24px;background:linear-gradient(135deg,var(--accent),#e89b3e);color:#0a0a12;border:none;border-radius:10px;cursor:pointer;font-weight:700;width:100%;">Contact
+                        Sales</button>
+                </div>
+            </div>
+            <!-- Enterprise Inquiry Form -->
+            <div id="enterpriseForm"
+                style="display:none;max-width:500px;margin:30px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;">
+                <h3 style="margin-bottom:16px;text-align:center;">🏢 Enterprise Inquiry</h3>
+                <input id="entName" placeholder="Your Name"
+                    style="width:100%;padding:10px;margin-bottom:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;">
+                <input id="entEmail" placeholder="Work Email"
+                    style="width:100%;padding:10px;margin-bottom:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;">
+                <input id="entCompany" placeholder="Company"
+                    style="width:100%;padding:10px;margin-bottom:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;">
+                <select id="entTeamSize"
+                    style="width:100%;padding:10px;margin-bottom:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;">
+                    <option value="">Team Size</option>
+                    <option>1-10</option>
+                    <option>11-50</option>
+                    <option>51-200</option>
+                    <option>200+</option>
+                </select>
+                <textarea id="entMessage" placeholder="Tell us about your use case..." rows="3"
+                    style="width:100%;padding:10px;margin-bottom:10px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;resize:vertical;"></textarea>
+                <button onclick="submitEnterprise()"
+                    style="width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#e89b3e);color:#0a0a12;border:none;border-radius:10px;cursor:pointer;font-weight:700;">Submit
+                    Inquiry →</button>
+                <p id="entResult" style="margin-top:10px;text-align:center;color:var(--success);display:none;"></p>
+            </div>
+        </div>
+
         <!-- Footer -->
         <div class="footer">
             <p>🐝 Heady AI — <a href="https://headyme.com" target="_blank">headyme.com</a> · <a
@@ -1034,18 +1129,37 @@
 
             const start = Date.now();
             try {
-                const res = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' },
-                    body: JSON.stringify({
-                        model: 'Qwen/Qwen3-235B-A22B',
-                        messages: [
-                            { role: 'system', content: 'You are HeadyBrain, the central AI reasoning engine of the Heady ecosystem — a 77-service AI orchestration platform. You are helpful, concise, and insightful. Use Sacred Geometry metaphors when they fit naturally.' },
-                            { role: 'user', content: msg },
-                        ],
-                        temperature: 0.7, max_tokens: 1024,
-                    }),
-                });
+                // Route through Heady manager (has tokens server-side)
+                let res;
+                try {
+                    res = await fetch('https://manager.headysystems.com/api/inference/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'Qwen/Qwen3-235B-A22B',
+                            messages: [
+                                { role: 'system', content: 'You are HeadyBrain, the central AI reasoning engine of the Heady ecosystem — a 77-service AI orchestration platform. You are helpful, concise, and insightful. When users ask about getting started, signing up, or exploring Heady further, enthusiastically guide them to headyme.com for instant, fun, and convenient onboarding. You can also mention the Pricing tab for enterprise plans. Use Sacred Geometry metaphors when they fit naturally.' },
+                                { role: 'user', content: msg },
+                            ],
+                            temperature: 0.7, max_tokens: 1024,
+                            source: 'hf-space-demo',
+                        }),
+                    });
+                } catch {
+                    // Fallback: direct HF Inference API
+                    res = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'Qwen/Qwen3-235B-A22B',
+                            messages: [
+                                { role: 'system', content: 'You are HeadyBrain, the AI reasoning engine of Heady — a 77-service orchestration platform. Guide interested users to headyme.com to get started.' },
+                                { role: 'user', content: msg },
+                            ],
+                            temperature: 0.7, max_tokens: 1024,
+                        }),
+                    });
+                }
                 const data = await res.json();
                 const ms = Date.now() - start;
                 typing.remove();
@@ -1167,18 +1281,35 @@ console.log('\\n✅ ' + heady.services + ' services across ' + heady.groups + ' 
             output.textContent = '🐝 Asking HeadyBrain...';
 
             try {
-                const res = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' },
-                    body: JSON.stringify({
-                        model: 'Qwen/Qwen3-235B-A22B',
-                        messages: [
-                            { role: 'system', content: 'You are HeadyBrain, an AI code assistant. Explain, improve, or debug the code provided. Be concise and actionable.' },
-                            { role: 'user', content: `Analyze this code:\n\n${context}` },
-                        ],
-                        temperature: 0.5, max_tokens: 800,
-                    }),
-                });
+                let res;
+                try {
+                    res = await fetch('https://manager.headysystems.com/api/inference/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'Qwen/Qwen3-235B-A22B',
+                            messages: [
+                                { role: 'system', content: 'You are HeadyBrain, an AI code assistant. Explain, improve, or debug the code provided. Be concise and actionable.' },
+                                { role: 'user', content: `Analyze this code:\n\n${context}` },
+                            ],
+                            temperature: 0.5, max_tokens: 800,
+                            source: 'hf-space-ide',
+                        }),
+                    });
+                } catch {
+                    res = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'Qwen/Qwen3-235B-A22B',
+                            messages: [
+                                { role: 'system', content: 'You are HeadyBrain, an AI code assistant. Explain, improve, or debug.' },
+                                { role: 'user', content: `Analyze this code:\n\n${context}` },
+                            ],
+                            temperature: 0.5, max_tokens: 800,
+                        }),
+                    });
+                }
                 const data = await res.json();
                 output.textContent = data.choices?.[0]?.message?.content || 'No response from HeadyBrain';
             } catch (err) {
@@ -1187,13 +1318,38 @@ console.log('\\n✅ ' + heady.services + ' services across ' + heady.groups + ' 
             askBtn.disabled = false;
         }
 
+        // ─── Enterprise Inquiry ───
+        async function submitEnterprise() {
+            const data = {
+                name: document.getElementById('entName').value,
+                email: document.getElementById('entEmail').value,
+                company: document.getElementById('entCompany').value,
+                teamSize: document.getElementById('entTeamSize').value,
+                message: document.getElementById('entMessage').value,
+            };
+            const result = document.getElementById('entResult');
+            if (!data.email) { result.textContent = 'Please enter your email.'; result.style.display = 'block'; return; }
+            try {
+                const res = await fetch('https://manager.headysystems.com/api/enterprise/inquire', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+                const json = await res.json();
+                result.textContent = json.message || 'Thank you! We\'ll be in touch within 24 hours.';
+                result.style.display = 'block';
+            } catch {
+                result.textContent = 'Thank you! Our team will contact you at ' + data.email + ' within 24 hours.';
+                result.style.display = 'block';
+            }
+        }
+
         // Init
         renderServices();
         renderProviders();
     </script>
 
-<script>window.HEADY_API="https://api.headysystems.com";</script>
-<script src="buddy-widget.js"></script>
+    <script>window.HEADY_API = "https://api.headysystems.com";</script>
+    <script src="buddy-widget.js"></script>
 </body>
 
 </html>
