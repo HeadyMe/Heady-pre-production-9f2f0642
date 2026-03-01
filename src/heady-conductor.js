@@ -39,6 +39,8 @@ const { headyPQC } = require("./security/pqc");
 const Handshake = require("./security/handshake");
 const rateLimiter = require("./security/rate-limiter");
 const logger = require("./utils/logger");
+const { computeSwarmAllocation, evaluateLiveCloudStatus } = require("./orchestration/swarm-intelligence");
+const { getCognitiveRuntimeGovernor } = require("./orchestration/cognitive-runtime-governor");
 
 if (!headyPQC || !Handshake) {
     logger.error("🚨 [FATAL] PQC or Handshake modules missing. Core IP protection degraded. Halting Conductor.");
@@ -115,6 +117,15 @@ class HeadyConductor extends EventEmitter {
         this.routeHistory = [];
         this.vectorMem = null;
         this.orchestrator = null;
+        this.cloudControlUrl = process.env.HEADY_CLOUD_CONTROL_URL || process.env.HEADY_EDGE_URL || "";
+        this.lastSwarmPulseAt = Date.now();
+        this.swarmAllocation = computeSwarmAllocation({});
+        this.injectedTaskCount = 0;
+        this.cognitiveGovernor = getCognitiveRuntimeGovernor();
+        this.retryBudgetPerTask = Number(process.env.HEADY_RETRY_BUDGET_PER_TASK || 3);
+        this.taskAttempts = new Map();
+        this.deadLetterQueue = [];
+        this.maxDeadLetterQueue = Number(process.env.HEADY_DLQ_MAX || 500);
 
         // Route hit counters per service group
         this.groupHits = {};
@@ -129,6 +140,11 @@ class HeadyConductor extends EventEmitter {
             brainRouter: { active: false, type: "hc-sys-orchestrator" },
             patternEngine: { active: true, type: "known-optimizations", patterns: Object.keys(PATTERN_OPTIMIZATIONS).length },
         };
+
+        this.swarmPulseInterval = setInterval(() => {
+            this._swarmPulse();
+        }, 15_000);
+        if (typeof this.swarmPulseInterval.unref === "function") this.swarmPulseInterval.unref();
 
         // Ensure data dir
         const dir = path.dirname(AUDIT_PATH);
@@ -163,6 +179,7 @@ class HeadyConductor extends EventEmitter {
     async route(task, requestIp = '') {
         const start = Date.now();
         const action = task.action || "unknown";
+        this.cognitiveGovernor.recordIngress(task);
 
         // ── 0. DEFENSE IN DEPTH (Rate Limiting) ──
         const limitStatus = await rateLimiter.checkLimit(requestIp, action);
@@ -215,6 +232,12 @@ class HeadyConductor extends EventEmitter {
         this._audit({ type: "conductor:route", ...decision });
         this.emit("route", decision);
 
+        this.cognitiveGovernor.recordExecution({
+            repeatIntercepted: false,
+            action,
+            serviceGroup,
+        });
+
         return decision;
     }
 
@@ -226,6 +249,85 @@ class HeadyConductor extends EventEmitter {
         return ROUTING_TABLE[task.action] || "reasoning";
     }
 
+    _requireAdminMutation(req, res, next) {
+        const expectedAdminToken = process.env.ADMIN_TOKEN || process.env.HEADY_ADMIN_TOKEN || "";
+        if (!expectedAdminToken) return next();
+        const authHeader = req.headers.authorization || "";
+        const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+        const providedToken = req.headers["x-admin-token"] || bearerToken;
+        if (providedToken !== expectedAdminToken) {
+            return res.status(401).json({ ok: false, error: "Unauthorized" });
+        }
+        return next();
+    }
+
+    recordTaskOutcome(taskId, outcome = {}) {
+        const normalizedTaskId = String(taskId || "").trim();
+        if (!normalizedTaskId) throw new Error("taskId required");
+
+        const status = String(outcome.status || "unknown").toLowerCase();
+        const currentAttempts = this.taskAttempts.get(normalizedTaskId) || 0;
+        const nextAttempts = status === "failed" || status === "error" ? currentAttempts + 1 : currentAttempts;
+        this.taskAttempts.set(normalizedTaskId, nextAttempts);
+
+        const overBudget = nextAttempts >= this.retryBudgetPerTask && (status === "failed" || status === "error");
+        if (overBudget) {
+            const dlqEntry = {
+                id: `dlq-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+                taskId: normalizedTaskId,
+                attempts: nextAttempts,
+                status,
+                reason: outcome.reason || "retry-budget-exceeded",
+                payload: outcome.payload || null,
+                ts: new Date().toISOString(),
+            };
+            this.deadLetterQueue.push(dlqEntry);
+            if (this.deadLetterQueue.length > this.maxDeadLetterQueue) this.deadLetterQueue.shift();
+            this._audit({ type: "conductor:dlq:add", ...dlqEntry });
+            return { taskId: normalizedTaskId, movedToDlq: true, dlqEntry, retryBudgetPerTask: this.retryBudgetPerTask };
+        }
+
+        this._audit({
+            type: "conductor:task-outcome",
+            taskId: normalizedTaskId,
+            status,
+            attempts: nextAttempts,
+            reason: outcome.reason || null,
+            ts: new Date().toISOString(),
+        });
+
+        return {
+            taskId: normalizedTaskId,
+            movedToDlq: false,
+            attempts: nextAttempts,
+            retryBudgetPerTask: this.retryBudgetPerTask,
+        };
+    }
+
+    getDeadLetterQueue(limit = 100) {
+        const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.min(500, Number(limit))) : 100;
+        return this.deadLetterQueue.slice(-safeLimit).map(entry => ({ ...entry }));
+    }
+
+    requeueDeadLetterEntry(id) {
+        const idx = this.deadLetterQueue.findIndex(e => e.id === id);
+        if (idx < 0) return null;
+        const [entry] = this.deadLetterQueue.splice(idx, 1);
+        this.taskAttempts.set(entry.taskId, 0);
+        this._audit({ type: "conductor:dlq:requeue", id: entry.id, taskId: entry.taskId, ts: new Date().toISOString() });
+        return { ...entry, requeued: true };
+    }
+
+    _swarmPulse() {
+        this.lastSwarmPulseAt = Date.now();
+        this.swarmAllocation = computeSwarmAllocation({
+            loadScore: this.routeCount > 0 ? Math.min(1, this.routeCount / 1000) : 0,
+            pendingTasks: 0,
+            p95LatencyMs: 0,
+            errorRate: 0,
+        });
+    }
+
     /**
      * Get federated routing status — all layers.
      */
@@ -234,6 +336,12 @@ class HeadyConductor extends EventEmitter {
         const topGroups = Object.entries(this.groupHits)
             .sort((a, b) => b[1] - a[1])
             .map(([group, hits]) => ({ group, hits, pct: totalRoutes > 0 ? Math.round(hits / totalRoutes * 100) : 0 }));
+
+        const cloudStatus = evaluateLiveCloudStatus({
+            cloudUrl: this.cloudControlUrl,
+            heartbeatAgeMs: Date.now() - this.lastSwarmPulseAt,
+            serviceHealth: totalRoutes > 0 ? 1 : 0.92,
+        });
 
         return {
             ok: true,
@@ -248,6 +356,12 @@ class HeadyConductor extends EventEmitter {
             })),
             supervisors: this.orchestrator ? this.orchestrator.supervisors.size : 0,
             minConcurrent: this.orchestrator ? this.orchestrator.minConcurrent : 150,
+            swarmAllocation: this.swarmAllocation,
+            injectedTaskCount: this.injectedTaskCount,
+            cloudStatus,
+            cognitiveStatus: this.cognitiveGovernor.getStatus(),
+            retryBudgetPerTask: this.retryBudgetPerTask,
+            dlqSize: this.deadLetterQueue.length,
         };
     }
 
@@ -288,7 +402,50 @@ class HeadyConductor extends EventEmitter {
                     Object.entries(status.layers).map(([k, v]) => [k, v.active])
                 ),
                 supervisors: status.supervisors,
+                liveReady: status.cloudStatus.liveReady,
             });
+        });
+
+        app.get("/api/conductor/swarm-health", (req, res) => {
+            const status = this.getStatus();
+            res.json({
+                ok: true,
+                swarmAllocation: status.swarmAllocation,
+                injectedTaskCount: status.injectedTaskCount,
+                cloudStatus: status.cloudStatus,
+                ts: new Date().toISOString(),
+            });
+        });
+
+        app.get("/api/conductor/cognitive-status", (req, res) => {
+            res.json(this.cognitiveGovernor.getStatus());
+        });
+
+        app.post("/api/conductor/cognitive-phase/:phase/evaluate", (req, res) => {
+            const result = this.cognitiveGovernor.evaluateMigrationPhase(req.params.phase, req.body || {});
+            if (!result.ok) return res.status(400).json(result);
+            return res.json(result);
+        });
+
+        app.get("/api/conductor/dlq", (req, res) => {
+            const limit = Number.parseInt(req.query.limit, 10) || 100;
+            res.json({ ok: true, entries: this.getDeadLetterQueue(limit), total: this.deadLetterQueue.length });
+        });
+
+        app.post("/api/conductor/tasks/outcome", (req, res, next) => this._requireAdminMutation(req, res, next), (req, res) => {
+            try {
+                const { taskId, status, reason, payload } = req.body || {};
+                const result = this.recordTaskOutcome(taskId, { status, reason, payload });
+                res.json({ ok: true, ...result });
+            } catch (err) {
+                res.status(400).json({ ok: false, error: err.message });
+            }
+        });
+
+        app.post("/api/conductor/dlq/:id/requeue", (req, res, next) => this._requireAdminMutation(req, res, next), (req, res) => {
+            const result = this.requeueDeadLetterEntry(req.params.id);
+            if (!result) return res.status(404).json({ ok: false, error: "dlq entry not found" });
+            res.json({ ok: true, entry: result });
         });
 
         // Route analysis — test a hypothetical route
@@ -304,7 +461,7 @@ class HeadyConductor extends EventEmitter {
         });
 
         logger.logSystem("  ∞ HeadyConductor: LOADED (federated liquid routing)");
-        logger.logSystem("    → Endpoints: /api/conductor/status, /route-map, /health, /analyze-route");
+        logger.logSystem("    → Endpoints: /api/conductor/status, /route-map, /health, /swarm-health, /cognitive-status, /dlq, /tasks/outcome, /analyze-route");
         logger.logSystem(`    → Layers: ${Object.entries(this.layers).filter(([, v]) => v.active).map(([k]) => k).join(", ")}`);
     }
 

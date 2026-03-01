@@ -16,6 +16,7 @@ const DriftDetector = require("../drift-detector");
 const MemoryReceipts = require("../memory-receipts");
 const { policyEngine: policy } = require("../policy-service");
 const IncidentManager = require("../incident-manager");
+const { CognitiveOperationsController } = require("../orchestration/cognitive-operations-controller");
 const { prettyJsonMiddleware } = (() => { try { return require("../lib/pretty"); } catch { return { prettyJsonMiddleware: () => (_r, _s, n) => n() }; } })();
 
 
@@ -24,6 +25,17 @@ const mc = new MonteCarloEngine();
 const drift = new DriftDetector();
 const receipts = new MemoryReceipts();
 const incidents = new IncidentManager();
+const cogOps = new CognitiveOperationsController({ receipts });
+
+function requireAdminAuth(req, res, next) {
+    const expected = process.env.ADMIN_TOKEN || process.env.HEADY_ADMIN_TOKEN || "";
+    if (!expected) return next();
+    const authHeader = req.headers.authorization || "";
+    const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    const provided = req.headers["x-admin-token"] || bearerToken;
+    if (provided !== expected) return res.status(401).json({ ok: false, error: "Unauthorized" });
+    return next();
+}
 
 function registerSpecRoutes(app) {
 
@@ -75,10 +87,99 @@ function registerSpecRoutes(app) {
         res.json(receipts.getStats());
     });
 
-    app.post("/api/knowledge/ingest", (req, res) => {
+    app.post("/api/knowledge/ingest", requireAdminAuth, (req, res) => {
         const { source, sourceId, contentHash, details } = req.body || {};
         const receipt = receipts.ingest(source || "api", sourceId || "manual", { contentHash, details });
         res.json(receipt);
+    });
+
+    app.get("/api/knowledge/health", (_req, res) => {
+        res.json(receipts.getOperationalStatus());
+    });
+
+    app.get("/api/knowledge/attempts", (req, res) => {
+        const limit = parseInt(req.query.limit) || 100;
+        res.json(receipts.getAttempts(limit));
+    });
+
+    app.post("/api/knowledge/attempts", requireAdminAuth, (req, res) => {
+        try {
+            const result = receipts.recordAttempt(req.body || {});
+            res.json({ ok: true, ...result });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+
+    app.get("/api/knowledge/tasks/open", (req, res) => {
+        const limit = parseInt(req.query.limit) || 100;
+        res.json(receipts.listOpenTasks(limit));
+    });
+
+    app.post("/api/knowledge/tasks/:taskId/close", requireAdminAuth, (req, res) => {
+        try {
+            const { terminalState, reason, evidence } = req.body || {};
+            const result = receipts.closeTask(req.params.taskId, terminalState, reason, evidence);
+            res.json({ ok: true, ...result });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+
+    // ════════ Cognitive Operations Controller ════════
+
+    app.post("/api/cognitive/runs/begin", requireAdminAuth, (req, res) => {
+        try {
+            const result = cogOps.beginRun(req.body || {});
+            res.json({ ok: true, ...result });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+
+    app.post("/api/cognitive/runs/:runId/checkpoint", requireAdminAuth, (req, res) => {
+        try {
+            const result = cogOps.checkpoint(req.params.runId, req.body || {});
+            res.json({ ok: true, ...result });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+
+    app.post("/api/cognitive/runs/:runId/attempt", requireAdminAuth, (req, res) => {
+        try {
+            const result = cogOps.recordAttempt(req.params.runId, req.body || {});
+            res.json({ ok: true, ...result });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+
+    app.post("/api/cognitive/runs/:runId/anomaly", requireAdminAuth, (req, res) => {
+        try {
+            const result = cogOps.recordAnomaly(req.params.runId, req.body || {});
+            res.json({ ok: true, ...result });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+
+    app.post("/api/cognitive/runs/:runId/finalize", requireAdminAuth, (req, res) => {
+        try {
+            const result = cogOps.finalizeRun(req.params.runId, req.body || {});
+            res.json({ ok: true, ...result });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+
+    app.post("/api/cognitive/retrieval-policy", (req, res) => {
+        const result = cogOps.computeRetrievalPolicy(req.body || {});
+        res.json(result);
+    });
+
+    app.get("/api/cognitive/status", (_req, res) => {
+        res.json(cogOps.getStatus());
     });
 
     // ════════ SPEC-4: MCP Tools / Policy ════════
@@ -224,7 +325,7 @@ function registerSpecRoutes(app) {
         res.json(drift.getLatest(50).filter(e => e.kind === "CONNECTIVITY"));
     });
 
-    require("../utils/logger").logSystem("📋 SPEC routes registered: monte-carlo, knowledge, mcp, observability, tracking, privacy");
+    require("../utils/logger").logSystem("📋 SPEC routes registered: monte-carlo, knowledge, mcp, cognitive, observability, tracking, privacy");
 }
 
 module.exports = registerSpecRoutes;
