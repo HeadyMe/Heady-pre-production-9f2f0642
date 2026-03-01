@@ -86,7 +86,8 @@ class HeadyQA extends EventEmitter {
     constructor(opts = {}) {
         super();
         this.projectRoot = opts.projectRoot || path.join(__dirname, "..");
-        this.managerPort = opts.managerPort || process.env.PORT || 4200;
+        this.managerUrl = opts.managerUrl || process.env.HEADY_MANAGER_URL || 'https://manager.headysystems.com';
+        this.managerPort = opts.managerPort || process.env.PORT || 3301;
         this.running = false;
         this.loopId = null;
         this.stats = {
@@ -161,16 +162,19 @@ class HeadyQA extends EventEmitter {
     // ── Endpoint Probe ────────────────────────────────────────
     async _probeEndpoint(test) {
         return new Promise((resolve) => {
+            const url = new URL(test.path, this.managerUrl);
+            const proto = url.protocol === 'https:' ? require('https') : http;
             const opts = {
-                hostname: "127.0.0.1",
-                port: this.managerPort,
-                path: test.path,
+                hostname: url.hostname,
+                port: url.port || (url.protocol === 'https:' ? 443 : 80),
+                path: url.pathname + url.search,
                 method: test.method,
                 timeout: 5000,
                 headers: { "Content-Type": "application/json" },
             };
 
-            const req = http.request(opts, (res) => {
+            const start = Date.now();
+            const req = proto.request(opts, (res) => {
                 let body = "";
                 res.on("data", (d) => (body += d));
                 res.on("end", () => {
@@ -202,7 +206,6 @@ class HeadyQA extends EventEmitter {
                 resolve({ test: test.label, type: "endpoint", path: test.path, verdict: "warn", error: "timeout" });
             });
 
-            const start = Date.now();
             if (test.body) req.write(JSON.stringify(test.body));
             req.end();
         });
@@ -273,10 +276,12 @@ class HeadyQA extends EventEmitter {
 
     _httpGet(urlPath) {
         return new Promise((resolve, reject) => {
-            http.get({ hostname: "127.0.0.1", port: this.managerPort, path: urlPath, timeout: 5000 }, (res) => {
+            const url = new URL(urlPath, this.managerUrl);
+            const proto = url.protocol === 'https:' ? require('https') : http;
+            proto.get(url.href, { timeout: 5000 }, (res) => {
                 let body = "";
                 res.on("data", (d) => (body += d));
-                res.on("end", () => { try { resolve(JSON.parse(body)); } catch { resolve(body); } });
+                res.on("end", () => { try { resolve(JSON.parse(body)); } catch (e) { console.warn(`[QA] JSON parse failed for ${urlPath}: ${e.message}`); resolve(body); } });
             }).on("error", reject);
         });
     }
