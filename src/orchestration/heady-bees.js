@@ -27,23 +27,24 @@
 
 const { EventEmitter } = require("events");
 
-// ─── SWARM INTELLIGENCE — calculates optimal bee count ─────────────────────
+// ─── SWARM INTELLIGENCE — continuous sliding scale ─────────────────────────
+//
+// No steps. No categories. A smooth dial from 1 → maxBees.
+// Like liquid filling the exact shape of the obstacle.
+//
+// The formula: bees = ceil( workItems × urgency × resources × efficiency )
+//   - workItems:  how many independent pieces of work (the obstacle's shape)
+//   - urgency:    0.0–1.0 sliding dial (how fast must this complete?)
+//   - resources:  0.0–1.0 available system capacity
+//   - efficiency: decays as concurrency rises (diminishing returns curve)
+//
 const SWARM_PARAMS = {
     minBees: 1,
-    maxBees: 50,           // Hard ceiling — even liquid has limits
+    maxBees: 50,           // Hard ceiling — even liquid has physical limits
     baseLatencyMs: 50,     // Expected per-bee overhead
-    diminishingAt: 0.85,   // Efficiency drops below this = stop adding bees
-    resourceFloor: 0.2,    // Don't spawn if resources below 20%
-};
-
-// Task complexity → bee count mapping
-const COMPLEXITY_MATRIX = {
-    trivial: { bees: 1, parallel: false, description: "Single bee, synchronous" },
-    simple: { bees: 2, parallel: true, description: "Pair of bees, parallel" },
-    moderate: { bees: 5, parallel: true, description: "Small swarm" },
-    complex: { bees: 10, parallel: true, description: "Full swarm" },
-    massive: { bees: 20, parallel: true, description: "Mega swarm" },
-    catastrophic: { bees: 50, parallel: true, description: "ALL BEES — maximum blast" },
+    resourceFloor: 0.10,   // Below 10% resources = emergency single-bee mode
+    efficiencyDecay: 0.03, // Each active bee reduces efficiency by this much
+    defaultUrgency: 0.7,   // Default urgency when not specified (0.0–1.0)
 };
 
 // ─── SINGLE BEE ────────────────────────────────────────────────────────────
@@ -118,11 +119,10 @@ class HeadyBees extends EventEmitter {
      *
      * @param {Object} task - The task/obstacle to overcome
      * @param {string} task.name - Human-readable task name
-     * @param {string} task.complexity - trivial|simple|moderate|complex|massive|catastrophic
+     * @param {number} [task.urgency] - 0.0–1.0 sliding dial, how urgently to blast (default 0.7)
      * @param {Function[]} task.work - Array of work functions, one per subtask
      *   Each function receives (bee) and returns a result.
-     *   If work.length < calculated bees, bees are assigned round-robin.
-     *   If work.length > calculated bees, excess work is queued.
+     *   The swarm materializes exactly as many bees as the work demands.
      * @param {Object} [task.context] - Optional context passed to each bee
      * @returns {Object} Blast result with merged outputs from all bees
      */
@@ -130,12 +130,12 @@ class HeadyBees extends EventEmitter {
         const blastId = `blast-${++this.totalBlasts}-${Date.now()}`;
         const startMs = Date.now();
 
-        // Step 1: Calculate the EXACT number of bees needed
+        // Calculate the EXACT number of bees — continuous sliding scale, no steps
         const beeCount = this._calculateBeeCount(task);
 
         this.emit("blast:calculating", {
             blastId, task: task.name,
-            complexity: task.complexity,
+            urgency: task.urgency ?? SWARM_PARAMS.defaultUrgency,
             beeCount,
             workItems: task.work.length,
         });
@@ -185,7 +185,7 @@ class HeadyBees extends EventEmitter {
         const blastRecord = {
             id: blastId,
             task: task.name,
-            complexity: task.complexity,
+            urgency: task.urgency ?? SWARM_PARAMS.defaultUrgency,
             bees: beeCount,
             workItems: task.work.length,
             succeeded: succeeded.length,
@@ -214,8 +214,7 @@ class HeadyBees extends EventEmitter {
         const work = Array.from({ length: count }, (_, i) => {
             return async (bee) => fn(bee, i, context);
         });
-        const complexity = count <= 2 ? "simple" : count <= 5 ? "moderate" : count <= 10 ? "complex" : count <= 20 ? "massive" : "catastrophic";
-        return this.blast({ name, complexity, work, context });
+        return this.blast({ name, work, context });
     }
 
     /** Blast an array of independent tasks — one bee per task */
@@ -227,8 +226,7 @@ class HeadyBees extends EventEmitter {
                 return t;
             };
         });
-        const complexity = work.length <= 1 ? "trivial" : work.length <= 2 ? "simple" : work.length <= 5 ? "moderate" : work.length <= 10 ? "complex" : work.length <= 20 ? "massive" : "catastrophic";
-        return this.blast({ name, complexity, work });
+        return this.blast({ name, work });
     }
 
     /** Blast a file operation across multiple files simultaneously */
@@ -236,8 +234,7 @@ class HeadyBees extends EventEmitter {
         const work = files.map(file => {
             return async (bee) => processor(bee, file);
         });
-        const complexity = files.length <= 2 ? "simple" : files.length <= 10 ? "moderate" : files.length <= 20 ? "complex" : "massive";
-        return this.blast({ name, complexity, work });
+        return this.blast({ name, work });
     }
 
     /** Blast an HTTP check across multiple URLs simultaneously */
@@ -266,7 +263,7 @@ class HeadyBees extends EventEmitter {
                 }
             };
         });
-        return this.blast({ name: "health-blast", complexity: urls.length <= 5 ? "moderate" : "complex", work });
+        return this.blast({ name: "health-blast", urgency: 0.9, work });
     }
 
     /** Blast deployment to multiple targets simultaneously */
@@ -283,40 +280,68 @@ class HeadyBees extends EventEmitter {
                 };
             };
         });
-        return this.blast({ name: "deploy-blast", complexity: targets.length <= 3 ? "simple" : "moderate", work });
+        return this.blast({ name: "deploy-blast", urgency: 1.0, work });
     }
 
-    // ═══ SWARM INTELLIGENCE ════════════════════════════════════════════════
+    // ═══ SWARM INTELLIGENCE — CONTINUOUS SLIDING SCALE ═════════════════════
 
     /**
-     * Calculate the EXACT number of bees to handle this task.
-     * Not arbitrary. Based on task structure + system state.
+     * Calculate the EXACT number of bees on a continuous sliding scale.
+     *
+     * No steps. No categories. The formula slides smoothly:
+     *
+     *   bees = ceil( workItems × urgency × resources × efficiency )
+     *
+     * Where:
+     *   workItems  = the shape of the obstacle (how many pieces)
+     *   urgency    = 0.0–1.0 dial (default 0.7) — how fast to blast
+     *   resources  = 0.0–1.0 available system capacity (heap, concurrency)
+     *   efficiency = decays smoothly as active concurrency rises
+     *
+     * The result is always a whole number (you can't have 0.3 of a bee)
+     * but the INPUTS are all continuous — the scale slides, not steps.
      */
     _calculateBeeCount(task) {
-        // Start from complexity baseline
-        const baseline = COMPLEXITY_MATRIX[task.complexity] || COMPLEXITY_MATRIX.moderate;
-        let beeCount = baseline.bees;
+        const workItems = (task.work && task.work.length) || 1;
+        const urgency = Math.max(0, Math.min(1, task.urgency ?? SWARM_PARAMS.defaultUrgency));
 
-        // Adjust for actual work items — never fewer bees than work items (up to max)
-        if (task.work && task.work.length > beeCount) {
-            beeCount = Math.min(task.work.length, SWARM_PARAMS.maxBees);
-        }
-
-        // Check resource availability
+        // Resource availability — continuous 0.0–1.0
         const resources = this._getResourceAvailability();
-        if (resources.available < SWARM_PARAMS.resourceFloor) {
-            // Low resources — reduce bee count but never below 1
-            beeCount = Math.max(1, Math.floor(beeCount * resources.available));
+        const resourceFactor = resources.available;
+
+        // Emergency mode — system is critically low, single bee only
+        if (resourceFactor < SWARM_PARAMS.resourceFloor) {
+            return SWARM_PARAMS.minBees;
         }
 
-        // Apply diminishing returns — if current concurrency is high, adding more bees helps less
+        // Efficiency — smooth exponential decay as active bees increase
+        // At 0 active bees: efficiency = 1.0
+        // At maxBees active:  efficiency ≈ 0.22
+        // The decay is continuous, not stepped.
         const currentActive = this.activeBees.size;
-        if (currentActive > 0) {
-            const efficiency = 1 - (currentActive / SWARM_PARAMS.maxBees);
-            if (efficiency < SWARM_PARAMS.diminishingAt) {
-                beeCount = Math.max(1, Math.floor(beeCount * efficiency));
-            }
+        const efficiency = Math.exp(-SWARM_PARAMS.efficiencyDecay * currentActive);
+
+        // Historical adjustment — learn from past blast performance
+        // If recent blasts were fast, we can be slightly more conservative
+        // If recent blasts were slow, lean toward more bees
+        let historyFactor = 1.0;
+        if (this.blastHistory.length > 0) {
+            const recent = this.blastHistory.slice(-10);
+            const avgDuration = recent.reduce((s, b) => s + b.durationMs, 0) / recent.length;
+            // Smooth factor: slow history pushes toward 1.2, fast history toward 0.8
+            historyFactor = 0.8 + (Math.min(avgDuration, 5000) / 5000) * 0.4;
         }
+
+        // THE FORMULA — continuous, liquid, no steps:
+        //   Start from the exact number of work items (the obstacle's shape)
+        //   Scale by urgency (how fast)
+        //   Scale by resources (what's available)
+        //   Scale by efficiency (diminishing returns curve)
+        //   Adjust by history (learned performance)
+        const rawBees = workItems * urgency * resourceFactor * efficiency * historyFactor;
+
+        // Round up — if the math says 3.1 bees, you need 4 (liquid fills completely)
+        const beeCount = Math.ceil(rawBees);
 
         // Clamp to bounds
         return Math.max(SWARM_PARAMS.minBees, Math.min(beeCount, SWARM_PARAMS.maxBees));
@@ -488,4 +513,4 @@ function registerBeesRoutes(app, bees) {
     app.use("/api/bees", router);
 }
 
-module.exports = { HeadyBees, Bee, registerBeesRoutes, COMPLEXITY_MATRIX, SWARM_PARAMS };
+module.exports = { HeadyBees, Bee, registerBeesRoutes, SWARM_PARAMS };
