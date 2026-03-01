@@ -571,6 +571,11 @@ try {
 } catch (err) {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ ContinuousLearning: not loaded: ${err.message}`);
 }
+// ─── Kubernetes-Style Health Routes (/health/live, /health/ready, /health/full) ──
+const healthRoutes = require("./src/routes/health-routes");
+app.use("/health", healthRoutes);
+logger.logNodeActivity("CONDUCTOR", "  ∞ Health Routes: /health/live, /health/ready, /health/full");
+
 // ─── Static Hosting & Domain Routing (Phase 2 Liquid — extracted) ────
 const { mountStaticHosting } = require("./src/bootstrap/static-hosting");
 mountStaticHosting(app, __dirname);

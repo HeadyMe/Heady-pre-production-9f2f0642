@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# © 2026 Heady Systems LLC — HCFP Pre-Commit Secret Scanner
+# Tasks: urgent-001, urgent-003, enterprise-001
+
+set -e
+
+echo "🔒 Heady Pre-Commit: Scanning for secrets..."
+
+# Patterns that should NEVER be committed
+SECRET_PATTERNS=(
+  'AKIA[0-9A-Z]{16}'                    # AWS Access Key
+  'AIza[0-9A-Za-z\-_]{35}'              # Google API Key
+  'sk-[a-zA-Z0-9]{48}'                  # OpenAI API Key
+  'sk-ant-[a-zA-Z0-9\-]{80,}'           # Anthropic API Key
+  'ghp_[a-zA-Z0-9]{36}'                 # GitHub PAT
+  'gho_[a-zA-Z0-9]{36}'                 # GitHub OAuth
+  'github_pat_[a-zA-Z0-9_]{82}'         # GitHub Fine-grained PAT
+  'xoxb-[0-9]{10,}-[0-9]{10,}-[a-zA-Z0-9]{24}'  # Slack Bot Token
+  'xoxp-[0-9]{10,}-[0-9]{10,}-[a-zA-Z0-9]{24}'  # Slack User Token
+  'sk_live_[a-zA-Z0-9]{24,}'            # Stripe Live Key
+  'rk_live_[a-zA-Z0-9]{24,}'            # Stripe Restricted Key
+  'SG\.[a-zA-Z0-9_\-]{22}\.[a-zA-Z0-9_\-]{43}'  # SendGrid API Key
+  'key-[a-zA-Z0-9]{32}'                 # Mailgun API Key
+  'PRIVATE KEY-----'                     # Private keys
+  'password\s*=\s*["\x27][^\s]{8,}'     # Hardcoded passwords
+)
+
+# Files that should NEVER be committed
+BANNED_FILES=(
+  '.env'
+  '.env.local'
+  '.env.production'
+  '.env.hybrid'
+  '*.pem'
+  '*.key'
+  '*.p12'
+  '*.pfx'
+  '*.jks'
+  'heady-manager.js.bak'
+)
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
+VIOLATIONS=0
+
+# Check for banned files
+for pattern in "${BANNED_FILES[@]}"; do
+  matches=$(echo "$STAGED_FILES" | grep -E "^${pattern}$|/${pattern}$" 2>/dev/null || true)
+  if [ -n "$matches" ]; then
+    echo "❌ BLOCKED: Banned file pattern '$pattern' found in staged files:"
+    echo "   $matches"
+    VIOLATIONS=$((VIOLATIONS + 1))
+  fi
+done
+
+# Check staged file contents for secret patterns
+for file in $STAGED_FILES; do
+  if [ ! -f "$file" ]; then continue; fi
+  # Skip binary files and node_modules
+  if [[ "$file" == *"node_modules"* ]] || [[ "$file" == *".min.js"* ]]; then continue; fi
+  
+  for pattern in "${SECRET_PATTERNS[@]}"; do
+    if git diff --cached -- "$file" | grep -qE "$pattern" 2>/dev/null; then
+      echo "❌ BLOCKED: Potential secret detected in '$file' matching pattern"
+      VIOLATIONS=$((VIOLATIONS + 1))
+    fi
+  done
+done
+
+if [ $VIOLATIONS -gt 0 ]; then
+  echo ""
+  echo "🚫 $VIOLATIONS secret violation(s) found. Commit REJECTED."
+  echo "   Run 'git reset HEAD <file>' to unstage, then fix."
+  exit 1
+fi
+
+echo "✅ No secrets detected."
+
+# ═══════════════════════════════════════════
+# CODE GOVERNANCE AUTH GATE
+# ═══════════════════════════════════════════
+# All code changes must be authorized by Heady's auth schema.
+# No third-party gateway allowed without owner approval.
+
+echo ""
+echo "🛡️  Heady Code Governance: Checking authorization..."
+
+COMMITTER_EMAIL=$(git config user.email 2>/dev/null || echo "unknown")
+GOVERNANCE_CONFIG="configs/code-governance.yaml"
+
+if [ -f "$GOVERNANCE_CONFIG" ]; then
+  # Extract approved git emails from YAML
+  APPROVED_EMAILS=$(grep -A 2 "git_emails:" "$GOVERNANCE_CONFIG" 2>/dev/null | grep "^\s*- " | sed 's/^\s*- "//;s/"$//' | tr '\n' '|' | sed 's/|$//')
+  
+  # Also get direct email fields from approved_developers
+  DIRECT_EMAILS=$(grep -B5 "type: \"owner\"\|type: \"admin\"" "$GOVERNANCE_CONFIG" 2>/dev/null | grep "email:" | sed 's/.*email: "//;s/"$//' | tr '\n' '|' | sed 's/|$//')
+  
+  ALL_APPROVED="$APPROVED_EMAILS|$DIRECT_EMAILS"
+  
+  if [ -n "$ALL_APPROVED" ]; then
+    # Check if committer email is in the approved list
+    if echo "$COMMITTER_EMAIL" | grep -qiE "^($ALL_APPROVED)$" 2>/dev/null; then
+      echo "   ✅ Developer '$COMMITTER_EMAIL' is authorized"
+    else
+      echo ""
+      echo "   ❌ BLOCKED: '$COMMITTER_EMAIL' is NOT an approved developer"
+      echo "   ❌ All code changes must go through Heady's auth schema"
+      echo "   ❌ Contact the owner to add your email to configs/code-governance.yaml"
+      echo ""
+      echo "   Approved emails:"
+      echo "$ALL_APPROVED" | tr '|' '\n' | sed 's/^/      - /'
+      echo ""
+      
+      # Check for HEADY_GOVERNANCE_BYPASS (emergency only, logged)
+      if [ "$HEADY_GOVERNANCE_BYPASS" = "owner-override" ]; then
+        echo "   ⚠️  GOVERNANCE BYPASS ACTIVE — owner override detected"
+        echo "   ⚠️  This is logged to the audit trail"
+        # Log the bypass
+        echo "{\"action\":\"GOVERNANCE_BYPASS\",\"email\":\"$COMMITTER_EMAIL\",\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" >> data/code-governance-audit.jsonl 2>/dev/null
+      else
+        echo "🚫 Commit REJECTED by Heady Code Governance."
+        exit 1
+      fi
+    fi
+  else
+    echo "   ⚠️  Could not parse approved emails — allowing (config parse issue)"
+  fi
+else
+  echo "   ⚠️  No governance config found — allowing (first-time setup)"
+fi
+
+# Check protected files
+STAGED_PROTECTED=$(echo "$STAGED_FILES" | grep -E "^configs/code-governance\.yaml$|^configs/users/user-secrets\.yaml$|^\.husky/pre-commit$|^\.github/workflows/.*\.yml$|^Dockerfile$" 2>/dev/null || true)
+if [ -n "$STAGED_PROTECTED" ]; then
+  echo ""
+  echo "   🔒 Protected files detected in commit:"
+  echo "$STAGED_PROTECTED" | sed 's/^/      /'
+  echo "   These require owner-level authorization."
+fi
+
+echo ""
+echo "✅ All governance checks passed. Proceeding with commit."
+exit 0

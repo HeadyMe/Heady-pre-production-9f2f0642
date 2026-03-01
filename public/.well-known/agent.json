@@ -1,0 +1,122 @@
+{
+    "name": "Heady",
+    "description": "Heady AI Orchestration System — Multi-agent swarm with Sacred Geometry routing, 3D vector memory (K3D), and HCFP auto-success pipeline.",
+    "url": "https://manager.headysystems.com",
+    "version": "3.0.0",
+    "documentationUrl": "https://headysystems.com/docs",
+    "capabilities": {
+        "streaming": true,
+        "pushNotifications": false,
+        "stateTransitionHistory": true
+    },
+    "authentication": {
+        "schemes": [
+            "bearer"
+        ],
+        "credentials": null
+    },
+    "defaultInputModes": [
+        "text/plain",
+        "application/json"
+    ],
+    "defaultOutputModes": [
+        "text/plain",
+        "application/json"
+    ],
+    "skills": [
+        {
+            "id": "heady-brain",
+            "name": "Brain — Multi-Provider AI Routing",
+            "description": "Routes prompts to optimal AI providers (Claude, GPT, Gemini, Groq) with vector-augmented context injection.",
+            "tags": [
+                "ai",
+                "routing",
+                "multi-provider"
+            ],
+            "examples": [
+                "Analyze this code for security issues",
+                "Generate a business plan"
+            ]
+        },
+        {
+            "id": "heady-battle",
+            "name": "Battle Arena — Multi-Node AI Competition",
+            "description": "Pits AI nodes against each other in arena mode for quality-maximized outputs.",
+            "tags": [
+                "ai",
+                "competition",
+                "quality"
+            ],
+            "examples": [
+                "Run a battle on this prompt across all nodes"
+            ]
+        },
+        {
+            "id": "heady-vector-memory",
+            "name": "3D Vector Memory (K3D)",
+            "description": "Persistent 3D spatial knowledge store with HuggingFace embeddings and cosine similarity search.",
+            "tags": [
+                "memory",
+                "embeddings",
+                "k3d",
+                "vector"
+            ],
+            "examples": [
+                "Store this fact",
+                "What do you know about deployment?"
+            ]
+        },
+        {
+            "id": "heady-orchestrator",
+            "name": "Agent Orchestrator",
+            "description": "Dynamic agent spawning with deterministic routing and supervisor patterns.",
+            "tags": [
+                "orchestration",
+                "agents",
+                "swarm"
+            ],
+            "examples": [
+                "Spawn a research agent for this task"
+            ]
+        },
+        {
+            "id": "heady-conductor",
+            "name": "Federated Liquid Conductor",
+            "description": "Multi-tier liquid node routing across local, cloud, and HuggingFace Space endpoints.",
+            "tags": [
+                "routing",
+                "federation",
+                "liquid"
+            ],
+            "examples": [
+                "Route this task to the best available node"
+            ]
+        },
+        {
+            "id": "heady-hcfp",
+            "name": "HCFP Auto-Success Pipeline",
+            "description": "Full execution pipeline with quality gates, Monte Carlo planning, self-critique, and pattern analysis.",
+            "tags": [
+                "pipeline",
+                "auto-success",
+                "quality"
+            ],
+            "examples": [
+                "Run the full pipeline on this objective"
+            ]
+        },
+        {
+            "id": "heady-system-monitor",
+            "name": "System Monitor Watchdog",
+            "description": "OS-level health monitoring with auto-remediation for runaway processes, memory pressure, disk usage.",
+            "tags": [
+                "monitoring",
+                "health",
+                "auto-heal"
+            ],
+            "examples": [
+                "Show system monitor status"
+            ]
+        }
+    ]
+}

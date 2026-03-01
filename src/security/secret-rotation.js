@@ -18,7 +18,8 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const SECRETS_MANIFEST = path.join(__dirname, '../../configs/secrets-manifest.json');
+const SECRETS_MANIFEST_SOURCE = path.join(__dirname, '../../configs/secrets-manifest.json');
+const SECRETS_MANIFEST = path.join(__dirname, '../../data/secrets-manifest.json');
 const MAX_AGE_DAYS = 90;
 const WARN_DAYS_BEFORE = 14;
 
@@ -31,12 +32,21 @@ class SecretRotation {
         try {
             return JSON.parse(fs.readFileSync(SECRETS_MANIFEST, 'utf8'));
         } catch {
-            return { secrets: [], lastAudit: null };
+            // Seed from read-only configs if writable copy doesn't exist
+            try {
+                return JSON.parse(fs.readFileSync(SECRETS_MANIFEST_SOURCE, 'utf8'));
+            } catch {
+                return { secrets: [], lastAudit: null };
+            }
         }
     }
 
     _saveManifest() {
-        fs.writeFileSync(SECRETS_MANIFEST, JSON.stringify(this.manifest, null, 2));
+        try {
+            const dir = path.dirname(SECRETS_MANIFEST);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(SECRETS_MANIFEST, JSON.stringify(this.manifest, null, 2));
+        } catch { /* Never crash on manifest write — data dir may not be writable in all envs */ }
     }
 
     /**

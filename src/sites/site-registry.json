@@ -1,0 +1,384 @@
+{
+    "preconfigured": {
+        "headyme.com": {
+            "name": "HeadyMe",
+            "tagline": "Your Personal Cloud",
+            "description": "Your AI-powered personal cloud hub — the command center for your entire digital life.",
+            "role": "personal-cloud",
+            "sacredGeometry": "Flower of Life",
+            "accent": "#818cf8",
+            "accentDark": "#6366f1",
+            "features": [
+                {
+                    "icon": "✦",
+                    "title": "Personal Dashboard",
+                    "desc": "Unified view across all Heady services"
+                },
+                {
+                    "icon": "🧠",
+                    "title": "AI Memory",
+                    "desc": "3D vector context that remembers everything"
+                },
+                {
+                    "icon": "☁️",
+                    "title": "Cloud Storage",
+                    "desc": "Secure, intelligent file management"
+                },
+                {
+                    "icon": "🔗",
+                    "title": "Cross-Vertical Sync",
+                    "desc": "Seamlessly share context between all Heady apps"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "24/7",
+                    "label": "Available"
+                },
+                {
+                    "value": "∞",
+                    "label": "Context"
+                },
+                {
+                    "value": "< 2s",
+                    "label": "Response"
+                },
+                {
+                    "value": "20",
+                    "label": "AI Nodes"
+                }
+            ],
+            "chatEnabled": true
+        },
+        "headysystems.com": {
+            "name": "HeadySystems",
+            "tagline": "The Architecture of Intelligence",
+            "description": "Self-healing infrastructure, Sacred Geometry orchestration, and enterprise-grade AI deployment.",
+            "role": "infrastructure",
+            "sacredGeometry": "Metatrons Cube",
+            "accent": "#34d399",
+            "accentDark": "#10b981",
+            "features": [
+                {
+                    "icon": "🛡️",
+                    "title": "Self-Healing Infra",
+                    "desc": "Autonomous error recovery and circuit breakers"
+                },
+                {
+                    "icon": "🎼",
+                    "title": "Buddy Orchestrator",
+                    "desc": "Multi-agent orchestration via Sacred Geometry"
+                },
+                {
+                    "icon": "📊",
+                    "title": "Live Telemetry",
+                    "desc": "Structured logging, health probes, full observability"
+                },
+                {
+                    "icon": "⚡",
+                    "title": "Auto-Success Pipeline",
+                    "desc": "HCFP continuous deployment and optimization"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "150",
+                    "label": "Supervisors"
+                },
+                {
+                    "value": "40",
+                    "label": "Routes"
+                },
+                {
+                    "value": "99.9%",
+                    "label": "Uptime"
+                },
+                {
+                    "value": "20",
+                    "label": "AI Nodes"
+                }
+            ],
+            "chatEnabled": true
+        },
+        "headyconnection.org": {
+            "name": "HeadyConnection",
+            "tagline": "AI for Nonprofit Impact",
+            "description": "Empowering nonprofits with AI-driven grant writing, impact analytics, and community engagement.",
+            "role": "community",
+            "sacredGeometry": "Seed of Life",
+            "accent": "#f59e0b",
+            "accentDark": "#d97706",
+            "features": [
+                {
+                    "icon": "📝",
+                    "title": "Grant Writing AI",
+                    "desc": "Automated proposal drafting with compliance checks"
+                },
+                {
+                    "icon": "📈",
+                    "title": "Impact Analytics",
+                    "desc": "Measure and visualize real-world outcomes"
+                },
+                {
+                    "icon": "🤝",
+                    "title": "Community Hub",
+                    "desc": "Connected nonprofit network and resource sharing"
+                },
+                {
+                    "icon": "💡",
+                    "title": "Proof View",
+                    "desc": "Evidence-based impact documentation"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "Impact",
+                    "label": "Driven"
+                },
+                {
+                    "value": "AI",
+                    "label": "Powered"
+                },
+                {
+                    "value": "Open",
+                    "label": "Source"
+                },
+                {
+                    "value": "Free",
+                    "label": "For NPOs"
+                }
+            ],
+            "chatEnabled": true
+        },
+        "headymcp.com": {
+            "name": "HeadyMCP",
+            "tagline": "Model Context Protocol Hub",
+            "description": "Central hub for MCP connectors, verified tools, and one-click AI agent deployment.",
+            "role": "protocol",
+            "sacredGeometry": "Vesica Piscis",
+            "accent": "#a855f7",
+            "accentDark": "#9333ea",
+            "features": [
+                {
+                    "icon": "🔌",
+                    "title": "MCP Connectors",
+                    "desc": "30+ verified tools and data sources"
+                },
+                {
+                    "icon": "🚀",
+                    "title": "One-Click Deploy",
+                    "desc": "Launch agents with pre-wired capabilities"
+                },
+                {
+                    "icon": "🔐",
+                    "title": "Secure Protocol",
+                    "desc": "mTLS, API key auth, and access control"
+                },
+                {
+                    "icon": "📚",
+                    "title": "Tool Registry",
+                    "desc": "Browse, test, and integrate MCP tools"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "30+",
+                    "label": "Tools"
+                },
+                {
+                    "value": "MCP",
+                    "label": "Protocol"
+                },
+                {
+                    "value": "Live",
+                    "label": "Registry"
+                },
+                {
+                    "value": "A2A",
+                    "label": "Ready"
+                }
+            ],
+            "chatEnabled": true
+        },
+        "headyos.com": {
+            "name": "HeadyOS",
+            "tagline": "The Operating System for AI",
+            "description": "A cloud-native operating system layer where agents, tools, and memory converge into a unified runtime.",
+            "role": "operating-system",
+            "sacredGeometry": "Torus",
+            "accent": "#14b8a6",
+            "accentDark": "#0d9488",
+            "features": [
+                {
+                    "icon": "💻",
+                    "title": "Agent Runtime",
+                    "desc": "Managed execution environment for AI agents"
+                },
+                {
+                    "icon": "🗄️",
+                    "title": "Unified Memory",
+                    "desc": "Shared vector space across all running agents"
+                },
+                {
+                    "icon": "🔧",
+                    "title": "System Tools",
+                    "desc": "File, network, and compute primitives for agents"
+                },
+                {
+                    "icon": "📡",
+                    "title": "Event Bus",
+                    "desc": "Real-time inter-agent communication layer"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "Cloud",
+                    "label": "Native"
+                },
+                {
+                    "value": "Real-time",
+                    "label": "Events"
+                },
+                {
+                    "value": "∞",
+                    "label": "Agents"
+                },
+                {
+                    "value": "3D",
+                    "label": "Memory"
+                }
+            ],
+            "chatEnabled": true
+        },
+        "headyapi.com": {
+            "name": "HeadyAPI",
+            "tagline": "The Public API Gateway",
+            "description": "Production-grade REST API for the entire Heady ecosystem. Keys, docs, rate limiting, and SDKs.",
+            "role": "public-api",
+            "sacredGeometry": "Sri Yantra",
+            "accent": "#06b6d4",
+            "accentDark": "#0891b2",
+            "features": [
+                {
+                    "icon": "📖",
+                    "title": "API Reference",
+                    "desc": "Full REST documentation with live examples"
+                },
+                {
+                    "icon": "🔑",
+                    "title": "Key Management",
+                    "desc": "Generate, rotate, and scope API keys"
+                },
+                {
+                    "icon": "⚡",
+                    "title": "Rate Limiting",
+                    "desc": "Fair-use throttling with burst allowance"
+                },
+                {
+                    "icon": "📦",
+                    "title": "SDKs",
+                    "desc": "Node.js, Python, and Go client libraries"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "REST",
+                    "label": "API"
+                },
+                {
+                    "value": "SDK",
+                    "label": "Ready"
+                },
+                {
+                    "value": "Docs",
+                    "label": "Live"
+                },
+                {
+                    "value": "v3",
+                    "label": "Version"
+                }
+            ],
+            "chatEnabled": false
+        },
+        "headyio.com": {
+            "name": "HeadyIO",
+            "tagline": "Developer Portal",
+            "description": "Everything developers need to build on Heady — docs, SDK, Arena Mode, and playground.",
+            "role": "developer-platform",
+            "sacredGeometry": "Icosahedron",
+            "accent": "#0ea5e9",
+            "accentDark": "#0284c7",
+            "features": [
+                {
+                    "icon": "📖",
+                    "title": "Documentation",
+                    "desc": "Guides, tutorials, and API reference"
+                },
+                {
+                    "icon": "🐝",
+                    "title": "Hive SDK",
+                    "desc": "Build agents that plug into the swarm"
+                },
+                {
+                    "icon": "⚔️",
+                    "title": "Arena Mode",
+                    "desc": "Battle-test your models against the swarm"
+                },
+                {
+                    "icon": "🧪",
+                    "title": "Playground",
+                    "desc": "Interactive testing environment"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "SDK",
+                    "label": "Ready"
+                },
+                {
+                    "value": "Arena",
+                    "label": "Mode"
+                },
+                {
+                    "value": "Open",
+                    "label": "Docs"
+                },
+                {
+                    "value": "Live",
+                    "label": "Test"
+                }
+            ],
+            "chatEnabled": true
+        }
+    },
+    "externalLinks": {
+        "huggingface": "https://huggingface.co/HeadyMe",
+        "discord": "https://discord.gg/heady"
+    },
+    "customizable": {
+        "_schema": {
+            "name": "string (required)",
+            "tagline": "string (required)",
+            "description": "string",
+            "accent": "hex color (default: #818cf8)",
+            "accentDark": "hex color (auto-derived)",
+            "sacredGeometry": "Flower of Life | Seed of Life | Metatrons Cube | Vesica Piscis | Torus | Sri Yantra | Icosahedron | Fibonacci Spiral",
+            "features": "array of { icon, title, desc } (max 6)",
+            "stats": "array of { value, label } (max 4)",
+            "chatEnabled": "boolean (default: true)",
+            "customCSS": "string (optional raw CSS injection)"
+        },
+        "_note": "Custom sites are stored in data/user-sites.json at runtime, created during onboarding"
+    },
+    "domainAliases": {
+        "www.headyme.com": "headyme.com",
+        "www.headysystems.com": "headysystems.com",
+        "www.headyconnection.org": "headyconnection.org",
+        "www.headymcp.com": "headymcp.com",
+        "www.headyos.com": "headyos.com",
+        "www.headyapi.com": "headyapi.com",
+        "www.headyio.com": "headyio.com",
+        "manager.headysystems.com": "headysystems.com",
+        "admin.headysystems.com": "headysystems.com"
+    }
+}

@@ -1,0 +1,11 @@
+name = "heady-manager-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+account_id = ""
+
+[vars]
+UPSTREAM = "https://heady-manager-609590223909.us-central1.run.app"
+
+[[routes]]
+pattern = "manager.headysystems.com/*"
+zone_name = "headysystems.com"

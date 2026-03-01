@@ -1,183 +1,194 @@
 /*
- * © 2026 Heady Systems LLC.
- * PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
  *
- * Static Hosting & Domain Routing — Phase 2 Liquid Architecture
- * Extracted from heady-manager.js monolith.
+ * DYNAMIC SITE HOSTING — Replaces static file serving
+ * ═══════════════════════════════════════════════════════
+ * One template engine serves all domains dynamically.
+ * No static HTML files. No React build. No Cloudflare tunnel.
+ * Domain → config lookup → server-rendered HTML → response.
  *
- * Handles: static asset serving, vertical site mounts, IDE hosting,
- * personal cloud status, vertical domain routing, edge deep-scan.
+ * Preconfigured: headyme.com, headysystems.com, headyconnection.org,
+ *   headymcp.com, headyos.com, headyapi.com, headyio.com
+ * Custom: User-created sites from onboarding (data/user-sites.json)
+ * ═══════════════════════════════════════════════════════
  */
+
+"use strict";
 
 const path = require("path");
 const fs = require("fs");
 const express = require("express");
-const logger = require("../utils/logger");
+const { renderSite, resolveSite, resolveSiteBySlug } = require("../sites/site-renderer");
+const registry = require("../sites/site-registry.json");
 
-/**
- * Mount all static hosting and domain routing on the Express app.
- *
- * @param {Express.Application} app
- * @param {string} projectRoot - __dirname of heady-manager.js
- */
+const USER_SITES_PATH = path.join(__dirname, "..", "..", "data", "user-sites.json");
+
 function mountStaticHosting(app, projectRoot) {
-    // ─── Static Assets ─────────────────────────────────────────────────
-    const frontendBuildPath = path.join(projectRoot, "frontend", "dist");
-    if (fs.existsSync(frontendBuildPath)) {
-        app.use(express.static(frontendBuildPath));
-    }
 
-    // ─── headyme.com Production Site ───────────────────────────────────
-    app.use("/headyme", express.static("/home/headyme/CascadeProjects/headyme-com/dist"));
+    // ─── Static Assets (icons, manifests, service worker) ─────────────
+    app.use("/icons", express.static(path.join(projectRoot, "public", "icons")));
+    app.use("/manifests", express.static(path.join(projectRoot, "public", "manifests")));
+    app.use("/heady-icon-192.png", express.static(path.join(projectRoot, "public", "heady-icon-192.png")));
+    app.use("/heady-icon-512.png", express.static(path.join(projectRoot, "public", "heady-icon-512.png")));
+    app.use("/.well-known", express.static(path.join(projectRoot, "public", ".well-known")));
+    app.use("/sw.js", express.static(path.join(projectRoot, "public", "sw.js")));
+    app.use("/manifest.json", express.static(path.join(projectRoot, "public", "manifest.json")));
 
-    // ─── All Vertical Sites ────────────────────────────────────────────
-    app.use("/headysystems", express.static("/home/headyme/CascadeProjects/headysystems-com"));
-    app.use("/headybuddy", express.static("/home/headyme/CascadeProjects/headybuddy-org"));
-    app.use("/headyconnection", express.static("/home/headyme/CascadeProjects/headyconnection-org"));
-    app.use("/headymcp", express.static("/home/headyme/CascadeProjects/headymcp-com"));
-    app.use("/headyio", express.static("/home/headyme/CascadeProjects/headyio"));
-    app.use("/headyweb", express.static("/home/headyme/CascadeProjects/HeadyWeb"));
-    app.use("/admin", express.static("/home/headyme/CascadeProjects/admin-ui"));
-    app.use("/dist", express.static(path.join(projectRoot, "dist")));
-    logger.logNodeActivity("CONDUCTOR", "  ∞ Vertical Sites: 8 sites served (headyme, headysystems, headybuddy, headyconnection, headymcp, headyio, headyweb, admin)");
-
-    // ─── HeadyAI-IDE (ide.headyme.com) ─────────────────────────────────
-    const IDE_DIST = path.join(projectRoot, "heady-ide-ui", "dist");
-    app.use("/ide", express.static(IDE_DIST));
-    app.get("/ide/*", (req, res) => res.sendFile(path.join(IDE_DIST, "index.html")));
-
-    // Host-based routing: ide.headyme.com serves the IDE at root
-    app.use((req, res, next) => {
-        if (req.hostname === "ide.headyme.com") {
-            const filePath = path.join(IDE_DIST, req.path === "/" ? "index.html" : req.path);
-            if (fs.existsSync(filePath)) return res.sendFile(filePath);
-            return res.sendFile(path.join(IDE_DIST, "index.html")); // SPA fallback
-        }
-        next();
+    // ─── Slug-based routing (/v/:slug) ────────────────────────────────
+    app.get("/v/:slug", (req, res) => {
+        const site = resolveSiteBySlug(req.params.slug);
+        if (!site) return res.status(404).json({ error: "Site not found", slug: req.params.slug });
+        res.type("html").send(renderSite(site));
     });
 
-    // ─── Personal Cloud Connector (External + Internal) ────────────────
+    // ─── Site Registry API ────────────────────────────────────────────
+    app.get("/api/sites", (req, res) => {
+        const sites = [];
+        for (const [domain, cfg] of Object.entries(registry.preconfigured)) {
+            sites.push({ domain, name: cfg.name, tagline: cfg.tagline, role: cfg.role, type: "preconfigured", accent: cfg.accent });
+        }
+        try {
+            if (fs.existsSync(USER_SITES_PATH)) {
+                const userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
+                for (const [domain, cfg] of Object.entries(userSites)) {
+                    sites.push({ domain, name: cfg.name, tagline: cfg.tagline, role: cfg.role || "custom", type: "custom", accent: cfg.accent });
+                }
+            }
+        } catch { }
+        res.json({ ok: true, sites, total: sites.length, preconfigured: Object.keys(registry.preconfigured).length });
+    });
+
+    // ─── Onboarding: Create Custom Site ───────────────────────────────
+    app.post("/api/sites/create", express.json(), (req, res) => {
+        const { domain, name, tagline, description, accent, sacredGeometry, features, stats, chatEnabled, customCSS } = req.body;
+        if (!domain || !name || !tagline) {
+            return res.status(400).json({ error: "domain, name, and tagline are required" });
+        }
+        // Don't overwrite preconfigured
+        if (registry.preconfigured[domain]) {
+            return res.status(409).json({ error: `${domain} is a preconfigured site and cannot be overwritten` });
+        }
+
+        try {
+            const dataDir = path.dirname(USER_SITES_PATH);
+            if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+            let userSites = {};
+            if (fs.existsSync(USER_SITES_PATH)) {
+                userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
+            }
+
+            const slug = domain.replace(/\.(com|org|io|net)$/, "");
+            userSites[domain] = {
+                name, tagline, description: description || "",
+                slug,
+                role: "custom",
+                sacredGeometry: sacredGeometry || "Flower of Life",
+                accent: accent || "#818cf8",
+                accentDark: accent ? darkenColor(accent) : "#6366f1",
+                features: (features || []).slice(0, 6),
+                stats: (stats || []).slice(0, 4),
+                chatEnabled: chatEnabled !== false,
+                customCSS: customCSS || "",
+                createdAt: new Date().toISOString(),
+            };
+
+            fs.writeFileSync(USER_SITES_PATH, JSON.stringify(userSites, null, 2));
+            res.json({ ok: true, domain, site: userSites[domain], preview: `/v/${slug}` });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+
+    // ─── Onboarding: Update Custom Site ───────────────────────────────
+    app.put("/api/sites/:domain", express.json(), (req, res) => {
+        const domain = req.params.domain;
+        if (registry.preconfigured[domain]) {
+            return res.status(409).json({ error: `${domain} is preconfigured` });
+        }
+        try {
+            let userSites = {};
+            if (fs.existsSync(USER_SITES_PATH)) {
+                userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
+            }
+            if (!userSites[domain]) return res.status(404).json({ error: "Site not found" });
+
+            const updates = req.body;
+            userSites[domain] = { ...userSites[domain], ...updates, updatedAt: new Date().toISOString() };
+            fs.writeFileSync(USER_SITES_PATH, JSON.stringify(userSites, null, 2));
+            res.json({ ok: true, site: userSites[domain] });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+
+    // ─── Delete Custom Site ───────────────────────────────────────────
+    app.delete("/api/sites/:domain", (req, res) => {
+        const domain = req.params.domain;
+        if (registry.preconfigured[domain]) {
+            return res.status(409).json({ error: `${domain} is preconfigured` });
+        }
+        try {
+            let userSites = {};
+            if (fs.existsSync(USER_SITES_PATH)) {
+                userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
+            }
+            if (!userSites[domain]) return res.status(404).json({ error: "Site not found" });
+            delete userSites[domain];
+            fs.writeFileSync(USER_SITES_PATH, JSON.stringify(userSites, null, 2));
+            res.json({ ok: true, deleted: domain });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+
+    // ─── Cloud Status API ─────────────────────────────────────────────
     app.get("/api/cloud/status", (req, res) => {
         res.json({
             personalCloud: "headyme.com",
             status: "ONLINE",
-            externalProviders: {
-                cloudflare: { status: "active", services: ["DNS", "Tunnel", "Workers", "KV", "Vectorize", "Pages", "Access"] },
-                google: { status: "configured", services: ["Vertex AI", "Cloud Run", "Colab T4/A100", "Cloud Storage"] },
-                github: { status: "active", services: ["Repositories", "Actions CI/CD", "Pages"] },
-                litellm: { status: "active", gateway: "api.headysystems.com", services: ["Multi-Model Proxy", "Key Management"] },
-            },
-            internalServices: {
-                "heady-brain": { port: 3301, path: "/api/brain", status: "active" },
-                "heady-soul": { port: 3301, path: "/api/soul", status: "active" },
-                "heady-conductor": { port: 3301, path: "/api/conductor", status: "active" },
-                "heady-battle": { port: 3301, path: "/api/battle", status: "active" },
-                "heady-hcfp": { port: 3301, path: "/api/hcfp", status: "active" },
-                "heady-patterns": { port: 3301, path: "/api/patterns", status: "active" },
-                "heady-lens": { port: 3301, path: "/api/lens", status: "active" },
-                "heady-vinci": { port: 3301, path: "/api/vinci", status: "active" },
-                "heady-notion": { port: 3301, path: "/api/notion", status: "active" },
-                "heady-ops": { port: 3301, path: "/api/ops", status: "active" },
-                "heady-maintenance": { port: 3301, path: "/api/maintenance", status: "active" },
-                "auto-success-115": { port: 3301, path: "/api/auto-success", status: "active" },
-                "sse-streaming": { port: 3301, path: "/api/stream", status: "active" },
-                "colab-edge-cache": { port: 3301, path: "/api/edge", status: "active" },
-                "vector-memory": { port: 3301, path: "/api/vector", status: "active" },
-                "creative-engine": { port: 3301, path: "/api/creative", status: "active" },
-                "liquid-allocator": { port: 3301, path: "/api/liquid", status: "active" },
-                "deep-scanner": { port: 3301, path: "/api/system/deep-scan", status: "active" },
-                "verticals-api": { port: 3301, path: "/api/verticals", status: "active" },
-            },
-            domains: {
-                "headyme.com": { tunnel: true, role: "personal-cloud", status: "active", subdomains: ["api", "cms", "dashboard"] },
-                "headysystems.com": { tunnel: true, role: "infrastructure", status: "active", subdomains: ["api", "admin", "manager", "status", "logs", "grafana"] },
-                "headyconnection.org": { tunnel: false, role: "community", status: "active", subdomains: ["community", "connect", "social", "network"] },
-                "headymcp.com": { tunnel: false, role: "protocol", status: "active", subdomains: ["api", "model", "control", "protocol"] },
-                "headyio.com": { tunnel: false, role: "developer-platform", status: "active", subdomains: ["ide", "api", "docs", "playground"] },
-                "headybuddy.org": { tunnel: false, role: "ai-assistant", status: "active", subdomains: ["chat", "ai", "extension", "help"] },
-                "headybot.com": { tunnel: false, role: "automation", status: "active", subdomains: ["bot", "tasks", "workflows", "automation"] },
-                "headycreator.com": { tunnel: false, role: "creative-studio", status: "active", subdomains: ["canvas", "studio", "design", "remix"] },
-                "headymusic.com": { tunnel: false, role: "music-audio", status: "active", subdomains: ["generate", "library", "mix", "listen"] },
-                "headytube.com": { tunnel: false, role: "video-platform", status: "active", subdomains: ["create", "watch", "publish", "live"] },
-                "headycloud.com": { tunnel: false, role: "cloud-services", status: "active", subdomains: ["api", "compute", "storage", "dashboard"] },
-                "headylearn.com": { tunnel: false, role: "education", status: "active", subdomains: ["courses", "tutor", "practice", "certs"] },
-                "headystore.com": { tunnel: false, role: "marketplace", status: "active", subdomains: ["shop", "assets", "plugins", "billing"] },
-                "headystudio.com": { tunnel: false, role: "production-workspace", status: "active", subdomains: ["projects", "collab", "render", "export"] },
-                "headyagent.com": { tunnel: false, role: "autonomous-agents", status: "active", subdomains: ["deploy", "market", "monitor", "config"] },
-                "headydata.com": { tunnel: false, role: "data-analytics", status: "active", subdomains: ["ingest", "analyze", "visualize", "export"] },
-                "headyapi.com": { tunnel: false, role: "public-api", status: "active", subdomains: ["docs", "keys", "playground", "sdk"] },
-            },
-            localGateway: "https://127.0.0.1:3301",
+            domains: Object.keys(registry.preconfigured),
+            externalLinks: registry.externalLinks,
+            rendering: "dynamic-server-side",
             ts: new Date().toISOString(),
         });
     });
 
-    // ─── Vertical Domain Routing ───────────────────────────────────────
-    const VERTICALS_DIR = path.join(projectRoot, "public", "verticals");
-    let verticalsConfig = [];
-    try {
-        verticalsConfig = require(path.join(projectRoot, "src", "verticals.json")).verticals;
-    } catch { /* verticals.json not yet generated */ }
-
-    const domainSlugMap = {};
-    for (const v of verticalsConfig) {
-        const slug = v.domain.replace(/\.(com|org|io)$/, "");
-        domainSlugMap[v.domain] = slug;
-        domainSlugMap[`www.${v.domain}`] = slug;
-    }
-
-    app.get("/api/verticals", (req, res) => {
-        res.json({
-            ok: true,
-            verticals: verticalsConfig.map(v => ({
-                domain: v.domain, name: v.name, tagline: v.tagline,
-                icon: v.icon, status: v.status, role: v.ecosystemRole,
-            })),
-            total: verticalsConfig.length,
-            active: verticalsConfig.filter(v => v.status === "active").length,
-            planned: verticalsConfig.filter(v => v.status === "planned").length,
-        });
-    });
-
-    app.get("/v/:slug", (req, res) => {
-        const filePath = path.join(VERTICALS_DIR, `${req.params.slug}.html`);
-        if (fs.existsSync(filePath)) return res.sendFile(filePath);
-        res.status(404).json({ error: "Vertical not found", slug: req.params.slug });
-    });
-
+    // ─── Domain-based Rendering (catch-all for host routing) ──────────
+    // This must come AFTER all API routes
     app.use((req, res, next) => {
-        const slug = domainSlugMap[req.hostname];
-        if (slug && !req.path.startsWith("/api/")) {
-            const filePath = path.join(VERTICALS_DIR, `${slug}.html`);
-            if (fs.existsSync(filePath)) return res.sendFile(filePath);
+        // Skip API routes and static assets
+        if (req.path.startsWith("/api/") || req.path.startsWith("/health/") ||
+            req.path.startsWith("/icons/") || req.path.startsWith("/manifests/") ||
+            req.path.startsWith("/.well-known/") ||
+            req.path === "/sw.js" || req.path === "/manifest.json" ||
+            req.path === "/healthz" || req.path.startsWith("/heady-icon-")) {
+            return next();
+        }
+
+        // Resolve the site for this hostname
+        const site = resolveSite(req.hostname);
+        if (site) {
+            return res.type("html").send(renderSite(site));
         }
         next();
     });
 
-    app.use(express.static("public"));
+    console.log(`  ∞ Dynamic Site Hosting: ${Object.keys(registry.preconfigured).length} preconfigured sites`);
+    console.log(`    → Domains: ${Object.keys(registry.preconfigured).join(", ")}`);
+    console.log(`    → Custom sites via POST /api/sites/create`);
+    console.log(`    → Slug access via /v/:slug`);
+}
 
-    // ─── Dynamic Edge Node: Global Project & Vector Scanner ────────────
-    app.post("/api/edge/deep-scan", async (req, res) => {
-        const { directory, include_vectors } = req.body;
-        try {
-            let repo_map = directory || '/home/headyme/CascadeProjects';
-            const vector_data = include_vectors ? [
-                "[GLOBAL PERMISSION] Heady_Battle is restricted. Use BE VERY AWARE MODE safely.",
-                "[PROJECT STRUCT] heady-ide-ui (Vite/React) | heady-manager (Express/Mcp)",
-                "[SYS PREFERENCE] User strictly prefers concise, non-repetitive updates."
-            ] : [];
-
-            res.json({
-                success: true,
-                processed_at: "cloudflare-edge-worker-sim",
-                repo_map: `[Aggregated Map Generated for ${repo_map}] (Directories: 14, Files: 128)`,
-                persistent_3d_vectors: vector_data,
-                context_ready: true
-            });
-        } catch (err) {
-            res.status(500).json({ error: "Edge deep scan failed", details: err.message });
-        }
-    });
+/**
+ * Simple color darkener — shifts hex towards darker shade
+ */
+function darkenColor(hex) {
+    const v = parseInt(hex.replace("#", ""), 16);
+    const r = Math.max(0, ((v >> 16) & 255) - 30);
+    const g = Math.max(0, ((v >> 8) & 255) - 30);
+    const b = Math.max(0, (v & 255) - 30);
+    return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
 
 module.exports = { mountStaticHosting };

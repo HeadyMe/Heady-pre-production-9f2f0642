@@ -1,0 +1,130 @@
+version: 1.0.0
+enforcement: blocking
+owner: HeadyMe
+approved_developers:
+  - id: HeadyMe
+    type: owner
+    email: e@headyconnection.org
+    git_emails:
+      - e@headyconnection.org
+      - eric@headyconnection.org
+    permissions:
+      - read
+      - write
+      - commit
+      - push
+      - deploy
+      - approve-dev
+    approved_by: self
+  - id: jim_haywood
+    type: admin
+    email: jhaywood@headyme.com
+    git_emails:
+      - jhaywood@headyme.com
+    permissions:
+      - read
+      - write
+      - commit
+      - push
+    approved_by: HeadyMe
+  - id: mike_haywood
+    type: admin
+    email: mike.haywood@headyme.com
+    git_emails:
+      - mike.haywood@headyme.com
+      - mike.haywood@headyconnection.org
+      - mike.haywood@headysystems.com
+    permissions:
+      - read
+      - write
+      - commit
+      - push
+    approved_by: HeadyMe
+  - id: dewayne_barton
+    type: admin
+    email: dewayne@headyme.com
+    git_emails:
+      - dewayne@headyme.com
+    permissions:
+      - read
+      - write
+      - commit
+      - push
+    approved_by: HeadyMe
+approved_agents:
+  - id: heady-brain
+    type: internal-agent
+    description: Heady Brain — internal AI reasoning engine
+    permissions:
+      - read
+      - write
+      - commit
+    approved_by: HeadyMe
+  - id: heady-pipeline
+    type: internal-agent
+    description: HCFP auto-success pipeline
+    permissions:
+      - read
+      - write
+      - commit
+    approved_by: HeadyMe
+  - id: heady-swarm
+    type: internal-agent
+    description: HeadySwarm bee workers
+    permissions:
+      - read
+      - write
+    approved_by: HeadyMe
+  - id: antigravity
+    type: approved-third-party
+    description: Google DeepMind — approved by owner
+    permissions:
+      - read
+      - write
+      - commit
+    approved_by: e@headyconnection.org
+    approved_at: '2026-02-28T21:47:42.769Z'
+blocked_gateways:
+  - id: cursor
+    vendor: Anysphere
+    reason: Third-party IDE agent — requires owner approval
+    can_be_approved: true
+    approval_method: owner-explicit-command
+  - id: github-copilot
+    vendor: GitHub/Microsoft
+    reason: Third-party AI agent — requires owner approval
+    can_be_approved: true
+    approval_method: owner-explicit-command
+  - id: windsurf
+    vendor: Codeium
+    reason: Third-party IDE agent — requires owner approval
+    can_be_approved: true
+    approval_method: owner-explicit-command
+auth_gate:
+  require_signed_commits: true
+  block_unknown_emails: true
+  require_dev_token: true
+  auto_approve_owners: true
+  audit_all_attempts: true
+  audit_log: data/code-governance-audit.jsonl
+  max_files_per_commit: 50
+  protected_paths:
+    - configs/code-governance.yaml
+    - configs/users/user-secrets.yaml
+    - configs/governance-policies.yaml
+    - .husky/pre-commit
+    - .github/workflows/*.yml
+    - Dockerfile
+    - .gcloudignore
+    - ecosystem.config.cjs
+approval_workflow:
+  steps:
+    - owner_says: approve <agent-id> as dev connection
+    - system_adds_to: approved_agents
+    - system_issues: temporary RBAC token via rbac-vendor.js
+    - token_ttl: 3600000
+    - audit_logged: true
+  revoke_steps:
+    - owner_says: revoke <agent-id>
+    - system_removes_from: approved_agents
+    - system_invalidates: all active tokens for agent

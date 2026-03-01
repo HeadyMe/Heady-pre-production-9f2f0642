@@ -1,0 +1,94 @@
+# ═══ Provider Budget Configuration ═══
+# Per-provider monthly spending limits for intelligent cost governance.
+# The provider-usage-tracker enforces these limits and
+# signals the finops-budget-router to exclude exceeded providers.
+#
+# accounts: Multi-account tracking for providers with multiple subscriptions
+# budgets: Monthly USD limits per provider
+# alerts: Global threshold percentages for budget warnings
+
+accounts:
+  gcloud:
+    - id: gcloud-account-1
+      label: "GCloud Primary"
+      billing_id: ""
+    - id: gcloud-account-2
+      label: "GCloud Secondary"
+      billing_id: ""
+  google-ai-studio:
+    - id: google-ai-studio-1
+      label: "AI Studio Account 1"
+    - id: google-ai-studio-2
+      label: "AI Studio Account 2"
+    - id: google-ai-studio-3
+      label: "AI Studio Account 3"
+  google-ai-ultra:
+    - id: google-ai-ultra
+      label: "Google AI Ultra Subscription"
+      subscription_tier: ultra
+  github-enterprise:
+    - id: github-enterprise
+      label: "GitHub Enterprise"
+      plan: enterprise
+  cloudflare:
+    - id: cloudflare-workers-ai
+      label: "Cloudflare Workers AI"
+  groq:
+    - id: groq-cloud
+      label: "Groq Cloud"
+  anthropic:
+    - id: anthropic-api
+      label: "Anthropic API"
+  openai:
+    - id: openai-api
+      label: "OpenAI API"
+  perplexity:
+    - id: perplexity-sonar
+      label: "Perplexity Sonar"
+  xai:
+    - id: xai-grok
+      label: "xAI Grok"
+  gcloud-cloudrun:
+    - id: gcloud-cloudrun-1
+      label: "Cloud Run Primary"
+    - id: gcloud-cloudrun-2
+      label: "Cloud Run Secondary"
+  gemini:
+    - id: gemini-api
+      label: "Gemini API"
+  huggingface:
+    - id: huggingface-spaces
+      label: "HuggingFace Spaces"
+
+budgets:
+  cloudflare:
+    monthly_limit_usd: 5.00
+  groq:
+    monthly_limit_usd: 10.00
+  gemini:
+    monthly_limit_usd: 15.00
+  google-ai-studio:
+    monthly_limit_usd: 20.00
+  google-ai-ultra:
+    monthly_limit_usd: 50.00
+  anthropic:
+    monthly_limit_usd: 25.00
+  openai:
+    monthly_limit_usd: 20.00
+  gcloud-cloudrun:
+    monthly_limit_usd: 10.00
+  perplexity:
+    monthly_limit_usd: 5.00
+  xai:
+    monthly_limit_usd: 10.00
+  github-enterprise:
+    monthly_limit_usd: 0.00  # Flat-rate plan, tracked for visibility only
+  huggingface:
+    monthly_limit_usd: 5.00
+
+alerts:
+  warning_threshold: 0.80
+  critical_threshold: 1.00
+  notification_channels:
+    - console
+    - buddy-agent

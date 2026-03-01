@@ -1,0 +1,254 @@
+# © 2026 Heady Systems LLC.
+# GitHub Actions — Autonomous Operations Pipeline
+# Runs on cron schedules to keep Heady alive 24/7 without human intervention.
+#
+# Jobs:
+#   health-sentinel    — Every 15 min: ping production endpoints, create issue on failure
+#   swarm-pipeline     — Every 6 hrs: run HCFP auto-success pipeline
+#   daily-maintenance  — Daily 03:00 UTC: stale scans, log rotation, dep audit
+#   weekly-security    — Weekly Sun 06:00 UTC: full security sweep
+
+name: Heady Autonomous Ops
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # health-sentinel
+    - cron: '0 */6 * * *'    # swarm-pipeline
+    - cron: '0 3 * * *'      # daily-maintenance
+    - cron: '0 6 * * 0'      # weekly-security
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run (health, swarm, maintenance, security, all)'
+        required: false
+        default: 'all'
+
+concurrency:
+  group: heady-autonomous-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  # ═══ Health Sentinel — Every 15 minutes ═══
+  health-sentinel:
+    name: "💓 Health Sentinel"
+    runs-on: ubuntu-latest
+    if: >
+      github.event.schedule == '*/15 * * * *' ||
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'health' || github.event.inputs.job == 'all')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci --omit=dev
+      - name: Run production smoke tests
+        id: smoke
+        run: node scripts/ci/smoke-test.js
+        env:
+          HEADY_API_KEY: ${{ secrets.HEADY_API_KEY }}
+        continue-on-error: true
+
+      - name: Create issue on failure
+        if: steps.smoke.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 Health Sentinel: Production endpoint failure (${new Date().toISOString()})`;
+            const body = `## Automated Health Check Failure\n\n` +
+              `**Run**: ${context.runId}\n` +
+              `**Time**: ${new Date().toISOString()}\n` +
+              `**Workflow**: ${context.workflow}\n\n` +
+              `One or more production endpoints failed the smoke test.\n` +
+              `Check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.\n\n` +
+              `### Next Steps\n` +
+              `1. Check Cloud Run service health\n` +
+              `2. Check Cloudflare Worker status\n` +
+              `3. Review recent deployments\n`;
+            // Don't create duplicate issues — search for open ones first
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'health-sentinel',
+              per_page: 1,
+            });
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['health-sentinel', 'automated', 'priority:high'],
+              });
+            } else {
+              // Comment on existing issue instead
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues[0].number,
+                body: `⏰ Still failing at ${new Date().toISOString()}. Run: ${context.runId}`,
+              });
+            }
+
+      - name: Close issue on recovery
+        if: steps.smoke.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'health-sentinel',
+              per_page: 5,
+            });
+            for (const issue of issues) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ Recovered at ${new Date().toISOString()}. Closing.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              });
+            }
+
+  # ═══ Swarm Pipeline — Every 6 hours ═══
+  swarm-pipeline:
+    name: "🐝 Swarm Pipeline Cycle"
+    runs-on: ubuntu-latest
+    if: >
+      github.event.schedule == '0 */6 * * *' ||
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'swarm' || github.event.inputs.job == 'all')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Run HCFP pipeline
+        run: npm run pipeline
+        timeout-minutes: 10
+        env:
+          NODE_ENV: production
+          PIPELINE_SIMULATION_MODE: 'true'
+          HEADY_API_KEY: ${{ secrets.HEADY_API_KEY }}
+
+      - name: Run stale scanner
+        run: npm run scan:stale || echo "Stale scanner completed with warnings"
+
+      - name: Upload pipeline artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: swarm-pipeline-${{ github.run_id }}
+          path: |
+            hc_pipeline.log
+            data/health-loop-state.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  # ═══ Daily Maintenance — 03:00 UTC ═══
+  daily-maintenance:
+    name: "🧹 Daily Maintenance"
+    runs-on: ubuntu-latest
+    if: >
+      github.event.schedule == '0 3 * * *' ||
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'maintenance' || github.event.inputs.job == 'all')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci --omit=dev
+
+      - name: Dependency audit (non-blocking)
+        run: npm audit --omit=dev --audit-level=high || echo "⚠️ Audit found vulnerabilities"
+
+      - name: Branding consistency check
+        run: npm run brand:check || echo "⚠️ Branding inconsistencies found"
+
+      - name: Check latency SLOs
+        run: npm run check:latency || echo "⚠️ Latency SLO check completed with warnings"
+        env:
+          HEADY_API_KEY: ${{ secrets.HEADY_API_KEY }}
+
+      - name: Upload maintenance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintenance-${{ github.run_id }}
+          path: |
+            artifacts/perf/
+            configs/slo-latency-baseline.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  # ═══ Weekly Security Sweep — Sunday 06:00 UTC ═══
+  weekly-security:
+    name: "🔒 Weekly Security Sweep"
+    runs-on: ubuntu-latest
+    if: >
+      github.event.schedule == '0 6 * * 0' ||
+      github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'security' || github.event.inputs.job == 'all')
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+
+      - name: ESLint Security Scan
+        run: npx eslint --no-eslintrc -c .eslintrc.security.json src/ --ext .js --max-warnings 100
+        continue-on-error: true
+
+      - name: Gitleaks Secret Scanning
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-weekly.sarif'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-weekly.sarif'
+        continue-on-error: true
+
+      - name: Pre-commit secret check
+        run: bash .husky/pre-commit || echo "⚠️ Secret scan warnings"
+
+      - name: Dependency audit (full)
+        run: npm audit --audit-level=moderate || echo "⚠️ Audit found vulnerabilities"

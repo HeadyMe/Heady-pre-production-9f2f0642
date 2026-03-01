@@ -1,0 +1,62 @@
+{
+  "extends": ["eslint:recommended"],
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-script-url": "error",
+    "no-proto": "error",
+    "no-caller": "error",
+    "no-extend-native": "error",
+    "no-new-wrappers": "error",
+    "no-octal-escape": "error",
+    "no-with": "error",
+    "no-void": "error",
+    "no-self-compare": "error",
+    "no-unused-expressions": "error",
+    "no-sequences": "error",
+    "no-throw-literal": "error",
+    "no-return-assign": "error",
+    "no-labels": "error",
+    "no-lone-blocks": "error",
+    "no-loop-func": "error",
+    "no-multi-str": "error",
+    "no-useless-concat": "error",
+    "no-useless-escape": "error",
+    "no-template-curly-in-string": "warn",
+    "no-process-exit": "off",
+    "no-buffer-constructor": "error",
+    "no-path-concat": "error",
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "multi-line"],
+    "guard-for-in": "warn",
+    "no-alert": "error",
+    "no-constructor-return": "error",
+    "no-promise-executor-return": "error",
+    "no-unreachable-loop": "error",
+    "require-atomic-updates": "warn",
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-magic-numbers": ["warn", {
+      "ignore": [0, 1, -1, 2, 100, 200, 201, 204, 301, 302, 400, 401, 403, 404, 500],
+      "ignoreArrayIndexes": true,
+      "ignoreDefaultValues": true
+    }]
+  },
+  "overrides": [
+    {
+      "files": ["tests/**", "**/*.test.js", "**/*.spec.js"],
+      "rules": {
+        "no-magic-numbers": "off"
+      }
+    }
+  ]
+}

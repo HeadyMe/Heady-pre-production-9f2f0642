@@ -1,0 +1,47 @@
+# Heady Manager — Cloud Run deploy ignore
+# Only ship what the Dockerfile COPY commands need
+
+# Package manager and deps (rebuilt in Docker)
+node_modules/
+.pnpm-store/
+
+# Git
+.git/
+.gitignore
+
+# Logs (but NOT data/ — needed for user-sites.json)
+logs/
+*.log
+
+# Other project directories NOT needed by the manager
+heady-buddy/
+cloudflare/
+frontend/
+heady-ide-ui/
+/sites/
+# services/ — KEPT: heady-manager.js requires ./services/core-api
+# heady-hive-sdk/ — KEPT: required by vector-memory, brain, remote-compute, etc.
+heady-hf-space/
+heady-hf-space-systems/
+heady-hf-space-connection/
+# public/ — KEPT: icons, sw.js, manifests, .well-known
+assets/
+extensions/
+midi_bridge/
+test/
+tests/
+*.test.js
+
+# Build artifacts
+dist/
+.wrangler/
+.next/
+.cache/
+
+# IDE and local config
+.env
+.env.*
+ecosystem.config.cjs
+*.pem
+*.key
+*.crt

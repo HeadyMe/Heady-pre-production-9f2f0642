@@ -97,3 +97,8 @@ test.txt
 
 # Lock file conflict prevention (using npm)
 # pnpm-lock.yaml
+
+# Core dumps
+core.*
+core
+heady-buddy/core.*

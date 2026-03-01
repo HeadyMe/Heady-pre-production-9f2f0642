@@ -1,0 +1,12 @@
+{
+    "name": "heady-edge-gateway",
+    "version": "1.0.0",
+    "description": "Heady Edge Gateway — Cloud Run Liquid Failover Node",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "engines": {
+        "node": ">=18"
+    }
+}
