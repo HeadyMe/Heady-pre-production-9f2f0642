@@ -858,6 +858,17 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Trading tasks not loaded: ${err.message}`);
 }
 
+// ─── Load Architecture Tasks (K3D, ACC, GraphRAG, Flux, Governance) ─
+try {
+  if (autoSuccessEngine) {
+    const archTasks = require("./src/architecture-tasks");
+    const added = autoSuccessEngine.loadExternalTasks(archTasks);
+    logger.logNodeActivity("CONDUCTOR", `  🏛️ Architecture Tasks: ${added} tasks loaded (governance, K3D, ACC, GraphRAG, flux, sacred-geo)`);
+  }
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Architecture tasks not loaded: ${err.message}`);
+}
+
 // ─── Buddy Companion + HeadyBuddy Config + HeadyMe Onboarding Routes ──
 try {
   const buddyCompanionRouter = require("./src/routes/buddy-companion");

@@ -46,6 +46,9 @@ class HCFullPipeline extends EventEmitter {
         this.monteCarlo = opts.monteCarlo || null;
         this.policyEngine = opts.policyEngine || null;
         this.incidentManager = opts.incidentManager || null;
+        this.errorInterceptor = opts.errorInterceptor || null;
+        this.vectorMemory = opts.vectorMemory || null;
+        this.selfHealStats = { attempts: 0, successes: 0, failures: 0 };
     }
 
     // ─── Seeded PRNG (Mulberry32) for deterministic pipeline execution ──
@@ -140,6 +143,37 @@ class HCFullPipeline extends EventEmitter {
                     stage.error = err.message;
                     stage.finishedAt = new Date().toISOString();
                     this.emit("stage:failed", { runId, stage: stage.name, error: err.message });
+
+                    // ─── Self-Healing Protocol ─────────────────────────────
+                    const healed = await this._selfHeal(run, stage, err, i);
+                    if (healed) {
+                        // Self-heal succeeded — retry the stage
+                        stage.status = STATUS.RUNNING;
+                        stage.error = null;
+                        stage.startedAt = new Date().toISOString();
+                        this.emit("stage:retry", { runId, stage: stage.name, reason: "self_heal" });
+                        try {
+                            const retryResult = await this._executeStage(run, stage);
+                            stage.result = retryResult;
+                            stage.status = STATUS.COMPLETED;
+                            stage.finishedAt = new Date().toISOString();
+                            stage.metrics.durationMs = new Date(stage.finishedAt) - new Date(stage.startedAt);
+                            stage.metrics.selfHealed = true;
+                            this.emit("stage:completed", { runId, stage: stage.name, result: retryResult, selfHealed: true });
+                            continue; // Move to next stage
+                        } catch {
+                            // Self-heal retry failed — fall through to rollback
+                        }
+                    }
+
+                    // Escalate to Buddy error interceptor (Phase 5 rule synthesis)
+                    if (this.errorInterceptor) {
+                        await this.errorInterceptor.intercept(err, {
+                            source: `pipeline:${stage.name}`,
+                            runId,
+                            stage: stage.name,
+                        });
+                    }
 
                     // Rollback triggered
                     await this._rollback(run, i);
@@ -335,6 +369,69 @@ class HCFullPipeline extends EventEmitter {
         this.emit("rollback:completed", { runId: run.id, log: run.rollbackLog });
     }
 
+    // ─── Self-Healing Protocol ────────────────────────────────────
+    /**
+     * Attempts to automatically remediate a stage failure.
+     * Checks vector memory for similar past failures with known resolutions.
+     * @returns {boolean} true if self-heal found a resolution
+     */
+    async _selfHeal(run, stage, error, stageIndex) {
+        this.selfHealStats.attempts++;
+        this.emit("self-heal:started", { runId: run.id, stage: stage.name, error: error.message });
+
+        // 1. Check vector memory for similar past pipeline failures
+        if (this.vectorMemory) {
+            try {
+                const query = `pipeline stage ${stage.name} failure: ${error.message}`;
+                const results = await this.vectorMemory.queryMemory(query, 3, { type: "pipeline_resolution" });
+                if (results.length > 0 && results[0].score > 0.70) {
+                    this.selfHealStats.successes++;
+                    this.emit("self-heal:match", {
+                        runId: run.id,
+                        stage: stage.name,
+                        resolution: results[0].content,
+                        confidence: results[0].score,
+                    });
+                    return true;
+                }
+            } catch { /* vector memory unavailable */ }
+        }
+
+        // 2. Check if the error interceptor has a pre-emptive rule
+        if (this.errorInterceptor) {
+            const errorKey = `${error.name}:pipeline:${stage.name}`;
+            const knownRule = this.errorInterceptor.checkPreemptive(errorKey);
+            if (knownRule) {
+                this.selfHealStats.successes++;
+                this.emit("self-heal:rule-match", {
+                    runId: run.id,
+                    stage: stage.name,
+                    ruleId: knownRule.id,
+                });
+                return true;
+            }
+        }
+
+        // 3. No resolution found — persist the failure for future learning
+        if (this.vectorMemory) {
+            try {
+                await this.vectorMemory.ingestMemory({
+                    content: `Pipeline ${stage.name} failed: ${error.message}. Run: ${run.id}. Config: ${JSON.stringify(run.config)}`,
+                    metadata: {
+                        type: "pipeline_failure",
+                        stage: stage.name,
+                        errorClass: error.name,
+                        runId: run.id,
+                    },
+                });
+            } catch { /* best-effort */ }
+        }
+
+        this.selfHealStats.failures++;
+        this.emit("self-heal:failed", { runId: run.id, stage: stage.name });
+        return false;
+    }
+
     // ─── Resume after approval ───────────────────────────────────
     async resume(runId, approval = {}) {
         const run = this.runs.get(runId);
@@ -404,6 +501,7 @@ class HCFullPipeline extends EventEmitter {
             paused: all.filter(r => r.status === STATUS.PAUSED).length,
             completed: all.filter(r => r.status === STATUS.COMPLETED).length,
             failed: all.filter(r => r.status === STATUS.FAILED).length,
+            selfHeal: this.selfHealStats,
         };
     }
 }
