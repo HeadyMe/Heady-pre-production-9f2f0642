@@ -118,5 +118,29 @@
         "pool": "hot",
         "w": 10,
         "desc": "Extend MCP with JSON-RPC for non-linear, adaptive agent interactions. ACP enables dynamic compute allocation based on task complexity rather than static model routing, supporting the Convergence Epoch architecture."
+    },
+    {
+        "id": "headyos-016",
+        "name": "Architect Hyper-Reactive Trading Widget",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Build a WebSocket-dominant trading GUI with Level 2 order book depth, OMS execution engine linkage, and sub-millisecond React re-renders for financial data velocity."
+    },
+    {
+        "id": "headyos-017",
+        "name": "Implement Agent Session Survival Protocol",
+        "cat": "deep-intel",
+        "pool": "hot",
+        "w": 10,
+        "desc": "Enable snapshot/recovery of agent state across context window resets via the L1 Edge Layer's proactive recall loop, guaranteeing zero-discontinuity awareness resumption."
+    },
+    {
+        "id": "headyos-018",
+        "name": "Formalize IP Patent Filing Strategy",
+        "cat": "discovery",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Prepare utility patent filings for: (1) Liquid Gateway Dynamic Provider Racing/Arbitrage Engine, (2) HCFP Heterogeneous Adversarial Battle Validation, (3) Swarm-to-Creative Semantic-to-Aesthetic Data Translation."
     }
 ]
