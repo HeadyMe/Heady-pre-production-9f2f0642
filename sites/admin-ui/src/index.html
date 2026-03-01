@@ -90,6 +90,33 @@
             background: #1a2028;
         }
 
+        .btn-facebook {
+            background: #1877f2;
+            color: #fff;
+        }
+
+        .btn-facebook:hover {
+            background: #166fe5;
+        }
+
+        .btn-amazon {
+            background: #ff9900;
+            color: #111;
+        }
+
+        .btn-amazon:hover {
+            background: #e88b00;
+        }
+
+        .btn-instagram {
+            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+            color: #fff;
+        }
+
+        .btn-instagram:hover {
+            filter: brightness(1.1);
+        }
+
         .btn-email {
             background: linear-gradient(135deg, #7c3aed, #6d28d9);
             color: #fff;
@@ -278,6 +305,30 @@
                             d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                     </svg>
                     Continue with X
+                </button>
+                <!-- Facebook -->
+                <button id="facebookSignIn" class="btn-auth btn-facebook">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                    Continue with Facebook
+                </button>
+                <!-- Amazon -->
+                <button id="amazonSignIn" class="btn-auth btn-amazon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M.045 18.02c.072-.116.187-.124.348-.064 2.729 1.64 5.711 2.473 8.955 2.473 2.185 0 4.354-.43 6.492-1.2a35.5 35.5 0 002.86-1.318c.197-.11.378-.09.543.158 .165.241.108.428-.158.588-.65.39-1.404.79-2.262 1.2-2.308 1.1-4.737 1.65-7.287 1.65-3.572 0-6.69-.98-9.35-2.94-.17-.13-.197-.27-.14-.547zm22.56-2.61c-.26-.33-.694-.48-1.314-.458l-2.07.09c-.278.024-.33.164-.162.41.477.7.795 1.44.962 2.21.06.28.01.47-.158.57-.16.09-.43.01-.81-.25-.38-.26-.73-.57-1.04-.93-.14-.16-.26-.31-.37-.46-.35-.5-.72-.98-1.12-1.44-.51-.58-1.05-1-1.62-1.25-.23-.1-.42-.1-.58 0-.15.1-.18.28-.08.54.32.83.6 1.7.85 2.6.08.28.04.44-.12.5-.15.06-.38-.01-.68-.2l-.55-.35c-1.28-.84-2.51-1.38-3.7-1.6-.23-.04-.38.02-.48.18-.09.16-.06.35.08.58.89 1.43 2.05 2.43 3.49 3.02.1.04.2.08.32.12-.03.06-.08.1-.16.12-.43.08-.88.08-1.35.01-.47-.06-.92-.23-1.35-.49a3.25 3.25 0 01-.16-.11c-.14-.11-.3-.1-.47.04-.16.13-.19.29-.08.48.98 1.58 2.32 2.57 4.03 2.98.09.02.17.04.26.05-.05.06-.13.08-.22.1-.66.12-1.33.08-2-.12-1.07-.32-1.91-.94-2.52-1.86-.05-.08-.13-.12-.22-.12-.1 0-.17.05-.21.15-.04.1-.02.2.06.32.79 1.25 1.88 2.05 3.27 2.42.25.07.51.11.78.13-.32.08-.65.13-.98.17-.33.04-.67.04-1 0-.33-.04-.65-.12-.97-.24-.14-.05-.24-.03-.3.06-.06.1-.03.19.09.28 1.1.75 2.31 1.1 3.63 1.05 1.32-.05 2.5-.5 3.52-1.35.1-.08.16-.18.16-.3a.26.26 0 00-.12-.22z" />
+                    </svg>
+                    Continue with Amazon
+                </button>
+                <!-- Instagram -->
+                <button id="instagramSignIn" class="btn-auth btn-instagram">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                    </svg>
+                    Continue with Instagram
                 </button>
             </div>
             <div class="divider"><span>or sign in with email</span></div>
@@ -567,6 +618,9 @@
                     case 'microsoft': provider = new firebase.auth.OAuthProvider('microsoft.com'); break;
                     case 'apple': provider = new firebase.auth.OAuthProvider('apple.com'); break;
                     case 'twitter': provider = new firebase.auth.TwitterAuthProvider(); break;
+                    case 'facebook': provider = new firebase.auth.FacebookAuthProvider(); break;
+                    case 'amazon': provider = new firebase.auth.OAuthProvider('amazon.com'); break;
+                    case 'instagram': provider = new firebase.auth.FacebookAuthProvider(); provider.addScope('instagram_basic'); break;
                     default: return;
                 }
                 firebase.auth().signInWithPopup(provider).catch(function (err) {
@@ -575,7 +629,7 @@
                 });
             }
             document.addEventListener('DOMContentLoaded', function () {
-                var ids = { googleSignIn: 'google', githubSignIn: 'github', microsoftSignIn: 'microsoft', appleSignIn: 'apple', twitterSignIn: 'twitter' };
+                var ids = { googleSignIn: 'google', githubSignIn: 'github', microsoftSignIn: 'microsoft', appleSignIn: 'apple', twitterSignIn: 'twitter', facebookSignIn: 'facebook', amazonSignIn: 'amazon', instagramSignIn: 'instagram' };
                 Object.keys(ids).forEach(function (id) {
                     var btn = document.getElementById(id);
                     if (btn) btn.addEventListener('click', function () { signInWithProvider(ids[id]); });
