@@ -306,6 +306,58 @@ const STORAGE_TOPOLOGY = {
     },
 };
 
+// ─── HF Spaces — Distributed Liquid Nodes ────────────────────────────
+// Each HF Space is a Liquid node with multiple primary providers.
+// They share the buddy-widget.js and cross-link, but each specializes.
+const HF_SPACES_TOPOLOGY = {
+    "main": {
+        slug: "HeadyMe/heady-ai-brain",
+        title: "Heady AI — Brain Demo",
+        role: "Full-stack demo hub — live chat, code editor, gateway dashboard",
+        providers: {
+            chat: { service: "hf-biz", model: "Qwen/Qwen3-235B-A22B", cost: "biz-seat", latency: "800ms" },
+            code: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            speed: { service: "groq", model: "llama-3.1-70b-versatile", cost: "free", latency: "100ms" },
+            reasoning: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
+            quality: { service: "claude", model: "claude-sonnet-4-20250514", cost: "$60-api", latency: "800ms" },
+        },
+        providerPriority: ["hf-biz", "groq", "gemini", "claude"],
+        storage: ["models", "datasets", "notebooks"],
+        components: ["brain", "battle", "stream", "buddy"],
+        sharedAssets: ["shared/buddy-widget.js", "shared/icon.png", "shared/logo.png"],
+    },
+    "connection": {
+        slug: "HeadyMe/heady-connection",
+        title: "HeadyConnection — AI for Nonprofit Impact",
+        role: "Nonprofit AI — grant writing, impact dashboards, volunteer matching",
+        providers: {
+            grants: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            impact: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
+            research: { service: "perplexity", model: "sonar-pro", cost: "api-key", latency: "500ms" },
+            speed: { service: "groq", model: "llama-3.1-8b-instant", cost: "free", latency: "50ms" },
+        },
+        providerPriority: ["hf-biz", "gemini", "perplexity", "groq"],
+        storage: ["datasets", "user-content"],
+        components: ["notion", "vinci", "buddy"],
+        sharedAssets: ["shared/buddy-widget.js", "shared/icon.png", "shared/logo.png"],
+    },
+    "systems": {
+        slug: "HeadyMe/heady-systems",
+        title: "HeadySystems — Platform Operations Intelligence",
+        role: "Ops intelligence — self-healing infra, monitoring, drift detection",
+        providers: {
+            ops: { service: "hf-biz", model: "Llama-3.1-70B-Instruct", cost: "biz-seat", latency: "500ms" },
+            monitor: { service: "groq", model: "llama-3.1-8b-instant", cost: "free", latency: "50ms" },
+            analysis: { service: "gemini", model: "gemini-2.0-flash", cost: "gcloud", latency: "300ms" },
+            deep: { service: "claude", model: "claude-3-haiku-20240307", cost: "$60-api", latency: "300ms" },
+        },
+        providerPriority: ["hf-biz", "groq", "gemini", "claude"],
+        storage: ["logs-telemetry", "edge-cache", "code"],
+        components: ["ops", "conductor", "patterns", "lens", "auto-success"],
+        sharedAssets: ["shared/buddy-widget.js", "shared/icon.png", "shared/logo.png"],
+    },
+};
+
 // ─── Context Analyzer ────────────────────────────────────────────────
 // Analyzes incoming requests/situations and produces a context vector.
 function analyzeContext(request = {}) {
@@ -578,9 +630,13 @@ function registerLiquidRoutes(app, allocator) {
     app.get("/api/liquid/storage", (req, res) => {
         res.json({ ok: true, storage: STORAGE_TOPOLOGY });
     });
+    // HF Spaces topology — distributed nodes
+    app.get("/api/liquid/spaces", (req, res) => {
+        res.json({ ok: true, spaces: HF_SPACES_TOPOLOGY });
+    });
 
     logger.logSystem("  💧 HeadyLiquid: LOADED (dynamic allocation, context-aware routing)");
-    logger.logSystem("    → Endpoints: /api/liquid/health, /allocate, /state, /flows, /query, /components, /storage");
+    logger.logSystem("    → Endpoints: /api/liquid/health, /allocate, /state, /flows, /query, /components, /storage, /spaces");
 }
 
-module.exports = { LiquidAllocator, registerLiquidRoutes, analyzeContext, calculateAffinity, COMPONENT_REGISTRY, STORAGE_TOPOLOGY };
+module.exports = { LiquidAllocator, registerLiquidRoutes, analyzeContext, calculateAffinity, COMPONENT_REGISTRY, STORAGE_TOPOLOGY, HF_SPACES_TOPOLOGY };
