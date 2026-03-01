@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 // heady-edge-proxy.js
-// ═══ API Keys resolved from env secrets at runtime — NEVER hardcoded ═══
-// Set via: wrangler secret put HEADY_API_KEYS (comma-separated)
+// ═══ API Keys resolved from Cloudflare secret store at runtime — NEVER hardcoded ═══
+// Stored via: wrangler secret put HEADY_API_KEYS (comma-separated, encrypted at rest)
 // Keys rotate without code changes or redeployment.
 var _cachedApiKeys = null;
 var _cachedApiKeysSource = null;
@@ -20,16 +20,19 @@ function getValidApiKeys(env2) {
   }
   return _cachedApiKeys;
 }
-var CORS = {
+var CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Heady-API-Key, X-Heady-Source",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Heady-API-Key, X-Heady-Source"
+};
+var SECURITY_HEADERS = {
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "SAMEORIGIN",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
 };
+var STANDARD_HEADERS = { ...CORS_HEADERS, ...SECURITY_HEADERS };
 var EDGE_SITES = /* @__PURE__ */ new Set([
   "headymcp.com",
   "www.headymcp.com",
@@ -126,8 +129,8 @@ var HEADY_MODEL_GROUPS = {
     desc: "Deep analysis, complex problem solving, multi-step chain-of-thought",
     models: [
       // Cloud providers
-      { provider: "anthropic", model: "claude-sonnet-4-20250514", priority: 1, maxTokens: 8192, tier: "cloud" },
-      { provider: "google", model: "gemini-2.5-pro", priority: 2, maxTokens: 65536, tier: "cloud" },
+      { provider: "anthropic", model: "claude-opus-4.6-thinking", priority: 1, maxTokens: 32768, tier: "cloud", note: "Opus 4.6 extended thinking — deepest reasoning" },
+      { provider: "google", model: "gemini-3.1-pro", priority: 2, maxTokens: 65536, tier: "cloud" },
       { provider: "openai", model: "o3-mini", priority: 3, maxTokens: 16384, tier: "cloud" },
       // Hugging Face open-source (CoT specialists)
       { provider: "huggingface", model: "deepseek-ai/DeepSeek-R1", priority: 4, maxTokens: 32768, tier: "hf", note: "DeepSeek-R1 \u2014 chain-of-thought reasoning specialist" },
@@ -196,15 +199,124 @@ var HEADY_MODEL_GROUPS = {
     hybridStrategy: "Liquid: cloud-first for speed; HF models for specialized vision tasks"
   }
 };
-function selectModel(groupName, preferredProvider = null) {
-  const group3 = HEADY_MODEL_GROUPS[groupName];
-  if (!group3) return null;
-  const models = [...group3.models].sort((a, b) => a.priority - b.priority);
-  if (preferredProvider) {
-    const preferred = models.find((m) => m.provider === preferredProvider);
-    if (preferred) return { ...preferred, group: groupName, alias: group3.publicAlias };
+// ═══ Intelligent Dynamic Model Router ═══
+// Analyzes the task, classifies intent, scores all available models, picks the best fit.
+// No hardcoded priority — selection is based on task type, complexity, provider health, and latency.
+
+var TASK_SIGNALS = {
+  reasoning: {
+    keywords: ["analyze", "explain", "why", "reason", "think", "compare", "evaluate", "debate", "proof", "logic", "strategy", "plan", "architecture", "tradeoff", "decision", "complex", "multi-step", "chain of thought", "deep dive"],
+    minTokenHint: 4096
+  },
+  code: {
+    keywords: ["code", "function", "class", "bug", "fix", "refactor", "implement", "api", "endpoint", "schema", "sql", "typescript", "javascript", "python", "debug", "test", "deploy", "build", "compile", "lint", "pr", "commit", "git"],
+    minTokenHint: 2048
+  },
+  creative: {
+    keywords: ["write", "story", "poem", "design", "brand", "naming", "tagline", "creative", "content", "blog", "copy", "narrative", "tone", "voice", "style", "draft", "brainstorm", "ideate"],
+    minTokenHint: 2048
+  },
+  vision: {
+    keywords: ["image", "screenshot", "photo", "visual", "diagram", "chart", "ocr", "picture", "see", "look at", "what is this"],
+    minTokenHint: 1024
+  },
+  fast: {
+    keywords: ["quick", "short", "brief", "summary", "tldr", "one-liner", "translate", "define", "list", "autocomplete", "hello", "hi", "hey"],
+    minTokenHint: 512
   }
-  return { ...models[0], group: groupName, alias: group3.publicAlias };
+};
+
+function classifyTask(prompt, systemPrompt = "") {
+  const text = `${systemPrompt} ${prompt}`.toLowerCase();
+  const scores = {};
+  for (const [group, signals] of Object.entries(TASK_SIGNALS)) {
+    scores[group] = 0;
+    for (const kw of signals.keywords) {
+      if (text.includes(kw)) scores[group] += 1;
+    }
+  }
+  // Bonus: long prompts lean toward reasoning
+  if (prompt.length > 1000) scores.reasoning = (scores.reasoning || 0) + 2;
+  if (prompt.length > 3000) scores.reasoning = (scores.reasoning || 0) + 3;
+  // Bonus: very short prompts lean toward fast
+  if (prompt.length < 100) scores.fast = (scores.fast || 0) + 2;
+
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const best = sorted[0];
+  // If no signals matched, default to fast for simple queries, reasoning for long ones
+  if (best[1] === 0) return prompt.length > 500 ? "reasoning" : "fast";
+  return best[0];
+}
+__name(classifyTask, "classifyTask");
+
+function estimateComplexity(prompt) {
+  const len = prompt.length;
+  if (len < 100) return "low";       // Simple question or greeting
+  if (len < 500) return "medium";    // Standard task
+  if (len < 2000) return "high";     // Detailed request
+  return "critical";                  // Full-context heavy reasoning
+}
+__name(estimateComplexity, "estimateComplexity");
+
+function scoreModelForTask(model, complexity, groupName) {
+  let score = 100 - (model.priority || 5) * 5; // Base: lower priority number = higher score
+
+  // Tier bonuses based on complexity
+  const tierBonus = {
+    low: { cloud: 5, hf: 10, local: 15 }, // Simple → prefer cheap/fast
+    medium: { cloud: 15, hf: 10, local: 5 },  // Standard → cloud preferred
+    high: { cloud: 20, hf: 10, local: 0 },   // Complex → cloud strongly preferred
+    critical: { cloud: 25, hf: 5, local: -5 }   // Critical → cloud required
+  };
+  score += (tierBonus[complexity]?.[model.tier] || 0);
+
+  // Token capacity bonus — complex tasks need models with large maxTokens
+  if (complexity === "critical" && model.maxTokens >= 32768) score += 15;
+  if (complexity === "high" && model.maxTokens >= 8192) score += 10;
+
+  // Circuit breaker penalty — if provider has recent failures, reduce score
+  if (circuitState[model.provider]?.failures > 0) {
+    score -= circuitState[model.provider].failures * 10;
+  }
+  if (isCircuitOpen(model.provider)) score -= 100; // effectively disabled
+
+  return score;
+}
+__name(scoreModelForTask, "scoreModelForTask");
+
+function selectModel(groupNameOrPrompt, preferredProvider = null, opts = {}) {
+  // If called with a prompt string, classify it first
+  let groupName = groupNameOrPrompt;
+  let complexity = opts.complexity || "medium";
+
+  if (groupNameOrPrompt && !HEADY_MODEL_GROUPS[groupNameOrPrompt]) {
+    // Treat as a prompt — classify dynamically
+    groupName = classifyTask(groupNameOrPrompt, opts.system || "");
+    complexity = estimateComplexity(groupNameOrPrompt);
+  }
+
+  const group = HEADY_MODEL_GROUPS[groupName];
+  if (!group) return null;
+
+  // Score every model in the group
+  const scored = group.models.map(m => ({
+    ...m,
+    _score: scoreModelForTask(m, complexity, groupName)
+  })).sort((a, b) => b._score - a._score);
+
+  // If preferred provider requested AND healthy, use it
+  if (preferredProvider) {
+    const preferred = scored.find(m => m.provider === preferredProvider && m._score > 0);
+    if (preferred) {
+      const { _score, ...model } = preferred;
+      return { ...model, group: groupName, alias: group.publicAlias, routing: "preferred", complexity, score: _score };
+    }
+  }
+
+  const best = scored[0];
+  if (!best || best._score <= 0) return null;
+  const { _score, ...model } = best;
+  return { ...model, group: groupName, alias: group.publicAlias, routing: "dynamic", complexity, score: _score };
 }
 __name(selectModel, "selectModel");
 var SERVICE_GROUPS = {
@@ -540,7 +652,7 @@ var HeadyLens = {
 var heady_edge_proxy_default = {
   async fetch(request, env2) {
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: CORS });
+      return new Response(null, { headers: STANDARD_HEADERS });
     }
     const url = new URL(request.url);
     const hostname = url.hostname;
@@ -561,7 +673,7 @@ var heady_edge_proxy_default = {
             "X-Heady-Serve": "edge-direct",
             "X-Heady-Request-ID": requestId,
             "X-Heady-Latency": `${Date.now() - startTime}ms`,
-            ...CORS
+            ...STANDARD_HEADERS
           }
         });
       }
@@ -703,7 +815,7 @@ var heady_edge_proxy_default = {
       if (path === "/v1/lens") {
         const audit = HeadyLens.getAudit();
         return new Response(JSON.stringify(audit, null, 2), {
-          headers: { "Content-Type": "application/json", ...CORS }
+          headers: { "Content-Type": "application/json", ...STANDARD_HEADERS }
         });
       }
       if (path === "/v1/models") {
@@ -717,7 +829,7 @@ var heady_edge_proxy_default = {
           };
         }
         return new Response(JSON.stringify({ node: "heady-brain", groups, policy: "Provider details hidden unless admin" }, null, 2), {
-          headers: { "Content-Type": "application/json", ...CORS }
+          headers: { "Content-Type": "application/json", ...STANDARD_HEADERS }
         });
       }
       if (path === "/v1/embed") return handleEmbed(request, env2);
@@ -834,6 +946,54 @@ function recordSuccess(providerId) {
 __name(recordSuccess, "recordSuccess");
 async function routeToProvider(message, system, env2, opts = {}) {
   const startTime = Date.now();
+
+  // ═══ Dynamic routing: classify task → pick best model → call provider ═══
+  const taskGroup = classifyTask(message, system);
+  const complexity = estimateComplexity(message);
+  const group = HEADY_MODEL_GROUPS[taskGroup];
+
+  if (group) {
+    // Score + sort all models in the classified group
+    const candidates = group.models
+      .map(m => ({ ...m, _score: scoreModelForTask(m, complexity, taskGroup) }))
+      .filter(m => m._score > 0)
+      .sort((a, b) => b._score - a._score);
+
+    // Try each candidate in score order
+    for (const candidate of candidates) {
+      // Map model registry providers to callProvider IDs
+      const providerId = mapProviderToCallId(candidate.provider);
+      if (!providerId || isCircuitOpen(providerId)) continue;
+
+      try {
+        const result = await callProvider(providerId, message, system, env2, {
+          ...opts,
+          max_tokens: opts.max_tokens || candidate.maxTokens || 2048,
+          model_override: candidate.model
+        });
+        if (result && result.response) {
+          recordSuccess(providerId);
+          HeadyLens.record(`route:${taskGroup}:${providerId}`, Date.now() - startTime, 200);
+          return {
+            ...result,
+            provider: providerId,
+            model: candidate.model,
+            group: taskGroup,
+            complexity,
+            alias: group.publicAlias,
+            latency_ms: Date.now() - startTime,
+            routing: "dynamic",
+            score: candidate._score
+          };
+        }
+      } catch (err) {
+        recordFailure(providerId);
+        console.error(`[DynamicRouter] ${providerId}/${candidate.model} failed: ${err.message}`);
+      }
+    }
+  }
+
+  // ═══ Fallback: static PROVIDERS array if dynamic routing exhausted ═══
   for (const provider of PROVIDERS) {
     if (isCircuitOpen(provider.id)) continue;
     try {
@@ -844,23 +1004,41 @@ async function routeToProvider(message, system, env2, opts = {}) {
           ...result,
           provider: provider.id,
           latency_ms: Date.now() - startTime,
-          routing: "mesh"
+          routing: "static-fallback"
         };
       }
     } catch (err) {
       recordFailure(provider.id);
-      console.error(`[MeshRouter] ${provider.id} failed: ${err.message}`);
+      console.error(`[StaticFallback] ${provider.id} failed: ${err.message}`);
     }
   }
+
   return {
     response: "All AI providers are temporarily unavailable. Your request has been queued for processing. Please try again in a moment.",
     provider: "offline",
     model: "none",
     latency_ms: Date.now() - startTime,
-    routing: "fallback"
+    routing: "exhausted"
   };
 }
 __name(routeToProvider, "routeToProvider");
+
+// Map model registry provider names to callProvider switch cases
+function mapProviderToCallId(registryProvider) {
+  const map = {
+    "anthropic": "claude",
+    "google": "gemini",
+    "groq": "groq",
+    "openai": "openai",
+    "xai": "xai",
+    "huggingface": "huggingface",
+    "magic": "magic",
+    "local-ollama": "heady-brain",
+    "local-lmstudio": "heady-brain"
+  };
+  return map[registryProvider] || null;
+}
+__name(mapProviderToCallId, "mapProviderToCallId");
 async function callProvider(id, message, system, env2, opts) {
   const timeout = id === "heady-brain" ? 3e3 : opts.timeout || 15e3;
   const maxTokens = opts.max_tokens || 2048;
@@ -889,7 +1067,8 @@ async function callProvider(id, message, system, env2, opts) {
       return { response: result.response, model: "@cf/meta/llama-3.1-8b-instruct" };
     }
     case "gemini": {
-      const endpoint = env2.GEMINI_ENDPOINT || "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+      const modelId = opts.model_override || "gemini-2.0-flash";
+      const endpoint = env2.GEMINI_ENDPOINT || `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent`;
       if (!env2.GOOGLE_API_KEY) throw new Error("GOOGLE_API_KEY not set");
       const resp = await fetchWithTimeout(`${endpoint}?key=${env2.GOOGLE_API_KEY}`, {
         method: "POST",
@@ -908,7 +1087,7 @@ ${message}` : message
       if (!resp.ok) throw new Error(`Gemini ${resp.status}`);
       const data = await resp.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      return { response: text, model: "gemini-2.0-flash" };
+      return { response: text, model: modelId };
     }
     case "claude": {
       if (!env2.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not set");
@@ -920,7 +1099,7 @@ ${message}` : message
           "anthropic-version": "2023-06-01"
         },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: opts.model_override || "claude-sonnet-4-20250514",
           max_tokens: maxTokens,
           system: system || void 0,
           messages: [{ role: "user", content: message }]
@@ -928,7 +1107,7 @@ ${message}` : message
       }, timeout);
       if (!resp.ok) throw new Error(`Claude ${resp.status}`);
       const data = await resp.json();
-      return { response: data.content?.[0]?.text, model: "claude-sonnet-4-20250514" };
+      return { response: data.content?.[0]?.text, model: opts.model_override || "claude-sonnet-4-20250514" };
     }
     case "groq": {
       if (!env2.GROQ_API_KEY) throw new Error("GROQ_API_KEY not set");
@@ -939,7 +1118,7 @@ ${message}` : message
           "Authorization": `Bearer ${env2.GROQ_API_KEY}`
         },
         body: JSON.stringify({
-          model: "llama-3.1-70b-versatile",
+          model: opts.model_override || "llama-3.1-70b-versatile",
           messages: [
             ...system ? [{ role: "system", content: system }] : [],
             { role: "user", content: message }
@@ -949,7 +1128,105 @@ ${message}` : message
       }, timeout);
       if (!resp.ok) throw new Error(`Groq ${resp.status}`);
       const data = await resp.json();
-      return { response: data.choices?.[0]?.message?.content, model: "llama-3.1-70b-versatile" };
+      return { response: data.choices?.[0]?.message?.content, model: opts.model_override || "llama-3.1-70b-versatile" };
+    }
+    // ═══ Heady Universal Hub — dynamically connected providers ═══
+    case "huggingface": {
+      const token = env2.HF_TOKEN || env2.HF_TOKEN_2;
+      if (!token) throw new Error("HF_TOKEN not set");
+      const modelId = opts.model_override || "google/gemma-3-4b-it";
+      const resp = await fetchWithTimeout(`https://api-inference.huggingface.co/models/${modelId}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [
+            ...system ? [{ role: "system", content: system }] : [],
+            { role: "user", content: message }
+          ],
+          max_tokens: Math.min(maxTokens, 4096),
+          temperature: opts.temperature || 0.7
+        })
+      }, timeout);
+      if (!resp.ok) {
+        const errBody = await resp.text().catch(() => "");
+        throw new Error(`HuggingFace ${resp.status}: ${errBody.substring(0, 200)}`);
+      }
+      const data = await resp.json();
+      // HF Inference API returns OpenAI-compatible format
+      const text = data.choices?.[0]?.message?.content || data[0]?.generated_text;
+      return { response: text, model: modelId };
+    }
+    case "openai": {
+      if (!env2.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY not set");
+      const modelId = opts.model_override || "gpt-4o";
+      const resp = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${env2.OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [
+            ...system ? [{ role: "system", content: system }] : [],
+            { role: "user", content: message }
+          ],
+          max_tokens: maxTokens,
+          temperature: opts.temperature || 0.7
+        })
+      }, timeout);
+      if (!resp.ok) throw new Error(`OpenAI ${resp.status}`);
+      const data = await resp.json();
+      return { response: data.choices?.[0]?.message?.content, model: modelId };
+    }
+    case "xai": {
+      if (!env2.XAI_API_KEY) throw new Error("XAI_API_KEY not set");
+      const modelId = opts.model_override || "grok-3";
+      const resp = await fetchWithTimeout("https://api.x.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${env2.XAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [
+            ...system ? [{ role: "system", content: system }] : [],
+            { role: "user", content: message }
+          ],
+          max_tokens: maxTokens,
+          temperature: opts.temperature || 0.7
+        })
+      }, timeout);
+      if (!resp.ok) throw new Error(`xAI ${resp.status}`);
+      const data = await resp.json();
+      return { response: data.choices?.[0]?.message?.content, model: modelId };
+    }
+    case "magic": {
+      if (!env2.MAGIC_API_KEY) throw new Error("MAGIC_API_KEY not set");
+      const modelId = opts.model_override || "ltm-2-mini";
+      const resp = await fetchWithTimeout("https://api.magic.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${env2.MAGIC_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [
+            ...system ? [{ role: "system", content: system }] : [],
+            { role: "user", content: message }
+          ],
+          max_tokens: maxTokens
+        })
+      }, timeout);
+      if (!resp.ok) throw new Error(`Magic ${resp.status}`);
+      const data = await resp.json();
+      return { response: data.choices?.[0]?.message?.content, model: modelId };
     }
     default:
       throw new Error(`Unknown provider: ${id}`);
@@ -2084,6 +2361,12 @@ async function proxyToService(request, service, env2, meta) {
     proxyHeaders.set("X-Heady-Client-Cert-DN", tlsInfo.certSubjectDN || "");
     proxyHeaders.set("X-Heady-Client-Cert-Fingerprint", tlsInfo.certFingerprintSHA256 || "");
   }
+
+  // CRITICAL FIX: The incoming request has 'Host: manager.headysystems.com'.
+  // We are fetching 'https://heady-edge-gateway...run.app'.
+  // Cloud Run requires the SNI and Host header to match the run.app domain.
+  // We must delete the original Host header so fetch() automatically supplies the correct one.
+  proxyHeaders.delete("Host");
   try {
     const resp = await fetchWithTimeout(target, {
       method: request.method,
@@ -2094,7 +2377,7 @@ async function proxyToService(request, service, env2, meta) {
     newResp.headers.set("X-Heady-Edge", "true");
     newResp.headers.set("X-Heady-Request-ID", meta.requestId);
     newResp.headers.set("X-Heady-Latency", `${Date.now() - meta.startTime}ms`);
-    Object.entries(CORS).forEach(([k, v]) => newResp.headers.set(k, v));
+    Object.entries(STANDARD_HEADERS).forEach(([k, v]) => newResp.headers.set(k, v));
     const cdnCacheTtl = getStaticCacheTTL(meta.path);
     if (cdnCacheTtl !== 0 && resp.status === 200 && request.method === "GET") {
       if (cdnCacheTtl === -1) {
@@ -2121,7 +2404,7 @@ async function proxyToService(request, service, env2, meta) {
     if (service.public) {
       return new Response(getServiceFallbackPage(meta.hostname), {
         status: 503,
-        headers: { "Content-Type": "text/html", "X-Heady-Edge": "fallback", ...CORS }
+        headers: { "Content-Type": "text/html", "X-Heady-Edge": "fallback", "X-Proxy-Error": String(err.message), ...STANDARD_HEADERS }
       });
     }
     throw err;
@@ -2714,7 +2997,7 @@ __name(getStaticCacheTTL, "getStaticCacheTTL");
 function jsonRes(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
-    headers: { "Content-Type": "application/json", ...CORS, ...extraHeaders }
+    headers: { "Content-Type": "application/json", ...STANDARD_HEADERS, ...extraHeaders }
   });
 }
 __name(jsonRes, "jsonRes");

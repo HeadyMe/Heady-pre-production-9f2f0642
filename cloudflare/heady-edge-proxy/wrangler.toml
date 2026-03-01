@@ -5,5 +5,22 @@ compatibility_date = "2024-02-23"
 compatibility_flags = ["nodejs_compat"]
 no_bundle = true
 
+# ═══ Workers AI Binding — powers edge-ai provider ═══
+[ai]
+binding = "AI"
+
 [env.production]
 vars = { ENVIRONMENT = "production" }
+
+# ═══ Heady Universal Hub — Required Cloudflare Secrets ═══
+# Set via: wrangler secret put <NAME> (encrypted at rest, never in config)
+#
+# HEADY_API_KEYS     — Comma-separated valid API keys for auth
+# GOOGLE_API_KEY     — Gemini API (generativelanguage.googleapis.com)
+# ANTHROPIC_API_KEY  — Claude API (api.anthropic.com)
+# GROQ_API_KEY       — Groq API (api.groq.com)
+# HF_TOKEN           — Hugging Face Inference API (api-inference.huggingface.co)
+# OPENAI_API_KEY     — OpenAI API (api.openai.com)
+# XAI_API_KEY        — xAI / Grok API (api.x.ai)
+# MAGIC_API_KEY      — Magic LTM API (api.magic.dev)
+# NOTION_API_KEY     — Notion sync (api.notion.com) [optional]

@@ -1,0 +1,35 @@
+{
+  "name": "HeadySystems",
+  "short_name": "Systems",
+  "description": "System architecture intelligence — monitoring, optimization, infrastructure.",
+  "start_url": "/v/headysystems?source=pwa",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0a1a",
+  "theme_color": "#06b6d4",
+  "categories": [
+    "productivity",
+    "utilities",
+    "personalization"
+  ],
+  "icons": [
+    {
+      "src": "/heady-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/heady-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr"
+}
