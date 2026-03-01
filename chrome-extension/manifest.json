@@ -1,22 +1,24 @@
 {
     "manifest_version": 3,
-    "name": "HeadyOS — AI Agent Command Center",
-    "short_name": "HeadyOS",
+    "name": "HeadyBuddy — Your AI Companion",
+    "short_name": "HeadyBuddy",
     "version": "3.0.0",
-    "description": "Real-time observability dashboard for the HeadyOS multi-agent orchestration ecosystem. Monitor swarm health, pipeline status, and agent activity from your browser.",
+    "description": "HeadyBuddy — your branded AI companion sidebar. See Buddy's output beautifully rendered with Sacred Geometry visuals and pretty-printed text.",
     "icons": {
         "16": "icons/icon-16.png",
         "48": "icons/icon-48.png",
         "128": "icons/icon-128.png"
     },
     "action": {
-        "default_popup": "popup.html",
         "default_icon": {
             "16": "icons/icon-16.png",
             "48": "icons/icon-48.png",
             "128": "icons/icon-128.png"
         },
-        "default_title": "HeadyOS Command Center"
+        "default_title": "Open HeadyBuddy"
+    },
+    "side_panel": {
+        "default_path": "sidebar.html"
     },
     "background": {
         "service_worker": "background.js",
@@ -24,15 +26,11 @@
     },
     "permissions": [
         "storage",
-        "alarms",
-        "notifications"
+        "sidePanel",
+        "activeTab"
     ],
     "host_permissions": [
         "https://manager.headysystems.com/*",
-        "https://api.headysystems.com/*",
-        "https://headysystems.com/*"
-    ],
-    "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
-    }
+        "https://api.headysystems.com/*"
+    ]
 }
