@@ -110,5 +110,13 @@
         "pool": "hot",
         "w": 9,
         "desc": "Implement an air-gapped, locally-hosted LLM execution loop (sovereign_llm_system) fully decoupled from cloud dependencies, enabling autonomous operation in restricted environments with zero external API latency."
+    },
+    {
+        "id": "headyos-015",
+        "name": "Implement Advanced Context Protocol (ACP) Layer",
+        "cat": "hive-integration",
+        "pool": "hot",
+        "w": 10,
+        "desc": "Extend MCP with JSON-RPC for non-linear, adaptive agent interactions. ACP enables dynamic compute allocation based on task complexity rather than static model routing, supporting the Convergence Epoch architecture."
     }
 ]
