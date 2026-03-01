@@ -41,6 +41,7 @@ function wireEngines(app, deps = {}) {
         scientistEngine: null,
         qaEngine: null,
         cloudOrchestrator: null,
+        bees: null,
     };
 
     // ─── 1. Resource Manager ──────────────────────────────────────────
@@ -376,10 +377,44 @@ function wireEngines(app, deps = {}) {
             });
         }
 
-        logger.logNodeActivity("CONDUCTOR", "  ⚡ Cloud Orchestrator: LOADED (10 worker nodes, 3D vector merge, auto-deploy pipeline)");
+        logger.logNodeActivity("CONDUCTOR", "  ⚡ Cloud Orchestrator: LOADED (12 worker nodes, 3D vector merge, auto-deploy pipeline)");
         logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/orchestrator/cloud/health, /status, /workers, /merges, /deploys");
     } catch (err) {
         logger.logNodeActivity("CONDUCTOR", `  ⚠ Cloud Orchestrator not loaded: ${err.message}`);
+    }
+
+    // ─── 12. HeadyBees — Liquid Atom Swarm ────────────────────────────
+    try {
+        const { HeadyBees, registerBeesRoutes } = require("../orchestration/heady-bees");
+        engines.bees = new HeadyBees();
+        registerBeesRoutes(app, engines.bees);
+
+        // Wire bees into orchestrator — orchestrator can blast bees for any phase
+        if (engines.cloudOrchestrator) {
+            engines.cloudOrchestrator.bees = engines.bees;
+        }
+
+        // Wire bees into auto-success — blast health checks on cycle
+        if (engines.autoSuccessEngine) {
+            engines.autoSuccessEngine.on("cycle:completed", async () => {
+                try {
+                    // Every auto-success cycle, blast a health check swarm
+                    await engines.bees.blastHealth([
+                        "https://manager.headysystems.com/api/health",
+                        "https://headyme.com",
+                        "https://headysystems.com",
+                    ]);
+                } catch { /* non-critical */ }
+            });
+        }
+
+        // Expose globally for liquid architecture access
+        global.__headyBees = engines.bees;
+
+        logger.logNodeActivity("CONDUCTOR", "  🐝 HeadyBees: LOADED (liquid atom swarm — materialize, blast, dissolve)");
+        logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/bees/health, /status, /history, /blast, /blast/health");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyBees not loaded: ${err.message}`);
     }
 
     return engines;
