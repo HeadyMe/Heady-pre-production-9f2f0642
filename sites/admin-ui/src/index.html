@@ -398,6 +398,14 @@
                     </svg>
                     <span>Gateway</span>
                 </li>
+                <li class="nav-item" data-page="connectors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    <span>Connectors</span>
+                </li>
                 <li class="nav-item" data-page="settings">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="3" />
@@ -558,6 +566,18 @@
                 <div class="gateway-info" id="gatewayInfo"></div>
             </section>
 
+            <!-- Connectors Page -->
+            <section id="page-connectors" class="page">
+                <div class="section-header">
+                    <h2>🔌 Connect Your Services</h2>
+                    <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-top:4px;">Grant Heady access to manage
+                        your accounts — each provider requests only the permissions you approve</p>
+                </div>
+                <div class="connectors-grid" id="connectorsGrid"
+                    style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:20px;">
+                </div>
+            </section>
+
             <!-- Settings Page -->
             <section id="page-settings" class="page">
                 <div class="section-header">
@@ -606,34 +626,514 @@
     </div>
 
     <script src="js/admin.js"></script>
+    <style>
+        /* ─── Connector Wizard Styles ─── */
+        .connector-category {
+            margin-bottom: 28px;
+        }
+
+        .connector-category h3 {
+            font-size: .95rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .6);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .connector-card {
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 14px;
+            padding: 20px;
+            transition: all .3s ease;
+        }
+
+        .connector-card:hover {
+            border-color: rgba(124, 58, 237, .3);
+            background: rgba(255, 255, 255, .06);
+        }
+
+        .connector-card.connected {
+            border-color: rgba(16, 185, 129, .4);
+            background: rgba(16, 185, 129, .04);
+        }
+
+        .connector-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .connector-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .connector-card-header h4 {
+            font-size: .95rem;
+            font-weight: 700;
+            color: #fff;
+            flex: 1;
+        }
+
+        .connector-status {
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+
+        .connector-status.active {
+            background: rgba(16, 185, 129, .15);
+            color: #10b981;
+        }
+
+        .connector-status.inactive {
+            background: rgba(255, 255, 255, .06);
+            color: rgba(255, 255, 255, .35);
+        }
+
+        .connector-services {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .svc-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s;
+            font-size: .82rem;
+            color: rgba(255, 255, 255, .7);
+        }
+
+        .svc-toggle:hover {
+            background: rgba(255, 255, 255, .06);
+        }
+
+        .svc-toggle input[type="checkbox"] {
+            accent-color: #7c3aed;
+            width: 16px;
+            height: 16px;
+        }
+
+        .svc-toggle .svc-icon {
+            font-size: .9rem;
+        }
+
+        .svc-toggle .svc-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, .85);
+        }
+
+        .svc-toggle .svc-desc {
+            font-size: .75rem;
+            color: rgba(255, 255, 255, .4);
+            margin-left: auto;
+            max-width: 180px;
+            text-align: right;
+        }
+
+        .btn-connect {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .82rem;
+            cursor: pointer;
+            transition: all .25s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-connect.connect {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: #fff;
+        }
+
+        .btn-connect.connect:hover {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            transform: translateY(-1px);
+        }
+
+        .btn-connect.disconnect {
+            background: rgba(239, 68, 68, .12);
+            color: #ef4444;
+        }
+
+        .btn-connect.disconnect:hover {
+            background: rgba(239, 68, 68, .2);
+        }
+
+        .custom-connector-card {
+            border: 2px dashed rgba(124, 58, 237, .3);
+            background: rgba(124, 58, 237, .04);
+        }
+
+        .custom-connector-card:hover {
+            border-color: rgba(124, 58, 237, .5);
+        }
+
+        .custom-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .custom-form input,
+        .custom-form textarea {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            background: rgba(255, 255, 255, .05);
+            color: #fff;
+            font-size: .82rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+        }
+
+        .custom-form input:focus,
+        .custom-form textarea:focus {
+            border-color: #7c3aed;
+        }
+
+        .custom-form textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .onboarding-cta {
+            margin-top: 32px;
+            text-align: center;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, .08), rgba(6, 182, 212, .08));
+            border: 1px solid rgba(124, 58, 237, .15);
+            border-radius: 16px;
+        }
+
+        .onboarding-cta h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .onboarding-cta p {
+            font-size: .82rem;
+            color: rgba(255, 255, 255, .5);
+            margin-bottom: 14px;
+        }
+
+        .btn-onboard {
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #06b6d4, #7c3aed);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: .9rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all .3s;
+        }
+
+        .btn-onboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(124, 58, 237, .3);
+        }
+
+        .connector-filter {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            background: rgba(255, 255, 255, .04);
+            color: rgba(255, 255, 255, .6);
+            font-size: .78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: rgba(124, 58, 237, .15);
+            border-color: rgba(124, 58, 237, .3);
+            color: #a78bfa;
+        }
+    </style>
     <script>
-        // ─── Multi-Provider Auth Handlers ───
+        // ═══ Multi-Provider Auth + Connector Wizard + Onboarding Flow ═══
         (function () {
-            function signInWithProvider(providerId) {
+            // ── Auth Handlers ──
+            function signInWithProvider(pid) {
                 if (!window.firebase || !firebase.auth) return;
-                var provider;
-                switch (providerId) {
-                    case 'google': provider = new firebase.auth.GoogleAuthProvider(); break;
-                    case 'github': provider = new firebase.auth.GithubAuthProvider(); break;
-                    case 'microsoft': provider = new firebase.auth.OAuthProvider('microsoft.com'); break;
-                    case 'apple': provider = new firebase.auth.OAuthProvider('apple.com'); break;
-                    case 'twitter': provider = new firebase.auth.TwitterAuthProvider(); break;
-                    case 'facebook': provider = new firebase.auth.FacebookAuthProvider(); break;
-                    case 'amazon': provider = new firebase.auth.OAuthProvider('amazon.com'); break;
-                    case 'instagram': provider = new firebase.auth.FacebookAuthProvider(); provider.addScope('instagram_basic'); break;
+                var p;
+                switch (pid) {
+                    case 'google': p = new firebase.auth.GoogleAuthProvider(); break;
+                    case 'github': p = new firebase.auth.GithubAuthProvider(); break;
+                    case 'microsoft': p = new firebase.auth.OAuthProvider('microsoft.com'); break;
+                    case 'apple': p = new firebase.auth.OAuthProvider('apple.com'); break;
+                    case 'twitter': p = new firebase.auth.TwitterAuthProvider(); break;
+                    case 'facebook': p = new firebase.auth.FacebookAuthProvider(); break;
+                    case 'amazon': p = new firebase.auth.OAuthProvider('amazon.com'); break;
+                    case 'instagram': p = new firebase.auth.FacebookAuthProvider(); p.addScope('instagram_basic'); break;
                     default: return;
                 }
-                firebase.auth().signInWithPopup(provider).catch(function (err) {
+                firebase.auth().signInWithPopup(p).then(function (result) {
+                    // First-time user → navigate to connectors page
+                    if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
+                        navigateToPage('connectors');
+                    }
+                }).catch(function (err) {
                     console.error('Auth error:', err.code, err.message);
                     alert('Sign-in failed: ' + err.message);
                 });
             }
+
+            function navigateToPage(page) {
+                document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+                document.querySelectorAll('.nav-item').forEach(function (n) { n.classList.remove('active'); });
+                var pageEl = document.getElementById('page-' + page);
+                var navEl = document.querySelector('[data-page="' + page + '"]');
+                if (pageEl) pageEl.classList.add('active');
+                if (navEl) navEl.classList.add('active');
+                if (page === 'connectors') renderConnectorWizard();
+            }
+
+            // ── Provider Data (mirrors server-side oauth-scopes.js) ──
+            var CATEGORIES = {
+                cloud: { label: '☁️ Cloud & Identity', providers: ['google', 'microsoft', 'amazon', 'apple', 'cloudflare'] },
+                devtools: { label: '🛠️ Developer Tools', providers: ['github', 'gitlab', 'bitbucket', 'jira', 'vercel', 'netlify', 'digitalocean'] },
+                social: { label: '📱 Social Media', providers: ['facebook', 'instagram', 'twitter', 'linkedin', 'tiktok', 'pinterest'] },
+                productivity: { label: '💼 Productivity', providers: ['slack', 'discord', 'notion', 'asana', 'trello', 'zoom'] },
+                business: { label: '🏢 Business & Commerce', providers: ['salesforce', 'hubspot', 'shopify', 'stripe', 'quickbooks', 'mailchimp', 'zendesk', 'intercom'] },
+                storage: { label: '📁 Storage', providers: ['dropbox', 'box'] },
+                media: { label: '🎵 Media', providers: ['spotify'] },
+                communication: { label: '📡 Communication', providers: ['twilio', 'sendgrid'] },
+                ai: { label: '🤖 AI & Data', providers: ['openai', 'huggingface', 'airtable'] },
+                finance: { label: '💰 Finance', providers: ['plaid'] },
+            };
+
+            var PROVIDERS = {
+                google: { name: 'Google', color: '#4285F4', services: ['Gmail', 'Calendar', 'Drive', 'Sheets', 'Docs', 'Contacts', 'Tasks', 'Photos', 'YouTube', 'Meet', 'Cloud (GCP)', 'Analytics', 'Ads'] },
+                github: { name: 'GitHub', color: '#24292e', services: ['Repos', 'Actions/CI-CD', 'Issues & PRs', 'Packages', 'Gists', 'Organizations', 'Webhooks', 'Pages'] },
+                microsoft: { name: 'Microsoft', color: '#00a4ef', services: ['Outlook', 'Calendar', 'OneDrive', 'Teams', 'To Do', 'OneNote', 'SharePoint', 'Azure', 'Power BI'] },
+                facebook: { name: 'Facebook', color: '#1877f2', services: ['Profile', 'Pages', 'Ads Manager', 'Groups'] },
+                instagram: { name: 'Instagram', color: '#e1306c', services: ['Feed & Posts', 'Analytics', 'Comments'] },
+                twitter: { name: 'X / Twitter', color: '#0f1419', services: ['Posts & Timeline', 'Direct Messages', 'Lists', 'Spaces', 'Analytics'] },
+                linkedin: { name: 'LinkedIn', color: '#0a66c2', services: ['Profile', 'Posts', 'Company Page', 'Ads'] },
+                tiktok: { name: 'TikTok', color: '#010101', services: ['Videos', 'Profile', 'Analytics'] },
+                pinterest: { name: 'Pinterest', color: '#e60023', services: ['Pins & Boards', 'Analytics'] },
+                slack: { name: 'Slack', color: '#4a154b', services: ['Messaging', 'Channels', 'Files', 'Users', 'Reactions', 'Workflows'] },
+                discord: { name: 'Discord', color: '#5865f2', services: ['Messages', 'Servers', 'Voice', 'Webhooks'] },
+                notion: { name: 'Notion', color: '#000', services: ['Pages & Docs', 'Databases', 'Search', 'Comments'] },
+                asana: { name: 'Asana', color: '#f06a6a', services: ['Tasks', 'Projects', 'Teams'] },
+                trello: { name: 'Trello', color: '#0052cc', services: ['Boards', 'Cards'] },
+                zoom: { name: 'Zoom', color: '#2d8cff', services: ['Meetings', 'Recordings', 'Webinars', 'Contacts'] },
+                gitlab: { name: 'GitLab', color: '#fc6d26', services: ['Repos', 'CI/CD', 'Issues', 'Container Registry'] },
+                bitbucket: { name: 'Bitbucket', color: '#0052cc', services: ['Repos', 'Pipelines', 'Pull Requests'] },
+                jira: { name: 'Jira', color: '#0052cc', services: ['Issues', 'Boards', 'Sprints', 'Reports'] },
+                vercel: { name: 'Vercel', color: '#000', services: ['Deployments', 'Domains', 'Environment'] },
+                netlify: { name: 'Netlify', color: '#00c7b7', services: ['Sites', 'Forms', 'Functions'] },
+                digitalocean: { name: 'DigitalOcean', color: '#0080ff', services: ['Droplets', 'Kubernetes', 'Databases', 'Spaces'] },
+                salesforce: { name: 'Salesforce', color: '#00a1e0', services: ['CRM', 'Reports', 'Marketing'] },
+                hubspot: { name: 'HubSpot', color: '#ff7a59', services: ['Contacts', 'Deals', 'Email', 'Tickets'] },
+                shopify: { name: 'Shopify', color: '#96bf48', services: ['Products', 'Orders', 'Customers', 'Analytics', 'Themes'] },
+                stripe: { name: 'Stripe', color: '#635bff', services: ['Payments', 'Customers', 'Invoices', 'Subscriptions', 'Reports'] },
+                quickbooks: { name: 'QuickBooks', color: '#2ca01c', services: ['Accounting', 'Payments', 'Reports'] },
+                mailchimp: { name: 'Mailchimp', color: '#ffe01b', services: ['Audiences', 'Campaigns', 'Analytics', 'Automations'] },
+                dropbox: { name: 'Dropbox', color: '#0061ff', services: ['Files', 'Sharing', 'Paper'] },
+                box: { name: 'Box', color: '#0061d5', services: ['Files', 'Collaboration'] },
+                spotify: { name: 'Spotify', color: '#1db954', services: ['Playback', 'Library', 'Playlists', 'Listening Stats'] },
+                twilio: { name: 'Twilio', color: '#f22f46', services: ['SMS', 'Voice', 'WhatsApp', 'Verify'] },
+                sendgrid: { name: 'SendGrid', color: '#1a82e2', services: ['Email', 'Templates', 'Contacts'] },
+                amazon: { name: 'Amazon / AWS', color: '#ff9900', services: ['AWS Cloud', 'SES Email', 'S3 Storage', 'Profile'] },
+                apple: { name: 'Apple', color: '#000', services: ['Apple ID', 'Apple Music'] },
+                cloudflare: { name: 'Cloudflare', color: '#f38020', services: ['DNS', 'Workers', 'Pages', 'Analytics'] },
+                openai: { name: 'OpenAI', color: '#412991', services: ['API Access', 'Assistants', 'Files'] },
+                huggingface: { name: 'Hugging Face', color: '#ffd21e', services: ['Models', 'Spaces', 'Datasets', 'Inference API'] },
+                airtable: { name: 'Airtable', color: '#18bfff', services: ['Bases', 'Automations'] },
+                zendesk: { name: 'Zendesk', color: '#03363d', services: ['Tickets', 'Users', 'Knowledge Base'] },
+                intercom: { name: 'Intercom', color: '#1f8ded', services: ['Conversations', 'Contacts', 'Articles'] },
+                plaid: { name: 'Plaid', color: '#0a85ea', services: ['Bank Accounts', 'Transactions', 'Identity'] },
+            };
+
+            var connectedProviders = {}; // Track connected state
+
+            // ── Render Connector Wizard ──
+            function renderConnectorWizard() {
+                var grid = document.getElementById('connectorsGrid');
+                if (!grid) return;
+                grid.innerHTML = '';
+
+                // Category filter chips
+                var filterHtml = '<div class="connector-filter"><button class="filter-chip active" data-cat="all">All</button>';
+                Object.keys(CATEGORIES).forEach(function (cat) {
+                    filterHtml += '<button class="filter-chip" data-cat="' + cat + '">' + CATEGORIES[cat].label + '</button>';
+                });
+                filterHtml += '</div>';
+                grid.insertAdjacentHTML('beforebegin', filterHtml);
+
+                // Render by category
+                renderFilteredProviders('all', grid);
+
+                // Filter click handlers
+                document.querySelectorAll('.filter-chip').forEach(function (chip) {
+                    chip.addEventListener('click', function () {
+                        document.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
+                        chip.classList.add('active');
+                        renderFilteredProviders(chip.dataset.cat, grid);
+                    });
+                });
+            }
+
+            function renderFilteredProviders(category, grid) {
+                grid.innerHTML = '';
+                var providerIds = category === 'all'
+                    ? Object.keys(PROVIDERS)
+                    : (CATEGORIES[category] ? CATEGORIES[category].providers : []);
+
+                providerIds.forEach(function (pid) {
+                    var p = PROVIDERS[pid];
+                    if (!p) return;
+                    var isConnected = !!connectedProviders[pid];
+                    var card = document.createElement('div');
+                    card.className = 'connector-card' + (isConnected ? ' connected' : '');
+
+                    var servicesHtml = p.services.map(function (svc, i) {
+                        return '<label class="svc-toggle"><input type="checkbox" data-provider="' + pid + '" data-svc="' + i + '" ' + (isConnected ? 'checked' : '') + '/><span class="svc-label">' + svc + '</span></label>';
+                    }).join('');
+
+                    card.innerHTML =
+                        '<div class="connector-card-header">' +
+                        '<div class="connector-icon" style="background:' + p.color + '">' + p.name.charAt(0) + '</div>' +
+                        '<h4>' + p.name + '</h4>' +
+                        '<span class="connector-status ' + (isConnected ? 'active' : 'inactive') + '">' + (isConnected ? '● Connected' : '○ Not connected') + '</span>' +
+                        '</div>' +
+                        '<div class="connector-services">' + servicesHtml + '</div>' +
+                        '<button class="btn-connect ' + (isConnected ? 'disconnect' : 'connect') + '" data-provider="' + pid + '">' +
+                        (isConnected ? 'Disconnect' : 'Connect ' + p.name) +
+                        '</button>';
+
+                    grid.appendChild(card);
+                });
+
+                // Custom Connector Card — always at the end
+                var customCard = document.createElement('div');
+                customCard.className = 'connector-card custom-connector-card';
+                customCard.innerHTML =
+                    '<div class="connector-card-header">' +
+                    '<div class="connector-icon" style="background:linear-gradient(135deg,#7c3aed,#06b6d4);">+</div>' +
+                    '<h4>Heady-Guided Custom Connector</h4>' +
+                    '</div>' +
+                    '<p style="color:rgba(255,255,255,.5);font-size:.82rem;margin-bottom:14px;">Need to connect a service not listed? Heady will guide you through setting up a custom OAuth or API key connector.</p>' +
+                    '<div class="custom-form" id="customConnectorForm">' +
+                    '<input type="text" placeholder="Service name (e.g. Monday.com, Basecamp...)" id="customName" />' +
+                    '<input type="url" placeholder="OAuth authorize URL or API base URL" id="customUrl" />' +
+                    '<input type="text" placeholder="Client ID (optional — Heady can help)" id="customClientId" />' +
+                    '<textarea placeholder="Describe what you want Heady to do with this service..." id="customDesc"></textarea>' +
+                    '<button class="btn-connect connect" id="customConnectBtn">🧠 Start Guided Setup</button>' +
+                    '</div>';
+                grid.appendChild(customCard);
+
+                // Onboarding CTA
+                var cta = document.createElement('div');
+                cta.className = 'onboarding-cta';
+                cta.innerHTML =
+                    '<h3>🚀 Ready to Build?</h3>' +
+                    '<p>Once you\'ve connected your services, continue to set up your custom Heady canvases, sites, and workflows.</p>' +
+                    '<button class="btn-onboard" id="continueOnboard">Continue to Onboarding →</button>';
+                grid.parentNode.appendChild(cta);
+
+                // Wire up connect buttons
+                grid.querySelectorAll('.btn-connect[data-provider]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var pid = btn.dataset.provider;
+                        if (connectedProviders[pid]) {
+                            delete connectedProviders[pid];
+                            btn.textContent = 'Connect ' + PROVIDERS[pid].name;
+                            btn.className = 'btn-connect connect';
+                            btn.closest('.connector-card').classList.remove('connected');
+                            btn.closest('.connector-card').querySelector('.connector-status').className = 'connector-status inactive';
+                            btn.closest('.connector-card').querySelector('.connector-status').textContent = '○ Not connected';
+                        } else {
+                            connectedProviders[pid] = true;
+                            btn.textContent = 'Disconnect';
+                            btn.className = 'btn-connect disconnect';
+                            btn.closest('.connector-card').classList.add('connected');
+                            btn.closest('.connector-card').querySelector('.connector-status').className = 'connector-status active';
+                            btn.closest('.connector-card').querySelector('.connector-status').textContent = '● Connected';
+                            // Check all service checkboxes
+                            btn.closest('.connector-card').querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = true; });
+                        }
+                    });
+                });
+
+                // Custom connector handler
+                var customBtn = document.getElementById('customConnectBtn');
+                if (customBtn) {
+                    customBtn.addEventListener('click', function () {
+                        var name = document.getElementById('customName').value;
+                        var url = document.getElementById('customUrl').value;
+                        var desc = document.getElementById('customDesc').value;
+                        if (!name) { alert('Please enter a service name'); return; }
+                        alert('🧠 Heady will now guide you through connecting "' + name + '".\n\nThis will open HeadyBuddy with pre-loaded context about your service.\n\nHeady will help you:\n1. Identify the OAuth or API key authentication method\n2. Configure the correct scopes and permissions\n3. Set up the secure token vault entry\n4. Test the connection\n\nOpening HeadyBuddy...');
+                        // Open buddy panel with context
+                        var buddyPanel = document.getElementById('buddyPanel');
+                        if (buddyPanel) buddyPanel.classList.add('open');
+                        var buddyInput = document.getElementById('buddyInput');
+                        if (buddyInput) buddyInput.value = 'Help me set up a custom connector for ' + name + (url ? ' at ' + url : '') + '. ' + (desc || '');
+                    });
+                }
+
+                // Onboarding button
+                var onboardBtn = document.getElementById('continueOnboard');
+                if (onboardBtn) {
+                    onboardBtn.addEventListener('click', function () {
+                        var count = Object.keys(connectedProviders).length;
+                        if (count === 0) {
+                            if (!confirm('You haven\'t connected any services yet. Continue anyway?')) return;
+                        }
+                        alert('🚀 Starting Heady Onboarding\n\n' + count + ' service(s) connected.\n\nNext steps:\n• Build custom Heady canvases\n• Create automated workflows\n• Set up monitoring & reports\n• Configure HeadyBuddy preferences');
+                        navigateToPage('dashboard');
+                    });
+                }
+            }
+
+            // ── Init ──
             document.addEventListener('DOMContentLoaded', function () {
+                // Auth button wiring
                 var ids = { googleSignIn: 'google', githubSignIn: 'github', microsoftSignIn: 'microsoft', appleSignIn: 'apple', twitterSignIn: 'twitter', facebookSignIn: 'facebook', amazonSignIn: 'amazon', instagramSignIn: 'instagram' };
                 Object.keys(ids).forEach(function (id) {
                     var btn = document.getElementById(id);
                     if (btn) btn.addEventListener('click', function () { signInWithProvider(ids[id]); });
                 });
+
+                // Render connectors when page loads if already on that tab
+                if (document.querySelector('[data-page="connectors"].active')) renderConnectorWizard();
             });
         })();
     </script>
