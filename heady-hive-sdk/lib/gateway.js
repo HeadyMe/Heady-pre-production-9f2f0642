@@ -200,6 +200,7 @@ class HeadyGateway {
             const start = Date.now();
             return p.chat(message, opts.system, {
                 temperature: opts.temperature, max_tokens: opts.maxTokens,
+                history: opts.history,
             })
                 .then(result => {
                     const latency = Date.now() - start;
@@ -350,6 +351,7 @@ class HeadyGateway {
                 this._consumeRate(p.name);
                 const result = await p.chat(message, opts.system, {
                     temperature: opts.temperature, max_tokens: opts.maxTokens,
+                    history: opts.history,
                 });
                 const latency = Date.now() - start;
                 this._recordSuccess(p.name, latency);

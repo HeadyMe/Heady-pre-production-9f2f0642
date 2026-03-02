@@ -73,11 +73,15 @@ function createClaudeProvider(env = process.env) {
         enabled: true,
         chat: async (message, system, opts = {}) => {
             const useThinking = opts.thinking !== false;
+            // Build multi-turn messages with conversation history
+            const messages = [];
+            if (opts.history && opts.history.length > 0) messages.push(...opts.history);
+            messages.push({ role: "user", content: message });
             const response = await client.messages.create({
                 model: "claude-sonnet-4-20250514",
                 max_tokens: useThinking ? Math.max(opts.max_tokens || 2048, 4096) : (opts.max_tokens || 2048),
                 system: system || "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem.",
-                messages: [{ role: "user", content: message }],
+                messages,
                 ...(useThinking ? { thinking: { type: "enabled", budget_tokens: opts.thinkingBudget || 1024 } } : {}),
                 ...(!useThinking && opts.temperature ? { temperature: opts.temperature } : {}),
             });
@@ -108,10 +112,21 @@ function createGeminiProvider(env = process.env) {
         pricing: { inputPer1M: 0.075, outputPer1M: 0.30 },
         enabled: true,
         chat: async (message, system, opts = {}) => {
-            const prompt = system ? `${system}\n\n${message}` : message;
+            // Build multi-turn contents with conversation history
+            let contents;
+            if (opts.history && opts.history.length > 0) {
+                contents = opts.history.map(msg => ({
+                    role: msg.role === "assistant" ? "model" : "user",
+                    parts: [{ text: msg.content }],
+                }));
+                contents.push({ role: "user", parts: [{ text: message }] });
+            } else {
+                contents = system ? `${system}\n\n${message}` : message;
+            }
             const result = await ai.models.generateContent({
                 model: "gemini-2.5-flash",
-                contents: prompt,
+                contents,
+                ...(opts.history && opts.history.length > 0 && system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
                 config: { temperature: opts.temperature || 0.7, maxOutputTokens: opts.max_tokens || 2048 },
             });
             // Extract text robustly — .text getter may be empty on some SDK versions
@@ -146,6 +161,8 @@ function createOpenAIProvider(env = process.env) {
             const msgs = [];
             if (system) msgs.push({ role: "system", content: system });
             else msgs.push({ role: "system", content: "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem." });
+            // Inject conversation history for multi-turn context
+            if (opts.history && opts.history.length > 0) msgs.push(...opts.history);
             msgs.push({ role: "user", content: message });
 
             const result = await httpPost("api.openai.com", "/v1/chat/completions", {
@@ -188,6 +205,8 @@ function createHuggingFaceProvider(env = process.env) {
             const msgs = [];
             if (system) msgs.push({ role: "system", content: system });
             else msgs.push({ role: "system", content: "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem." });
+            // Inject conversation history for multi-turn context
+            if (opts.history && opts.history.length > 0) msgs.push(...opts.history);
             msgs.push({ role: "user", content: message });
 
             const result = await client.chatCompletion({
@@ -250,9 +269,17 @@ function createOllamaProvider(env = process.env) {
         chat: async (message, system, opts = {}) => {
             const host = env.OLLAMA_HOST || "127.0.0.1";
             const port = env.OLLAMA_PORT || "11434";
+            // Build prompt with conversation history for context
+            let fullPrompt = system ? `${system}\n\n` : "";
+            if (opts.history && opts.history.length > 0) {
+                for (const msg of opts.history) {
+                    fullPrompt += msg.role === "user" ? `User: ${msg.content}\n` : `Assistant: ${msg.content}\n`;
+                }
+            }
+            fullPrompt += `User: ${message}`;
             const result = await httpPost(`${host}:${port}`, "/api/generate", {
                 model: "llama3.2",
-                prompt: system ? `${system}\n\nUser: ${message}` : message,
+                prompt: fullPrompt,
                 stream: false,
                 options: { temperature: opts.temperature || 0.7, num_predict: opts.max_tokens || 4096 },
             }, {}, 30000, false);

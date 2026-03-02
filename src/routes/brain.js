@@ -48,6 +48,46 @@ function getSDKGateway(req) {
 const DATA_DIR = path.join(__dirname, "..", "..", "data");
 const BRAIN_LOG_PATH = path.join(DATA_DIR, "brain-interactions.json");
 
+// ─── Chat Session Store ────────────────────────────────────────────
+// Maintains conversation history per session_id so the AI has context.
+const SESSIONS_DIR = path.join(DATA_DIR, "chat-sessions");
+const MAX_SESSION_HISTORY = 50; // sliding window — keep last 50 messages
+const sessions = new Map(); // session_id → { history: [{role, content}], createdAt, updatedAt }
+
+function getOrCreateSession(sessionId) {
+    if (!sessionId) sessionId = crypto.randomUUID();
+    if (!sessions.has(sessionId)) {
+        // Try loading from disk
+        const diskPath = path.join(SESSIONS_DIR, `${sessionId}.json`);
+        if (fs.existsSync(diskPath)) {
+            try {
+                const data = JSON.parse(fs.readFileSync(diskPath, "utf8"));
+                sessions.set(sessionId, data);
+            } catch {
+                sessions.set(sessionId, { history: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+            }
+        } else {
+            sessions.set(sessionId, { history: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        }
+    }
+    return { sessionId, session: sessions.get(sessionId) };
+}
+
+function persistSession(sessionId) {
+    const session = sessions.get(sessionId);
+    if (!session) return;
+    try {
+        if (!fs.existsSync(SESSIONS_DIR)) fs.mkdirSync(SESSIONS_DIR, { recursive: true });
+        fs.writeFileSync(path.join(SESSIONS_DIR, `${sessionId}.json`), JSON.stringify(session, null, 2));
+    } catch { }
+}
+
+function trimSessionHistory(session) {
+    if (session.history.length > MAX_SESSION_HISTORY) {
+        session.history = session.history.slice(-MAX_SESSION_HISTORY);
+    }
+}
+
 function ensureDataDir() {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 }
@@ -144,7 +184,7 @@ async function storeInMemory(content, metadata) {
 // Priority: HeadyCompute → HeadyLocal → Contextual (never a dead template)
 // HeadyConductor routes to the best available backend automatically.
 
-async function chatViaOpenAI(message, system, temperature, max_tokens) {
+async function chatViaOpenAI(message, system, temperature, max_tokens, history) {
     const apiKey = process.env.HEADY_COMPUTE_KEY;
     if (!apiKey) throw new Error("no-key");
 
@@ -152,6 +192,8 @@ async function chatViaOpenAI(message, system, temperature, max_tokens) {
     const msgs = [];
     if (system) msgs.push({ role: "system", content: system });
     else msgs.push({ role: "system", content: "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem. You are helpful, concise, and intelligent. When discussing Heady services, reference Brain, Battle, Creative, MCP, and the 155-task auto-success engine. Be conversational and warm." });
+    // Inject conversation history for multi-turn context
+    if (history && history.length > 0) msgs.push(...history);
     msgs.push({ role: "user", content: message });
 
     const payload = JSON.stringify({
@@ -193,11 +235,19 @@ async function chatViaOpenAI(message, system, temperature, max_tokens) {
     });
 }
 
-async function chatViaOllama(message, system, temperature, max_tokens) {
+async function chatViaOllama(message, system, temperature, max_tokens, history) {
     const http = require("http");
+    // Build prompt with conversation history for context
+    let fullPrompt = system ? `${system}\n\n` : "";
+    if (history && history.length > 0) {
+        for (const msg of history) {
+            fullPrompt += msg.role === "user" ? `User: ${msg.content}\n` : `Assistant: ${msg.content}\n`;
+        }
+    }
+    fullPrompt += `User: ${message}`;
     const payload = JSON.stringify({
         model: "llama3.2",
-        prompt: system ? `${system}\n\nUser: ${message}` : message,
+        prompt: fullPrompt,
         stream: false,
         options: { temperature: temperature || 0.7, num_predict: max_tokens || 4096 },
     });
@@ -404,19 +454,24 @@ function getClaudeClient() {
     throw new Error("no-headyjules-key");
 }
 
-async function chatViaClaude(message, system, temperature, max_tokens) {
+async function chatViaClaude(message, system, temperature, max_tokens, history) {
     const { client, org } = getClaudeClient();
     const complexity = analyzeComplexity(message, system);
     const { model, thinking, budget } = selectModel(complexity);
 
     const sysPrompt = system || "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem. Be helpful, concise, warm. Reference Brain, Battle, Creative, MCP, and the auto-success engine when relevant.";
 
+    // Build multi-turn messages with conversation history
+    const messages = [];
+    if (history && history.length > 0) messages.push(...history);
+    messages.push({ role: "user", content: message });
+
     // Build request params
     const params = {
         model,
         max_tokens: max_tokens || (thinking ? 16384 : 2048),
         system: sysPrompt,
-        messages: [{ role: "user", content: message }],
+        messages,
     };
 
     // Add extended thinking for high/critical complexity
@@ -466,7 +521,7 @@ async function chatViaClaude(message, system, temperature, max_tokens) {
     };
 }
 
-async function chatViaHuggingFace(message, system, temperature, max_tokens) {
+async function chatViaHuggingFace(message, system, temperature, max_tokens, history) {
     // Multi-token failover for HF Business team plan (3 seats)
     const tokens = [process.env.HF_TOKEN, process.env.HF_TOKEN_2, process.env.HF_TOKEN_3]
         .filter(t => t && !t.includes("your_") && !t.includes("placeholder"));
@@ -478,6 +533,8 @@ async function chatViaHuggingFace(message, system, temperature, max_tokens) {
     const msgs = [];
     if (system) msgs.push({ role: "system", content: system });
     else msgs.push({ role: "system", content: "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem. Be helpful, concise, warm." });
+    // Inject conversation history for multi-turn context
+    if (history && history.length > 0) msgs.push(...history);
     msgs.push({ role: "user", content: message });
 
     const result = await client.chatCompletion({
@@ -493,7 +550,7 @@ async function chatViaHuggingFace(message, system, temperature, max_tokens) {
     throw new Error("unexpected-response");
 }
 
-async function chatViaGemini(message, system, temperature, max_tokens) {
+async function chatViaGemini(message, system, temperature, max_tokens, history) {
     // Multi-key failover across all configured HeadyPythia keys
     const keys = [
         process.env.GOOGLE_API_KEY,
@@ -509,10 +566,22 @@ async function chatViaGemini(message, system, temperature, max_tokens) {
     const apiKey = keys[Math.floor(Date.now() / 60000) % keys.length];
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = system ? `${system}\n\n${message}` : message;
+    // Build multi-turn contents with conversation history
+    let contents;
+    if (history && history.length > 0) {
+        contents = history.map(msg => ({
+            role: msg.role === "assistant" ? "model" : "user",
+            parts: [{ text: msg.content }],
+        }));
+        contents.push({ role: "user", parts: [{ text: message }] });
+    } else {
+        contents = system ? `${system}\n\n${message}` : message;
+    }
+
     const result = await ai.models.generateContent({
         model: "headypythia-2.5-flash",
-        contents: prompt,
+        contents,
+        ...(history && history.length > 0 && system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
         config: {
             temperature: temperature || 0.7,
             maxOutputTokens: max_tokens || 2048,
@@ -567,18 +636,22 @@ function appendRaceAudit(entry) {
 }
 
 router.post("/chat", async (req, res) => {
-    const { message, system, model, temperature, max_tokens, context } = req.body;
+    const { message, system, model, temperature, max_tokens, context, session_id } = req.body;
     const ts = new Date().toISOString();
 
-    logInteraction("chat", message, `[chat request at ${ts}]`);
-    storeInMemory(`Chat interaction: ${message}`, { type: "brain_chat", model: model || "heady-brain", ts }).catch(() => { });
+    // ── Session Management: maintain conversation history ──
+    const { sessionId, session } = getOrCreateSession(session_id);
+
+    logInteraction("chat", message, `[chat request at ${ts}, session: ${sessionId}]`);
+    storeInMemory(`Chat interaction: ${message}`, { type: "brain_chat", model: model || "heady-brain", session_id: sessionId, ts }).catch(() => { });
 
     try {
-        // ── Route through SDK Gateway (single source of truth) ──
+        // ── Route through SDK Gateway with conversation history ──
         const gateway = getSDKGateway(req);
         const result = await gateway.chat(message, {
             system: system || "You are HeadyBrain, the AI reasoning engine of the Heady ecosystem.",
             temperature, maxTokens: max_tokens,
+            history: session.history,  // ═══ PASS FULL HISTORY ═══
         });
 
         if (result.ok) {
@@ -587,9 +660,16 @@ router.post("/chat", async (req, res) => {
                 contentSafety: process.env.HEADY_CONTENT_FILTER === "strict",
             });
 
+            // ═══ PERSIST: Add user message + response to session history ═══
+            session.history.push({ role: "user", content: message });
+            session.history.push({ role: "assistant", content: filteredResponse });
+            trimSessionHistory(session);
+            session.updatedAt = ts;
+            persistSession(sessionId);
+
             logInteraction("chat_response", message, result.response);
             storeInMemory(`Brain response: ${(result.response || "").substring(0, 500)}`, {
-                type: "brain_response", engine: result.engine, latency: result.latency, ts,
+                type: "brain_response", engine: result.engine, latency: result.latency, session_id: sessionId, ts,
             }).catch(() => { });
 
             // Write race audit to JSONL for the existing /race-audit endpoint
@@ -609,6 +689,8 @@ router.post("/chat", async (req, res) => {
                 model: "heady-brain",
                 engine: result.engine || "heady-brain",
                 stored_in_memory: true,
+                session_id: sessionId,
+                conversation_turns: Math.floor(session.history.length / 2),
                 race: {
                     id: result.race?.id,
                     winner: result.engine,
@@ -622,12 +704,20 @@ router.post("/chat", async (req, res) => {
 
         // Gateway returned ok:false — all providers failed, use contextual fallback
         const contextualResponse = generateContextualResponse(message);
+        session.history.push({ role: "user", content: message });
+        session.history.push({ role: "assistant", content: contextualResponse });
+        trimSessionHistory(session);
+        session.updatedAt = ts;
+        persistSession(sessionId);
+
         logInteraction("chat_gateway_fallback", message, contextualResponse);
         return res.json({
             ok: true,
             response: contextualResponse,
             model: "heady-brain",
             engine: "heady-contextual",
+            session_id: sessionId,
+            conversation_turns: Math.floor(session.history.length / 2),
             race: { gateway_error: result.error, fallback: true },
             ts,
         });
@@ -635,11 +725,19 @@ router.post("/chat", async (req, res) => {
         // Gateway crashed — absolute fallback
         logger.logError('HCFP', 'Gateway error', err);
         const contextualResponse = generateContextualResponse(message);
+        session.history.push({ role: "user", content: message });
+        session.history.push({ role: "assistant", content: contextualResponse });
+        trimSessionHistory(session);
+        session.updatedAt = ts;
+        persistSession(sessionId);
+
         return res.json({
             ok: true,
             response: contextualResponse,
             model: "heady-brain",
             engine: "heady-contextual",
+            session_id: sessionId,
+            conversation_turns: Math.floor(session.history.length / 2),
             error: err.message,
             ts,
         });
@@ -1043,6 +1141,72 @@ router.post("/refactor", async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message, ts });
     }
+});
+
+// ─── Session Management Endpoints ──────────────────────────────────
+
+/** GET /api/brain/sessions — list all chat sessions */
+router.get("/sessions", (req, res) => {
+    const sessionList = [];
+    // Scan disk + in-memory
+    try {
+        if (fs.existsSync(SESSIONS_DIR)) {
+            for (const f of fs.readdirSync(SESSIONS_DIR)) {
+                if (!f.endsWith(".json")) continue;
+                const sid = f.replace(".json", "");
+                try {
+                    const data = JSON.parse(fs.readFileSync(path.join(SESSIONS_DIR, f), "utf8"));
+                    sessionList.push({
+                        session_id: sid,
+                        turns: Math.floor((data.history || []).length / 2),
+                        createdAt: data.createdAt,
+                        updatedAt: data.updatedAt,
+                        preview: data.history?.[0]?.content?.substring(0, 100) || "(empty)",
+                    });
+                } catch { }
+            }
+        }
+        // Include in-memory-only sessions
+        for (const [sid, data] of sessions) {
+            if (!sessionList.find(s => s.session_id === sid)) {
+                sessionList.push({
+                    session_id: sid,
+                    turns: Math.floor(data.history.length / 2),
+                    createdAt: data.createdAt,
+                    updatedAt: data.updatedAt,
+                    preview: data.history?.[0]?.content?.substring(0, 100) || "(empty)",
+                    memoryOnly: true,
+                });
+            }
+        }
+    } catch { }
+    sessionList.sort((a, b) => (b.updatedAt || "").localeCompare(a.updatedAt || ""));
+    res.json({ ok: true, sessions: sessionList, total: sessionList.length, ts: new Date().toISOString() });
+});
+
+/** GET /api/brain/sessions/:id — get full session history */
+router.get("/sessions/:id", (req, res) => {
+    const { sessionId, session } = getOrCreateSession(req.params.id);
+    res.json({
+        ok: true,
+        session_id: sessionId,
+        turns: Math.floor(session.history.length / 2),
+        history: session.history,
+        createdAt: session.createdAt,
+        updatedAt: session.updatedAt,
+        ts: new Date().toISOString(),
+    });
+});
+
+/** DELETE /api/brain/sessions/:id — clear a session */
+router.delete("/sessions/:id", (req, res) => {
+    const sid = req.params.id;
+    sessions.delete(sid);
+    try {
+        const diskPath = path.join(SESSIONS_DIR, `${sid}.json`);
+        if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+    } catch { }
+    res.json({ ok: true, deleted: sid, ts: new Date().toISOString() });
 });
 
 module.exports = { router, setMemoryWrapper };
