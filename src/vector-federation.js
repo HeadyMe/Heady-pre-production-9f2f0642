@@ -29,6 +29,7 @@
 const https = require("https");
 const http = require("http");
 const logger = require("./utils/logger");
+const providerUsageTracker = require("./telemetry/provider-usage-tracker");
 const PHI = 1.6180339887;
 
 // ── Tier Metrics ────────────────────────────────────────────────
@@ -46,13 +47,35 @@ function recordLatency(tier, ms) {
     m.avgLatency = Math.round(m.latencies.reduce((a, b) => a + b, 0) / m.latencies.length);
 }
 
+function canUseProvider(provider) {
+    const budget = providerUsageTracker.checkProviderBudget(provider);
+    if (budget.status === "exceeded") {
+        logger.warn({ provider, budget }, "VectorFederation provider skipped: budget exceeded");
+        return false;
+    }
+    return true;
+}
+
+function recordProviderCall({ provider, model, action, start, success, error, metadata = {} }) {
+    const latencyMs = Math.max(1, Date.now() - start);
+    providerUsageTracker.record({
+        provider,
+        model,
+        action,
+        latencyMs,
+        success,
+        error: error ? String(error.message || error) : null,
+        metadata,
+    });
+}
+
 // ── TIER 1: Cloudflare Vectorize ────────────────────────────────
 async function edgeVectorize(action, payload) {
     const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     const token = process.env.CLOUDFLARE_API_TOKEN;
     const indexName = process.env.CF_VECTORIZE_INDEX || "heady-memory";
 
-    if (!accountId || !token) return null;
+    if (!accountId || !token || !canUseProvider("cloudflare")) return null;
 
     const start = Date.now();
     try {
@@ -66,6 +89,14 @@ async function edgeVectorize(action, payload) {
             const result = await cfRequest(`${baseUrl}/insert`, "POST", ndjson, token, "application/x-ndjson");
             recordLatency("edge", Date.now() - start);
             tierMetrics.edge.hits++;
+            recordProviderCall({
+                provider: "cloudflare",
+                model: `vectorize:${indexName}`,
+                action: "vector_insert",
+                start,
+                success: true,
+                metadata: { tier: "edge", vectors: payload.vectors.length },
+            });
             return result;
         }
 
@@ -76,11 +107,28 @@ async function edgeVectorize(action, payload) {
             recordLatency("edge", Date.now() - start);
             if (result?.result?.matches?.length > 0) tierMetrics.edge.hits++;
             else tierMetrics.edge.misses++;
+            recordProviderCall({
+                provider: "cloudflare",
+                model: `vectorize:${indexName}`,
+                action: "vector_query",
+                start,
+                success: true,
+                metadata: { tier: "edge", topK: payload.topK || 5, matches: result?.result?.matches?.length || 0 },
+            });
             return result?.result?.matches || [];
         }
     } catch (err) {
         tierMetrics.edge.errors++;
         recordLatency("edge", Date.now() - start);
+        recordProviderCall({
+            provider: "cloudflare",
+            model: `vectorize:${indexName}`,
+            action: `vector_${action}`,
+            start,
+            success: false,
+            error: err,
+            metadata: { tier: "edge" },
+        });
         return null;
     }
 }
@@ -91,7 +139,7 @@ async function gcloudVector(action, payload) {
     const projectId = process.env.GCLOUD_PROJECT_ID || process.env.GOOGLE_CLOUD_PROJECT;
     const apiKey = process.env.GOOGLE_API_KEY || process.env.HEADY_PYTHIA_KEY_HEADY;
 
-    if (!projectId || !apiKey) return null;
+    if (!projectId || !apiKey || !canUseProvider("gcloud")) return null;
 
     const start = Date.now();
     try {
@@ -110,6 +158,14 @@ async function gcloudVector(action, payload) {
             const result = await httpJsonRequest(url, "PATCH", body);
             recordLatency("gcloud", Date.now() - start);
             tierMetrics.gcloud.hits++;
+            recordProviderCall({
+                provider: "gcloud",
+                model: "firestore-v1",
+                action: "vector_insert",
+                start,
+                success: true,
+                metadata: { tier: "gcloud", documentPath: `heady_vectors/${docId}` },
+            });
             return result;
         }
 
@@ -121,11 +177,28 @@ async function gcloudVector(action, payload) {
             const result = await httpJsonRequest(url, "GET");
             recordLatency("gcloud", Date.now() - start);
             tierMetrics.gcloud.hits++;
+            recordProviderCall({
+                provider: "gcloud",
+                model: "firestore-v1",
+                action: "vector_query",
+                start,
+                success: true,
+                metadata: { tier: "gcloud", topK: payload.topK || 5, returned: result?.documents?.length || 0 },
+            });
             return result?.documents || [];
         }
     } catch (err) {
         tierMetrics.gcloud.errors++;
         recordLatency("gcloud", Date.now() - start);
+        recordProviderCall({
+            provider: "gcloud",
+            model: "firestore-v1",
+            action: `vector_${action}`,
+            start,
+            success: false,
+            error: err,
+            metadata: { tier: "gcloud" },
+        });
         return null;
     }
 }
@@ -133,17 +206,34 @@ async function gcloudVector(action, payload) {
 // ── TIER 3: Colab Worker Router ─────────────────────────────────
 async function colabRoute(action, payload) {
     const colabUrl = process.env.HEADY_COLAB_WORKER_URL;
-    if (!colabUrl) return null;
+    if (!colabUrl || !canUseProvider("huggingface")) return null;
 
     const start = Date.now();
     try {
         const result = await httpJsonRequest(`${colabUrl}/vector/${action}`, "POST", payload);
         recordLatency("colab", Date.now() - start);
         tierMetrics.colab.hits++;
+        recordProviderCall({
+            provider: "huggingface",
+            model: "colab-worker-router",
+            action: `vector_${action}`,
+            start,
+            success: true,
+            metadata: { tier: "colab", workerUrl: colabUrl },
+        });
         return result;
     } catch (err) {
         tierMetrics.colab.errors++;
         recordLatency("colab", Date.now() - start);
+        recordProviderCall({
+            provider: "huggingface",
+            model: "colab-worker-router",
+            action: `vector_${action}`,
+            start,
+            success: false,
+            error: err,
+            metadata: { tier: "colab", workerUrl: colabUrl },
+        });
         return null;
     }
 }
