@@ -76,7 +76,7 @@
     "vector:autopilot": "node scripts/autonomous/vector-projection-orchestrator.js --watch"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.74.0",
+    "@anthropic-ai/sdk": "^0.78.0",
     "@google/genai": "^1.42.0",
     "@google/generative-ai": "^0.24.1",
     "@huggingface/inference": "^4.13.12",
