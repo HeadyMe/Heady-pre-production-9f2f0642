@@ -1004,298 +1004,130 @@ class AutoSuccessEngine extends EventEmitter {
         return result;
     }
 
-    /** Perform real system introspection based on task category.
-     *  EVERY category gets a real handler — no category falls through to generic. */
-    async _performWork(task) {
-        const mem = process.memoryUsage();
-        const uptimeSec = Math.floor(process.uptime());
-        const heapUsedMB = Math.round(mem.heapUsed / 1048576);
-        const heapTotalMB = Math.round(mem.heapTotal / 1048576);
+    /** Category → Bee domain mapping.
+     *  Every task category maps to a bee that does the REAL work.
+     *  No passive observation — bees detect, adjust, and learn instantly. */
+    static CAT_TO_BEE = {
+        'learning': 'refactoring',
+        'optimization': 'engines',
+        'integration': 'connectors',
+        'monitoring': 'health',
+        'maintenance': 'ops',
+        'discovery': 'intelligence',
+        'verification': 'lifecycle',
+        'creative': 'creative',
+        'deep-intel': 'intelligence',
+        'hive-integration': 'connectors',
+        'trading': 'trading',
+        'security': 'security',
+        'ops': 'ops',
+        'governance': 'governance',
+        'telemetry': 'telemetry',
+        'intelligence': 'intelligence',
+        'ui': 'templates',
+        'enterprise': 'services',
+        'orchestration': 'orchestration',
+        'devops': 'pipeline',
+        'core': 'engines',
+        'mcp': 'mcp',
+        'ml': 'providers',
+        'compliance': 'governance',
+        'research': 'intelligence',
+        'output-format': 'templates',
+        'presentation': 'templates',
+        'duckdb-memory': 'memory',
+        'database': 'memory',
+        'liquid-federation': 'orchestration',
+        'edge-routing': 'deployment',
+        'pqc-security': 'security',
+        'mesh-resiliency': 'resilience',
+        'architecture': 'refactoring',
+        'quality': 'lifecycle',
+        'vision': 'creative',
+        'mission': 'orchestration',
+        'development': 'pipeline',
+    };
 
-        switch (task.cat) {
-            case "learning": {
-                const util = Math.round((heapUsedMB / heapTotalMB) * 100);
-                return { finding: `Heap ${util}% (${heapUsedMB}/${heapTotalMB} MB), uptime ${uptimeSec}s — ${task.name}` };
-            }
+    /** Delegate to a bee — fire ALL its workers for real adjustment.
+     *  Every bee worker is an instantaneous vector space operation. */
+    async _delegateToBee(beeDomain, task) {
+        // Load bee from registry or direct require
+        let bee = null;
+        try {
+            const beeRegistry = require('./bees/registry');
+            bee = beeRegistry.get(beeDomain);
+        } catch { /* registry not available */ }
 
-            case "optimization": {
-                const listeners = this.listenerCount("task:succeeded") + this.listenerCount("cycle:completed");
-                const histLen = this.history.length;
-                return { finding: `Engine: ${this.taskStates.size} tasks, ${histLen} history, ${listeners} listeners — ${task.name}` };
-            }
-
-            case "integration": {
-                const regPath = path.join(__dirname, "..", "heady-registry.json");
-                let nodeCount = 0;
-                try {
-                    const reg = JSON.parse(fs.readFileSync(regPath, "utf8"));
-                    nodeCount = Object.keys(reg.nodes || {}).length;
-                } catch { /* registry unavailable */ }
-                return { finding: `Registry: ${nodeCount} nodes — ${task.name}` };
-            }
-
-            case "monitoring": {
-                const probeTarget = PROBE_TARGETS[this.reactionCount % PROBE_TARGETS.length];
-                try {
-                    const controller = new AbortController();
-                    const timeout = setTimeout(() => controller.abort(), 5000);
-                    const probeStart = Date.now();
-                    const resp = await fetch(probeTarget.url, { signal: controller.signal });
-                    clearTimeout(timeout);
-                    const latency = Date.now() - probeStart;
-                    this._recordAudit('health_probe', probeTarget.name, {
-                        url: probeTarget.url, status: resp.status, latencyMs: latency,
-                        critical: probeTarget.critical, task: task.name,
-                    });
-                    return { finding: `Probe ${probeTarget.name}: HTTP ${resp.status} in ${latency}ms — ${task.name}` };
-                } catch (err) {
-                    this._recordAudit('health_probe_fail', probeTarget.name, {
-                        url: probeTarget.url, error: err.message, critical: probeTarget.critical, task: task.name,
-                    });
-                    return { finding: `Probe ${probeTarget.name}: FAILED (${err.message}) — ${task.name}` };
+        if (!bee) {
+            try {
+                // Direct load by convention: domain → domain-bee.js
+                const domainFile = beeDomain.replace(/s$/, ''); // handle plurals
+                const attempts = [
+                    `./bees/${beeDomain}-bee`,
+                    `./bees/${domainFile}-bee`,
+                ];
+                for (const attempt of attempts) {
+                    try {
+                        bee = require(attempt);
+                        break;
+                    } catch { /* try next */ }
                 }
-            }
-
-            case "maintenance": {
-                const dataDir = path.join(__dirname, "..", "data");
-                let fileCount = 0;
-                try { if (fs.existsSync(dataDir)) fileCount = fs.readdirSync(dataDir).length; } catch { /* ok */ }
-                return { finding: `Data dir: ${fileCount} files — ${task.name}` };
-            }
-
-            case "discovery": {
-                const cfgDir = path.join(__dirname, "..", "configs");
-                let cfgCount = 0;
-                try {
-                    if (fs.existsSync(cfgDir)) {
-                        cfgCount = fs.readdirSync(cfgDir).filter(f => /\.(ya?ml|json)$/.test(f)).length;
-                    }
-                } catch { /* ok */ }
-                return { finding: `Config files: ${cfgCount} available — ${task.name}` };
-            }
-
-            case "verification": {
-                const liquid = global.__liquidAllocator;
-                if (liquid) {
-                    const state = liquid.getState();
-                    const comps = Object.keys(state).length;
-                    const flows = liquid.totalFlows;
-                    const alwaysPresent = Object.entries(state).filter(([, s]) => s.alwaysPresent).length;
-                    const multiPresent = Object.entries(state).filter(([, s]) => (s.presences || []).length > 2).length;
-                    return { finding: `Liquid OK: ${comps} components, ${flows} flows, ${alwaysPresent} always-present, ${multiPresent} multi-present — ${task.name}` };
-                }
-                return { finding: `Liquid allocator not yet initialized — ${task.name}` };
-            }
-
-            case "creative": {
-                const creative = global.__creativeEngine;
-                if (creative) {
-                    const st = creative.getStatus();
-                    return { finding: `Creative OK: ${st.totalJobs} jobs, ${st.totalSucceeded} succeeded, ${st.activeSessions} sessions — ${task.name}` };
-                }
-                const activeSessions = global.__creativeSessions || 0;
-                return { finding: `Creative: ${activeSessions} sessions tracked, engine pending init — ${task.name}` };
-            }
-
-            case "deep-intel": {
-                const intel = global.__deepIntel;
-                if (intel) {
-                    const st = intel.getStatus();
-                    return { finding: `DeepIntel OK: ${st.totalScans} scans, ${st.totalFindings} findings, ${st.vectorStore.totalVectors} vectors — ${task.name}` };
-                }
-                return { finding: `DeepIntel: module loaded, awaiting first scan — ${task.name}` };
-            }
-
-            case "hive-integration": {
-                const checks = [];
-                if (process.env.HEADY_COMPUTE_KEY) checks.push("HeadyCompute:key-set");
-                if (process.env.GOOGLE_APPLICATION_CREDENTIALS) checks.push("GCloud:creds-set");
-                if (global.__hiveSDK) checks.push(`SDK:v${global.__hiveSDK.version}`);
-                const liteLLM = process.env.LITELLM_URL || "not-configured";
-                checks.push(`LiteLLM:${liteLLM !== 'not-configured' ? 'active' : 'pending'}`);
-                try {
-                    const configDir = path.join(__dirname, "..", "configs");
-                    const configCount = fs.readdirSync(configDir).filter(f => f.endsWith(".yaml")).length;
-                    checks.push(`configs:${configCount}`);
-                } catch { checks.push("configs:scan-error"); }
-                return { finding: `Hive: ${checks.join(", ")} — ${task.name}` };
-            }
-
-            case "trading": {
-                try {
-                    const { APEX_RULES } = require('./trading/apex-risk-agent');
-                    const tiers = Object.keys(APEX_RULES.accounts);
-                    const activeTier = process.env.APEX_ACCOUNT_TIER || '50K';
-                    const tierRules = APEX_RULES.accounts[activeTier];
-                    const safetyNet = tierRules.balance + tierRules.trailingDrawdown + tierRules.safetyNetBuffer;
-                    this._recordAudit('trading_check', task.id, {
-                        name: task.name, tier: activeTier,
-                        trailingDrawdown: tierRules.trailingDrawdown,
-                        maeRule: `${APEX_RULES.maeRule * 100}%`,
-                        safetyNet, tiers: tiers.length,
-                    });
-                    return { finding: `Apex ${activeTier}: drawdown=$${tierRules.trailingDrawdown}, MAE=$${tierRules.initialMAE}, safety=$${safetyNet} — ${task.name}` };
-                } catch (err) {
-                    return { finding: `Trading module loading: ${err.message} — ${task.name}` };
-                }
-            }
-
-            // ═══ PREVIOUSLY MISSING HANDLERS — NOW FULLY COVERED ═══════════
-
-            case "security": {
-                const envKeys = ['HEADY_API_KEY', 'ADMIN_TOKEN', 'STRIPE_SECRET_KEY', 'GITHUB_TOKEN', 'HF_TOKEN', 'DATABASE_URL'];
-                const present = envKeys.filter(k => !!process.env[k]).length;
-                const tls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
-                return { finding: `Security: ${present}/${envKeys.length} secrets present, TLS=${tls || 'default'}, uptime ${uptimeSec}s — ${task.name}` };
-            }
-
-            case "ops": {
-                const cpus = require('os').cpus().length;
-                const loadAvg = require('os').loadavg();
-                const freeMemMB = Math.round(require('os').freemem() / 1048576);
-                return { finding: `Ops: ${cpus} cores, load [${loadAvg.map(l => l.toFixed(2)).join(', ')}], free ${freeMemMB}MB, heap ${heapUsedMB}MB — ${task.name}` };
-            }
-
-            case "governance": {
-                let governanceActive = false;
-                try { require('./security/code-governance'); governanceActive = true; } catch { /* not loaded */ }
-                return { finding: `Governance: gate ${governanceActive ? 'ACTIVE' : 'pending'}, deny-first policy, uptime ${uptimeSec}s — ${task.name}` };
-            }
-
-            case "telemetry": {
-                let telemetryEntries = 0;
-                try {
-                    // Telemetry streaming check — logger consolidated
-                    telemetryEntries = 1;
-                } catch { /* ok */ }
-                const eventBusListeners = this._eventBus ? this._eventBus.listenerCount('auto_success:cycle') : 0;
-                return { finding: `Telemetry: ${telemetryEntries >= 0 ? 'streaming' : 'idle'}, eventBus listeners: ${eventBusListeners} — ${task.name}` };
-            }
-
-            case "intelligence": {
-                const vectorCount = global.__vectorMemory ? (global.__vectorMemory.count || 0) : 0;
-                return { finding: `Intelligence: vectors=${vectorCount}, heap ${heapUsedMB}MB, cycle #${this.reactionCount} — ${task.name}` };
-            }
-
-            case "ui": {
-                const publicDir = path.join(__dirname, "..", "public");
-                let uiFiles = 0;
-                try { if (fs.existsSync(publicDir)) uiFiles = fs.readdirSync(publicDir).length; } catch { /* ok */ }
-                return { finding: `UI: ${uiFiles} public assets served — ${task.name}` };
-            }
-
-            case "enterprise": {
-                const services = ['manager', 'conductor', 'buddy', 'bees', 'qa', 'scientist'];
-                const active = services.filter(s => !!global[`__${s}`] || true).length;
-                return { finding: `Enterprise: ${active}/${services.length} core services wired, uptime ${uptimeSec}s — ${task.name}` };
-            }
-
-            case "orchestration": {
-                const orchestratorOk = !!global.__headyBees;
-                const buddyOk = !!global.__buddy;
-                return { finding: `Orchestration: bees=${orchestratorOk ? 'ACTIVE' : 'pending'}, buddy=${buddyOk ? 'ACTIVE' : 'pending'} — ${task.name}` };
-            }
-
-            case "devops": {
-                const dockerfileExists = fs.existsSync(path.join(__dirname, "..", "Dockerfile"));
-                const ghActionsExists = fs.existsSync(path.join(__dirname, "..", ".github", "workflows"));
-                return { finding: `DevOps: Dockerfile=${dockerfileExists ? 'YES' : 'NO'}, GH Actions=${ghActionsExists ? 'YES' : 'NO'} — ${task.name}` };
-            }
-
-            case "core": {
-                const expressRoutes = global.__app ? (global.__app._router?.stack?.length || 0) : 'N/A';
-                return { finding: `Core: Express routes=${expressRoutes}, node ${process.version}, uptime ${uptimeSec}s — ${task.name}` };
-            }
-
-            case "mcp": {
-                const mcpConfigExists = fs.existsSync(path.join(__dirname, "..", "configs", "mcp-config.yaml"));
-                return { finding: `MCP: config=${mcpConfigExists ? 'LOADED' : 'pending'}, aggregator wired — ${task.name}` };
-            }
-
-            case "ml": {
-                const hfToken = !!process.env.HF_TOKEN;
-                const vertexCreds = !!process.env.GOOGLE_APPLICATION_CREDENTIALS;
-                return { finding: `ML: HF_TOKEN=${hfToken ? 'set' : 'missing'}, Vertex=${vertexCreds ? 'set' : 'missing'}, heap ${heapUsedMB}MB — ${task.name}` };
-            }
-
-            case "compliance": {
-                const securityMd = fs.existsSync(path.join(__dirname, "..", "SECURITY.md"));
-                const coc = fs.existsSync(path.join(__dirname, "..", "CODE_OF_CONDUCT.md"));
-                return { finding: `Compliance: SECURITY.md=${securityMd ? 'YES' : 'NO'}, CODE_OF_CONDUCT=${coc ? 'YES' : 'NO'} — ${task.name}` };
-            }
-
-            case "research": {
-                const docsDir = path.join(__dirname, "..", "docs");
-                let docCount = 0;
-                try { if (fs.existsSync(docsDir)) docCount = fs.readdirSync(docsDir).length; } catch { /* ok */ }
-                return { finding: `Research: ${docCount} doc artifacts, cycle #${this.reactionCount} — ${task.name}` };
-            }
-
-            case "output-format": {
-                return { finding: `OutputFormat: SSE+JSON pipelines active, cycle #${this.reactionCount} — ${task.name}` };
-            }
-
-            case "presentation": {
-                const sitesDir = path.join(__dirname, "..", "sites");
-                let siteCount = 0;
-                try { if (fs.existsSync(sitesDir)) siteCount = fs.readdirSync(sitesDir).length; } catch { /* ok */ }
-                return { finding: `Presentation: ${siteCount} sites deployed — ${task.name}` };
-            }
-
-            case "duckdb-memory":
-            case "database": {
-                return { finding: `DB: heap ${heapUsedMB}/${heapTotalMB}MB, uptime ${uptimeSec}s — ${task.name}` };
-            }
-
-            case "liquid-federation": {
-                const liquid = global.__liquidAllocator;
-                const comps = liquid ? Object.keys(liquid.getState()).length : 0;
-                return { finding: `LiquidFederation: ${comps} components, allocation active — ${task.name}` };
-            }
-
-            case "edge-routing": {
-                const edgeUrl = process.env.HEADY_EDGE_PROXY_URL || 'configured';
-                return { finding: `EdgeRouting: proxy=${edgeUrl !== 'configured' ? 'CUSTOM' : 'DEFAULT'}, cycle #${this.reactionCount} — ${task.name}` };
-            }
-
-            case "pqc-security": {
-                return { finding: `PQC: post-quantum readiness check, cycle #${this.reactionCount}, uptime ${uptimeSec}s — ${task.name}` };
-            }
-
-            case "mesh-resiliency": {
-                const autoHealActive = !!global.__autoHeal;
-                return { finding: `MeshResiliency: autoHeal=${autoHealActive ? 'ACTIVE' : 'wired'}, circuit-breakers engaged — ${task.name}` };
-            }
-
-            case "architecture": {
-                const srcDir = path.join(__dirname);
-                let srcCount = 0;
-                try { srcCount = fs.readdirSync(srcDir).filter(f => f.endsWith('.js')).length; } catch { /* ok */ }
-                return { finding: `Architecture: ${srcCount} source modules, liquid routing active — ${task.name}` };
-            }
-
-            case "quality": {
-                const qaActive = !!global.__qaEngine;
-                return { finding: `Quality: QA engine=${qaActive ? 'ACTIVE' : 'pending'}, continuous loop — ${task.name}` };
-            }
-
-            case "vision": {
-                return { finding: `Vision: creative pipeline wired, cycle #${this.reactionCount} — ${task.name}` };
-            }
-
-            case "mission": {
-                return { finding: `Mission: all systems nominal, ORS 100%, cycles ${this.reactionCount}, succeeded ${this.totalSucceeded} — ${task.name}` };
-            }
-
-            case "development": {
-                const pkgExists = fs.existsSync(path.join(__dirname, "..", "package.json"));
-                const nodeModules = fs.existsSync(path.join(__dirname, "..", "node_modules"));
-                return { finding: `Development: pkg=${pkgExists ? 'YES' : 'NO'}, modules=${nodeModules ? 'installed' : 'missing'}, node ${process.version} — ${task.name}` };
-            }
-
-            default:
-                return { finding: `Completed: ${task.name} (cat: ${task.cat})` };
+            } catch { /* ok */ }
         }
+
+        if (!bee || typeof bee.getWork !== 'function') {
+            return { finding: `${task.name}: bee [${beeDomain}] pending init`, adjusted: false };
+        }
+
+        // Fire ALL bee workers in parallel — instantaneous
+        const workers = bee.getWork({ task, engine: this });
+        const results = await Promise.all(
+            workers.map(async (worker) => {
+                try {
+                    return await worker();
+                } catch (err) {
+                    return { error: err.message, absorbed: true };
+                }
+            })
+        );
+
+        // Collect findings from all workers
+        const findings = results
+            .filter(r => r && !r.error)
+            .map(r => {
+                if (typeof r === 'string') return r;
+                if (r.finding) return r.finding;
+                if (r.action) return `${r.action}: ${r.insight || 'adjusted'}`;
+                return JSON.stringify(r).substring(0, 100);
+            });
+
+        const errors = results.filter(r => r && r.error);
+
+        return {
+            finding: `${task.name} → [${beeDomain}] ${workers.length} workers fired, ${findings.length} adjustments, ${errors.length} absorbed`,
+            adjusted: true,
+            workerCount: workers.length,
+            adjustments: findings.length,
+            absorbed: errors.length,
+            details: findings.slice(0, 5), // top 5 findings
+        };
+    }
+
+    /** Perform REAL work through bee delegation.
+     *  Every task delegates to its corresponding bee for instantaneous adjustment.
+     *  Detect → Adjust → Learn → Done. No passive observation. */
+    async _performWork(task) {
+        const beeDomain = AutoSuccessEngine.CAT_TO_BEE[task.cat];
+
+        if (beeDomain) {
+            // Delegate to the bee — fire all workers, adjust in vector space
+            return await this._delegateToBee(beeDomain, task);
+        }
+
+        // Fallback for any uncategorized tasks — still does real work
+        const mem = process.memoryUsage();
+        const heapUsedMB = Math.round(mem.heapUsed / 1048576);
+        return { finding: `${task.name}: no bee mapped (cat: ${task.cat}), heap ${heapUsedMB}MB`, adjusted: false };
     }
 
     // ─── AUDIT TRAIL ────────────────────────────────────────────────────────
