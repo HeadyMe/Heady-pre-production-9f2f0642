@@ -317,6 +317,7 @@ class ProjectionManager {
         this.registerTarget("hf-spaces");
         this.registerTarget("cloudflare");
         this.registerTarget("cloud-run");
+        this._perception = {}; // external perception state
     }
 
     registerTarget(name) {
@@ -328,9 +329,6 @@ class ProjectionManager {
         });
     }
 
-    /**
-     * Mark a projection as synced with a specific RAM state hash.
-     */
     markSynced(target, ramStateHash) {
         const proj = this.projections.get(target);
         if (!proj) return;
@@ -340,17 +338,11 @@ class ProjectionManager {
         proj.deltaCount++;
     }
 
-    /**
-     * Mark a projection as stale (RAM state has changed since last sync).
-     */
     markStale(target) {
         const proj = this.projections.get(target);
         if (proj && proj.status === "synced") proj.status = "stale";
     }
 
-    /**
-     * Check if all projections are in sync with the given RAM hash.
-     */
     allSynced(ramStateHash) {
         for (const [, proj] of this.projections) {
             if (proj.hash !== ramStateHash) return false;
@@ -359,14 +351,147 @@ class ProjectionManager {
     }
 
     /**
-     * Get status of all projections.
+     * PERCEPTION SCAN — what does the system look like externally?
+     * Reads from git, filesystem, and package.json to build awareness
+     * of how users and external systems perceive Heady.
      */
+    async scanPerception() {
+        const rootDir = path.join(__dirname, '..');
+        const perception = { ts: new Date().toISOString(), sources: {} };
+
+        // ─── GIT REPO STATE — what users see on GitHub ─────────────
+        try {
+            const { execSync } = require('child_process');
+            const gitLog = execSync('git log --oneline -5', { cwd: rootDir, timeout: 5000 }).toString().trim();
+            const gitBranch = execSync('git branch --show-current', { cwd: rootDir, timeout: 3000 }).toString().trim();
+            const gitStatus = execSync('git status --short', { cwd: rootDir, timeout: 3000 }).toString().trim();
+            const gitRemote = execSync('git remote get-url origin', { cwd: rootDir, timeout: 3000 }).toString().trim();
+            const uncommittedCount = gitStatus ? gitStatus.split('\n').length : 0;
+
+            perception.sources.github = {
+                branch: gitBranch,
+                remote: gitRemote,
+                recentCommits: gitLog.split('\n').slice(0, 5),
+                uncommittedFiles: uncommittedCount,
+                clean: uncommittedCount === 0,
+            };
+
+            // If clean, mark github projection as synced
+            if (uncommittedCount === 0) {
+                this.markSynced('github', gitLog.split('\n')[0]?.split(' ')[0] || 'unknown');
+            } else {
+                this.markStale('github');
+            }
+        } catch (err) {
+            perception.sources.github = { error: err.message.substring(0, 80) };
+        }
+
+        // ─── README — first thing users see ────────────────────────
+        try {
+            const readmePath = path.join(rootDir, 'README.md');
+            if (fs.existsSync(readmePath)) {
+                const readme = fs.readFileSync(readmePath, 'utf8');
+                perception.sources.readme = {
+                    exists: true,
+                    lines: readme.split('\n').length,
+                    bytes: readme.length,
+                    title: (readme.match(/^#\s+(.+)/m) || ['', 'untitled'])[1],
+                    hasBadges: /\[!\[/.test(readme),
+                    hasInstallInstructions: /install|setup|getting started/i.test(readme),
+                    hasLicense: /license/i.test(readme),
+                };
+            } else {
+                perception.sources.readme = { exists: false, warning: 'No README — bad first impression' };
+            }
+        } catch { perception.sources.readme = { exists: false }; }
+
+        // ─── PACKAGE.JSON — project identity ───────────────────────
+        try {
+            const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
+            perception.sources.package = {
+                name: pkg.name,
+                version: pkg.version,
+                description: pkg.description?.substring(0, 100),
+                scripts: Object.keys(pkg.scripts || {}).length,
+                dependencies: Object.keys(pkg.dependencies || {}).length,
+                devDependencies: Object.keys(pkg.devDependencies || {}).length,
+                hasEngines: !!pkg.engines,
+            };
+        } catch { perception.sources.package = { error: 'not readable' }; }
+
+        // ─── FILESYSTEM PRESENCE — what's deployed ─────────────────
+        try {
+            const srcFiles = fs.readdirSync(path.join(rootDir, 'src')).filter(f => f.endsWith('.js')).length;
+            const beeFiles = fs.readdirSync(path.join(rootDir, 'src', 'bees')).filter(f => f.endsWith('-bee.js')).length;
+            const publicDir = path.join(rootDir, 'public');
+            const publicFiles = fs.existsSync(publicDir) ? fs.readdirSync(publicDir).length : 0;
+            const sitesDir = path.join(rootDir, 'sites');
+            const sites = fs.existsSync(sitesDir) ? fs.readdirSync(sitesDir) : [];
+            const dataDir = path.join(rootDir, 'data');
+            const dataFiles = fs.existsSync(dataDir) ? fs.readdirSync(dataDir).length : 0;
+
+            perception.sources.filesystem = {
+                srcModules: srcFiles,
+                bees: beeFiles,
+                publicAssets: publicFiles,
+                sites: sites.length,
+                siteNames: sites.slice(0, 10),
+                dataFiles,
+            };
+        } catch { perception.sources.filesystem = { error: 'scan failed' }; }
+
+        // ─── DOCKER & CI — deployment readiness ────────────────────
+        try {
+            perception.sources.deployment = {
+                dockerfile: fs.existsSync(path.join(rootDir, 'Dockerfile')),
+                dockerignore: fs.existsSync(path.join(rootDir, '.dockerignore')),
+                ghActions: fs.existsSync(path.join(rootDir, '.github', 'workflows')),
+                cloudbuild: fs.existsSync(path.join(rootDir, 'cloudbuild.yaml')),
+            };
+        } catch { perception.sources.deployment = { error: 'scan failed' }; }
+
+        this._perception = perception;
+
+        // ─── INGEST PERCEPTION INTO VECTOR MEMORY ──────────────────
+        const vectorMemory = global.__vectorMemory;
+        if (vectorMemory && typeof vectorMemory.add === 'function') {
+            try {
+                vectorMemory.add('perception:latest', perception);
+                vectorMemory.add(`perception:${Date.now()}`, perception);
+            } catch { /* absorbed */ }
+        }
+
+        // ─── EMIT PERCEPTION EVENT ─────────────────────────────────
+        if (global.eventBus) {
+            global.eventBus.emit('perception:scanned', perception);
+        }
+
+        return perception;
+    }
+
+    /** Wire perception scans to eventBus events — auto-refresh on system changes */
+    wireEventBus(eventBus) {
+        if (!eventBus) return;
+        const scanEvents = [
+            'auto_success:reaction', 'deployment:completed', 'bee_swarm:discovered',
+            'vector_ops:started', 'auto_success:tasks_loaded', 'health:checked',
+        ];
+        for (const evt of scanEvents) {
+            eventBus.on(evt, () => {
+                // Debounce: only scan if last scan was >10 seconds ago
+                const lastTs = this._perception.ts;
+                if (lastTs && Date.now() - new Date(lastTs).getTime() < 10_000) return;
+                this.scanPerception().catch(() => { });
+            });
+        }
+    }
+
     getStatus() {
         const status = {};
         for (const [name, proj] of this.projections) {
             status[name] = { ...proj };
         }
-        return status;
+        return { projections: status, perception: this._perception };
     }
 }
 
@@ -407,10 +532,13 @@ class VectorSpaceOps {
         // Capture initial baseline after 10s stabilization
         setTimeout(() => this.antiSprawl.captureBaseline(), 10000);
 
+        // Initial perception scan — know how the world sees us from boot
+        this.projectionManager.scanPerception().catch(() => { });
+        this.projectionManager.wireEventBus(global.eventBus);
+
         // PHI-timed security scans
         this._intervals.push(setInterval(() => {
             this.security.scan();
-            this.cycleCount++;
         }, PHI_INTERVALS.scan));
 
         // PHI-timed sprawl detection
@@ -432,6 +560,10 @@ class VectorSpaceOps {
                     for (const target of this.projectionManager.projections.keys()) {
                         this.projectionManager.markStale(target);
                     }
+                    // Emit so reactor knows projections are drifting
+                    if (global.eventBus) global.eventBus.emit('projections:stale', {
+                        targets: [...this.projectionManager.projections.keys()],
+                    });
                 }
             } catch { }
         }, PHI_INTERVALS.analyze));

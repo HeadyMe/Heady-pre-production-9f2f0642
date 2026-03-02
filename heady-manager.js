@@ -414,6 +414,7 @@ vectorSpaceOps.start();
 logger.logNodeActivity("CONDUCTOR", "  🌐 VectorSpaceOps: ACTIVE (anti-sprawl + security + maintenance — all in 3D vector space)");
 logger.logNodeActivity("CONDUCTOR", "    → Pre-deploy gate: /api/vector-ops/pre-deploy");
 logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/vector-ops/status, /health, /sprawl-check, /security-scan, /compact, /projections");
+eventBus.emit('vector_ops:started', { subsystems: ['anti-sprawl', 'security', 'maintenance', 'projections'] });
 
 // ─── Bee Swarm Discovery (find all 31+ bees on disk and load into registry) ──
 try {
@@ -423,6 +424,7 @@ try {
   const domains = beeRegistry.listDomains();
   const highPriority = domains.filter(d => d.priority >= 0.9).map(d => d.domain);
   logger.logNodeActivity("CONDUCTOR", `    → High priority (≥0.9): ${highPriority.join(", ")}`);
+  eventBus.emit('bee_swarm:discovered', { count: beeCount, highPriority });
 } catch (err) {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Bee Swarm: discovery failed — ${err.message}`);
 }
@@ -908,48 +910,37 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Apex Risk Agent not loaded: ${err.message}`);
 }
 
-// ─── Load Trading Tasks into Auto-Success Engine ────────────────────
-try {
-  if (autoSuccessEngine) {
-    const tradingTasks = require("./src/trading-tasks");
-    const added = autoSuccessEngine.loadExternalTasks(tradingTasks);
-    logger.logNodeActivity("CONDUCTOR", `  📈 Trading Tasks: ${added} tasks loaded into Auto-Success (Apex + TRM)`);
+// ─── Load ALL External Task Catalogs into Auto-Success Reactor ──────
+// Every task JSON on disk MUST enter the reactor — no unmanned tasks
+if (autoSuccessEngine) {
+  const taskSources = [
+    { file: "./src/trading-tasks", label: "Trading" },
+    { file: "./src/architecture-tasks", label: "Architecture" },
+    { file: "./src/config-buildout-tasks", label: "Config Build-Out" },
+    { file: "./src/decomposition-tasks", label: "Decomposition" },
+    { file: "./src/auto-flow-200-tasks.json", label: "Auto-Flow 200" },
+    { file: "./src/buddy-tasks.json", label: "Buddy" },
+    { file: "./src/headyos-tasks.json", label: "HeadyOS" },
+    { file: "./src/long814-tasks.json", label: "Long814" },
+    { file: "./src/nonprofit-tasks.json", label: "Nonprofit" },
+    { file: "./src/orchestration-protocol-tasks.json", label: "Orchestration Protocol" },
+    { file: "./src/phase5-hardening-tasks.json", label: "Phase 5 Hardening" },
+  ];
+  let totalLoaded = 0;
+  for (const src of taskSources) {
+    try {
+      const tasks = require(src.file);
+      const added = autoSuccessEngine.loadExternalTasks(tasks);
+      totalLoaded += added;
+      logger.logNodeActivity("CONDUCTOR", `  📋 ${src.label}: ${added} tasks loaded into reactor`);
+    } catch (err) {
+      logger.logNodeActivity("CONDUCTOR", `  ⚠ ${src.label}: ${err.message.split('\n')[0].substring(0, 60)}`);
+    }
   }
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Trading tasks not loaded: ${err.message}`);
-}
+  logger.logNodeActivity("CONDUCTOR", `  🔥 Total external tasks loaded: ${totalLoaded}`);
 
-// ─── Load Architecture Tasks (K3D, ACC, GraphRAG, Flux, Governance) ─
-try {
-  if (autoSuccessEngine) {
-    const archTasks = require("./src/architecture-tasks");
-    const added = autoSuccessEngine.loadExternalTasks(archTasks);
-    logger.logNodeActivity("CONDUCTOR", `  🏛️ Architecture Tasks: ${added} tasks loaded (governance, K3D, ACC, GraphRAG, flux, sacred-geo)`);
-  }
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Architecture tasks not loaded: ${err.message}`);
-}
-
-// ─── Load Config Build-Out Tasks (wire every aspirational config) ────
-try {
-  if (autoSuccessEngine) {
-    const cfgTasks = require("./src/config-buildout-tasks");
-    const added = autoSuccessEngine.loadExternalTasks(cfgTasks);
-    logger.logNodeActivity("CONDUCTOR", `  🔧 Config Build-Out Tasks: ${added} tasks loaded (wire ${cfgTasks.length} aspirational configs into live code)`);
-  }
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Config Build-Out tasks not loaded: ${err.message}`);
-}
-
-// ─── Load Decomposition Tasks (god class → HeadyBees workers) ───────
-try {
-  if (autoSuccessEngine) {
-    const decompTasks = require("./src/decomposition-tasks");
-    const added = autoSuccessEngine.loadExternalTasks(decompTasks);
-    logger.logNodeActivity("CONDUCTOR", `  🐝 Decomposition Tasks: ${added} tasks loaded (break god classes into blastable HeadyBees workers)`);
-  }
-} catch (err) {
-  logger.logNodeActivity("CONDUCTOR", `  ⚠ Decomposition tasks not loaded: ${err.message}`);
+  // Emit event so reactor can react to its own boot
+  if (global.eventBus) global.eventBus.emit('auto_success:tasks_loaded', { count: totalLoaded });
 }
 
 // ─── Buddy Companion + HeadyBuddy Config + HeadyMe Onboarding Routes ──

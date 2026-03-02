@@ -1138,6 +1138,40 @@ class AutoSuccessEngine extends EventEmitter {
         const findings = results.filter(r => r && !r.error);
         const errors = results.filter(r => r && r.error);
 
+        // ─── INGEST LEARNINGS INTO VECTOR MEMORY ─────────────────────
+        // Every bee reaction writes back to vector space — the system LEARNS
+        const vectorMemory = global.__vectorMemory;
+        if (vectorMemory && typeof vectorMemory.add === 'function') {
+            try {
+                const learning = {
+                    type: 'bee_reaction',
+                    domain: beeDomain,
+                    ts: new Date().toISOString(),
+                    reaction: this.reactionCount,
+                    coreWorkers: coreWorkers.length,
+                    dynamicWorkers: dynamicWorkers.length,
+                    adjustments: findings.length,
+                    absorbed: errors.length,
+                    insights: findings.slice(0, 10).map(f => {
+                        if (typeof f === 'string') return f;
+                        return f.insight || f.finding || f.taskName || JSON.stringify(f).substring(0, 80);
+                    }),
+                };
+                vectorMemory.add(`bee:${beeDomain}:reaction:${this.reactionCount}`, learning);
+            } catch { /* vector memory write absorbed */ }
+        }
+
+        // ─── EMIT EVENT — other subsystems react to this domain's work ──
+        if (this._eventBus) {
+            this._eventBus.emit(`bee:${beeDomain}:reacted`, {
+                domain: beeDomain,
+                totalFired: allWorkers.length,
+                adjustments: findings.length,
+                absorbed: errors.length,
+                reaction: this.reactionCount,
+            });
+        }
+
         return {
             domain: beeDomain,
             coreWorkers: coreWorkers.length,
