@@ -306,6 +306,70 @@ class PreDeployValidator {
     }
 }
 
+// ─── PROJECTION MANAGER ────────────────────────────────────────────
+// Tracks sync state for all external projections (GitHub, HF, Cloudflare).
+// RAM is always the source of truth — projections are derived state.
+
+class ProjectionManager {
+    constructor() {
+        this.projections = new Map(); // target → { lastSync, hash, status, deltaCount }
+        this.registerTarget("github");
+        this.registerTarget("hf-spaces");
+        this.registerTarget("cloudflare");
+        this.registerTarget("cloud-run");
+    }
+
+    registerTarget(name) {
+        this.projections.set(name, {
+            lastSync: null,
+            hash: null,
+            status: "pending", // pending | synced | stale | error
+            deltaCount: 0,
+        });
+    }
+
+    /**
+     * Mark a projection as synced with a specific RAM state hash.
+     */
+    markSynced(target, ramStateHash) {
+        const proj = this.projections.get(target);
+        if (!proj) return;
+        proj.lastSync = new Date().toISOString();
+        proj.hash = ramStateHash;
+        proj.status = "synced";
+        proj.deltaCount++;
+    }
+
+    /**
+     * Mark a projection as stale (RAM state has changed since last sync).
+     */
+    markStale(target) {
+        const proj = this.projections.get(target);
+        if (proj && proj.status === "synced") proj.status = "stale";
+    }
+
+    /**
+     * Check if all projections are in sync with the given RAM hash.
+     */
+    allSynced(ramStateHash) {
+        for (const [, proj] of this.projections) {
+            if (proj.hash !== ramStateHash) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Get status of all projections.
+     */
+    getStatus() {
+        const status = {};
+        for (const [name, proj] of this.projections) {
+            status[name] = { ...proj };
+        }
+        return status;
+    }
+}
+
 // ─── VECTOR SPACE OPERATIONS CONTROLLER ────────────────────────────
 // Wires everything together and runs the continuous internal ops loop.
 
@@ -315,6 +379,7 @@ class VectorSpaceOps {
         this.antiSprawl = new AntiSprawlEngine(vectorMemory);
         this.security = new VectorSecurityScanner(vectorMemory);
         this.maintenance = new VectorMaintenanceOps(vectorMemory);
+        this.projectionManager = new ProjectionManager();
         this.preDeployValidator = new PreDeployValidator(
             vectorMemory, this.antiSprawl, this.security, this.maintenance
         );
@@ -349,6 +414,19 @@ class VectorSpaceOps {
         this._intervals.push(setInterval(() => {
             this.maintenance.compact();
         }, PHI_INTERVALS.compact));
+
+        // PHI-timed projection sync check
+        this._intervals.push(setInterval(() => {
+            try {
+                const syncBee = require('./bees/sync-projection-bee');
+                if (syncBee.hasStateChanged()) {
+                    // RAM state changed — mark all projections stale
+                    for (const target of this.projectionManager.projections.keys()) {
+                        this.projectionManager.markStale(target);
+                    }
+                }
+            } catch { }
+        }, PHI_INTERVALS.analyze));
     }
 
     /**
@@ -387,6 +465,7 @@ class VectorSpaceOps {
                 lastCompaction: this.maintenance.lastCompaction,
                 health: this.maintenance.healthCheck(),
             },
+            projections: this.projectionManager.getStatus(),
             intervals: PHI_INTERVALS,
         };
     }
@@ -423,6 +502,10 @@ class VectorSpaceOps {
             const health = this.maintenance.healthCheck();
             res.json({ ok: health.healthy, ...health });
         });
+
+        app.get("/api/vector-ops/projections", (req, res) => {
+            res.json({ ok: true, projections: this.projectionManager.getStatus() });
+        });
     }
 }
 
@@ -432,5 +515,7 @@ module.exports = {
     VectorSecurityScanner,
     VectorMaintenanceOps,
     PreDeployValidator,
+    ProjectionManager,
     PHI_INTERVALS,
 };
+
