@@ -30,7 +30,7 @@ export default function App() {
                 <Route path="logs" element={<Logs />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="ai" element={<AIStudio />} />
-                <Route path="app-creation" element={<AppCreationLab />} />
+                <Route path="app-lab" element={<AppCreationLab />} />
             </Route>
         </Routes>
     );

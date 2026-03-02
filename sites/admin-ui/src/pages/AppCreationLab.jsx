@@ -1,123 +1,269 @@
 import React, { useMemo, useState } from 'react';
-import { Orbit, Cpu, Droplets, Sparkles, Gauge, Send } from 'lucide-react';
-import { api } from '../api';
+import {
+    Activity,
+    ArrowRightLeft,
+    Boxes,
+    BrainCircuit,
+    Cpu,
+    FileCode2,
+    GitBranch,
+    Music,
+    Orbit,
+    ShieldCheck,
+    Sparkles,
+    Workflow,
+    Wrench,
+} from 'lucide-react';
 
-const AXIS_PRESETS = ['compute', 'memory', 'latency'];
+const DEFAULT_INTENT = `Heady autonomous liquid intelligence: instant, self-healing, self-aware orchestration in 3D vector space with full auditability, continuously learning background agents, and live Ableton collaboration.`;
+
+const HEADYBEES = [
+    'ScoutBee (signal discovery + trend extraction)',
+    'BuilderBee (app connector + template synthesis)',
+    'VerifierBee (quality gates + policy checks)',
+    'ReflexBee (latency guardian + instant fallback)',
+    'ArchivistBee (audit trails + compliance snapshots)',
+];
+
+const HEADYSWARMS = [
+    'Swarm-Genesis (new app/project generation)',
+    'Swarm-Repair (self-healing and incident mitigation)',
+    'Swarm-Learn (background learning + concept adoption)',
+    'Swarm-Flow (liquid workload balancing across Colab nodes)',
+    'Swarm-Stage (live music + Ableton co-creation sessions)',
+];
+
+function compileSystem(intent, maxLatencyMs) {
+    const colabNodes = [
+        { id: 'colab-a', role: 'instant response + router', gpu: 'A100/L4 class', gpuRamGb: 24 },
+        { id: 'colab-b', role: 'builder + verifier swarms', gpu: 'A100/L4 class', gpuRamGb: 24 },
+        { id: 'colab-c', role: 'learning + ableton/live ops', gpu: 'A100/L4 class', gpuRamGb: 24 },
+    ];
+
+    const vectors = [
+        { entity: 'Intent', xyz: [0.95, 0.10, 0.40], note: 'Prioritized by urgency, confidence, and resonance' },
+        { entity: 'Apps/Connectors', xyz: [0.80, 0.55, 0.75], note: 'Generated through template recomposition graph' },
+        { entity: 'Audit Events', xyz: [0.20, 0.90, 0.85], note: 'Immutable append-only compliance chain' },
+        { entity: 'Music Sessions', xyz: [0.70, 0.30, 0.95], note: 'Low-latency co-performance control stream' },
+    ];
+
+    const repoProjection = [
+        'heady-monorepo/',
+        '  orchestration/',
+        '    vector-space/',
+        '    liquid-scheduler/',
+        '    autonomy-kernel/',
+        '  swarms/',
+        '    headybees/templates/',
+        '    headyswarms/presets/',
+        '  compliance/',
+        '    audit-ledger/',
+        '    policy-pack/',
+        '  connectors/',
+        '    app-generators/',
+        '    ableton-live-bridge/',
+        '  projections/',
+        '    runtime-state.json',
+        '    resource-heatmap.json',
+        '    autonomy-score.json',
+    ].join('\n');
+
+    return {
+        intent,
+        maxLatencyMs,
+        colabNodes,
+        totalGpuRam: colabNodes.reduce((acc, n) => acc + n.gpuRamGb, 0),
+        vectors,
+        liquidPolicies: [
+            'No cold starts: keep all critical chains warm via rotating micro-activation.',
+            'Bidirectional event fabric between every Bee and Swarm lane.',
+            'Self-healing replaces/restarts degraded agents in < 2 seconds.',
+            'Background learning merges only if verifier confidence >= 0.92.',
+            'Complexity cap: split modules above threshold into composable micro-capabilities.',
+        ],
+        auditModel: {
+            format: 'append-only vector event ledger',
+            requiredFields: ['eventId', 'vectorId', 'agentId', 'action', 'before', 'after', 'signature', 'timestamp'],
+            retention: 'continuous + immutable snapshots every 60s',
+        },
+        autonomyLoop: [
+            'Sense -> classify -> vectorize -> route to nearest capable swarm',
+            'Generate -> verify -> deploy to liquid runtime',
+            'Observe drift -> self-heal -> re-verify -> update projection',
+            'Learn from outcomes -> promote winning patterns to templates',
+        ],
+        abletonBridge: [
+            'Realtime MIDI + clip-state sync channel',
+            'Performer intent embeddings for adaptive accompaniment',
+            'Safety rails: tempo/key guard + emergency mute fallback',
+        ],
+        repoProjection,
+    };
+}
+
+function Pill({ icon: Icon, text }) {
+    return (
+        <span className="inline-flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-1 text-xs text-violet-200">
+            <Icon className="h-3.5 w-3.5" />
+            {text}
+        </span>
+    );
+}
 
 export default function AppCreationLab() {
-    const [form, setForm] = useState({
-        appName: 'Heady Instant Builder',
-        target: 'heady project + HeadyMe',
-        colabMemberships: 3,
-        gpuCount: 3,
-        gpuRamGb: 120,
-        axisA: AXIS_PRESETS[0],
-        axisB: AXIS_PRESETS[1],
-        axisC: AXIS_PRESETS[2],
-        vecA: 0.92,
-        vecB: 0.9,
-        vecC: 0.95,
-        liquidMode: 'adaptive-liquid',
-    });
-    const [plan, setPlan] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [intent, setIntent] = useState(DEFAULT_INTENT);
+    const [maxLatencyMs, setMaxLatencyMs] = useState(90);
 
-    const onChange = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
-
-    const payload = useMemo(() => ({
-        appName: form.appName,
-        target: form.target,
-        constraints: {
-            colabMemberships: Number(form.colabMemberships),
-            gpuCount: Number(form.gpuCount),
-            gpuRamGb: Number(form.gpuRamGb),
-        },
-        vectorSpace: {
-            axes: [form.axisA, form.axisB, form.axisC],
-            [form.axisA]: Number(form.vecA),
-            [form.axisB]: Number(form.vecB),
-            [form.axisC]: Number(form.vecC),
-        },
-        liquidArchitecture: { mode: form.liquidMode },
-    }), [form]);
-
-    const generatePlan = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const response = await api.createDynamicAppPlan(payload);
-            setPlan(response);
-        } catch (e) {
-            setError(e.message || 'Failed to generate plan');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const system = useMemo(() => compileSystem(intent, maxLatencyMs), [intent, maxLatencyMs]);
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold text-white">Dynamic App Creation Lab</h1>
-                    <p className="text-sm text-slate-400">Autonomous, alive, intelligent, bidirectional system in 3D vector space.</p>
+            <section className="rounded-2xl border border-violet-500/30 bg-slate-900/80 p-6">
+                <h1 className="flex items-center gap-2 text-2xl font-bold text-white">
+                    <Sparkles className="h-6 w-6 text-violet-300" />
+                    Heady Autonomous Liquid System Compiler
+                </h1>
+                <p className="mt-2 text-sm text-slate-300">
+                    A no-endpoint architecture compiler that projects a fully autonomous system design from intent into a 3D vector-space operational blueprint.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                    <Pill icon={Orbit} text="3D Vector Space Native" />
+                    <Pill icon={Cpu} text="3x Colab Pro+ Runtime" />
+                    <Pill icon={ArrowRightLeft} text="Bidirectional Liquid Fabric" />
+                    <Pill icon={ShieldCheck} text="Full Audit Compliance" />
+                    <Pill icon={Music} text="Ableton Live Bridge" />
                 </div>
-            </div>
+            </section>
 
-            <div className="grid lg:grid-cols-2 gap-6">
-                <section className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-4">
-                    <h2 className="text-sm font-semibold text-violet-300 flex items-center gap-2"><Sparkles size={14} /> Inputs</h2>
-                    <input className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm" value={form.appName} onChange={(e) => onChange('appName', e.target.value)} />
-                    <input className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm" value={form.target} onChange={(e) => onChange('target', e.target.value)} />
-                    <div className="grid grid-cols-3 gap-3 text-sm">
-                        <label>Colab+
-                            <input type="number" min="1" max="3" className="w-full mt-1 bg-slate-800 border border-slate-700 rounded px-2 py-1.5" value={form.colabMemberships} onChange={(e) => onChange('colabMemberships', e.target.value)} />
-                        </label>
-                        <label>GPU Count
-                            <input type="number" min="1" max="3" className="w-full mt-1 bg-slate-800 border border-slate-700 rounded px-2 py-1.5" value={form.gpuCount} onChange={(e) => onChange('gpuCount', e.target.value)} />
-                        </label>
-                        <label>GPU RAM GB
-                            <input type="number" min="16" max="320" className="w-full mt-1 bg-slate-800 border border-slate-700 rounded px-2 py-1.5" value={form.gpuRamGb} onChange={(e) => onChange('gpuRamGb', e.target.value)} />
-                        </label>
+            <section className="grid gap-6 xl:grid-cols-3">
+                <div className="space-y-4 rounded-2xl border border-slate-700 bg-slate-900/70 p-5">
+                    <h2 className="text-lg font-semibold text-violet-200">Intent Input</h2>
+                    <label className="block text-sm text-slate-300">
+                        System Intent
+                        <textarea
+                            value={intent}
+                            onChange={(e) => setIntent(e.target.value)}
+                            rows={8}
+                            className="mt-1 w-full rounded border border-slate-700 bg-slate-800 p-2 text-slate-100"
+                        />
+                    </label>
+                    <label className="block text-sm text-slate-300">
+                        Instant Response Target (ms)
+                        <input
+                            type="number"
+                            min="30"
+                            max="500"
+                            value={maxLatencyMs}
+                            onChange={(e) => setMaxLatencyMs(Number(e.target.value) || 90)}
+                            className="mt-1 w-full rounded border border-slate-700 bg-slate-800 p-2 text-slate-100"
+                        />
+                    </label>
+                    <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-200">
+                        Compiler mode uses fixed 3 Colab nodes by design and continuously re-optimizes role allocation without API/backend coupling.
+                    </div>
+                </div>
+
+                <div className="xl:col-span-2 space-y-4 rounded-2xl border border-slate-700 bg-slate-900/70 p-5">
+                    <h2 className="text-lg font-semibold text-emerald-300">Compiled Runtime Blueprint</h2>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><Cpu className="h-4 w-4 text-yellow-300" /> Colab Resource Mesh</h3>
+                            <p className="mt-2 text-xs text-slate-300">Total GPU RAM: {system.totalGpuRam}GB · Target latency ≤ {system.maxLatencyMs}ms</p>
+                            <ul className="mt-2 space-y-1 text-xs text-slate-300">
+                                {system.colabNodes.map((node) => (
+                                    <li key={node.id}><strong>{node.id}</strong> · {node.role} · {node.gpuRamGb}GB</li>
+                                ))}
+                            </ul>
+                        </article>
+
+                        <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><Orbit className="h-4 w-4 text-blue-300" /> Vector Embedding Map</h3>
+                            <ul className="mt-2 space-y-1 text-xs text-slate-300">
+                                {system.vectors.map((row) => (
+                                    <li key={row.entity}><strong>{row.entity}</strong> → [{row.xyz.join(', ')}] · {row.note}</li>
+                                ))}
+                            </ul>
+                        </article>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 text-sm">
-                        {['A', 'B', 'C'].map((letter, i) => {
-                            const axisKey = `axis${letter}`;
-                            const vecKey = `vec${letter}`;
-                            return (
-                                <div key={letter} className="space-y-1">
-                                    <select className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5" value={form[axisKey]} onChange={(e) => onChange(axisKey, e.target.value)}>
-                                        {AXIS_PRESETS.map((axis) => <option key={`${axis}-${i}`} value={axis}>{axis}</option>)}
-                                    </select>
-                                    <input type="number" min="0" max="1" step="0.01" className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5" value={form[vecKey]} onChange={(e) => onChange(vecKey, e.target.value)} />
-                                </div>
-                            );
-                        })}
+                    <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><Workflow className="h-4 w-4 text-fuchsia-300" /> Liquid Autonomy Policies</h3>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-300">
+                            {system.liquidPolicies.map((p) => <li key={p}>{p}</li>)}
+                        </ul>
+                    </article>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><BrainCircuit className="h-4 w-4 text-violet-300" /> HeadyBees Templates</h3>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-300">
+                                {HEADYBEES.map((bee) => <li key={bee}>{bee}</li>)}
+                            </ul>
+                        </article>
+                        <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><Boxes className="h-4 w-4 text-emerald-300" /> HeadySwarm Presets</h3>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-300">
+                                {HEADYSWARMS.map((swarm) => <li key={swarm}>{swarm}</li>)}
+                            </ul>
+                        </article>
                     </div>
 
-                    <input className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm" value={form.liquidMode} onChange={(e) => onChange('liquidMode', e.target.value)} />
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><ShieldCheck className="h-4 w-4 text-green-300" /> Audit + Compliance Chain</h3>
+                            <p className="mt-2 text-xs text-slate-300">Format: {system.auditModel.format}</p>
+                            <p className="mt-1 text-xs text-slate-300">Required fields: {system.auditModel.requiredFields.join(', ')}</p>
+                            <p className="mt-1 text-xs text-slate-300">Retention: {system.auditModel.retention}</p>
+                        </article>
 
-                    <button onClick={generatePlan} disabled={loading} className="w-full py-2.5 rounded-lg bg-gradient-to-r from-yellow-400 to-violet-600 text-white font-medium disabled:opacity-50 flex items-center justify-center gap-2">
-                        <Send size={14} /> {loading ? 'Generating...' : 'Generate Dynamic Plan'}
-                    </button>
-                    {error && <p className="text-red-400 text-sm">{error}</p>}
-                </section>
+                        <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><Music className="h-4 w-4 text-pink-300" /> Ableton Live Runtime Bridge</h3>
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-300">
+                                {system.abletonBridge.map((line) => <li key={line}>{line}</li>)}
+                            </ul>
+                        </article>
+                    </div>
 
-                <section className="rounded-xl border border-slate-700 bg-slate-900/60 p-4 space-y-4">
-                    <h2 className="text-sm font-semibold text-emerald-300 flex items-center gap-2"><Orbit size={14} /> Generated Plan</h2>
-                    {!plan ? <p className="text-slate-400 text-sm">No plan yet. Generate from the left panel.</p> : (
-                        <>
-                            <div className="grid grid-cols-3 gap-2 text-xs">
-                                <div className="bg-slate-800 rounded p-2"><Gauge size={12} className="inline mr-1" />{plan.objectives.responseLatencyTargetMs}ms</div>
-                                <div className="bg-slate-800 rounded p-2"><Cpu size={12} className="inline mr-1" />{plan.objectives.throughputTargetRps} rps</div>
-                                <div className="bg-slate-800 rounded p-2"><Droplets size={12} className="inline mr-1" />{plan.objectives.autonomyScore}</div>
-                            </div>
-                            <pre className="text-xs bg-slate-950 border border-slate-800 rounded p-3 overflow-auto max-h-[420px]">{JSON.stringify(plan, null, 2)}</pre>
-                        </>
-                    )}
-                </section>
-            </div>
+                    <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><Activity className="h-4 w-4 text-orange-300" /> Continuous Learning / Self-Healing Loop</h3>
+                        <ol className="mt-2 list-decimal space-y-1 pl-5 text-xs text-slate-300">
+                            {system.autonomyLoop.map((line) => <li key={line}>{line}</li>)}
+                        </ol>
+                    </article>
+
+                    <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><GitBranch className="h-4 w-4 text-cyan-300" /> Monorepo Source-of-Truth Projection</h3>
+                        <pre className="mt-2 overflow-x-auto whitespace-pre text-xs text-slate-300">{system.repoProjection}</pre>
+                    </article>
+
+                    <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><Wrench className="h-4 w-4 text-slate-300" /> Operational Intent</h3>
+                        <p className="mt-2 whitespace-pre-wrap text-xs text-slate-300">{system.intent}</p>
+                        <p className="mt-2 text-xs text-slate-400">Projection updated continuously from input. This page performs deterministic local compilation only.</p>
+                    </article>
+
+                    <article className="rounded-xl border border-slate-700 bg-slate-950/60 p-4">
+                        <h3 className="flex items-center gap-2 text-sm font-semibold text-white"><FileCode2 className="h-4 w-4 text-indigo-300" /> Suggested Runtime Spec (YAML)</h3>
+                        <pre className="mt-2 overflow-x-auto whitespace-pre text-xs text-slate-300">{`runtime:
+  mode: liquid-autonomous
+  vector_space: 3d
+  colab_nodes: 3
+  latency_target_ms: ${system.maxLatencyMs}
+  modules:
+    - autonomy-kernel
+    - headybees-templates
+    - headyswarms-presets
+    - audit-ledger
+    - ableton-live-bridge
+  behaviors:
+    self_healing: true
+    self_awareness: true
+    continuous_learning: true
+    bidirectional_events: true`}</pre>
+                    </article>
+                </div>
+            </section>
         </div>
     );
 }

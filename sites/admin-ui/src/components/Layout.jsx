@@ -12,7 +12,7 @@ const navItems = [
     { to: '/domains', icon: Globe, label: 'Domains', section: 'core' },
     { to: '/tunnels', icon: Waypoints, label: 'Tunnels', section: 'core' },
     { to: '/ai', icon: Sparkles, label: 'AI Studio', section: 'apps', badge: 'ULTRA' },
-    { to: '/app-creation', icon: Boxes, label: 'App Creation', section: 'apps', badge: 'LIVE' },
+    { to: '/app-lab', icon: Boxes, label: 'App Lab', section: 'apps', badge: 'NEW' },
     { to: '/tasks', icon: ClipboardList, label: 'Task Manager', section: 'apps' },
     { to: '/design', icon: Palette, label: 'Design Config', section: 'apps' },
     { to: '/users', icon: Users, label: 'Users', section: 'admin' },
@@ -183,7 +183,7 @@ export default function Layout() {
                             {currentPage === 'routing' ? 'Routing' :
                                 currentPage === 'tasks' ? 'Task Manager' :
                                     currentPage === 'ai' ? 'AI Studio' :
-                                        currentPage === 'app-creation' ? 'App Creation' :
+                                        currentPage === 'app-lab' ? 'App Lab' :
                                             currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}
                         </span>
                     </div>
