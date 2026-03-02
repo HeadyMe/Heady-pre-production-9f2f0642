@@ -399,6 +399,16 @@ app.get("/api/services/groups", (req, res) => {
 const vectorMemory = require("./src/vector-memory");
 vectorMemory.init();
 
+// ─── Vector Space Internal Operations (Pillar 0: ops live IN vector space) ──
+// Anti-sprawl, security scanning, maintenance, pre-deploy gate — all in 3D
+const { VectorSpaceOps } = require("./src/vector-space-ops");
+const vectorSpaceOps = new VectorSpaceOps(vectorMemory);
+vectorSpaceOps.registerRoutes(app);
+vectorSpaceOps.start();
+logger.logNodeActivity("CONDUCTOR", "  🌐 VectorSpaceOps: ACTIVE (anti-sprawl + security + maintenance — all in 3D vector space)");
+logger.logNodeActivity("CONDUCTOR", "    → Pre-deploy gate: /api/vector-ops/pre-deploy");
+logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/vector-ops/status, /health, /sprawl-check, /security-scan, /compact");
+
 // ─── Self-Awareness Telemetry (loaded EARLY for pipeline + buddy wiring) ────
 let selfAwareness = null;
 try {
