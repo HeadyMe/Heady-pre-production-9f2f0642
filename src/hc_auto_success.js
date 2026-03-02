@@ -48,16 +48,30 @@ const MAX_HISTORY = 2000;
 const MAX_AUDIT = 10000;
 const PHI = (1 + Math.sqrt(5)) / 2;
 
-// Dynamic interval — adapts based on real-time system load
-// Fast when resources plentiful, self-throttles under pressure
-function _dynamicInterval() {
-    const mem = process.memoryUsage();
-    const heapUsed = mem.heapUsed / mem.heapTotal;
-    // Golden ratio scaling: fast (φ*1000 ≈ 1.6s) when idle, slows under load
-    // Never fixed — recalculated every cycle
-    const baseMs = Math.round(PHI * 1000); // ~1618ms baseline
-    return Math.round(baseMs * (1 + heapUsed * PHI)); // Scales with memory pressure
-}
+// ─── EVENT-DRIVEN REACTOR ──────────────────────────────────────────────
+// No cycles, no timers, no intervals.
+// The engine REACTS to system events instantaneously in vector space.
+// Every action is a learning opportunity — utility can shift at any moment.
+const REACTION_TRIGGERS = [
+    'state:changed', 'deploy:started', 'deploy:completed', 'deploy:failed',
+    'health:degraded', 'health:recovered', 'security:alert', 'security:scan',
+    'governance:audit', 'projection:synced', 'projection:stale',
+    'bee:discovered', 'bee:spawned', 'bee:dissolved',
+    'vector:compacted', 'vector:sprawl', 'vector:secured',
+    'template:rendered', 'template:injected',
+    'error:absorbed', 'error:pattern', 'error:resolved',
+    'config:changed', 'config:drift',
+    'brain:routed', 'brain:failover',
+    'pipeline:started', 'pipeline:completed', 'pipeline:failed',
+    'creative:job', 'creative:completed',
+    'trading:signal', 'trading:executed',
+    'buddy:query', 'buddy:response',
+    'registry:updated', 'node:activated', 'node:deactivated',
+    'cache:hit', 'cache:miss', 'cache:evicted',
+    'circuit:tripped', 'circuit:recovered',
+    'resource:pressure', 'resource:released',
+    'auto_success:reaction', 'system:boot', 'system:shutdown',
+];
 
 // Production domains for real health probes
 const PROBE_TARGETS = [
@@ -71,7 +85,7 @@ const PROBE_TARGETS = [
     { name: "headyme.com", url: "https://headyme.com", critical: false },
     { name: "admin", url: "https://admin.headysystems.com", critical: false },
 ];
-// No batch limits — Heady runs ALL tasks dynamically every cycle
+// No batch limits — Heady reacts instantaneously, no cycles, no polling
 
 // ─── POOL PRIORITIES ────────────────────────────────────────────────────────
 const POOL_PRIORITY = { hot: 0, warm: 1, cold: 2 };
@@ -744,15 +758,13 @@ const TASK_CATALOG = [
 class AutoSuccessEngine extends EventEmitter {
     constructor(opts = {}) {
         super();
-        this.interval = opts.interval || DEFAULT_INTERVAL;
         this.running = false;
         this.safeMode = false;
-        this.timer = null;
-        this.cycleCount = 0;
+        this.reactionCount = 0;
         this.totalSucceeded = 0;
         this.startedAt = null;
-        this.lastCycleTs = null;
-        this.taskPointer = 0; // round-robin pointer
+        this.lastReactionTs = null;
+        this._reacting = false; // prevent re-entrant reactions
 
         // Per-task runtime state
         this.taskStates = new Map();
@@ -796,41 +808,50 @@ class AutoSuccessEngine extends EventEmitter {
         rm.on("mitigation:safe_mode_deactivated", () => this.exitSafeMode());
     }
 
-    // ─── LIFECYCLE ──────────────────────────────────────────────────────────
+    // ─── LIFECYCLE — EVENT-DRIVEN, NOT CYCLE-BASED ────────────────────────
+    // No timers, no intervals, no polling.
+    // System events trigger instant reactions in vector space.
+    // Every action is a learning opportunity — utility can shift at any moment.
     start() {
         if (this.running) return;
         this.running = true;
         this.startedAt = Date.now();
-        this.runCycle(); // immediate first cycle
-        // Adaptive scheduling — recalculates interval every cycle based on real-time resources
-        const scheduleNext = () => {
-            if (!this.running) return;
-            const nextInterval = _dynamicInterval();
-            this.timer = setTimeout(() => {
-                this.runCycle();
-                scheduleNext(); // re-schedule with fresh dynamic interval
-            }, nextInterval);
-        };
-        scheduleNext();
+
+        // Wire eventBus listeners — react instantly to ANY system event
+        this._eventBus = this._eventBus || global.eventBus;
+        if (this._eventBus) {
+            for (const trigger of REACTION_TRIGGERS) {
+                this._eventBus.on(trigger, (data) => this.react(trigger, data));
+            }
+            logger.logSystem(`  ∞ AutoSuccess: ${REACTION_TRIGGERS.length} event triggers wired — instantaneous reaction`);
+        }
+
+        // Fire initial reaction to bootstrap state
+        this.react('system:boot', { reason: 'engine-start', ts: Date.now() });
 
         // ═══ AUTO-COMMIT/PUSH/DEPLOY — Permanent pipeline automation ════════
         try {
             const autoCommitDeploy = require("./auto-commit-deploy");
             autoCommitDeploy.start();
-            logger.logSystem("  ∞ AutoCommitDeploy: WIRED — auto-commit/push/deploy cycle active");
+            logger.logSystem("  ∞ AutoCommitDeploy: WIRED — event-driven auto-commit/push/deploy");
         } catch (e) {
             logger.logSystem("  ∞ AutoCommitDeploy: could not start — " + e.message);
         }
 
-        logger.logSystem(`  ∞ AutoSuccess: STARTED (dynamic adaptive cycles, ALL ${TASK_CATALOG.length} tasks/cycle — instantaneous, no fixed interval)`);
+        logger.logSystem(`  ∞ AutoSuccess: STARTED (event-driven reactor, ${TASK_CATALOG.length} tasks, ${REACTION_TRIGGERS.length} triggers — no cycles, no timers)`);
     }
 
     stop() {
         if (!this.running) return;
         this.running = false;
-        if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+        // Remove all event listeners
+        if (this._eventBus) {
+            for (const trigger of REACTION_TRIGGERS) {
+                this._eventBus.removeAllListeners(trigger);
+            }
+        }
         this._saveHistory();
-        logger.logSystem(`  ∞ AutoSuccess: STOPPED after ${this.cycleCount} cycles, ${this.totalSucceeded} tasks succeeded`);
+        logger.logSystem(`  ∞ AutoSuccess: STOPPED after ${this.reactionCount} reactions, ${this.totalSucceeded} tasks succeeded`);
     }
 
     enterSafeMode() {
@@ -843,48 +864,55 @@ class AutoSuccessEngine extends EventEmitter {
         logger.logSystem("  ∞ AutoSuccess: SAFE MODE OFF — resuming full throughput");
     }
 
-    // ─── CYCLE EXECUTION — ALL TASKS, PARALLEL, INSTANTANEOUS ────────────
-    async runCycle() {
-        if (!this.running && this.cycleCount > 0) return; // allow forced first cycle
-        const cycleStart = Date.now();
-        this.cycleCount++;
-        this.lastCycleTs = new Date().toISOString();
+    // ─── EVENT-DRIVEN REACTION — INSTANTANEOUS IN VECTOR SPACE ────────────
+    // No cycles. Triggered by system events. Fires all relevant tasks instantly.
+    // Every reaction is a learning opportunity.
+    async react(trigger = 'manual', eventData = {}) {
+        if (!this.running && this.reactionCount > 0) return;
+        if (this._reacting) return; // prevent re-entrant reactions
+        this._reacting = true;
 
-        // Dynamic: select ALL eligible tasks — no batch limit
+        const reactionStart = Date.now();
+        this.reactionCount++;
+        this.lastReactionTs = new Date().toISOString();
+
+        // Select tasks relevant to this trigger — all tasks fire, learning from everything
         const allTasks = this._selectAll();
 
-        // Fire ALL tasks in parallel — instantaneous, no stepping
+        // Fire ALL tasks in parallel — instantaneous vector space adjustment
         const results = await Promise.all(
-            allTasks.map(task => this._executeTask(task))
+            allTasks.map(task => this._executeTask(task, trigger, eventData))
         );
 
-        const cycleDurationMs = Date.now() - cycleStart;
-        const cycleEvent = {
-            cycle: this.cycleCount, tasksRun: allTasks.length,
-            succeeded: results.length, durationMs: cycleDurationMs,
-            safeMode: this.safeMode, ts: this.lastCycleTs,
+        const reactionDurationMs = Date.now() - reactionStart;
+        const reactionEvent = {
+            trigger, reaction: this.reactionCount, tasksRun: allTasks.length,
+            succeeded: results.length, durationMs: reactionDurationMs,
+            safeMode: this.safeMode, ts: this.lastReactionTs,
+            eventData,
         };
 
-        this.emit("cycle:completed", cycleEvent);
+        this.emit("reaction:completed", reactionEvent);
 
-        // Feed to story driver every 10 cycles
-        if (this._storyDriver && this.cycleCount % 10 === 0) {
+        // Feed to story driver — every reaction is worth narrating
+        if (this._storyDriver) {
             try {
                 this._storyDriver.ingestSystemEvent({
-                    type: "AUTO_SUCCESS_MILESTONE",
-                    refs: { totalCycles: this.cycleCount, totalSucceeded: this.totalSucceeded, cycleDurationMs },
-                    source: "auto_success_engine",
+                    type: "AUTO_SUCCESS_REACTION",
+                    refs: { trigger, totalReactions: this.reactionCount, totalSucceeded: this.totalSucceeded, reactionDurationMs },
+                    source: "auto_success_reactor",
                 });
             } catch { /* story driver may not accept */ }
         }
 
-        // Feed to eventBus
-        if (this._eventBus) {
-            this._eventBus.emit("auto_success:cycle", cycleEvent);
+        // Feed to eventBus — but don't trigger self (prevent infinite loop)
+        if (this._eventBus && trigger !== 'auto_success:reaction') {
+            this._eventBus.emit("auto_success:reaction", reactionEvent);
         }
 
-        // Persist every 5 cycles
-        if (this.cycleCount % 5 === 0) this._saveHistory();
+        // Persist after every reaction — every action matters
+        this._saveHistory();
+        this._reacting = false;
     }
 
     /** Select ALL eligible tasks — no batch limits, fully dynamic.
@@ -918,7 +946,7 @@ class AutoSuccessEngine extends EventEmitter {
             // Record error to audit trail
             this._recordAudit('task_error_absorbed', task.id, {
                 name: task.name, cat: task.cat, error: err.message,
-                cycle: this.cycleCount,
+                reaction: this.reactionCount,
             });
 
             // Feed errors to self-critique
@@ -947,7 +975,7 @@ class AutoSuccessEngine extends EventEmitter {
         const result = {
             taskId: task.id, name: task.name, cat: task.cat, pool: task.pool,
             success: true, durationMs, finding, absorbed,
-            cycle: this.cycleCount, ts: state.lastRunTs,
+            reaction: this.reactionCount, ts: state.lastRunTs,
         };
 
         this.emit("task:succeeded", result);
@@ -955,7 +983,7 @@ class AutoSuccessEngine extends EventEmitter {
         // Record to comprehensive audit trail
         this._recordAudit('task_completed', task.id, {
             name: task.name, cat: task.cat, pool: task.pool,
-            durationMs, finding, absorbed, cycle: this.cycleCount,
+            durationMs, finding, absorbed, reaction: this.reactionCount,
         });
 
         // Feed success to pattern engine
@@ -1007,7 +1035,7 @@ class AutoSuccessEngine extends EventEmitter {
             }
 
             case "monitoring": {
-                const probeTarget = PROBE_TARGETS[this.cycleCount % PROBE_TARGETS.length];
+                const probeTarget = PROBE_TARGETS[this.reactionCount % PROBE_TARGETS.length];
                 try {
                     const controller = new AbortController();
                     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -1146,7 +1174,7 @@ class AutoSuccessEngine extends EventEmitter {
 
             case "intelligence": {
                 const vectorCount = global.__vectorMemory ? (global.__vectorMemory.count || 0) : 0;
-                return { finding: `Intelligence: vectors=${vectorCount}, heap ${heapUsedMB}MB, cycle #${this.cycleCount} — ${task.name}` };
+                return { finding: `Intelligence: vectors=${vectorCount}, heap ${heapUsedMB}MB, cycle #${this.reactionCount} — ${task.name}` };
             }
 
             case "ui": {
@@ -1200,11 +1228,11 @@ class AutoSuccessEngine extends EventEmitter {
                 const docsDir = path.join(__dirname, "..", "docs");
                 let docCount = 0;
                 try { if (fs.existsSync(docsDir)) docCount = fs.readdirSync(docsDir).length; } catch { /* ok */ }
-                return { finding: `Research: ${docCount} doc artifacts, cycle #${this.cycleCount} — ${task.name}` };
+                return { finding: `Research: ${docCount} doc artifacts, cycle #${this.reactionCount} — ${task.name}` };
             }
 
             case "output-format": {
-                return { finding: `OutputFormat: SSE+JSON pipelines active, cycle #${this.cycleCount} — ${task.name}` };
+                return { finding: `OutputFormat: SSE+JSON pipelines active, cycle #${this.reactionCount} — ${task.name}` };
             }
 
             case "presentation": {
@@ -1227,11 +1255,11 @@ class AutoSuccessEngine extends EventEmitter {
 
             case "edge-routing": {
                 const edgeUrl = process.env.HEADY_EDGE_PROXY_URL || 'configured';
-                return { finding: `EdgeRouting: proxy=${edgeUrl !== 'configured' ? 'CUSTOM' : 'DEFAULT'}, cycle #${this.cycleCount} — ${task.name}` };
+                return { finding: `EdgeRouting: proxy=${edgeUrl !== 'configured' ? 'CUSTOM' : 'DEFAULT'}, cycle #${this.reactionCount} — ${task.name}` };
             }
 
             case "pqc-security": {
-                return { finding: `PQC: post-quantum readiness check, cycle #${this.cycleCount}, uptime ${uptimeSec}s — ${task.name}` };
+                return { finding: `PQC: post-quantum readiness check, cycle #${this.reactionCount}, uptime ${uptimeSec}s — ${task.name}` };
             }
 
             case "mesh-resiliency": {
@@ -1252,11 +1280,11 @@ class AutoSuccessEngine extends EventEmitter {
             }
 
             case "vision": {
-                return { finding: `Vision: creative pipeline wired, cycle #${this.cycleCount} — ${task.name}` };
+                return { finding: `Vision: creative pipeline wired, cycle #${this.reactionCount} — ${task.name}` };
             }
 
             case "mission": {
-                return { finding: `Mission: all systems nominal, ORS 100%, cycles ${this.cycleCount}, succeeded ${this.totalSucceeded} — ${task.name}` };
+                return { finding: `Mission: all systems nominal, ORS 100%, cycles ${this.reactionCount}, succeeded ${this.totalSucceeded} — ${task.name}` };
             }
 
             case "development": {
@@ -1275,7 +1303,7 @@ class AutoSuccessEngine extends EventEmitter {
         if (!this._auditTrail) this._auditTrail = this._loadAudit();
         const entry = {
             id: `audit-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            action, target, cycle: this.cycleCount,
+            action, target, cycle: this.reactionCount,
             ts: new Date().toISOString(), ...data,
         };
         this._auditTrail.push(entry);
@@ -1334,12 +1362,12 @@ class AutoSuccessEngine extends EventEmitter {
         return {
             engine: "heady-auto-success",
             running: this.running, safeMode: this.safeMode,
-            cycleCount: this.cycleCount,
+            cycleCount: this.reactionCount,
             totalTasks: TASK_CATALOG.length,
             totalSucceeded: this.totalSucceeded,
             successRate: "100%", ors: 100.0,
             intervalMs: this.interval, mode: "dynamic-all-tasks",
-            lastCycleTs: this.lastCycleTs,
+            lastReactionTs: this.lastReactionTs,
             uptime: this.startedAt ? Math.floor((Date.now() - this.startedAt) / 1000) : 0,
             categories, ts: new Date().toISOString(),
         };
@@ -1350,7 +1378,7 @@ class AutoSuccessEngine extends EventEmitter {
             status: this.running ? "ACTIVE" : "STOPPED",
             service: "heady-auto-success",
             mode: "always-on", ors: 100.0, successRate: "100%",
-            cycleCount: this.cycleCount,
+            cycleCount: this.reactionCount,
             totalSucceeded: this.totalSucceeded,
             catalogSize: TASK_CATALOG.length,
             safeMode: this.safeMode,
@@ -1406,10 +1434,10 @@ class AutoSuccessEngine extends EventEmitter {
         return {
             engine: "heady-auto-success",
             running: this.running, safeMode: this.safeMode,
-            cycleCount: this.cycleCount, totalSucceeded: this.totalSucceeded,
+            cycleCount: this.reactionCount, totalSucceeded: this.totalSucceeded,
             ors: 100.0, catalogSize: TASK_CATALOG.length,
             byPool, byCat,
-            lastCycleTs: this.lastCycleTs,
+            lastReactionTs: this.lastReactionTs,
         };
     }
 
@@ -1473,17 +1501,17 @@ function registerAutoSuccessRoutes(app, engine) {
             ok: true,
             engine: "heady-auto-success",
             running: engine.running,
-            cycleCount: engine.cycleCount,
+            reactionCount: engine.reactionCount,
             totalSucceeded: engine.totalSucceeded,
             audit,
             ts: new Date().toISOString(),
         });
     });
 
-    router.post("/force-cycle", async (req, res) => {
+    router.post("/force-react", async (req, res) => {
         try {
-            await engine.runCycle();
-            res.json({ ok: true, message: "Forced cycle completed", cycleCount: engine.cycleCount, totalSucceeded: engine.totalSucceeded, ts: new Date().toISOString() });
+            await engine.react('manual:forced', { source: 'api' });
+            res.json({ ok: true, message: "Forced reaction completed", reactionCount: engine.reactionCount, totalSucceeded: engine.totalSucceeded, ts: new Date().toISOString() });
         } catch (err) {
             res.status(500).json({ ok: false, error: err.message });
         }
@@ -1502,4 +1530,4 @@ function registerAutoSuccessRoutes(app, engine) {
     app.use("/api/auto-success", router);
 }
 
-module.exports = { AutoSuccessEngine, registerAutoSuccessRoutes, TASK_CATALOG };
+module.exports = { AutoSuccessEngine, registerAutoSuccessRoutes, TASK_CATALOG, REACTION_TRIGGERS };

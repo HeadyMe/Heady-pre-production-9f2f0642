@@ -383,9 +383,17 @@ class VectorSpaceOps {
         this.preDeployValidator = new PreDeployValidator(
             vectorMemory, this.antiSprawl, this.security, this.maintenance
         );
+
+        // Auto-success reactor — lives INSIDE vector space, not outside it
+        // Event-driven: reacts instantly to system events, no cycles, no timers
+        this.autoSuccess = null;
+        try {
+            const { AutoSuccessEngine } = require('./hc_auto_success');
+            this.autoSuccess = new AutoSuccessEngine();
+        } catch { /* auto-success not available yet */ }
+
         this._intervals = [];
         this.started = false;
-        this.cycleCount = 0;
     }
 
     /**
