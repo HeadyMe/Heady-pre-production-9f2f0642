@@ -185,11 +185,15 @@ class HeadyGateway {
     }
 
     // ─── Race All Providers ─────────────────────────────────────────
+    // Returns the fastest response immediately, but ALL responses are
+    // preserved in vector memory as determinism proof. If 5 providers
+    // agree, that's high-confidence consensus — never throw this away.
 
     async _raceProviders(providers, message, opts, raceId) {
         let responded = false;
         let winner = null;
         const allResults = [];
+        const allResponses = []; // ← NEW: preserve ALL full responses
         const audit = { raceId, ts: new Date().toISOString(), providers: providers.map(p => p.name), results: [] };
 
         const promises = providers.map(p => {
@@ -209,11 +213,22 @@ class HeadyGateway {
                     };
                     allResults.push(entry);
 
+                    // Preserve FULL response for determinism proof
+                    allResponses.push({
+                        provider: p.name,
+                        engine: p.serviceGroup,
+                        model: result.model,
+                        response: result.response,
+                        latency,
+                        isWinner: false, // updated below if this is the winner
+                    });
+
                     // Only accept non-empty responses as race winners
                     if (!responded && result.response && result.response.trim().length > 0) {
                         responded = true;
                         winner = { ...entry, response: result.response, _provider: p };
                         audit.winner = entry;
+                        allResponses[allResponses.length - 1].isWinner = true;
                     } else {
                         // Late response — log it
                         entry.isLate = true;
@@ -256,11 +271,16 @@ class HeadyGateway {
             setTimeout(() => resolve(), 30000);
         });
 
-        // Continue capturing late responses in background
+        // Continue capturing ALL responses in background — then persist for determinism
         Promise.allSettled(promises).then(() => {
             audit.results = allResults;
             audit.totalLatency = Date.now() - Date.parse(audit.ts);
+            audit.allResponseCount = allResponses.length;
             this._appendAudit(audit);
+
+            // ═══ DETERMINISM PROOF — Store ALL responses in vector memory ═══
+            // Every provider response is evidence. Consensus = determinism.
+            this._storeDeterminismEvidence(raceId, message, allResponses).catch(() => { });
         });
 
         if (winner) {
@@ -268,10 +288,57 @@ class HeadyGateway {
             return {
                 ok: true, response: winner.response, engine: winner.engine,
                 model: winner.model, _provider: winner._provider,
+                _allResponses: allResponses, // expose for deep-research consumption
             };
         }
 
         return { ok: false, error: "all-providers-failed", audit };
+    }
+
+    /**
+     * Store ALL race responses in vector memory as determinism evidence.
+     * If 3+ providers agree, confidence is very high. Divergence is signal too.
+     */
+    async _storeDeterminismEvidence(raceId, question, allResponses) {
+        if (!this._vectorMemory?.ingestMemory) return;
+        const successResponses = allResponses.filter(r => r.response && r.response.length > 0);
+        if (successResponses.length < 2) return; // need at least 2 for consensus
+
+        const evidenceEntry = {
+            content: question.substring(0, 2000),
+            metadata: {
+                type: "determinism_evidence",
+                raceId,
+                providerCount: successResponses.length,
+                providers: successResponses.map(r => r.provider),
+                responses: successResponses.map(r => ({
+                    provider: r.provider,
+                    model: r.model,
+                    latency: r.latency,
+                    isWinner: r.isWinner,
+                    response: (r.response || "").substring(0, 3000),
+                    responseLength: (r.response || "").length,
+                })),
+                timestamp: new Date().toISOString(),
+                consensus: {
+                    total: successResponses.length,
+                    // Basic length-based agreement scoring — deeper NLP comparison in future
+                    avgLength: Math.round(successResponses.reduce((s, r) => s + (r.response || "").length, 0) / successResponses.length),
+                    lengthVariance: Math.round(this._variance(successResponses.map(r => (r.response || "").length))),
+                },
+            },
+        };
+
+        try {
+            await this._vectorMemory.ingestMemory(evidenceEntry);
+        } catch { /* best-effort persistence */ }
+    }
+
+    /** Calculate variance for consensus scoring */
+    _variance(values) {
+        if (values.length === 0) return 0;
+        const mean = values.reduce((s, v) => s + v, 0) / values.length;
+        return values.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / values.length;
     }
 
     // ─── Sequential Routing (only when explicitly requested) ───────

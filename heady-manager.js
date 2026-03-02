@@ -586,6 +586,54 @@ watchdog.on("memory-alert", (data) => {
 });
 logger.logNodeActivity("CONDUCTOR", "  🐕 Buddy Watchdog: ACTIVE (health probes + hallucination detection)");
 
+// ─── DEEP RESEARCH ENGINE — Multi-Provider Fan-Out ──────────────────
+let deepResearch = null;
+try {
+  const { DeepResearchEngine } = require("./src/deep-research");
+  const HeadyGateway = require("./heady-hive-sdk/lib/gateway");
+  const gateway = new HeadyGateway();
+  deepResearch = new DeepResearchEngine(gateway);
+
+  app.post("/api/buddy/deep-research", async (req, res) => {
+    try {
+      const { query, providers, depth, maxWaitMs } = req.body || {};
+      if (!query) return res.status(400).json({ ok: false, error: "query is required" });
+      const result = await deepResearch.research(query, { providers, depth, maxWaitMs });
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ ok: false, error: err.message });
+    }
+  });
+
+  app.get("/api/buddy/deep-research/stats", (req, res) => {
+    res.json({ ok: true, ...deepResearch.getStats() });
+  });
+
+  // Wire deep research into Buddy as an MCP tool
+  buddy.registerMCPTool("deep_research", {
+    description: "Multi-provider deep research with consensus scoring",
+    category: "research",
+    inputSchema: { type: "object", properties: { query: { type: "string" }, depth: { type: "string" } }, required: ["query"] },
+    handler: async (input) => deepResearch.research(input.query, { depth: input.depth || "deep" }),
+  });
+
+  logger.logNodeActivity("CONDUCTOR", `  🔬 Deep Research Engine: WIRED (${Object.keys(require("./src/deep-research").DEEP_MODES).length} providers)`);
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Deep Research not loaded: ${err.message}`);
+}
+
+// ─── CROSS-DEVICE SYNC HUB — Buddy Everywhere ──────────────────────
+let syncHub = null;
+try {
+  const { CrossDeviceSyncHub } = require("./src/cross-device-sync");
+  syncHub = new CrossDeviceSyncHub();
+  syncHub.registerRoutes(app);
+  syncHub.attachToServer(server);
+  logger.logNodeActivity("CONDUCTOR", "  🔗 Cross-Device Sync Hub: ACTIVE (ws://0.0.0.0:" + PORT + "/ws/sync)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Cross-Device Sync not loaded: ${err.message}`);
+}
+
 // ─── Structured Telemetry API ───────────────────────────────────────
 app.get("/api/telemetry/recent", (req, res) => {
   const limit = parseInt(req.query.limit) || 50;
@@ -1306,6 +1354,8 @@ redisPool.init().then(() => {
     logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Core Node:${c.reset}    ${c.green}Online (PID: ${process.pid})${c.reset}`);
     logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Gateway:${c.reset}      ${c.bold}${c.cyan}http://0.0.0.0:${PORT}${c.reset}`);
     logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Voice Relay:${c.reset}  ${c.purple}ws://0.0.0.0:${PORT}/ws/voice/:sessionId${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Device Sync:${c.reset}  ${c.purple}ws://0.0.0.0:${PORT}/ws/sync${c.reset}`);
+    logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Deep Research:${c.reset}${c.blue} /api/buddy/deep-research${c.reset}`);
     logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}API Docs:${c.reset}     ${c.blue}http://0.0.0.0:${PORT}/api-docs${c.reset}`);
     logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}│${c.reset}  ${c.dim}Health/Pulse:${c.reset} ${c.green}/api/health | /api/pulse${c.reset}`);
     logger.logNodeActivity("CONDUCTOR", `${c.bold}${c.purple}╰────────────────────────────────────────────────────────╯${c.reset}\n`);
