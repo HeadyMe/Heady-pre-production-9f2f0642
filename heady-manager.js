@@ -622,6 +622,17 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ Deep Research not loaded: ${err.message}`);
 }
 
+// ─── VECTOR-SERVE — Deploy UIs from Vector Space ────────────────────
+let vectorServe = null;
+try {
+  const { VectorServe } = require("./src/vector-serve");
+  vectorServe = new VectorServe(vectorMemory, logger);
+  vectorServe.wireRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", `  🌐 Vector-Serve: WIRED (deploy from vector space)`);
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Vector-Serve not loaded: ${err.message}`);
+}
+
 // ─── CROSS-DEVICE SYNC HUB — Buddy Everywhere ──────────────────────
 let syncHub = null;
 try {
