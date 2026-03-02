@@ -4,5 +4,6 @@ The latent operating system core — tensor-native logic replacing conditional b
 """
 from .engine import VSAStateMachine, VSACodebook
 from .memory import AssociativeMemory
+from .swarm import HeadySwarm
 
-__all__ = ['VSAStateMachine', 'VSACodebook', 'AssociativeMemory']
+__all__ = ['VSAStateMachine', 'VSACodebook', 'AssociativeMemory', 'HeadySwarm']
