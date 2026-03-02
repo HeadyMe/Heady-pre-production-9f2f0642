@@ -1,0 +1,19 @@
+# Remote Resources Configuration
+# Defines external service dependencies and their health check settings
+services:
+  cloud-run:
+    url: https://heady-manager-609590223909.us-central1.run.app
+    critical: true
+    timeout: 5000
+  cloudflare:
+    url: https://heady-edge-proxy.headysystems.workers.dev
+    critical: false
+    timeout: 3000
+  hf-spaces:
+    url: https://huggingface.co/spaces/HeadyMe/heady-ai
+    critical: false
+    timeout: 5000
+  headyme:
+    url: https://headyme.com
+    critical: true
+    timeout: 5000

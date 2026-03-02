@@ -71,8 +71,10 @@ const compression = require("compression");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
-// Load remote resources config
-const remoteConfig = yaml.load(fs.readFileSync('./configs/remote-resources.yaml', 'utf8'));
+// Load remote resources config (graceful — don't crash if missing)
+let remoteConfig = { services: {} };
+try { remoteConfig = yaml.load(fs.readFileSync('./configs/remote-resources.yaml', 'utf8')) || remoteConfig; }
+catch { /* remote-resources.yaml not found — using defaults */ }
 
 // Handle remote resources
 function checkRemoteService(service) {
