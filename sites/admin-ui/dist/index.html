@@ -10,1604 +10,1071 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css">
-    <!-- Firebase Auth -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <style>
-        /* ─── Auth Provider Buttons ─── */
-        .auth-providers {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 16px;
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-card-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(255, 255, 255, 0.12);
+            --text-primary: #e8e8ed;
+            --text-secondary: #8888a0;
+            --text-muted: #55556a;
+            --accent: #6c5ce7;
+            --accent-glow: rgba(108, 92, 231, 0.3);
+            --green: #00d68f;
+            --green-glow: rgba(0, 214, 143, 0.15);
+            --red: #ff4757;
+            --red-glow: rgba(255, 71, 87, 0.15);
+            --yellow: #ffa502;
+            --yellow-glow: rgba(255, 165, 2, 0.15);
+            --blue: #48dbfb;
+            --blue-glow: rgba(72, 219, 251, 0.15);
         }
 
-        .btn-auth {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: .88rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, .12);
-            transition: all .25s ease;
-            font-family: 'Inter', sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .btn-auth:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, .3);
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .btn-google {
-            background: #fff;
-            color: #333;
-        }
-
-        .btn-google:hover {
-            background: #f5f5f5;
-        }
-
-        .btn-github {
-            background: #24292e;
-            color: #fff;
-        }
-
-        .btn-github:hover {
-            background: #2f363d;
-        }
-
-        .btn-microsoft {
-            background: #2f2f2f;
-            color: #fff;
-        }
-
-        .btn-microsoft:hover {
-            background: #3a3a3a;
-        }
-
-        .btn-apple {
-            background: #000;
-            color: #fff;
-        }
-
-        .btn-apple:hover {
-            background: #1a1a1a;
-        }
-
-        .btn-twitter {
-            background: #0f1419;
-            color: #fff;
-        }
-
-        .btn-twitter:hover {
-            background: #1a2028;
-        }
-
-        .btn-facebook {
-            background: #1877f2;
-            color: #fff;
-        }
-
-        .btn-facebook:hover {
-            background: #166fe5;
-        }
-
-        .btn-amazon {
-            background: #ff9900;
-            color: #111;
-        }
-
-        .btn-amazon:hover {
-            background: #e88b00;
-        }
-
-        .btn-instagram {
-            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
-            color: #fff;
-        }
-
-        .btn-instagram:hover {
-            filter: brightness(1.1);
-        }
-
-        .btn-email {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            color: #fff;
-            border: none;
-        }
-
-        .btn-email:hover {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 16px 0;
-            color: rgba(255, 255, 255, .4);
-            font-size: .78rem;
-        }
-
-        .divider::before,
-        .divider::after {
+        /* ─── Background Effects ─── */
+        body::before {
             content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255, 255, 255, .1);
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 20% 50%, rgba(108, 92, 231, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(72, 219, 251, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(0, 214, 143, 0.03) 0%, transparent 50%);
+            animation: bgDrift 30s ease-in-out infinite alternate;
+            z-index: 0;
         }
 
-        .email-form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        @keyframes bgDrift {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-3%, -2%) rotate(2deg);
+            }
         }
 
-        .email-form input {
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, .12);
-            background: rgba(255, 255, 255, .06);
-            color: #fff;
-            font-size: .88rem;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            transition: border-color .2s;
-        }
-
-        .email-form input:focus {
-            border-color: #7c3aed;
-        }
-
-        .email-form input::placeholder {
-            color: rgba(255, 255, 255, .35);
-        }
-
-        .auth-toggle {
-            text-align: center;
-            font-size: .78rem;
-            color: rgba(255, 255, 255, .45);
-            margin-top: 14px;
-        }
-
-        .auth-toggle a {
-            color: #a78bfa;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .auth-toggle a:hover {
-            text-decoration: underline;
-        }
-
-        .modal {
+        /* ─── Auth Screen ─── */
+        #auth-screen {
             position: fixed;
             inset: 0;
-            z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 0, 0, .7);
-            backdrop-filter: blur(8px);
+            z-index: 100;
+            background: var(--bg-primary);
         }
 
-        .modal-glass {
-            background: rgba(12, 12, 34, .95);
-            border: 1px solid rgba(124, 58, 237, .2);
+        .auth-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 32px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-        }
-
-        .modal-header {
+            padding: 48px 40px;
+            width: 400px;
+            max-width: 90vw;
             text-align: center;
-            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
         }
 
-        .modal-header h2 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 4px;
+        .auth-card h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
         }
 
-        .modal-header .subtle {
-            font-size: .82rem;
-            color: rgba(255, 255, 255, .45);
+        .auth-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 28px;
         }
 
-        .logo-glow {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 16px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #7c3aed, #06b6d4);
+        .auth-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .auth-input:focus {
+            border-color: var(--accent);
+        }
+
+        .auth-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), #7c6cf0);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s;
+            margin-top: 6px;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .auth-error {
+            color: var(--red);
+            font-size: 0.8rem;
+            margin-top: 12px;
+            display: none;
+        }
+
+        /* ─── Layout ─── */
+        #app {
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 30px rgba(124, 58, 237, .3);
-            color: #fff;
+            justify-content: space-between;
+            padding: 16px 28px;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .topbar-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .btn-sm:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            border-right: 1px solid var(--border);
+            padding: 20px 0;
+            background: rgba(18, 18, 26, 0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 24px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            background: rgba(108, 92, 231, 0.08);
+            border-left-color: var(--accent);
+        }
+
+        .nav-section {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            padding: 18px 24px 8px;
+            font-weight: 600;
+        }
+
+        /* ─── Content ─── */
+        .content {
+            padding: 28px 32px;
+            overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* ─── Cards ─── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .status-dot.green {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+        }
+
+        .status-dot.red {
+            background: var(--red);
+            box-shadow: 0 0 8px var(--red);
+        }
+
+        .status-dot.yellow {
+            background: var(--yellow);
+            box-shadow: 0 0 8px var(--yellow);
+        }
+
+        .status-dot.blue {
+            background: var(--blue);
+            box-shadow: 0 0 8px var(--blue);
+        }
+
+        /* ─── Section Headers ─── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .section-sub {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* ─── Tables ─── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 18px;
+            text-align: left;
+            font-size: 0.82rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table th {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .data-table td {
+            color: var(--text-secondary);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: var(--bg-card-hover);
+        }
+
+        /* ─── Chat Panel ─── */
+        .chat-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .chat-msg {
+            margin-bottom: 16px;
+            max-width: 85%;
+        }
+
+        .chat-msg.user {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .chat-msg .bubble {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .chat-msg.user .bubble {
+            background: linear-gradient(135deg, var(--accent), #7c6cf0);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg.bot .bubble {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+        }
+
+        .chat-msg .meta {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 10px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent);
+        }
+
+        .chat-send {
+            padding: 12px 22px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .chat-send:hover {
+            background: #7c6cf0;
+        }
+
+        .chat-send:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ─── Log Viewer ─── */
+        .log-viewer {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.75rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .log-line {
+            padding: 2px 0;
+        }
+
+        .log-line .ts {
+            color: var(--text-muted);
+        }
+
+        .log-line .lvl-ok {
+            color: var(--green);
+        }
+
+        .log-line .lvl-warn {
+            color: var(--yellow);
+        }
+
+        .log-line .lvl-err {
+            color: var(--red);
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .content {
+                padding: 20px 16px;
+            }
+        }
+
+        /* ─── Loading ─── */
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: var(--green-glow);
+            color: var(--green);
+        }
+
+        .badge-red {
+            background: var(--red-glow);
+            color: var(--red);
+        }
+
+        .badge-yellow {
+            background: var(--yellow-glow);
+            color: var(--yellow);
+        }
+
+        .badge-blue {
+            background: var(--blue-glow);
+            color: var(--blue);
         }
     </style>
 </head>
 
 <body>
-    <!-- Auth Modal -->
-    <div id="authModal" class="modal" style="display:none">
-        <div class="modal-glass">
-            <div class="modal-header">
-                <div class="logo-glow">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                        stroke-linecap="square" style="width:60%; height:60%;">
-                        <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon>
-                        <line x1="12" y1="22" x2="12" y2="12"></line>
-                        <line x1="22" y1="8.5" x2="12" y2="12"></line>
-                        <line x1="2" y1="8.5" x2="12" y2="12"></line>
-                    </svg>
-                </div>
-                <h2>Welcome to Heady</h2>
-                <p class="subtle">Sign in to access your command center</p>
-            </div>
-            <div class="auth-providers">
-                <!-- Google -->
-                <button id="googleSignIn" class="btn-auth btn-google">
-                    <svg width="18" height="18" viewBox="0 0 18 18">
-                        <path fill="#4285F4"
-                            d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" />
-                        <path fill="#34A853"
-                            d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" />
-                        <path fill="#FBBC05"
-                            d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" />
-                        <path fill="#EA4335"
-                            d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" />
-                    </svg>
-                    Continue with Google
-                </button>
-                <!-- GitHub -->
-                <button id="githubSignIn" class="btn-auth btn-github">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                    </svg>
-                    Continue with GitHub
-                </button>
-                <!-- Microsoft -->
-                <button id="microsoftSignIn" class="btn-auth btn-microsoft">
-                    <svg width="18" height="18" viewBox="0 0 21 21">
-                        <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-                        <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-                        <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-                    </svg>
-                    Continue with Microsoft
-                </button>
-                <!-- Apple -->
-                <button id="appleSignIn" class="btn-auth btn-apple">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                    </svg>
-                    Continue with Apple
-                </button>
-                <!-- X / Twitter -->
-                <button id="twitterSignIn" class="btn-auth btn-twitter">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                    Continue with X
-                </button>
-                <!-- Facebook -->
-                <button id="facebookSignIn" class="btn-auth btn-facebook">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                    </svg>
-                    Continue with Facebook
-                </button>
-                <!-- Amazon -->
-                <button id="amazonSignIn" class="btn-auth btn-amazon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M.045 18.02c.072-.116.187-.124.348-.064 2.729 1.64 5.711 2.473 8.955 2.473 2.185 0 4.354-.43 6.492-1.2a35.5 35.5 0 002.86-1.318c.197-.11.378-.09.543.158 .165.241.108.428-.158.588-.65.39-1.404.79-2.262 1.2-2.308 1.1-4.737 1.65-7.287 1.65-3.572 0-6.69-.98-9.35-2.94-.17-.13-.197-.27-.14-.547zm22.56-2.61c-.26-.33-.694-.48-1.314-.458l-2.07.09c-.278.024-.33.164-.162.41.477.7.795 1.44.962 2.21.06.28.01.47-.158.57-.16.09-.43.01-.81-.25-.38-.26-.73-.57-1.04-.93-.14-.16-.26-.31-.37-.46-.35-.5-.72-.98-1.12-1.44-.51-.58-1.05-1-1.62-1.25-.23-.1-.42-.1-.58 0-.15.1-.18.28-.08.54.32.83.6 1.7.85 2.6.08.28.04.44-.12.5-.15.06-.38-.01-.68-.2l-.55-.35c-1.28-.84-2.51-1.38-3.7-1.6-.23-.04-.38.02-.48.18-.09.16-.06.35.08.58.89 1.43 2.05 2.43 3.49 3.02.1.04.2.08.32.12-.03.06-.08.1-.16.12-.43.08-.88.08-1.35.01-.47-.06-.92-.23-1.35-.49a3.25 3.25 0 01-.16-.11c-.14-.11-.3-.1-.47.04-.16.13-.19.29-.08.48.98 1.58 2.32 2.57 4.03 2.98.09.02.17.04.26.05-.05.06-.13.08-.22.1-.66.12-1.33.08-2-.12-1.07-.32-1.91-.94-2.52-1.86-.05-.08-.13-.12-.22-.12-.1 0-.17.05-.21.15-.04.1-.02.2.06.32.79 1.25 1.88 2.05 3.27 2.42.25.07.51.11.78.13-.32.08-.65.13-.98.17-.33.04-.67.04-1 0-.33-.04-.65-.12-.97-.24-.14-.05-.24-.03-.3.06-.06.1-.03.19.09.28 1.1.75 2.31 1.1 3.63 1.05 1.32-.05 2.5-.5 3.52-1.35.1-.08.16-.18.16-.3a.26.26 0 00-.12-.22z" />
-                    </svg>
-                    Continue with Amazon
-                </button>
-                <!-- Instagram -->
-                <button id="instagramSignIn" class="btn-auth btn-instagram">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                    </svg>
-                    Continue with Instagram
-                </button>
-            </div>
-            <div class="divider"><span>or sign in with email</span></div>
-            <form id="emailForm" class="email-form">
-                <input type="email" id="emailInput" placeholder="Email address" required>
-                <input type="password" id="passInput" placeholder="Password" required>
-                <button type="submit" class="btn-auth btn-email">Sign In</button>
-            </form>
-            <p class="auth-toggle">Don't have an account? <a href="#" id="toggleSignUp">Sign up</a></p>
+
+    <!-- ═══ Auth Screen ═══ -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <h1>⚡ Heady Admin</h1>
+            <p>Enter manager endpoint & API key to connect</p>
+            <input class="auth-input" id="auth-endpoint" type="url" placeholder="https://manager.headysystems.com"
+                value="https://manager.headysystems.com">
+            <input class="auth-input" id="auth-key" type="password" placeholder="API Key (HEADY_API_KEY)">
+            <button class="auth-btn" id="auth-submit" onclick="doLogin()">Connect</button>
+            <div class="auth-error" id="auth-error"></div>
         </div>
     </div>
 
-    <!-- Main App -->
-    <div id="app" class="app-layout">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="sidebar-logo">
-                <div class="logo-mark">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                        stroke-linecap="square" style="width:60%; height:60%;">
-                        <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon>
-                        <line x1="12" y1="22" x2="12" y2="12"></line>
-                        <line x1="22" y1="8.5" x2="12" y2="12"></line>
-                        <line x1="2" y1="8.5" x2="12" y2="12"></line>
-                    </svg>
-                </div>
-                <span class="logo-text">Heady</span>
+    <!-- ═══ App ═══ -->
+    <div id="app">
+        <div class="topbar">
+            <div class="topbar-left">
+                <div class="topbar-logo">⚡ Heady Admin</div>
+                <div class="topbar-status" id="connection-status">Connecting...</div>
             </div>
-            <ul class="nav-items">
-                <li class="nav-item active" data-page="dashboard">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7" rx="1" />
-                        <rect x="14" y="3" width="7" height="7" rx="1" />
-                        <rect x="3" y="14" width="7" height="7" rx="1" />
-                        <rect x="14" y="14" width="7" height="7" rx="1" />
-                    </svg>
-                    <span>Dashboard</span>
-                </li>
-                <li class="nav-item" data-page="services">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3" />
-                        <path
-                            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-                    </svg>
-                    <span>Services</span>
-                </li>
-                <li class="nav-item" data-page="memory">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                        <path d="M2 17l10 5 10-5" />
-                        <path d="M2 12l10 5 10-5" />
-                    </svg>
-                    <span>Memory</span>
-                </li>
-                <li class="nav-item" data-page="agents">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 00-3-3.87" />
-                        <path d="M16 3.13a4 4 0 010 7.75" />
-                    </svg>
-                    <span>Agents</span>
-                </li>
-                <li class="nav-item" data-page="gateway">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-                    </svg>
-                    <span>Gateway</span>
-                </li>
-                <li class="nav-item" data-page="connectors">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                        <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
-                    </svg>
-                    <span>Connectors</span>
-                </li>
-                <li class="nav-item" data-page="settings">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3" />
-                        <path
-                            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                    </svg>
-                    <span>Settings</span>
-                </li>
-            </ul>
-            <div class="sidebar-user" id="sidebarUser">
-                <div class="user-avatar" id="userAvatar">?</div>
-                <div class="user-info">
-                    <span class="user-name" id="userName">Not signed in</span>
-                    <span class="user-role">Admin</span>
-                </div>
+            <div class="topbar-right">
+                <button class="btn-sm" onclick="refreshAll()">↻ Refresh</button>
+                <button class="btn-sm" onclick="logout()">Logout</button>
             </div>
-        </nav>
+        </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Top Bar -->
-            <header class="topbar">
-                <div class="topbar-left">
-                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
-                    <span class="live-badge"><span class="pulse"></span> Live</span>
-                </div>
-                <div class="topbar-right">
-                    <div class="search-box">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8" />
-                            <path d="M21 21l-4.35-4.35" />
-                        </svg>
-                        <input type="text" placeholder="Search services, memory, agents..." id="searchInput">
-                    </div>
-                    <button class="btn-icon" id="notifBtn" title="Notifications">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                            <path d="M13.73 21a2 2 0 01-3.46 0" />
-                        </svg>
-                        <span class="notif-dot"></span>
-                    </button>
-                    <button class="btn-icon" id="toggleBuddy" title="HeadyBuddy">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                        </svg>
-                    </button>
-                    <button class="btn-icon" id="authBtn" title="Account">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                        </svg>
-                    </button>
-                </div>
-            </header>
+        <div class="main">
+            <nav class="sidebar">
+                <div class="nav-section">Overview</div>
+                <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">📊 Dashboard</div>
+                <div class="nav-item" data-page="health" onclick="showPage('health')">💚 Health</div>
 
-            <!-- Dashboard Page -->
-            <section id="page-dashboard" class="page active">
-                <div class="stats-grid">
-                    <div class="stat-card gradient-blue">
-                        <div class="stat-icon">⚡</div>
-                        <div class="stat-body">
-                            <span class="stat-value" id="statRequests">0</span>
-                            <span class="stat-label">Gateway Requests</span>
+                <div class="nav-section">Intelligence</div>
+                <div class="nav-item" data-page="chat" onclick="showPage('chat')">🧠 Brain Chat</div>
+                <div class="nav-item" data-page="vectors" onclick="showPage('vectors')">🌐 Vector Memory</div>
+
+                <div class="nav-section">System</div>
+                <div class="nav-item" data-page="telemetry" onclick="showPage('telemetry')">📈 Telemetry</div>
+                <div class="nav-item" data-page="endpoints" onclick="showPage('endpoints')">🔌 Endpoints</div>
+                <div class="nav-item" data-page="logs" onclick="showPage('logs')">📋 Logs</div>
+            </nav>
+
+            <div class="content">
+                <!-- ─── Dashboard ─── -->
+                <div class="page active" id="page-dashboard">
+                    <div class="section-header">
+                        <div>
+                            <div class="section-title">System Dashboard</div>
+                            <div class="section-sub" id="dash-timestamp"></div>
                         </div>
                     </div>
-                    <div class="stat-card gradient-purple">
-                        <div class="stat-icon">🧠</div>
-                        <div class="stat-body">
-                            <span class="stat-value" id="statMemories">0</span>
-                            <span class="stat-label">Memories Stored</span>
-                        </div>
+                    <div class="cards-grid" id="dash-cards"></div>
+                    <div class="section-header">
+                        <div class="section-title">Services</div>
                     </div>
-                    <div class="stat-card gradient-green">
-                        <div class="stat-icon">🏆</div>
-                        <div class="stat-body">
-                            <span class="stat-value" id="statCacheHits">0</span>
-                            <span class="stat-label">Cache Hits</span>
-                        </div>
+                    <table class="data-table" id="services-table">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Status</th>
+                                <th>Latency</th>
+                            </tr>
+                        </thead>
+                        <tbody id="services-tbody"></tbody>
+                    </table>
+                </div>
+
+                <!-- ─── Health ─── -->
+                <div class="page" id="page-health">
+                    <div class="section-header">
+                        <div class="section-title">Health Checks</div>
                     </div>
-                    <div class="stat-card gradient-amber">
-                        <div class="stat-icon">🌐</div>
-                        <div class="stat-body">
-                            <span class="stat-value" id="statProviders">0</span>
-                            <span class="stat-label">Active Providers</span>
-                        </div>
+                    <div class="cards-grid" id="health-cards"></div>
+                    <div class="section-header">
+                        <div class="section-title">Full Status</div>
                     </div>
+                    <div class="log-viewer" id="health-full"></div>
                 </div>
 
-                <!-- Services Health Grid -->
-                <div class="section-header">
-                    <h2>Service Health</h2>
-                    <button class="btn-refresh" id="refreshHealth">↻ Refresh</button>
-                </div>
-                <div class="services-grid" id="servicesGrid">
-                    <div class="service-card loading">
-                        <div class="shimmer"></div>
-                    </div>
-                    <div class="service-card loading">
-                        <div class="shimmer"></div>
-                    </div>
-                    <div class="service-card loading">
-                        <div class="shimmer"></div>
-                    </div>
-                </div>
-
-                <!-- Race Audit -->
-                <div class="section-header">
-                    <h2>Recent Races</h2>
-                </div>
-                <div class="race-log" id="raceLog">
-                    <div class="race-entry loading">
-                        <div class="shimmer"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Memory Page -->
-            <section id="page-memory" class="page">
-                <div class="section-header">
-                    <h2>3D Vector Memory</h2>
-                    <div class="memory-stats">
-                        <span id="memTotal">0 memories</span> · <span id="memOctants">0 octants</span>
-                    </div>
-                </div>
-                <div class="memory-search">
-                    <input type="text" placeholder="Search memory semantically..." id="memorySearch">
-                    <button class="btn-primary" id="memSearchBtn">Query</button>
-                </div>
-                <div class="memory-results" id="memoryResults"></div>
-                <div class="section-header">
-                    <h2>Ingest New Memory</h2>
-                </div>
-                <textarea id="memoryIngest" placeholder="Enter content to store in memory..." rows="4"></textarea>
-                <button class="btn-primary" id="memIngestBtn">Store in Memory</button>
-            </section>
-
-            <!-- Services Page -->
-            <section id="page-services" class="page">
-                <div class="section-header">
-                    <h2>All Services</h2>
-                </div>
-                <div class="services-full-grid" id="servicesFullGrid"></div>
-            </section>
-
-            <!-- Agents Page -->
-            <section id="page-agents" class="page">
-                <div class="section-header">
-                    <h2>AI Agents</h2>
-                </div>
-                <div class="agents-grid" id="agentsGrid"></div>
-            </section>
-
-            <!-- Gateway Page -->
-            <section id="page-gateway" class="page">
-                <div class="section-header">
-                    <h2>SDK Gateway</h2>
-                </div>
-                <div class="gateway-info" id="gatewayInfo"></div>
-            </section>
-
-            <!-- Connectors Page -->
-            <section id="page-connectors" class="page">
-                <div class="section-header">
-                    <h2>🔌 Connect Your Services</h2>
-                    <p style="color:rgba(255,255,255,.5);font-size:.85rem;margin-top:4px;">Grant Heady access to manage
-                        your accounts — each provider requests only the permissions you approve</p>
-                </div>
-                <div class="connectors-grid" id="connectorsGrid"
-                    style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:20px;">
-                </div>
-            </section>
-
-            <!-- Settings / Data & Persistence Page -->
-            <section id="page-settings" class="page">
-                <div class="section-header">
-                    <h2>⚙️ Settings</h2>
-                </div>
-
-                <!-- ═══ Persistence Model Selection ═══ -->
-                <div style="margin-top:20px;">
-                    <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:6px;">🔐 Data Persistence
-                        Model</h3>
-                    <p style="color:rgba(255,255,255,.5);font-size:.82rem;margin-bottom:18px;">Choose how Heady stores
-                        your data. You own your data — always. Heady structures persistence around security, trust, and
-                        sovereignty regardless of which model you choose.</p>
-
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"
-                        id="persistenceGrid">
-
-                        <!-- Local Persistence -->
-                        <div class="persistence-card" data-model="local">
-                            <div class="persistence-header">
-                                <div class="persistence-icon"
-                                    style="background:linear-gradient(135deg,#10b981,#059669);">💻</div>
-                                <div>
-                                    <h4>Local Persistence</h4>
-                                    <span class="persistence-badge"
-                                        style="background:rgba(16,185,129,.15);color:#10b981;">Maximum Privacy</span>
-                                </div>
-                                <input type="radio" name="persistenceModel" value="local" class="persistence-radio" />
-                            </div>
-                            <p class="persistence-desc">All data stays on your device. Nothing leaves your machine —
-                                zero cloud dependency.</p>
-                            <ul class="persistence-features">
-                                <li>✅ <strong>Data never leaves your device</strong> — fully air-gapped capable</li>
-                                <li>✅ <strong>Zero third-party access</strong> — no cloud servers involved</li>
-                                <li>✅ <strong>Instant access</strong> — no network latency</li>
-                                <li>✅ <strong>HIPAA/SOC2 friendly</strong> — data at rest only on your hardware</li>
-                                <li>⚠️ Data lost if device is damaged (back up separately)</li>
-                                <li>⚠️ No cross-device sync</li>
-                            </ul>
-                            <div class="trust-section">
-                                <h5>🛡️ Security Model</h5>
-                                <p>Encrypted at rest using device-level AES-256. Heady stores data using IndexedDB with
-                                    an encrypted wrapper — keys derived from your local auth credential. No telemetry,
-                                    no phone-home, no cloud sync.</p>
+                <!-- ─── Brain Chat ─── -->
+                <div class="page" id="page-chat">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="chat-msg bot">
+                                <div class="bubble">HeadyBrain ready. Ask anything about the Heady ecosystem.</div>
                             </div>
                         </div>
-
-                        <!-- Hybrid Persistence -->
-                        <div class="persistence-card selected" data-model="hybrid">
-                            <div class="persistence-header">
-                                <div class="persistence-icon"
-                                    style="background:linear-gradient(135deg,#7c3aed,#06b6d4);">🔄</div>
-                                <div>
-                                    <h4>Hybrid Persistence</h4>
-                                    <span class="persistence-badge"
-                                        style="background:rgba(124,58,237,.15);color:#a78bfa;">Recommended</span>
-                                </div>
-                                <input type="radio" name="persistenceModel" value="hybrid" class="persistence-radio"
-                                    checked />
-                            </div>
-                            <p class="persistence-desc">Local + Cloud liquid nodes work together. Hot data lives
-                                on-device; cold data syncs to encrypted cloud vaults.</p>
-                            <ul class="persistence-features">
-                                <li>✅ <strong>Local-first</strong> — works offline, syncs when connected</li>
-                                <li>✅ <strong>Cross-device sync</strong> — access your data from anywhere</li>
-                                <li>✅ <strong>Liquid node topology</strong> — data flows to nearest edge node</li>
-                                <li>✅ <strong>End-to-end encrypted sync</strong> — cloud sees only ciphertext</li>
-                                <li>✅ <strong>Selective sync</strong> — choose what goes to cloud vs stays local</li>
-                                <li>✅ <strong>Auto-backup</strong> — cloud backup protects against device loss</li>
-                            </ul>
-                            <div class="trust-section">
-                                <h5>🛡️ Security Model</h5>
-                                <p>Client-side encryption before any data leaves your device. Cloud nodes store only
-                                    encrypted blobs — Heady servers <strong>cannot decrypt your data.</strong> Keys are
-                                    derived from your passphrase using Argon2id and never transmitted. Liquid nodes use
-                                    zero-knowledge proofs to verify integrity without viewing contents.</p>
-                            </div>
-                        </div>
-
-                        <!-- Cloud Persistence -->
-                        <div class="persistence-card" data-model="cloud">
-                            <div class="persistence-header">
-                                <div class="persistence-icon"
-                                    style="background:linear-gradient(135deg,#06b6d4,#0284c7);">☁️</div>
-                                <div>
-                                    <h4>Cloud Persistence</h4>
-                                    <span class="persistence-badge"
-                                        style="background:rgba(6,182,212,.15);color:#06b6d4;">Maximum Access</span>
-                                </div>
-                                <input type="radio" name="persistenceModel" value="cloud" class="persistence-radio" />
-                            </div>
-                            <p class="persistence-desc">All data stored in Heady's encrypted cloud infrastructure.
-                                Access from any device, any time — zero local storage needed.</p>
-                            <ul class="persistence-features">
-                                <li>✅ <strong>Access anywhere</strong> — any device, any browser</li>
-                                <li>✅ <strong>Automatic backups</strong> — geo-redundant across 3 regions</li>
-                                <li>✅ <strong>Real-time collaboration</strong> — share workspaces with team</li>
-                                <li>✅ <strong>No local storage required</strong> — perfect for thin clients</li>
-                                <li>✅ <strong>Managed infrastructure</strong> — automatic scaling and updates</li>
-                                <li>⚠️ Requires internet connection for all operations</li>
-                            </ul>
-                            <div class="trust-section">
-                                <h5>🛡️ Security Model</h5>
-                                <p>AES-256-GCM encryption at rest, TLS 1.3 in transit. Data stored in SOC2 Type II
-                                    certified infrastructure. Optional customer-managed encryption keys (CMEK) for
-                                    enterprise — you hold the master key, we hold the ciphertext. GDPR/CCPA compliant
-                                    with data residency options.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button class="btn-save-persistence" id="savePersistence"
-                        style="margin-top:16px;padding:12px 28px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:'Inter',sans-serif;">Save
-                        Persistence Settings</button>
-                </div>
-
-                <!-- ═══ Data Sovereignty ═══ -->
-                <div style="margin-top:36px;">
-                    <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:6px;">🌍 Data Sovereignty &
-                        Trust</h3>
-                    <div
-                        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:14px;">
-                        <div class="sovereignty-card">
-                            <div class="sov-icon">🔑</div>
-                            <h5>You Own Your Keys</h5>
-                            <p>Encryption keys are derived from your credentials and never stored on Heady servers. In
-                                hybrid and cloud modes, we use zero-knowledge architecture — we literally cannot read
-                                your data.</p>
-                        </div>
-                        <div class="sovereignty-card">
-                            <div class="sov-icon">🗑️</div>
-                            <h5>Right to Deletion</h5>
-                            <p>Request full data deletion at any time. All data — local caches, cloud backups, vector
-                                embeddings, and audit logs — is purged within 24 hours across all regions.</p>
-                        </div>
-                        <div class="sovereignty-card">
-                            <div class="sov-icon">📦</div>
-                            <h5>Full Data Export</h5>
-                            <p>Export everything in standard formats (JSON, CSV, Markdown). Your data is portable — take
-                                it to any platform, any time. No vendor lock-in.</p>
-                        </div>
-                        <div class="sovereignty-card">
-                            <div class="sov-icon">🔍</div>
-                            <h5>Audit Trail</h5>
-                            <p>Complete transparency on who accessed what, when. Every data operation is logged and
-                                available in your security dashboard. Zero hidden operations.</p>
-                        </div>
-                        <div class="sovereignty-card">
-                            <div class="sov-icon">🏛️</div>
-                            <h5>Compliance Ready</h5>
-                            <p>GDPR, CCPA, HIPAA, SOC2 Type II, ISO 27001 aligned. Data residency options for EU, US,
-                                APAC. Government assistance plan users get equal sovereignty protections.</p>
-                        </div>
-                        <div class="sovereignty-card">
-                            <div class="sov-icon">🤖</div>
-                            <h5>AI Training Opt-Out</h5>
-                            <p>Your data is <strong>never</strong> used to train AI models. Period. Not ours, not
-                                third-party. Your content remains your intellectual property.</p>
+                        <div class="chat-input-row">
+                            <input class="chat-input" id="chat-input" placeholder="Ask HeadyBrain..."
+                                onkeydown="if(event.key==='Enter')sendChat()">
+                            <button class="chat-send" id="chat-send" onclick="sendChat()">Send</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- ═══ Filesystem Access ═══ -->
-                <div style="margin-top:36px;">
-                    <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:6px;">📂 Local Filesystem
-                        Access</h3>
-                    <p style="color:rgba(255,255,255,.5);font-size:.82rem;margin-bottom:14px;">Grant Heady access to a
-                        folder on your device. Heady can organize files, create content, manage code repos, and sync
-                        media directly on your filesystem.</p>
-
-                    <div class="fs-access-panel" id="fsAccessPanel">
-                        <div class="fs-access-card">
-                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-                                <div
-                                    style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">
-                                    📁</div>
-                                <div>
-                                    <h4 style="font-size:.95rem;font-weight:700;color:#fff;">Grant Folder Access</h4>
-                                    <p style="font-size:.78rem;color:rgba(255,255,255,.45);">Heady gets read/write to
-                                        the folder you choose — nothing else</p>
-                                </div>
-                            </div>
-                            <ul
-                                style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:rgba(255,255,255,.6);">
-                                <li style="padding:4px 0;">🔒 <strong>Sandboxed</strong> — access only to the folder you
-                                    explicitly grant</li>
-                                <li style="padding:4px 0;">👁️ <strong>Transparent</strong> — every file operation is
-                                    logged in your audit trail</li>
-                                <li style="padding:4px 0;">⏹️ <strong>Revocable</strong> — remove access instantly at
-                                    any time</li>
-                                <li style="padding:4px 0;">🔐 <strong>No silent modifications</strong> — Heady asks
-                                    before destructive operations</li>
-                            </ul>
-                            <button class="btn-fs-access" id="grantFolderAccess">📂 Choose Folder & Grant
-                                Access</button>
-                            <div id="grantedFolders" style="margin-top:12px;"></div>
-                        </div>
+                <!-- ─── Vector Memory ─── -->
+                <div class="page" id="page-vectors">
+                    <div class="section-header">
+                        <div class="section-title">Vector Memory (3D Spatial Storage)</div>
                     </div>
+                    <div class="cards-grid" id="vector-cards"></div>
+                    <div class="section-header">
+                        <div class="section-title">Recent Vectors</div>
+                    </div>
+                    <div class="log-viewer" id="vector-data"></div>
                 </div>
 
-                <div class="settings-content" id="settingsContent"></div>
-            </section>
-        </main>
-
-        <!-- HeadyBuddy Chat Panel -->
-        <aside class="buddy-panel" id="buddyPanel">
-            <div class="buddy-header">
-                <div class="buddy-title">
-                    <div class="buddy-avatar">🧠</div>
-                    <div>
-                        <h3>HeadyBuddy</h3>
-                        <span class="buddy-status">Connected to Brain</span>
+                <!-- ─── Telemetry ─── -->
+                <div class="page" id="page-telemetry">
+                    <div class="section-header">
+                        <div class="section-title">Telemetry</div>
                     </div>
+                    <div class="cards-grid" id="telemetry-cards"></div>
+                    <div class="section-header">
+                        <div class="section-title">Recent Events</div>
+                    </div>
+                    <div class="log-viewer" id="telemetry-log"></div>
                 </div>
-                <button class="btn-icon btn-close-buddy" id="closeBuddy">✕</button>
-            </div>
-            <div class="buddy-messages" id="buddyMessages">
-                <div class="msg msg-buddy">
-                    <div class="msg-content">Hey! I'm HeadyBuddy, your AI assistant. I can help you manage services,
-                        query memory, run diagnostics, or just chat. What's on your mind?</div>
+
+                <!-- ─── Endpoints ─── -->
+                <div class="page" id="page-endpoints">
+                    <div class="section-header">
+                        <div class="section-title">API Endpoints</div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Path</th>
+                                <th>Method</th>
+                                <th>Test</th>
+                            </tr>
+                        </thead>
+                        <tbody id="endpoints-tbody"></tbody>
+                    </table>
+                </div>
+
+                <!-- ─── Logs ─── -->
+                <div class="page" id="page-logs">
+                    <div class="section-header">
+                        <div class="section-title">System Introspection</div>
+                        <button class="btn-sm" onclick="loadLogs()">↻ Refresh</button>
+                    </div>
+                    <div class="log-viewer" id="system-logs"></div>
                 </div>
             </div>
-            <div class="buddy-input">
-                <button class="btn-voice" id="voiceBtn" title="Voice dictation">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
-                        <path d="M19 10v2a7 7 0 01-14 0v-2" />
-                        <line x1="12" y1="19" x2="12" y2="23" />
-                        <line x1="8" y1="23" x2="16" y2="23" />
-                    </svg>
-                </button>
-                <input type="text" id="buddyInput" placeholder="Ask HeadyBuddy anything...">
-                <button class="btn-send" id="buddySend">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="22" y1="2" x2="11" y2="13" />
-                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                    </svg>
-                </button>
-            </div>
-        </aside>
+        </div>
     </div>
 
-    <script src="js/admin.js"></script>
-    <style>
-        /* ─── Connector Wizard Styles ─── */
-        .connector-category {
-            margin-bottom: 28px;
-        }
-
-        .connector-category h3 {
-            font-size: .95rem;
-            font-weight: 700;
-            color: rgba(255, 255, 255, .6);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
-            padding-left: 4px;
-        }
-
-        .connector-card {
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-radius: 14px;
-            padding: 20px;
-            transition: all .3s ease;
-        }
-
-        .connector-card:hover {
-            border-color: rgba(124, 58, 237, .3);
-            background: rgba(255, 255, 255, .06);
-        }
-
-        .connector-card.connected {
-            border-color: rgba(16, 185, 129, .4);
-            background: rgba(16, 185, 129, .04);
-        }
-
-        .connector-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .connector-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: #fff;
-        }
-
-        .connector-card-header h4 {
-            font-size: .95rem;
-            font-weight: 700;
-            color: #fff;
-            flex: 1;
-        }
-
-        .connector-status {
-            font-size: .7rem;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 20px;
-        }
-
-        .connector-status.active {
-            background: rgba(16, 185, 129, .15);
-            color: #10b981;
-        }
-
-        .connector-status.inactive {
-            background: rgba(255, 255, 255, .06);
-            color: rgba(255, 255, 255, .35);
-        }
-
-        .connector-services {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 14px;
-        }
-
-        .svc-toggle {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background .2s;
-            font-size: .82rem;
-            color: rgba(255, 255, 255, .7);
-        }
-
-        .svc-toggle:hover {
-            background: rgba(255, 255, 255, .06);
-        }
-
-        .svc-toggle input[type="checkbox"] {
-            accent-color: #7c3aed;
-            width: 16px;
-            height: 16px;
-        }
-
-        .svc-toggle .svc-icon {
-            font-size: .9rem;
-        }
-
-        .svc-toggle .svc-label {
-            font-weight: 600;
-            color: rgba(255, 255, 255, .85);
-        }
-
-        .svc-toggle .svc-desc {
-            font-size: .75rem;
-            color: rgba(255, 255, 255, .4);
-            margin-left: auto;
-            max-width: 180px;
-            text-align: right;
-        }
-
-        .btn-connect {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: .82rem;
-            cursor: pointer;
-            transition: all .25s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .btn-connect.connect {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            color: #fff;
-        }
-
-        .btn-connect.connect:hover {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            transform: translateY(-1px);
-        }
-
-        .btn-connect.disconnect {
-            background: rgba(239, 68, 68, .12);
-            color: #ef4444;
-        }
-
-        .btn-connect.disconnect:hover {
-            background: rgba(239, 68, 68, .2);
-        }
-
-        .custom-connector-card {
-            border: 2px dashed rgba(124, 58, 237, .3);
-            background: rgba(124, 58, 237, .04);
-        }
-
-        .custom-connector-card:hover {
-            border-color: rgba(124, 58, 237, .5);
-        }
-
-        .custom-form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .custom-form input,
-        .custom-form textarea {
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, .1);
-            background: rgba(255, 255, 255, .05);
-            color: #fff;
-            font-size: .82rem;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-        }
-
-        .custom-form input:focus,
-        .custom-form textarea:focus {
-            border-color: #7c3aed;
-        }
-
-        .custom-form textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .onboarding-cta {
-            margin-top: 32px;
-            text-align: center;
-            padding: 24px;
-            background: linear-gradient(135deg, rgba(124, 58, 237, .08), rgba(6, 182, 212, .08));
-            border: 1px solid rgba(124, 58, 237, .15);
-            border-radius: 16px;
-        }
-
-        .onboarding-cta h3 {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-
-        .onboarding-cta p {
-            font-size: .82rem;
-            color: rgba(255, 255, 255, .5);
-            margin-bottom: 14px;
-        }
-
-        .btn-onboard {
-            padding: 12px 32px;
-            background: linear-gradient(135deg, #06b6d4, #7c3aed);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: .9rem;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            transition: all .3s;
-        }
-
-        .btn-onboard:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(124, 58, 237, .3);
-        }
-
-        .connector-filter {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        .filter-chip {
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, .1);
-            background: rgba(255, 255, 255, .04);
-            color: rgba(255, 255, 255, .6);
-            font-size: .78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .filter-chip:hover,
-        .filter-chip.active {
-            background: rgba(124, 58, 237, .15);
-            border-color: rgba(124, 58, 237, .3);
-            color: #a78bfa;
-        }
-
-        /* ─── Persistence Cards ─── */
-        .persistence-card {
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-radius: 16px;
-            padding: 22px;
-            transition: all .3s;
-            cursor: pointer;
-        }
-
-        .persistence-card:hover {
-            border-color: rgba(124, 58, 237, .25);
-            background: rgba(255, 255, 255, .06);
-        }
-
-        .persistence-card.selected {
-            border-color: rgba(124, 58, 237, .5);
-            background: rgba(124, 58, 237, .06);
-            box-shadow: 0 0 24px rgba(124, 58, 237, .1);
-        }
-
-        .persistence-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .persistence-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        .persistence-header h4 {
-            font-size: .95rem;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .persistence-badge {
-            font-size: .68rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 2px;
-        }
-
-        .persistence-radio {
-            width: 18px;
-            height: 18px;
-            accent-color: #7c3aed;
-            margin-left: auto;
-            cursor: pointer;
-        }
-
-        .persistence-desc {
-            font-size: .82rem;
-            color: rgba(255, 255, 255, .55);
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-
-        .persistence-features {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 14px;
-        }
-
-        .persistence-features li {
-            padding: 3px 0;
-            font-size: .8rem;
-            color: rgba(255, 255, 255, .6);
-        }
-
-        .persistence-features li strong {
-            color: rgba(255, 255, 255, .85);
-        }
-
-        .trust-section {
-            border-top: 1px solid rgba(255, 255, 255, .06);
-            padding-top: 12px;
-            margin-top: 4px;
-        }
-
-        .trust-section h5 {
-            font-size: .82rem;
-            font-weight: 700;
-            color: #a78bfa;
-            margin-bottom: 6px;
-        }
-
-        .trust-section p {
-            font-size: .78rem;
-            color: rgba(255, 255, 255, .45);
-            line-height: 1.5;
-        }
-
-        /* ─── Sovereignty Cards ─── */
-        .sovereignty-card {
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-radius: 14px;
-            padding: 18px;
-            transition: all .3s;
-        }
-
-        .sovereignty-card:hover {
-            border-color: rgba(6, 182, 212, .25);
-            background: rgba(255, 255, 255, .06);
-        }
-
-        .sovereignty-card .sov-icon {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-        }
-
-        .sovereignty-card h5 {
-            font-size: .88rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-
-        .sovereignty-card p {
-            font-size: .78rem;
-            color: rgba(255, 255, 255, .5);
-            line-height: 1.5;
-        }
-
-        /* ─── Filesystem Access ─── */
-        .fs-access-card {
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-radius: 14px;
-            padding: 20px;
-            max-width: 520px;
-        }
-
-        .btn-fs-access {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: .88rem;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            transition: all .25s;
-        }
-
-        .btn-fs-access:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(245, 158, 11, .3);
-        }
-
-        .granted-folder {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 12px;
-            background: rgba(16, 185, 129, .06);
-            border: 1px solid rgba(16, 185, 129, .2);
-            border-radius: 8px;
-            margin-top: 8px;
-        }
-
-        .granted-folder .folder-path {
-            flex: 1;
-            font-size: .82rem;
-            font-weight: 600;
-            color: #10b981;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .granted-folder .btn-revoke {
-            background: rgba(239, 68, 68, .1);
-            color: #ef4444;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: .75rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-    </style>
     <script>
-        // ─── Persistence & Filesystem Settings ───
-        (function () {
-            document.addEventListener('DOMContentLoaded', function () {
-                // Persistence card selection
-                document.querySelectorAll('.persistence-card').forEach(function (card) {
-                    card.addEventListener('click', function () {
-                        document.querySelectorAll('.persistence-card').forEach(function (c) { c.classList.remove('selected'); });
-                        card.classList.add('selected');
-                        var radio = card.querySelector('.persistence-radio');
-                        if (radio) radio.checked = true;
-                    });
-                });
+        // ═══ State ═══
+        let API = '';
+        let API_KEY = '';
 
-                // Save persistence
-                var saveBtn = document.getElementById('savePersistence');
-                if (saveBtn) {
-                    saveBtn.addEventListener('click', function () {
-                        var model = document.querySelector('input[name="persistenceModel"]:checked');
-                        if (model) {
-                            var labels = { local: 'Local Persistence', hybrid: 'Hybrid Persistence', cloud: 'Cloud Persistence' };
-                            localStorage.setItem('heady_persistence_model', model.value);
-                            alert('✅ Persistence model saved: ' + labels[model.value] + '\n\nYour data will be managed according to the ' + model.value + ' model. All security guarantees apply immediately.');
-                        }
-                    });
-                }
+        // ═══ Auth ═══
+        function doLogin() {
+            API = document.getElementById('auth-endpoint').value.replace(/\/+$/, '');
+            API_KEY = document.getElementById('auth-key').value;
+            const errEl = document.getElementById('auth-error');
+            errEl.style.display = 'none';
 
-                // Load saved persistence
-                var saved = localStorage.getItem('heady_persistence_model');
-                if (saved) {
-                    document.querySelectorAll('.persistence-card').forEach(function (c) { c.classList.remove('selected'); });
-                    var target = document.querySelector('.persistence-card[data-model="' + saved + '"]');
-                    if (target) {
-                        target.classList.add('selected');
-                        var radio = target.querySelector('.persistence-radio');
-                        if (radio) radio.checked = true;
+            document.getElementById('auth-submit').textContent = 'Connecting...';
+            document.getElementById('auth-submit').disabled = true;
+
+            apiFetch('/api/health')
+                .then(data => {
+                    if (data && data.status === 'ok') {
+                        localStorage.setItem('heady_endpoint', API);
+                        localStorage.setItem('heady_key', API_KEY);
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('app').style.display = 'block';
+                        refreshAll();
+                    } else {
+                        throw new Error(data?.error || 'Unexpected response');
                     }
-                }
+                })
+                .catch(err => {
+                    errEl.textContent = 'Connection failed: ' + err.message;
+                    errEl.style.display = 'block';
+                })
+                .finally(() => {
+                    document.getElementById('auth-submit').textContent = 'Connect';
+                    document.getElementById('auth-submit').disabled = false;
+                });
+        }
 
-                // Filesystem access — File System Access API
-                var grantBtn = document.getElementById('grantFolderAccess');
-                var grantedDiv = document.getElementById('grantedFolders');
-                var grantedFolders = JSON.parse(localStorage.getItem('heady_granted_folders') || '[]');
+        function logout() {
+            localStorage.removeItem('heady_endpoint');
+            localStorage.removeItem('heady_key');
+            location.reload();
+        }
 
-                function renderGranted() {
-                    if (!grantedDiv) return;
-                    grantedDiv.innerHTML = '';
-                    grantedFolders.forEach(function (f, i) {
-                        var el = document.createElement('div');
-                        el.className = 'granted-folder';
-                        el.innerHTML = '<span>📁</span><span class="folder-path">' + f.name + '</span><span style="font-size:.7rem;color:rgba(255,255,255,.35);">' + f.date + '</span><button class="btn-revoke" data-idx="' + i + '">Revoke</button>';
-                        grantedDiv.appendChild(el);
-                    });
-                    grantedDiv.querySelectorAll('.btn-revoke').forEach(function (btn) {
-                        btn.addEventListener('click', function () {
-                            grantedFolders.splice(parseInt(btn.dataset.idx), 1);
-                            localStorage.setItem('heady_granted_folders', JSON.stringify(grantedFolders));
-                            renderGranted();
-                        });
-                    });
-                }
-                renderGranted();
-
-                if (grantBtn) {
-                    grantBtn.addEventListener('click', async function () {
-                        if (window.showDirectoryPicker) {
-                            try {
-                                var handle = await window.showDirectoryPicker({ mode: 'readwrite' });
-                                grantedFolders.push({ name: handle.name, date: new Date().toLocaleDateString() });
-                                localStorage.setItem('heady_granted_folders', JSON.stringify(grantedFolders));
-                                renderGranted();
-                                alert('✅ Access granted to: ' + handle.name + '\n\nHeady now has read/write access to this folder.\n\n🔒 Access is sandboxed — only this folder is accessible.\n👁️ All operations are logged in your audit trail.\n⏹️ You can revoke access at any time.');
-                            } catch (err) {
-                                if (err.name !== 'AbortError') alert('Folder access failed: ' + err.message);
-                            }
-                        } else {
-                            alert('📂 File System Access API not supported in this browser.\n\nFor filesystem access, use:\n• Chrome 86+\n• Edge 86+\n• Opera 72+\n\nAlternatively, install the Heady Desktop App for full filesystem integration.');
-                        }
-                    });
-                }
-            });
+        // Auto-login from localStorage
+        (function autoLogin() {
+            const ep = localStorage.getItem('heady_endpoint');
+            const key = localStorage.getItem('heady_key');
+            if (ep && key) {
+                document.getElementById('auth-endpoint').value = ep;
+                document.getElementById('auth-key').value = key;
+                doLogin();
+            }
         })();
-    </script>
-    <script>
-        // ═══ Multi-Provider Auth + Connector Wizard + Onboarding Flow ═══
-        (function () {
-            // ── Auth Handlers ──
-            function signInWithProvider(pid) {
-                if (!window.firebase || !firebase.auth) return;
-                var p;
-                switch (pid) {
-                    case 'google': p = new firebase.auth.GoogleAuthProvider(); break;
-                    case 'github': p = new firebase.auth.GithubAuthProvider(); break;
-                    case 'microsoft': p = new firebase.auth.OAuthProvider('microsoft.com'); break;
-                    case 'apple': p = new firebase.auth.OAuthProvider('apple.com'); break;
-                    case 'twitter': p = new firebase.auth.TwitterAuthProvider(); break;
-                    case 'facebook': p = new firebase.auth.FacebookAuthProvider(); break;
-                    case 'amazon': p = new firebase.auth.OAuthProvider('amazon.com'); break;
-                    case 'instagram': p = new firebase.auth.FacebookAuthProvider(); p.addScope('instagram_basic'); break;
-                    default: return;
-                }
-                firebase.auth().signInWithPopup(p).then(function (result) {
-                    // First-time user → navigate to connectors page
-                    if (result.additionalUserInfo && result.additionalUserInfo.isNewUser) {
-                        navigateToPage('connectors');
-                    }
-                }).catch(function (err) {
-                    console.error('Auth error:', err.code, err.message);
-                    alert('Sign-in failed: ' + err.message);
-                });
+
+        // ═══ API Helper ═══
+        async function apiFetch(path, opts = {}) {
+            const url = API + path;
+            const headers = { 'Content-Type': 'application/json' };
+            if (API_KEY) headers['Authorization'] = 'Bearer ' + API_KEY;
+            if (API_KEY) headers['x-heady-api-key'] = API_KEY;
+
+            try {
+                const r = await fetch(url, { ...opts, headers, mode: 'cors', signal: AbortSignal.timeout(15000) });
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return await r.json();
+            } catch (e) {
+                console.warn(`API ${path}: ${e.message}`);
+                return { error: e.message };
+            }
+        }
+
+        // ═══ Navigation ═══
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const page = document.getElementById('page-' + id);
+            if (page) page.classList.add('active');
+            const nav = document.querySelector(`.nav-item[data-page="${id}"]`);
+            if (nav) nav.classList.add('active');
+
+            // Load page-specific data
+            if (id === 'health') loadHealth();
+            if (id === 'vectors') loadVectors();
+            if (id === 'telemetry') loadTelemetry();
+            if (id === 'endpoints') loadEndpoints();
+            if (id === 'logs') loadLogs();
+        }
+
+        // ═══ Dashboard ═══
+        async function loadDashboard() {
+            const [pulse, health] = await Promise.all([
+                apiFetch('/api/pulse'),
+                apiFetch('/api/health'),
+            ]);
+
+            const statusEl = document.getElementById('connection-status');
+            if (pulse && !pulse.error) {
+                statusEl.innerHTML = '<span class="status-dot green"></span>Connected — ' + (pulse.version || 'v?');
+            } else {
+                statusEl.innerHTML = '<span class="status-dot red"></span>Disconnected';
             }
 
-            function navigateToPage(page) {
-                document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
-                document.querySelectorAll('.nav-item').forEach(function (n) { n.classList.remove('active'); });
-                var pageEl = document.getElementById('page-' + page);
-                var navEl = document.querySelector('[data-page="' + page + '"]');
-                if (pageEl) pageEl.classList.add('active');
-                if (navEl) navEl.classList.add('active');
-                if (page === 'connectors') renderConnectorWizard();
-            }
+            document.getElementById('dash-timestamp').textContent = 'Updated: ' + new Date().toLocaleTimeString();
 
-            // ── Provider Data (mirrors server-side oauth-scopes.js) ──
-            var CATEGORIES = {
-                cloud: { label: '☁️ Cloud & Identity', providers: ['google', 'microsoft', 'amazon', 'apple', 'cloudflare'] },
-                devtools: { label: '🛠️ Developer Tools', providers: ['github', 'gitlab', 'bitbucket', 'jira', 'vercel', 'netlify', 'digitalocean'] },
-                social: { label: '📱 Social Media', providers: ['facebook', 'instagram', 'twitter', 'linkedin', 'tiktok', 'pinterest'] },
-                productivity: { label: '💼 Productivity', providers: ['slack', 'discord', 'notion', 'asana', 'trello', 'zoom'] },
-                business: { label: '🏢 Business & Commerce', providers: ['salesforce', 'hubspot', 'shopify', 'stripe', 'quickbooks', 'mailchimp', 'zendesk', 'intercom'] },
-                storage: { label: '📁 Storage', providers: ['dropbox', 'box'] },
-                media: { label: '🎵 Media', providers: ['spotify'] },
-                communication: { label: '📡 Communication', providers: ['twilio', 'sendgrid'] },
-                ai: { label: '🤖 AI & Data', providers: ['openai', 'huggingface', 'airtable'] },
-                finance: { label: '💰 Finance', providers: ['plaid'] },
-            };
+            const cards = document.getElementById('dash-cards');
+            const uptime = pulse.ok ? Math.floor((Date.now() - new Date(pulse.ts).getTime()) / 1000) : '—';
+            const endpointCount = pulse.endpoints ? pulse.endpoints.length : '—';
+            const secrets = pulse.secrets ? `${pulse.secrets.valid || 0}/${pulse.secrets.total || 0}` : '—';
+            const cf = pulse.cloudflare ? (pulse.cloudflare.tokenValid ? 'Valid' : 'Invalid') : '—';
 
-            var PROVIDERS = {
-                google: { name: 'Google', color: '#4285F4', services: ['Gmail', 'Calendar', 'Drive', 'Sheets', 'Docs', 'Contacts', 'Tasks', 'Photos', 'YouTube', 'Meet', 'Cloud (GCP)', 'Analytics', 'Ads'] },
-                github: { name: 'GitHub', color: '#24292e', services: ['Repos', 'Actions/CI-CD', 'Issues & PRs', 'Packages', 'Gists', 'Organizations', 'Webhooks', 'Pages'] },
-                microsoft: { name: 'Microsoft', color: '#00a4ef', services: ['Outlook', 'Calendar', 'OneDrive', 'Teams', 'To Do', 'OneNote', 'SharePoint', 'Azure', 'Power BI'] },
-                facebook: { name: 'Facebook', color: '#1877f2', services: ['Profile', 'Pages', 'Ads Manager', 'Groups'] },
-                instagram: { name: 'Instagram', color: '#e1306c', services: ['Feed & Posts', 'Analytics', 'Comments'] },
-                twitter: { name: 'X / Twitter', color: '#0f1419', services: ['Posts & Timeline', 'Direct Messages', 'Lists', 'Spaces', 'Analytics'] },
-                linkedin: { name: 'LinkedIn', color: '#0a66c2', services: ['Profile', 'Posts', 'Company Page', 'Ads'] },
-                tiktok: { name: 'TikTok', color: '#010101', services: ['Videos', 'Profile', 'Analytics'] },
-                pinterest: { name: 'Pinterest', color: '#e60023', services: ['Pins & Boards', 'Analytics'] },
-                slack: { name: 'Slack', color: '#4a154b', services: ['Messaging', 'Channels', 'Files', 'Users', 'Reactions', 'Workflows'] },
-                discord: { name: 'Discord', color: '#5865f2', services: ['Messages', 'Servers', 'Voice', 'Webhooks'] },
-                notion: { name: 'Notion', color: '#000', services: ['Pages & Docs', 'Databases', 'Search', 'Comments'] },
-                asana: { name: 'Asana', color: '#f06a6a', services: ['Tasks', 'Projects', 'Teams'] },
-                trello: { name: 'Trello', color: '#0052cc', services: ['Boards', 'Cards'] },
-                zoom: { name: 'Zoom', color: '#2d8cff', services: ['Meetings', 'Recordings', 'Webinars', 'Contacts'] },
-                gitlab: { name: 'GitLab', color: '#fc6d26', services: ['Repos', 'CI/CD', 'Issues', 'Container Registry'] },
-                bitbucket: { name: 'Bitbucket', color: '#0052cc', services: ['Repos', 'Pipelines', 'Pull Requests'] },
-                jira: { name: 'Jira', color: '#0052cc', services: ['Issues', 'Boards', 'Sprints', 'Reports'] },
-                vercel: { name: 'Vercel', color: '#000', services: ['Deployments', 'Domains', 'Environment'] },
-                netlify: { name: 'Netlify', color: '#00c7b7', services: ['Sites', 'Forms', 'Functions'] },
-                digitalocean: { name: 'DigitalOcean', color: '#0080ff', services: ['Droplets', 'Kubernetes', 'Databases', 'Spaces'] },
-                salesforce: { name: 'Salesforce', color: '#00a1e0', services: ['CRM', 'Reports', 'Marketing'] },
-                hubspot: { name: 'HubSpot', color: '#ff7a59', services: ['Contacts', 'Deals', 'Email', 'Tickets'] },
-                shopify: { name: 'Shopify', color: '#96bf48', services: ['Products', 'Orders', 'Customers', 'Analytics', 'Themes'] },
-                stripe: { name: 'Stripe', color: '#635bff', services: ['Payments', 'Customers', 'Invoices', 'Subscriptions', 'Reports'] },
-                quickbooks: { name: 'QuickBooks', color: '#2ca01c', services: ['Accounting', 'Payments', 'Reports'] },
-                mailchimp: { name: 'Mailchimp', color: '#ffe01b', services: ['Audiences', 'Campaigns', 'Analytics', 'Automations'] },
-                dropbox: { name: 'Dropbox', color: '#0061ff', services: ['Files', 'Sharing', 'Paper'] },
-                box: { name: 'Box', color: '#0061d5', services: ['Files', 'Collaboration'] },
-                spotify: { name: 'Spotify', color: '#1db954', services: ['Playback', 'Library', 'Playlists', 'Listening Stats'] },
-                twilio: { name: 'Twilio', color: '#f22f46', services: ['SMS', 'Voice', 'WhatsApp', 'Verify'] },
-                sendgrid: { name: 'SendGrid', color: '#1a82e2', services: ['Email', 'Templates', 'Contacts'] },
-                amazon: { name: 'Amazon / AWS', color: '#ff9900', services: ['AWS Cloud', 'SES Email', 'S3 Storage', 'Profile'] },
-                apple: { name: 'Apple', color: '#000', services: ['Apple ID', 'Apple Music'] },
-                cloudflare: { name: 'Cloudflare', color: '#f38020', services: ['DNS', 'Workers', 'Pages', 'Analytics'] },
-                openai: { name: 'OpenAI', color: '#412991', services: ['API Access', 'Assistants', 'Files'] },
-                huggingface: { name: 'Hugging Face', color: '#ffd21e', services: ['Models', 'Spaces', 'Datasets', 'Inference API'] },
-                airtable: { name: 'Airtable', color: '#18bfff', services: ['Bases', 'Automations'] },
-                zendesk: { name: 'Zendesk', color: '#03363d', services: ['Tickets', 'Users', 'Knowledge Base'] },
-                intercom: { name: 'Intercom', color: '#1f8ded', services: ['Conversations', 'Contacts', 'Articles'] },
-                plaid: { name: 'Plaid', color: '#0a85ea', services: ['Bank Accounts', 'Transactions', 'Identity'] },
-            };
+            cards.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-label">Status</div>
+            <div class="stat-value">${pulse.ok ? '<span class="status-dot green"></span>Online' : '<span class="status-dot red"></span>Offline'}</div>
+            <div class="stat-sub">Service: ${pulse.service || '—'}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Version</div>
+            <div class="stat-value">${pulse.version || '—'}</div>
+            <div class="stat-sub">Active layer: ${pulse.active_layer || '—'}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Endpoints</div>
+            <div class="stat-value">${endpointCount}</div>
+            <div class="stat-sub">Registered API routes</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Secrets</div>
+            <div class="stat-value">${secrets}</div>
+            <div class="stat-sub">Cloudflare: ${cf}</div>
+        </div>
+    `;
 
-            var connectedProviders = {}; // Track connected state
+            // Test key endpoints
+            const testEndpoints = [
+                '/api/health', '/api/pulse', '/health/live', '/health/ready',
+                '/api/telemetry/stats', '/healthz',
+            ];
+            const tbody = document.getElementById('services-tbody');
+            tbody.innerHTML = testEndpoints.map(ep =>
+                `<tr id="svc-${ep.replace(/\//g, '-')}"><td style="font-family:monospace;font-size:0.78rem">${ep}</td><td><span class="spinner"></span></td><td>—</td></tr>`
+            ).join('');
 
-            // ── Render Connector Wizard ──
-            function renderConnectorWizard() {
-                var grid = document.getElementById('connectorsGrid');
-                if (!grid) return;
-                grid.innerHTML = '';
-
-                // Category filter chips
-                var filterHtml = '<div class="connector-filter"><button class="filter-chip active" data-cat="all">All</button>';
-                Object.keys(CATEGORIES).forEach(function (cat) {
-                    filterHtml += '<button class="filter-chip" data-cat="' + cat + '">' + CATEGORIES[cat].label + '</button>';
-                });
-                filterHtml += '</div>';
-                grid.insertAdjacentHTML('beforebegin', filterHtml);
-
-                // Render by category
-                renderFilteredProviders('all', grid);
-
-                // Filter click handlers
-                document.querySelectorAll('.filter-chip').forEach(function (chip) {
-                    chip.addEventListener('click', function () {
-                        document.querySelectorAll('.filter-chip').forEach(function (c) { c.classList.remove('active'); });
-                        chip.classList.add('active');
-                        renderFilteredProviders(chip.dataset.cat, grid);
-                    });
-                });
-            }
-
-            function renderFilteredProviders(category, grid) {
-                grid.innerHTML = '';
-                var providerIds = category === 'all'
-                    ? Object.keys(PROVIDERS)
-                    : (CATEGORIES[category] ? CATEGORIES[category].providers : []);
-
-                providerIds.forEach(function (pid) {
-                    var p = PROVIDERS[pid];
-                    if (!p) return;
-                    var isConnected = !!connectedProviders[pid];
-                    var card = document.createElement('div');
-                    card.className = 'connector-card' + (isConnected ? ' connected' : '');
-
-                    var servicesHtml = p.services.map(function (svc, i) {
-                        return '<label class="svc-toggle"><input type="checkbox" data-provider="' + pid + '" data-svc="' + i + '" ' + (isConnected ? 'checked' : '') + '/><span class="svc-label">' + svc + '</span></label>';
-                    }).join('');
-
-                    card.innerHTML =
-                        '<div class="connector-card-header">' +
-                        '<div class="connector-icon" style="background:' + p.color + '">' + p.name.charAt(0) + '</div>' +
-                        '<h4>' + p.name + '</h4>' +
-                        '<span class="connector-status ' + (isConnected ? 'active' : 'inactive') + '">' + (isConnected ? '● Connected' : '○ Not connected') + '</span>' +
-                        '</div>' +
-                        '<div class="connector-services">' + servicesHtml + '</div>' +
-                        '<button class="btn-connect ' + (isConnected ? 'disconnect' : 'connect') + '" data-provider="' + pid + '">' +
-                        (isConnected ? 'Disconnect' : 'Connect ' + p.name) +
-                        '</button>';
-
-                    grid.appendChild(card);
-                });
-
-                // Custom Connector Card — always at the end
-                var customCard = document.createElement('div');
-                customCard.className = 'connector-card custom-connector-card';
-                customCard.innerHTML =
-                    '<div class="connector-card-header">' +
-                    '<div class="connector-icon" style="background:linear-gradient(135deg,#7c3aed,#06b6d4);">+</div>' +
-                    '<h4>Heady-Guided Custom Connector</h4>' +
-                    '</div>' +
-                    '<p style="color:rgba(255,255,255,.5);font-size:.82rem;margin-bottom:14px;">Need to connect a service not listed? Heady will guide you through setting up a custom OAuth or API key connector.</p>' +
-                    '<div class="custom-form" id="customConnectorForm">' +
-                    '<input type="text" placeholder="Service name (e.g. Monday.com, Basecamp...)" id="customName" />' +
-                    '<input type="url" placeholder="OAuth authorize URL or API base URL" id="customUrl" />' +
-                    '<input type="text" placeholder="Client ID (optional — Heady can help)" id="customClientId" />' +
-                    '<textarea placeholder="Describe what you want Heady to do with this service..." id="customDesc"></textarea>' +
-                    '<button class="btn-connect connect" id="customConnectBtn">🧠 Start Guided Setup</button>' +
-                    '</div>';
-                grid.appendChild(customCard);
-
-                // Onboarding CTA
-                var cta = document.createElement('div');
-                cta.className = 'onboarding-cta';
-                cta.innerHTML =
-                    '<h3>🚀 Ready to Build?</h3>' +
-                    '<p>Once you\'ve connected your services, continue to set up your custom Heady canvases, sites, and workflows.</p>' +
-                    '<button class="btn-onboard" id="continueOnboard">Continue to Onboarding →</button>';
-                grid.parentNode.appendChild(cta);
-
-                // Wire up connect buttons
-                grid.querySelectorAll('.btn-connect[data-provider]').forEach(function (btn) {
-                    btn.addEventListener('click', function () {
-                        var pid = btn.dataset.provider;
-                        if (connectedProviders[pid]) {
-                            delete connectedProviders[pid];
-                            btn.textContent = 'Connect ' + PROVIDERS[pid].name;
-                            btn.className = 'btn-connect connect';
-                            btn.closest('.connector-card').classList.remove('connected');
-                            btn.closest('.connector-card').querySelector('.connector-status').className = 'connector-status inactive';
-                            btn.closest('.connector-card').querySelector('.connector-status').textContent = '○ Not connected';
-                        } else {
-                            connectedProviders[pid] = true;
-                            btn.textContent = 'Disconnect';
-                            btn.className = 'btn-connect disconnect';
-                            btn.closest('.connector-card').classList.add('connected');
-                            btn.closest('.connector-card').querySelector('.connector-status').className = 'connector-status active';
-                            btn.closest('.connector-card').querySelector('.connector-status').textContent = '● Connected';
-                            // Check all service checkboxes
-                            btn.closest('.connector-card').querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = true; });
-                        }
-                    });
-                });
-
-                // Custom connector handler
-                var customBtn = document.getElementById('customConnectBtn');
-                if (customBtn) {
-                    customBtn.addEventListener('click', function () {
-                        var name = document.getElementById('customName').value;
-                        var url = document.getElementById('customUrl').value;
-                        var desc = document.getElementById('customDesc').value;
-                        if (!name) { alert('Please enter a service name'); return; }
-                        alert('🧠 Heady will now guide you through connecting "' + name + '".\n\nThis will open HeadyBuddy with pre-loaded context about your service.\n\nHeady will help you:\n1. Identify the OAuth or API key authentication method\n2. Configure the correct scopes and permissions\n3. Set up the secure token vault entry\n4. Test the connection\n\nOpening HeadyBuddy...');
-                        // Open buddy panel with context
-                        var buddyPanel = document.getElementById('buddyPanel');
-                        if (buddyPanel) buddyPanel.classList.add('open');
-                        var buddyInput = document.getElementById('buddyInput');
-                        if (buddyInput) buddyInput.value = 'Help me set up a custom connector for ' + name + (url ? ' at ' + url : '') + '. ' + (desc || '');
-                    });
-                }
-
-                // Onboarding button
-                var onboardBtn = document.getElementById('continueOnboard');
-                if (onboardBtn) {
-                    onboardBtn.addEventListener('click', function () {
-                        var count = Object.keys(connectedProviders).length;
-                        if (count === 0) {
-                            if (!confirm('You haven\'t connected any services yet. Continue anyway?')) return;
-                        }
-                        alert('🚀 Starting Heady Onboarding\n\n' + count + ' service(s) connected.\n\nNext steps:\n• Build custom Heady canvases\n• Create automated workflows\n• Set up monitoring & reports\n• Configure HeadyBuddy preferences');
-                        navigateToPage('dashboard');
-                    });
+            for (const ep of testEndpoints) {
+                const t0 = performance.now();
+                const data = await apiFetch(ep);
+                const ms = Math.round(performance.now() - t0);
+                const row = document.getElementById('svc-' + ep.replace(/\//g, '-'));
+                if (row) {
+                    const ok = !data.error;
+                    row.children[1].innerHTML = ok
+                        ? '<span class="badge badge-green">OK</span>'
+                        : '<span class="badge badge-red">FAIL</span>';
+                    row.children[2].textContent = ms + 'ms';
                 }
             }
+        }
 
-            // ── Init ──
-            document.addEventListener('DOMContentLoaded', function () {
-                // Auth button wiring
-                var ids = { googleSignIn: 'google', githubSignIn: 'github', microsoftSignIn: 'microsoft', appleSignIn: 'apple', twitterSignIn: 'twitter', facebookSignIn: 'facebook', amazonSignIn: 'amazon', instagramSignIn: 'instagram' };
-                Object.keys(ids).forEach(function (id) {
-                    var btn = document.getElementById(id);
-                    if (btn) btn.addEventListener('click', function () { signInWithProvider(ids[id]); });
-                });
+        // ═══ Health ═══
+        async function loadHealth() {
+            const [ready, full] = await Promise.all([
+                apiFetch('/health/ready'),
+                apiFetch('/health/full'),
+            ]);
 
-                // Render connectors when page loads if already on that tab
-                if (document.querySelector('[data-page="connectors"].active')) renderConnectorWizard();
+            const cards = document.getElementById('health-cards');
+            if (ready && ready.checks) {
+                cards.innerHTML = Object.entries(ready.checks).map(([k, v]) => `
+            <div class="stat-card">
+                <div class="stat-label">${k}</div>
+                <div class="stat-value">
+                    <span class="status-dot ${v.status === 'ok' ? 'green' : v.status === 'warning' ? 'yellow' : 'red'}"></span>
+                    ${v.status}
+                </div>
+                <div class="stat-sub">${Object.entries(v).filter(([a]) => a !== 'status').map(([a, b]) => `${a}: ${b}`).join(', ')}</div>
+            </div>
+        `).join('');
+            } else {
+                cards.innerHTML = '<div class="stat-card"><div class="stat-label">Health</div><div class="stat-value"><span class="status-dot red"></span>Unreachable</div></div>';
+            }
+
+            document.getElementById('health-full').textContent = JSON.stringify(full || { error: 'Unreachable' }, null, 2);
+        }
+
+        // ═══ Brain Chat ═══
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            input.value = '';
+
+            const msgs = document.getElementById('chat-messages');
+            msgs.innerHTML += `<div class="chat-msg user"><div class="bubble">${escHtml(msg)}</div></div>`;
+
+            const loadingId = 'loading-' + Date.now();
+            msgs.innerHTML += `<div class="chat-msg bot" id="${loadingId}"><div class="bubble"><span class="spinner"></span> Thinking...</div></div>`;
+            msgs.scrollTop = msgs.scrollHeight;
+
+            document.getElementById('chat-send').disabled = true;
+
+            const t0 = performance.now();
+            const data = await apiFetch('/api/brain/chat', {
+                method: 'POST',
+                body: JSON.stringify({ message: msg, provider: 'auto' }),
             });
-        })();
+            const ms = Math.round(performance.now() - t0);
+
+            const el = document.getElementById(loadingId);
+            if (el) {
+                const response = data?.response || data?.text || data?.error || 'No response';
+                const provider = data?.provider || '—';
+                el.innerHTML = `<div class="bubble">${escHtml(response)}</div><div class="meta">${provider} · ${ms}ms</div>`;
+            }
+
+            msgs.scrollTop = msgs.scrollHeight;
+            document.getElementById('chat-send').disabled = false;
+            document.getElementById('chat-input').focus();
+        }
+
+        // ═══ Vector Memory ═══
+        async function loadVectors() {
+            const data = await apiFetch('/api/vectors/stats');
+            const cards = document.getElementById('vector-cards');
+
+            if (data && !data.error) {
+                cards.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-label">Total Vectors</div>
+                <div class="stat-value">${data.total_vectors ?? data.totalVectors ?? '—'}</div>
+                <div class="stat-sub">Architecture: ${data.architecture || '—'}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Shards</div>
+                <div class="stat-value">${data.num_shards ?? data.shardCount ?? '—'}</div>
+                <div class="stat-sub">Dimensions: ${data.dimensions || '—'}</div>
+            </div>
+        `;
+            } else {
+                cards.innerHTML = '<div class="stat-card"><div class="stat-label">Vector Memory</div><div class="stat-value">—</div><div class="stat-sub">' + (data?.error || 'Unreachable') + '</div></div>';
+            }
+
+            const recent = await apiFetch('/api/vectors/recent?limit=20');
+            document.getElementById('vector-data').textContent = JSON.stringify(recent || {}, null, 2);
+        }
+
+        // ═══ Telemetry ═══
+        async function loadTelemetry() {
+            const [stats, recent] = await Promise.all([
+                apiFetch('/api/telemetry/stats'),
+                apiFetch('/api/telemetry/recent?limit=30'),
+            ]);
+
+            const cards = document.getElementById('telemetry-cards');
+            if (stats && stats.stats) {
+                const s = stats.stats;
+                cards.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-label">Total Events</div>
+                <div class="stat-value">${s.totalEvents ?? '—'}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Error Rate (1m)</div>
+                <div class="stat-value">${s.errorRate1m ?? '—'}</div>
+            </div>
+        `;
+            } else {
+                cards.innerHTML = '<div class="stat-card"><div class="stat-label">Telemetry</div><div class="stat-value">—</div></div>';
+            }
+
+            const log = document.getElementById('telemetry-log');
+            if (recent?.entries?.length) {
+                log.innerHTML = recent.entries.map(e =>
+                    `<div class="log-line"><span class="ts">${e.ts || ''}</span> <span class="lvl-${e.level === 'error' ? 'err' : e.level === 'warn' ? 'warn' : 'ok'}">[${e.level || 'info'}]</span> ${escHtml(e.message || JSON.stringify(e))}</div>`
+                ).join('');
+            } else {
+                log.textContent = JSON.stringify(recent || {}, null, 2);
+            }
+        }
+
+        // ═══ Endpoints ═══
+        async function loadEndpoints() {
+            const data = await apiFetch('/api/pulse');
+            const tbody = document.getElementById('endpoints-tbody');
+
+            if (data?.endpoints) {
+                tbody.innerHTML = data.endpoints.map(ep => `
+            <tr>
+                <td style="font-family:monospace;font-size:0.78rem">${ep}</td>
+                <td style="color:var(--text-muted)">GET</td>
+                <td><button class="btn-sm" onclick="testEndpoint(this, '${ep}')">Test</button></td>
+            </tr>
+        `).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text-muted)">Could not load endpoints</td></tr>';
+            }
+        }
+
+        async function testEndpoint(btn, path) {
+            btn.textContent = '...';
+            const t0 = performance.now();
+            const data = await apiFetch(path);
+            const ms = Math.round(performance.now() - t0);
+            btn.textContent = data.error ? `✗ ${ms}ms` : `✓ ${ms}ms`;
+            btn.style.color = data.error ? 'var(--red)' : 'var(--green)';
+        }
+
+        // ═══ Logs ═══
+        async function loadLogs() {
+            const data = await apiFetch('/api/introspection');
+            const el = document.getElementById('system-logs');
+            el.textContent = JSON.stringify(data || {}, null, 2);
+        }
+
+        // ═══ Refresh All ═══
+        function refreshAll() { loadDashboard(); }
+
+        // ═══ Utils ═══
+        function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
     </script>
 </body>
 
