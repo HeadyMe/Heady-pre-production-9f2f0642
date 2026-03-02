@@ -413,7 +413,19 @@ vectorSpaceOps.registerRoutes(app);
 vectorSpaceOps.start();
 logger.logNodeActivity("CONDUCTOR", "  🌐 VectorSpaceOps: ACTIVE (anti-sprawl + security + maintenance — all in 3D vector space)");
 logger.logNodeActivity("CONDUCTOR", "    → Pre-deploy gate: /api/vector-ops/pre-deploy");
-logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/vector-ops/status, /health, /sprawl-check, /security-scan, /compact");
+logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/vector-ops/status, /health, /sprawl-check, /security-scan, /compact, /projections");
+
+// ─── Bee Swarm Discovery (find all 31+ bees on disk and load into registry) ──
+try {
+  const beeRegistry = require("./src/bees/registry");
+  const beeCount = beeRegistry.discover();
+  logger.logNodeActivity("CONDUCTOR", `  🐝 Bee Swarm: ${beeCount} bees discovered and loaded into registry`);
+  const domains = beeRegistry.listDomains();
+  const highPriority = domains.filter(d => d.priority >= 0.9).map(d => d.domain);
+  logger.logNodeActivity("CONDUCTOR", `    → High priority (≥0.9): ${highPriority.join(", ")}`);
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ Bee Swarm: discovery failed — ${err.message}`);
+}
 
 // ─── Self-Awareness Telemetry (loaded EARLY for pipeline + buddy wiring) ────
 let selfAwareness = null;
