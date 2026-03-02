@@ -312,6 +312,111 @@ function revokeAgent(agentId, revokerEmail) {
 }
 
 // ──────────────────────────────────────────────────────────────────
+// Patent Lock Zone Enforcement
+// ──────────────────────────────────────────────────────────────────
+
+/**
+ * Check if a file is in a Patent Lock zone (RTP or new inventive step).
+ * Patent Lock zones require owner-only access — even approved agents are blocked.
+ * @param {string} filePath - Relative file path
+ * @returns {{ locked: boolean, claim: object|null, reason: string }}
+ */
+function isPatentLocked(filePath) {
+    const config = loadConfig();
+    const patentLock = config.patent_lock;
+    if (!patentLock) return { locked: false, claim: null, reason: "No patent_lock config" };
+
+    // Check RTP-verified claims
+    for (const claim of patentLock.rtp_verified || []) {
+        for (const claimFile of claim.files || []) {
+            if (filePath === claimFile || filePath.endsWith(claimFile)) {
+                return {
+                    locked: true,
+                    claim,
+                    reason: `PATENT LOCK: ${claim.id} "${claim.title}" — RTP verified ${claim.rtp_date}. Owner-only modification.`,
+                };
+            }
+        }
+    }
+
+    // Check new inventive steps
+    for (const step of patentLock.new_inventive_steps || []) {
+        for (const stepFile of step.files || []) {
+            if (filePath === stepFile || filePath.endsWith(stepFile)) {
+                return {
+                    locked: true,
+                    claim: step,
+                    reason: `PATENT LOCK: ${step.id} "${step.title}" — Filing ${step.filing_status}. Owner-only modification.`,
+                };
+            }
+        }
+    }
+
+    return { locked: false, claim: null, reason: "Not in patent lock zone" };
+}
+
+/**
+ * Generate a SHA-384 evidence snapshot of all patent-critical files.
+ * Creates a hash manifest for RTP verification.
+ * Can be called locally or from CI.
+ * @returns {object} Evidence snapshot with per-file and composite hashes
+ */
+function generateEvidenceSnapshot() {
+    const config = loadConfig();
+    const patentLock = config.patent_lock;
+    if (!patentLock) return { ok: false, reason: "No patent_lock config" };
+
+    const projectRoot = path.join(__dirname, "../..");
+    const allFiles = [];
+
+    // Collect all patent-critical files
+    for (const claim of [...(patentLock.rtp_verified || []), ...(patentLock.new_inventive_steps || [])]) {
+        for (const f of claim.files || []) {
+            if (!allFiles.includes(f)) allFiles.push(f);
+        }
+    }
+
+    const hashes = {};
+    const contents = [];
+
+    for (const f of allFiles) {
+        const fullPath = path.join(projectRoot, f);
+        try {
+            const data = fs.readFileSync(fullPath);
+            hashes[f] = crypto.createHash("sha384").update(data).digest("hex");
+            contents.push(data);
+        } catch (err) {
+            hashes[f] = `ERROR: ${err.message}`;
+        }
+    }
+
+    // Composite hash of all patent files
+    const compositeHash = crypto.createHash("sha384")
+        .update(Buffer.concat(contents.filter(c => Buffer.isBuffer(c))))
+        .digest("hex");
+
+    const snapshot = {
+        ok: true,
+        timestamp: new Date().toISOString(),
+        algorithm: "sha384",
+        hashes,
+        composite_hash: compositeHash,
+        file_count: allFiles.length,
+    };
+
+    // Persist to evidence log
+    const evidenceLog = path.join(projectRoot, patentLock.evidence_log || "data/patent-evidence.jsonl");
+    try {
+        const dir = path.dirname(evidenceLog);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.appendFileSync(evidenceLog, JSON.stringify(snapshot) + "\n");
+    } catch { }
+
+    audit({ action: "PATENT_EVIDENCE_SNAPSHOT", composite: compositeHash, files: allFiles.length });
+    return snapshot;
+}
+
+// ──────────────────────────────────────────────────────────────────
 // Express routes for governance API
 // ──────────────────────────────────────────────────────────────────
 function registerRoutes(router) {
@@ -347,6 +452,18 @@ function registerRoutes(router) {
         res.json(result);
     });
 
+    // Patent lock check
+    router.get("/api/governance/patent-check", (req, res) => {
+        const result = isPatentLocked(req.query.file || "");
+        res.json(result);
+    });
+
+    // Generate evidence snapshot
+    router.post("/api/governance/evidence-snapshot", (req, res) => {
+        const result = generateEvidenceSnapshot();
+        res.json(result);
+    });
+
     // List governance status
     router.get("/api/governance/status", (req, res) => {
         const config = loadConfig();
@@ -358,10 +475,15 @@ function registerRoutes(router) {
             blockedGateways: (config.blocked_gateways || []).map(b => ({ id: b.id, vendor: b.vendor })),
             enforcement: config.enforcement,
             protectedPaths: config.auth_gate?.protected_paths || [],
+            patentLock: config.patent_lock ? {
+                rtpClaims: (config.patent_lock.rtp_verified || []).length,
+                newInventiveSteps: (config.patent_lock.new_inventive_steps || []).length,
+                enforcement: config.patent_lock.enforcement,
+            } : null,
         });
     });
 
-    logger.logSystem("  ∞ CodeGovernance: Routes registered (authorize, check-dev, check-agent, approve, revoke, status)");
+    logger.logSystem("  ∞ CodeGovernance: Routes registered (authorize, check-dev, check-agent, approve, revoke, patent-check, evidence-snapshot, status)");
 }
 
 module.exports = {
@@ -369,8 +491,11 @@ module.exports = {
     checkDeveloper,
     checkAgent,
     isProtectedPath,
+    isPatentLocked,
+    generateEvidenceSnapshot,
     approveAgent,
     revokeAgent,
     registerRoutes,
     loadConfig,
 };
+

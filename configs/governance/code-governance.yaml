@@ -117,6 +117,33 @@ auth_gate:
     - Dockerfile
     - .gcloudignore
     - ecosystem.config.cjs
+    # ═══ PATENT LOCK ZONES — Owner-only modification ═══
+    # Changes to these files require explicit owner approval.
+    # See: Patent Harvest Report v2.0 (March 2026)
+    # HS-001: Deterministic Context Feed
+    - src/bootstrap/engine-wiring.js
+    - src/hc_resource_manager.js
+    # HS-009: IP Sovereignty Sentinel
+    - src/security/code-governance.js
+    - configs/governance/*
+    # HS-024: Predictive Resource Modeling
+    - src/hc_auto_success.js
+    - src/hc-full-pipeline.js
+    # NEW-A: Vibe-Match Latency Delta (PHI-derived thermal response)
+    - src/agent-orchestrator.js
+    - src/heady-principles.js
+    # NEW-B: Distributed Handoff Persistence (vector memory as L3 cache)
+    - src/vector-memory.js
+    - src/vector-pipeline.js
+    - src/vector-space-ops.js
+    # NEW-C: Neural Stream Telemetry (Reasoning Jitter)
+    - src/self-awareness.js
+    - src/hc_realtime_intelligence.js
+    - src/telemetry/*
+    # Core Orchestration IP
+    - src/heady-conductor.js
+    - src/orchestration/*
+    - heady-manager.js
 approval_workflow:
   steps:
     - owner_says: approve <agent-id> as dev connection
@@ -128,3 +155,59 @@ approval_workflow:
     - owner_says: revoke <agent-id>
     - system_removes_from: approved_agents
     - system_invalidates: all active tokens for agent
+
+# ═══════════════════════════════════════════════════════════════
+# PATENT LOCK — Reduced to Practice (RTP) Evidence Registry
+# HeadySystems Inc. — Provisional Patent Portfolio (50 claims)
+# ═══════════════════════════════════════════════════════════════
+patent_lock:
+  enforcement: owner-only
+  evidence_hash_algorithm: sha384
+  evidence_log: data/patent-evidence.jsonl
+
+  # Existing RTP-verified claims
+  rtp_verified:
+    - id: HS-001
+      title: Deterministic Context Feed
+      files: [src/bootstrap/engine-wiring.js, src/hc_resource_manager.js]
+      rtp_date: "2026-03-01"
+      status: active
+
+    - id: HS-009
+      title: IP Sovereignty Sentinel
+      files: [src/security/code-governance.js, configs/governance/code-governance.yaml]
+      rtp_date: "2026-03-01"
+      status: active
+
+    - id: HS-024
+      title: Predictive Resource Modeling
+      files: [src/hc_auto_success.js, src/hc-full-pipeline.js]
+      rtp_date: "2026-03-01"
+      status: active
+
+  # New inventive steps — supplemental filings recommended
+  new_inventive_steps:
+    - id: NEW-A
+      title: "Vibe-Match Latency Delta"
+      description: "PHI-derived intervals that tether agent cognitive style to physical node health"
+      files: [src/agent-orchestrator.js, src/heady-principles.js, src/bootstrap/engine-wiring.js]
+      discovered: "2026-03-01"
+      priority: high
+      filing_status: pending
+
+    - id: NEW-B
+      title: "Distributed Handoff Persistence"
+      description: "3D vector memory as stateless L3 cache for node-to-node handoffs"
+      files: [src/vector-memory.js, src/vector-pipeline.js, src/vector-space-ops.js]
+      discovered: "2026-03-01"
+      priority: high
+      filing_status: pending
+
+    - id: NEW-C
+      title: "Neural Stream Telemetry"
+      description: "Reasoning Jitter — AI processing steps as real-time hardware/software stability metrics"
+      files: [src/self-awareness.js, src/hc_realtime_intelligence.js]
+      discovered: "2026-03-01"
+      priority: high
+      filing_status: pending
+

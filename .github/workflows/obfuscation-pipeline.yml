@@ -11,12 +11,12 @@ jobs:
   obfuscate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           
       - name: Install JavaScript Obfuscator
         run: npm install -g javascript-obfuscator
@@ -30,3 +30,79 @@ jobs:
           javascript-obfuscator ./heady-hive-sdk/bin/ --output ./dist/heady-hive-sdk/bin/ --compact true --string-array true
           
           echo "✅ Obfuscation complete. Artifacts written to ./dist/"
+
+      # ═══ PATENT EVIDENCE LOCK — SHA-384 Hash Snapshot ═══
+      # Creates a cryptographic evidence trail for RTP verification.
+      # Each successful build generates a hash manifest of patent-critical files.
+      # Reference: Patent Harvest Report v2.0 (March 2026)
+      - name: Patent Evidence Lock — SHA-384 Snapshot
+        run: |
+          echo "═══ Patent Evidence Lock — $(date -u +%Y-%m-%dT%H:%M:%SZ) ═══"
+          EVIDENCE_FILE="patent-evidence-$(date -u +%Y%m%d-%H%M%S).json"
+          
+          # Patent-critical file list (from code-governance.yaml patent_lock)
+          PATENT_FILES=(
+            # HS-001: Deterministic Context Feed
+            "src/bootstrap/engine-wiring.js"
+            "src/hc_resource_manager.js"
+            # HS-009: IP Sovereignty Sentinel
+            "src/security/code-governance.js"
+            "configs/governance/code-governance.yaml"
+            # HS-024: Predictive Resource Modeling
+            "src/hc_auto_success.js"
+            "src/hc-full-pipeline.js"
+            # NEW-A: Vibe-Match Latency Delta
+            "src/agent-orchestrator.js"
+            "src/heady-principles.js"
+            # NEW-B: Distributed Handoff Persistence
+            "src/vector-memory.js"
+            "src/vector-pipeline.js"
+            "src/vector-space-ops.js"
+            # NEW-C: Neural Stream Telemetry
+            "src/self-awareness.js"
+            "src/hc_realtime_intelligence.js"
+            # Core Orchestration IP
+            "src/heady-conductor.js"
+            "heady-manager.js"
+          )
+          
+          echo "{" > "$EVIDENCE_FILE"
+          echo "  \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"," >> "$EVIDENCE_FILE"
+          echo "  \"commit\": \"${{ github.sha }}\"," >> "$EVIDENCE_FILE"
+          echo "  \"branch\": \"${{ github.ref_name }}\"," >> "$EVIDENCE_FILE"
+          echo "  \"actor\": \"${{ github.actor }}\"," >> "$EVIDENCE_FILE"
+          echo "  \"algorithm\": \"sha384\"," >> "$EVIDENCE_FILE"
+          echo "  \"hashes\": {" >> "$EVIDENCE_FILE"
+          
+          FIRST=true
+          for f in "${PATENT_FILES[@]}"; do
+            if [ -f "$f" ]; then
+              HASH=$(sha384sum "$f" | awk '{print $1}')
+              if [ "$FIRST" = true ]; then
+                FIRST=false
+              else
+                echo "," >> "$EVIDENCE_FILE"
+              fi
+              printf "    \"%s\": \"%s\"" "$f" "$HASH" >> "$EVIDENCE_FILE"
+            fi
+          done
+          
+          echo "" >> "$EVIDENCE_FILE"
+          echo "  }," >> "$EVIDENCE_FILE"
+          
+          # Composite hash of all patent files
+          COMPOSITE=$(cat ${PATENT_FILES[@]} 2>/dev/null | sha384sum | awk '{print $1}')
+          echo "  \"composite_hash\": \"$COMPOSITE\"" >> "$EVIDENCE_FILE"
+          echo "}" >> "$EVIDENCE_FILE"
+          
+          cat "$EVIDENCE_FILE"
+          echo ""
+          echo "✅ Patent Evidence Lock: $COMPOSITE"
+          echo "   Manifest: $EVIDENCE_FILE"
+
+      - name: Upload Evidence Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: patent-evidence-${{ github.sha }}
+          path: patent-evidence-*.json
+          retention-days: 365
