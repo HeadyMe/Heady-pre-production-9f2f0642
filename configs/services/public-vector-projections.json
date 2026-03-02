@@ -1,0 +1,168 @@
+{
+    "version": 1,
+    "generatedAt": "2026-03-02T06:09:02.793Z",
+    "mode": "autonomous-dynamic-projection",
+    "source": "configs/services/product-repos.yaml",
+    "axisWeights": [
+        0.246942623048347,
+        0.3326760279035857,
+        0.42038134904806723
+    ],
+    "entries": [
+        {
+            "id": "HeadyMe",
+            "type": "public-repository",
+            "displayName": "HeadyMe",
+            "endpoint": "https://github.com/HeadyMe/Heady",
+            "description": "Personal wellbeing, teaching, wealth redistribution. Consumes foundation SDK for all backend logic.\n",
+            "projection": {
+                "vector3": [
+                    0.4290315645411838,
+                    0.8940470175791633,
+                    0.12888695428610109
+                ],
+                "spherical": {
+                    "radius": 1,
+                    "theta": 1.1233772659067127,
+                    "phi": 1.4415498365933175
+                },
+                "barycentric": {
+                    "a": 0.2954832974913567,
+                    "b": 0.6157494755639249,
+                    "c": 0.08876722694471849
+                }
+            },
+            "outwardManifest": {
+                "githubUrl": "https://github.com/HeadyMe/Heady",
+                "channels": [
+                    "github"
+                ]
+            },
+            "updatedAt": "2026-03-02T06:09:02.792Z"
+        },
+        {
+            "id": "HeadyConnection",
+            "type": "public-repository",
+            "displayName": "HeadyConnection",
+            "endpoint": "https://github.com/HeadyConnection/HeadyConnection",
+            "description": "Community/nonprofit platform. Team workspaces, grant writing, BD, ethics oversight, wealth redistribution analytics.\n",
+            "projection": {
+                "vector3": [
+                    0.05015824957164326,
+                    0.25790042301032273,
+                    0.9648686552122031
+                ],
+                "spherical": {
+                    "radius": 0.9999999999999999,
+                    "theta": 1.378707416754919,
+                    "phi": 0.2658533272739253
+                },
+                "barycentric": {
+                    "a": 0.039403859494918314,
+                    "b": 0.20260420008205288,
+                    "c": 0.7579919404230289
+                }
+            },
+            "outwardManifest": {
+                "githubUrl": "https://github.com/HeadyConnection/HeadyConnection",
+                "channels": [
+                    "github"
+                ]
+            },
+            "updatedAt": "2026-03-02T06:09:02.793Z"
+        },
+        {
+            "id": "HeadyWeb",
+            "type": "public-repository",
+            "displayName": "HeadyWeb",
+            "endpoint": "https://github.com/HeadySystems/HeadyWeb",
+            "description": "Public marketing site, docs, demos, onboarding flows. Mostly static with dynamic API-powered sections.\n",
+            "projection": {
+                "vector3": [
+                    0.4585876919897327,
+                    0.6072044030900676,
+                    0.6488452370354312
+                ],
+                "spherical": {
+                    "radius": 1,
+                    "theta": 0.9239472771530347,
+                    "phi": 0.8647304609246503
+                },
+                "barycentric": {
+                    "a": 0.2674546292678722,
+                    "b": 0.3541299327368551,
+                    "c": 0.3784154379952727
+                }
+            },
+            "outwardManifest": {
+                "githubUrl": "https://github.com/HeadySystems/HeadyWeb",
+                "channels": [
+                    "github"
+                ]
+            },
+            "updatedAt": "2026-03-02T06:09:02.793Z"
+        },
+        {
+            "id": "HeadySystems",
+            "type": "public-repository",
+            "displayName": "HeadySystems",
+            "endpoint": "https://github.com/HeadySystems/HeadySystems-Web",
+            "description": "Developer portal, API docs, system admin, infrastructure dashboard.\n",
+            "projection": {
+                "vector3": [
+                    0.029637015621440936,
+                    0.1678537545143983,
+                    0.9853663097551462
+                ],
+                "spherical": {
+                    "radius": 1,
+                    "theta": 1.3960330457600727,
+                    "phi": 0.17128643259356582
+                },
+                "barycentric": {
+                    "a": 0.025055449322899048,
+                    "b": 0.14190535557336145,
+                    "c": 0.8330391951037395
+                }
+            },
+            "outwardManifest": {
+                "githubUrl": "https://github.com/HeadySystems/HeadySystems-Web",
+                "channels": [
+                    "github"
+                ]
+            },
+            "updatedAt": "2026-03-02T06:09:02.793Z"
+        },
+        {
+            "id": "HeadyBuddy",
+            "type": "public-repository",
+            "displayName": "HeadyBuddy",
+            "endpoint": "https://github.com/HeadySystems/Heady",
+            "description": "Always-on desktop/mobile companion. Ships as Electron (desktop) and React Native (mobile). Local-first with cloud sync.\n",
+            "projection": {
+                "vector3": [
+                    0.3917736143937632,
+                    0.003376051366558584,
+                    0.920055453405944
+                ],
+                "spherical": {
+                    "radius": 0.9999999999999999,
+                    "theta": 0.008617139284303797,
+                    "phi": 0.4025743258359607
+                },
+                "barycentric": {
+                    "a": 0.2978802383632115,
+                    "b": 0.0025669390404279516,
+                    "c": 0.6995528225963606
+                }
+            },
+            "outwardManifest": {
+                "githubUrl": "https://github.com/HeadySystems/Heady",
+                "channels": [
+                    "github"
+                ]
+            },
+            "updatedAt": "2026-03-02T06:09:02.793Z"
+        }
+    ]
+}

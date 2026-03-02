@@ -45,6 +45,11 @@ const MAX_VECTORS_PER_SHARD = 2000;
 const NUM_SHARDS = 5;
 const PERSIST_DEBOUNCE = Math.round(PHI ** 2 * 1000);
 const ZONE_EXPAND_THRESHOLD = 0.5;
+const REPRESENTATION_PROFILES = Object.freeze({
+    cartesian: "cartesian",
+    spherical: "spherical",
+    isometric: "isometric",
+});
 
 // ── Memory Importance Scoring Coefficients ──────────────────────
 // I(m) = αFreq(m) + βe^(-γΔt) + δSurp(m)
@@ -123,6 +128,87 @@ function getAdjacentZones(zone) {
  */
 function dist3D(a, b) {
     return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2);
+}
+
+function toSpherical(point) {
+    const x = point?.x || 0;
+    const y = point?.y || 0;
+    const z = point?.z || 0;
+    const r = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
+    const theta = Math.atan2(y, x);
+    const phi = r === 0 ? 0 : Math.acos(Math.min(1, Math.max(-1, z / r)));
+    return {
+        r: +r.toFixed(6),
+        theta: +theta.toFixed(6),
+        phi: +phi.toFixed(6),
+    };
+}
+
+function toIsometric(point) {
+    const x = point?.x || 0;
+    const y = point?.y || 0;
+    const z = point?.z || 0;
+    return {
+        ix: +(x - y).toFixed(6),
+        iy: +(((x + y) / 2) - z).toFixed(6),
+    };
+}
+
+function projectPoint(point, profile = REPRESENTATION_PROFILES.cartesian) {
+    if (!point) {
+        return profile === REPRESENTATION_PROFILES.spherical
+            ? { r: 0, theta: 0, phi: 0 }
+            : profile === REPRESENTATION_PROFILES.isometric
+                ? { ix: 0, iy: 0 }
+                : { x: 0, y: 0, z: 0 };
+    }
+
+    if (profile === REPRESENTATION_PROFILES.spherical) return toSpherical(point);
+    if (profile === REPRESENTATION_PROFILES.isometric) return toIsometric(point);
+    return {
+        x: +point.x.toFixed(6),
+        y: +point.y.toFixed(6),
+        z: +point.z.toFixed(6),
+    };
+}
+
+function resolveProjectionProfile({ profile, channel } = {}) {
+    if (profile && Object.values(REPRESENTATION_PROFILES).includes(profile)) {
+        return profile;
+    }
+    if (channel === "github" || channel === "public-api") {
+        return REPRESENTATION_PROFILES.spherical;
+    }
+    if (channel === "canvas" || channel === "sandbox") {
+        return REPRESENTATION_PROFILES.isometric;
+    }
+    return REPRESENTATION_PROFILES.cartesian;
+}
+
+function buildOutboundRepresentation({ channel = "internal", profile, topK = 12 } = {}) {
+    const resolvedProfile = resolveProjectionProfile({ profile, channel });
+    const totalVectors = shards.reduce((s, sh) => s + sh.vectors.length, 0);
+    const sample = shards
+        .flatMap(shard => shard.vectors)
+        .slice(-Math.max(1, topK))
+        .map(entry => ({
+            id: entry.id,
+            zone: entry._zone ?? 0,
+            representation: projectPoint(entry._3d || { x: 0, y: 0, z: 0 }, resolvedProfile),
+            type: entry.metadata?.type || "unknown",
+            ts: entry.metadata?.ts || null,
+        }));
+
+    return {
+        ok: true,
+        channel,
+        profile: resolvedProfile,
+        architecture: "3d-vector-projection-router",
+        projection_mode: "auto-adjusted",
+        total_vectors: totalVectors,
+        active_zones: Array.from(zoneIndex.entries()).filter(([, refs]) => refs.length > 0).length,
+        sample,
+    };
 }
 
 // ── Shard Init ──────────────────────────────────────────────────
@@ -562,6 +648,7 @@ function getStats() {
             zone_hits: zoneStats.zoneHits,
             expansions: zoneStats.expansions,
             zone_hit_rate: zoneStats.queries > 0 ? +(zoneStats.zoneHits / zoneStats.queries * 100).toFixed(1) : 0,
+            projection_profiles: Object.values(REPRESENTATION_PROFILES),
         },
         graph: {
             totalEdges: graphEdgeCount,
@@ -881,6 +968,16 @@ function registerRoutes(app) {
         });
     });
 
+    app.get("/api/vector/projection/outbound", (req, res) => {
+        const topK = Number.parseInt(req.query.top_k, 10);
+        const payload = buildOutboundRepresentation({
+            channel: req.query.channel || "internal",
+            profile: req.query.profile,
+            topK: Number.isFinite(topK) && topK > 0 ? topK : 12,
+        });
+        res.json(payload);
+    });
+
     // ── Graph RAG Endpoints ─────────────────────────────────────
     app.post("/api/vector/graph/query", async (req, res) => {
         try {
@@ -912,6 +1009,7 @@ module.exports = {
     init, ingestMemory, queryMemory, queryWithRelationships,
     addRelationship, getRelationships,
     getStats, registerRoutes, embed, to3D, assignZone,
+    projectPoint, resolveProjectionProfile, buildOutboundRepresentation,
     // Evolutionary Memory Architecture
     computeImportance, trackAccess, applyDecay,
     densityGate, smartIngest, consolidateMemory,

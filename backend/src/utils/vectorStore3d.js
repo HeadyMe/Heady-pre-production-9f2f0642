@@ -139,6 +139,11 @@ class VectorStore3D {
         return { queryVector, total: doc.items.length, matches };
     }
 
+    async getById(id) {
+        const doc = await this.ensureReady();
+        return doc.items.find((item) => item.id === id) || null;
+    }
+
     async stats() {
         const doc = await this.ensureReady();
         const byType = {};

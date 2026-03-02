@@ -109,4 +109,33 @@ describe("Vector Memory", () => {
             expect(typeof vectorMemory.embed).toBe("function");
         });
     });
+
+    describe("Outbound projection adaptation", () => {
+        test("resolveProjectionProfile auto-selects spherical for github", () => {
+            const profile = vectorMemory.resolveProjectionProfile({ channel: "github" });
+            expect(profile).toBe("spherical");
+        });
+
+        test("projectPoint creates spherical coordinates", () => {
+            const projected = vectorMemory.projectPoint({ x: 1, y: 1, z: 1 }, "spherical");
+            expect(projected).toHaveProperty("r");
+            expect(projected).toHaveProperty("theta");
+            expect(projected).toHaveProperty("phi");
+        });
+
+        test("buildOutboundRepresentation returns channel projection payload", async () => {
+            await vectorMemory.ingestMemory({
+                content: "outbound projection test",
+                metadata: { type: "system_state" },
+                embedding: new Array(384).fill(0.1),
+            });
+
+            const outbound = vectorMemory.buildOutboundRepresentation({ channel: "public-api", topK: 2 });
+            expect(outbound.ok).toBe(true);
+            expect(outbound.profile).toBe("spherical");
+            expect(outbound.architecture).toBe("3d-vector-projection-router");
+            expect(Array.isArray(outbound.sample)).toBe(true);
+            expect(outbound.sample.length).toBeGreaterThan(0);
+        });
+    });
 });

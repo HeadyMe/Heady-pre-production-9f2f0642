@@ -21,6 +21,7 @@ const fs = require("fs");
 const { spawn } = require("child_process");
 const { EventEmitter } = require("events");
 const { VectorStore3D } = require("./src/utils/vectorStore3d");
+const { projectVectorRepresentations } = require("./src/utils/vectorProjectionEngine");
 
 const fsp = fs.promises;
 
@@ -160,6 +161,7 @@ const pySemaphore = createSemaphore(HEADY_PY_MAX_CONCURRENCY);
 const PY_WORKER_SCRIPT = path.join(__dirname, "python_worker", "process_data.py");
 const HEADY_REGISTRY_PATH = path.join(__dirname, "heady_registry.json");
 const HEADY_VECTOR_STORE_PATH = process.env.HEADY_VECTOR_STORE_PATH || path.join(__dirname, "heady_vector_store.json");
+const HEADY_PUBLIC_BASE_URL = process.env.HEADY_PUBLIC_BASE_URL || "https://headysystems.com";
 const vectorStore3d = new VectorStore3D(HEADY_VECTOR_STORE_PATH);
 
 // ─── Request Metrics ────────────────────────────────────────────────────────────
@@ -1215,6 +1217,49 @@ app.post(
 
         const result = await vectorStore3d.search({ text, vector }, topK, { type });
         res.json({ ok: true, ...result });
+    }),
+);
+
+app.get(
+    "/api/admin/orchestrator/assets/:id/projections",
+    asyncHandler(async (req, res) => {
+        const item = await vectorStore3d.getById(req.params.id);
+        if (!item) throw createHttpError(404, "asset not found");
+
+        const projection = projectVectorRepresentations({ item, baseUrl: HEADY_PUBLIC_BASE_URL });
+        res.json({ ok: true, projection });
+    }),
+);
+
+app.post(
+    "/api/admin/orchestrator/projections/batch",
+    asyncHandler(async (req, res) => {
+        const { text, vector, topK, type } = req.body || {};
+        if ((!text || typeof text !== "string") && !Array.isArray(vector)) {
+            throw createHttpError(400, "text or vector is required");
+        }
+
+        const result = await vectorStore3d.search({ text, vector }, topK, { type });
+        const projections = result.matches.map((item) => projectVectorRepresentations({ item, baseUrl: HEADY_PUBLIC_BASE_URL }));
+        res.json({ ok: true, queryVector: result.queryVector, total: result.total, projections });
+    }),
+);
+
+app.get(
+    "/api/orchestrator/health",
+    asyncHandler(async (req, res) => {
+        const vectorStats = await vectorStore3d.stats();
+        res.json({
+            ok: true,
+            ts: new Date().toISOString(),
+            mode: "production-live-auto",
+            vectorSpace: {
+                dimensions: 3,
+                adaptiveProjection: true,
+                publicBaseUrl: HEADY_PUBLIC_BASE_URL,
+                store: vectorStats,
+            },
+        });
     }),
 );
 
