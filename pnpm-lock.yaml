@@ -72,8 +72,8 @@ importers:
         specifier: ^10.2.2
         version: 10.2.4
       node-cron:
-        specifier: ^3.0.2
-        version: 3.0.3
+        specifier: ^4.2.1
+        version: 4.2.1
       node-fetch:
         specifier: ^2.7.0
         version: 2.7.0(encoding@0.1.13)
@@ -863,49 +863,41 @@ packages:
     resolution: {integrity: sha512-34gw7PjDGB9JgePJEmhEqBhWvCiiWCuXsL9hYphDF7crW7UgI05gyBAi6MF58uGcMOiOqSJ2ybEeCvHcq0BCmQ==}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-arm64-musl@1.11.1':
     resolution: {integrity: sha512-RyMIx6Uf53hhOtJDIamSbTskA99sPHS96wxVE/bJtePJJtpdKGXO1wY90oRdXuYOGOTuqjT8ACccMc4K6QmT3w==}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-linux-ppc64-gnu@1.11.1':
     resolution: {integrity: sha512-D8Vae74A4/a+mZH0FbOkFJL9DSK2R6TFPC9M+jCWYia/q2einCubX10pecpDiTmkJVUH+y8K3BZClycD8nCShA==}
     cpu: [ppc64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-gnu@1.11.1':
     resolution: {integrity: sha512-frxL4OrzOWVVsOc96+V3aqTIQl1O2TjgExV4EKgRY09AJ9leZpEg8Ak9phadbuX0BA4k8U5qtvMSQQGGmaJqcQ==}
     cpu: [riscv64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-riscv64-musl@1.11.1':
     resolution: {integrity: sha512-mJ5vuDaIZ+l/acv01sHoXfpnyrNKOk/3aDoEdLO/Xtn9HuZlDD6jKxHlkN8ZhWyLJsRBxfv9GYM2utQ1SChKew==}
     cpu: [riscv64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-linux-s390x-gnu@1.11.1':
     resolution: {integrity: sha512-kELo8ebBVtb9sA7rMe1Cph4QHreByhaZ2QEADd9NzIQsYNQpt9UkM9iqr2lhGr5afh885d/cB5QeTXSbZHTYPg==}
     cpu: [s390x]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-gnu@1.11.1':
     resolution: {integrity: sha512-C3ZAHugKgovV5YvAMsxhq0gtXuwESUKc5MhEtjBpLoHPLYM+iuwSj3lflFwK3DPm68660rZ7G8BMcwSro7hD5w==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@unrs/resolver-binding-linux-x64-musl@1.11.1':
     resolution: {integrity: sha512-rV0YSoyhK2nZ4vEswT/QwqzqQXw5I6CjoaYMOX0TqBlWhojUf8P94mvI7nuJTeaCkkds3QE4+zS8Ko+GdXuZtA==}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
 
   '@unrs/resolver-binding-wasm32-wasi@1.11.1':
     resolution: {integrity: sha512-5u4RkfxJm+Ng7IWgkzi3qrFOvLvQYnPBmjmZQ8+szTK/b31fQCnleNl1GgEt7nIsZRIf5PLhPwT0WM+q45x/UQ==}
@@ -2467,8 +2459,8 @@ packages:
     resolution: {integrity: sha512-gBVjCaqDlRUk0EwoPNKzIr9KkS9041G/q31IBShPs1Xz6UTA+EXdZADbzqAJQrpDRq71CIMnOP5VMut3SL0z5Q==}
     engines: {node: ^18 || ^20 || >= 21}
 
-  node-cron@3.0.3:
-    resolution: {integrity: sha512-dOal67//nohNgYWb+nWmg5dkFdIwDm8EpeGYMekPMrngV3637lqnX0lbUcCtgibHTz6SEz7DAIjKvKDFYCnO1A==}
+  node-cron@4.2.1:
+    resolution: {integrity: sha512-lgimEHPE/QDgFlywTd8yTR61ptugX3Qer29efeyWw2rv259HtGBNn1vZVmp8lB9uo9wC0t/AT4iGqXxia+CJFg==}
     engines: {node: '>=6.0.0'}
 
   node-domexception@1.0.0:
@@ -3244,10 +3236,6 @@ packages:
   utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
-
-  uuid@8.3.2:
-    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
-    hasBin: true
 
   v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
@@ -6166,9 +6154,7 @@ snapshots:
 
   node-addon-api@8.6.0: {}
 
-  node-cron@3.0.3:
-    dependencies:
-      uuid: 8.3.2
+  node-cron@4.2.1: {}
 
   node-domexception@1.0.0: {}
 
@@ -6998,8 +6984,6 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   utils-merge@1.0.1: {}
-
-  uuid@8.3.2: {}
 
   v8-to-istanbul@9.3.0:
     dependencies:
