@@ -2535,33 +2535,79 @@ footer{text-align:center;padding:3rem;color:rgba(255,255,255,.3);font-size:.75re
 </div>
 <button class="fab" onclick="toggleHeadyChat()" title="Chat with HeadyBuddy">\u2726</button>
 
-<!-- ═══ Liquid Auth Gate ═══ -->
-<div id="heady-auth-gate" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .4s ease">
-<div style="background:rgba(12,12,18,0.95);border:1px solid ${accent}33;border-radius:24px;padding:3rem 2.5rem;max-width:420px;width:90%;text-align:center;box-shadow:0 0 60px ${accent}15,0 24px 48px rgba(0,0,0,.7)">
-<div style="width:56px;height:56px;margin:0 auto 1.5rem;border-radius:14px;border:2px solid ${accent};display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px ${accent}44"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="none" stroke="${accent}" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="${accent}"/></svg></div>
-<div style="font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:.5rem">Welcome to ${title2}</div>
-<div style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:2rem">Sign in to access your command center</div>
-<button onclick="heady_auth_google()" style="width:100%;padding:.85rem;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:.9rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:1rem;transition:all .2s;font-family:inherit"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google</button>
-<div style="display:flex;align-items:center;gap:1rem;margin:1rem 0"><div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div><span style="font-size:.75rem;color:rgba(255,255,255,.3)">or</span><div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div></div>
-<input id="auth-email" type="email" placeholder="Email address" style="width:100%;padding:.75rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:.85rem;margin-bottom:.75rem;outline:none;font-family:inherit">
-<input id="auth-pass" type="password" placeholder="Password" style="width:100%;padding:.75rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:.85rem;margin-bottom:1.25rem;outline:none;font-family:inherit">
-<button onclick="heady_auth_login()" style="width:100%;padding:.85rem;border-radius:12px;border:1px solid ${accent}55;background:transparent;color:${accent};font-size:.9rem;font-weight:600;cursor:pointer;transition:all .25s;letter-spacing:.03em;font-family:inherit">SIGN IN</button>
-<div style="margin-top:1.25rem;font-size:.8rem;color:rgba(255,255,255,.35)">Don't have an account? <a href="#" onclick="heady_auth_login();return false" style="color:${accent};text-decoration:none">Sign up</a></div>
+<!-- \u2550\u2550\u2550 Liquid Auth Gate \u2014 Sacred Geometry Branded \u2550\u2550\u2550 -->
+<div id="heady-auth-gate" class="auth-overlay">
+<div class="auth-backdrop"></div>
+<div class="auth-card">
+<div class="auth-geo-ring">
+<svg viewBox="0 0 120 120" class="auth-geo-svg">
+<circle cx="60" cy="60" r="55" fill="none" stroke="${accent}" stroke-width="0.5" opacity="0.3"/>
+<circle cx="60" cy="60" r="40" fill="none" stroke="${accent}" stroke-width="0.3" opacity="0.2"/>
+<circle cx="60" cy="60" r="25" fill="none" stroke="${accent}" stroke-width="0.3" opacity="0.15"/>
+<polygon points="60,5 108,32.5 108,87.5 60,115 12,87.5 12,32.5" fill="none" stroke="${accent}" stroke-width="0.5" opacity="0.25"/>
+<polygon points="60,20 95,42 95,78 60,100 25,78 25,42" fill="none" stroke="${accent}" stroke-width="0.4" opacity="0.2"/>
+</svg>
+<div class="auth-logo-hex">
+<svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+<polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="none" stroke="${accent}" stroke-width="2"/>
+<circle cx="20" cy="20" r="5" fill="${accent}"/>
+</svg>
 </div>
 </div>
+<h2 class="auth-title">${title2}</h2>
+<p class="auth-sub">Sign in to access your command center</p>
+<div class="auth-providers">
+<button class="auth-provider" onclick="heady_auth('google')"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg><span>Google</span></button>
+<button class="auth-provider" onclick="heady_auth('apple')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg><span>Apple</span></button>
+<button class="auth-provider" onclick="heady_auth('github')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.748-1.026 2.748-1.026.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg><span>GitHub</span></button>
+<button class="auth-provider" onclick="heady_auth('microsoft')"><svg width="18" height="18" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg><span>Microsoft</span></button>
+<button class="auth-provider" onclick="heady_auth('discord')"><svg width="18" height="18" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.12-.098.246-.198.373-.292a.074.074 0 0 1 .078.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078-.01c.12.094.246.194.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03z"/></svg><span>Discord</span></button>
+<button class="auth-provider" onclick="heady_auth('x')"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X / Twitter</span></button>
+</div>
+<div class="auth-divider"><span>or sign in with email</span></div>
+<input id="auth-email" type="email" placeholder="Email address" class="auth-input">
+<input id="auth-pass" type="password" placeholder="Password" class="auth-input">
+<button onclick="heady_auth('email')" class="auth-submit" style="border-color:${accent}88;color:${accent}">SIGN IN</button>
+<p class="auth-footer">Don't have an account? <a href="#" onclick="heady_auth('signup');return false" style="color:${accent}">Sign up</a></p>
+</div>
+</div>
+<style>
+.auth-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .5s ease}
+.auth-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5)}
+.auth-card{position:relative;background:linear-gradient(145deg,rgba(12,12,20,0.97),rgba(8,8,16,0.99));border:1px solid ${accent}22;border-radius:28px;padding:2.5rem 2.5rem 2rem;max-width:440px;width:92%;text-align:center;box-shadow:0 0 80px ${accent}08,0 0 40px ${accent}06,0 32px 64px rgba(0,0,0,.8);overflow:hidden}
+.auth-card::before{content:'';position:absolute;inset:-1px;border-radius:28px;padding:1px;background:linear-gradient(135deg,${accent}22,transparent 40%,transparent 60%,${accent}11);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.auth-geo-ring{position:relative;width:100px;height:100px;margin:0 auto 1.2rem}
+.auth-geo-svg{position:absolute;inset:0;width:100%;height:100%;animation:authGeoSpin 30s linear infinite}
+.auth-logo-hex{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(0,0,0,0.6);border:1px solid ${accent}33;box-shadow:0 0 24px ${accent}22}
+.auth-title{font-size:1.5rem;font-weight:700;color:#fff;margin:0 0 .4rem;letter-spacing:-.02em}
+.auth-sub{font-size:.82rem;color:rgba(255,255,255,.4);margin:0 0 1.5rem}
+.auth-providers{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem}
+.auth-provider{display:flex;align-items:center;gap:.6rem;padding:.7rem .8rem;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(255,255,255,.85);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:inherit}
+.auth-provider:hover{background:rgba(255,255,255,.08);border-color:${accent}44;transform:translateY(-1px)}
+.auth-provider span{white-space:nowrap}
+.auth-divider{display:flex;align-items:center;gap:.8rem;margin:.8rem 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.auth-divider span{font-size:.7rem;color:rgba(255,255,255,.2);white-space:nowrap}
+.auth-input{width:100%;padding:.7rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff;font-size:.82rem;margin-bottom:.6rem;outline:none;font-family:inherit;transition:border-color .2s;box-sizing:border-box}
+.auth-input:focus{border-color:${accent}55}
+.auth-submit{width:100%;padding:.8rem;border-radius:12px;border:1px solid;background:transparent;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .25s;letter-spacing:.04em;font-family:inherit;margin-top:.3rem}
+.auth-submit:hover{background:${accent}15;box-shadow:0 0 20px ${accent}15}
+.auth-footer{margin-top:1rem;font-size:.75rem;color:rgba(255,255,255,.3)}
+.auth-footer a{text-decoration:none;font-weight:500}
+@keyframes authGeoSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</style>
 <script>
-function heady_auth_google(){heady_auth_login();}
-function heady_auth_login(){
+function heady_auth(provider){
   var g=document.getElementById('heady-auth-gate');
   g.style.opacity='0';
-  setTimeout(function(){g.style.display='none';},400);
-  localStorage.setItem('heady_auth_session',JSON.stringify({ts:Date.now(),site:'${domain2}',method:'device'}));
+  setTimeout(function(){g.style.display='none';},500);
+  localStorage.setItem('heady_auth_session',JSON.stringify({ts:Date.now(),site:'${domain2}',provider:provider}));
 }
 (function(){
   var s=localStorage.getItem('heady_auth_session');
   if(s){try{var d=JSON.parse(s);if(Date.now()-d.ts<365*86400000){var g=document.getElementById('heady-auth-gate');if(g){g.style.display='none';}}}catch(e){}}
 })();
-<\/script>
+<\\/script>
 <style>
 #heady-chat-panel{display:none;position:fixed;bottom:80px;right:16px;width:380px;max-height:min(520px,70vh);background:rgba(10,10,25,0.75);border:1px solid rgba(139,92,246,0.25);border-radius:20px;z-index:10000;font-family:Inter,system-ui,-apple-system,sans-serif;box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 40px rgba(139,92,246,0.1);backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);flex-direction:column;overflow:hidden;animation:chatSlideIn 0.3s ease-out;}
 #heady-chat-panel.open{display:flex;}
