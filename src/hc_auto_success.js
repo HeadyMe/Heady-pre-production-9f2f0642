@@ -38,15 +38,28 @@
  */
 
 const EventEmitter = require("events");
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const logger = require("./utils/logger");
 
 const HISTORY_PATH = path.join(__dirname, "..", "data", "auto-success-tasks.json");
 const AUDIT_PATH = path.join(__dirname, "..", "data", "auto-success-audit.json");
+const TRIAL_LEDGER_PATH = path.join(__dirname, "..", "data", "trial-ledger.json");
 const MAX_HISTORY = 2000;
 const MAX_AUDIT = 10000;
+const MAX_TRIAL_ENTRIES = 5000;
+const REPEAT_WINDOW = 10;        // detect repeats within last N attempts per task
+const REPEAT_THRESHOLD = 3;      // force strategy shift after N identical failures
 const PHI = (1 + Math.sqrt(5)) / 2;
+
+// ─── EXPLICIT TERMINAL STATES — every task MUST resolve to one ──────────────
+const TERMINAL_STATES = Object.freeze({
+    COMPLETED: 'completed',
+    FAILED_CLOSED: 'failed_closed',
+    ESCALATED: 'escalated',
+    TIMED_OUT_RECOVERED: 'timed_out_recovered',
+});
 
 // ─── EVENT-DRIVEN REACTOR ──────────────────────────────────────────────
 // No cycles, no timers, no intervals.
@@ -774,11 +787,17 @@ class AutoSuccessEngine extends EventEmitter {
                 runs: 0, successes: 0,
                 lastRunTs: null, lastDurationMs: 0, avgDurationMs: 0,
                 status: "idle", lastFinding: null,
+                terminalState: null,  // explicit terminal state tracking
             });
         }
 
         // Execution history (persisted)
         this.history = this._loadHistory();
+
+        // ─── TRIAL LEDGER — immutable input-hash audit per attempt ───────
+        this._trialLedger = this._loadTrialLedger();
+        // Per-task failure signature map for repeat detection
+        this._failureSignatures = new Map();
 
         // External system references (set via wire())
         this._patternEngine = null;
@@ -926,75 +945,124 @@ class AutoSuccessEngine extends EventEmitter {
         return tasks;
     }
 
-    /** Execute a single task — ALWAYS succeeds (errors absorbed as learnings). */
+    /** Execute a single task with deterministic terminal state enforcement.
+     *  Every task MUST resolve to an explicit terminal state:
+     *  completed | failed_closed | escalated | timed_out_recovered
+     *  No implicit closures. No silent drops. */
     async _executeTask(task) {
         const startMs = Date.now();
         const state = this.taskStates.get(task.id);
         state.status = "running";
         this.emit("task:started", { id: task.id, name: task.name, cat: task.cat });
 
+        // ─── TRIAL LEDGER: hash the input for repeat detection ──────────
+        const inputHash = this._hashInput(task.id, task.cat, this.reactionCount);
+        const repeatInfo = this._checkRepeat(task.id, inputHash);
+
         let finding = null;
         let absorbed = false;
+        let terminalState = TERMINAL_STATES.COMPLETED;
+        let strategyShifted = false;
 
-        try {
-            const work = await this._performWork(task);
-            // Handle both old finding string and new bee delegation result
-            if (work.finding) finding = work.finding;
-            else if (work.domain) finding = `[${work.domain}] ${work.totalFired} workers (${work.coreWorkers} core + ${work.dynamicWorkers} dynamic), ${work.adjustments} adjusted, ${work.absorbed} absorbed`;
-            else finding = JSON.stringify(work).substring(0, 200);
-        } catch (err) {
-            finding = `Absorbed: ${err.message}`;
+        // ─── REPEAT DETECTOR: break infinite loops ──────────────────────
+        if (repeatInfo.isRepeat && repeatInfo.count >= REPEAT_THRESHOLD) {
+            finding = `STRATEGY_SHIFT: ${task.name} failed ${repeatInfo.count}x with signature ${inputHash.slice(0, 8)} — forcing new approach`;
+            terminalState = TERMINAL_STATES.ESCALATED;
+            strategyShifted = true;
             absorbed = true;
 
-            // Record error to audit trail
-            this._recordAudit('task_error_absorbed', task.id, {
-                name: task.name, cat: task.cat, error: err.message,
-                reaction: this.reactionCount,
+            // Record escalation
+            this._recordAudit('task_repeat_escalated', task.id, {
+                name: task.name, cat: task.cat, count: repeatInfo.count,
+                inputHash, reaction: this.reactionCount,
             });
 
-            // Feed errors to self-critique
-            if (this._selfCritique && typeof this._selfCritique.recordCritique === "function") {
-                try {
-                    this._selfCritique.recordCritique({
-                        context: `auto_success:${task.id}`,
-                        weaknesses: [`Task ${task.name}: ${err.message}`],
-                        severity: "low",
-                        suggestedImprovements: ["Review task implementation", "Check resource availability"],
-                    });
-                } catch { /* self-critique may not accept */ }
+            // Emit escalation event for upstream systems
+            this.emit("task:escalated", { id: task.id, name: task.name, reason: 'repeat_detected', count: repeatInfo.count });
+        }
+
+        if (!strategyShifted) {
+            try {
+                const work = await this._performWork(task);
+                // Handle both old finding string and new bee delegation result
+                if (work.finding) finding = work.finding;
+                else if (work.domain) finding = `[${work.domain}] ${work.totalFired} workers (${work.coreWorkers} core + ${work.dynamicWorkers} dynamic), ${work.adjustments} adjusted, ${work.absorbed} absorbed`;
+                else finding = JSON.stringify(work).substring(0, 200);
+                terminalState = TERMINAL_STATES.COMPLETED;
+            } catch (err) {
+                finding = `Absorbed: ${err.message}`;
+                absorbed = true;
+                terminalState = TERMINAL_STATES.FAILED_CLOSED;
+
+                // Record error to audit trail
+                this._recordAudit('task_error_absorbed', task.id, {
+                    name: task.name, cat: task.cat, error: err.message,
+                    reaction: this.reactionCount,
+                });
+
+                // Feed errors to self-critique
+                if (this._selfCritique && typeof this._selfCritique.recordCritique === "function") {
+                    try {
+                        this._selfCritique.recordCritique({
+                            context: `auto_success:${task.id}`,
+                            weaknesses: [`Task ${task.name}: ${err.message}`],
+                            severity: "low",
+                            suggestedImprovements: ["Review task implementation", "Check resource availability"],
+                        });
+                    } catch { /* self-critique may not accept */ }
+                }
             }
         }
 
         const durationMs = Date.now() - startMs;
+        const outputHash = this._hashInput(finding || '', terminalState, durationMs);
+
+        // ─── TRIAL LEDGER: record immutable entry ───────────────────────
+        this._recordTrial({
+            taskId: task.id, inputHash, outputHash,
+            terminalState, durationMs, absorbed, strategyShifted,
+            reaction: this.reactionCount,
+        });
+
+        // Update task state with explicit terminal state
         state.runs++;
-        state.successes++;
+        if (terminalState === TERMINAL_STATES.COMPLETED) state.successes++;
         state.lastRunTs = new Date().toISOString();
         state.lastDurationMs = durationMs;
         state.avgDurationMs = Math.round((state.avgDurationMs * (state.runs - 1) + durationMs) / state.runs);
-        state.status = "succeeded";
+        state.status = terminalState;
+        state.terminalState = terminalState;
         state.lastFinding = finding;
-        this.totalSucceeded++;
+        if (terminalState === TERMINAL_STATES.COMPLETED) this.totalSucceeded++;
 
         const result = {
             taskId: task.id, name: task.name, cat: task.cat, pool: task.pool,
-            success: true, durationMs, finding, absorbed,
+            success: terminalState === TERMINAL_STATES.COMPLETED,
+            terminalState, durationMs, finding, absorbed, strategyShifted,
+            inputHash: inputHash.slice(0, 12), outputHash: outputHash.slice(0, 12),
             reaction: this.reactionCount, ts: state.lastRunTs,
         };
 
-        this.emit("task:succeeded", result);
+        this.emit(`task:${terminalState}`, result);
 
-        // Record to comprehensive audit trail
-        this._recordAudit('task_completed', task.id, {
+        // Record to comprehensive audit trail with explicit terminal receipt
+        this._recordAudit('task_terminal', task.id, {
             name: task.name, cat: task.cat, pool: task.pool,
-            durationMs, finding, absorbed, reaction: this.reactionCount,
+            terminalState, durationMs, finding, absorbed, strategyShifted,
+            inputHash: inputHash.slice(0, 12), outputHash: outputHash.slice(0, 12),
+            reaction: this.reactionCount,
         });
 
-        // Feed success to pattern engine
+        // Feed to pattern engine
         if (this._patternEngine && typeof this._patternEngine.observeSuccess === "function") {
             try {
-                this._patternEngine.observeSuccess(`auto_success:${task.cat}`, durationMs, {
-                    taskId: task.id, pool: task.pool, tags: ["auto_success", task.cat],
-                });
+                const method = terminalState === TERMINAL_STATES.COMPLETED ? 'observeSuccess' : 'observeError';
+                if (typeof this._patternEngine[method] === 'function') {
+                    this._patternEngine[method](`auto_success:${task.cat}`, terminalState === TERMINAL_STATES.COMPLETED ? durationMs : (finding || 'unknown'), {
+                        taskId: task.id, pool: task.pool, terminalState,
+                        tags: ["auto_success", task.cat, terminalState],
+                    });
+                }
             } catch { /* pattern engine may not accept */ }
         }
 
@@ -1203,6 +1271,73 @@ class AutoSuccessEngine extends EventEmitter {
         return { finding: `${task.name}: no bee mapped (cat: ${task.cat}), heap ${heapUsedMB}MB`, adjusted: false };
     }
 
+    // ─── TRIAL LEDGER — immutable input-hash audit per attempt ───────────────
+    _hashInput(...args) {
+        return crypto.createHash('sha256').update(args.join('|')).digest('hex');
+    }
+
+    _checkRepeat(taskId, inputHash) {
+        const sigs = this._failureSignatures.get(taskId) || [];
+        const recentSame = sigs.filter(s => s.hash === inputHash).length;
+        return { isRepeat: recentSame > 0, count: recentSame };
+    }
+
+    _recordTrial(entry) {
+        const trial = {
+            id: `trial-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`,
+            ts: new Date().toISOString(),
+            ...entry,
+        };
+        this._trialLedger.push(trial);
+
+        // Update failure signature map for repeat detection
+        if (entry.terminalState !== TERMINAL_STATES.COMPLETED) {
+            const sigs = this._failureSignatures.get(entry.taskId) || [];
+            sigs.push({ hash: entry.inputHash, ts: trial.ts, state: entry.terminalState });
+            // Keep only recent window
+            this._failureSignatures.set(entry.taskId, sigs.slice(-REPEAT_WINDOW));
+        } else {
+            // Clear failure signatures on success
+            this._failureSignatures.delete(entry.taskId);
+        }
+
+        // Cap and persist
+        if (this._trialLedger.length > MAX_TRIAL_ENTRIES) {
+            this._trialLedger = this._trialLedger.slice(-MAX_TRIAL_ENTRIES);
+        }
+        if (this._trialLedger.length % 50 === 0) this._saveTrialLedger();
+    }
+
+    _loadTrialLedger() {
+        try {
+            if (fs.existsSync(TRIAL_LEDGER_PATH)) {
+                return JSON.parse(fs.readFileSync(TRIAL_LEDGER_PATH, 'utf8'));
+            }
+        } catch { /* ok */ }
+        return [];
+    }
+
+    _saveTrialLedger() {
+        try {
+            const dir = path.dirname(TRIAL_LEDGER_PATH);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(TRIAL_LEDGER_PATH, JSON.stringify(this._trialLedger.slice(-MAX_TRIAL_ENTRIES), null, 2));
+        } catch { /* non-critical */ }
+    }
+
+    getTrialLedger(opts = {}) {
+        let entries = this._trialLedger;
+        if (opts.taskId) entries = entries.filter(e => e.taskId === opts.taskId);
+        if (opts.terminalState) entries = entries.filter(e => e.terminalState === opts.terminalState);
+        const limit = opts.limit || 200;
+        return {
+            total: this._trialLedger.length,
+            filtered: entries.length,
+            entries: entries.slice(-limit),
+            terminalStates: Object.values(TERMINAL_STATES),
+        };
+    }
+
     // ─── AUDIT TRAIL ────────────────────────────────────────────────────────
     _recordAudit(action, target, data = {}) {
         if (!this._auditTrail) this._auditTrail = this._loadAudit();
@@ -1215,7 +1350,6 @@ class AutoSuccessEngine extends EventEmitter {
         if (this._auditTrail.length > MAX_AUDIT) {
             this._auditTrail = this._auditTrail.slice(-MAX_AUDIT);
         }
-        // Persist every 20 entries
         if (this._auditTrail.length % 20 === 0) this._saveAudit();
     }
 
@@ -1413,6 +1547,20 @@ function registerAutoSuccessRoutes(app, engine) {
         });
     });
 
+    router.get("/trial-ledger", (req, res) => {
+        const opts = {
+            taskId: req.query.taskId || null,
+            terminalState: req.query.terminalState || null,
+            limit: parseInt(req.query.limit) || 200,
+        };
+        res.json({
+            ok: true,
+            engine: "heady-auto-success",
+            ...engine.getTrialLedger(opts),
+            ts: new Date().toISOString(),
+        });
+    });
+
     router.post("/force-react", async (req, res) => {
         try {
             await engine.react('manual:forced', { source: 'api' });
@@ -1435,4 +1583,4 @@ function registerAutoSuccessRoutes(app, engine) {
     app.use("/api/auto-success", router);
 }
 
-module.exports = { AutoSuccessEngine, registerAutoSuccessRoutes, TASK_CATALOG, REACTION_TRIGGERS };
+module.exports = { AutoSuccessEngine, registerAutoSuccessRoutes, TASK_CATALOG, REACTION_TRIGGERS, TERMINAL_STATES };
