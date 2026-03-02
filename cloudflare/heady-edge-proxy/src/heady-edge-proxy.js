@@ -50,7 +50,11 @@ var EDGE_SITES = /* @__PURE__ */ new Set([
   "headysystems.com",
   "www.headysystems.com",
   "headybot.com",
-  "www.headybot.com"
+  "www.headybot.com",
+  "headyos.com",
+  "www.headyos.com",
+  "headyapi.com",
+  "www.headyapi.com"
 ]);
 var HEADY_CLOUDRUN_ORIGIN = "https://heady-edge-gateway-609590223909.us-central1.run.app";
 var SERVICE_MAP = {
@@ -65,7 +69,11 @@ var SERVICE_MAP = {
   "api.headyconnection.org": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "api.headyconnection.com": { origin: HEADY_CLOUDRUN_ORIGIN, mtls: true, public: true },
   "headyme.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true },
-  "www.headyme.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true }
+  "www.headyme.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true },
+  "headyos.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true },
+  "www.headyos.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true },
+  "headyapi.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true },
+  "www.headyapi.com": { origin: "https://headyme-site-609590223909.us-central1.run.app", mtls: false, public: true }
 };
 var MTLS_REQUIRED_PATHS = ["/api/", "/admin/", "/internal/"];
 var MTLS_EXEMPT_PATHS = ["/api/auto-success/", "/api/config/", "/api/health", "/api/pulse", "/api/brain/chat", "/api/brain/health", "/api/auth/", "/api/orchestrator/"];
@@ -676,7 +684,7 @@ var heady_edge_proxy_default = {
             "Content-Type": "text/html; charset=UTF-8",
             "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
             "X-Heady-Edge": "true",
-            "X-Heady-Serve": "edge-direct",
+            "X-Heady-Serve": "edge-liquid",
             "X-Heady-Request-ID": requestId,
             "X-Heady-Latency": `${Date.now() - startTime}ms`,
             ...STANDARD_HEADERS
@@ -2439,13 +2447,17 @@ function getEdgeSitePage(hostname) {
       return getHeadyMePage();
     case "headybot.com":
       return getHeadyBotPage();
+    case "headyos.com":
+      return getHeadyOSPage();
+    case "headyapi.com":
+      return getHeadyAPIPage();
     default:
       return getHeadySystemsPage();
   }
 }
 __name(getEdgeSitePage, "getEdgeSitePage");
 function headyNav(activeDomain) {
-  const sites = [["HeadyBuddy", "https://headybuddy.org"], ["HeadySystems", "https://headysystems.com"], ["HeadyConnection", "https://headyconnection.org"], ["HeadyMCP", "https://headymcp.com"], ["HeadyIO", "https://headyio.com"], ["HeadyBot", "https://headybot.com"]];
+  const sites = [["HeadyMe", "https://headyme.com"], ["HeadyBuddy", "https://headybuddy.org"], ["HeadySystems", "https://headysystems.com"], ["HeadyConnection", "https://headyconnection.org"], ["HeadyMCP", "https://headymcp.com"], ["HeadyIO", "https://headyio.com"], ["HeadyBot", "https://headybot.com"], ["HeadyOS", "https://headyos.com"], ["HeadyAPI", "https://headyapi.com"]];
   return sites.map(([n, u]) => `<a href="${u}" ${u.includes(activeDomain) ? 'class="active"' : ""}>${n}</a>`).join("");
 }
 __name(headyNav, "headyNav");
@@ -2522,6 +2534,34 @@ footer{text-align:center;padding:3rem;color:rgba(255,255,255,.3);font-size:.75re
 <footer>\xA9 2026 ${title2} \u2014 Powered by HCFP Auto-Success</footer>
 </div>
 <button class="fab" onclick="toggleHeadyChat()" title="Chat with HeadyBuddy">\u2726</button>
+
+<!-- ═══ Liquid Auth Gate ═══ -->
+<div id="heady-auth-gate" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .4s ease">
+<div style="background:rgba(12,12,18,0.95);border:1px solid ${accent}33;border-radius:24px;padding:3rem 2.5rem;max-width:420px;width:90%;text-align:center;box-shadow:0 0 60px ${accent}15,0 24px 48px rgba(0,0,0,.7)">
+<div style="width:56px;height:56px;margin:0 auto 1.5rem;border-radius:14px;border:2px solid ${accent};display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px ${accent}44"><svg width="28" height="28" viewBox="0 0 40 40" fill="none"><polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="none" stroke="${accent}" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="${accent}"/></svg></div>
+<div style="font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:.5rem">Welcome to ${title2}</div>
+<div style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:2rem">Sign in to access your command center</div>
+<button onclick="heady_auth_google()" style="width:100%;padding:.85rem;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:.9rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:1rem;transition:all .2s;font-family:inherit"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Sign in with Google</button>
+<div style="display:flex;align-items:center;gap:1rem;margin:1rem 0"><div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div><span style="font-size:.75rem;color:rgba(255,255,255,.3)">or</span><div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div></div>
+<input id="auth-email" type="email" placeholder="Email address" style="width:100%;padding:.75rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:.85rem;margin-bottom:.75rem;outline:none;font-family:inherit">
+<input id="auth-pass" type="password" placeholder="Password" style="width:100%;padding:.75rem 1rem;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:.85rem;margin-bottom:1.25rem;outline:none;font-family:inherit">
+<button onclick="heady_auth_login()" style="width:100%;padding:.85rem;border-radius:12px;border:1px solid ${accent}55;background:transparent;color:${accent};font-size:.9rem;font-weight:600;cursor:pointer;transition:all .25s;letter-spacing:.03em;font-family:inherit">SIGN IN</button>
+<div style="margin-top:1.25rem;font-size:.8rem;color:rgba(255,255,255,.35)">Don't have an account? <a href="#" onclick="heady_auth_login();return false" style="color:${accent};text-decoration:none">Sign up</a></div>
+</div>
+</div>
+<script>
+function heady_auth_google(){heady_auth_login();}
+function heady_auth_login(){
+  var g=document.getElementById('heady-auth-gate');
+  g.style.opacity='0';
+  setTimeout(function(){g.style.display='none';},400);
+  localStorage.setItem('heady_auth_session',JSON.stringify({ts:Date.now(),site:'${domain2}',method:'device'}));
+}
+(function(){
+  var s=localStorage.getItem('heady_auth_session');
+  if(s){try{var d=JSON.parse(s);if(Date.now()-d.ts<365*86400000){var g=document.getElementById('heady-auth-gate');if(g){g.style.display='none';}}}catch(e){}}
+})();
+<\/script>
 <style>
 #heady-chat-panel{display:none;position:fixed;bottom:80px;right:16px;width:380px;max-height:min(520px,70vh);background:rgba(10,10,25,0.75);border:1px solid rgba(139,92,246,0.25);border-radius:20px;z-index:10000;font-family:Inter,system-ui,-apple-system,sans-serif;box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 40px rgba(139,92,246,0.1);backdrop-filter:blur(24px) saturate(1.5);-webkit-backdrop-filter:blur(24px) saturate(1.5);flex-direction:column;overflow:hidden;animation:chatSlideIn 0.3s ease-out;}
 #heady-chat-panel.open{display:flex;}
@@ -2882,6 +2922,42 @@ function getHeadyBotPage() {
   );
 }
 __name(getHeadyBotPage, "getHeadyBotPage");
+function getHeadyOSPage() {
+  return sacredPage(
+    "HeadyOS",
+    "THE OPERATING SYSTEM FOR AI",
+    "Where agents, tools, and memory converge",
+    "#14b8a6",
+    "#0d9488",
+    "headyos.com",
+    [
+      ["\u2726", "Agent Runtime", "Managed execution environment for AI agents."],
+      ["\u2726", "Unified Memory", "Shared vector space across all running agents."],
+      ["\u2726", "System Tools", "File, network, and compute primitives for agents."],
+      ["\u2726", "Event Bus", "Real-time inter-agent communication layer."]
+    ],
+    "Flower of Life"
+  );
+}
+__name(getHeadyOSPage, "getHeadyOSPage");
+function getHeadyAPIPage() {
+  return sacredPage(
+    "HeadyAPI",
+    "THE PUBLIC API GATEWAY",
+    "Production-grade REST API for the Heady ecosystem",
+    "#06b6d4",
+    "#0891b2",
+    "headyapi.com",
+    [
+      ["\u2726", "API Reference", "Full REST documentation with live examples."],
+      ["\u2726", "Key Management", "Generate, rotate, and scope API keys."],
+      ["\u2726", "Rate Limiting", "Fair-use throttling with burst allowance."],
+      ["\u2726", "SDKs", "Node.js, Python, and Go client libraries."]
+    ],
+    "Metatrons Cube"
+  );
+}
+__name(getHeadyAPIPage, "getHeadyAPIPage");
 function getServiceFallbackPage(hostname) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Heady Systems \u2014 Maintenance</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh}

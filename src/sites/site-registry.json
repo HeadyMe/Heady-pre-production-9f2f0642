@@ -300,6 +300,106 @@
             ],
             "chatEnabled": false
         },
+        "headybuddy.org": {
+            "name": "HeadyBuddy",
+            "tagline": "Your AI Assistant & Guide",
+            "description": "Your proactive AI companion — intelligently synchronized across all your devices with persistent memory and contextual awareness.",
+            "role": "ai-assistant",
+            "sacredGeometry": "Seed of Life",
+            "accent": "#4ade80",
+            "accentDark": "#10b981",
+            "features": [
+                {
+                    "icon": "✦",
+                    "title": "AI Companion",
+                    "desc": "Proactive intelligence powered by Heady Brain"
+                },
+                {
+                    "icon": "📱",
+                    "title": "Cross-Device",
+                    "desc": "Seamless context transfer between all interfaces"
+                },
+                {
+                    "icon": "💬",
+                    "title": "Conversational",
+                    "desc": "Natural memory persistence and contextual awareness"
+                },
+                {
+                    "icon": "⚡",
+                    "title": "HCFP Aligned",
+                    "desc": "Optimized by Auto-Success for peak performance"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "24/7",
+                    "label": "Available"
+                },
+                {
+                    "value": "∞",
+                    "label": "Context"
+                },
+                {
+                    "value": "< 1s",
+                    "label": "Response"
+                },
+                {
+                    "value": "Smart",
+                    "label": "Nudges"
+                }
+            ],
+            "chatEnabled": true
+        },
+        "headybot.com": {
+            "name": "HeadyBot",
+            "tagline": "Automation & Webhooks",
+            "description": "Precision event orchestration — intelligent triggers for CI/CD, system alerts, and webhook management across the Heady mesh.",
+            "role": "automation",
+            "sacredGeometry": "Fibonacci Spiral",
+            "accent": "#f472b6",
+            "accentDark": "#ec4899",
+            "features": [
+                {
+                    "icon": "🤖",
+                    "title": "Bot Automation",
+                    "desc": "Intelligent triggers for CI/CD and system alerts"
+                },
+                {
+                    "icon": "🔗",
+                    "title": "Webhook Hub",
+                    "desc": "Centralized receiver across the Heady mesh"
+                },
+                {
+                    "icon": "⚡",
+                    "title": "Real-Time",
+                    "desc": "Sub-second script injections and processing"
+                },
+                {
+                    "icon": "📊",
+                    "title": "Analytics",
+                    "desc": "Metric tracking and auto-healing capabilities"
+                }
+            ],
+            "stats": [
+                {
+                    "value": "Live",
+                    "label": "Triggers"
+                },
+                {
+                    "value": "< 50ms",
+                    "label": "Latency"
+                },
+                {
+                    "value": "CI/CD",
+                    "label": "Ready"
+                },
+                {
+                    "value": "Auto",
+                    "label": "Healing"
+                }
+            ],
+            "chatEnabled": true
+        },
         "headyio.com": {
             "name": "HeadyIO",
             "tagline": "Developer Portal",
@@ -378,6 +478,13 @@
         "www.headyos.com": "headyos.com",
         "www.headyapi.com": "headyapi.com",
         "www.headyio.com": "headyio.com",
+        "www.headybuddy.org": "headybuddy.org",
+        "www.headybuddy.com": "headybuddy.org",
+        "headybuddy.com": "headybuddy.org",
+        "buddy.headysystems.com": "headybuddy.org",
+        "www.headybot.com": "headybot.com",
+        "headyconnection.com": "headyconnection.org",
+        "www.headyconnection.com": "headyconnection.org",
         "manager.headysystems.com": "headysystems.com",
         "admin.headysystems.com": "headysystems.com"
     }

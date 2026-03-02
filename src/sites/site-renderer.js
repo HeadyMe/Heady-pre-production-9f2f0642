@@ -27,97 +27,98 @@ const USER_SITES_PATH = path.join(__dirname, "..", "..", "data", "user-sites.jso
  * 4. Fallback to headyme.com
  */
 function resolveSite(hostname) {
-    const canonical = registry.domainAliases[hostname] || hostname;
-    if (registry.preconfigured[canonical]) {
-        return { ...registry.preconfigured[canonical], domain: canonical, type: "preconfigured" };
+  const canonical = registry.domainAliases[hostname] || hostname;
+  if (registry.preconfigured[canonical]) {
+    return { ...registry.preconfigured[canonical], domain: canonical, type: "preconfigured" };
+  }
+  // Check user-created sites
+  try {
+    if (fs.existsSync(USER_SITES_PATH)) {
+      const userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
+      if (userSites[canonical]) {
+        return { ...userSites[canonical], domain: canonical, type: "custom" };
+      }
     }
-    // Check user-created sites
-    try {
-        if (fs.existsSync(USER_SITES_PATH)) {
-            const userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
-            if (userSites[canonical]) {
-                return { ...userSites[canonical], domain: canonical, type: "custom" };
-            }
-        }
-    } catch { /* corrupted user-sites.json — ignore */ }
+  } catch { /* corrupted user-sites.json — ignore */ }
 
-    // Fallback
-    return { ...registry.preconfigured["headyme.com"], domain: "headyme.com", type: "fallback" };
+  // Fallback
+  return { ...registry.preconfigured["headyme.com"], domain: "headyme.com", type: "fallback" };
 }
 
 /**
  * Resolve a site by slug (for /v/:slug routes)
  */
 function resolveSiteBySlug(slug) {
-    const domain = {
-        headyme: "headyme.com", headysystems: "headysystems.com",
-        headyconnection: "headyconnection.org", headymcp: "headymcp.com",
-        headyos: "headyos.com", headyapi: "headyapi.com", headyio: "headyio.com",
-    }[slug];
-    if (domain) return resolveSite(domain);
+  const domain = {
+    headyme: "headyme.com", headysystems: "headysystems.com",
+    headyconnection: "headyconnection.org", headymcp: "headymcp.com",
+    headyos: "headyos.com", headyapi: "headyapi.com", headyio: "headyio.com",
+    headybuddy: "headybuddy.org", headybot: "headybot.com",
+  }[slug];
+  if (domain) return resolveSite(domain);
 
-    // Check user sites by slug
-    try {
-        if (fs.existsSync(USER_SITES_PATH)) {
-            const userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
-            for (const [d, cfg] of Object.entries(userSites)) {
-                if (cfg.slug === slug) return { ...cfg, domain: d, type: "custom" };
-            }
-        }
-    } catch { }
-    return null;
+  // Check user sites by slug
+  try {
+    if (fs.existsSync(USER_SITES_PATH)) {
+      const userSites = JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8"));
+      for (const [d, cfg] of Object.entries(userSites)) {
+        if (cfg.slug === slug) return { ...cfg, domain: d, type: "custom" };
+      }
+    }
+  } catch { }
+  return null;
 }
 
 /**
  * Get nav items for a site
  */
 function getNavItems(site) {
-    const allSites = { ...registry.preconfigured };
-    try {
-        if (fs.existsSync(USER_SITES_PATH)) {
-            Object.assign(allSites, JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8")));
-        }
-    } catch { }
-
-    const items = [];
-    for (const [domain, cfg] of Object.entries(allSites)) {
-        const slug = domain.replace(/\.(com|org|io)$/, "");
-        items.push({
-            slug, name: cfg.name, domain,
-            active: domain === site.domain,
-            href: domain === site.domain ? "#" : `https://${domain}`,
-        });
+  const allSites = { ...registry.preconfigured };
+  try {
+    if (fs.existsSync(USER_SITES_PATH)) {
+      Object.assign(allSites, JSON.parse(fs.readFileSync(USER_SITES_PATH, "utf8")));
     }
-    return items;
+  } catch { }
+
+  const items = [];
+  for (const [domain, cfg] of Object.entries(allSites)) {
+    const slug = domain.replace(/\.(com|org|io)$/, "");
+    items.push({
+      slug, name: cfg.name, domain,
+      active: domain === site.domain,
+      href: domain === site.domain ? "#" : `https://${domain}`,
+    });
+  }
+  return items;
 }
 
 /**
  * Render a complete HTML page for a site config.
  */
 function renderSite(site) {
-    const c = site.accent || "#818cf8";
-    const cd = site.accentDark || site.accent || "#6366f1";
-    const geo = site.sacredGeometry || "Flower of Life";
-    const nav = getNavItems(site);
+  const c = site.accent || "#818cf8";
+  const cd = site.accentDark || site.accent || "#6366f1";
+  const geo = site.sacredGeometry || "Flower of Life";
+  const nav = getNavItems(site);
 
-    const featuresHTML = (site.features || []).map(f => `
+  const featuresHTML = (site.features || []).map(f => `
     <div class="card">
       <div class="card-icon">${f.icon}</div>
       <h3>${f.title}</h3>
       <p>${f.desc}</p>
     </div>`).join("");
 
-    const statsHTML = (site.stats || []).map(s => `
+  const statsHTML = (site.stats || []).map(s => `
     <div class="stat">
       <div class="stat-val">${s.value}</div>
       <div class="stat-lbl">${s.label}</div>
     </div>`).join("");
 
-    const navHTML = nav.map(n => `<a href="${n.href}" class="${n.active ? "active" : ""}">${n.name}</a>`).join("");
+  const navHTML = nav.map(n => `<a href="${n.href}" class="${n.active ? "active" : ""}">${n.name}</a>`).join("");
 
-    const chatHTML = site.chatEnabled !== false ? renderChatWidget(site) : "";
+  const chatHTML = site.chatEnabled !== false ? renderChatWidget(site) : "";
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -231,7 +232,7 @@ ${renderAuthJS(site)}
  * Canvas sacred geometry animation — adapts per geometry type
  */
 function renderCanvasJS(geoType, accent, accentDark) {
-    return `(function(){
+  return `(function(){
   const canvas=document.getElementById('geo-canvas');
   const ctx=canvas.getContext('2d');
   let W,H,cx,cy,stars=[],t=0;
@@ -267,7 +268,7 @@ function renderCanvasJS(geoType, accent, accentDark) {
  * WARP-aware, 365-day sessions, persistent device ID.
  */
 function renderAuthJS(site) {
-    return `(function(){
+  return `(function(){
   const DK='heady_device_id',TK='heady_auth_token',SK='heady_session';
   if(!localStorage.getItem(DK))localStorage.setItem(DK,crypto.randomUUID());
   const warp=navigator.userAgent.includes('Cloudflare-WARP')||localStorage.getItem('heady_warp')==='true';
@@ -288,8 +289,8 @@ function renderAuthJS(site) {
  * Chat widget HTML + JS
  */
 function renderChatWidget(site) {
-    const c = site.accent || "#818cf8";
-    return `
+  const c = site.accent || "#818cf8";
+  return `
 <button class="fab" onclick="toggleChat()" title="Chat with ${site.name}" style="position:fixed;bottom:2rem;right:2rem;width:56px;height:56px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px color-mix(in srgb, var(--accent) 50%, transparent);transition:all .3s;z-index:200;font-size:1.5rem;color:#000">✦</button>
 <div id="chat-panel" style="display:none;position:fixed;bottom:80px;right:16px;width:380px;max-height:min(520px,70vh);background:rgba(10,10,20,0.8);border:1px solid color-mix(in srgb, ${c} 20%, transparent);border-radius:20px;z-index:10000;font-family:Inter,system-ui;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 40px color-mix(in srgb, ${c} 10%, transparent);backdrop-filter:blur(24px) saturate(1.5);flex-direction:column;overflow:hidden">
   <div style="padding:14px 16px;background:linear-gradient(135deg,color-mix(in srgb, ${c} 12%, transparent),transparent);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:10px">

@@ -38,6 +38,10 @@ routes = [
   { pattern = "api.headybuddy.com/*", zone_name = "headybuddy.com" },
   { pattern = "api.headyconnection.org/*", zone_name = "headyconnection.org" },
   { pattern = "api.headyconnection.com/*", zone_name = "headyconnection.com" },
+  { pattern = "headyos.com/*", zone_name = "headyos.com" },
+  { pattern = "www.headyos.com/*", zone_name = "headyos.com" },
+  { pattern = "headyapi.com/*", zone_name = "headyapi.com" },
+  { pattern = "www.headyapi.com/*", zone_name = "headyapi.com" },
 ]
 
 # ═══ Workers AI Binding — powers edge-ai provider ═══
