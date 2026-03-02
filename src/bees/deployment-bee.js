@@ -84,7 +84,23 @@ function getWork(ctx = {}) {
         return { bee: domain, action: 'hf-push', results };
     });
 
-    // 4. Post-deploy verification (run health bee)
+    // 4. Cloud Run deploy (projects code to production)
+    work.push(async () => {
+        const { execSync } = require('child_process');
+        try {
+            const target = DEPLOY_TARGETS['cloud-run'];
+            // Use gcloud run deploy --source for source-based deploy
+            const cmd = `gcloud run deploy ${target.service} --source ${PROJECT_ROOT} --region ${target.region} --project ${target.project} --allow-unauthenticated --quiet 2>&1`;
+            const output = execSync(cmd, { cwd: PROJECT_ROOT, encoding: 'utf8', timeout: 300_000 });
+            const serviceUrl = output.match(/Service URL: (https:\/\/\S+)/)?.[1] || 'unknown';
+            if (global.eventBus) global.eventBus.emit('deployment:completed', { target: 'cloud-run', url: serviceUrl });
+            return { bee: domain, action: 'cloud-run-deploy', success: true, service: target.service, region: target.region, url: serviceUrl };
+        } catch (err) {
+            return { bee: domain, action: 'cloud-run-deploy', success: false, error: err.message.substring(0, 200) };
+        }
+    });
+
+    // 5. Post-deploy verification (run health bee)
     work.push(async () => {
         try {
             const healthBee = require('./health-bee');
