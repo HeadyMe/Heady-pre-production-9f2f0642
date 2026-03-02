@@ -444,9 +444,10 @@ logger.logNodeActivity("CONDUCTOR", "  ∞ HeadyCorrections: LOADED (behavior an
 const { getOrchestrator } = require("./src/agent-orchestrator");
 const orchestrator = getOrchestrator({ baseUrl: process.env.HEADY_MANAGER_URL || "https://manager.headysystems.com", apiKey: process.env.HEADY_API_KEY });
 orchestrator.registerRoutes(app);
+orchestrator.setVectorMemory(vectorMemory);  // CRITICAL: Activates _headyValidator pre-action 3D vector context scanning
 orchestrator.on("supervisor:spawned", (d) => logger.logNodeActivity("CONDUCTOR", `  ∞ HeadySupervisor spawned: ${d.id} (${d.serviceGroup})`));
 orchestrator.on("task:complete", (d) => { /* silent */ });
-logger.logNodeActivity("CONDUCTOR", "  ∞ AgentOrchestrator: LOADED (dynamic spawn + deterministic routing)");
+logger.logNodeActivity("CONDUCTOR", "  ∞ AgentOrchestrator: LOADED (dynamic spawn + deterministic routing + vector-memory pre-scan)");
 
 // ─── HeadyConductor — Federated Liquid Routing ──────────────────────
 const { getConductor } = require("./src/heady-conductor");

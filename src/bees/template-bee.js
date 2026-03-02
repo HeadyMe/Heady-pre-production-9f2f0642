@@ -17,7 +17,12 @@
  */
 
 const path = require("path");
-const logger = require("../utils/logger");
+
+// Lightweight logger fallback — template-bee is edge-compatible,
+// must not depend on pino or heavy node modules (Pillar 0: HeadyOS self-contained bees)
+const logger = {
+    logNodeActivity: (node, msg) => { try { console.log(`[${node}] ${msg}`); } catch { } },
+};
 
 const domain = "templates";
 const description = "Sacred geometry site template engine — delivers branded pages for every Heady domain";

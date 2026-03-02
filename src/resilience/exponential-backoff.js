@@ -1,5 +1,6 @@
-/*
- * © 2026 Heady Systems LLC.
+1 / +q1
+
+    * © 2026 Heady Systems LLC.
  * PROPRIETARY AND CONFIDENTIAL.
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
