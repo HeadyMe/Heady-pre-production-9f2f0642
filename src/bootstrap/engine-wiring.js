@@ -382,6 +382,12 @@ function wireEngines(app, deps = {}) {
     // ─── 12. HeadyBees — Liquid Atom Swarm ────────────────────────────
     try {
         const { HeadyBees, registerBeesRoutes } = require("../orchestration/heady-bees");
+        const beeRegistry = require("../bees/registry");
+
+        // ── CRITICAL: Discover all 32+ bee workers at boot ──
+        const discoveredCount = beeRegistry.discover();
+        logger.logNodeActivity("CONDUCTOR", `  🐝 Bee Registry: ${discoveredCount} workers discovered`);
+
         engines.bees = new HeadyBees();
         registerBeesRoutes(app, engines.bees);
 
@@ -390,11 +396,20 @@ function wireEngines(app, deps = {}) {
             engines.cloudOrchestrator.bees = engines.bees;
         }
 
-        // Wire bees into auto-success — blast health checks on cycle
+        // Wire bees into auto-success — blast ALL registered workers on every reaction
         if (engines.autoSuccessEngine) {
-            engines.autoSuccessEngine.on("cycle:completed", async () => {
+            engines.autoSuccessEngine.on("reaction:completed", async (event) => {
                 try {
-                    // Every auto-success cycle, blast a health check swarm
+                    // Every auto-success reaction, blast ALL registered bee workers
+                    await engines.bees.blastRegistry({ trigger: event.trigger, reaction: event.reaction });
+                } catch (err) {
+                    logger.logNodeActivity("CONDUCTOR", `  ⚠ blastRegistry error: ${err.message}`);
+                }
+            });
+
+            // Also blast health checks on reactions
+            engines.autoSuccessEngine.on("reaction:completed", async () => {
+                try {
                     await engines.bees.blastHealth([
                         "https://manager.headysystems.com/api/health",
                         "https://headyme.com",
@@ -404,10 +419,19 @@ function wireEngines(app, deps = {}) {
             });
         }
 
+        // φ⁵ heartbeat — blast the full swarm periodically even without events
+        const PHI_5_MS = Math.round(1.618 ** 5 * 1000); // ~11090ms ≈ 11s
+        setInterval(async () => {
+            try {
+                await engines.bees.blastRegistry({ trigger: 'heartbeat', periodic: true });
+            } catch { /* heartbeat is non-critical */ }
+        }, PHI_5_MS);
+        logger.logNodeActivity("CONDUCTOR", `    → Swarm heartbeat: every ${Math.round(PHI_5_MS / 1000)}s (φ⁵)`);
+
         // Expose globally for liquid architecture access
         global.__headyBees = engines.bees;
 
-        logger.logNodeActivity("CONDUCTOR", "  🐝 HeadyBees: LOADED (liquid atom swarm — materialize, blast, dissolve)");
+        logger.logNodeActivity("CONDUCTOR", `  🐝 HeadyBees: LOADED (liquid atom swarm — ${discoveredCount} workers, materialize, blast, dissolve)`);
         logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/bees/health, /status, /history, /blast, /blast/health");
     } catch (err) {
         logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyBees not loaded: ${err.message}`);

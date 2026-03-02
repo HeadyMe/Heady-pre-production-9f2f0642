@@ -1055,14 +1055,20 @@ class AutoSuccessEngine extends EventEmitter {
      *  Each bee fires ONCE per reaction. Task descriptions become workers.
      *  This is the most effective model: no N×M redundancy, full coverage. */
     async _delegateToBee(beeDomain, tasks) {
-        // Load bee from registry or direct require
-        let bee = null;
+        // Load bee workers from registry (preferred) or direct require (fallback)
+        let coreWorkers = [];
+
+        // Method 1: Use bee registry (populated by discover() at boot)
         try {
             const beeRegistry = require('./bees/registry');
-            bee = beeRegistry.get(beeDomain);
+            const registryWork = beeRegistry.getWork(beeDomain, { tasks, engine: this });
+            if (registryWork && registryWork.length > 0) {
+                coreWorkers = registryWork;
+            }
         } catch { /* registry not available */ }
 
-        if (!bee) {
+        // Method 2: Fallback to direct require if registry didn't have it
+        if (coreWorkers.length === 0) {
             try {
                 const domainFile = beeDomain.replace(/s$/, '');
                 const attempts = [
@@ -1070,15 +1076,16 @@ class AutoSuccessEngine extends EventEmitter {
                     `./bees/${domainFile}-bee`,
                 ];
                 for (const attempt of attempts) {
-                    try { bee = require(attempt); break; } catch { /* try next */ }
+                    try {
+                        const bee = require(attempt);
+                        if (bee && typeof bee.getWork === 'function') {
+                            coreWorkers = bee.getWork({ tasks, engine: this });
+                            break;
+                        }
+                    } catch { /* try next */ }
                 }
             } catch { /* ok */ }
         }
-
-        // Core bee workers (hand-coded domain expertise)
-        const coreWorkers = (bee && typeof bee.getWork === 'function')
-            ? bee.getWork({ tasks, engine: this })
-            : [];
 
         // Dynamic workers: each task description becomes its own worker
         // The task catalog IS the work definition — every entry is an action
