@@ -50,6 +50,12 @@ const REPRESENTATION_PROFILES = Object.freeze({
     spherical: "spherical",
     isometric: "isometric",
 });
+const MAX_OUTBOUND_SAMPLE = 100;
+const DEFAULT_OUTBOUND_SAMPLE = 12;
+const PUBLIC_CHANNELS = new Set(["github", "public-api", "canvas", "sandbox", "internal"]);
+const AUTONOMY_MAINTENANCE_MS = Math.round(PHI ** 5 * 1000);
+const DEFAULT_DECAY_THRESHOLD = 0.15;
+const DEFAULT_LTM_THRESHOLD = 0.5;
 
 // ── Memory Importance Scoring Coefficients ──────────────────────
 // I(m) = αFreq(m) + βe^(-γΔt) + δSurp(m)
@@ -77,6 +83,18 @@ let localFallbackCount = 0;
 const zoneIndex = new Map(); // zoneId → [vectorRefs]
 const zoneStats = { queries: 0, zoneHits: 0, expansions: 0 };
 for (let i = 0; i < 8; i++) zoneIndex.set(i, []);
+
+const autonomousState = {
+    enabled: true,
+    intervalMs: AUTONOMY_MAINTENANCE_MS,
+    lastRunAt: null,
+    lastStatus: "idle",
+    lastSummary: null,
+    runs: 0,
+    errors: 0,
+};
+let autonomyTimer = null;
+
 
 // ── Graph Layer (Hybrid RAG) ────────────────────────────────────
 // Stores explicit entity-relationship edges alongside vector embeddings
@@ -172,25 +190,44 @@ function projectPoint(point, profile = REPRESENTATION_PROFILES.cartesian) {
     };
 }
 
+function normalizeChannel(channel = "internal") {
+    const normalized = String(channel || "internal").toLowerCase().trim();
+    return PUBLIC_CHANNELS.has(normalized) ? normalized : "internal";
+}
+
+function normalizeTopK(topK = DEFAULT_OUTBOUND_SAMPLE) {
+    const parsed = Number.parseInt(String(topK), 10);
+    if (!Number.isFinite(parsed)) return DEFAULT_OUTBOUND_SAMPLE;
+    return Math.min(MAX_OUTBOUND_SAMPLE, Math.max(1, parsed));
+}
+
 function resolveProjectionProfile({ profile, channel } = {}) {
+    const normalizedChannel = normalizeChannel(channel);
     if (profile && Object.values(REPRESENTATION_PROFILES).includes(profile)) {
         return profile;
     }
-    if (channel === "github" || channel === "public-api") {
+    if (normalizedChannel === "github" || normalizedChannel === "public-api") {
         return REPRESENTATION_PROFILES.spherical;
     }
-    if (channel === "canvas" || channel === "sandbox") {
+    if (normalizedChannel === "canvas" || normalizedChannel === "sandbox") {
         return REPRESENTATION_PROFILES.isometric;
     }
     return REPRESENTATION_PROFILES.cartesian;
 }
 
-function buildOutboundRepresentation({ channel = "internal", profile, topK = 12 } = {}) {
-    const resolvedProfile = resolveProjectionProfile({ profile, channel });
+function buildOutboundRepresentation({ channel = "internal", profile, topK = DEFAULT_OUTBOUND_SAMPLE } = {}) {
+    const normalizedChannel = normalizeChannel(channel);
+    const clampedTopK = normalizeTopK(topK);
+    const resolvedProfile = resolveProjectionProfile({ profile, channel: normalizedChannel });
     const totalVectors = shards.reduce((s, sh) => s + sh.vectors.length, 0);
     const sample = shards
         .flatMap(shard => shard.vectors)
-        .slice(-Math.max(1, topK))
+        .sort((a, b) => {
+            const tsDiff = (b.metadata?.ts || 0) - (a.metadata?.ts || 0);
+            if (tsDiff !== 0) return tsDiff;
+            return String(a.id || "").localeCompare(String(b.id || ""));
+        })
+        .slice(0, clampedTopK)
         .map(entry => ({
             id: entry.id,
             zone: entry._zone ?? 0,
@@ -201,12 +238,18 @@ function buildOutboundRepresentation({ channel = "internal", profile, topK = 12 
 
     return {
         ok: true,
-        channel,
+        channel: normalizedChannel,
         profile: resolvedProfile,
         architecture: "3d-vector-projection-router",
         projection_mode: "auto-adjusted",
+        top_k: clampedTopK,
         total_vectors: totalVectors,
         active_zones: Array.from(zoneIndex.entries()).filter(([, refs]) => refs.length > 0).length,
+        generated_at: new Date().toISOString(),
+        constraints: {
+            max_outbound_sample: MAX_OUTBOUND_SAMPLE,
+            default_outbound_sample: DEFAULT_OUTBOUND_SAMPLE,
+        },
         sample,
     };
 }
@@ -300,6 +343,29 @@ let embedRoundRobin = 0;
 
 async function embed(text) {
     const truncated = typeof text === "string" ? text.substring(0, 2000) : String(text).substring(0, 2000);
+
+    // Strategy 0: Local GPU Embedding Server (Colab CUDA — fastest)
+    const gpuUrl = process.env.HEADY_EMBEDDING_URL;
+    if (gpuUrl) {
+        try {
+            const gpuRes = await fetch(`${gpuUrl}/embed`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ texts: truncated }),
+                signal: AbortSignal.timeout(5000),
+            });
+            if (gpuRes.ok) {
+                const data = await gpuRes.json();
+                if (data.ok && data.embeddings?.length > 0) {
+                    const embedding = data.embeddings[0];
+                    if (embedding.length >= 100) {
+                        remoteEmbedCount++;
+                        return embedding;
+                    }
+                }
+            }
+        } catch { /* GPU server not available, fall through */ }
+    }
 
     // Strategy 1: HuggingFace Inference API (free tier, no token needed for public models)
     try {
@@ -901,10 +967,75 @@ async function consolidateMemory(ltmThreshold = 0.5) {
     return { promoted, compacted, total };
 }
 
+function getAutonomousState() {
+    return {
+        ...autonomousState,
+        timerActive: Boolean(autonomyTimer),
+    };
+}
+
+async function runAutonomousMaintenance({
+    decayThreshold = DEFAULT_DECAY_THRESHOLD,
+    ltmThreshold = DEFAULT_LTM_THRESHOLD,
+} = {}) {
+    const startedAt = Date.now();
+    autonomousState.lastStatus = "running";
+    try {
+        const decay = applyDecay(decayThreshold);
+        const consolidation = await consolidateMemory(ltmThreshold);
+        const summary = {
+            decay,
+            consolidation,
+            duration_ms: Date.now() - startedAt,
+            ts: new Date().toISOString(),
+        };
+        autonomousState.runs += 1;
+        autonomousState.lastRunAt = summary.ts;
+        autonomousState.lastSummary = summary;
+        autonomousState.lastStatus = "ok";
+        return { ok: true, ...summary };
+    } catch (error) {
+        autonomousState.errors += 1;
+        autonomousState.lastRunAt = new Date().toISOString();
+        autonomousState.lastStatus = "error";
+        autonomousState.lastSummary = { error: error.message, ts: autonomousState.lastRunAt };
+        logger.logError("SYSTEM", "VectorMemory autonomous maintenance failed", error);
+        return { ok: false, error: error.message, ts: autonomousState.lastRunAt };
+    }
+}
+
+function startAutonomousMaintenance(intervalMs = AUTONOMY_MAINTENANCE_MS) {
+    const safeInterval = Math.max(1000, Number(intervalMs) || AUTONOMY_MAINTENANCE_MS);
+    autonomousState.intervalMs = safeInterval;
+
+    if (autonomyTimer) clearInterval(autonomyTimer);
+    autonomyTimer = setInterval(() => {
+        runAutonomousMaintenance().catch((error) => {
+            logger.logError("SYSTEM", "VectorMemory autonomy interval error", error);
+        });
+    }, safeInterval);
+
+    if (typeof autonomyTimer.unref === "function") autonomyTimer.unref();
+    autonomousState.enabled = true;
+    logger.logSystem(`  ∞ VectorMemory: Autonomous maintenance enabled (${safeInterval}ms)`);
+    return getAutonomousState();
+}
+
+function stopAutonomousMaintenance() {
+    if (autonomyTimer) {
+        clearInterval(autonomyTimer);
+        autonomyTimer = null;
+    }
+    autonomousState.enabled = false;
+    autonomousState.lastStatus = "stopped";
+    return getAutonomousState();
+}
+
 // ── Init ────────────────────────────────────────────────────────
 function init() {
     initShards();
     initHFClients();
+    startAutonomousMaintenance();
 }
 
 // ── Express Routes ──────────────────────────────────────────────
@@ -968,12 +1099,42 @@ function registerRoutes(app) {
         });
     });
 
+    app.get("/api/vector/health", (req, res) => {
+        const stats = getStats();
+        res.json({
+            ok: true,
+            module: "vector-memory",
+            status: "healthy",
+            architecture: "3d-spatial-sharded-hybrid-rag",
+            total_vectors: stats.total_vectors,
+            active_zones: Object.values(stats.spatial.zone_distribution || {}).filter(c => c > 0).length,
+            uptime_ms: Math.round(process.uptime() * 1000),
+            counters: {
+                ingest_count: stats.ingest_count,
+                query_count: stats.query_count,
+                remote_embeds: stats.remote_embeds,
+                local_fallbacks: stats.local_fallbacks,
+            },
+        });
+    });
+
+    app.get("/api/vector/autonomy/health", (req, res) => {
+        res.json({ ok: true, autonomy: getAutonomousState() });
+    });
+
+    app.post("/api/vector/autonomy/run", async (req, res) => {
+        const result = await runAutonomousMaintenance({
+            decayThreshold: req.body?.decay_threshold,
+            ltmThreshold: req.body?.ltm_threshold,
+        });
+        res.status(result.ok ? 200 : 500).json(result);
+    });
+
     app.get("/api/vector/projection/outbound", (req, res) => {
-        const topK = Number.parseInt(req.query.top_k, 10);
         const payload = buildOutboundRepresentation({
             channel: req.query.channel || "internal",
             profile: req.query.profile,
-            topK: Number.isFinite(topK) && topK > 0 ? topK : 12,
+            topK: req.query.top_k,
         });
         res.json(payload);
     });
@@ -1010,6 +1171,8 @@ module.exports = {
     addRelationship, getRelationships,
     getStats, registerRoutes, embed, to3D, assignZone,
     projectPoint, resolveProjectionProfile, buildOutboundRepresentation,
+    normalizeChannel, normalizeTopK,
+    getAutonomousState, runAutonomousMaintenance, startAutonomousMaintenance, stopAutonomousMaintenance,
     // Evolutionary Memory Architecture
     computeImportance, trackAccess, applyDecay,
     densityGate, smartIngest, consolidateMemory,
