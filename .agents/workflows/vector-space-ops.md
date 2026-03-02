@@ -1,147 +1,148 @@
 ---
-description: Vector space operations — ensure all internal ops run in 3D vector space before any deployment
+description: how to operate through heady's vector space, bees, and event system for all work
 ---
 
-# Vector Space Operations Workflow
-
-> HeadyOS lives in 3D vector space. Deployment is the **exception**, not the rule.
-> This workflow ensures all anti-sprawl, security, maintenance, and pre-deployment
-> validation runs INSIDE vector space first.
+# Heady Vector Space Operations
 
 // turbo-all
 
-## Phase 1 — Vector Space Health Check
+**ALL work in this repository MUST flow through Heady's vector space and bee infrastructure.**
 
-1. Check vector memory health:
+## Core Principles
 
-```bash
-curl -s https://manager.headysystems.com/api/vector-ops/health | jq .
+1. **RAM-first**: All operations happen in vector space first. External stores (GitHub, Cloudflare, HF Spaces) are projections of RAM state.
+2. **Bee delegation**: Every domain has a bee. Use bees to do the work, not raw file operations.
+3. **Event-driven**: Emit events via `global.eventBus` so the reactor can trigger downstream bees.
+4. **Vector memory ingestion**: After every significant operation, write results to `global.__vectorMemory.add()`.
+5. **Perception awareness**: The system knows how it appears externally — always consider what users see.
+
+## Before Any Code Change
+
+1. Check which bee owns the domain you're modifying:
+
+   ```bash
+   node -e "const bees = require('fs').readdirSync('src/bees').filter(f=>f.endsWith('-bee.js')); bees.forEach(b => { const m=require('./src/bees/'+b); console.log(m.domain, '-', m.description); })"
+   ```
+
+2. Verify the component is registered in vector memory:
+
+   ```bash
+   node -e "const vm = require('./src/vector-memory'); console.log(Object.keys(vm.store || {}).filter(k => k.includes('YOUR_DOMAIN')))"
+   ```
+
+3. Check the auto-success task catalog for related tasks:
+
+   ```bash
+   grep -r "YOUR_KEYWORD" src/*.json --include="*.json" -l
+   ```
+
+## When Creating New Files
+
+1. **Register in the appropriate bee's `getWork()`** — the bee must know about the new component
+2. **Add to vector memory** — `global.__vectorMemory.add('domain:component-name', { ... })`
+3. **Emit an event** — `global.eventBus.emit('domain:component:created', { ... })`
+4. **Update perception** — if the file affects what users see externally, trigger a perception scan
+
+Example pattern:
+
+```javascript
+// In the bee's getWork():
+work.push(async () => {
+    const component = require('../path/to/new-component');
+    
+    // Register in vector memory
+    if (global.__vectorMemory) {
+        global.__vectorMemory.add('domain:component', {
+            type: 'new-component',
+            capabilities: ['...'],
+            registeredAt: new Date().toISOString(),
+        });
+    }
+    
+    // Emit event for reactor
+    if (global.eventBus) {
+        global.eventBus.emit('domain:component:loaded', { ... });
+    }
+    
+    return { bee: domain, action: 'component', loaded: true };
+});
 ```
 
-1. Verify zone distribution — no zone should hold >50% of vectors:
+## When Modifying Existing Code
 
-```bash
-curl -s https://manager.headysystems.com/api/vector/memory/stats | jq '.zones'
+1. **Check what bee manages this file** — look at the bee's `getWork()` modules list
+2. **After editing, verify the bee still loads** — `node -c src/bees/DOMAIN-bee.js`
+3. **Write the change to vector memory** — so the system has awareness of the modification
+4. **Let the reactor react** — emit the appropriate event
+
+## Deployment Flow
+
+All deployments go through vector space → ProjectionManager → deployment-bee:
+
+1. Code changes are committed (ProjectionManager marks GitHub as stale)
+2. `deployment-bee` fires its 5-worker pipeline:
+   - Template injection (sync-projection-bee)
+   - Git push (project RAM to GitHub)
+   - HF Spaces push
+   - Cloud Run deploy (gcloud run deploy --source)
+   - Post-deploy health verification
+3. `deployment:completed` event fires
+4. ProjectionManager runs perception scan to verify external state
+
+## Bee Domain Map
+
+| Domain | Bee | Manages |
+|--------|-----|---------|
+| security | security-bee | Auth, secrets, RBAC, WebAuthn, mTLS |
+| orchestration | orchestration-bee | Agent orchestrator, A2A, task decomposition |
+| memory | memory-bee | Vector memory, GraphRAG, memory compaction |
+| deployment | deployment-bee | Cloud Run, Cloudflare, GitHub, HF Spaces |
+| midi | midi-bee | Network MIDI, DAW bridge, Ableton Remote Script |
+| telemetry | telemetry-bee | OpenTelemetry, metrics, logging |
+| health | health-bee | Health checks, liveness, readiness |
+| resilience | resilience-bee | Circuit breakers, backoff, self-healing |
+| connectors | connectors-bee | External APIs, providers, integrations |
+| engines | engines-bee | Core engines, pipelines, processors |
+| ops | ops-bee | DevOps, infra, containers, CI/CD |
+| routes | routes-bee | API routes, endpoints, middleware |
+
+## Event Bus Events to Know
+
+| Event | Fires When |
+|-------|------------|
+| `auto_success:reaction` | Reactor processes a system event |
+| `bee:DOMAIN:reacted` | A bee completes its work |
+| `deployment:completed` | Deploy to any target finishes |
+| `perception:scanned` | External state scanned |
+| `projections:stale` | RAM state drifted from external |
+| `vector_ops:started` | Vector space ops initialized |
+| `bee_swarm:discovered` | All 32 bees loaded |
+| `auto_success:tasks_loaded` | Task catalog loaded |
+| `midi:ableton-script:validated` | Ableton script checked |
+
+## Template for New Bees
+
+If a new domain is needed:
+
+```javascript
+const domain = 'new-domain';
+const description = 'What this bee manages';
+const priority = 0.5; // 0-1, higher = more important
+
+function getWork(ctx = {}) {
+    const work = [];
+    
+    work.push(async () => {
+        // Do the actual work
+        // Register in vector memory
+        // Emit events
+        return { bee: domain, action: 'worker-name', result: '...' };
+    });
+    
+    return work;
+}
+
+module.exports = { domain, description, priority, getWork };
 ```
 
-1. If unhealthy → STOP. Run compaction first (Phase 4).
-
----
-
-## Phase 2 — Anti-Sprawl Scan
-
-1. Run sprawl detection:
-
-```bash
-curl -s -X POST https://manager.headysystems.com/api/vector-ops/sprawl-check | jq .
-```
-
-1. Evaluate results:
-   - `sprawlDetected: false` → PASS, continue
-   - `sprawlDetected: true` with `severity: warn` → Note, continue with caution
-   - `sprawlDetected: true` with `severity: critical` → **STOP**. Architectural sprawl detected.
-     - Investigate which zone is growing beyond φ² (2.618x) baseline
-     - Consider if new vectors are properly clustered or creating sprawl
-     - Compact and rebalance before proceeding
-
----
-
-## Phase 3 — Security Scan (In Vector Space)
-
-1. Run security scan:
-
-```bash
-curl -s -X POST https://manager.headysystems.com/api/vector-ops/security-scan | jq .
-```
-
-1. Check for:
-   - `ZONE_CONCENTRATION` — possible data poisoning
-   - `QUERY_ONLY_PATTERN` — possible data extraction attempt
-   - Any high-severity threats → **STOP** and investigate
-
-2. Verify no anomalous vectors exist outside expected zone boundaries.
-
----
-
-## Phase 4 — Maintenance & Compaction
-
-1. Run compaction cycle:
-
-```bash
-curl -s -X POST https://manager.headysystems.com/api/vector-ops/compact | jq .
-```
-
-1. Verify zone rebalancing:
-   - `zonesRebalanced: 0` = balanced, good
-   - `zonesRebalanced: N` = N zones need attention
-
-2. Check graph integrity:
-
-```bash
-curl -s https://manager.headysystems.com/api/vector/memory/stats | jq '.graphEdgeCount'
-```
-
----
-
-## Phase 5 — Pre-Deployment Gate (Only If Deploying)
-
-> **CRITICAL**: Skip this phase if changes live entirely in vector space.
-> Only run if changes MUST leave the vector substrate (edge workers, Cloud Run, etc.)
-
-1. Run pre-deploy validation:
-
-```bash
-curl -s https://manager.headysystems.com/api/vector-ops/pre-deploy | jq .
-```
-
-1. Gate rules:
-   - `clear: true` → Deployment allowed
-   - `clear: false` → **DEPLOYMENT BLOCKED**
-     - Review `blockers[]` — these MUST be resolved
-     - Review `warnings[]` — these SHOULD be addressed
-   - HTTP 422 = deployment not allowed
-
-2. If deploying, run deployment verification after:
-
-```bash
-# See /deployment-verification workflow
-```
-
----
-
-## Phase 6 — Post-Operation Vector Integrity
-
-1. Re-check health after any operations:
-
-```bash
-curl -s https://manager.headysystems.com/api/vector-ops/status | jq .
-```
-
-1. Verify:
-   - `started: true` — autonomic ops loop is running
-   - `cycles` — should be incrementing (PHI-timed)
-   - `antiSprawl.recentAlerts` — should be empty or low-severity
-   - `security.recentScans` — all `healthy: true`
-
----
-
-## Decision Matrix
-
-| Situation | Action |
-| --- | --- |
-| Changes are vector-space only | Skip Phase 5, operate in memory |
-| Changes affect edge workers | Run Phase 5, deploy only if `clear: true` |
-| Changes affect Cloud Run | Run Phase 5 + full `/deployment-verification` |
-| Sprawl detected | Compact + rebalance BEFORE any other action |
-| Security threat found | Halt all ops, investigate, then resume |
-| Pre-deploy gate fails | Fix blockers in vector space, re-validate |
-
-## PHI Timing Reference
-
-| Interval | Value | Use |
-| --- | --- | --- |
-| φ² | 2.6s | Heartbeat pulse |
-| φ⁴ | 6.85s | Security scan cycle |
-| φ⁶ | 17.9s | Anti-sprawl detection |
-| φ⁸ | 46.9s | Maintenance compaction |
-| φ¹⁰ | 122.9s | Full audit cycle |
+Then add to `src/bees/registry.js` and it auto-discovers.
