@@ -121,7 +121,8 @@ function registerServiceRoutes(app, deps = {}) {
             }
         });
 
-        setInterval(() => liquidAllocator.persist(), 60000);
+        const _PHI = 1.618;
+        setInterval(() => liquidAllocator.persist(), Math.round(_PHI ** 7 * 1000)); // φ⁷ ≈ 29s — organic persist pulse
     } catch (err) {
         logger.logNodeActivity("CONDUCTOR", `  ⚠ Liquid Allocator not loaded: ${err.message}`);
     }

@@ -1,0 +1,33 @@
+# ═══════════════════════════════════════════════════════════════
+# HEADY CODEOWNERS — IP Protection Layer (Ring 1)
+# HeadySystems Inc. — auto-review for sensitive paths
+# ═══════════════════════════════════════════════════════════════
+
+# ── Core Intellectual Property ──
+/heady-manager.js                    @HeadyMe/core-team
+/src/heady-conductor.js              @HeadyMe/core-team
+/src/agent-orchestrator.js           @HeadyMe/core-team
+/src/vector-memory.js                @HeadyMe/core-team
+/src/vector-pipeline.js              @HeadyMe/core-team
+/src/vector-space-ops.js             @HeadyMe/core-team
+
+# ── Security & Governance ──
+/src/security/                       @HeadyMe/core-team
+/src/auth/                           @HeadyMe/core-team
+/configs/code-governance.yaml        @HeadyMe/core-team
+
+# ── Orchestration Layer ──
+/src/orchestration/                  @HeadyMe/core-team
+
+# ── Infrastructure & Deployment ──
+/Dockerfile*                         @HeadyMe/core-team
+/.github/workflows/                  @HeadyMe/core-team
+/infrastructure/                     @HeadyMe/core-team
+
+# ── SDK & Distribution ──
+/heady-hive-sdk/                     @HeadyMe/core-team
+/.npmignore                          @HeadyMe/core-team
+/.gitignore                          @HeadyMe/core-team
+
+# ── Agent Definitions ──
+/.agents/                            @HeadyMe/core-team

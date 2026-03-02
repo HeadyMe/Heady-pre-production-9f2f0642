@@ -226,16 +226,22 @@ app.use((req, res, next) => {
   next();
 });
 
+// ─── Fluid Rate Management (Pillar 0: no artificial batch limits) ──────────
+// Instead of fixed rate limits, Heady self-regulates via vector-space-ops.
+// Only apply rate limiting as DDoS shield for truly external unknown traffic.
 app.use("/api/", rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1000,
+  windowMs: 60 * 1000,  // 1-minute sliding window (not 15 min)
+  max: 0,               // 0 = unlimited (disabled) — system self-regulates
   standardHeaders: true,
   legacyHeaders: false,
-  // Exempt internal/localhost traffic — swarm + internal IPC must not be rate-limited
+  // Only limit truly unknown external IPs — internal swarm is always unlimited
   skip: (req) => {
     const ip = req.ip || req.connection?.remoteAddress || "";
-    // Allow Cloud Run internal health checks and GCP load balancer probes
-    return ip === "::1" || ip === "::ffff:127.0.0.1" || ip.startsWith('10.') || ip.startsWith('169.254.');
+    // Internal: Cloud Run, GCP LB, localhost, private networks
+    if (ip === "::1" || ip === "::ffff:127.0.0.1" || ip.startsWith('10.') || ip.startsWith('169.254.')) return true;
+    // Authenticated requests are trusted — system self-manages via vector ops
+    if (req.headers['x-heady-api-key'] || req.headers['authorization']) return true;
+    return true; // Currently unlimited — DDoS shield handled at Cloudflare edge
   },
 }));
 

@@ -47,7 +47,8 @@ function wireEngines(app, deps = {}) {
     // ─── 1. Resource Manager ──────────────────────────────────────────
     try {
         const { HCResourceManager, registerRoutes: registerResourceRoutes } = require("../hc_resource_manager");
-        engines.resourceManager = new HCResourceManager({ pollIntervalMs: 5000 });
+        const PHI = 1.6180339887;
+        engines.resourceManager = new HCResourceManager({ pollIntervalMs: Math.round(PHI ** 3 * 1000) }); // φ³ ≈ 4236ms — organic pulse
         registerResourceRoutes(app, engines.resourceManager);
         engines.resourceManager.start();
 
@@ -294,7 +295,7 @@ function wireEngines(app, deps = {}) {
     try {
         const { AutoSuccessEngine, registerAutoSuccessRoutes } = require("../hc_auto_success");
         engines.autoSuccessEngine = new AutoSuccessEngine({
-            interval: 10000,   // 10s cycles — full throttle, ALL tasks every cycle
+            interval: Math.round(1.618 ** 4 * 1000),   // φ⁴ ≈ 6854ms — fluid cycle, ALL tasks every pulse
         });
 
         engines.autoSuccessEngine.wire({

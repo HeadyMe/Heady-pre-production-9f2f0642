@@ -93,14 +93,16 @@ class PoolTimeoutError extends Error {
     constructor(msg) { super(msg); this.name = 'PoolTimeoutError'; }
 }
 
-// ─── Named Pool Instances ──────────────────────────────────────────
-// As recommended by registry: cloud-requests, file-operations
+// ─── Named Pool Instances (PHI-scaled — fluid, not fixed) ──────────────────
+// Limits derive from φ scaling: each pool gets capacity proportional to its role.
+// These are high-water marks, not throttles — system self-regulates via vector-ops.
+const PHI = 1.618;
 const pools = {
-    cloud: new ConnectionPool('cloud', { maxConcurrent: 8, queueLimit: 30, timeoutMs: 30000 }),
-    file: new ConnectionPool('file', { maxConcurrent: 20, queueLimit: 100, timeoutMs: 10000 }),
-    ai: new ConnectionPool('ai', { maxConcurrent: 6, queueLimit: 20, timeoutMs: 60000 }),      // AI calls are slow
-    edge: new ConnectionPool('edge', { maxConcurrent: 15, queueLimit: 50, timeoutMs: 5000 }),
-    database: new ConnectionPool('database', { maxConcurrent: 10, queueLimit: 40, timeoutMs: 15000 }),
+    cloud: new ConnectionPool('cloud', { maxConcurrent: Math.round(PHI ** 4), queueLimit: 100, timeoutMs: 30000 }),  // ~7 → fluid
+    file: new ConnectionPool('file', { maxConcurrent: Math.round(PHI ** 6), queueLimit: 200, timeoutMs: 10000 }),  // ~18 → disk-bound
+    ai: new ConnectionPool('ai', { maxConcurrent: Math.round(PHI ** 5), queueLimit: 50, timeoutMs: 90000 }),  // ~11 → API-bound
+    edge: new ConnectionPool('edge', { maxConcurrent: Math.round(PHI ** 6), queueLimit: 150, timeoutMs: 5000 }),   // ~18 → fast
+    database: new ConnectionPool('database', { maxConcurrent: Math.round(PHI ** 5), queueLimit: 80, timeoutMs: 15000 }), // ~11
 };
 
 function getPool(name, options) {

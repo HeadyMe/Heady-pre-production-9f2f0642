@@ -134,7 +134,7 @@ class AgentOrchestrator extends EventEmitter {
         this._scaleInterval = setInterval(() => this._autoScale(), SCALE_CHECK_MS);
 
         // Automated Performance Profiling Feedback Loop
-        this._profilingInterval = setInterval(() => this._profilePerformanceAndPrune(), 60000);
+        this._profilingInterval = setInterval(() => this._profilePerformanceAndPrune(), Math.round(PHI ** 7 * 1000)); // φ⁷ ≈ 29s — organic profiling pulse
 
         // Pre-spawn minimum supervisors across all service groups
         this._ensureMinimum();

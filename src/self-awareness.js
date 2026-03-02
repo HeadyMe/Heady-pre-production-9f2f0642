@@ -333,7 +333,7 @@ function startSelfAwareness() {
         });
         setTimeout(scheduleNext, brandingScanInterval());
     };
-    setTimeout(scheduleNext, 30000); // initial delay
+    setTimeout(scheduleNext, Math.round(PHI ** 6 * 1000)); // φ⁶ ≈ 17,944ms — organic initial delay
 
     // Log self-awareness boot
     ingestTelemetry({

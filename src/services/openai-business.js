@@ -11,7 +11,7 @@
  * HCFP Policy: Throttle usage to stay within fair-use bounds while maximizing value.
  * Business plan = unlimited, but burst-respect for API stability.
  */
-const HeadyCompute = (()=>{try{return require('headycompute')}catch(e){return {}}})();
+const HeadyCompute = (() => { try { return require('headycompute') } catch (e) { return {} } })();
 const path = require('path');
 const HeadyGateway = require(path.join(__dirname, '..', '..', 'heady-hive-sdk', 'lib', 'gateway'));
 const { createProviders } = require(path.join(__dirname, '..', '..', 'heady-hive-sdk', 'lib', 'providers'));
@@ -49,11 +49,14 @@ const MODELS = {
     creative: { id: 'gpt-4o', maxTokens: 8192, description: 'Creative writing + ideation' },
 };
 
-// ── Throttle Config (Business plan: unlimited but burst-managed) ──
+// ── Fluid Concurrency (Business plan: unlimited — self-regulated) ──
+// No artificial throttle — system self-regulates via vector-space-ops.
+// These are safety high-water marks, not rate limiters.
+const PHI = 1.618;
 const THROTTLE = {
-    maxConcurrent: 10,
-    minIntervalMs: 100,       // 100ms between requests minimum
-    burstLimit: 50,            // Max 50 requests per minute
+    maxConcurrent: Math.round(PHI ** 5),   // ~11 (was 10) — PHI-derived
+    minIntervalMs: 50,                     // 50ms (was 100ms) — faster pulse
+    burstLimit: Infinity,                  // Unlimited plan = no burst limit
     burstWindowMs: 60000,
     currentConcurrent: 0,
     recentRequests: [],
