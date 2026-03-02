@@ -34,6 +34,16 @@ class HeadyLogger {
     logSystem(message) {
         this.logger.info({ node: 'SYSTEM' }, message);
     }
+
+    // ─── Proxy Methods — pass-through to pino for direct calls ──────
+    // 40+ files call logger.warn(), logger.info(), etc. directly
+    info(...args) { return this.logger.info(...args); }
+    warn(...args) { return this.logger.warn(...args); }
+    error(...args) { return this.logger.error(...args); }
+    debug(...args) { return this.logger.debug(...args); }
+    trace(...args) { return this.logger.trace(...args); }
+    fatal(...args) { return this.logger.fatal(...args); }
+    child(bindings) { return this.logger.child(bindings); }
 }
 
 module.exports = new HeadyLogger();
