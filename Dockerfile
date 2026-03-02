@@ -33,7 +33,7 @@ COPY scripts/ ./scripts/
 COPY services/ ./services/
 COPY heady-hive-sdk/ ./heady-hive-sdk/
 COPY public/ ./public/
-COPY data/ ./data/
+# data/ is .gitignored — created by RUN mkdir below
 
 # Create writable dirs for runtime data — non-root user IS the security boundary
 RUN mkdir -p /app/data/logs /app/data/vector-shards && \
