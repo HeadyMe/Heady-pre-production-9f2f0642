@@ -461,6 +461,39 @@ function wireEngines(app, deps = {}) {
         // Expose globally for liquid architecture access
         global.__headyBees = engines.bees;
 
+        // ── CROSS-WIRE: ResourceManager → Bees safe mode ──
+        if (engines.resourceManager) {
+            engines.resourceManager.on("mitigation:safe_mode_activated", () => {
+                engines.bees.enterSafeMode();
+                logger.logNodeActivity("CONDUCTOR", "  🐝 Bees: SAFE MODE — resource pressure detected");
+            });
+            engines.resourceManager.on("resource_event", (event) => {
+                if (event.severity === "OK" && engines.bees._safeMode) {
+                    engines.bees.exitSafeMode();
+                    logger.logNodeActivity("CONDUCTOR", "  🐝 Bees: SAFE MODE OFF — resources recovered");
+                }
+            });
+        }
+
+        // ── CROSS-WIRE: PatternEngine → Blast history enrichment ──
+        if (engines.patternEngine) {
+            engines.patternEngine.on("pattern:converged", (data) => {
+                engines.bees.emit("pattern:learned", { pattern: data.name, confidence: data.confidence });
+            });
+        }
+
+        // ── CROSS-WIRE: Projection staleness → Auto-blast sync bees ──
+        if (global.eventBus) {
+            global.eventBus.on("projections:stale", async (data) => {
+                try {
+                    await engines.bees.autoBlast("sync-projection", { trigger: "stale-projection", targets: data.targets });
+                    logger.logNodeActivity("CONDUCTOR", `  🐝 Auto-blast: sync-projection (${data.targets?.length || 0} stale targets)`);
+                } catch (err) {
+                    logger.logNodeActivity("CONDUCTOR", `  ⚠ Auto-blast sync-projection failed: ${err.message}`);
+                }
+            });
+        }
+
         logger.logNodeActivity("CONDUCTOR", `  🐝 HeadyBees: LOADED (liquid atom swarm — ${discoveredCount} workers, materialize, blast, dissolve)`);
         logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/bees/health, /status, /history, /blast, /blast/health");
     } catch (err) {

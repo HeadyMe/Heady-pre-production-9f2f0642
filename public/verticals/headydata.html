@@ -116,6 +116,12 @@ footer{text-align:center;padding:3rem;color:rgba(255,255,255,.3);font-size:.75re
 </div>
 </div>
 <script>
+const DK='heady_device_id', TK='heady_auth_token', HK='buddy_history_headydata';
+if(!localStorage.getItem(DK)){localStorage.setItem(DK,(crypto&&crypto.randomUUID)?crypto.randomUUID():'heady-'+Date.now());}
+function safe(v){return (v||'').toString().replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function historyKey(){var t=localStorage.getItem(TK)||'anon';return HK+':'+t.slice(0,16);}
+function loadHistory(){try{return JSON.parse(localStorage.getItem(historyKey())||'[]');}catch{return [];}}
+function saveHistory(items){localStorage.setItem(historyKey(),JSON.stringify(items.slice(-40)));}
 function toggleHeadyChat(){var p=document.getElementById('heady-chat-panel');if(p.classList.contains('open')){p.classList.remove('open');p.style.display='none';}else{p.classList.add('open');p.style.display='flex';document.getElementById('heady-chat-input').focus();var m=document.getElementById('heady-chat-messages');m.scrollTop=m.scrollHeight;}}
 async function sendHeadyChat(){var input=document.getElementById('heady-chat-input');var msg=input.value.trim();if(!msg)return;input.value='';var container=document.getElementById('heady-chat-messages');container.innerHTML+='<div class="hc-msg user"><div class="hc-bubble">'+msg.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></div>';container.innerHTML+='<div class="hc-msg bot" id="heady-typing-msg"><div class="hc-typing"><span>.</span><span>.</span><span>.</span></div></div>';container.scrollTop=container.scrollHeight;try{var r=await fetch((window.location.origin)+'/api/brain/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,context:{vertical:'headydata.com'}})});var d=await r.json();var reply=(d.response||d.message||d.text||'Processing via HeadyData...').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');var t=document.getElementById('heady-typing-msg');if(t)t.remove();container.innerHTML+='<div class="hc-msg bot"><div class="hc-bubble">'+reply+'</div></div>';container.scrollTop=container.scrollHeight;}catch(e){var t=document.getElementById('heady-typing-msg');if(t)t.remove();container.innerHTML+='<div class="hc-msg bot"><div class="hc-bubble">Connected to HeadyData ecosystem. Full context active! ✨</div></div>';container.scrollTop=container.scrollHeight;}}
 </script>

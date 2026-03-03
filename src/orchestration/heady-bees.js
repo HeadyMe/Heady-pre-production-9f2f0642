@@ -326,7 +326,7 @@ class HeadyBees extends EventEmitter {
 
     /**
      * Blast all registered bee workers from the registry.
-     * Auto-discovers available workers and blasts them all.
+     * Auto-discovers available workers and blasts them ALL IN PARALLEL.
      * The swarm decides parallelism — not the developer.
      *
      * @param {Object} context - Context passed to all workers
@@ -336,13 +336,39 @@ class HeadyBees extends EventEmitter {
         try {
             const registry = require("../bees/registry");
             const tasks = registry.getAllWork(context);
-            const results = [];
-            for (const task of tasks) {
-                results.push(await this.blast(task));
-            }
-            return results;
+            // PARALLEL — all domains blast simultaneously
+            const settled = await Promise.allSettled(
+                tasks.map(task => this.blast(task))
+            );
+            return settled.map(r =>
+                r.status === "fulfilled" ? r.value : { ok: false, error: r.reason?.message || "Blast failed" }
+            );
         } catch (err) {
             return [{ ok: false, error: `Registry blast failed: ${err.message}` }];
+        }
+    }
+
+    /** Enter safe mode — reduce concurrency for resource conservation */
+    enterSafeMode() {
+        this._safeMode = true;
+        this.emit("bees:safe_mode", { active: true, ts: new Date().toISOString() });
+    }
+
+    /** Exit safe mode — restore full concurrency */
+    exitSafeMode() {
+        this._safeMode = false;
+        this.emit("bees:safe_mode", { active: false, ts: new Date().toISOString() });
+    }
+
+    /** Auto-blast a specific bee domain (used by projection staleness events) */
+    async autoBlast(domain, context = {}) {
+        try {
+            const registry = require("../bees/registry");
+            const work = registry.getWork(domain, context);
+            if (work.length === 0) return { ok: false, error: `No work for domain: ${domain}` };
+            return this.blast({ name: `auto-${domain}`, work, urgency: 0.9, context });
+        } catch (err) {
+            return { ok: false, error: `Auto-blast failed: ${err.message}` };
         }
     }
 

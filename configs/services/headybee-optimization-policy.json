@@ -1,14 +1,14 @@
 {
-    "version": 2,
-    "updatedAt": "2026-03-03T02:46:00.000Z",
+    "version": 3,
+    "updatedAt": "2026-03-03T18:05:49.178Z",
     "scoring": {
         "weights": {
-            "skills": 0.20,
-            "workflows": 0.20,
-            "nodes": 0.10,
+            "skills": 0.2,
+            "workflows": 0.2,
+            "nodes": 0.1,
             "headyswarmTasks": 0.25,
             "bees": 0.15,
-            "situations": 0.10
+            "situations": 0.1
         },
         "limits": {
             "skills": 10,
@@ -31,7 +31,9 @@
         "6": "data",
         "7": "finops",
         "8": "observability",
-        "9": "creative"
+        "9": "creative",
+        "10": "networking",
+        "11": "user-experience"
     },
     "beePriorityFloor": 0.5,
     "templateActivationThreshold": 0.3

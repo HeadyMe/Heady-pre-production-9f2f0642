@@ -1,8 +1,13 @@
 {
-    "version": 1,
-    "generatedAt": "2026-03-02T06:09:02.793Z",
+    "version": 2,
+    "generatedAt": "2026-03-03T16:16:20.000Z",
     "mode": "autonomous-dynamic-projection",
     "source": "configs/services/product-repos.yaml",
+    "sourceOfTruth": "monorepo, cloud-only execution",
+    "drift": {
+        "swEjected": true,
+        "buddyWidgetVersion": "v3.0-auth-aware"
+    },
     "axisWeights": [
         0.246942623048347,
         0.3326760279035857,
