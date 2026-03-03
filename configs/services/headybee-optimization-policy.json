@@ -1,19 +1,38 @@
 {
-    "version": 1,
-    "defaults": {
-        "templatesPerSituation": 3,
-        "topTemplates": 5
+    "version": 2,
+    "updatedAt": "2026-03-03T02:46:00.000Z",
+    "scoring": {
+        "weights": {
+            "skills": 0.20,
+            "workflows": 0.20,
+            "nodes": 0.10,
+            "headyswarmTasks": 0.25,
+            "bees": 0.15,
+            "situations": 0.10
+        },
+        "limits": {
+            "skills": 10,
+            "workflows": 8,
+            "nodes": 5,
+            "headyswarmTasks": 8,
+            "bees": 6,
+            "situations": 6
+        },
+        "minimumScore": 0.25,
+        "maxTemplatesPerSituation": 5
     },
-    "weights": {
-        "skills": 0.3,
-        "workflows": 0.25,
-        "nodes": 0.2,
-        "headyswarmTasks": 0.25
+    "zones": {
+        "0": "core-operations",
+        "1": "vector-memory",
+        "2": "security",
+        "3": "deployment",
+        "4": "intelligence",
+        "5": "resilience",
+        "6": "data",
+        "7": "finops",
+        "8": "observability",
+        "9": "creative"
     },
-    "max": {
-        "skills": 8,
-        "workflows": 6,
-        "nodes": 5,
-        "headyswarmTasks": 8
-    }
+    "beePriorityFloor": 0.5,
+    "templateActivationThreshold": 0.3
 }

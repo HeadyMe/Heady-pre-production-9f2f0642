@@ -21,10 +21,13 @@ function readRegistry(filePath = REGISTRY_PATH) {
 
 function readOptimizationPolicy(filePath = OPTIMIZATION_POLICY_PATH) {
     const parsed = readJson(filePath);
-    if (!parsed || typeof parsed !== 'object' || !parsed.weights) {
+    if (!parsed || typeof parsed !== 'object') {
         throw new Error(`Invalid HeadyBee optimization policy: ${filePath}`);
     }
-    return parsed;
+    // Normalize v2 (scoring.weights/limits) and v1 (weights/max) structures
+    const weights = parsed.scoring?.weights || parsed.weights || {};
+    const max = parsed.scoring?.limits || parsed.max || {};
+    return { ...parsed, weights, max };
 }
 
 function hashRegistry(registry) {
@@ -92,6 +95,8 @@ function scoreTemplate(template, policy = readOptimizationPolicy()) {
         ((template.workflows || []).length / (max.workflows || 1)) * (weights.workflows || 0),
         ((template.nodes || []).length / (max.nodes || 1)) * (weights.nodes || 0),
         ((template.headyswarmTasks || []).length / (max.headyswarmTasks || 1)) * (weights.headyswarmTasks || 0),
+        ((template.bees || []).length / (max.bees || 1)) * (weights.bees || 0),
+        ((template.situations || []).length / (max.situations || 1)) * (weights.situations || 0),
     ];
 
     return Number(weighted.reduce((sum, value) => sum + value, 0).toFixed(6));
