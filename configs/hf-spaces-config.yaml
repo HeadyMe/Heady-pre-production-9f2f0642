@@ -1,0 +1,41 @@
+# Heady HuggingFace Spaces — Canonical Configuration
+# Used by scripts/deploy-hf-spaces.js for dynamic delivery
+version: 1
+api_url_default: https://api.headysystems.com
+
+spaces:
+  - id: heady-brain-demo
+    org: HeadyMe
+    repo: heady-ai
+    source: heady-hf-spaces/main
+    title: "Heady AI — Brain Demo"
+    emoji: "🐝"
+    sdk: static
+    pinned: true
+    shared_assets:
+      - buddy-widget.js
+      - heady-runtime.js
+
+  - id: heady-systems
+    org: HeadySystems
+    repo: heady-systems
+    source: heady-hf-spaces/systems
+    title: "HeadySystems — Platform Operations Intelligence"
+    emoji: "⚡"
+    sdk: static
+    pinned: false
+    shared_assets:
+      - buddy-widget.js
+      - heady-runtime.js
+
+  - id: heady-connection
+    org: HeadyConnection
+    repo: heady-connection
+    source: heady-hf-spaces/connection
+    title: "HeadyConnection — AI for Nonprofit Impact"
+    emoji: "🤝"
+    sdk: static
+    pinned: false
+    shared_assets:
+      - buddy-widget.js
+      - heady-runtime.js

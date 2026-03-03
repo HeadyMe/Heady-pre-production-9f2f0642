@@ -8,7 +8,7 @@ import fs from 'fs-extra';
 import compression from 'compression';
 import { geminiChat, geminiChatStream, geminiEmbed, geminiStatus, listGeminiModels, HEADY_SYSTEM_PROMPT, AUTHORIZED_HEADY_KEYS } from './services/gemini.js';
 import { computeHCFP, getHCFPHistory, getHCFPSubsystem } from './services/hcfp.js';
-import { getAutonomyState, ingestConcept, runAutonomyTick, createAbletonSession, getAuditEvents, getMonorepoProjection, getAutonomyRuntimeStatus, startAutonomyLoop, subscribeAutonomyEvents } from './services/autonomy-engine.js';
+import { AutonomyValidationError, getAutonomyState, ingestConcept, runAutonomyTick, createAbletonSession, getAuditEvents, getMonorepoProjection, getAutonomyRuntimeStatus, getAutonomyDiagnostics, getDeterminismReport, getNodeResponsibilities, getTemplateIntelligence, getUnifiedOperatingModel, embedProjectSnapshot, embedRepositoryFromDisk, upsertVectorDocument, queryVectorWorkspace, refreshAutonomyProjection, getTemplateRegistry, registerTemplate, validateTemplateRegistry, recommendTemplateForSituation, runTemplateOptimizationCycle, getTemplateCoverageForecast, getTemplateReadinessMatrix, getDigitalPresenceReport, runAutonomyHardeningCycle, getMaintenanceOpsPlan, runMaintenanceSweep, startAutonomyLoop, stopAutonomyLoop, subscribeAutonomyEvents } from './services/autonomy-engine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -81,6 +81,18 @@ function requireAutonomyWriteAuth(req, res) {
         return false;
     }
     return true;
+}
+
+
+function handleAutonomyError(res, e) {
+    const status = e instanceof AutonomyValidationError ? (e.statusCode || 400) : 500;
+    res.status(status).json({ error: e.message });
+}
+
+
+function handleAutonomyError(res, e) {
+    const status = e instanceof AutonomyValidationError ? (e.statusCode || 400) : 500;
+    res.status(status).json({ error: e.message });
 }
 
 async function ensureFile(file, defaultContent = {}) {
@@ -265,7 +277,7 @@ app.post('/api/autonomy/ingest', async (req, res) => {
         const text = String(req.body?.text || '').trim();
         if (!text) return res.status(400).json({ error: 'text is required' });
         res.status(201).json(await ingestConcept({ text, priority: req.body?.priority || 'balanced' }));
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) { handleAutonomyError(res, e); }
 });
 
 app.post('/api/autonomy/tick', async (req, res) => {
@@ -273,7 +285,7 @@ app.post('/api/autonomy/tick', async (req, res) => {
         if (!requireAutonomyWriteAuth(req, res)) return;
         res.json(await runAutonomyTick('api'));
     }
-    catch (e) { res.status(500).json({ error: e.message }); }
+    catch (e) { handleAutonomyError(res, e); }
 });
 
 app.post('/api/autonomy/music-session', async (req, res) => {
@@ -282,7 +294,7 @@ app.post('/api/autonomy/music-session', async (req, res) => {
         const user = String(req.body?.user || '').trim();
         if (!user) return res.status(400).json({ error: 'user is required' });
         res.status(201).json(await createAbletonSession({ user, bpm: req.body?.bpm, key: req.body?.key }));
-    } catch (e) { res.status(500).json({ error: e.message }); }
+    } catch (e) { handleAutonomyError(res, e); }
 });
 
 app.get('/api/autonomy/audit', async (req, res) => {
@@ -297,21 +309,6 @@ app.get('/api/autonomy/monorepo-projection', async (req, res) => {
     catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-
-app.get('/api/autonomy/health', async (req, res) => {
-    try {
-        const runtime = await getAutonomyRuntimeStatus();
-        const health = runtime.alive && runtime.loopActive ? 'healthy' : 'degraded';
-        res.json({
-            health,
-            realtime: runtime.loopActive,
-            latencyMs: runtime.lastTickMs,
-            pendingConcepts: runtime.pendingConcepts,
-            tickIntervalMs: runtime.tickIntervalMs,
-        });
-    } catch (e) { res.status(500).json({ error: e.message }); }
-});
-
 app.get('/api/autonomy/runtime', async (req, res) => {
     try {
         const runtime = await getAutonomyRuntimeStatus();
@@ -320,20 +317,157 @@ app.get('/api/autonomy/runtime', async (req, res) => {
     catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/autonomy/control/start', async (req, res) => {
-    try {
-        if (!requireAutonomyAdmin(req, res)) return;
-        const started = startAutonomyLoop();
-        res.json({ success: true, started, runtime: await getAutonomyRuntimeStatus() });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+
+app.get('/api/autonomy/diagnostics', async (req, res) => {
+    try { res.json(await getAutonomyDiagnostics()); }
+    catch (e) { handleAutonomyError(res, e); }
 });
 
-app.post('/api/autonomy/control/stop', async (req, res) => {
+app.get('/api/autonomy/nodes', async (req, res) => {
+    try { res.json(await getNodeResponsibilities()); }
+    catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/vector/upsert', async (req, res) => {
     try {
-        if (!requireAutonomyAdmin(req, res)) return;
-        const stopped = stopAutonomyLoop();
-        res.json({ success: true, stopped, runtime: await getAutonomyRuntimeStatus() });
-    } catch (e) { res.status(500).json({ error: e.message }); }
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        const result = await upsertVectorDocument(req.body || {});
+        res.status(201).json(result);
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/vector/query', async (req, res) => {
+    try {
+        const result = await queryVectorWorkspace(req.body || {});
+        res.json(result);
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/vector/embed-project', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        const result = await embedProjectSnapshot(req.body || {});
+        res.status(201).json(result);
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+
+app.get('/api/autonomy/templates/intelligence', async (req, res) => {
+    try { res.json(await getTemplateIntelligence()); }
+    catch (e) { handleAutonomyError(res, e); }
+});
+
+app.get('/api/autonomy/templates/registry', async (req, res) => {
+    try { res.json(await getTemplateRegistry()); }
+    catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/templates/register', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        res.status(201).json(await registerTemplate(req.body || {}));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/templates/validate', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        res.json(await validateTemplateRegistry());
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/templates/recommend', async (req, res) => {
+    try {
+        const situation = String(req.body?.situation || '').trim();
+        if (!situation) return res.status(400).json({ error: 'situation is required' });
+        res.json(await recommendTemplateForSituation({ situation }));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/templates/optimize', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        const predictedSituations = Array.isArray(req.body?.predictedSituations) ? req.body.predictedSituations : [];
+        res.json(await runTemplateOptimizationCycle({ predictedSituations }));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.get('/api/autonomy/templates/coverage-forecast', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 20;
+        res.json(await getTemplateCoverageForecast(limit));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.get('/api/autonomy/templates/readiness', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 20;
+        res.json(await getTemplateReadinessMatrix(limit));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.get('/api/autonomy/maintenance/plan', async (req, res) => {
+    try { res.json(await getMaintenanceOpsPlan()); }
+    catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/maintenance/sweep', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        const removeStaleFiles = Boolean(req.body?.removeStaleFiles);
+        res.json(await runMaintenanceSweep({ removeStaleFiles }));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/hardening/run', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        const removeStaleFiles = Boolean(req.body?.removeStaleFiles);
+        res.json(await runAutonomyHardeningCycle({ removeStaleFiles }));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.get('/api/autonomy/digital-presence/report', async (req, res) => {
+    try { res.json(await getDigitalPresenceReport()); }
+    catch (e) { handleAutonomyError(res, e); }
+});
+
+
+app.get('/api/autonomy/determinism', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 50;
+        res.json(await getDeterminismReport(limit));
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.get('/api/autonomy/unified-model', async (req, res) => {
+    try { res.json(await getUnifiedOperatingModel()); }
+    catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/vector/embed-repo', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        const result = await embedRepositoryFromDisk(req.body || {});
+        res.status(201).json(result);
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/control', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        const action = String(req.body?.action || '').trim();
+        if (action === 'pause') return res.json({ action, changed: stopAutonomyLoop() });
+        if (action === 'resume') return res.json({ action, changed: startAutonomyLoop() });
+        return res.status(400).json({ error: 'action must be pause or resume' });
+    } catch (e) { handleAutonomyError(res, e); }
+});
+
+app.post('/api/autonomy/projection/refresh', async (req, res) => {
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        res.json(await refreshAutonomyProjection());
+    } catch (e) { handleAutonomyError(res, e); }
 });
 
 app.get('/api/autonomy/stream', async (req, res) => {
@@ -431,6 +565,13 @@ app.listen(PORT, '0.0.0.0', async () => {
     await addLog('info', `Admin server started on port ${PORT}`, 'system');
 
     startAutonomyLoop();
+
+    setInterval(() => {
+        const now = Date.now();
+        for (const [key, rec] of autonomyRateMap.entries()) {
+            if (rec.resetAt + AUTONOMY_RATE_WINDOW_MS < now) autonomyRateMap.delete(key);
+        }
+    }, AUTONOMY_RATE_WINDOW_MS);
 });
 
 export default app;

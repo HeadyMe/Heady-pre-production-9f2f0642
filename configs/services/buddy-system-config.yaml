@@ -1,0 +1,91 @@
+version: 1
+mode: buddy-system-spatial-3d
+updated_at: 2026-03-03T00:00:00Z
+objective: >-
+  Maintain zero-latency context retrieval for all Executor nodes by mapping
+  persistent project data into a 3D spatial coordinate system and pre-fetching
+  adjacent memory blocks predictively.
+
+axes:
+  x:
+    label: semantic-domain
+    description: >-
+      Backend infrastructure (negative) ↔ Frontend UI (positive).
+      Maps functional category of data along the build-stack spectrum.
+    range: [-1.0, 1.0]
+    anchors:
+      - value: -1.0
+        label: deep-infra
+        examples: [CI/CD scripts, Dockerfile, database migrations]
+      - value: -0.5
+        label: backend-logic
+        examples: [Express routes, middleware, heady-manager.js]
+      - value: 0.0
+        label: shared-services
+        examples: [auth, logging, config parsing]
+      - value: 0.5
+        label: frontend-logic
+        examples: [React components, Vite config, client-side routing]
+      - value: 1.0
+        label: ui-presentation
+        examples: [CSS, icons, landing pages, site-generator output]
+  y:
+    label: temporal-state
+    description: >-
+      Foundational / historical (low) ↔ Real-time / active (high).
+      Creates chronological stratification of project memory.
+    range: [0.0, 1.0]
+    anchors:
+      - value: 0.0
+        label: foundational
+        examples: [initial scaffolding, deprecated logic, archived decisions]
+      - value: 0.5
+        label: stable
+        examples: [merged PRs, validated configs, production code]
+      - value: 1.0
+        label: realtime
+        examples: [active chat, current session, uncommitted changes]
+  z:
+    label: structural-hierarchy
+    description: >-
+      Literal / granular (low) ↔ Abstract / architectural (high).
+      Separates specific code lines from broad system concepts.
+    range: [0.0, 1.0]
+    anchors:
+      - value: 0.0
+        label: literal
+        examples: [specific code lines, error codes, variable names]
+      - value: 0.5
+        label: modular
+        examples: [function signatures, class APIs, route definitions]
+      - value: 1.0
+        label: architectural
+        examples: [HCFullPipeline definition, Sacred Geometry topology, system goals]
+
+octree:
+  max_depth: 8
+  min_node_size: 0.01
+  max_items_per_leaf: 16
+  bounds:
+    min: [-1.0, 0.0, 0.0]
+    max: [1.0, 1.0, 1.0]
+
+prefetch:
+  radius: 0.15
+  trajectory_lookahead_steps: 3
+  trajectory_smoothing: 0.7
+  max_prefetch_items: 64
+  cache_ttl_seconds: 300
+
+temporal_decay:
+  enabled: true
+  lambda: 0.001
+  min_relevance: 0.05
+
+redis:
+  key_prefix: "buddy:spatial:"
+  pool_min: 5
+  pool_max: 25
+  retry_backoff_base_ms: 100
+  retry_backoff_max_ms: 5000
+  retry_max_attempts: 5

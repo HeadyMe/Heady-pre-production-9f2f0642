@@ -1,0 +1,29 @@
+{
+    "version": 1,
+    "generatedAt": "2026-03-03T00:00:00.000Z",
+    "description": "Unified Autonomy Snapshot — baseline state for the autonomy runtime",
+    "runtime": {
+        "initialized": false,
+        "startedAt": null,
+        "tickCount": 0
+    },
+    "templateRegistry": {
+        "templates": [],
+        "validation": null,
+        "projection": null,
+        "outcomes": {}
+    },
+    "maintenance": {
+        "lastAudit": null
+    },
+    "digitalPresence": {
+        "lastRunAt": null,
+        "lastScore": null,
+        "runs": 0
+    },
+    "embedding": {
+        "totalJobs": 0,
+        "completedJobs": 0,
+        "pendingJobs": 0
+    }
+}

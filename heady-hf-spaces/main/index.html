@@ -1284,38 +1284,55 @@
             // Smart local response (instant)
             const localResponse = getLocalResponse(msg);
 
-            // Try remote API with a short timeout, fall back to local
+            // ── Helper: extract reply from any API response format
+            function extractDemoReply(data) {
+                if (!data) return null;
+                if (data.response && typeof data.response === 'string' && data.response.length > 5 && !data.endpoint) return data.response;
+                if (data.choices?.[0]?.message?.content) return data.choices[0].message.content;
+                if (data.text && typeof data.text === 'string') return data.text;
+                if (data.candidates?.[0]?.content?.parts?.[0]?.text) return data.candidates[0].content.parts[0].text;
+                return null;
+            }
+
+            // Try HeadyBrain API → then HF fallback → then local
+            const API_URL = (window.HEADY_CONFIG && window.HEADY_CONFIG.apiUrl) || 'https://api.headysystems.com';
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
+            const timeout = setTimeout(() => controller.abort(), 8000);
+            let replied = false;
 
             try {
-                const res = await fetch('https://manager.headysystems.com/api/inference/chat', {
+                const res = await fetch(`${API_URL}/api/brain/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     signal: controller.signal,
-                    body: JSON.stringify({
-                        model: 'heady-brain-v3',
-                        messages: [
-                            { role: 'system', content: `You are HeadyBrain. ${HEADY_BRAIN.capabilities} ${HEADY_BRAIN.security} Guide users to headyme.com for onboarding.` },
-                            { role: 'user', content: msg },
-                        ],
-                        temperature: 0.7, max_tokens: 1024,
-                        source: 'hf-space-demo',
-                    }),
+                    body: JSON.stringify({ message: msg, system: `You are HeadyBrain. ${HEADY_BRAIN.capabilities} Guide users to headyme.com for onboarding.`, temperature: 0.7, max_tokens: 1024 }),
                 });
                 clearTimeout(timeout);
                 const data = await res.json();
                 const ms = Date.now() - start;
-                typing.remove();
-
-                if (data.choices?.[0]) {
-                    addMessage(data.choices[0].message.content, 'assistant', `HeadyBrain · ${ms}ms · Liquid Gateway`);
-                } else {
-                    // API returned but no valid response — use local
-                    addMessage(localResponse, 'assistant', `HeadyBrain · ${Date.now() - start}ms · Local Intelligence`);
+                const reply = extractDemoReply(data);
+                if (reply) {
+                    typing.remove();
+                    addMessage(reply, 'assistant', `HeadyBrain · ${ms}ms · Liquid Gateway`);
+                    replied = true;
                 }
-            } catch {
-                clearTimeout(timeout);
+            } catch { clearTimeout(timeout); }
+
+            if (!replied) {
+                try {
+                    const hfRes = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'Qwen/Qwen3-4B', messages: [{ role: 'system', content: 'You are HeadyBrain, the AI reasoning engine. Be helpful and concise.' }, { role: 'user', content: msg }], max_tokens: 1024, temperature: 0.7 }),
+                    });
+                    const hfData = await hfRes.json();
+                    const hfReply = extractDemoReply(hfData);
+                    typing.remove();
+                    if (hfReply) { addMessage(hfReply, 'assistant', `HeadyBrain · ${Date.now() - start}ms · HF Gateway`); replied = true; }
+                } catch { }
+            }
+
+            if (!replied) {
                 typing.remove();
                 addMessage(localResponse, 'assistant', `HeadyBrain · ${Date.now() - start}ms · Local Intelligence`);
             }
@@ -1427,37 +1444,36 @@ console.log('\\n✅ ' + heady.services + ' services across ' + heady.groups + ' 
             output.textContent = '🐝 Asking HeadyBrain...';
 
             try {
-                let res;
+                const ideApiUrl = (window.HEADY_CONFIG && window.HEADY_CONFIG.apiUrl) || 'https://api.headysystems.com';
+                const sysPrompt = 'You are HeadyBrain, an AI code assistant. Explain, improve, or debug the code provided. Be concise and actionable.';
+                const userMsg = `Analyze this code:\n\n${context}`;
+                let reply = null;
+
+                // Try HeadyBrain API
                 try {
-                    res = await fetch('https://manager.headysystems.com/api/inference/chat', {
+                    const res = await fetch(`${ideApiUrl}/api/brain/chat`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: 'Qwen/Qwen3-235B-A22B',
-                            messages: [
-                                { role: 'system', content: 'You are HeadyBrain, an AI code assistant. Explain, improve, or debug the code provided. Be concise and actionable.' },
-                                { role: 'user', content: `Analyze this code:\n\n${context}` },
-                            ],
-                            temperature: 0.5, max_tokens: 800,
-                            source: 'hf-space-ide',
-                        }),
+                        body: JSON.stringify({ message: userMsg, system: sysPrompt, temperature: 0.5, max_tokens: 800 }),
                     });
-                } catch {
-                    res = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
+                    const data = await res.json();
+                    reply = data.response || data.choices?.[0]?.message?.content || null;
+                    if (reply && (data.endpoint || data.routed)) reply = null; // metadata-only
+                } catch { }
+
+                // HF Fallback
+                if (!reply) {
+                    output.textContent = '🐝 Routing to HeadyBrain fallback...';
+                    const hfRes = await fetch('https://router.huggingface.co/novita/v3/openai/chat/completions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: 'Qwen/Qwen3-235B-A22B',
-                            messages: [
-                                { role: 'system', content: 'You are HeadyBrain, an AI code assistant. Explain, improve, or debug.' },
-                                { role: 'user', content: `Analyze this code:\n\n${context}` },
-                            ],
-                            temperature: 0.5, max_tokens: 800,
-                        }),
+                        body: JSON.stringify({ model: 'Qwen/Qwen3-4B', messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: userMsg }], temperature: 0.5, max_tokens: 800 }),
                     });
+                    const hfData = await hfRes.json();
+                    reply = hfData.choices?.[0]?.message?.content;
                 }
-                const data = await res.json();
-                output.textContent = data.choices?.[0]?.message?.content || 'No response from HeadyBrain';
+
+                output.textContent = reply || 'HeadyBrain is initializing. Please try again in a moment.';
             } catch (err) {
                 output.textContent = `❌ API Error: ${err.message}. The demo may need a valid HF token.`;
             }
@@ -1646,6 +1662,39 @@ console.log('\\n✅ ' + heady.services + ' services across ' + heady.groups + ' 
         })();
     </script>
 
+
+    <script>
+        window.HEADY_CONFIG = {
+            apiUrl: "https://api.headysystems.com",
+            spaceId: "main",
+            spaceOrg: "HeadyMe",
+            spaceRepo: "heady-ai",
+            version: "3.0.0",
+            buildTs: null,
+            statusPollMs: 30000
+        };
+        window.HEADY_API = "https://api.headysystems.com";
+    </script>
+    <script src="heady-runtime.js"></script>
+    <script>
+        // Live status badge updater for main space
+        (function () {
+            window.addEventListener('heady:status', function (e) {
+                var badges = document.querySelectorAll('.badge');
+                if (!badges.length) return;
+                var badge = badges[0];
+                var d = e.detail;
+                if (d && d.alive) {
+                    var score = d.healthScore || 0;
+                    if (score >= 0.8) badge.textContent = '🟢 All Systems Operational · v3.0.0';
+                    else if (score >= 0.5) badge.textContent = '🟡 Degraded Performance · v3.0.0';
+                    else badge.textContent = '🔴 System Issues · v3.0.0';
+                } else {
+                    badge.textContent = '⚪ System Offline · v3.0.0';
+                }
+            });
+        })();
+    </script>
     <script src="buddy-widget.js"></script>
 </body>
 

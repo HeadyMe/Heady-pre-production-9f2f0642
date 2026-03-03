@@ -1,0 +1,30 @@
+version: 1
+updated_at: 2026-03-03T00:00:00Z
+coverage:
+  min_template_score: 0.82
+  min_skill_matches: 1
+scenarios:
+  - id: incident-vector-recovery
+    priority: critical
+    tags: [incident, self-healing, swarm, research]
+    required_capabilities:
+      - gather_error_state
+      - run_deterministic_replay
+  - id: connector-ui-launch
+    priority: high
+    tags: [template, connector, ui, projection, research]
+    required_capabilities:
+      - vector_retrieval
+      - dynamic_connector_render
+  - id: autonomous-github-source-sync
+    priority: high
+    tags: [github, sync, source-of-truth, projection]
+    required_capabilities:
+      - repo_diff_monitor
+      - integrity_validation
+  - id: infra-prune-safety
+    priority: medium
+    tags: [cleanup, cloudflare, gcloud, maintenance, research]
+    required_capabilities:
+      - detect_unreferenced_assets
+      - validate_removal_plan

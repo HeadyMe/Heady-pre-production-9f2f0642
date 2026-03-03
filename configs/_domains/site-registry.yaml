@@ -141,16 +141,19 @@ sites:
 
   # ── HuggingFace Spaces (3) ──
   - id: hf-brain-demo
-    url: https://huggingface.co/spaces/headysystems/heady-brain
-    dir: /home/headyme/Heady/heady-hf-space
+    url: https://huggingface.co/spaces/HeadyMe/heady-ai
+    dir: heady-hf-spaces/main
+    deploy_script: scripts/deploy-hf-spaces.js
 
   - id: hf-systems
-    url: https://huggingface.co/spaces/headysystems/heady-systems
-    dir: /home/headyme/Heady/heady-hf-space-systems
+    url: https://huggingface.co/spaces/HeadySystems/heady-systems
+    dir: heady-hf-spaces/systems
+    deploy_script: scripts/deploy-hf-spaces.js
 
   - id: hf-connection
-    url: https://huggingface.co/spaces/headysystems/heady-connection
-    dir: /home/headyme/Heady/heady-hf-space-connection
+    url: https://huggingface.co/spaces/HeadyConnection/heady-connection
+    dir: heady-hf-spaces/connection
+    deploy_script: scripts/deploy-hf-spaces.js
 
 # ── Summary ──
 # 8 public branded domains

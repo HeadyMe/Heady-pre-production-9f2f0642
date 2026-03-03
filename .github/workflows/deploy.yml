@@ -1,46 +1,66 @@
-name: Heady Deploy
+name: Heady Autonomous Projections
+
+# Triggered on any push to main/master — all deployments are projections
+# from the monorepo source of truth, which is itself a projection from
+# Heady's 3D vector space operations.
 
 on:
   push:
     branches: [main, master]
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Projection target (all, hf, cloudrun, edge, render)'
+        default: 'all'
+        type: string
+
+env:
+  NODE_VERSION: '22'
 
 jobs:
-  test:
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 1: Validate monorepo integrity
+  # ═══════════════════════════════════════════════════════════════
+  validate:
+    name: 🧬 Validate Monorepo
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
       - run: npm test --if-present
-      - name: Health Check Dry Run
+      - name: Vault Health Check
         run: |
-          timeout 10 node heady-manager.js &
-          sleep 5
-          curl -f http://localhost:3301/api/pulse
-          kill %1
+          node -e "
+            const vault = require('./src/vector-secrets-vault');
+            const stats = vault.getStats();
+            console.log('🔐 Vault:', stats.totalSecrets, 'secrets in', Object.keys(stats.zoneDistribution).length, 'zones');
+          "
 
-  deploy-cloud-run:
-    needs: test
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 2: Project to Cloud Run (primary compute)
+  # ═══════════════════════════════════════════════════════════════
+  project-cloudrun:
+    name: ☁️ Project → Cloud Run
+    needs: validate
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: |
+      (github.event_name == 'push') ||
+      (github.event.inputs.target == 'all' || github.event.inputs.target == 'cloudrun')
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy heady-manager \
@@ -55,27 +75,93 @@ jobs:
             --timeout 300 \
             --set-env-vars="NODE_ENV=production"
 
-  deploy-render:
-    needs: test
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 3: Project to HuggingFace Spaces (static frontends)
+  # ═══════════════════════════════════════════════════════════════
+  project-hf-spaces:
+    name: 🤗 Project → HF Spaces
+    needs: validate
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: |
+      (github.event_name == 'push') ||
+      (github.event.inputs.target == 'all' || github.event.inputs.target == 'hf')
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy to Render
-        if: env.RENDER_DEPLOY_HOOK != ''
-        run: curl -X POST "$RENDER_DEPLOY_HOOK"
+        with:
+          fetch-depth: 0
+          lfs: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Install git-lfs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq git-lfs
+          git lfs install
+      - name: Build & Deploy HF Spaces
         env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: node scripts/deploy-hf-spaces.js
 
-  deploy-edge:
-    needs: test
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 4: Project to Cloudflare Edge (proxy layer)
+  # ═══════════════════════════════════════════════════════════════
+  project-edge:
+    name: ⚡ Project → Cloudflare Edge
+    needs: validate
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: |
+      (github.event_name == 'push') ||
+      (github.event.inputs.target == 'all' || github.event.inputs.target == 'edge')
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy Edge Proxy to Cloudflare
+      - name: Deploy Edge Proxy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: cloudflare-workers
           command: deploy heady-edge-proxy.js
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 5: Project to Render (backup)
+  # ═══════════════════════════════════════════════════════════════
+  project-render:
+    name: 🔄 Project → Render
+    needs: validate
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push') ||
+      (github.event.inputs.target == 'all' || github.event.inputs.target == 'render')
+    steps:
+      - name: Trigger Render Deploy
+        if: env.RENDER_DEPLOY_HOOK != ''
+        run: curl -X POST "$RENDER_DEPLOY_HOOK"
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+
+  # ═══════════════════════════════════════════════════════════════
+  # PHASE 6: Verify all projections
+  # ═══════════════════════════════════════════════════════════════
+  verify-projections:
+    name: ✅ Verify Projections
+    needs: [project-cloudrun, project-hf-spaces, project-edge, project-render]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health Probes
+        run: |
+          echo "🐝 Verifying all Heady projections..."
+          for url in \
+            "https://manager.headysystems.com/api/health" \
+            "https://huggingface.co/spaces/HeadyMe/heady-ai" \
+            "https://huggingface.co/spaces/HeadySystems/heady-systems" \
+            "https://huggingface.co/spaces/HeadyConnection/heady-connection"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "  ✅ $url → $STATUS"
+            else
+              echo "  ⚠️  $url → $STATUS"
+            fi
+          done

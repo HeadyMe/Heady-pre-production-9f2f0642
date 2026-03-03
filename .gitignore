@@ -132,3 +132,7 @@ docker-compose.*.local.yml
 *.token
 .heady-session/
 
+
+# Vector Vault encrypted secrets (NEVER commit)
+data/vector-secrets-vault.enc
+data/secrets-audit.jsonl

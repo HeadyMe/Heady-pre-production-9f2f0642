@@ -733,8 +733,20 @@
             event.target.classList.add('active');
         }
     </script>
-<script>window.HEADY_API="https://api.headysystems.com";</script>
-<script src="buddy-widget.js"></script>
+    <script>
+        window.HEADY_CONFIG = {
+            apiUrl: "https://api.headysystems.com",
+            spaceId: "connection",
+            spaceOrg: "HeadyConnection",
+            spaceRepo: "heady-connection",
+            version: "3.0.0",
+            buildTs: null,
+            statusPollMs: 30000
+        };
+        window.HEADY_API = "https://api.headysystems.com";
+    </script>
+    <script src="heady-runtime.js"></script>
+    <script src="buddy-widget.js"></script>
 </body>
 
 </html>

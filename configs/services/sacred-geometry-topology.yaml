@@ -1,0 +1,134 @@
+version: 1
+mode: sacred-geometry-multi-agent-topology
+updated_at: 2026-03-03T00:00:00Z
+objective: >-
+  Define symmetrical polyhedral agent topologies where inter-agent communication
+  latency is mathematically equalized. Agents are positioned via the 3D coordinate
+  system — distances dictate routing priority and context-passing bandwidth.
+
+# ═══════════════════════════════════════════════════════════
+# Tetrahedral Base — 4-node pyramid (foundation topology)
+# All edges equidistant → no routing bottleneck
+# ═══════════════════════════════════════════════════════════
+topologies:
+  tetrahedron:
+    description: >-
+      Foundation 4-node arrangement. Every agent is exactly one hop from
+      every other agent — mathematically symmetrical latency.
+    nodes:
+      - id: synthesizer
+        role: apex
+        responsibilities:
+          - final output generation
+          - user interaction and tone alignment
+          - cross-agent result fusion
+        position: [0.0, 0.9, 0.9]
+        mcp_context_capacity: 128000
+
+      - id: context-retriever
+        role: base-1
+        responsibilities:
+          - historical data querying
+          - RAG operations
+          - knowledge graph traversal
+          - episodic memory retrieval
+        position: [-0.8, 0.5, 0.3]
+        mcp_context_capacity: 64000
+
+      - id: executor
+        role: base-2
+        responsibilities:
+          - strict logic and code generation
+          - external API calling
+          - trade execution (Apex 3.0)
+          - CI/CD pipeline triggering
+        position: [0.8, 0.5, 0.3]
+        mcp_context_capacity: 64000
+
+      - id: buddy
+        role: base-3
+        responsibilities:
+          - continuous data ingestion
+          - 3D spatial embedding (X/Y/Z mapping)
+          - octree cache synchronization
+          - predictive pre-fetching
+          - trajectory anticipation
+        position: [0.0, 0.2, 0.1]
+        mcp_context_capacity: 32000
+
+    edges:
+      - [synthesizer, context-retriever]
+      - [synthesizer, executor]
+      - [synthesizer, buddy]
+      - [context-retriever, executor]
+      - [context-retriever, buddy]
+      - [executor, buddy]
+
+  # ═══════════════════════════════════════════════════════════
+  # Octahedral Scale — 6-node (adds Guardian + Optimizer)
+  # ═══════════════════════════════════════════════════════════
+  octahedron:
+    description: >-
+      Scaled 6-node arrangement adding Guardian (security/ethics) and
+      Optimizer (performance/cost). 12 equidistant edges, dual-redundant
+      paths between any pair.
+    extends: tetrahedron
+    additional_nodes:
+      - id: guardian
+        role: security
+        responsibilities:
+          - karma-based user recognition
+          - prompt fidelity validation
+          - zero-trust package verification
+          - credential rotation enforcement
+        position: [0.0, 0.7, 0.5]
+        mcp_context_capacity: 32000
+
+      - id: optimizer
+        role: performance
+        responsibilities:
+          - bundle size optimization
+          - Redis pool tuning
+          - dependency audit
+          - telemetry aggregation
+        position: [0.0, 0.4, 0.7]
+        mcp_context_capacity: 32000
+
+  # ═══════════════════════════════════════════════════════════
+  # Icosahedral Scale — 12-node (full swarm topology)
+  # ═══════════════════════════════════════════════════════════
+  icosahedron:
+    description: >-
+      Full production 12-node swarm. 30 equidistant edges, maximum
+      fault tolerance, emergent load balancing. Each node has exactly
+      5 direct neighbors.
+    extends: octahedron
+    additional_nodes:
+      - id: memory-consolidator
+        role: nightly-ops
+        responsibilities: [DBSCAN clustering, memory pruning, temporal decay]
+      - id: trade-sentinel
+        role: risk-mgmt
+        responsibilities: [drawdown enforcement, MAE cap, consistency rule]
+      - id: creative-engine
+        role: multimedia
+        responsibilities: [MIDI bridge, DAW sync, A2UI generation]
+      - id: research-scout
+        role: intelligence
+        responsibilities: [web scraping, sentiment analysis, Bright Data MCP]
+      - id: deployment-agent
+        role: devops
+        responsibilities: [container builds, smoke tests, rollback]
+      - id: documentation-agent
+        role: knowledge
+        responsibilities: [README consolidation, API docs, changelog]
+
+mcp:
+  context_passing_protocol: symmetric-edge
+  max_payload_bytes: 1048576
+  encryption: aes-256-gcm
+  context_degradation_prevention: true
+  rules:
+    - Secrets never traverse edges — injected locally per-node via env vars
+    - Context payloads include trace_id for end-to-end observability
+    - Failed edge → automatic reroute through nearest geometric neighbor
