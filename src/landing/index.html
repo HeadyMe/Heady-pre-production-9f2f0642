@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady — Unified AI Platform</title>
+    <meta name="description"
+        content="Heady is a unified AI platform built on sacred geometry principles. 3D vector memory, multi-provider intelligence, cross-device sync. Built on GitHub, Google Cloud, Cloudflare, and Colab.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: rgba(20, 20, 50, 0.6);
+            --accent-blue: #4c8fff;
+            --accent-cyan: #00d4ff;
+            --accent-gold: #f0a030;
+            --accent-purple: #8b5cf6;
+            --text-primary: #e8e8f0;
+            --text-secondary: #8888aa;
+            --text-muted: #5555770;
+            --glow-blue: 0 0 40px rgba(76, 143, 255, 0.3);
+            --glow-gold: 0 0 40px rgba(240, 160, 48, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ── Animated Background ─────────────────────── */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(76, 143, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(76, 143, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(76, 143, 255, 0.08) 0%, transparent 70%);
+            z-index: 0;
+            animation: pulse-glow 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.1);
+            }
+        }
+
+        /* ── Nav ─────────────────────────────────────── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 26, 0.8);
+            border-bottom: 1px solid rgba(76, 143, 255, 0.1);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--glow-blue);
+        }
+
+        /* ── Hero ────────────────────────────────────── */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 99px;
+            background: rgba(76, 143, 255, 0.1);
+            border: 1px solid rgba(76, 143, 255, 0.2);
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-cyan);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-cyan) 60%, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.35rem);
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin-bottom: 2.5rem;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            padding: 0.9rem 2.5rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-blue);
+        }
+
+        .btn-secondary {
+            padding: 0.9rem 2.5rem;
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            background: rgba(76, 143, 255, 0.05);
+        }
+
+        /* ── Hexagon Logo ────────────────────────────── */
+        .hex-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 2rem;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        .hex-logo svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 30px rgba(76, 143, 255, 0.5));
+        }
+
+        /* ── Stats Bar ───────────────────────────────── */
+        .stats-bar {
+            display: flex;
+            gap: 3rem;
+            justify-content: center;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+
+        /* ── Pillars Section ─────────────────────────── */
+        .section {
+            position: relative;
+            z-index: 1;
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent-cyan);
+            margin-bottom: 0.75rem;
+        }
+
+        .section h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .pillar-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .pillar-card:hover {
+            border-color: rgba(76, 143, 255, 0.3);
+            transform: translateY(-4px);
+            box-shadow: var(--glow-blue);
+        }
+
+        .pillar-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            font-size: 1.5rem;
+        }
+
+        .pillar-icon.github {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .pillar-icon.gcloud {
+            background: rgba(66, 133, 244, 0.15);
+        }
+
+        .pillar-icon.cloudflare {
+            background: rgba(245, 130, 32, 0.15);
+        }
+
+        .pillar-icon.colab {
+            background: rgba(139, 92, 246, 0.15);
+        }
+
+        .pillar-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .pillar-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ── Features ────────────────────────────────── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(240, 160, 48, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .feature-card .feature-icon {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        /* ── Footer ──────────────────────────────────── */
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        footer p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+
+        /* ── Mobile ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            nav {
+                padding: 0.8rem 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .stats-bar {
+                gap: 1.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+
+    <nav>
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" stroke="url(#grad)"></polygon>
+                <line x1="12" y1="22" x2="12" y2="12" stroke="url(#grad)"></line>
+                <line x1="22" y1="8.5" x2="12" y2="12" stroke="url(#grad)"></line>
+                <line x1="2" y1="8.5" x2="12" y2="12" stroke="url(#grad)"></line>
+                <defs>
+                    <linearGradient id="grad" x1="0" y1="0" x2="24" y2="24">
+                        <stop offset="0%" stop-color="#4c8fff" />
+                        <stop offset="100%" stop-color="#00d4ff" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            Heady
+        </div>
+        <div class="nav-links">
+            <a href="#pillars">Architecture</a>
+            <a href="#capabilities">Capabilities</a>
+            <a href="https://github.com/HeadyMe">GitHub</a>
+        </div>
+        <a href="#install" class="nav-cta">Install Buddy</a>
+    </nav>
+
+    <section class="hero">
+        <div class="hex-logo">
+            <svg viewBox="0 0 120 120" fill="none">
+                <polygon points="60 5 110 32.5 110 87.5 60 115 10 87.5 10 32.5" stroke="url(#hex-grad)" stroke-width="2"
+                    fill="rgba(76,143,255,0.05)" />
+                <polygon points="60 25 90 42.5 90 77.5 60 95 30 77.5 30 42.5" stroke="url(#hex-grad)" stroke-width="1"
+                    fill="rgba(76,143,255,0.03)" opacity="0.5" />
+                <text x="60" y="68" text-anchor="middle" fill="url(#hex-grad)" font-size="28"
+                    font-family="Inter, sans-serif" font-weight="800">🐝</text>
+                <defs>
+                    <linearGradient id="hex-grad" x1="0" y1="0" x2="120" y2="120">
+                        <stop offset="0%" stop-color="#4c8fff" />
+                        <stop offset="50%" stop-color="#00d4ff" />
+                        <stop offset="100%" stop-color="#f0a030" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <div class="hero-badge">Unified AI Platform v3.0</div>
+
+        <h1>Intelligence,<br>Unified.</h1>
+        <p>Heady is an autonomous AI platform built on sacred geometry. 3D vector memory, multi-provider intelligence,
+            and cross-device sync — running on 4 foundational pillars.</p>
+
+        <div class="hero-actions">
+            <a href="#install" class="btn-primary">Get Started</a>
+            <a href="https://github.com/HeadyMe" class="btn-secondary">View on GitHub</a>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">384D</div>
+                <div class="stat-label">Vector Dimensions</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">43+</div>
+                <div class="stat-label">MCP Tools</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">9</div>
+                <div class="stat-label">Domains</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">198ms</div>
+                <div class="stat-label">Boot Time</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="pillars">
+        <div class="section-label">Foundation</div>
+        <h2>4 Pillars of Heady</h2>
+        <p class="subtitle">Everything Heady needs, nothing it doesn't. Built on proven infrastructure.</p>
+
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <div class="pillar-icon github">🐙</div>
+                <h3>GitHub</h3>
+                <p>Source of truth monorepo. Auto-updating CI/CD with GitHub Actions. Every commit syncs across all
+                    services.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon gcloud">☁️</div>
+                <h3>Google Cloud</h3>
+                <p>Cloud Run compute for the MCP bridge. Scalable, serverless, and always available. Pay only for what
+                    you use.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon cloudflare">🛡️</div>
+                <h3>Cloudflare</h3>
+                <p>Edge workers for global low-latency. DNS management for 9 domains. CDN, security, and DDoS protection
+                    built in.</p>
+            </div>
+            <div class="pillar-card">
+                <div class="pillar-icon colab">🧠</div>
+                <h3>Colab</h3>
+                <p>GPU-accelerated 3D vector space. 384-dimensional embeddings projected into 8 octant zones for
+                    lightning-fast semantic search.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="capabilities">
+        <div class="section-label">Capabilities</div>
+        <h2>What Heady Does</h2>
+        <p class="subtitle">From autonomous research to cross-device sync, Heady operates as a unified being.</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🐝</div>
+                <h3>HeadyBee Templates</h3>
+                <p>Every task creates reusable templates. Swarms of bees coordinate complex operations. Template-first
+                    architecture.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔬</div>
+                <h3>Deep Dive & Research</h3>
+                <p>Multi-provider fan-out analysis (deep-dive) and Perplexity Sonar integration (deep-research) for
+                    comprehensive intelligence.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Vector Projection Tracking</h3>
+                <p>Every vector query is logged — what was asked, what was recalled, similarity scores. Full
+                    observability into the AI's memory.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Cross-Device Sync</h3>
+                <p>WebSocket-based real-time sync across all devices. Session handoff, presence tracking, and unified
+                    context.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Comprehensive Telemetry</h3>
+                <p>Every interaction, tool call, and environmental metric captured. JSONL audit trail with optimization
+                    engine.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>43+ MCP Tools</h3>
+                <p>Chat, dev, research, memory, creative, ops, and quality tools — all accessible through the Model
+                    Context Protocol.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="install">
+        <div class="section-label">Get Started</div>
+        <h2>Install Buddy</h2>
+        <p class="subtitle">One command to install Heady Buddy on any device. Cross-device sync activates automatically.
+        </p>
+
+        <div class="pillar-card" style="max-width: 700px; margin: 0 auto;">
+            <pre
+                style="background: rgba(0,0,0,0.3); padding: 1.5rem; border-radius: 10px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-cyan);">curl -sSL https://headyme.com/install.sh | bash</pre>
+            <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.85rem;">Works on macOS, Linux, and
+                WSL. Requires Node.js 18+.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 <a href="https://headyconnection.org">HeadyConnection Inc.</a> — Trademark Serial 99680540</p>
+        <p style="margin-top: 0.5rem;">Sacred Geometry • Organic Systems • Unified Intelligence</p>
+    </footer>
+
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Fade-in on scroll
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; } });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.pillar-card, .feature-card').forEach(el => {
+            el.style.opacity = '0'; el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>
