@@ -87,7 +87,9 @@
     "maintenance:ops": "node scripts/maintenance/heady-maintenance-ops.js",
     "maintenance:ops:apply": "node scripts/maintenance/heady-maintenance-ops.js --apply",
     "headybee:optimize": "node scripts/autonomous/headybee-registry-optimizer.js",
-    "antigravity:sync": "node scripts/autonomous/antigravity-heady-sync.js"
+    "antigravity:sync": "node scripts/autonomous/antigravity-heady-sync.js",
+    "unified:runtime": "node scripts/autonomous/unified-runtime-orchestrator.js",
+    "rebuild:unified": "node scripts/autonomous/rebuild-heady-unified.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

@@ -1,0 +1,88 @@
+{
+    "version": 1,
+    "mode": "heady-liquid-unified-autonomy",
+    "updatedAt": "2026-03-03T00:00:00Z",
+    "objective": "Operate Heady as a unified autonomous liquid architecture where every capability is a composable cloud microservice under one orchestration graph and projection plane.",
+    "principles": [
+        "no interface/logic split; only capability services and projection surfaces",
+        "cloud-first execution with projected user experiences",
+        "deterministic routing through HeadyConductor and HeadyCloudConductor",
+        "autonomous template injection from 3d vector workspace into headybees and headyswarm",
+        "low-latency live music control via Ableton transport bridges"
+    ],
+    "controlPlane": {
+        "orchestrators": [
+            {
+                "id": "HeadyConductor",
+                "role": "global orchestration",
+                "healthEndpoint": "https://api.headysystems.com/api/conductor/health"
+            },
+            {
+                "id": "HeadyCloudConductor",
+                "role": "cloud resource arbitration",
+                "healthEndpoint": "https://api.headysystems.com/api/cloud-conductor/health"
+            }
+        ],
+        "swarm": [
+            {
+                "id": "HeadySwarm",
+                "role": "distributed execution fabric",
+                "healthEndpoint": "https://api.headysystems.com/api/swarm/health"
+            },
+            {
+                "id": "headybees",
+                "role": "fine-grained worker fanout",
+                "healthEndpoint": "https://api.headysystems.com/api/headybees/health"
+            }
+        ]
+    },
+    "dataPlane": {
+        "vectorWorkspace": {
+            "id": "workspace-3d-vector",
+            "routingMode": "octant-zone-first",
+            "healthEndpoint": "https://api.headysystems.com/api/vector-workspace/health"
+        },
+        "templateInjection": {
+            "id": "template-injection-bridge",
+            "source": "workspace-3d-vector",
+            "sinks": [
+                "headybees",
+                "HeadySwarm"
+            ],
+            "healthEndpoint": "https://api.headysystems.com/api/template-injection/health"
+        }
+    },
+    "performancePlane": {
+        "liveMusic": {
+            "id": "ableton-live-bridge",
+            "transport": [
+                "midi2-ump-udp",
+                "websocket"
+            ],
+            "healthEndpoint": "https://api.headysystems.com/api/midi/health"
+        },
+        "instantaneousAction": {
+            "maxRoutingLatencyMs": 120,
+            "maxTemplateSelectionMs": 80,
+            "maxProjectionRefreshMs": 500
+        }
+    },
+    "projectionPlane": {
+        "strategy": "cloud-rendered-projection",
+        "avoidLocalResourceUsage": true,
+        "cloudOnly": true,
+        "healthEndpoint": "https://api.headysystems.com/api/projection/health"
+    },
+    "serviceCaps": {
+        "maxMicroservices": 24,
+        "minMicroservices": 12,
+        "targetMicroservices": 18
+    },
+    "compliance": {
+        "enterpriseGrade": true,
+        "complexityGuardrails": {
+            "maxDependenciesPerService": 8,
+            "maxCrossDomainHops": 4
+        }
+    }
+}

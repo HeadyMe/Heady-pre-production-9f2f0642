@@ -1,0 +1,82 @@
+version: 1
+profile: heady-unified-liquid-runtime
+updated_at: 2026-03-03T00:00:00Z
+objective: >-
+  Operate Heady as a unified autonomous lattice where projection, orchestration,
+  and dynamic service synthesis run as one system without frontend/backend
+  ownership boundaries.
+principles:
+  - name: liquid-unification
+    rule: No domain is labeled frontend/backend in runtime scheduling.
+  - name: cloud-first-projection
+    rule: User-facing projections are rendered from cloud services only.
+  - name: template-injection-determinism
+    rule: 3D vector workspace template selection emits deterministic receipts.
+  - name: microservice-minimalism
+    rule: Run only service cells required by current objective and health SLOs.
+control_plane:
+  orchestrators:
+    - heady-conductor
+    - heady-cloud-conductor
+  swarm:
+    coordinator: headyswarm
+    workers:
+      - headybees
+      - headybee-template-registry
+  transport:
+    primary: websocket-events
+    fallback: signed-http
+runtime_cells:
+  - id: projection-cell
+    responsibilities:
+      - dynamic ui projection
+      - app and connector synthesis
+      - user-state stream projection
+    health_endpoint: /api/projection-cell/health
+  - id: orchestration-cell
+    responsibilities:
+      - goal planning
+      - action routing
+      - provider budget aware dispatch
+    health_endpoint: /api/orchestration-cell/health
+  - id: template-cell
+    responsibilities:
+      - vector workspace retrieval
+      - template injection
+      - swarm payload shaping
+    health_endpoint: /api/template-cell/health
+  - id: creative-midi-cell
+    responsibilities:
+      - ableton live bridge session management
+      - midi event translation
+      - latency telemetry
+    health_endpoint: /api/creative-midi-cell/health
+resource_strategy:
+  colab_pro_plus:
+    plans: 3
+    assignment:
+      - plan: colab-a
+        focus: realtime-inference-and-projection
+      - plan: colab-b
+        focus: vector-retrieval-and-template-optimization
+      - plan: colab-c
+        focus: swarm-burst-and-connector-build
+  gpu_policy:
+    reserve_vram_pct: 20
+    target_utilization_pct: 85
+    overflow_action: shift_to-cloud-run-gpu
+projection_strategy:
+  local_compute_policy: near-zero
+  delivery_modes:
+    - live-system-projection
+    - contextual-ui-stream
+    - connector-manifest-stream
+  freshness:
+    max_snapshot_age_ms: 3000
+    include_system_digest: true
+autonomy_guards:
+  require_budget_check: true
+  require_provider_usage_record: true
+  require_structured_logging: true
+  block_localhost_targets: true
+  deterministic_seed: git-commit-sha

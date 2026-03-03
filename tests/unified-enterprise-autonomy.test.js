@@ -2,6 +2,7 @@ const {
     UnifiedEnterpriseAutonomyService,
     rankWorkersForQueue,
     createDeterministicReceipt,
+    calculateUnifiedHealthSignals,
 } = require('../src/services/unified-enterprise-autonomy');
 
 describe('unified enterprise autonomy service', () => {
@@ -36,5 +37,32 @@ describe('unified enterprise autonomy service', () => {
 
         expect(plan.collections.length).toBeGreaterThan(0);
         expect(plan.collections.every((entry) => entry.deterministicReceipt.length === 64)).toBe(true);
+    });
+
+    test('health signals enforce unified liquid architecture constraints', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const signals = calculateUnifiedHealthSignals(service.colabPlan);
+
+        expect(Object.values(signals).every(Boolean)).toBe(true);
+    });
+
+    test('profile exposes projection and ableton live integration intent', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const profile = service.getUnifiedSystemProfile();
+
+        expect(profile.paradigm).toBe('liquid-unified-microservice-fabric');
+        expect(profile.explicitFrontendBackendSplit).toBe(false);
+        expect(profile.templateInjection.sourceWorkspace).toBe('3d-vector-workspace');
+        expect(profile.cloudProjection.cloudOnlyDelivery).toBe(true);
+        expect(profile.abletonLive.realtimeMode).toBe(true);
+    });
+
+    test('live unified status reports full health score when constraints pass', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const status = service.getLiveUnifiedStatus();
+
+        expect(status.ok).toBe(true);
+        expect(status.healthScore).toBe(1);
+        expect(status.checks.length).toBeGreaterThan(0);
     });
 });

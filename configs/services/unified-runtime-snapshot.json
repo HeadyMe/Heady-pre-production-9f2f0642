@@ -1,0 +1,62 @@
+{
+    "generatedAt": "2026-03-03T15:50:01.894Z",
+    "mode": "heady-liquid-unified-autonomy",
+    "objective": "Operate Heady as a unified autonomous liquid architecture where every capability is a composable cloud microservice under one orchestration graph and projection plane.",
+    "ids": [
+        "HeadyConductor",
+        "HeadyCloudConductor",
+        "HeadySwarm",
+        "headybees",
+        "workspace-3d-vector",
+        "template-injection-bridge",
+        "ableton-live-bridge"
+    ],
+    "endpoints": [
+        "https://api.headysystems.com/api/conductor/health",
+        "https://api.headysystems.com/api/cloud-conductor/health",
+        "https://api.headysystems.com/api/swarm/health",
+        "https://api.headysystems.com/api/headybees/health",
+        "https://api.headysystems.com/api/vector-workspace/health",
+        "https://api.headysystems.com/api/template-injection/health",
+        "https://api.headysystems.com/api/midi/health",
+        "https://api.headysystems.com/api/projection/health"
+    ],
+    "validation": {
+        "requiredServices": {
+            "ok": true,
+            "missing": []
+        },
+        "cloudOnlyEndpoints": {
+            "ok": true
+        },
+        "noFrontendBackendSplit": {
+            "ok": true
+        },
+        "tripleColabGpuPlan": {
+            "ok": true,
+            "workers": [
+                {
+                    "id": "colab-a",
+                    "gpuProfile": "high-vram"
+                },
+                {
+                    "id": "colab-b",
+                    "gpuProfile": "balanced"
+                },
+                {
+                    "id": "colab-c",
+                    "gpuProfile": "throughput"
+                }
+            ]
+        },
+        "targetServiceBand": {
+            "ok": true,
+            "limits": {
+                "maxMicroservices": 24,
+                "minMicroservices": 12,
+                "targetMicroservices": 18
+            }
+        }
+    },
+    "allChecksPass": true
+}

@@ -23,6 +23,24 @@ function createDeterministicReceipt(input) {
     return crypto.createHash('sha256').update(payload).digest('hex');
 }
 
+
+function calculateUnifiedHealthSignals(plan) {
+    const model = plan.operating_model || {};
+    const injection = plan.template_injection || {};
+    const cloudProjection = plan.cloud_projection || {};
+    const ableton = plan.ableton_live || {};
+
+    return {
+        unifiedFabric: model.paradigm === 'liquid-unified-microservice-fabric',
+        noFrontendBackendSplit: model.explicit_frontend_backend_split === false,
+        orchestrationDualPlane: Array.isArray(model.orchestration_planes) && model.orchestration_planes.includes('HeadyConductor') && model.orchestration_planes.includes('HeadyCloudConductor'),
+        swarmMesh: Array.isArray(model.swarm_layers) && model.swarm_layers.includes('HeadySwarm') && model.swarm_layers.includes('HeadyBees'),
+        templateInjectionAutonomous: injection.source_workspace === '3d-vector-workspace' && injection.mode === 'autonomous',
+        cloudOnlyProjection: cloudProjection.cloud_only_delivery === true,
+        abletonRealtimeControl: ableton.realtime_mode === true && ableton.transport === 'midi2-ump',
+    };
+}
+
 function rankWorkersForQueue(queue, queueWeight, workers, queuePressure = {}) {
     return workers
         .filter((worker) => (worker.queues || []).includes(queue))
@@ -112,6 +130,52 @@ class UnifiedEnterpriseAutonomyService {
         return this.lastDispatch;
     }
 
+    getUnifiedSystemProfile() {
+        const model = this.colabPlan.operating_model || {};
+        const injection = this.colabPlan.template_injection || {};
+        const cloudProjection = this.colabPlan.cloud_projection || {};
+        const ableton = this.colabPlan.ableton_live || {};
+
+        return {
+            ok: true,
+            paradigm: model.paradigm || 'unspecified',
+            explicitFrontendBackendSplit: model.explicit_frontend_backend_split,
+            dynamicProducts: model.dynamic_products || [],
+            orchestrationPlanes: model.orchestration_planes || [],
+            swarmLayers: model.swarm_layers || [],
+            templateInjection: {
+                sourceWorkspace: injection.source_workspace || null,
+                targetLayers: injection.target_layers || [],
+                mode: injection.mode || 'manual',
+                deterministicReceipts: injection.deterministic_receipts === true,
+            },
+            cloudProjection: {
+                cloudOnlyDelivery: cloudProjection.cloud_only_delivery === true,
+                localResourceUsageTargetPercent: cloudProjection.local_resource_usage_target_percent ?? null,
+                projectionMode: cloudProjection.projection_mode || null,
+            },
+            abletonLive: {
+                realtimeMode: ableton.realtime_mode === true,
+                transport: ableton.transport || null,
+                objective: ableton.objective || null,
+            },
+        };
+    }
+
+    getLiveUnifiedStatus() {
+        const healthSignals = calculateUnifiedHealthSignals(this.colabPlan);
+        const checks = Object.entries(healthSignals).map(([name, pass]) => ({ name, pass }));
+        const passingChecks = checks.filter((entry) => entry.pass).length;
+
+        return {
+            ok: passingChecks === checks.length,
+            healthScore: Number((passingChecks / checks.length).toFixed(4)),
+            checks,
+            dispatch: this.lastDispatch,
+            generatedAt: new Date().toISOString(),
+        };
+    }
+
     getHealth() {
         return {
             ok: true,
@@ -122,6 +186,7 @@ class UnifiedEnterpriseAutonomyService {
             embeddingCollections: (this.embeddingCatalog.collections || []).length,
             determinism: this.colabPlan.determinism || {},
             lastDispatchAt: this.lastDispatch?.at || null,
+            unifiedStatus: this.getLiveUnifiedStatus(),
         };
     }
 }
@@ -141,12 +206,20 @@ function registerUnifiedEnterpriseAutonomyRoutes(app, service = new UnifiedEnter
         res.json({ ok: true, embeddingPlan: service.buildEmbeddingPlan() });
     });
 
+    app.get('/api/unified-autonomy/profile', (_req, res) => {
+        res.json({ ok: true, profile: service.getUnifiedSystemProfile() });
+    });
+
+    app.get('/api/unified-autonomy/live-status', (_req, res) => {
+        res.json({ ok: true, status: service.getLiveUnifiedStatus() });
+    });
+
     app.post('/api/unified-autonomy/dispatch', (req, res) => {
         const queuePressure = req.body?.queuePressure || {};
         res.json({ ok: true, dispatch: service.dispatch(queuePressure) });
     });
 
-    logger.logNodeActivity('CONDUCTOR', '    → Endpoints: /api/unified-autonomy/health, /nodes, /embedding-plan, /dispatch');
+    logger.logNodeActivity('CONDUCTOR', '    → Endpoints: /api/unified-autonomy/health, /nodes, /embedding-plan, /profile, /live-status, /dispatch');
 
     return service;
 }
@@ -156,4 +229,5 @@ module.exports = {
     registerUnifiedEnterpriseAutonomyRoutes,
     rankWorkersForQueue,
     createDeterministicReceipt,
+    calculateUnifiedHealthSignals,
 };

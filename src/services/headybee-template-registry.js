@@ -187,6 +187,79 @@ function registerHeadybeeTemplateRegistryRoutes(app) {
     });
 }
 
+class HeadybeeTemplateRegistryService {
+    constructor(options = {}) {
+        this.registryPath = options.registryPath || REGISTRY_PATH;
+        this.optimizationPolicyPath = options.optimizationPolicyPath || OPTIMIZATION_POLICY_PATH;
+        this.startedAt = null;
+    }
+
+    start() {
+        this.startedAt = new Date().toISOString();
+        logger.logSystem('∞ HeadybeeTemplateRegistryService: STARTED');
+        return this.getHealth();
+    }
+
+    stop() {
+        logger.logSystem('∞ HeadybeeTemplateRegistryService: STOPPED');
+    }
+
+    getRegistry() {
+        return readRegistry(this.registryPath);
+    }
+
+    getOptimizationPolicy() {
+        return readOptimizationPolicy(this.optimizationPolicyPath);
+    }
+
+    getHealth() {
+        const health = getHealthStatus();
+        return {
+            ...health,
+            service: 'headybee-template-registry',
+            startedAt: this.startedAt,
+        };
+    }
+
+    report() {
+        return buildOptimizationReport(this.getRegistry(), this.getOptimizationPolicy());
+    }
+
+    recommend({ scenario = 'digital-presence-launch', tags = [], limit } = {}) {
+        const normalizedTags = tags.map((tag) => String(tag).toLowerCase().trim()).filter(Boolean);
+        const registry = this.getRegistry();
+        const policy = this.getOptimizationPolicy();
+        const maxTemplates = Number(limit || policy.defaults?.templatesPerSituation || 3);
+
+        const candidates = registry.templates
+            .map((template) => {
+                const situationMatch = (template.situations || []).includes(scenario) ? 1 : 0;
+                const tagOverlap = normalizedTags.filter((tag) =>
+                    [...(template.skills || []), ...(template.workflows || []), ...(template.nodes || []), ...(template.capabilities || [])]
+                        .map((item) => String(item).toLowerCase())
+                        .some((item) => item.includes(tag) || tag.includes(item))).length;
+                const optimizationScore = scoreTemplate(template, policy);
+                const computedScore = Number((optimizationScore + (situationMatch * 0.6) + (tagOverlap * 0.08)).toFixed(6));
+                return {
+                    ...template,
+                    optimizationScore,
+                    computedScore,
+                    situationMatch,
+                    tagOverlap,
+                };
+            })
+            .sort((a, b) => b.computedScore - a.computedScore)
+            .slice(0, maxTemplates);
+
+        return {
+            scenario,
+            tags: normalizedTags,
+            top: candidates[0] || null,
+            candidates,
+        };
+    }
+}
+
 module.exports = {
     REGISTRY_PATH,
     OPTIMIZATION_POLICY_PATH,
@@ -197,6 +270,7 @@ module.exports = {
     scoreTemplate,
     selectTemplatesForSituation,
     buildOptimizationReport,
+    HeadybeeTemplateRegistryService,
     getHealthStatus,
     getOptimizationState,
     registerHeadybeeTemplateRegistryRoutes,

@@ -4,6 +4,34 @@ updated_at: 2026-03-03T00:00:00Z
 objective: >-
   Keep 3 Colab Pro+ workspaces continuously utilized for high-utility autonomous
   operations while preserving deterministic replay and persistent memory receipts.
+operating_model:
+  paradigm: liquid-unified-microservice-fabric
+  explicit_frontend_backend_split: false
+  dynamic_products:
+    - ui-apps
+    - connectors
+    - autonomous-services
+  orchestration_planes:
+    - HeadyConductor
+    - HeadyCloudConductor
+  swarm_layers:
+    - HeadySwarm
+    - HeadyBees
+template_injection:
+  source_workspace: 3d-vector-workspace
+  target_layers:
+    - headybee
+    - headyswarm
+  mode: autonomous
+  deterministic_receipts: true
+cloud_projection:
+  cloud_only_delivery: true
+  local_resource_usage_target_percent: 5
+  projection_mode: always-on-live-state
+ableton_live:
+  realtime_mode: true
+  transport: midi2-ump
+  objective: instantaneous-live-music-control
 workers:
   - id: colab-a
     role: realtime-inference

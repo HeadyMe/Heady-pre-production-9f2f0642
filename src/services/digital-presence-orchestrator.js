@@ -145,6 +145,57 @@ class DigitalPresenceOrchestratorService {
         };
     }
 
+    buildUnifiedSystemProjection({ queuePressure = {}, scenario = 'instantaneous-unified-build' } = {}) {
+        const autonomyHealth = this.unifiedAutonomy.getHealth();
+        const dispatch = this.unifiedAutonomy.dispatch(queuePressure);
+        const embeddingPlan = this.unifiedAutonomy.buildEmbeddingPlan();
+        const projectionStatus = this.getProjectionStatus();
+        const templateCoverage = this.evaluateTemplateCoverage();
+        const recommendation = this.recommendTemplateAndWorkflow({
+            scenario,
+            tags: ['headyswarm', 'headybees', 'template', 'vector', 'cloud', 'ableton', 'instant'],
+        });
+
+        const cloudOnlyExecution = {
+            localResourceUsage: 'minimal-projection-only',
+            preferredExecutionPlane: 'cloud-gpu',
+            colabWorkers: autonomyHealth.workerCount,
+            queues: dispatch.assignments.map((assignment) => ({
+                queue: assignment.queue,
+                worker: assignment.selectedWorker,
+            })),
+        };
+
+        const runtime = {
+            architecture: 'liquid-unified-microservice-mesh',
+            serviceModel: 'capability-services-no-frontend-backend-split',
+            orchestration: ['HeadyConductor', 'HeadyCloudConductor', 'HeadySwarm', 'Headybees'],
+            templateInjection: {
+                source: '3d-vector-workspace',
+                registryTemplate: recommendation.recommendation.top?.id || null,
+                swarmReady: templateCoverage.ok,
+            },
+            livePerformance: {
+                midiBridge: '/api/midi/health',
+                target: 'ableton-live',
+                mode: 'instantaneous-action-path',
+            },
+        };
+
+        return {
+            ok: true,
+            generatedAt: new Date().toISOString(),
+            runtime,
+            cloudOnlyExecution,
+            projectionStatus,
+            embeddingPlan,
+            dispatch,
+            recommendation,
+            templateCoverage,
+            receipt: deterministicReceipt({ runtime, cloudOnlyExecution, dispatch, templateCoverage }),
+        };
+    }
+
     getProjectionStatus() {
         const repos = readYaml(PRODUCT_REPOS_PATH).products || {};
         let manifest = null;
@@ -215,7 +266,11 @@ function registerDigitalPresenceOrchestratorRoutes(app, service = new DigitalPre
         res.json(service.buildSwarmTaskPlan(req.body || {}));
     });
 
-    logger.logNodeActivity('CONDUCTOR', '    → Endpoints: /api/digital-presence/health, /recommend, /projections/status, /maintenance/plan, /template-coverage, /swarm-plan');
+    app.post('/api/digital-presence/system-projection', (req, res) => {
+        res.json(service.buildUnifiedSystemProjection(req.body || {}));
+    });
+
+    logger.logNodeActivity('CONDUCTOR', '    → Endpoints: /api/digital-presence/health, /recommend, /projections/status, /maintenance/plan, /template-coverage, /swarm-plan, /system-projection');
     return service;
 }
 

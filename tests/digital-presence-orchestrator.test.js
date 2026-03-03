@@ -38,6 +38,16 @@ describe('digital presence orchestrator', () => {
         expect(swarmPlan.receipt).toHaveLength(64);
     });
 
+    test('unified system projection includes runtime, cloud execution, and deterministic receipt', () => {
+        const service = new DigitalPresenceOrchestratorService();
+        const projection = service.buildUnifiedSystemProjection({ scenario: 'live ableton performance' });
+
+        expect(projection.ok).toBe(true);
+        expect(projection.runtime.serviceModel).toContain('no-frontend-backend-split');
+        expect(projection.cloudOnlyExecution.localResourceUsage).toBe('minimal-projection-only');
+        expect(projection.receipt).toHaveLength(64);
+    });
+
     test('maintenance plan returns stale metadata', () => {
         const service = new DigitalPresenceOrchestratorService();
         const plan = service.getMaintenancePlan([
