@@ -8,13 +8,17 @@ import fs from 'fs-extra';
 import compression from 'compression';
 import { geminiChat, geminiChatStream, geminiEmbed, geminiStatus, listGeminiModels, HEADY_SYSTEM_PROMPT, AUTHORIZED_HEADY_KEYS } from './services/gemini.js';
 import { computeHCFP, getHCFPHistory, getHCFPSubsystem } from './services/hcfp.js';
-import { getAutonomyState, ingestConcept, runAutonomyTick, createAbletonSession, getAuditEvents, getMonorepoProjection, getAutonomyRuntimeStatus, startAutonomyLoop, stopAutonomyLoop, isAutonomyLoopRunning, subscribeAutonomyEvents } from './services/autonomy-engine.js';
+import { getAutonomyState, ingestConcept, runAutonomyTick, createAbletonSession, getAuditEvents, getMonorepoProjection, getAutonomyRuntimeStatus, startAutonomyLoop, subscribeAutonomyEvents } from './services/autonomy-engine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8090;
+const AUTONOMY_WRITE_KEY = process.env.AUTONOMY_WRITE_KEY || '';
+const AUTONOMY_SSE_CLIENT_LIMIT = Number(process.env.AUTONOMY_SSE_CLIENT_LIMIT || 50);
+const AUTONOMY_RATE_WINDOW_MS = Number(process.env.AUTONOMY_RATE_WINDOW_MS || 60000);
+const AUTONOMY_RATE_MAX = Number(process.env.AUTONOMY_RATE_MAX || 120);
 const DATA_FILE = join(__dirname, 'data', 'config.json');
 const LOGS_FILE = join(__dirname, 'data', 'logs.json');
 const PROFILES_FILE = join(__dirname, 'data', 'profiles.json');
@@ -23,33 +27,19 @@ const TUNNEL_FILE = join(__dirname, 'data', 'tunnel-config.yml');
 const TASKS_FILE = join(__dirname, 'data', 'tasks.json');
 const ROUTES_FILE = join(__dirname, 'data', 'routes.json');
 
-const AUTONOMY_ADMIN_TOKEN = process.env.AUTONOMY_ADMIN_TOKEN || '';
-
-function parseBoundedInt(value, fallback, min, max) {
-    const n = Number.parseInt(value, 10);
-    if (Number.isNaN(n)) return fallback;
-    return Math.max(min, Math.min(max, n));
-}
-
-function requireAutonomyAdmin(req, res) {
-    if (!AUTONOMY_ADMIN_TOKEN) return true;
-    const token = req.headers['x-autonomy-admin-token'];
-    if (token !== AUTONOMY_ADMIN_TOKEN) {
-        res.status(403).json({ error: 'Forbidden: missing or invalid autonomy admin token' });
-        return false;
-    }
-    return true;
-}
-
-function sanitizePriority(priority) {
-    const value = String(priority || 'balanced').toLowerCase();
-    return ['critical', 'high', 'balanced', 'low'].includes(value) ? value : 'balanced';
-}
-
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('short'));
+
+
+app.use((req, res, next) => {
+    if (!req.path.startsWith('/api/autonomy')) return next();
+    if (!checkAutonomyRateLimit(req)) {
+        return res.status(429).json({ error: 'Autonomy API rate limit exceeded' });
+    }
+    next();
+});
 
 // ── Heady API Key Auth (optional — validates X-Heady-Key header) ──
 app.use((req, res, next) => {
@@ -62,6 +52,36 @@ app.use((req, res, next) => {
 
 // ── Data helpers ──
 const distPath = join(__dirname, '..', 'dist');
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+}
+
+
+const autonomyRateMap = new Map();
+let autonomySseClients = 0;
+
+function checkAutonomyRateLimit(req) {
+    const id = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').split(',')[0].trim();
+    const now = Date.now();
+    const rec = autonomyRateMap.get(id) || { count: 0, resetAt: now + AUTONOMY_RATE_WINDOW_MS };
+    if (now > rec.resetAt) {
+        rec.count = 0;
+        rec.resetAt = now + AUTONOMY_RATE_WINDOW_MS;
+    }
+    rec.count += 1;
+    autonomyRateMap.set(id, rec);
+    return rec.count <= AUTONOMY_RATE_MAX;
+}
+
+function requireAutonomyWriteAuth(req, res) {
+    if (!AUTONOMY_WRITE_KEY) return true;
+    const key = req.headers['x-autonomy-key'];
+    if (key !== AUTONOMY_WRITE_KEY) {
+        res.status(401).json({ error: 'Invalid autonomy write key' });
+        return false;
+    }
+    return true;
+}
 
 async function ensureFile(file, defaultContent = {}) {
     await fs.ensureDir(join(__dirname, 'data'));
@@ -241,21 +261,24 @@ app.get('/api/autonomy/state', async (req, res) => {
 
 app.post('/api/autonomy/ingest', async (req, res) => {
     try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
         const text = String(req.body?.text || '').trim();
         if (!text) return res.status(400).json({ error: 'text is required' });
-        if (text.length > 2000) return res.status(400).json({ error: 'text exceeds 2000 characters' });
-        const priority = sanitizePriority(req.body?.priority);
-        res.status(201).json(await ingestConcept({ text, priority }));
+        res.status(201).json(await ingestConcept({ text, priority: req.body?.priority || 'balanced' }));
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/api/autonomy/tick', async (req, res) => {
-    try { res.json(await runAutonomyTick('api')); }
+    try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
+        res.json(await runAutonomyTick('api'));
+    }
     catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.post('/api/autonomy/music-session', async (req, res) => {
     try {
+        if (!requireAutonomyWriteAuth(req, res)) return;
         const user = String(req.body?.user || '').trim();
         if (!user) return res.status(400).json({ error: 'user is required' });
         res.status(201).json(await createAbletonSession({ user, bpm: req.body?.bpm, key: req.body?.key }));
@@ -264,7 +287,7 @@ app.post('/api/autonomy/music-session', async (req, res) => {
 
 app.get('/api/autonomy/audit', async (req, res) => {
     try {
-        const limit = parseBoundedInt(req.query.limit, 100, 1, 1000);
+        const limit = parseInt(req.query.limit) || 100;
         res.json(await getAuditEvents(limit));
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -290,27 +313,11 @@ app.get('/api/autonomy/health', async (req, res) => {
 });
 
 app.get('/api/autonomy/runtime', async (req, res) => {
-    try { res.json(await getAutonomyRuntimeStatus()); }
+    try {
+        const runtime = await getAutonomyRuntimeStatus();
+        res.json({ ...runtime, streamClients: autonomySseClients, streamClientLimit: AUTONOMY_SSE_CLIENT_LIMIT, rateWindowMs: AUTONOMY_RATE_WINDOW_MS, rateMax: AUTONOMY_RATE_MAX });
+    }
     catch (e) { res.status(500).json({ error: e.message }); }
-});
-
-app.get('/api/autonomy/stream', async (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-    res.flushHeaders?.();
-
-    const unsubscribe = subscribeAutonomyEvents((event) => {
-        res.write(`data: ${JSON.stringify(event)}\n\n`);
-    });
-
-    res.write(`data: ${JSON.stringify({ type: 'hello', ts: new Date().toISOString() })}\n\n`);
-
-    req.on('close', () => {
-        unsubscribe();
-        res.end();
-    });
 });
 
 app.post('/api/autonomy/control/start', async (req, res) => {
@@ -327,6 +334,36 @@ app.post('/api/autonomy/control/stop', async (req, res) => {
         const stopped = stopAutonomyLoop();
         res.json({ success: true, stopped, runtime: await getAutonomyRuntimeStatus() });
     } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/autonomy/stream', async (req, res) => {
+    if (autonomySseClients >= AUTONOMY_SSE_CLIENT_LIMIT) {
+        return res.status(503).json({ error: 'Autonomy stream capacity reached' });
+    }
+
+    autonomySseClients += 1;
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders?.();
+
+    const heartbeat = setInterval(() => {
+        res.write(`event: heartbeat\ndata: ${JSON.stringify({ ts: new Date().toISOString() })}\n\n`);
+    }, 15000);
+
+    const unsubscribe = subscribeAutonomyEvents((event) => {
+        res.write(`data: ${JSON.stringify(event)}\n\n`);
+    });
+
+    res.write(`data: ${JSON.stringify({ type: 'hello', ts: new Date().toISOString() })}\n\n`);
+
+    req.on('close', () => {
+        clearInterval(heartbeat);
+        unsubscribe();
+        autonomySseClients = Math.max(autonomySseClients - 1, 0);
+        res.end();
+    });
 });
 
 // ── GOOGLE AI STUDIO (Gemini) ──
@@ -377,8 +414,7 @@ app.get('/api/ai/system-prompt', (req, res) => {
     res.json({ systemPrompt: HEADY_SYSTEM_PROMPT });
 });
 
-// ── SPA FALLBACK ──
-app.use(express.static(distPath));
+// ── SPA FALLBACK ───────────────────────────────────────────────
 app.get('*', (req, res) => {
     const indexPath = join(distPath, 'index.html');
     if (fs.existsSync(indexPath)) {
@@ -388,31 +424,13 @@ app.get('*', (req, res) => {
     }
 });
 
-// ── START ──
-const server = app.listen(PORT, '0.0.0.0', async () => {
+// ── START ──────────────────────────────────────────────────────
+app.listen(PORT, '0.0.0.0', async () => {
     console.log(`Heady Admin UI server running on http://0.0.0.0:${PORT}`);
     console.log(`Drupal 11 Hybrid Admin - HCFP Auto-Success Mode`);
     await addLog('info', `Admin server started on port ${PORT}`, 'system');
 
     startAutonomyLoop();
 });
-
-async function shutdown(signal) {
-    try {
-        stopAutonomyLoop();
-        await addLog('warning', `Admin server stopping (${signal})`, 'system');
-    } catch {
-        // ignore shutdown logging errors
-    }
-
-    server.close(() => {
-        process.exit(0);
-    });
-
-    setTimeout(() => process.exit(1), 5000).unref?.();
-}
-
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 export default app;
