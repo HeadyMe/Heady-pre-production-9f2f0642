@@ -1,0 +1,40 @@
+version: 1
+ingestion_profile: enterprise-deterministic
+chunking:
+  max_chars: 1400
+  overlap_chars: 160
+  max_chunks_per_file: 12
+include_patterns:
+  - src/**/*.js
+  - scripts/**/*.js
+  - docs/**/*.md
+  - configs/**/*.yaml
+  - configs/**/*.yml
+  - tests/**/*.js
+exclude_patterns:
+  - node_modules/**
+  - data/vector-shards/**
+  - '**/*.log'
+  - '**/*.pid'
+  - '**/.DS_Store'
+collections:
+  - name: node-responsibilities
+    query: "node responsibility role queue health"
+    metadata:
+      category: responsibilities
+      scope: runtime-nodes
+  - name: tools-and-skills
+    query: "tools skills workflow orchestration agent"
+    metadata:
+      category: capabilities
+      scope: operations
+  - name: headybees-headyswarm
+    query: "headybees headyswarm bee swarm template"
+    metadata:
+      category: swarm
+      scope: autonomous-orchestration
+  - name: templates-and-injection
+    query: "template injection vector template dynamic connector"
+    metadata:
+      category: templates
+      scope: ui-and-connectors

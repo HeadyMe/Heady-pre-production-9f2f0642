@@ -455,6 +455,69 @@ logger.logNodeActivity("CONDUCTOR", "  ∞ VectorPipeline: ACTIVE — every /bra
 vectorMemory.registerRoutes(app);
 logger.logNodeActivity("CONDUCTOR", "  ∞ VectorMemory: LOADED (HF embeddings + cosine similarity)");
 
+// ─── Headybee Template Registry (optimized scenarios + validation) ─────────
+try {
+  const { registerHeadybeeTemplateRegistryRoutes } = require("./src/services/headybee-template-registry");
+  registerHeadybeeTemplateRegistryRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ HeadybeeRegistry: LOADED (template optimization + recommendation)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadybeeRegistry not loaded: ${err.message}`);
+}
+
+// ─── Digital Presence Orchestrator (templates + projections + maintenance) ─
+try {
+  const { registerDigitalPresenceOrchestratorRoutes } = require("./src/services/digital-presence-orchestrator");
+  registerDigitalPresenceOrchestratorRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ DigitalPresence: LOADED (template/workflow recommendation + projection governance)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ DigitalPresence not loaded: ${err.message}`);
+}
+
+// ─── Unified Enterprise Autonomy + Deterministic Dispatch ─────────────────
+try {
+  const { registerUnifiedEnterpriseAutonomyRoutes } = require("./src/services/unified-enterprise-autonomy");
+  registerUnifiedEnterpriseAutonomyRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ UnifiedAutonomy: LOADED (3x Colab plan + deterministic embedding dispatch)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ UnifiedAutonomy not loaded: ${err.message}`);
+}
+
+// ─── Spatial Embedder (3D coordinate mapping) ─────────────────────────────
+try {
+  const spatialEmbedder = require("./src/services/spatial-embedder");
+  spatialEmbedder.registerRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ SpatialEmbedder: LOADED (X=semantic-domain, Y=temporal-state, Z=hierarchy)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ SpatialEmbedder not loaded: ${err.message}`);
+}
+
+// ─── Octree Manager (O(log n) spatial indexing) ───────────────────────────
+try {
+  const { registerRoutes: registerOctreeRoutes } = require("./src/services/octree-manager");
+  registerOctreeRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ OctreeManager: LOADED (3D range/radius/nearest queries)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ OctreeManager not loaded: ${err.message}`);
+}
+
+// ─── Redis Sync Bridge (high-speed spatial cache) ─────────────────────────
+try {
+  const { registerRoutes: registerRedisBridgeRoutes } = require("./src/services/redis-sync-bridge");
+  registerRedisBridgeRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ RedisSyncBridge: LOADED (in-memory cache + Redis pooling)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ RedisSyncBridge not loaded: ${err.message}`);
+}
+
+// ─── Buddy System (shadow agent: ingest → embed → cache → pre-fetch) ─────
+try {
+  const { registerRoutes: registerBuddyRoutes } = require("./src/services/buddy-system");
+  registerBuddyRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ BuddySystem: LOADED (continuous ingestion + predictive pre-fetching)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ BuddySystem not loaded: ${err.message}`);
+}
+
 // Wire into brain.js so all brain interactions get stored as real vectors
 try {
   const brainRoutes = require("./src/routes/brain");

@@ -28,6 +28,36 @@ const logger = require("../utils/logger");
 function wireEngines(app, deps = {}) {
     const { pipeline, loadRegistry, eventBus, projectRoot, PORT } = deps;
 
+    // ─── 0. Vector Space Foundation ───────────────────────────────────
+    // Secrets vault hydration FIRST — all engines may need env vars
+    // Projection engine SECOND — tracks all outbound projections
+    try {
+        const vault = require("../vector-secrets-vault");
+        const hydrated = vault.hydrate();
+        logger.logNodeActivity("CONDUCTOR", `  🔐 Vector Vault: ${vault.getStats().totalSecrets} secrets in 3D space, ${hydrated} hydrated into process.env`);
+
+        // Vault API routes
+        app.get("/api/vault/stats", (req, res) => res.json(vault.getStats()));
+        app.get("/api/vault/list", (req, res) => res.json({ ok: true, secrets: vault.list() }));
+        app.get("/api/vault/audit", (req, res) => res.json({ ok: true, entries: vault.getAuditLog(parseInt(req.query.limit) || 20) }));
+        app.post("/api/vault/query", (req, res) => {
+            const { query, topK } = req.body;
+            if (!query) return res.status(400).json({ error: "query required" });
+            res.json({ ok: true, results: vault.querySecrets(query, topK || 5) });
+        });
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Vector Vault not loaded: ${err.message}`);
+    }
+
+    try {
+        const projectionEngine = require("../vector-projection-engine");
+        projectionEngine.init();
+        projectionEngine.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", `  🌐 Projection Engine: LOADED (${projectionEngine.PROJECTION_TARGETS.length} targets in 3D space)`);
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Projection Engine not loaded: ${err.message}`);
+    }
+
     const engines = {
         resourceManager: null,
         taskScheduler: null,

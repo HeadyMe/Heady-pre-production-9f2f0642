@@ -1,0 +1,61 @@
+version: 1
+updated_at: 2026-03-03T00:00:00Z
+registry:
+  objective: always-on optimized headybee templates for projected scenarios
+  validation:
+    min_quality_score: 0.82
+    min_confidence_score: 0.78
+    require_research_tag: true
+  templates:
+    - id: swarm-incident-response
+      domain: reliability
+      tags: [incident, self-healing, escalation, research]
+      channels: [headyswarm, headybees]
+      capabilities:
+        - gather_error_state
+        - run_deterministic_replay
+        - synthesize_learned_rule
+      metrics:
+        quality: 0.91
+        confidence: 0.88
+        usage_count: 120
+        success_rate: 0.93
+    - id: vector-template-injection
+      domain: product-delivery
+      tags: [template, connector, ui, projection, research]
+      channels: [headyswarm, projection]
+      capabilities:
+        - vector_retrieval
+        - template_selection
+        - dynamic_connector_render
+      metrics:
+        quality: 0.89
+        confidence: 0.86
+        usage_count: 201
+        success_rate: 0.91
+    - id: autonomous-github-projection
+      domain: projection
+      tags: [github, sync, source-of-truth, research]
+      channels: [projection, automation]
+      capabilities:
+        - repo_diff_monitor
+        - projection_render
+        - integrity_validation
+      metrics:
+        quality: 0.87
+        confidence: 0.84
+        usage_count: 168
+        success_rate: 0.9
+    - id: maintenance-prune-stale-surface
+      domain: maintenance
+      tags: [cleanup, stale, cloudflare, gcloud, research]
+      channels: [operations, maintenance]
+      capabilities:
+        - detect_unreferenced_assets
+        - validate_removal_plan
+        - apply_safe_prune
+      metrics:
+        quality: 0.9
+        confidence: 0.83
+        usage_count: 74
+        success_rate: 0.92

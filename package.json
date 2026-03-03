@@ -73,7 +73,17 @@
     "scan:quality": "node scripts/code-quality-batch.js",
     "logs:setup": "node scripts/setup-log-rotation.js",
     "vector:project": "node scripts/autonomous/vector-projection-orchestrator.js",
-    "vector:autopilot": "node scripts/autonomous/vector-projection-orchestrator.js --watch"
+    "vector:autopilot": "node scripts/autonomous/vector-projection-orchestrator.js --watch",
+    "vector:bootstrap": "node scripts/autonomous/deterministic-embedding-bootstrap.js",
+    "vector:bootstrap:apply": "node scripts/autonomous/deterministic-embedding-bootstrap.js --apply",
+    "ops:projection-maintenance": "node scripts/ops/projection-maintenance-ops.js",
+    "ops:projection-maintenance:apply": "node scripts/ops/projection-maintenance-ops.js --apply",
+    "ops:projection-maintenance:apply:unsafe": "node scripts/ops/projection-maintenance-ops.js --apply --no-strict",
+    "buddy:status": "node -e \"const {BuddySystem}=require('./src/services/buddy-system');const b=new BuddySystem();console.log(JSON.stringify(b.status(),null,2))\"",
+    "spatial:embed": "node -e \"const {embed}=require('./src/services/spatial-embedder');const r=embed(process.argv[1]||'test',{});console.log(JSON.stringify(r,null,2))\"",
+    "spatial:reindex": "node scripts/autonomous/deterministic-embedding-bootstrap.js --spatial",
+    "deploy:hf": "node scripts/deploy-hf-spaces.js",
+    "deploy:hf:dry": "node scripts/deploy-hf-spaces.js --dry-run"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",

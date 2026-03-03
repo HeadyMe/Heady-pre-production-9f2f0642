@@ -22,12 +22,14 @@ const nodesRouter = require("./nodes");
 const systemRouter = require("./system");
 const { router: configRouter, loadYamlConfig } = require("./config");
 const { tierMiddleware, registerTierRoutes } = require("../subscription-tiers");
+const headycoinRouter = require("./headycoin");
 
 module.exports = {
     registry: registryRouter,
     nodes: nodesRouter,
     system: systemRouter,
     config: configRouter,
+    headycoin: headycoinRouter,
 
     // Subscription tier system
     tierMiddleware,

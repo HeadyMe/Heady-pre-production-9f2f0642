@@ -1,0 +1,77 @@
+{
+    "version": 1,
+    "generatedAt": "2026-03-03T00:00:00.000Z",
+    "description": "Deterministic embedding plan — baseline for Colab Pro+ orchestration",
+    "objective": "deterministic-autonomous-embedding",
+    "slo": {
+        "max_ingest_latency_ms": 900,
+        "max_retrieval_latency_ms": 450,
+        "target_success_rate": 0.999,
+        "learning_feedback_cycle_minutes": 5
+    },
+    "subscriptions": [
+        {
+            "id": "colab-pro-plus-a",
+            "role": "low-latency-ingest",
+            "status": "pending",
+            "max_parallel_jobs": 8
+        },
+        {
+            "id": "colab-pro-plus-b",
+            "role": "model-evaluation-and-template-learning",
+            "status": "pending",
+            "max_parallel_jobs": 6
+        },
+        {
+            "id": "colab-pro-plus-c",
+            "role": "background-index-maintenance",
+            "status": "pending",
+            "max_parallel_jobs": 4
+        }
+    ],
+    "dataSources": [
+        {
+            "id": "repository-code",
+            "type": "git",
+            "schedule": "realtime",
+            "priority": "critical"
+        },
+        {
+            "id": "runtime-telemetry",
+            "type": "events",
+            "schedule": "every_10_seconds",
+            "priority": "critical"
+        },
+        {
+            "id": "ui-template-artifacts",
+            "type": "templates",
+            "schedule": "every_2_minutes",
+            "priority": "high"
+        },
+        {
+            "id": "user-interaction-feedback",
+            "type": "analytics",
+            "schedule": "every_1_minute",
+            "priority": "high"
+        },
+        {
+            "id": "pipeline-failures",
+            "type": "incidents",
+            "schedule": "realtime",
+            "priority": "critical"
+        }
+    ],
+    "storage": {
+        "vector": {
+            "dimensions": 384,
+            "octants": 8,
+            "shards": 5,
+            "pca_projection": true
+        },
+        "graph": {
+            "enabled": true
+        }
+    },
+    "jobs": [],
+    "completedJobs": []
+}

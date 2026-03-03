@@ -1,0 +1,86 @@
+[
+    {
+        "id": "incident-recovery",
+        "description": "Production outage, degraded availability, and urgent continuity recovery.",
+        "requiredTemplates": [
+            "infra-deployer",
+            "pipeline-runner",
+            "api-handler",
+            "agent-spawner"
+        ],
+        "requiredBeeDomains": [
+            "deployment",
+            "error-sentinel",
+            "sync-projection",
+            "vector-templates"
+        ],
+        "priority": "critical"
+    },
+    {
+        "id": "rapid-launch",
+        "description": "New capability launch requiring web presence, API provisioning, and autonomous rollout.",
+        "requiredTemplates": [
+            "site-builder",
+            "api-handler",
+            "config-injector",
+            "pipeline-runner"
+        ],
+        "requiredBeeDomains": [
+            "templates",
+            "deployment",
+            "documentation",
+            "sync-projection"
+        ],
+        "priority": "high"
+    },
+    {
+        "id": "compliance-hardening",
+        "description": "Security and governance hardening for policy updates and operational correctness.",
+        "requiredTemplates": [
+            "config-injector",
+            "infra-deployer",
+            "data-transformer"
+        ],
+        "requiredBeeDomains": [
+            "security",
+            "validation",
+            "memory",
+            "monitoring"
+        ],
+        "priority": "high"
+    },
+    {
+        "id": "multi-channel-growth",
+        "description": "Digital presence expansion across sites, integrations, and partner channels.",
+        "requiredTemplates": [
+            "site-builder",
+            "code-processor",
+            "api-handler",
+            "agent-spawner"
+        ],
+        "requiredBeeDomains": [
+            "templates",
+            "sites",
+            "github",
+            "sync-projection"
+        ],
+        "priority": "medium"
+    },
+    {
+        "id": "autonomous-maintenance",
+        "description": "Continuous maintenance operations, stale artifact cleanup, and projection integrity checks.",
+        "requiredTemplates": [
+            "pipeline-runner",
+            "data-transformer",
+            "infra-deployer",
+            "config-injector"
+        ],
+        "requiredBeeDomains": [
+            "maintenance",
+            "deployment",
+            "monitoring",
+            "documentation"
+        ],
+        "priority": "high"
+    }
+]

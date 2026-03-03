@@ -73,6 +73,7 @@ export const api = {
     getHCFPHistory: (limit = 100) => request(`/hcfp/history?limit=${limit}`),
     getHCFPSubsystem: (id) => request(`/hcfp/subsystems/${id}`),
 
+
     // Autonomy Core
     getAutonomyState: () => request('/autonomy/state'),
     ingestAutonomyConcept: (data) => request('/autonomy/ingest', { method: 'POST', body: JSON.stringify(data) }),
@@ -81,7 +82,29 @@ export const api = {
     getAutonomyAudit: (limit = 100) => request(`/autonomy/audit?limit=${limit}`),
     getMonorepoProjection: () => request('/autonomy/monorepo-projection'),
     getAutonomyRuntime: () => request('/autonomy/runtime'),
+    getAutonomyDiagnostics: () => request('/autonomy/diagnostics'),
+    getAutonomyNodes: () => request('/autonomy/nodes'),
+    upsertAutonomyVector: (data) => request('/autonomy/vector/upsert', { method: 'POST', body: JSON.stringify(data) }),
+    queryAutonomyVector: (data) => request('/autonomy/vector/query', { method: 'POST', body: JSON.stringify(data) }),
+    embedAutonomyProjectSnapshot: (data) => request('/autonomy/vector/embed-project', { method: 'POST', body: JSON.stringify(data) }),
+    embedAutonomyRepository: (data) => request('/autonomy/vector/embed-repo', { method: 'POST', body: JSON.stringify(data) }),
+    getAutonomyTemplateIntelligence: () => request('/autonomy/templates/intelligence'),
+    getAutonomyTemplateRegistry: () => request('/autonomy/templates/registry'),
+    registerAutonomyTemplate: (data) => request('/autonomy/templates/register', { method: 'POST', body: JSON.stringify(data) }),
+    validateAutonomyTemplateRegistry: () => request('/autonomy/templates/validate', { method: 'POST', body: JSON.stringify({}) }),
+    recommendAutonomyTemplate: (situation) => request('/autonomy/templates/recommend', { method: 'POST', body: JSON.stringify({ situation }) }),
+    optimizeAutonomyTemplates: (predictedSituations = []) => request('/autonomy/templates/optimize', { method: 'POST', body: JSON.stringify({ predictedSituations }) }),
+    getAutonomyTemplateCoverageForecast: (limit = 20) => request(`/autonomy/templates/coverage-forecast?limit=${limit}`),
+    getAutonomyTemplateReadiness: (limit = 20) => request(`/autonomy/templates/readiness?limit=${limit}`),
+    getAutonomyMaintenancePlan: () => request('/autonomy/maintenance/plan'),
+    runAutonomyMaintenanceSweep: (removeStaleFiles = false) => request('/autonomy/maintenance/sweep', { method: 'POST', body: JSON.stringify({ removeStaleFiles }) }),
+    runAutonomyHardeningCycle: (removeStaleFiles = false) => request('/autonomy/hardening/run', { method: 'POST', body: JSON.stringify({ removeStaleFiles }) }),
+    getAutonomyDigitalPresenceReport: () => request('/autonomy/digital-presence/report'),
+    getAutonomyDeterminism: (limit = 50) => request(`/autonomy/determinism?limit=${limit}`),
+    getAutonomyUnifiedModel: () => request('/autonomy/unified-model'),
     streamAutonomyEvents: () => new EventSource('/api/autonomy/stream'),
+    controlAutonomyLoop: (action) => request('/autonomy/control', { method: 'POST', body: JSON.stringify({ action }) }),
+    refreshAutonomyProjection: () => request('/autonomy/projection/refresh', { method: 'POST', body: JSON.stringify({}) }),
 
     // Google AI Studio (Gemini)
     getAIModels: () => request('/ai/models'),
@@ -95,7 +118,4 @@ export const api = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
     }),
-
-    // Dynamic App Creation
-    createDynamicAppPlan: (data) => request('/app-creation/plan', { method: 'POST', body: JSON.stringify(data) }),
 };
