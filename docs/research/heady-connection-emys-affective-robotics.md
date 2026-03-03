@@ -1,0 +1,173 @@
+# HeadyConnection and the EMYS Platform: A Definitive Architectural Analysis of Affective Robotic Systems
+
+> **Source:** Deep Research Export
+> **Status:** Reference / Technical Architecture Document
+> **Relevance:** Defines the EMYS (EMotive HeadY System) robot architecture — hardware, software (Urbi middleware), PAD emotional model, security posture, and commercial trajectory
+
+---
+
+## 1. Introduction: Social Signal Processing in Robotics
+
+The EMYS robot originates from Wrocław University of Science and Technology, later commercialized by Flash Robotics. The "Heady" architecture bridges mechatronics and affective computing by prioritizing **cartoon-like abstraction** over photorealism to circumvent the Uncanny Valley.
+
+### 1.1 Historical Genesis: The LIREC Initiative
+
+EU FP7 LIREC project mandate: create systems capable of sustaining engagement over weeks/months. Led by Jan Kędzierski, Michał Dziergwa, and designer Krzysztof Kubasek at the Department of Cybernetics and Robotics, Wrocław.
+
+### 1.2 The "Heady" Nomenclature
+
+EMYS = EMotive headY System (also alludes to European pond turtle *Emys orbicularis*). "Heady" = the underlying architectural framework and codebase managing the mapping between emotional states and servo actuation.
+
+---
+
+## 2. Mechanical Systems and Physical Abstraction
+
+### 2.1 Three-Disc Kinetic Architecture
+
+| Disc | Function | Muscles Simulated |
+| --- | --- | --- |
+| Upper (Forehead/Brow) | Tilting creates furrowed/raised brows | Frontalis, Corrugator |
+| Middle (Ocular Anchor) | Houses primary sensor array (eyes/nose camera) | Reference frame |
+| Lower (Mandible/Chin) | Oscillation synchronized with speech synthesis | Jaw movement |
+
+**Key advantage:** PA2200 rigid plastic shells (SLS printed) offer infinite fatigue life vs. degrading silicone skins.
+
+### 2.2 Actuation and Degrees of Freedom
+
+| Subsystem | Component | DoF | Purpose |
+| --- | --- | --- | --- |
+| Neck/Base | Robotis Dynamixel Servos | 2 | Pan/Tilt, torque monitoring, collision detection |
+| Eyelids | Hitec HS-65HB Micro Servos | 4 | Asymmetric blinking, winking, squinting |
+| Eyeballs | Hitec HS-65HB Micro Servos | 2 | Rapid saccades (gaze direction) |
+
+### 2.3 Sensory Perception
+
+- **Vision:** Logitech Sphere AF CMOS camera (nose-mounted), superior autofocus + low-light
+- **Depth:** Microsoft Kinect — depth maps, skeletal tracking, proxemics
+- **Audio:** Kinect microphone array — beamforming for sound source localization (Angle of Arrival)
+- **Tactile:** Capacitive touch sensors — positive reinforcement signal to emotional engine
+
+---
+
+## 3. Software Architecture: The Urbi Legacy
+
+### 3.1 Three-Layer Control Hierarchy
+
+#### Layer 1: Hardware Abstraction (UObjects — C++)
+
+| Module | Function |
+| --- | --- |
+| UDynamixel | Serial communication with servo bus |
+| UAria | MobileRobots ARIA protocol bridge |
+| USerial | Generic serial port handler |
+| UEigenfaces | OpenCV face recognition (PCA/Eigenfaces) |
+| UPlayerNext | Audio engine with real-time DSP effects |
+
+#### Layer 2: Competency Layer (urbiscript)
+
+- Event-driven scripting with **native parallelism** (& operator, comma separators)
+- Robot tree: `robot.body.head.eyes`
+- Competencies aggregate primitives: `Smile` = UpperDisc up + Eyelids half-open + happy_chirp.wav
+
+#### Layer 3: Application/Behavior Layer
+
+- Scenario management (lesson plans)
+- High-level state machines (Teaching → Listening → Idle)
+- UrbiLive graphical behavior editor for non-programmers
+
+### 3.2 Microsoft Speech Platform Dependency
+
+- **URecog** (Speech-to-Text) and **USpeech** (Text-to-Speech) wrap Microsoft Speech SDK 11
+- **Offline:** No cloud dependency — operates in schools with poor internet
+- **Platform lock-in:** Heavily tied to Windows ecosystem
+- **Obsolescence risk:** SDK deprecated in favor of Azure Cognitive Services
+
+### 3.3 The "Open Furby" Connection
+
+Same UObject paradigm drove both high-end EMYS and modified Furby toys — validating HeadyConnection as a **hardware-agnostic social robotics framework**.
+
+---
+
+## 4. Cognitive and Emotional Engine
+
+### 4.1 The PAD Dimensional Model
+
+| Dimension | Meaning | Range |
+| --- | --- | --- |
+| **P** (Pleasure) | Valence of emotion | Positive / Negative |
+| **A** (Arousal) | Activation level | High / Low |
+| **D** (Dominance) | Sense of control | Dominant / Submissive |
+
+### 4.1.1 Vector Mapping Examples
+
+| Emotion | PAD Vector | Actuation |
+| --- | --- | --- |
+| Anger | -P, +A, +D | UpperDisc lowers, Eyelids narrow, Neck extends |
+| Fear | -P, +A, -D | UpperDisc raises, Eyelids widen, Neck retracts |
+
+**Key property:** Continuous mapping allows interpolation (traverses PAD space for intermediate states like "Bittersweet" or "Cautious Optimism").
+
+### 4.2 Affective Loop and Sentiment Analysis
+
+| Module | Technology | Function |
+| --- | --- | --- |
+| UANEW | ANEW Database | Word-level affective content evaluation |
+| USentiWordNet | SentiWordNet | Phrase sentiment polarity |
+| UEigenfaces | OpenCV PCA | User identification for emotional history |
+
+---
+
+## 5. Commercial Trajectory and Open Source Tension
+
+### 5.1 From WUST to Flash Robotics
+
+- **Academic phase:** Open research platform with available plans and BOMs
+- **Commercial pivot:** Backed by SOSV accelerator → source code closed for IP protection
+- **Market:** Educational language tutoring for children
+
+### 5.2 Education Market Results
+
+Children formed attachments to the robot. Physical presence significantly increased engagement in language learning vs. tablet apps alone. Trust levels influenced by robot's emotional congruency.
+
+---
+
+## 6. Security Posture and Network Vulnerabilities
+
+### 6.1 Urbi Protocol Vulnerabilities
+
+- **Cleartext Transmission:** Default port 54000 — commands and video in cleartext
+- **Command Injection (RCE):** Exposed Urbi port = Remote Code Execution vulnerability
+- **Risk:** Attacker could move robot violently, speak inappropriate content, or exfiltrate files
+
+### 6.2 Encryption and Mitigation
+
+- **TLS/SSL:** Supported via OpenSSL libraries
+- **Cipher:** ADH-AES256-SHA (Anonymous Diffie-Hellman — vulnerable to MitM)
+- **PKI Auth:** X.509 certificates supported but likely not enforced by default in consumer units
+
+### 6.3 Privacy Compliance (GDPR/COPPA)
+
+- **Local Processing:** Offline Microsoft Speech SDK = strong privacy safeguard
+- **Biometric Data:** UEigenfaces stores face math reps → constitutes biometric data under GDPR
+
+---
+
+## 7. Comparative Analysis
+
+| Feature | EMYS/Heady | Jibo | Furhat | SoftBank Pepper |
+| --- | --- | --- | --- | --- |
+| Face Tech | Mechanical 3 Discs | Screen/Swivel | Back-projected Mask | Static Plastic |
+| Expressiveness | High (physical) | Medium (body) | Very High (texture) | Low (fixed) |
+| Middleware | Gostai Urbi | Proprietary Linux | FurhatOS (Kotlin) | NAOqi (Python/C++) |
+| Speech | Microsoft (Offline) | Cloud | Cloud/Hybrid | Nuance (Cloud/Local) |
+| Uncanny Valley | Avoids (Cartoonish) | Avoids (Abstract) | Risks (Realistic) | Avoids (Manga) |
+
+---
+
+## 8. Revival Pathway (Modernization)
+
+1. **Port HAL:** Replace UDynamixel → `ros2_control`
+2. **Cognitive Migration:** Rewrite urbiscript → Behavior Trees (BehaviorTree.CPP)
+3. **Speech Upgrade:** Integrate Vosk or Whisper for offline speech recognition
+
+Preserve the "soul" (PAD mapping, turn-taking heuristics, 3-disc kinematics) while transplanting the "body" to modern infrastructure.
