@@ -9,6 +9,7 @@ import {
     runAutonomyTick,
     createAbletonSession,
     getAuditEvents,
+    getMonorepoProjection,
     getAutonomyRuntimeStatus,
     getAutonomyDiagnostics,
     getNodeResponsibilities,
@@ -162,6 +163,15 @@ async function main() {
     const unified = await getUnifiedOperatingModel();
     assert.equal(unified.colab.memberships, 3);
     assert.equal(unified.vectorWorkspace.dimensions, 3);
+    assert.equal(unified.serviceFabric.noFrontendBackendBoundary, true);
+    assert.equal(unified.serviceFabric.orchestrationPlane.templateInjection.sourceWorkspace, '3d-vector-workspace');
+
+    const projection = await getMonorepoProjection();
+    assert.equal(projection.runtime.noFrontendBackendBoundary, true);
+    assert.equal(projection.runtime.unifiedFabric, 'unified-liquid-microservice-fabric');
+
+    const digital = await getDigitalPresenceReport();
+    assert.ok(digital.digitalPresence.some(channel => channel.channel === 'unified-service-fabric'));
 
     const diagnostics = await getAutonomyDiagnostics();
     assert.ok(typeof diagnostics.audit.lastHash === 'string' || diagnostics.audit.lastHash === null);

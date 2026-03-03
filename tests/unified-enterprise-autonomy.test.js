@@ -65,4 +65,86 @@ describe('unified enterprise autonomy service', () => {
         expect(status.healthScore).toBe(1);
         expect(status.checks.length).toBeGreaterThan(0);
     });
+
+
+    test('template injection plan maps vector workspace feeds into HeadyBee/Swarm routes', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const plan = service.buildTemplateInjectionPlan();
+
+        expect(plan.ok).toBe(true);
+        expect(plan.workspace).toBe('3d-vector-memory');
+        expect(plan.vectorWorkspaceFeeds.length).toBeGreaterThan(0);
+        expect(plan.templateInjectionRoutes.length).toBeGreaterThan(0);
+        expect(plan.templateInjectionRoutes.every((route) => route.deterministicReceipt.length === 64)).toBe(true);
+    });
+
+    test('runtime projection includes cloud-only colab fabric and conductor orchestration', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const projection = service.buildUnifiedRuntimeProjection();
+
+        expect(projection.ok).toBe(true);
+        expect(projection.cloudProjectionMode.cloudOnlyProjection).toBe(true);
+        expect(projection.orchestration.conductor).toBe('HeadyConductor');
+        expect(projection.orchestration.cloudConductor).toBe('HeadyCloudConductor');
+        expect(projection.gpuFabric.provider).toBe('colab-pro-plus');
+        expect(projection.gpuFabric.subscriptionCount).toBe(3);
+        expect(projection.musicRealtimeMode.target).toBe('ableton-live');
+    });
+
+    test('unified topology loads component graph and enforces paradigm constraints', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const topology = service.buildUnifiedTopology();
+
+        expect(topology.profile).toBe('heady-unified-autonomy');
+        expect(topology.paradigm.architecture_model).toBe('liquid-unified-microservices');
+        expect(topology.paradigm.frontend_backend_split).toBe(false);
+        expect(topology.paradigm.cloud_only_execution).toBe(true);
+        expect(topology.paradigm.monorepo_source_of_truth).toBe(true);
+        expect(topology.components.length).toBeGreaterThan(0);
+        expect(topology.dependencies.length).toBeGreaterThan(0);
+        expect(topology.deterministicReceipt).toHaveLength(64);
+    });
+
+    test('cloud projection plan enumerates colab workers with target utilizations', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const cloud = service.buildCloudProjectionPlan();
+
+        expect(cloud.cloudOnlyExecution).toBe(true);
+        expect(cloud.workers.length).toBeGreaterThan(0);
+        expect(cloud.projectionHealthy).toBe(true);
+        expect(cloud.deterministicReceipt).toHaveLength(64);
+    });
+
+    test('readiness report returns ok when all required components report healthy', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const readiness = service.buildReadinessReport();
+
+        expect(readiness.profile).toBe('heady-unified-autonomy');
+        expect(readiness.componentReadiness.length).toBeGreaterThan(0);
+        expect(readiness.templateInjection.status).toBe('ready');
+        expect(readiness.liquidUnifiedArchitecture.status).toBe('unified');
+        expect(readiness.systemicComplexity.status).toBe('acceptable');
+        expect(readiness.deterministicReceipt).toHaveLength(64);
+    });
+
+    test('system projection composes topology, dispatch, readiness, and embedding plan', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const projection = service.buildSystemProjection();
+
+        expect(projection.architectureModel).toBe('liquid-unified-microservices');
+        expect(projection.cloudOnlyExecution).toBe(true);
+        expect(projection.monorepoSourceOfTruth).toBe(true);
+        expect(projection.dynamicOutputTargets.length).toBeGreaterThan(0);
+        expect(projection.activeQueues.length).toBeGreaterThan(0);
+        expect(projection.deterministicReceipt).toHaveLength(64);
+    });
+
+    test('repository integrity scan runs without errors', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const integrity = service.scanRepositoryIntegrity();
+
+        expect(integrity.monorepoSourceOfTruth).toBe(true);
+        expect(integrity.deterministicReceipt).toHaveLength(64);
+        expect(Array.isArray(integrity.violations)).toBe(true);
+    });
 });

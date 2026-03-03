@@ -1,0 +1,151 @@
+version: 3
+profile: heady-unified-autonomy
+objective: >-
+  Keep HeadyConductor, HeadyCloudConductor, HeadySwarm, and HeadyBees operating
+  as a single deterministic runtime with vector-template injection and live Ableton support.
+paradigm:
+  architecture_model: liquid-unified-microservices
+  frontend_backend_split: false
+  cloud_only_execution: true
+  user_delivery_mode: projected-state-streams
+  monorepo_source_of_truth: true
+  dynamic_output_targets:
+    - heady-ui
+    - heady-apps
+    - heady-connectors
+    - heady-services
+components:
+  - id: heady-conductor
+    type: orchestrator
+    layer: core
+    required: true
+    health_endpoint: /api/orchestrator/health
+    provides:
+      - unified-routing
+      - policy-enforcement
+
+  - id: headycloud-conductor
+    type: orchestrator
+    layer: cloud
+    required: true
+    health_endpoint: /api/cloud-orchestrator/health
+    provides:
+      - cloud-workflow-execution
+      - failover-coordination
+
+  - id: headyswarm
+    type: swarm
+    layer: execution
+    required: true
+    health_endpoint: /api/swarm/health
+    provides:
+      - burst-execution
+      - adaptive-fanout
+
+  - id: headybees
+    type: workers
+    layer: execution
+    required: true
+    health_endpoint: /api/headybees/health
+    provides:
+      - domain-workers
+      - task-specialization
+
+  - id: vector-workspace-3d
+    type: memory
+    layer: cognition
+    required: true
+    health_endpoint: /api/vector/health
+    provides:
+      - deterministic-projection
+      - hybrid-rag-memory
+
+  - id: template-injection-engine
+    type: templating
+    layer: cognition
+    required: true
+    health_endpoint: /api/vector-template/health
+    provides:
+      - connector-template-injection
+      - registry-optimization
+
+  - id: ableton-live-bridge
+    type: realtime
+    layer: creative
+    required: false
+    health_endpoint: /api/realtime/health
+    provides:
+      - midi-routing
+      - live-performance-sync
+
+dependencies:
+  - from: heady-conductor
+    to: headycloud-conductor
+  - from: heady-conductor
+    to: headyswarm
+  - from: headyswarm
+    to: headybees
+  - from: headybees
+    to: vector-workspace-3d
+  - from: vector-workspace-3d
+    to: template-injection-engine
+  - from: template-injection-engine
+    to: headyswarm
+  - from: headyswarm
+    to: ableton-live-bridge
+
+resource_projection:
+  colab_plan: pro-plus-triple
+  workers:
+    - worker_id: colab-a
+      gpu_profile: high-vram
+      target_gpu_utilization: 0.78
+      target_vram_utilization: 0.75
+      primary_focus:
+        - live-user-inference
+        - instant-projection
+    - worker_id: colab-b
+      gpu_profile: balanced
+      target_gpu_utilization: 0.72
+      target_vram_utilization: 0.7
+      primary_focus:
+        - vector-indexing
+        - template-optimization
+    - worker_id: colab-c
+      gpu_profile: throughput
+      target_gpu_utilization: 0.86
+      target_vram_utilization: 0.8
+      primary_focus:
+        - swarm-burst
+        - connector-precompute
+
+repository_projection:
+  source_of_truth: github-monorepo
+  organization: HeadySystems
+  repo: Heady
+  autonomous_sync: true
+  disallow_nested_git_repositories: true
+  disallow_cloudflare_service_worker_files: true
+  disallow_bak_files: true
+  disallow_runtime_artifacts:
+    - server.pid
+    - "*.log"
+    - "*.jsonl"
+  max_reported_violations: 200
+
+microservice_policy:
+  strategy: lean-unified
+  max_microservices: 12
+  preferred_microservices: 7
+  enforce_dependency_graph: true
+  complexity_ceiling: 0.35
+  decompose_if_service_exceeds_lines: 1500
+
+projection_governance:
+  source_of_truth: github-monorepo
+  source_of_truth_url: https://github.com/HeadySystems/Heady
+  source_of_truth_repo_marker: .git
+  stray_path_patterns:
+    - cloudflare-workers/
+    - .bak
+    - server.pid

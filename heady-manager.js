@@ -532,6 +532,24 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ UnifiedAutonomy not loaded: ${err.message}`);
 }
 
+// ─── Unified Liquid System Projection (single service plane) ───────────────
+try {
+  const { registerUnifiedLiquidSystemRoutes } = require("./src/services/unified-liquid-system");
+  registerUnifiedLiquidSystemRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ UnifiedLiquidSystem: LOADED (single service plane + 3D template injection)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ UnifiedLiquidSystem not loaded: ${err.message}`);
+}
+
+// ─── Liquid Unified Runtime (capability mesh + dynamic experience) ─────────
+try {
+  const { registerLiquidUnifiedRuntimeRoutes } = require("./src/services/liquid-unified-runtime");
+  registerLiquidUnifiedRuntimeRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ LiquidUnifiedRuntime: LOADED (capability mesh + 3D injection + dynamic experience)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ LiquidUnifiedRuntime not loaded: ${err.message}`);
+}
+
 // ─── Spatial Embedder (3D coordinate mapping) ─────────────────────────────
 try {
   const spatialEmbedder = require("./src/services/spatial-embedder");
