@@ -9,7 +9,9 @@
 
 ---
 
-## ⚡ ACTIVE PATENT FILING
+## ⚡ ACTIVE PATENT FILINGS
+
+### Patent Filing #1 — Golden Ratio Multi-Agent Orchestration
 
 | Field | Value |
 | --- | --- |
@@ -24,8 +26,26 @@
 | **First Named Inventor** | Eric Haywood |
 | **Customer #** | 221639 |
 
+### Patent Filing #2 — 3D Spatial Indexing / Octree AI Memory
+
+| Field | Value |
+| --- | --- |
+| **Application #** | **63/995,268** |
+| **Title** | SYSTEM AND METHOD FOR THREE-DIMENSIONAL SPATIAL INDEXING OF AI AGENT MEMORY USING OCTREE DATA STRUCTURES |
+| **Type** | Utility — Provisional Application under 35 USC 111(b) |
+| **Filed By** | Eric Haywood |
+| **Received** | 03/03/2026 1:27:32 PM ET |
+| **Confirmation #** | 5012 |
+| **Patent Center #** | 74696055 |
+| **Attorney Docket** | HS-2026-002 |
+| **First Named Inventor** | Eric Haywood |
+| **Customer #** | 221639 |
+
 > [!IMPORTANT]
-> This provisional patent protects the core HeadyBees golden ratio proportional scaling system implemented in `src/orchestration/heady-bees.js`, `src/heady-principles.js`, and the HeadyBee template registry. The 12-month provisional period runs until **03/03/2027** — non-provisional filing must be submitted before that date.
+> Both provisional patents protect the two highest-value Heady IP assets. The 12-month provisional period runs until **03/03/2027** — non-provisional filings must be submitted before that date.
+>
+> - **#63/995,266** protects: `src/orchestration/heady-bees.js`, `src/heady-principles.js`, HeadyBee template registry
+> - **#63/995,268** protects: `src/services/antigravity-heady-runtime.js`, `src/services/spatial-embedder.js`, `src/services/octree-manager.js`, 3D coordinate memory
 
 ---
 
@@ -419,6 +439,10 @@ The Heady system implements a proprietary multi-agent orchestration framework de
 
 ## Part XI: Spatial Vector Workspace — 3D Coordinate Memory Architecture
 
+> [!IMPORTANT]
+> **USPTO Application #63/995,268 — FILED 03/03/2026**  
+> *SYSTEM AND METHOD FOR THREE-DIMENSIONAL SPATIAL INDEXING OF AI AGENT MEMORY USING OCTREE DATA STRUCTURES*
+
 ### The Paradigm Shift: From Cosine Similarity to Spatial Proximity
 
 **Patent claim #10**: *"A system for storing, retrieving, and operating upon AI agent memory using a three-dimensional Cartesian coordinate system where dimensions represent semantic domain (X), temporal state (Y), and hierarchy level (Z), with spatial indexing via Octree data structures providing O(log n) retrieval, replacing traditional high-dimensional vector similarity searches."*
@@ -473,4 +497,4 @@ The 3D spatial architecture eliminates the O(n) cosine similarity scan that trad
 | 7 | Nexus Hub Real-Time Event Orchestration | Media / Distributed Systems | **High viability** | `src/orchestration/` |
 | 8 | Hardware-Accelerated Heuristic Product Discovery | Commerce / ML | **Moderate–High** | Planned |
 | 9 | **Sacred Geometry Multi-Agent Orchestration** | **AI / Distributed Systems** | ✅ **FILED #63/995,266** | **`src/heady-principles.js`** |
-| 10 | **Spatial Vector Workspace for Agent Memory** | **AI / Data Architecture** | **Very High viability** | **`src/services/antigravity-heady-runtime.js`** |
+| 10 | **Spatial Vector Workspace for Agent Memory** | **AI / Data Architecture** | ✅ **FILED #63/995,268** | **`src/services/antigravity-heady-runtime.js`** |
