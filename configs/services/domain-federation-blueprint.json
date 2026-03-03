@@ -1,0 +1,205 @@
+{
+    "workspace": "./heady-fleet",
+    "archived_date": "2026-03-03",
+    "defaults": {
+        "php_version": "8.3",
+        "timezone": "America/Denver",
+        "trust_domain": "headysystems.com",
+        "governance": {
+            "mode": "release",
+            "repo": "HeadyConnection-Org/governance",
+            "ref": "v0.1.0"
+        }
+    },
+    "projects": [
+        {
+            "comment": "=== LEVEL 0: INFRASTRUCTURE ===",
+            "slug": "headysystems",
+            "apex_domain": "headysystems.com",
+            "out_dir": "headysystems"
+        },
+        {
+            "slug": "headycore",
+            "apex_domain": "headycore.com"
+        },
+        {
+            "slug": "headyos",
+            "apex_domain": "headyos.com"
+        },
+        {
+            "slug": "headyio",
+            "apex_domain": "headyio.com"
+        },
+        {
+            "slug": "headydb",
+            "apex_domain": "headydb.com"
+        },
+        {
+            "slug": "headybare",
+            "apex_domain": "headybare.com"
+        },
+        {
+            "slug": "headycloud",
+            "apex_domain": "headycloud.com"
+        },
+        {
+            "comment": "=== LEVEL 1: SECURITY ===",
+            "slug": "headycheck",
+            "apex_domain": "headycheck.com"
+        },
+        {
+            "slug": "headykey",
+            "apex_domain": "headykey.com"
+        },
+        {
+            "slug": "headyvault",
+            "apex_domain": "headyvault.com"
+        },
+        {
+            "slug": "headycrypt",
+            "apex_domain": "headycrypt.com"
+        },
+        {
+            "slug": "headysecure",
+            "apex_domain": "headysecure.com"
+        },
+        {
+            "slug": "headysafe",
+            "apex_domain": "headysafe.com"
+        },
+        {
+            "slug": "headymx",
+            "apex_domain": "headymx.com"
+        },
+        {
+            "comment": "=== LEVEL 2: GOVERNANCE & SOVEREIGNTY ===",
+            "slug": "headyconnection-org",
+            "apex_domain": "headyconnection.org"
+        },
+        {
+            "slug": "headyfed",
+            "apex_domain": "headyfed.com"
+        },
+        {
+            "slug": "headyusa",
+            "apex_domain": "headyusa.com"
+        },
+        {
+            "slug": "headygov",
+            "apex_domain": "headygov.com"
+        },
+        {
+            "slug": "headyaid",
+            "apex_domain": "headyaid.com"
+        },
+        {
+            "comment": "=== LEVEL 3: PLATFORM ===",
+            "slug": "headyconnection",
+            "apex_domain": "headyconnection.com"
+        },
+        {
+            "slug": "headyassist",
+            "apex_domain": "headyassist.com"
+        },
+        {
+            "slug": "headyagent",
+            "apex_domain": "headyagent.com"
+        },
+        {
+            "slug": "headyadvisor",
+            "apex_domain": "headyadvisor.com"
+        },
+        {
+            "slug": "headytxt",
+            "apex_domain": "headytxt.com"
+        },
+        {
+            "slug": "headyplus",
+            "apex_domain": "headyplus.com"
+        },
+        {
+            "slug": "1imi1",
+            "apex_domain": "1imi1.com"
+        },
+        {
+            "comment": "=== LEVEL 4: HIGH-COMPLIANCE ===",
+            "slug": "headyrx",
+            "apex_domain": "headyrx.com"
+        },
+        {
+            "slug": "headymd",
+            "apex_domain": "headymd.com"
+        },
+        {
+            "slug": "headylegal",
+            "apex_domain": "headylegal.com"
+        },
+        {
+            "slug": "headycorrections",
+            "apex_domain": "headycorrections.com"
+        },
+        {
+            "slug": "headyfinance",
+            "apex_domain": "headyfinance.com"
+        },
+        {
+            "slug": "headyex",
+            "apex_domain": "headyex.com"
+        },
+        {
+            "slug": "headybet",
+            "apex_domain": "headybet.com"
+        },
+        {
+            "comment": "=== LEVEL 5: KNOWLEDGE ===",
+            "slug": "headyu",
+            "apex_domain": "headyu.com"
+        },
+        {
+            "slug": "headylibrary",
+            "apex_domain": "headylibrary.com"
+        },
+        {
+            "slug": "headyarchive",
+            "apex_domain": "headyarchive.com"
+        },
+        {
+            "slug": "openmindsplace",
+            "apex_domain": "openmindsplace.com"
+        },
+        {
+            "slug": "openmindstop",
+            "apex_domain": "openmindstop.com"
+        },
+        {
+            "comment": "=== LEVEL 6: PHYSICAL & IOT ===",
+            "slug": "headyhome",
+            "apex_domain": "headyhome.com"
+        },
+        {
+            "slug": "headystore",
+            "apex_domain": "headystore.com"
+        },
+        {
+            "slug": "headykiosk",
+            "apex_domain": "headykiosk.com"
+        },
+        {
+            "slug": "headyship",
+            "apex_domain": "headyship.com"
+        },
+        {
+            "comment": "=== LEVEL 7: MEDIA & CREATIVITY ===",
+            "slug": "headytube",
+            "apex_domain": "headytube.com"
+        },
+        {
+            "slug": "headymusic",
+            "apex_domain": "headymusic.com"
+        },
+        {
+            "slug": "headystudio",
+            "apex_domain": "headystudio.com"
+        }
+    ]
+}

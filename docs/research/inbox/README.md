@@ -1,0 +1,1 @@
+# Research Inbox\n\nDrop exported Gemini conversations (.md files) here.\nThe `auto_research_ingest` pipeline handler will automatically classify, add disclaimers, and archive them to `docs/research/`.\n\nFiles here are staging only — they get moved after processing.

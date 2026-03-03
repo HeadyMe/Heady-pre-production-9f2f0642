@@ -588,6 +588,87 @@ async function idlePowerLearning(context) {
 
 // ─── REGISTRATION ────────────────────────────────────────────────────────
 
+/**
+ * AUTO RESEARCH INGEST — watches docs/research/inbox/ and auto-archives
+ * Classifies incoming .md files, adds disclaimers, moves to docs/research/
+ */
+async function autoResearchIngest(context) {
+  const inboxDir = path.join(context.projectRoot || process.cwd(), "docs/research/inbox");
+  const archiveDir = path.join(context.projectRoot || process.cwd(), "docs/research");
+
+  if (!fs.existsSync(inboxDir)) {
+    fs.mkdirSync(inboxDir, { recursive: true });
+    return { status: "idle", message: "Inbox created, no files to process" };
+  }
+
+  const files = fs.readdirSync(inboxDir).filter(f => f.endsWith(".md") && f !== "README.md");
+  if (files.length === 0) {
+    return { status: "idle", message: "No files in inbox" };
+  }
+
+  const DISCLAIMER = [
+    "",
+    "> [!CAUTION]",
+    "> **AUTO-IMPORTED:** This document was automatically ingested from an external source.",
+    "> Content may describe entities not affiliated with HeadySystems Inc.",
+    "> Review before integrating into project documentation.",
+    "",
+  ].join("\n");
+
+  const processed = [];
+  for (const file of files) {
+    const srcPath = path.join(inboxDir, file);
+    let content = fs.readFileSync(srcPath, "utf8");
+
+    // Add disclaimer after first heading if not already present
+    if (!content.includes("AUTO-IMPORTED") && !content.includes("DISCLAIMER")) {
+      const firstNewline = content.indexOf("\n");
+      if (firstNewline > 0) {
+        content = content.slice(0, firstNewline) + "\n" + DISCLAIMER + content.slice(firstNewline);
+      }
+    }
+
+    // Add processing metadata
+    const metaBlock = `\n\n---\n_Processed by auto_research_ingest at ${new Date().toISOString()}_\n`;
+    content += metaBlock;
+
+    // Classify based on filename/content keywords
+    let category = "general";
+    const lower = (file + content.slice(0, 500)).toLowerCase();
+    if (lower.includes("patent") || lower.includes("invention")) category = "ip";
+    else if (lower.includes("architect") || lower.includes("design")) category = "architecture";
+    else if (lower.includes("optim") || lower.includes("algorithm")) category = "optimization";
+    else if (lower.includes("robot") || lower.includes("emys")) category = "robotics";
+
+    // Write to archive
+    const destName = file.startsWith("gemini-") ? file : `imported-${file}`;
+    const destPath = path.join(archiveDir, destName);
+    fs.writeFileSync(destPath, content, "utf8");
+
+    // Remove from inbox
+    fs.unlinkSync(srcPath);
+
+    processed.push({ file: destName, category });
+  }
+
+  // Log results
+  const logDir = path.join(context.projectRoot || process.cwd(), "logs/research-ingest");
+  fs.mkdirSync(logDir, { recursive: true });
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    processed: processed,
+    count: processed.length,
+  };
+  const logFile = path.join(logDir, `ingest-${Date.now()}.json`);
+  fs.writeFileSync(logFile, JSON.stringify(logEntry, null, 2), "utf8");
+
+  return {
+    status: "success",
+    message: `Processed ${processed.length} files`,
+    files: processed,
+  };
+}
+
 const TASK_HANDLERS = {
   // Ingest
   ingest_news_feeds: ingestNewsFeeds,
@@ -620,6 +701,8 @@ const TASK_HANDLERS = {
   // Random Optimizer + Idle Learning
   random_optimizer_cycle: randomOptimizerCycle,
   idle_power_learning: idlePowerLearning,
+  // Research Auto-Ingest
+  auto_research_ingest: autoResearchIngest,
 };
 
 async function handleAutomatedFlow(task) {
