@@ -595,6 +595,86 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ BuddySystem not loaded: ${err.message}`);
 }
 
+// ─── Heady Autonomy (core autonomy orchestration) ─────────────────────────
+try {
+  const headyAutonomy = require("./src/services/heady-autonomy");
+  if (headyAutonomy.registerRoutes) headyAutonomy.registerRoutes(app);
+  else if (headyAutonomy.register) headyAutonomy.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ HeadyAutonomy: LOADED (autonomous orchestration layer)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyAutonomy not loaded: ${err.message}`);
+}
+
+// ─── Service Manager (lifecycle management) ───────────────────────────────
+try {
+  const serviceManager = require("./src/services/service-manager");
+  if (serviceManager.registerRoutes) serviceManager.registerRoutes(app);
+  else if (serviceManager.register) serviceManager.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ ServiceManager: LOADED (service lifecycle management)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ ServiceManager not loaded: ${err.message}`);
+}
+
+// ─── Dynamic Connector Service (instant connector creation) ───────────────
+try {
+  const dynamicConnector = require("./src/services/dynamic-connector-service");
+  if (dynamicConnector.registerRoutes) dynamicConnector.registerRoutes(app);
+  else if (dynamicConnector.register) dynamicConnector.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ DynamicConnector: LOADED (instantaneous connector building)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ DynamicConnector not loaded: ${err.message}`);
+}
+
+// ─── Cloud MIDI Sequencer (live Ableton integration) ──────────────────────
+try {
+  const cloudMidi = require("./src/services/cloud-midi-sequencer");
+  if (cloudMidi.registerRoutes) cloudMidi.registerRoutes(app);
+  else if (cloudMidi.register) cloudMidi.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  🎹 CloudMIDI: LOADED (Ableton live sequencing via cloud)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ CloudMIDI not loaded: ${err.message}`);
+}
+
+// ─── DAW MCP Bridge (DAW ↔ MCP integration) ──────────────────────────────
+try {
+  const dawBridge = require("./src/services/daw-mcp-bridge");
+  if (dawBridge.registerRoutes) dawBridge.registerRoutes(app);
+  else if (dawBridge.register) dawBridge.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  🎹 DAW-MCP: LOADED (DAW ↔ MCP bridge for live production)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ DAW-MCP not loaded: ${err.message}`);
+}
+
+// ─── Realtime Intelligence (live insight generation) ──────────────────────
+try {
+  const realtimeIntel = require("./src/services/realtime-intelligence-service");
+  if (realtimeIntel.registerRoutes) realtimeIntel.registerRoutes(app);
+  else if (realtimeIntel.register) realtimeIntel.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ RealtimeIntelligence: LOADED (live insight generation)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ RealtimeIntelligence not loaded: ${err.message}`);
+}
+
+// ─── Admin Citadel (security governance gateway) ──────────────────────────
+try {
+  const adminCitadel = require("./src/services/admin-citadel");
+  if (adminCitadel.registerRoutes) adminCitadel.registerRoutes(app);
+  else if (adminCitadel.register) adminCitadel.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  🛡️ AdminCitadel: LOADED (security governance layer)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ AdminCitadel not loaded: ${err.message}`);
+}
+
+// ─── Error Sentinel (centralized error monitoring) ────────────────────────
+try {
+  const errorSentinel = require("./src/services/error-sentinel-service");
+  if (errorSentinel.registerRoutes) errorSentinel.registerRoutes(app);
+  else if (errorSentinel.register) errorSentinel.register(app);
+  logger.logNodeActivity("CONDUCTOR", "  🛡️ ErrorSentinel: LOADED (centralized error monitoring)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ ErrorSentinel not loaded: ${err.message}`);
+}
+
 // Wire into brain.js so all brain interactions get stored as real vectors
 try {
   const brainRoutes = require("./src/routes/brain");
