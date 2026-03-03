@@ -1,0 +1,44 @@
+{
+    "name": "@headyme/sacred-geometry-sdk",
+    "version": "1.0.0",
+    "description": "Sacred Geometry framework for autonomous multi-agent orchestration — Golden Ratio (φ) capacity allocation, Base-13 tier classification, Octree-indexed 3D vector memory, and Fibonacci-weighted template selection.",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "license": "UNLICENSED",
+    "author": "Heady Systems LLC",
+    "homepage": "https://headyme.com",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/HeadyMe/Heady-pre-production-9f2f0642.git",
+        "directory": "packages/heady-sacred-geometry-sdk"
+    },
+    "keywords": [
+        "sacred-geometry",
+        "golden-ratio",
+        "multi-agent",
+        "orchestration",
+        "ai",
+        "3d-vector",
+        "octree",
+        "fibonacci",
+        "base-13"
+    ],
+    "exports": {
+        ".": "./index.js",
+        "./principles": "./lib/principles.js",
+        "./spatial": "./lib/spatial-embedder.js",
+        "./octree": "./lib/octree-manager.js",
+        "./templates": "./lib/template-engine.js",
+        "./capacity": "./lib/capacity-planner.js"
+    },
+    "files": [
+        "index.js",
+        "index.d.ts",
+        "lib/",
+        "README.md",
+        "LICENSE"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
