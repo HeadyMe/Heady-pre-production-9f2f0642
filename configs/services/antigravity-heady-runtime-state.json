@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-03T09:35:38.447Z",
+  "generatedAt": "2026-03-03T11:07:29.079Z",
   "policyVersion": 1,
   "health": {
     "endpoint": "/api/antigravity/health",
@@ -11,27 +11,27 @@
   "enforcedGateway": "heady",
   "workspaceMode": "3d-vector",
   "autonomousMode": "optimized-autonomous",
-  "optimizationReportHash": "f9be2aa54142a579a0c254a175a068e9b5fa0aadc2b2477ca68d36ccca0df6e6",
+  "optimizationReportHash": "1f3327a6ec481fdefb6d5f5aae4472906e7baaf23e7ebeba313c311b3079ae90",
   "topTemplates": [
     {
-      "id": "hb-presence-orchestrator-v1",
-      "score": 0.48875
+      "id": "hb-deployment-operator-v1",
+      "score": 0.67375
     },
     {
-      "id": "hb-continuity-guardian-v1",
-      "score": 0.48875
+      "id": "hb-vector-memory-master-v1",
+      "score": 0.659167
     },
     {
-      "id": "hb-finops-router-v1",
-      "score": 0.45125
+      "id": "hb-orchestration-conductor-v1",
+      "score": 0.639167
     },
     {
-      "id": "hb-compliance-sentinel-v1",
-      "score": 0.45125
+      "id": "hb-compliance-sentinel-v2",
+      "score": 0.6375
     },
     {
-      "id": "hb-data-evolution-v1",
-      "score": 0.45125
+      "id": "hb-intelligence-analyst-v1",
+      "score": 0.634167
     }
   ],
   "samplePlan": {
@@ -50,36 +50,147 @@
     },
     "selectedTemplates": [
       {
-        "id": "hb-finops-router-v1",
-        "name": "FinOps Routing Optimizer",
-        "zone": 7,
+        "id": "hb-deployment-operator-v1",
+        "name": "Deployment Operator",
+        "zone": 3,
         "skills": [
-          "provider-budgeting",
-          "latency-balancing",
-          "cost-guardrails"
+          "git-push",
+          "hf-spaces-deploy",
+          "cloud-run-deploy",
+          "post-deploy-verify",
+          "rollback",
+          "canary-check"
         ],
         "workflows": [
-          "budget-precheck",
-          "provider-selection",
-          "usage-recording"
+          "pre-deploy-gate",
+          "build-push",
+          "deploy-target",
+          "smoke-test",
+          "rollback-if-failed"
         ],
         "nodes": [
-          "ATLAS",
+          "BUILDER",
           "CONDUCTOR",
-          "ARENA"
+          "HCFP"
         ],
         "headyswarmTasks": [
-          "check-provider-budget",
-          "route-to-cheaper-provider",
-          "log-provider-usage"
+          "run-pre-deploy-gate",
+          "build-artifacts",
+          "push-to-github",
+          "deploy-hf-space",
+          "deploy-cloud-run",
+          "run-smoke-tests",
+          "rollback-deploy"
         ],
         "situations": [
-          "cost-optimization",
+          "autonomous-deploy",
+          "digital-presence-launch",
+          "edge-failover"
+        ],
+        "healthEndpoint": "/api/deployment/health",
+        "projectionPolicy": "github-source-of-truth",
+        "bees": [
+          "deployment",
+          "sync-projection",
+          "ops",
+          "auto-success"
+        ],
+        "optimizationScore": 0.67375
+      },
+      {
+        "id": "hb-vector-memory-master-v1",
+        "name": "Vector Memory Master",
+        "zone": 1,
+        "skills": [
+          "spatial-embedding",
+          "octree-management",
+          "cache-sync",
+          "pre-fetching",
+          "federation",
+          "hybrid-search"
+        ],
+        "workflows": [
+          "ingest-embed-cache",
+          "pre-fetch-loop",
+          "federation-sync",
+          "memory-health-check",
+          "receipts-audit"
+        ],
+        "nodes": [
+          "BUDDY",
+          "PYTHIA",
+          "ATLAS"
+        ],
+        "headyswarmTasks": [
+          "spatial-embed-payload",
+          "octree-insert",
+          "redis-cache-push",
+          "pre-fetch-adjacent",
+          "validate-embedding-integrity",
+          "compact-cold-vectors"
+        ],
+        "situations": [
+          "memory-compaction",
+          "data-migration",
+          "performance-tuning",
           "autonomous-deploy"
         ],
-        "healthEndpoint": "/api/finops/health",
+        "healthEndpoint": "/api/vector-memory/health",
         "projectionPolicy": "github-source-of-truth",
-        "optimizationScore": 0.45125
+        "bees": [
+          "memory",
+          "vector-ops",
+          "vector-templates",
+          "sync-projection"
+        ],
+        "optimizationScore": 0.659167
+      },
+      {
+        "id": "hb-orchestration-conductor-v1",
+        "name": "Orchestration Conductor",
+        "zone": 0,
+        "skills": [
+          "agent-spawning",
+          "liquid-routing",
+          "supervisor-management",
+          "cloud-routing",
+          "spatial-mapping"
+        ],
+        "workflows": [
+          "spawn-supervisor",
+          "route-to-optimal-agent",
+          "rebalance-load",
+          "conductor-health-check",
+          "sse-broadcast"
+        ],
+        "nodes": [
+          "CONDUCTOR",
+          "ARENA",
+          "BUDDY"
+        ],
+        "headyswarmTasks": [
+          "spawn-agent",
+          "route-request",
+          "rebalance-agents",
+          "check-conductor-health",
+          "broadcast-event",
+          "sync-agent-state"
+        ],
+        "situations": [
+          "autonomous-deploy",
+          "incident-response",
+          "performance-tuning",
+          "pipeline-repair"
+        ],
+        "healthEndpoint": "/api/orchestration/health",
+        "projectionPolicy": "github-source-of-truth",
+        "bees": [
+          "orchestration",
+          "agents",
+          "lifecycle",
+          "services"
+        ],
+        "optimizationScore": 0.639167
       }
     ],
     "requiredSwarmTasks": [

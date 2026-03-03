@@ -8,6 +8,25 @@ description: how to operate through heady's vector space, bees, and event system
 
 **ALL work in this repository MUST flow through Heady's vector space and bee infrastructure.**
 
+## Pre-Step · Antigravity Runtime Enforcement
+
+> **Before ANY vector space operation**, confirm Antigravity runtime is enforcing 3D vector workspace mode. Run `/antigravity-runtime` workflow or manually verify:
+
+```bash
+node -e "
+const p = require('./configs/services/antigravity-heady-runtime-policy.json');
+const ok = p.enforce?.workspaceMode === '3d-vector' && p.enforce?.gateway === 'heady';
+console.log(ok ? '✅ Antigravity: 3d-vector mode enforced' : '❌ Antigravity: NOT enforced — run /antigravity-runtime');
+if (!ok) process.exit(1);
+"
+```
+
+**Required config files:**
+
+- `configs/services/antigravity-heady-runtime-policy.json` — enforcement rules
+- `configs/services/antigravity-heady-runtime-state.json` — generated state
+- `packages/heady-sacred-geometry-sdk/` — φ, octree, spatial embedder
+
 ## Core Principles
 
 1. **RAM-first**: All operations happen in vector space first. External stores (GitHub, Cloudflare, HF Spaces) are projections of RAM state.

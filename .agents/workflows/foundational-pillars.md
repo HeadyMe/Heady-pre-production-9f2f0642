@@ -119,14 +119,18 @@ All persistent state lives in vector space. Memory is the substrate of intellige
 - Memory structured as triad: Episodic (events) + Semantic (knowledge) + Procedural (skills)
 - Telemetry events flow through `self-awareness.js` → vector memory for metacognition
 - Vector federation spans local, Pinecone, and Cloudflare Vectorize tiers
+- **Antigravity Runtime must enforce `workspaceMode: "3d-vector"`** via `antigravity-heady-runtime-policy.json`
+- **Sacred Geometry SDK** (`packages/heady-sacred-geometry-sdk/`) provides spatial embedding (SpatialEmbedder) and octree indexing (OctreeManager) for 3D coordinate memory
 
 **Validate:**
 
 - [ ] Does the change persist important state to vector memory?
 - [ ] Is telemetry ingested through self-awareness?
 - [ ] Are memory queries scoped by metadata filters?
+- [ ] Is `antigravity-heady-runtime-policy.json` enforcing `workspaceMode: "3d-vector"`?
+- [ ] Run `/antigravity-runtime` workflow to confirm SDK and config integrity
 
-**Reference:** `src/vector-memory.js`, `src/self-awareness.js`, `src/vector-federation.js`
+**Reference:** `src/vector-memory.js`, `src/self-awareness.js`, `src/vector-federation.js`, `configs/services/antigravity-heady-runtime-policy.json`, `src/services/antigravity-heady-runtime.js`, `packages/heady-sacred-geometry-sdk/`
 
 ---
 
@@ -262,12 +266,13 @@ User input is proof of missing automation. If a human must manually instruct a s
 
 ## 🔒 ENFORCEMENT
 
-This workflow is consulted by every agent (HeadyBuddy, Claude Code Agent, Heady Coder, etc.) before writing or modifying ANY code. Violations are flagged by the `self-awareness.js` telemetry loop and the `rulez-gatekeeper.js` compliance engine.
+This workflow is consulted by every agent (HeadyBuddy, Claude Code Agent, Heady Coder, Antigravity, etc.) before writing or modifying ANY code. Violations are flagged by the `self-awareness.js` telemetry loop and the `rulez-gatekeeper.js` compliance engine.
 
 **Workflow execution order:**
 
-1. Read all 10 pillars above
-2. Map the proposed change to affected pillars
-3. Check all validation boxes for affected pillars
-4. If ANY box fails → redesign before proceeding
-5. After implementation → emit telemetry event confirming pillar compliance
+1. **Run `/antigravity-runtime` workflow** — validate config files, SDK, and 3D vector workspace mode
+2. Read all 10 pillars above
+3. Map the proposed change to affected pillars
+4. Check all validation boxes for affected pillars
+5. If ANY box fails → redesign before proceeding
+6. After implementation → emit telemetry event confirming pillar compliance
