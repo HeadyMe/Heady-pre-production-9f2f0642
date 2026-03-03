@@ -86,14 +86,30 @@
 | **First Named Inventor** | Eric Haywood |
 | **Customer #** | 221639 |
 
+### Patent Filing #6 — AI Session Replay Engine
+
+| Field | Value |
+| --- | --- |
+| **Application #** | **63/995,318** |
+| **Title** | AI SESSION REPLAY ENGINE WITH DUAL-PANE TEMPORAL SCRUBBING FOR AGENTIC EXECUTION FORENSICS |
+| **Type** | Utility — Provisional Application under 35 USC 111(b) |
+| **Filed By** | Eric Haywood |
+| **Received** | 03/03/2026 2:10:10 PM ET |
+| **Confirmation #** | 7203 |
+| **Patent Center #** | 74697235 |
+| **Attorney Docket** | HS-2026-006 |
+| **First Named Inventor** | Eric Haywood |
+| **Customer #** | 221639 |
+
 > [!IMPORTANT]
-> All five provisional patents protect the highest-value Heady IP assets. The 12-month provisional period runs until **03/03/2027** — non-provisional filings must be submitted before that date.
+> All six provisional patents protect the highest-value Heady IP assets. The 12-month provisional period runs until **03/03/2027** — non-provisional filings must be submitted before that date.
 >
 > - **#63/995,266** protects: Golden Ratio multi-agent orchestration
 > - **#63/995,268** protects: 3D spatial indexing / Octree AI memory
 > - **#63/995,272** protects: Cloud-native DAW synchronization
 > - **#63/995,274** protects: Zero-trust AST compilation pipeline
 > - **#63/995,278** protects: Predictive cross-vector threat modeling / time-reversal forensics
+> - **#63/995,318** protects: AI session replay with dual-pane temporal scrubbing
 
 ---
 
