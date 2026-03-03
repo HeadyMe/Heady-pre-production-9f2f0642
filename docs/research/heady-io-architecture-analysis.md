@@ -65,8 +65,7 @@ The System defines the slots (semantics); the Connection provides the fillers (v
 2. **Transformation:** Generates platform-specific artifacts:
    - iOS: Swift structs, UIColor extensions, SwiftUI Environment values
    - Android: styles.xml, colors.xml, Kotlin Compose theming objects
-   - Web: CSS Custom Properties / SCSS maps
-
+   - Web: CSS Custom Properties / SCSS maps 
 ### 3.2 Runtime Theming
 
 The Theme Manager allows dynamic theming — swap entire token values at runtime without restarting the app. Crucial for Dark Mode or brand switching (e.g., Hibbett ↔ City Gear).
