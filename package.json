@@ -73,7 +73,10 @@
     "scan:quality": "node scripts/code-quality-batch.js",
     "logs:setup": "node scripts/setup-log-rotation.js",
     "vector:project": "node scripts/autonomous/vector-projection-orchestrator.js",
-    "vector:autopilot": "node scripts/autonomous/vector-projection-orchestrator.js --watch"
+    "vector:autopilot": "node scripts/autonomous/vector-projection-orchestrator.js --watch",
+    "maintenance:ops": "node scripts/maintenance/heady-maintenance-ops.js",
+    "maintenance:ops:apply": "node scripts/maintenance/heady-maintenance-ops.js --apply",
+    "headybee:optimize": "node scripts/autonomous/headybee-registry-optimizer.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",

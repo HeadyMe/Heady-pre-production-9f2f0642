@@ -4,6 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const { deterministicVector3FromText, normalizeVector3 } = require('../../backend/src/utils/vectorStore3d');
+const {
+    readRegistry,
+    hashRegistry,
+    REGISTRY_PATH,
+    buildOptimizationReport,
+} = require('../../src/services/headybee-template-registry');
 
 const ROOT = path.join(__dirname, '..', '..');
 const REPO_CONFIG = path.join(ROOT, 'configs', 'services', 'product-repos.yaml');
@@ -117,15 +123,50 @@ function writeProjectionManifest(data) {
     fs.writeFileSync(OUTPUT_PATH, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 }
 
+function validateProjectionDrift(entries, repos) {
+    const repoByName = new Map(repos.map((repo) => [repo.name, repo]));
+    const mismatches = [];
+
+    for (const entry of entries) {
+        const expected = repoByName.get(entry.id);
+        if (!expected) {
+            mismatches.push({ id: entry.id, reason: 'missing-repository-source' });
+            continue;
+        }
+
+        if (expected.url !== entry.endpoint) {
+            mismatches.push({ id: entry.id, reason: 'endpoint-drift', expected: expected.url, actual: entry.endpoint });
+        }
+    }
+
+    return {
+        valid: mismatches.length === 0,
+        mismatchCount: mismatches.length,
+        mismatches,
+    };
+}
+
 function runOnce() {
     const repos = readProductRepos(REPO_CONFIG);
     const { entries, axisWeights } = buildProjectionEntries(repos);
+    const drift = validateProjectionDrift(entries, repos);
+    const registry = readRegistry();
+    const optimizationReport = buildOptimizationReport(registry);
+    const optimizationReportHash = hashRegistry(optimizationReport);
 
     writeProjectionManifest({
         version: 1,
         generatedAt: new Date().toISOString(),
         mode: 'autonomous-dynamic-projection',
         source: path.relative(ROOT, REPO_CONFIG),
+        sourceOfTruth: {
+            provider: 'github',
+            repoConfig: path.relative(ROOT, REPO_CONFIG),
+            templateRegistry: path.relative(ROOT, REGISTRY_PATH),
+            templateRegistryHash: hashRegistry(registry),
+            optimizationReportHash,
+        },
+        drift,
         axisWeights,
         entries,
     });
@@ -163,6 +204,7 @@ if (require.main === module) {
 module.exports = {
     readProductRepos,
     buildProjectionEntries,
+    validateProjectionDrift,
     calculateAxisWeights,
     projectWithDynamicAxes,
     toBarycentric,

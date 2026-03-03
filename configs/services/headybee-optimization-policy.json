@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "defaults": {
+    "templatesPerSituation": 3,
+    "topTemplates": 5
+  },
+  "weights": {
+    "skills": 0.3,
+    "workflows": 0.25,
+    "nodes": 0.2,
+    "headyswarmTasks": 0.25
+  },
+  "max": {
+    "skills": 8,
+    "workflows": 6,
+    "nodes": 5,
+    "headyswarmTasks": 8
+  }
+}

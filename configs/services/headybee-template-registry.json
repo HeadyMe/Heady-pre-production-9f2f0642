@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "updatedAt": "2026-03-03T00:00:00.000Z",
+  "sourceOfTruth": {
+    "provider": "github",
+    "repo": "HeadySystems/Heady",
+    "path": "configs/services/headybee-template-registry.json"
+  },
+  "predictedSituations": [
+    "incident-response",
+    "autonomous-deploy",
+    "digital-presence-launch",
+    "compliance-audit",
+    "growth-campaign",
+    "data-migration",
+    "cost-optimization",
+    "edge-failover"
+  ],
+  "templates": [
+    {
+      "id": "hb-presence-orchestrator-v1",
+      "name": "Digital Presence Orchestrator",
+      "zone": 0,
+      "skills": ["branding", "seo", "site-generation", "content-refresh"],
+      "workflows": ["site-build", "manifest-sync", "release-validation"],
+      "nodes": ["BUILDER", "OBSERVER", "CONDUCTOR"],
+      "headyswarmTasks": ["publish-vertical-site", "update-manifest", "validate-links"],
+      "situations": ["digital-presence-launch", "growth-campaign"],
+      "healthEndpoint": "/api/presence/health",
+      "projectionPolicy": "github-source-of-truth"
+    },
+    {
+      "id": "hb-continuity-guardian-v1",
+      "name": "Continuity & Healing Guardian",
+      "zone": 5,
+      "skills": ["self-healing", "error-analysis", "rollback", "deterministic-replay"],
+      "workflows": ["capture-anomaly", "root-cause-analysis", "rule-synthesis"],
+      "nodes": ["HCFP", "PATTERNS", "CONDUCTOR"],
+      "headyswarmTasks": ["self-heal-pipeline", "derive-learned-rule", "retry-stage"],
+      "situations": ["incident-response", "edge-failover"],
+      "healthEndpoint": "/api/continuity/health",
+      "projectionPolicy": "github-source-of-truth"
+    },
+    {
+      "id": "hb-finops-router-v1",
+      "name": "FinOps Routing Optimizer",
+      "zone": 7,
+      "skills": ["provider-budgeting", "latency-balancing", "cost-guardrails"],
+      "workflows": ["budget-precheck", "provider-selection", "usage-recording"],
+      "nodes": ["ATLAS", "CONDUCTOR", "ARENA"],
+      "headyswarmTasks": ["check-provider-budget", "route-to-cheaper-provider", "log-provider-usage"],
+      "situations": ["cost-optimization", "autonomous-deploy"],
+      "healthEndpoint": "/api/finops/health",
+      "projectionPolicy": "github-source-of-truth"
+    },
+    {
+      "id": "hb-compliance-sentinel-v1",
+      "name": "Compliance & Security Sentinel",
+      "zone": 2,
+      "skills": ["secret-scanning", "policy-validation", "dependency-audit"],
+      "workflows": ["scan-credentials", "validate-cicd-gates", "produce-audit-report"],
+      "nodes": ["OBSERVER", "JULES", "BATTLE"],
+      "headyswarmTasks": ["detect-secrets", "audit-dependencies", "enforce-policy-rules"],
+      "situations": ["compliance-audit", "incident-response"],
+      "healthEndpoint": "/api/compliance/health",
+      "projectionPolicy": "github-source-of-truth"
+    },
+    {
+      "id": "hb-data-evolution-v1",
+      "name": "Data Evolution & Migration",
+      "zone": 6,
+      "skills": ["schema-planning", "etl", "vector-index-maintenance"],
+      "workflows": ["migration-plan", "data-transform", "index-reprojection"],
+      "nodes": ["PYTHIA", "ATLAS", "HCFP"],
+      "headyswarmTasks": ["execute-migration", "validate-data-integrity", "refresh-vector-projection"],
+      "situations": ["data-migration", "digital-presence-launch"],
+      "healthEndpoint": "/api/data/health",
+      "projectionPolicy": "github-source-of-truth"
+    }
+  ]
+}

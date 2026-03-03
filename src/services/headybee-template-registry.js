@@ -1,0 +1,171 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const logger = require('../utils/logger');
+
+const ROOT = path.join(__dirname, '..', '..');
+const REGISTRY_PATH = path.join(ROOT, 'configs', 'services', 'headybee-template-registry.json');
+const OPTIMIZATION_POLICY_PATH = path.join(ROOT, 'configs', 'services', 'headybee-optimization-policy.json');
+
+function readJson(filePath) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function readRegistry(filePath = REGISTRY_PATH) {
+    const parsed = readJson(filePath);
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.templates)) {
+        throw new Error(`Invalid HeadyBee registry: ${filePath}`);
+    }
+    return parsed;
+}
+
+function readOptimizationPolicy(filePath = OPTIMIZATION_POLICY_PATH) {
+    const parsed = readJson(filePath);
+    if (!parsed || typeof parsed !== 'object' || !parsed.weights) {
+        throw new Error(`Invalid HeadyBee optimization policy: ${filePath}`);
+    }
+    return parsed;
+}
+
+function hashRegistry(registry) {
+    return crypto.createHash('sha256').update(JSON.stringify(registry)).digest('hex');
+}
+
+function validateRegistry(registry) {
+    const errors = [];
+    const warnings = [];
+    const templateIds = new Set();
+    const coveredSituations = new Set();
+
+    for (const template of registry.templates) {
+        if (!template.id || templateIds.has(template.id)) {
+            errors.push(`Template id is missing or duplicated: ${template.id || '<missing>'}`);
+        }
+        templateIds.add(template.id);
+
+        if (!Array.isArray(template.skills) || template.skills.length === 0) {
+            errors.push(`Template ${template.id} is missing skills.`);
+        }
+        if (!Array.isArray(template.workflows) || template.workflows.length === 0) {
+            errors.push(`Template ${template.id} is missing workflows.`);
+        }
+        if (!Array.isArray(template.nodes) || template.nodes.length === 0) {
+            errors.push(`Template ${template.id} is missing node bindings.`);
+        }
+        if (!Array.isArray(template.headyswarmTasks) || template.headyswarmTasks.length === 0) {
+            errors.push(`Template ${template.id} is missing headyswarm tasks.`);
+        }
+        if (!template.healthEndpoint || !template.healthEndpoint.startsWith('/api/')) {
+            errors.push(`Template ${template.id} healthEndpoint must start with /api/.`);
+        }
+
+        if (!Array.isArray(template.situations) || template.situations.length === 0) {
+            warnings.push(`Template ${template.id} does not explicitly map to predicted situations.`);
+            continue;
+        }
+        template.situations.forEach((situation) => coveredSituations.add(situation));
+    }
+
+    const predicted = new Set(registry.predictedSituations || []);
+    const uncoveredPredictions = [...predicted].filter((situation) => !coveredSituations.has(situation));
+    if (uncoveredPredictions.length > 0) {
+        errors.push(`Predicted situations without templates: ${uncoveredPredictions.join(', ')}`);
+    }
+
+    return {
+        valid: errors.length === 0,
+        errors,
+        warnings,
+        totalTemplates: registry.templates.length,
+        coverage: predicted.size === 0 ? 0 : (predicted.size - uncoveredPredictions.length) / predicted.size,
+        uncoveredPredictions,
+        registryHash: hashRegistry(registry),
+    };
+}
+
+function scoreTemplate(template, policy = readOptimizationPolicy()) {
+    const weights = policy.weights || {};
+    const max = policy.max || {};
+
+    const weighted = [
+        ((template.skills || []).length / (max.skills || 1)) * (weights.skills || 0),
+        ((template.workflows || []).length / (max.workflows || 1)) * (weights.workflows || 0),
+        ((template.nodes || []).length / (max.nodes || 1)) * (weights.nodes || 0),
+        ((template.headyswarmTasks || []).length / (max.headyswarmTasks || 1)) * (weights.headyswarmTasks || 0),
+    ];
+
+    return Number(weighted.reduce((sum, value) => sum + value, 0).toFixed(6));
+}
+
+function selectTemplatesForSituation(registry, situation, limit = 3, policy = readOptimizationPolicy()) {
+    return registry.templates
+        .filter((template) => (template.situations || []).includes(situation))
+        .map((template) => ({ ...template, optimizationScore: scoreTemplate(template, policy) }))
+        .sort((a, b) => b.optimizationScore - a.optimizationScore)
+        .slice(0, limit);
+}
+
+function buildOptimizationReport(registry = readRegistry(), policy = readOptimizationPolicy()) {
+    const validation = validateRegistry(registry);
+    const bySituation = {};
+
+    for (const situation of registry.predictedSituations || []) {
+        bySituation[situation] = selectTemplatesForSituation(registry, situation, policy.defaults?.templatesPerSituation || 3, policy);
+    }
+
+    const scoredTemplates = registry.templates
+        .map((template) => ({ id: template.id, score: scoreTemplate(template, policy) }))
+        .sort((a, b) => b.score - a.score);
+
+    return {
+        generatedAt: new Date().toISOString(),
+        sourceOfTruth: registry.sourceOfTruth,
+        registryHash: validation.registryHash,
+        valid: validation.valid,
+        coverage: validation.coverage,
+        topTemplates: scoredTemplates.slice(0, policy.defaults?.topTemplates || 5),
+        bySituation,
+        warnings: validation.warnings,
+        errors: validation.errors,
+    };
+}
+
+function getHealthStatus() {
+    const registry = readRegistry();
+    const validation = validateRegistry(registry);
+    return {
+        endpoint: '/api/headybee-template-registry/health',
+        status: validation.valid ? 'healthy' : 'degraded',
+        templateCount: validation.totalTemplates,
+        coverage: validation.coverage,
+        registryHash: validation.registryHash,
+    };
+}
+
+function getOptimizationState() {
+    const registry = readRegistry();
+    const validation = validateRegistry(registry);
+    logger.logSystem(`[HeadyBeeRegistry] validation=${validation.valid ? 'pass' : 'fail'} templates=${validation.totalTemplates} coverage=${(validation.coverage * 100).toFixed(1)}%`);
+
+    return {
+        sourceOfTruth: registry.sourceOfTruth,
+        version: registry.version,
+        updatedAt: registry.updatedAt,
+        validation,
+        health: getHealthStatus(),
+    };
+}
+
+module.exports = {
+    REGISTRY_PATH,
+    OPTIMIZATION_POLICY_PATH,
+    readRegistry,
+    readOptimizationPolicy,
+    hashRegistry,
+    validateRegistry,
+    scoreTemplate,
+    selectTemplatesForSituation,
+    buildOptimizationReport,
+    getHealthStatus,
+    getOptimizationState,
+};

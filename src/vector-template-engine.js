@@ -27,10 +27,13 @@
 
 const path = require('path');
 
-// Graceful logger — falls back to console if pino unavailable
-let logger;
-try { logger = require('./utils/logger'); }
-catch { logger = { info: console.log, warn: console.warn, error: console.error }; }
+const logger = require('./utils/logger');
+const {
+    readRegistry,
+    validateRegistry,
+    readOptimizationPolicy,
+    scoreTemplate,
+} = require('./services/headybee-template-registry');
 
 // ── Lazy-load dependencies to avoid circular requires ─────────────
 let _vectorMemory = null;
@@ -255,9 +258,68 @@ const TEMPLATE_REGISTRY = {
     },
 };
 
+
+function getRegistryTemplates() {
+    try {
+        const registry = readRegistry();
+        const validation = validateRegistry(registry);
+        if (!validation.valid) {
+            logger.logError('VTE', 'registry-validation-failed', validation.errors.join('; '));
+            return [];
+        }
+
+        return registry.templates.map((template) => ({
+            name: template.id,
+            zone: Number.isInteger(template.zone) ? template.zone : 4,
+            description: template.name || template.id,
+            priority: 0.82,
+            skills: template.skills || [],
+            workflows: template.workflows || [],
+            nodes: template.nodes || [],
+            headyswarmTasks: template.headyswarmTasks || [],
+            situations: template.situations || [],
+            patterns: (template.situations || []).map((situation) => new RegExp(situation.replace(/[-\s]/g, '[-\s]?'), 'i')),
+            workerFactory: (vectorData) => [
+                {
+                    name: 'prepare-template', fn: async () => ({
+                        action: 'prepare-headybee-template',
+                        templateId: template.id,
+                        skills: template.skills || [],
+                        workflows: template.workflows || [],
+                        nodes: template.nodes || [],
+                        ts: Date.now(),
+                    }),
+                },
+                {
+                    name: 'execute-swarm', fn: async () => ({
+                        action: 'execute-headyswarm-tasks',
+                        tasks: template.headyswarmTasks || [],
+                        matchCount: vectorData.matchCount || 0,
+                        ts: Date.now(),
+                    }),
+                },
+                {
+                    name: 'health-assert', fn: async () => ({
+                        action: 'assert-template-health',
+                        endpoint: template.healthEndpoint,
+                        projectionPolicy: template.projectionPolicy || 'github-source-of-truth',
+                        ts: Date.now(),
+                    }),
+                },
+            ],
+        }));
+    } catch (error) {
+        logger.logError('VTE', 'registry-load-failed', error.message);
+        return [];
+    }
+}
+
+const DYNAMIC_TEMPLATE_REGISTRY = Object.fromEntries(getRegistryTemplates().map((template) => [template.name, template]));
+const EFFECTIVE_TEMPLATE_REGISTRY = { ...TEMPLATE_REGISTRY, ...DYNAMIC_TEMPLATE_REGISTRY };
+
 // ── Zone → Template Mapping ─────────────────────────────────────
 const ZONE_TEMPLATE_MAP = new Map();
-for (const [name, tmpl] of Object.entries(TEMPLATE_REGISTRY)) {
+for (const [name, tmpl] of Object.entries(EFFECTIVE_TEMPLATE_REGISTRY)) {
     ZONE_TEMPLATE_MAP.set(tmpl.zone, name);
 }
 
@@ -283,13 +345,13 @@ async function indexArtifact(content, type = 'auto', metadata = {}) {
         },
     });
 
-    logger.info(`[VTE] Indexed artifact → template=${templateType}, id=${id}`);
+    logger.logSystem(`[VTE] Indexed artifact → template=${templateType}, id=${id}`);
     return { id, templateType };
 }
 
 // ── Detect: Auto-detect template from content + filename ────────
 function detectTemplate(content, filename = '') {
-    for (const [name, tmpl] of Object.entries(TEMPLATE_REGISTRY)) {
+    for (const [name, tmpl] of Object.entries(EFFECTIVE_TEMPLATE_REGISTRY)) {
         for (const pattern of tmpl.patterns) {
             if (pattern.test(filename) || pattern.test(content.substring(0, 500))) {
                 return name;
@@ -309,16 +371,22 @@ async function instantiate(taskQuery, options = {}) {
     const results = await vm.queryMemory(taskQuery, topK, { vectorTemplate: true });
 
     if (!results || results.length === 0) {
-        logger.warn(`[VTE] No vector matches for task: ${taskQuery.substring(0, 80)}`);
+        logger.logSystem(`[VTE] No vector matches for task: ${taskQuery.substring(0, 80)}`);
         // Fall back to pattern matching
         const templateName = detectTemplate(taskQuery);
-        const tmpl = TEMPLATE_REGISTRY[templateName];
+        const optimizationPolicy = readOptimizationPolicy();
+        const fallbackCandidates = Object.entries(DYNAMIC_TEMPLATE_REGISTRY)
+            .map(([name, template]) => ({ name, template, score: scoreTemplate(template, optimizationPolicy) }))
+            .sort((a, b) => b.score - a.score);
+        const selectedDynamic = fallbackCandidates.find((candidate) => candidate.name === templateName) || fallbackCandidates[0];
+        const selectedTemplateName = selectedDynamic?.name || templateName;
+        const tmpl = EFFECTIVE_TEMPLATE_REGISTRY[selectedTemplateName];
         const bee = bf.createBee(`vte-${templateName}-${Date.now()}`, {
-            description: `Template bee: ${templateName} for "${taskQuery.substring(0, 50)}"`,
+            description: `Template bee: ${selectedTemplateName} for "${taskQuery.substring(0, 50)}"`,
             priority: tmpl.priority,
             workers: tmpl.workerFactory({ content: taskQuery, metadata: {} }),
         });
-        return { template: templateName, bees: [bee], vectorMatches: 0, mode: 'pattern-fallback' };
+        return { template: selectedTemplateName, bees: [bee], vectorMatches: 0, mode: 'pattern-fallback' };
     }
 
     // 2. Group results by template type
@@ -332,7 +400,7 @@ async function instantiate(taskQuery, options = {}) {
     // 3. Create bees for each template type with injected data
     const bees = [];
     for (const [tmplType, vectors] of Object.entries(grouped)) {
-        const tmpl = TEMPLATE_REGISTRY[tmplType];
+        const tmpl = EFFECTIVE_TEMPLATE_REGISTRY[tmplType];
         if (!tmpl) continue;
 
         // Merge vector data for injection
@@ -353,7 +421,7 @@ async function instantiate(taskQuery, options = {}) {
     }
 
     const primaryTemplate = Object.keys(grouped)[0];
-    logger.info(`[VTE] Instantiated ${bees.length} bee(s) from ${results.length} vector matches → primary template: ${primaryTemplate}`);
+    logger.logSystem(`[VTE] Instantiated ${bees.length} bee(s) from ${results.length} vector matches → primary template: ${primaryTemplate}`);
 
     return {
         template: primaryTemplate,
@@ -381,7 +449,7 @@ async function swarm(taskQuery, options = {}) {
     }
 
     const elapsed = Date.now() - start;
-    logger.info(`[VTE] Swarm complete: ${result.bees.length} bees, ${execResults.length} results, ${elapsed}ms`);
+    logger.logSystem(`[VTE] Swarm complete: ${result.bees.length} bees, ${execResults.length} results, ${elapsed}ms`);
 
     return {
         ...result,
@@ -408,15 +476,15 @@ async function indexDirectory(dirPath, options = {}) {
         } catch { /* skip unreadable files */ }
     }
 
-    logger.info(`[VTE] Indexed ${results.length} files from ${dirPath}`);
+    logger.logSystem(`[VTE] Indexed ${results.length} files from ${dirPath}`);
     return results;
 }
 
 // ── Stats ────────────────────────────────────────────────────────
 function getStats() {
     return {
-        templates: Object.keys(TEMPLATE_REGISTRY).length,
-        templateNames: Object.keys(TEMPLATE_REGISTRY),
+        templates: Object.keys(EFFECTIVE_TEMPLATE_REGISTRY).length,
+        templateNames: Object.keys(EFFECTIVE_TEMPLATE_REGISTRY),
         zoneMapping: Object.fromEntries(ZONE_TEMPLATE_MAP),
     };
 }
@@ -427,11 +495,11 @@ function getTemplateForZone(zone) {
 }
 
 function getTemplate(name) {
-    return TEMPLATE_REGISTRY[name] || null;
+    return EFFECTIVE_TEMPLATE_REGISTRY[name] || null;
 }
 
 function listTemplates() {
-    return Object.entries(TEMPLATE_REGISTRY).map(([name, t]) => ({
+    return Object.entries(EFFECTIVE_TEMPLATE_REGISTRY).map(([name, t]) => ({
         name,
         zone: t.zone,
         description: t.description,
@@ -442,7 +510,9 @@ function listTemplates() {
 
 // ── Export ───────────────────────────────────────────────────────
 module.exports = {
-    TEMPLATE_REGISTRY,
+    TEMPLATE_REGISTRY: EFFECTIVE_TEMPLATE_REGISTRY,
+    STATIC_TEMPLATE_REGISTRY: TEMPLATE_REGISTRY,
+    DYNAMIC_TEMPLATE_REGISTRY,
     ZONE_TEMPLATE_MAP,
     indexArtifact,
     detectTemplate,

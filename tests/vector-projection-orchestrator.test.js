@@ -3,6 +3,7 @@ const {
     projectWithDynamicAxes,
     buildProjectionEntries,
     toBarycentric,
+    validateProjectionDrift,
 } = require('../scripts/autonomous/vector-projection-orchestrator');
 
 describe('vector projection orchestrator', () => {
@@ -39,5 +40,19 @@ describe('vector projection orchestrator', () => {
     test('barycentric representation sums to 1', () => {
         const bary = toBarycentric([0.4, 0.2, 0.6]);
         expect(bary.a + bary.b + bary.c).toBeCloseTo(1, 6);
+    });
+
+    test('validateProjectionDrift catches endpoint drift', () => {
+        const repos = [
+            { name: 'HeadySystems', url: 'https://github.com/HeadySystems/Heady', description: 'main' },
+        ];
+
+        const drift = validateProjectionDrift([
+            { id: 'HeadySystems', endpoint: 'https://github.com/HeadySystems/WRONG' },
+            { id: 'UnknownRepo', endpoint: 'https://example.com/missing' },
+        ], repos);
+
+        expect(drift.valid).toBe(false);
+        expect(drift.mismatchCount).toBe(2);
     });
 });
