@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const DATA_DIR = join(__dirname, '..', 'data');
+const DATA_DIR = process.env.AUTONOMY_DATA_DIR || join(__dirname, '..', 'data');
 const STATE_FILE = join(DATA_DIR, 'autonomy-state.json');
 const AUDIT_FILE = join(DATA_DIR, 'autonomy-audit.jsonl');
 const PROJECTION_FILE = join(DATA_DIR, 'monorepo-projection.json');
@@ -16,12 +16,13 @@ const realtimeBus = new EventEmitter();
 realtimeBus.setMaxListeners(200);
 
 const PRIORITY_WEIGHT = { critical: 4, high: 3, balanced: 2, low: 1 };
-const TICK_INTERVAL_MS = 4000;
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+const TICK_INTERVAL_MS = clamp(Number(process.env.AUTONOMY_TICK_INTERVAL_MS || 4000), 500, 60000);
 
 let loopHandle = null;
 let tickInFlight = false;
 
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
 const nowIso = () => new Date().toISOString();
 
 function hashLine(payload) {
@@ -243,8 +244,12 @@ export async function getAutonomyState() {
 }
 
 export async function ingestConcept({ text, priority = 'balanced' }) {
+    if (!text || typeof text !== 'string' || !text.trim()) {
+        throw new Error('Concept text is required');
+    }
+    const normalizedPriority = PRIORITY_WEIGHT[priority] ? priority : 'balanced';
     const state = await readState();
-    const concept = vectorizeConcept(text, priority);
+    const concept = vectorizeConcept(text.trim(), normalizedPriority);
 
     state.queues.pendingConcepts.push(concept);
     prioritizeConcepts(state.queues.pendingConcepts);
@@ -345,6 +350,7 @@ export async function createAbletonSession({ user, bpm = 120, key = 'C Minor' })
 }
 
 export async function getAuditEvents(limit = 100) {
+    const safeLimit = clamp(Number(limit) || 100, 1, 1000);
     await ensureData();
     const raw = await fs.readFile(AUDIT_FILE, 'utf8');
     if (!raw.trim()) return [];
@@ -356,7 +362,7 @@ export async function getAuditEvents(limit = 100) {
             catch { return null; }
         })
         .filter(Boolean)
-        .slice(-limit)
+        .slice(-safeLimit)
         .reverse();
 }
 
@@ -393,6 +399,10 @@ export function stopAutonomyLoop() {
     clearInterval(loopHandle);
     loopHandle = null;
     return true;
+}
+
+export function isAutonomyLoopRunning() {
+    return Boolean(loopHandle);
 }
 
 export function subscribeAutonomyEvents(listener) {

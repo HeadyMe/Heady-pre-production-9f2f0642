@@ -8,7 +8,7 @@ import fs from 'fs-extra';
 import compression from 'compression';
 import { geminiChat, geminiChatStream, geminiEmbed, geminiStatus, listGeminiModels, HEADY_SYSTEM_PROMPT, AUTHORIZED_HEADY_KEYS } from './services/gemini.js';
 import { computeHCFP, getHCFPHistory, getHCFPSubsystem } from './services/hcfp.js';
-import { getAutonomyState, ingestConcept, runAutonomyTick, createAbletonSession, getAuditEvents, getMonorepoProjection, getAutonomyRuntimeStatus, startAutonomyLoop, subscribeAutonomyEvents } from './services/autonomy-engine.js';
+import { getAutonomyState, ingestConcept, runAutonomyTick, createAbletonSession, getAuditEvents, getMonorepoProjection, getAutonomyRuntimeStatus, startAutonomyLoop, stopAutonomyLoop, isAutonomyLoopRunning, subscribeAutonomyEvents } from './services/autonomy-engine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -216,6 +216,7 @@ app.post('/api/autonomy/ingest', async (req, res) => {
     try {
         const text = String(req.body?.text || '').trim();
         if (!text) return res.status(400).json({ error: 'text is required' });
+        if (text.length > 10000) return res.status(400).json({ error: 'text too large' });
         res.status(201).json(await ingestConcept({ text, priority: req.body?.priority || 'balanced' }));
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -243,6 +244,15 @@ app.get('/api/autonomy/audit', async (req, res) => {
 app.get('/api/autonomy/monorepo-projection', async (req, res) => {
     try { res.json(await getMonorepoProjection()); }
     catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+
+app.get('/api/autonomy/health', async (req, res) => {
+    try {
+        const runtime = await getAutonomyRuntimeStatus();
+        const healthy = runtime.alive && runtime.loopActive;
+        res.status(healthy ? 200 : 503).json({ healthy, runtime });
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/api/autonomy/runtime', async (req, res) => {
@@ -335,6 +345,16 @@ app.listen(PORT, '0.0.0.0', async () => {
     await addLog('info', `Admin server started on port ${PORT}`, 'system');
 
     startAutonomyLoop();
+});
+
+process.on('SIGTERM', () => {
+    if (isAutonomyLoopRunning()) stopAutonomyLoop();
+    process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    if (isAutonomyLoopRunning()) stopAutonomyLoop();
+    process.exit(0);
 });
 
 export default app;
