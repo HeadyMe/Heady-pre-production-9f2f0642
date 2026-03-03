@@ -52,7 +52,7 @@ class DeepResearchEngine {
         const maxWait = opts.maxWaitMs || this.maxWaitMs;
         const requestedProviders = opts.providers === "all" ? null : opts.providers;
 
-        logger.logSystem(`🔬 [DeepResearch] Starting: "${query.slice(0, 80)}..." depth=${depth}`);
+        logger.info(`🔬 [DeepResearch] Starting: "${query.slice(0, 80)}..." depth=${depth}`);
 
         // 1. Determine available providers
         const availableProviders = this._resolveProviders(requestedProviders);
@@ -72,7 +72,7 @@ class DeepResearchEngine {
         const synthesis = this._synthesize(results, query);
 
         const duration = Date.now() - startTs;
-        logger.logSystem(`🔬 [DeepResearch] Complete: ${results.length}/${availableProviders.length} providers responded in ${duration}ms`);
+        logger.info(`🔬 [DeepResearch] Complete: ${results.length}/${availableProviders.length} providers responded in ${duration}ms`);
 
         return {
             ok: true,
@@ -134,7 +134,7 @@ class DeepResearchEngine {
                 ok: true,
             };
         } catch (err) {
-            logger.logSystem(`🔬 [DeepResearch] ${providerName} failed: ${err.message}`);
+            logger.info(`🔬 [DeepResearch] ${providerName} failed: ${err.message}`);
             return {
                 provider: providerName,
                 mode: config.mode,

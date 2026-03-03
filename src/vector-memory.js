@@ -32,8 +32,12 @@
 const fs = require("fs");
 const path = require("path");
 const logger = require("./utils/logger");
-const HeadyGateway = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "gateway"));
-const { createProviders } = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "providers"));
+let HeadyGateway = null;
+let createProviders = null;
+try {
+    HeadyGateway = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "gateway"));
+    ({ createProviders } = require(path.join(__dirname, "..", "heady-hive-sdk", "lib", "providers")));
+} catch { /* SDK not available — using direct embedding strategies */ }
 
 const PHI = 1.6180339887;
 let federation = null;
@@ -273,7 +277,7 @@ function initShards() {
             const data = JSON.parse(fs.readFileSync(VECTOR_STORE_PATH, "utf-8"));
             const oldVectors = Array.isArray(data) ? data : data.vectors || [];
             if (oldVectors.length > 0 && shards.every(s => s.vectors.length === 0)) {
-                logger.logSystem(`  \u221e VectorMemory: Migrating ${oldVectors.length} vectors into ${NUM_SHARDS} shards`);
+                logger.info(`  \u221e VectorMemory: Migrating ${oldVectors.length} vectors into ${NUM_SHARDS} shards`);
                 oldVectors.forEach((v, i) => {
                     shards[i % NUM_SHARDS].vectors.push(v);
                     shards[i % NUM_SHARDS].dirty = true;
@@ -304,8 +308,8 @@ function initShards() {
     const total = shards.reduce((s, sh) => s + sh.vectors.length, 0);
     const zoneDistribution = {};
     zoneIndex.forEach((refs, zone) => { if (refs.length > 0) zoneDistribution[zone] = refs.length; });
-    logger.logSystem(`  \u221e VectorMemory: ${NUM_SHARDS} shards, ${total} vectors, ${indexed} indexed in 3D`);
-    logger.logSystem(`  \u221e VectorMemory: Zone distribution: ${JSON.stringify(zoneDistribution)}`);
+    logger.info(`  \u221e VectorMemory: ${NUM_SHARDS} shards, ${total} vectors, ${indexed} indexed in 3D`);
+    logger.info(`  \u221e VectorMemory: Zone distribution: ${JSON.stringify(zoneDistribution)}`);
 
     // Load graph edges from disk
     try {
@@ -315,7 +319,7 @@ function initShards() {
                 graphEdges.set(nodeId, edges);
                 graphEdgeCount += edges.length;
             }
-            logger.logSystem(`  \u221e VectorMemory: ${graphEdgeCount} graph edges loaded`);
+            logger.info(`  \u221e VectorMemory: ${graphEdgeCount} graph edges loaded`);
         }
     } catch (e) {
         logger.warn(`  \u221e VectorMemory: No graph data found or error loading graph: ${e.message}`);
@@ -325,7 +329,7 @@ function initShards() {
 // ── SDK Gateway for Embeddings ───────────────────────────────────
 let _gateway = null;
 function getGateway() {
-    if (!_gateway) {
+    if (!_gateway && HeadyGateway && createProviders) {
         _gateway = new HeadyGateway({ cacheTTL: 300000 });
         const providers = createProviders(process.env);
         for (const p of providers) _gateway.registerProvider(p);
@@ -335,7 +339,7 @@ function getGateway() {
 
 function initHFClients() {
     // Legacy — SDK gateway handles provider selection now
-    logger.logSystem(`  \u221e VectorMemory: Embeddings via SDK Gateway (${EMBEDDING_MODEL})`);
+    logger.info(`  \u221e VectorMemory: Embeddings via SDK Gateway (${EMBEDDING_MODEL})`);
 }
 
 // ── Embedding ───────────────────────────────────────────────────
@@ -831,7 +835,7 @@ function applyDecay(threshold = 0.15) {
     if (decayed > 0) {
         rebuildZoneIndex();
         persistAllShards();
-        logger.logSystem(`  ∞ VectorMemory: Decay applied — ${decayed} decayed, ${preserved} preserved of ${total}`);
+        logger.info(`  ∞ VectorMemory: Decay applied — ${decayed} decayed, ${preserved} preserved of ${total}`);
     }
 
     return { decayed, total, preserved };
@@ -961,7 +965,7 @@ async function consolidateMemory(ltmThreshold = 0.5) {
     if (compacted > 0) {
         rebuildZoneIndex();
         persistAllShards();
-        logger.logSystem(`  ∞ VectorMemory: Consolidation — ${promoted} LTM, ${compacted} compacted, ${total} total`);
+        logger.info(`  ∞ VectorMemory: Consolidation — ${promoted} LTM, ${compacted} compacted, ${total} total`);
     }
 
     return { promoted, compacted, total };
@@ -1017,7 +1021,7 @@ function startAutonomousMaintenance(intervalMs = AUTONOMY_MAINTENANCE_MS) {
 
     if (typeof autonomyTimer.unref === "function") autonomyTimer.unref();
     autonomousState.enabled = true;
-    logger.logSystem(`  ∞ VectorMemory: Autonomous maintenance enabled (${safeInterval}ms)`);
+    logger.info(`  ∞ VectorMemory: Autonomous maintenance enabled (${safeInterval}ms)`);
     return getAutonomousState();
 }
 

@@ -39,7 +39,7 @@ class CrossDeviceSyncHub extends EventEmitter {
         try {
             WebSocketServer = require("ws").Server;
         } catch {
-            logger.logSystem("⚠ [SyncHub] ws module not available — WebSocket sync disabled");
+            logger.info("⚠ [SyncHub] ws module not available — WebSocket sync disabled");
             return;
         }
 
@@ -66,14 +66,14 @@ class CrossDeviceSyncHub extends EventEmitter {
             });
 
             ws.on("error", (err) => {
-                logger.logSystem(`⚠ [SyncHub] Device ${deviceId} error: ${err.message}`);
+                logger.info(`⚠ [SyncHub] Device ${deviceId} error: ${err.message}`);
             });
         });
 
         // Start heartbeat monitoring
         this._heartbeatTimer = setInterval(() => this._checkHeartbeats(), this.heartbeatInterval);
 
-        logger.logSystem(`🔗 [SyncHub] Cross-device sync hub active on /ws/sync`);
+        logger.info(`🔗 [SyncHub] Cross-device sync hub active on /ws/sync`);
     }
 
     _registerDevice(deviceId, ws, meta) {
@@ -85,7 +85,7 @@ class CrossDeviceSyncHub extends EventEmitter {
             lastSeen: Date.now(),
         });
 
-        logger.logSystem(`🔗 [SyncHub] Device connected: ${meta.name} (${deviceId.slice(0, 8)}...) [${meta.platform}]`);
+        logger.info(`🔗 [SyncHub] Device connected: ${meta.name} (${deviceId.slice(0, 8)}...) [${meta.platform}]`);
 
         // Send welcome + current state
         this._send(ws, {
@@ -110,7 +110,7 @@ class CrossDeviceSyncHub extends EventEmitter {
         this.devices.delete(deviceId);
 
         if (device) {
-            logger.logSystem(`🔗 [SyncHub] Device disconnected: ${device.name} (${deviceId.slice(0, 8)}...)`);
+            logger.info(`🔗 [SyncHub] Device disconnected: ${device.name} (${deviceId.slice(0, 8)}...)`);
             this._broadcast(null, {
                 type: "device_disconnected",
                 deviceId,
@@ -203,7 +203,7 @@ class CrossDeviceSyncHub extends EventEmitter {
         const from = this.devices.get(fromDeviceId);
         if (from) this._send(from.ws, { type: "session_handoff_ack", sessionId, targetDeviceId });
 
-        logger.logSystem(`🔗 [SyncHub] Session handoff: ${fromDeviceId.slice(0, 8)} → ${targetDeviceId.slice(0, 8)}`);
+        logger.info(`🔗 [SyncHub] Session handoff: ${fromDeviceId.slice(0, 8)} → ${targetDeviceId.slice(0, 8)}`);
         this.emit("session:handoff", { sessionId, from: fromDeviceId, to: targetDeviceId });
     }
 
@@ -241,7 +241,7 @@ class CrossDeviceSyncHub extends EventEmitter {
 
         for (const [deviceId, device] of this.devices) {
             if (now - device.lastSeen > staleThreshold) {
-                logger.logSystem(`🔗 [SyncHub] Device stale, disconnecting: ${device.name} (${deviceId.slice(0, 8)}...)`);
+                logger.info(`🔗 [SyncHub] Device stale, disconnecting: ${device.name} (${deviceId.slice(0, 8)}...)`);
                 device.ws.terminate();
                 this._unregisterDevice(deviceId);
             }
@@ -293,7 +293,7 @@ class CrossDeviceSyncHub extends EventEmitter {
             res.json({ ok: true, sentTo: this.devices.size });
         });
 
-        logger.logSystem("  🔗 [SyncHub] Routes: /api/sync/status, /devices, /context, /broadcast");
+        logger.info("  🔗 [SyncHub] Routes: /api/sync/status, /devices, /context, /broadcast");
     }
 
     /**
