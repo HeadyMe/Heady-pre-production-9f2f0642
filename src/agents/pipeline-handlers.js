@@ -354,6 +354,118 @@ async function logRunConfigHash(context) {
   return { task: "log_run_config_hash", status: "completed", result: `Run config hash: ${hash}`, hash };
 }
 
+// ─── SELF-DISCOVERY OPTIMIZATION FRAMEWORK (EOD Protocol) ────────────────
+
+/**
+ * EOD Assertion Protocol — Statement-based daily check-in.
+ * Uses assertions instead of questions to reduce cognitive load.
+ * Ref: docs/research/self-discovery-optimization-framework.md
+ */
+async function eodAssertionProtocol(context) {
+  const fs = require("fs");
+  const eodDir = path.join(__dirname, "..", "..", "data", "eod-assertions");
+  fs.mkdirSync(eodDir, { recursive: true });
+
+  // Core assertion categories from the framework
+  const assertions = {
+    directedEnergy: [
+      { id: "revenue_focus", statement: "The majority of my energy today was directed toward revenue-generating activities.", type: "boolean" },
+      { id: "technical_leverage", statement: "I utilized my existing technical assets to solve a problem.", type: "scale_1_5" },
+    ],
+    systemHealth: [
+      { id: "internal_stability", statement: "My internal state remained stable despite external pressure.", type: "boolean" },
+      { id: "friction_identified", statement: "I clearly identified the source of today's friction.", type: "boolean" },
+    ],
+    fundamentals: [
+      { id: "community_value", statement: "I contributed value to my support system (family/friends) today.", type: "boolean" },
+      { id: "values_aligned", statement: "My pursuit of money today did not conflict with my core values.", type: "boolean" },
+    ],
+  };
+
+  // Load previous runs for trend detection
+  const historyFile = path.join(eodDir, "assertion-history.jsonl");
+  let history = [];
+  try {
+    const raw = fs.readFileSync(historyFile, "utf8").trim();
+    history = raw ? raw.split("\n").map(l => JSON.parse(l)) : [];
+  } catch { /* first run */ }
+
+  // Log today's protocol run
+  const entry = {
+    runId: context.runId,
+    ts: new Date().toISOString(),
+    assertionCount: Object.values(assertions).flat().length,
+    categories: Object.keys(assertions),
+    status: "awaiting_user_input",
+  };
+  fs.appendFileSync(historyFile, JSON.stringify(entry) + "\n");
+
+  return {
+    task: "eod_assertion_protocol",
+    status: "completed",
+    result: `EOD assertion protocol initialized: ${entry.assertionCount} assertions across ${entry.categories.length} categories`,
+    assertions,
+    historyLength: history.length,
+    pendingInput: true,
+  };
+}
+
+/**
+ * Dynamic Focus Shift — Detects patterns and generates next-day directives.
+ * Implements the "changing focus of the user if necessary" mechanism.
+ * Ref: docs/research/self-discovery-optimization-framework.md
+ */
+async function dynamicFocusShift(context) {
+  const fs = require("fs");
+  const eodDir = path.join(__dirname, "..", "..", "data", "eod-assertions");
+  const historyFile = path.join(eodDir, "assertion-history.jsonl");
+  const directivesFile = path.join(eodDir, "directives.jsonl");
+  fs.mkdirSync(eodDir, { recursive: true });
+
+  let history = [];
+  try {
+    const raw = fs.readFileSync(historyFile, "utf8").trim();
+    history = raw ? raw.split("\n").map(l => JSON.parse(l)) : [];
+  } catch { /* no history yet */ }
+
+  // Pattern detection: if 3+ consecutive runs show same friction or low revenue focus
+  const recentRuns = history.slice(-3);
+  let directive = "Continue current focus allocation.";
+  let focusShift = null;
+
+  if (recentRuns.length >= 3) {
+    const allLowRevenue = recentRuns.every(r => r.responses?.revenue_focus === false);
+    const allHighFriction = recentRuns.every(r => r.responses?.friction_identified === true);
+
+    if (allLowRevenue) {
+      directive = "FOCUS SHIFT: Ignore all tasks that do not directly generate income today.";
+      focusShift = { from: "maintenance", to: "revenue_generation", urgency: "high" };
+    } else if (allHighFriction) {
+      directive = "FRICTION ALERT: Isolate from identified friction sources until noon. Execute wealth tasks only.";
+      focusShift = { from: "scattered", to: "friction_elimination", urgency: "medium" };
+    }
+  }
+
+  // Log directive
+  const entry = {
+    ts: new Date().toISOString(),
+    runId: context.runId,
+    directive,
+    focusShift,
+    historyAnalyzed: recentRuns.length,
+  };
+  fs.appendFileSync(directivesFile, JSON.stringify(entry) + "\n");
+
+  return {
+    task: "dynamic_focus_shift",
+    status: "completed",
+    result: `Focus analysis complete: ${directive}`,
+    directive,
+    focusShift,
+    historyDepth: history.length,
+  };
+}
+
 // ─── REGISTRATION ────────────────────────────────────────────────────────
 
 const TASK_HANDLERS = {
@@ -382,6 +494,9 @@ const TASK_HANDLERS = {
   compute_readiness_score: computeReadinessScore,
   send_checkpoint_email: sendCheckpointEmail,
   log_run_config_hash: logRunConfigHash,
+  // Self-Discovery Optimization Framework (EOD Protocol)
+  eod_assertion_protocol: eodAssertionProtocol,
+  dynamic_focus_shift: dynamicFocusShift,
 };
 
 async function handleAutomatedFlow(task) {
