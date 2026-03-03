@@ -1,36 +1,56 @@
 const {
-    HeadybeeTemplateRegistryService,
-    templateScore,
-    deterministicHash,
+    readRegistry,
+    readOptimizationPolicy,
+    validateRegistry,
+    scoreTemplate,
+    selectTemplatesForSituation,
+    buildOptimizationReport,
+    getHealthStatus,
+    getOptimizationState,
 } = require('../src/services/headybee-template-registry');
 
-describe('headybee template registry service', () => {
-    test('templateScore rewards stronger metrics', () => {
-        const low = templateScore({ metrics: { quality: 0.7, confidence: 0.7, success_rate: 0.7, usage_count: 10 } });
-        const high = templateScore({ metrics: { quality: 0.95, confidence: 0.91, success_rate: 0.93, usage_count: 200 } });
-        expect(high).toBeGreaterThan(low);
+describe('headybee template registry', () => {
+    test('registry is valid and covers every predicted situation', () => {
+        const registry = readRegistry();
+        const validation = validateRegistry(registry);
+
+        expect(validation.valid).toBe(true);
+        expect(validation.coverage).toBe(1);
+        expect(validation.errors).toHaveLength(0);
     });
 
-    test('deterministicHash is stable for same input', () => {
-        const a = deterministicHash({ x: 1, y: 'a' });
-        const b = deterministicHash({ x: 1, y: 'a' });
-        expect(a).toBe(b);
-        expect(a).toHaveLength(64);
+    test('registry can select optimized templates for a situation', () => {
+        const registry = readRegistry();
+        const policy = readOptimizationPolicy();
+        const templates = selectTemplatesForSituation(registry, 'incident-response', 2, policy);
+
+        expect(templates.length).toBeGreaterThan(0);
+        expect(templates[0].optimizationScore).toBeGreaterThan(0);
     });
 
-    test('registry validation passes configured templates', () => {
-        const service = new HeadybeeTemplateRegistryService();
-        const result = service.validateRegistry();
-        expect(result.ok).toBe(true);
-        expect(result.violations).toHaveLength(0);
+    test('scoreTemplate returns weighted score', () => {
+        const registry = readRegistry();
+        const policy = readOptimizationPolicy();
+        const score = scoreTemplate(registry.templates[0], policy);
+
+        expect(score).toBeGreaterThan(0);
+        expect(score).toBeLessThanOrEqual(1);
     });
 
-    test('recommend returns top template and receipt', () => {
-        const service = new HeadybeeTemplateRegistryService();
-        const recommendation = service.recommend({ scenario: 'incident escalation in swarm', tags: ['incident', 'swarm'] });
+    test('optimization report and health status are generated', () => {
+        const report = buildOptimizationReport();
+        const health = getHealthStatus();
 
-        expect(recommendation.top).toBeTruthy();
-        expect(recommendation.receipt).toHaveLength(64);
-        expect(recommendation.ranked.length).toBeGreaterThan(0);
+        expect(report.valid).toBe(true);
+        expect(report.topTemplates.length).toBeGreaterThan(0);
+        expect(health.endpoint).toBe('/api/headybee-template-registry/health');
+    });
+
+    test('optimization state reports source-of-truth and validation hash', () => {
+        const state = getOptimizationState();
+
+        expect(state.sourceOfTruth.provider).toBe('github');
+        expect(state.validation.registryHash).toMatch(/^[a-f0-9]{64}$/);
+        expect(state.validation.valid).toBe(true);
     });
 });

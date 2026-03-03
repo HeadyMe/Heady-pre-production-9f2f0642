@@ -1,156 +1,171 @@
-/*
- * © 2026 Heady Systems LLC.
- * PROPRIETARY AND CONFIDENTIAL.
- * Unauthorized copying, modification, or distribution is strictly prohibited.
- */
-
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const yaml = require('js-yaml');
 const logger = require('../utils/logger');
 
 const ROOT = path.join(__dirname, '..', '..');
-const REGISTRY_PATH = path.join(ROOT, 'configs', 'services', 'headybee-template-registry.yaml');
+const REGISTRY_PATH = path.join(ROOT, 'configs', 'services', 'headybee-template-registry.json');
+const OPTIMIZATION_POLICY_PATH = path.join(ROOT, 'configs', 'services', 'headybee-optimization-policy.json');
+
+function readJson(filePath) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
 
 function readRegistry(filePath = REGISTRY_PATH) {
-    return yaml.load(fs.readFileSync(filePath, 'utf8'));
+    const parsed = readJson(filePath);
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.templates)) {
+        throw new Error(`Invalid HeadyBee registry: ${filePath}`);
+    }
+    return parsed;
 }
 
-function deterministicHash(value) {
-    return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
+function readOptimizationPolicy(filePath = OPTIMIZATION_POLICY_PATH) {
+    const parsed = readJson(filePath);
+    if (!parsed || typeof parsed !== 'object' || !parsed.weights) {
+        throw new Error(`Invalid HeadyBee optimization policy: ${filePath}`);
+    }
+    return parsed;
 }
 
-function templateScore(template) {
-    const metrics = template.metrics || {};
-    const quality = Number(metrics.quality || 0);
-    const confidence = Number(metrics.confidence || 0);
-    const successRate = Number(metrics.success_rate || 0);
-    const usage = Number(metrics.usage_count || 0);
-    const usageFactor = Math.min(1, usage / 200);
-    return Number(((quality * 0.35) + (confidence * 0.25) + (successRate * 0.25) + (usageFactor * 0.15)).toFixed(4));
+function hashRegistry(registry) {
+    return crypto.createHash('sha256').update(JSON.stringify(registry)).digest('hex');
 }
 
-class HeadybeeTemplateRegistryService {
-    constructor(opts = {}) {
-        this.registryPath = opts.registryPath || REGISTRY_PATH;
-        this.state = readRegistry(this.registryPath);
-        this.startedAt = null;
-        this.lastRecommendation = null;
+function validateRegistry(registry) {
+    const errors = [];
+    const warnings = [];
+    const templateIds = new Set();
+    const coveredSituations = new Set();
+
+    for (const template of registry.templates) {
+        if (!template.id || templateIds.has(template.id)) {
+            errors.push(`Template id is missing or duplicated: ${template.id || '<missing>'}`);
+        }
+        templateIds.add(template.id);
+
+        if (!Array.isArray(template.skills) || template.skills.length === 0) {
+            errors.push(`Template ${template.id} is missing skills.`);
+        }
+        if (!Array.isArray(template.workflows) || template.workflows.length === 0) {
+            errors.push(`Template ${template.id} is missing workflows.`);
+        }
+        if (!Array.isArray(template.nodes) || template.nodes.length === 0) {
+            errors.push(`Template ${template.id} is missing node bindings.`);
+        }
+        if (!Array.isArray(template.headyswarmTasks) || template.headyswarmTasks.length === 0) {
+            errors.push(`Template ${template.id} is missing headyswarm tasks.`);
+        }
+        if (!template.healthEndpoint || !template.healthEndpoint.startsWith('/api/')) {
+            errors.push(`Template ${template.id} healthEndpoint must start with /api/.`);
+        }
+
+        if (!Array.isArray(template.situations) || template.situations.length === 0) {
+            warnings.push(`Template ${template.id} does not explicitly map to predicted situations.`);
+            continue;
+        }
+        template.situations.forEach((situation) => coveredSituations.add(situation));
     }
 
-    start() {
-        this.startedAt = new Date().toISOString();
-        logger.logSystem('∞ HeadybeeTemplateRegistryService: STARTED');
+    const predicted = new Set(registry.predictedSituations || []);
+    const uncoveredPredictions = [...predicted].filter((situation) => !coveredSituations.has(situation));
+    if (uncoveredPredictions.length > 0) {
+        errors.push(`Predicted situations without templates: ${uncoveredPredictions.join(', ')}`);
     }
 
-    refresh() {
-        this.state = readRegistry(this.registryPath);
-        return this.state;
-    }
-
-    listTemplates() {
-        const templates = this.state.registry?.templates || [];
-        return templates.map((template) => ({
-            ...template,
-            computedScore: templateScore(template),
-            deterministicReceipt: deterministicHash({
-                id: template.id,
-                metrics: template.metrics,
-                capabilities: template.capabilities,
-            }),
-        })).sort((a, b) => b.computedScore - a.computedScore);
-    }
-
-    recommend({ scenario = '', tags = [] } = {}) {
-        const normalizedTags = Array.isArray(tags) ? tags.map((item) => String(item).toLowerCase()) : [];
-        const text = String(scenario || '').toLowerCase();
-
-        const ranked = this.listTemplates().map((template) => {
-            const templateTags = (template.tags || []).map((item) => String(item).toLowerCase());
-            const matchesTags = normalizedTags.filter((tag) => templateTags.includes(tag)).length;
-            const matchesScenario = templateTags.some((tag) => text.includes(tag)) ? 1 : 0;
-            const recommendationScore = Number((template.computedScore + (matchesTags * 0.06) + (matchesScenario * 0.08)).toFixed(4));
-            return { ...template, recommendationScore };
-        }).sort((a, b) => b.recommendationScore - a.recommendationScore);
-
-        this.lastRecommendation = {
-            at: new Date().toISOString(),
-            scenario,
-            tags: normalizedTags,
-            template: ranked[0]?.id || null,
-        };
-
-        return {
-            top: ranked[0] || null,
-            ranked,
-            receipt: deterministicHash({ scenario, tags: normalizedTags, top: ranked[0]?.id || null }),
-        };
-    }
-
-    validateRegistry() {
-        const rules = this.state.registry?.validation || {};
-        const templates = this.listTemplates();
-        const violations = [];
-
-        templates.forEach((template) => {
-            if (template.metrics.quality < rules.min_quality_score) {
-                violations.push({ template: template.id, reason: 'quality_below_threshold' });
-            }
-            if (template.metrics.confidence < rules.min_confidence_score) {
-                violations.push({ template: template.id, reason: 'confidence_below_threshold' });
-            }
-            if (rules.require_research_tag && !(template.tags || []).includes('research')) {
-                violations.push({ template: template.id, reason: 'missing_research_tag' });
-            }
-        });
-
-        return {
-            ok: violations.length === 0,
-            totalTemplates: templates.length,
-            violations,
-            receipt: deterministicHash({ violations, totalTemplates: templates.length }),
-        };
-    }
-
-    getHealth() {
-        return {
-            ok: true,
-            service: 'headybee-template-registry',
-            startedAt: this.startedAt,
-            templateCount: (this.state.registry?.templates || []).length,
-            lastRecommendationAt: this.lastRecommendation?.at || null,
-        };
-    }
+    return {
+        valid: errors.length === 0,
+        errors,
+        warnings,
+        totalTemplates: registry.templates.length,
+        coverage: predicted.size === 0 ? 0 : (predicted.size - uncoveredPredictions.length) / predicted.size,
+        uncoveredPredictions,
+        registryHash: hashRegistry(registry),
+    };
 }
 
-function registerHeadybeeTemplateRegistryRoutes(app, service = new HeadybeeTemplateRegistryService()) {
-    service.start();
+function scoreTemplate(template, policy = readOptimizationPolicy()) {
+    const weights = policy.weights || {};
+    const max = policy.max || {};
 
-    app.get('/api/headybee-registry/health', (_req, res) => {
-        res.json(service.getHealth());
-    });
+    const weighted = [
+        ((template.skills || []).length / (max.skills || 1)) * (weights.skills || 0),
+        ((template.workflows || []).length / (max.workflows || 1)) * (weights.workflows || 0),
+        ((template.nodes || []).length / (max.nodes || 1)) * (weights.nodes || 0),
+        ((template.headyswarmTasks || []).length / (max.headyswarmTasks || 1)) * (weights.headyswarmTasks || 0),
+    ];
 
-    app.get('/api/headybee-registry/templates', (_req, res) => {
-        res.json({ ok: true, templates: service.listTemplates() });
-    });
+    return Number(weighted.reduce((sum, value) => sum + value, 0).toFixed(6));
+}
 
-    app.post('/api/headybee-registry/recommend', (req, res) => {
-        res.json({ ok: true, recommendation: service.recommend(req.body || {}) });
-    });
+function selectTemplatesForSituation(registry, situation, limit = 3, policy = readOptimizationPolicy()) {
+    return registry.templates
+        .filter((template) => (template.situations || []).includes(situation))
+        .map((template) => ({ ...template, optimizationScore: scoreTemplate(template, policy) }))
+        .sort((a, b) => b.optimizationScore - a.optimizationScore)
+        .slice(0, limit);
+}
 
-    app.get('/api/headybee-registry/validate', (_req, res) => {
-        res.json(service.validateRegistry());
-    });
+function buildOptimizationReport(registry = readRegistry(), policy = readOptimizationPolicy()) {
+    const validation = validateRegistry(registry);
+    const bySituation = {};
 
-    logger.logNodeActivity('CONDUCTOR', '    → Endpoints: /api/headybee-registry/health, /templates, /recommend, /validate');
+    for (const situation of registry.predictedSituations || []) {
+        bySituation[situation] = selectTemplatesForSituation(registry, situation, policy.defaults?.templatesPerSituation || 3, policy);
+    }
 
-    return service;
+    const scoredTemplates = registry.templates
+        .map((template) => ({ id: template.id, score: scoreTemplate(template, policy) }))
+        .sort((a, b) => b.score - a.score);
+
+    return {
+        generatedAt: new Date().toISOString(),
+        sourceOfTruth: registry.sourceOfTruth,
+        registryHash: validation.registryHash,
+        valid: validation.valid,
+        coverage: validation.coverage,
+        topTemplates: scoredTemplates.slice(0, policy.defaults?.topTemplates || 5),
+        bySituation,
+        warnings: validation.warnings,
+        errors: validation.errors,
+    };
+}
+
+function getHealthStatus() {
+    const registry = readRegistry();
+    const validation = validateRegistry(registry);
+    return {
+        endpoint: '/api/headybee-template-registry/health',
+        status: validation.valid ? 'healthy' : 'degraded',
+        templateCount: validation.totalTemplates,
+        coverage: validation.coverage,
+        registryHash: validation.registryHash,
+    };
+}
+
+function getOptimizationState() {
+    const registry = readRegistry();
+    const validation = validateRegistry(registry);
+    logger.logSystem(`[HeadyBeeRegistry] validation=${validation.valid ? 'pass' : 'fail'} templates=${validation.totalTemplates} coverage=${(validation.coverage * 100).toFixed(1)}%`);
+
+    return {
+        sourceOfTruth: registry.sourceOfTruth,
+        version: registry.version,
+        updatedAt: registry.updatedAt,
+        validation,
+        health: getHealthStatus(),
+    };
 }
 
 module.exports = {
-    HeadybeeTemplateRegistryService,
-    registerHeadybeeTemplateRegistryRoutes,
-    templateScore,
-    deterministicHash,
+    REGISTRY_PATH,
+    OPTIMIZATION_POLICY_PATH,
+    readRegistry,
+    readOptimizationPolicy,
+    hashRegistry,
+    validateRegistry,
+    scoreTemplate,
+    selectTemplatesForSituation,
+    buildOptimizationReport,
+    getHealthStatus,
+    getOptimizationState,
 };

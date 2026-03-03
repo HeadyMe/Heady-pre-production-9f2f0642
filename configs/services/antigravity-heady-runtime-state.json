@@ -1,0 +1,99 @@
+{
+  "generatedAt": "2026-03-03T09:35:38.447Z",
+  "policyVersion": 1,
+  "health": {
+    "endpoint": "/api/antigravity/health",
+    "status": "healthy",
+    "workspaceMode": "3d-vector",
+    "gateway": "heady",
+    "autonomousMode": "optimized-autonomous"
+  },
+  "enforcedGateway": "heady",
+  "workspaceMode": "3d-vector",
+  "autonomousMode": "optimized-autonomous",
+  "optimizationReportHash": "f9be2aa54142a579a0c254a175a068e9b5fa0aadc2b2477ca68d36ccca0df6e6",
+  "topTemplates": [
+    {
+      "id": "hb-presence-orchestrator-v1",
+      "score": 0.48875
+    },
+    {
+      "id": "hb-continuity-guardian-v1",
+      "score": 0.48875
+    },
+    {
+      "id": "hb-finops-router-v1",
+      "score": 0.45125
+    },
+    {
+      "id": "hb-compliance-sentinel-v1",
+      "score": 0.45125
+    },
+    {
+      "id": "hb-data-evolution-v1",
+      "score": 0.45125
+    }
+  ],
+  "samplePlan": {
+    "enforced": true,
+    "gateway": "heady",
+    "workspaceMode": "3d-vector",
+    "autonomousMode": "optimized-autonomous",
+    "operation": {
+      "initiatedBy": "owner",
+      "source": "antigravity",
+      "task": "autonomous-runtime-sync",
+      "situation": "autonomous-deploy",
+      "metadata": {
+        "initiatedBySystem": true
+      }
+    },
+    "selectedTemplates": [
+      {
+        "id": "hb-finops-router-v1",
+        "name": "FinOps Routing Optimizer",
+        "zone": 7,
+        "skills": [
+          "provider-budgeting",
+          "latency-balancing",
+          "cost-guardrails"
+        ],
+        "workflows": [
+          "budget-precheck",
+          "provider-selection",
+          "usage-recording"
+        ],
+        "nodes": [
+          "ATLAS",
+          "CONDUCTOR",
+          "ARENA"
+        ],
+        "headyswarmTasks": [
+          "check-provider-budget",
+          "route-to-cheaper-provider",
+          "log-provider-usage"
+        ],
+        "situations": [
+          "cost-optimization",
+          "autonomous-deploy"
+        ],
+        "healthEndpoint": "/api/finops/health",
+        "projectionPolicy": "github-source-of-truth",
+        "optimizationScore": 0.45125
+      }
+    ],
+    "requiredSwarmTasks": [
+      "vector-context-bootstrap",
+      "template-selection",
+      "autonomous-execution",
+      "projection-sync",
+      "post-op-learning-ingest"
+    ],
+    "vectorWorkspace": {
+      "enabled": true,
+      "dimensions": 3,
+      "zoneRouting": true,
+      "instantExecution": true
+    }
+  }
+}

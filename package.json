@@ -83,7 +83,11 @@
     "spatial:embed": "node -e \"const {embed}=require('./src/services/spatial-embedder');const r=embed(process.argv[1]||'test',{});console.log(JSON.stringify(r,null,2))\"",
     "spatial:reindex": "node scripts/autonomous/deterministic-embedding-bootstrap.js --spatial",
     "deploy:hf": "node scripts/deploy-hf-spaces.js",
-    "deploy:hf:dry": "node scripts/deploy-hf-spaces.js --dry-run"
+    "deploy:hf:dry": "node scripts/deploy-hf-spaces.js --dry-run",
+    "maintenance:ops": "node scripts/maintenance/heady-maintenance-ops.js",
+    "maintenance:ops:apply": "node scripts/maintenance/heady-maintenance-ops.js --apply",
+    "headybee:optimize": "node scripts/autonomous/headybee-registry-optimizer.js",
+    "antigravity:sync": "node scripts/autonomous/antigravity-heady-sync.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
