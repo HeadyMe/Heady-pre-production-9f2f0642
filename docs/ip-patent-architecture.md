@@ -146,8 +146,23 @@
 | **First Named Inventor** | Eric Haywood |
 | **Customer #** | 221639 |
 
+### Patent Filing #10 — Liquid Runtime Architecture
+
+| Field | Value |
+| --- | --- |
+| **Application #** | **63/995,325** |
+| **Title** | LIQUID RUNTIME ARCHITECTURE WITH DYNAMIC MICROSERVICE MATERIALIZATION AND GPU PROPORTIONAL RESOURCE ALLOCATION |
+| **Type** | Utility — Provisional Application under 35 USC 111(b) |
+| **Filed By** | Eric Haywood |
+| **Status** | Application Undergoing Preexam Processing 03/03/2026 |
+| **Confirmation #** | 1182 |
+| **Attorney Docket** | HS-2026-009 |
+| **Assignee** | HeadySystems Inc., Fort Collins (US) |
+| **First Named Inventor** | Eric Haywood |
+| **Customer #** | 221639 |
+
 > [!IMPORTANT]
-> All nine provisional patents protect the highest-value Heady IP assets. The 12-month provisional period runs until **03/03/2027** — non-provisional filings must be submitted before that date.
+> All ten provisional patents protect the highest-value Heady IP assets. The 12-month provisional period runs until **03/03/2027** — non-provisional filings must be submitted before that date.
 >
 > - **#63/995,266** protects: Golden Ratio multi-agent orchestration
 > - **#63/995,268** protects: 3D spatial indexing / Octree AI memory
@@ -157,6 +172,7 @@
 > - **#63/995,318** protects: AI session replay with dual-pane temporal scrubbing
 > - **#63/995,320** protects: Autonomous API connector synthesis with DLP enforcement
 > - **#63/995,322** protects: Tournament-based competitive AI strategy optimization
+> - **#63/995,325** protects: Liquid runtime with dynamic GPU-proportional allocation
 > - **#63/995,330** protects: Cross-device sync with phi-interval heartbeat
 
 ---
