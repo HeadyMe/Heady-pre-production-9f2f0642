@@ -1,0 +1,67 @@
+{
+    "name": "HeadyBuddyDevice",
+    "version": "3.457890",
+    "versionTag": "v3457890",
+    "description": "HeadyBuddy Cross-Device Install Package — Cloud-Connected Thin Client",
+    "author": "HeadySystems Inc.",
+    "license": "Proprietary",
+    "architecture": "cloud-orchestrated-thin-client",
+    "cloudApi": "https://headyme.com/api",
+    "swarmEndpoint": "wss://headyme.com/swarm",
+    "localResources": "minimal (UI shell only)",
+    "opsLocation": "cloud (HeadyBees swarm)",
+    "targets": {
+        "linux-mini-computer": {
+            "installer": "installers/install-linux.sh",
+            "method": "shell script",
+            "output": "~/.heady/ (thin client + desktop entry + systemd service)",
+            "launcher": "heady-buddy command or desktop icon"
+        },
+        "windows-laptop": {
+            "installer": "installers/Install-Heady.ps1",
+            "method": "PowerShell",
+            "output": "%LOCALAPPDATA%\\HeadyBuddy (thin client + shortcuts)",
+            "launcher": "Desktop shortcut or Start Menu → HeadySystems → HeadyBuddy"
+        },
+        "oneplus-open-android": {
+            "installer": "installers/setup-android.sh",
+            "method": "PWA install via Chrome or ADB sideload",
+            "output": "PWA on home screen or /sdcard/HeadyBuddy/",
+            "features": [
+                "foldable-support",
+                "front-screen",
+                "flex-mode"
+            ]
+        }
+    },
+    "beeSwarm": {
+        "provisionerBee": "src/bees/device-provisioner-bee.js",
+        "totalBees": 35,
+        "swarmTasks": [
+            "detect-platform",
+            "fs-authorize",
+            "install-core",
+            "install-mods",
+            "verify"
+        ],
+        "parallelism": "phi-optimized"
+    },
+    "mods": {
+        "bundled": 8,
+        "autoEnabled": 5,
+        "available": 3,
+        "installMethod": "cloud-pushed"
+    },
+    "ui": {
+        "panels": [
+            "chat",
+            "filesystem",
+            "mods",
+            "swarm",
+            "settings"
+        ],
+        "theme": "sacred-geometry",
+        "responsive": true,
+        "pwa": true
+    }
+}

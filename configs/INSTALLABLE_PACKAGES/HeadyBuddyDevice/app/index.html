@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="description" content="HeadyBuddy v3457890 — AI Companion with Cloud-Powered Root Operations">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>HeadyBuddy v3457890</title>
+    <link rel="manifest" href="manifest.json">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --phi: 1.618033988749895;
+            --phi-inv: 0.618033988749895;
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #111128;
+            --bg-tertiary: #1a1a3a;
+            --bg-glass: rgba(17, 17, 40, 0.85);
+            --accent: #7c3aed;
+            --accent-glow: rgba(124, 58, 237, 0.4);
+            --accent-secondary: #06d6a0;
+            --accent-warn: #fbbf24;
+            --accent-danger: #ef4444;
+            --text-primary: #f0f0ff;
+            --text-secondary: #a0a0cc;
+            --text-muted: #6060a0;
+            --border: rgba(124, 58, 237, 0.2);
+            --radius-sm: 8px;
+            --radius-md: 13px;
+            --radius-lg: 21px;
+            --radius-xl: 34px;
+            --shadow-glow: 0 0 30px rgba(124, 58, 237, 0.15);
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --fib-3: 3px;
+            --fib-5: 5px;
+            --fib-8: 8px;
+            --fib-13: 13px;
+            --fib-21: 21px;
+            --fib-34: 34px;
+            --fib-55: 55px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─── Sacred Geometry Background Canvas ─────────────────── */
+        #sacred-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* ─── App Shell ─────────────────────────────────────────── */
+        .app-shell {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        /* ─── Header ────────────────────────────────────────────── */
+        .header {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: var(--fib-13) var(--fib-21);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--fib-13);
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            box-shadow: var(--shadow-glow);
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        .header-title {
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-version {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--accent-secondary);
+            opacity: 0.8;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: var(--fib-8);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.connected {
+            background: var(--accent-secondary);
+        }
+
+        .status-dot.disconnected {
+            background: var(--accent-danger);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 4px currentColor;
+            }
+
+            50% {
+                opacity: 0.5;
+                box-shadow: 0 0 12px currentColor;
+            }
+        }
+
+        .status-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ─── Main Navigation ───────────────────────────────────── */
+        .main-content {
+            display: grid;
+            grid-template-columns: 64px 1fr;
+            height: calc(100vh - 66px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr auto;
+            }
+
+            .sidebar {
+                order: 2;
+                flex-direction: row;
+                padding: var(--fib-5) var(--fib-8);
+                border-right: none;
+                border-top: 1px solid var(--border);
+            }
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--fib-13) 0;
+            gap: var(--fib-5);
+        }
+
+        .nav-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .nav-btn .badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-secondary);
+            color: #000;
+            font-size: 9px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ─── Panels ────────────────────────────────────────────── */
+        .panel {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .panel.active {
+            display: flex;
+        }
+
+        .panel-header {
+            padding: var(--fib-21);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .panel-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--fib-21);
+        }
+
+        /* ─── Chat Panel ────────────────────────────────────────── */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--fib-21);
+            display: flex;
+            flex-direction: column;
+            gap: var(--fib-13);
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: var(--fib-13) var(--fib-21);
+            border-radius: var(--radius-lg);
+            font-size: 14px;
+            line-height: 1.6;
+            animation: msgIn 0.3s ease;
+        }
+
+        @keyframes msgIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--accent), #5b21b6);
+            border-bottom-right-radius: var(--fib-5);
+        }
+
+        .msg.buddy {
+            align-self: flex-start;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: var(--fib-5);
+        }
+
+        .msg.system {
+            align-self: center;
+            max-width: 90%;
+            background: rgba(6, 214, 160, 0.1);
+            border: 1px solid rgba(6, 214, 160, 0.3);
+            font-family: var(--mono);
+            font-size: 12px;
+            border-radius: var(--radius-sm);
+        }
+
+        .chat-input-area {
+            padding: var(--fib-13) var(--fib-21);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: var(--fib-8);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--fib-13) var(--fib-21);
+            color: var(--text-primary);
+            font-family: var(--font);
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent);
+        }
+
+        .send-btn {
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 0 var(--fib-21);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ─── Filesystem Panel ──────────────────────────────────── */
+        .auth-banner {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(6, 214, 160, 0.15));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--fib-21);
+            margin-bottom: var(--fib-21);
+            display: flex;
+            align-items: center;
+            gap: var(--fib-13);
+        }
+
+        .auth-icon {
+            font-size: 32px;
+        }
+
+        .auth-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .auth-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .auth-badge {
+            margin-left: auto;
+            font-family: var(--mono);
+            font-size: 11px;
+            background: rgba(6, 214, 160, 0.2);
+            color: var(--accent-secondary);
+            padding: 4px 12px;
+            border-radius: 100px;
+        }
+
+        .fs-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--fib-5);
+            padding: var(--fib-8) var(--fib-13);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--fib-13);
+            font-family: var(--mono);
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        .fs-breadcrumb span {
+            color: var(--text-muted);
+        }
+
+        .fs-breadcrumb a {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .fs-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .fs-item {
+            display: flex;
+            align-items: center;
+            gap: var(--fib-13);
+            padding: var(--fib-8) var(--fib-13);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background 0.15s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .fs-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .fs-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .fs-name {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .fs-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--mono);
+        }
+
+        .fs-perms {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--accent-secondary);
+            opacity: 0.7;
+        }
+
+        .cloud-badge {
+            font-size: 9px;
+            font-family: var(--mono);
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        /* ─── Mods Panel ────────────────────────────────────────── */
+        .mod-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--fib-13);
+        }
+
+        .mod-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--fib-21);
+            transition: all 0.2s;
+        }
+
+        .mod-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .mod-card.installed {
+            border-left: 3px solid var(--accent-secondary);
+        }
+
+        .mod-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--fib-8);
+        }
+
+        .mod-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .mod-type {
+            font-size: 10px;
+            font-family: var(--mono);
+            padding: 2px 8px;
+            border-radius: 100px;
+            text-transform: uppercase;
+        }
+
+        .mod-type.theme {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent);
+        }
+
+        .mod-type.tool {
+            background: rgba(6, 214, 160, 0.2);
+            color: var(--accent-secondary);
+        }
+
+        .mod-type.integration {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--accent-warn);
+        }
+
+        .mod-type.dashboard {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .mod-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: var(--fib-13);
+        }
+
+        .mod-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mod-size {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--mono);
+        }
+
+        .mod-toggle {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            background: var(--bg-tertiary);
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .mod-toggle.on {
+            background: var(--accent-secondary);
+        }
+
+        .mod-toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.2s;
+        }
+
+        .mod-toggle.on::after {
+            transform: translateX(20px);
+        }
+
+        /* ─── Swarm Panel ───────────────────────────────────────── */
+        .swarm-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--fib-13);
+            margin-bottom: var(--fib-21);
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--fib-21);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bee-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--fib-5);
+        }
+
+        .bee-item {
+            display: flex;
+            align-items: center;
+            gap: var(--fib-13);
+            padding: var(--fib-8) var(--fib-13);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            transition: all 0.15s;
+        }
+
+        .bee-item:hover {
+            border-color: var(--border);
+        }
+
+        .bee-emoji {
+            font-size: 16px;
+        }
+
+        .bee-domain {
+            font-weight: 500;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .bee-status {
+            font-size: 10px;
+            font-family: var(--mono);
+            padding: 2px 8px;
+            border-radius: 100px;
+        }
+
+        .bee-status.ready {
+            background: rgba(6, 214, 160, 0.15);
+            color: var(--accent-secondary);
+        }
+
+        .bee-status.working {
+            background: rgba(124, 58, 237, 0.15);
+            color: var(--accent);
+        }
+
+        .bee-status.cloud {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        /* ─── Settings Panel ────────────────────────────────────── */
+        .settings-group {
+            margin-bottom: var(--fib-34);
+        }
+
+        .settings-group-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: var(--fib-13);
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--fib-13) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .setting-label {
+            font-size: 14px;
+        }
+
+        .setting-value {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: var(--mono);
+        }
+
+        .btn-sm {
+            padding: var(--fib-5) var(--fib-13);
+            border: 1px solid var(--border);
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-sm:hover {
+            border-color: var(--accent);
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .btn-sm.danger {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-sm.danger:hover {
+            border-color: var(--accent-danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="sacred-bg"></canvas>
+
+    <div class="app-shell">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-brand">
+                <div class="header-logo">H</div>
+                <div>
+                    <div class="header-title">HeadyBuddy</div>
+                    <div class="header-version">v3457890 · cloud-connected</div>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-dot connected" id="statusDot"></div>
+                <span class="status-text" id="statusText">Cloud Connected</span>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <div class="main-content">
+            <!-- Sidebar Nav -->
+            <nav class="sidebar">
+                <button class="nav-btn active" data-panel="chat" title="Chat with Buddy">💬</button>
+                <button class="nav-btn" data-panel="filesystem" title="Filesystem Manager">📁</button>
+                <button class="nav-btn" data-panel="mods" title="Mods & Additions">🧩<span class="badge"
+                        id="modCount">8</span></button>
+                <button class="nav-btn" data-panel="swarm" title="Bee Swarm Monitor">🐝</button>
+                <button class="nav-btn" data-panel="settings" title="Settings">⚙️</button>
+            </nav>
+
+            <!-- Chat Panel -->
+            <div class="panel active" id="panel-chat">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="msg system">🐝 HeadyBuddy v3457890 · Cloud-powered root operations active<br>Connected
+                        to headyme.com swarm · 35 bees ready · φ-optimized</div>
+                    <div class="msg buddy">Hey! I'm HeadyBuddy, your AI companion. I'm cloud-connected, so all heavy
+                        operations run on HeadySystems cloud infrastructure — zero local resource drain. 🚀<br><br>I can
+                        help you with:<br>• <strong>Filesystem operations</strong> (cloud-powered root access)<br>•
+                        <strong>Mod management</strong> (install/remove/configure)<br>• <strong>Device
+                            provisioning</strong> (cross-device sync)<br>• <strong>HeadyBee swarm commands</strong>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <textarea class="chat-input" id="chatInput" placeholder="Ask Buddy anything..." rows="1"></textarea>
+                    <button class="send-btn" id="sendBtn">Send</button>
+                </div>
+            </div>
+
+            <!-- Filesystem Panel -->
+            <div class="panel" id="panel-filesystem">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">📁 Filesystem Manager</div>
+                        <div class="panel-subtitle">Cloud-powered root operations · all I/O runs on HeadySystems
+                            infrastructure</div>
+                    </div>
+                    <button class="btn-sm" id="authBtn">🔐 Authorize Root</button>
+                </div>
+                <div class="panel-body">
+                    <div class="auth-banner" id="authBanner">
+                        <div class="auth-icon">🔓</div>
+                        <div class="auth-info">
+                            <h3>Root Access Authorized</h3>
+                            <p>Full filesystem access granted · Operations execute via cloud bees</p>
+                        </div>
+                        <div class="auth-badge" id="authCode">HEADY-FS-PENDING</div>
+                    </div>
+
+                    <div class="fs-breadcrumb" id="fsBreadcrumb">
+                        <a onclick="navigateTo('/')">🏠</a> <span>/</span>
+                    </div>
+
+                    <div id="fsListing">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mods Panel -->
+            <div class="panel" id="panel-mods">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">🧩 Mods & Additions</div>
+                        <div class="panel-subtitle">Extend HeadyBuddy with cloud-installed modules</div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="mod-grid" id="modGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Swarm Panel -->
+            <div class="panel" id="panel-swarm">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">🐝 HeadyBee Swarm</div>
+                        <div class="panel-subtitle">35 bees · cloud-orchestrated · φ-parallelism</div>
+                    </div>
+                    <button class="btn-sm" id="blastBtn">⚡ Blast All</button>
+                </div>
+                <div class="panel-body">
+                    <div class="swarm-stats" id="swarmStats"></div>
+                    <div class="bee-list" id="beeList"></div>
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="panel" id="panel-settings">
+                <div class="panel-header">
+                    <div>
+                        <div class="panel-title">⚙️ Settings</div>
+                        <div class="panel-subtitle">Device configuration & cloud connection</div>
+                    </div>
+                </div>
+                <div class="panel-body" id="settingsBody">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // HeadyBuddy v3457890 — Cloud-Connected Client
+        // ═══════════════════════════════════════════════════════════════
+
+        const PHI = 1.618033988749895;
+        const BASE = 13;
+        const VERSION = 'v3457890';
+        const CLOUD_API = 'https://headyme.com/api';
+
+        // ─── Sacred Geometry Background ──────────────────────────────
+        (function drawSacredBg() {
+            const c = document.getElementById('sacred-bg');
+            const ctx = c.getContext('2d');
+            function resize() { c.width = window.innerWidth; c.height = window.innerHeight; draw(); }
+            function draw() {
+                ctx.clearRect(0, 0, c.width, c.height);
+                const cx = c.width / 2, cy = c.height / 2;
+                const r = Math.min(cx, cy) * 0.4;
+                ctx.strokeStyle = 'rgba(124, 58, 237, 0.12)';
+                ctx.lineWidth = 0.5;
+                // Seed of Life
+                for (let i = 0; i < 7; i++) {
+                    const angle = (i * 60 - 90) * Math.PI / 180;
+                    const x = i === 0 ? cx : cx + r * Math.cos(angle);
+                    const y = i === 0 ? cy : cy + r * Math.sin(angle);
+                    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+                }
+                // Metatron's Cube lines
+                ctx.strokeStyle = 'rgba(6, 214, 160, 0.06)';
+                for (let i = 0; i < 6; i++) {
+                    for (let j = i + 1; j < 6; j++) {
+                        const a1 = (i * 60 - 90) * Math.PI / 180;
+                        const a2 = (j * 60 - 90) * Math.PI / 180;
+                        ctx.beginPath();
+                        ctx.moveTo(cx + r * Math.cos(a1), cy + r * Math.sin(a1));
+                        ctx.lineTo(cx + r * Math.cos(a2), cy + r * Math.sin(a2));
+                        ctx.stroke();
+                    }
+                }
+                // Outer ring
+                ctx.strokeStyle = 'rgba(124, 58, 237, 0.06)';
+                ctx.beginPath(); ctx.arc(cx, cy, r * PHI, 0, Math.PI * 2); ctx.stroke();
+            }
+            window.addEventListener('resize', resize);
+            resize();
+        })();
+
+        // ─── Navigation ──────────────────────────────────────────────
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`panel-${btn.dataset.panel}`).classList.add('active');
+            });
+        });
+
+        // ─── Chat ────────────────────────────────────────────────────
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+
+        function addMessage(text, type = 'buddy') {
+            const div = document.createElement('div');
+            div.className = `msg ${type}`;
+            div.innerHTML = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            addMessage(text, 'user');
+            chatInput.value = '';
+
+            // Simulate cloud-powered response
+            setTimeout(() => {
+                if (text.toLowerCase().includes('root') || text.toLowerCase().includes('filesystem')) {
+                    addMessage('🔐 <strong>Root filesystem access</strong> is cloud-powered. All operations route through the HeadySystems cloud bee swarm:<br><br>1. Your device sends the operation request<br>2. Cloud bees <code>device-provisioner</code> + <code>ops</code> execute it<br>3. Results stream back in real-time<br><br>Your local device uses <strong>zero CPU/RAM</strong> for the heavy lifting. Want me to browse a directory?');
+                } else if (text.toLowerCase().includes('mod')) {
+                    addMessage('🧩 I found <strong>8 available mods</strong> for your device. Head to the <strong>Mods</strong> tab (🧩) to browse and install them. All mod processing runs on cloud infrastructure — your device just receives the results!');
+                } else if (text.toLowerCase().includes('bee') || text.toLowerCase().includes('swarm')) {
+                    addMessage('🐝 The HeadyBee swarm has <strong>35 active bees</strong> running on cloud infrastructure. They handle: deployment, security, memory, orchestration, MIDI, telemetry, and more. Check the <strong>Swarm</strong> tab (🐝) for real-time status.');
+                } else {
+                    addMessage(`I hear you! As HeadyBuddy ${VERSION}, I'm processing this through the cloud swarm. All 35 bees are standing by. What would you like me to help with?<br><br>💡 <em>Try: "show filesystem", "install mods", "blast swarm"</em>`);
+                }
+            }, 400 + Math.random() * 600);
+        }
+
+        // ─── Filesystem Manager ──────────────────────────────────────
+        let currentPath = '/';
+        let fsAuthorized = false;
+
+        const DEMO_FS = {
+            '/': [
+                { name: 'home/', type: 'dir', perms: 'drwxr-xr-x', size: '4.0K' },
+                { name: 'etc/', type: 'dir', perms: 'drwxr-xr-x', size: '12K' },
+                { name: 'var/', type: 'dir', perms: 'drwxr-xr-x', size: '4.0K' },
+                { name: 'usr/', type: 'dir', perms: 'drwxr-xr-x', size: '4.0K' },
+                { name: 'opt/', type: 'dir', perms: 'drwxr-xr-x', size: '4.0K' },
+                { name: 'tmp/', type: 'dir', perms: 'drwxrwxrwt', size: '4.0K' },
+                { name: 'system.conf', type: 'file', perms: '-rw-r--r--', size: '2.1K' },
+            ],
+            '/home/': [
+                { name: 'eric/', type: 'dir', perms: 'drwxr-xr-x', size: '4.0K' },
+                { name: '.heady/', type: 'dir', perms: 'drwx------', size: '4.0K' },
+            ],
+            '/home/eric/': [
+                { name: 'Documents/', type: 'dir', perms: 'drwxr-xr-x', size: '4.0K' },
+                { name: 'HeadyClone/', type: 'dir', perms: 'drwxr-xr-x', size: '128M' },
+                { name: '.config/', type: 'dir', perms: 'drwxr-xr-x', size: '4.0K' },
+                { name: '.bashrc', type: 'file', perms: '-rw-r--r--', size: '3.7K' },
+            ],
+        };
+
+        function navigateTo(path) {
+            currentPath = path;
+            renderFsListing();
+        }
+
+        function renderFsListing() {
+            const listing = document.getElementById('fsListing');
+            const breadcrumb = document.getElementById('fsBreadcrumb');
+            const items = DEMO_FS[currentPath] || [{ name: '(cloud-fetching...)', type: 'pending', perms: '---', size: '-' }];
+
+            // Breadcrumb
+            const parts = currentPath.split('/').filter(Boolean);
+            let bc = '<a onclick="navigateTo(\'/\')">🏠</a> <span>/</span> ';
+            let accumulated = '/';
+            parts.forEach(p => {
+                accumulated += p + '/';
+                bc += `<a onclick="navigateTo('${accumulated}')">${p}</a> <span>/</span> `;
+            });
+            breadcrumb.innerHTML = bc;
+
+            // Items
+            listing.innerHTML = items.map(item => `
+            <div class="fs-item" onclick="${item.type === 'dir' ? `navigateTo('${currentPath}${item.name}')` : ''}">
+                <div class="fs-icon">${item.type === 'dir' ? '📂' : item.type === 'pending' ? '⏳' : '📄'}</div>
+                <div class="fs-name">${item.name}</div>
+                <div class="cloud-badge">☁ cloud-op</div>
+                <div class="fs-perms">${item.perms}</div>
+                <div class="fs-meta">${item.size}</div>
+            </div>
+        `).join('');
+        }
+
+        document.getElementById('authBtn').addEventListener('click', () => {
+            fsAuthorized = true;
+            const code = 'HEADY-FS-' + Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16).toUpperCase();
+            document.getElementById('authCode').textContent = code;
+            document.getElementById('authBanner').querySelector('.auth-icon').textContent = '🔓';
+            document.getElementById('authBanner').querySelector('h3').textContent = 'Root Access Authorized';
+            addMessage(`🔐 <strong>Root access authorized!</strong><br>Code: <code>${code}</code><br>All filesystem operations now route through cloud bees with full root privileges.`, 'system');
+            renderFsListing();
+        });
+
+        renderFsListing();
+
+        // ─── Mods Manager ────────────────────────────────────────────
+        const MODS = [
+            { id: 'sacred-geometry-theme', name: 'Sacred Geometry Theme', type: 'theme', desc: 'Golden Ratio φ-based UI with Seed of Life, Flower of Life, Metatron\'s Cube backgrounds', size: '2.4 MB', installed: true },
+            { id: 'filesystem-explorer', name: 'Deep Filesystem Explorer', type: 'tool', desc: 'Root-level filesystem browser with tree view, permissions editor, and bulk operations', size: '1.8 MB', installed: true },
+            { id: 'vector-memory-viewer', name: '3D Vector Memory Visualizer', type: 'tool', desc: 'Three.js 3D visualization of octree vector memory space — see your memories in 3D', size: '4.1 MB', installed: true },
+            { id: 'bee-swarm-monitor', name: 'HeadyBee Swarm Monitor', type: 'dashboard', desc: 'Real-time swarm dashboard showing all 35 bees, blast status, and task progress', size: '1.5 MB', installed: true },
+            { id: 'device-sync', name: 'Cross-Device Sync', type: 'integration', desc: 'Sync HeadyBuddy state, mods, and preferences across all your provisioned devices', size: '0.9 MB', installed: true },
+            { id: 'midi-controller', name: 'MIDI Controller Bridge', type: 'integration', desc: 'Cloud MIDI sequencer client with local hardware MIDI device bridging', size: '3.2 MB', installed: false },
+            { id: 'code-injection-engine', name: 'Code Injection Engine', type: 'tool', desc: 'Inject custom scripts, CSS, and configs into any app on the device via cloud ops', size: '2.0 MB', installed: false },
+            { id: 'adb-bridge', name: 'ADB Bridge (Android)', type: 'integration', desc: 'Android Debug Bridge integration for filesystem access and app management', size: '5.6 MB', installed: false },
+        ];
+
+        function renderMods() {
+            const grid = document.getElementById('modGrid');
+            grid.innerHTML = MODS.map(mod => `
+            <div class="mod-card ${mod.installed ? 'installed' : ''}">
+                <div class="mod-header">
+                    <div class="mod-name">${mod.name}</div>
+                    <span class="mod-type ${mod.type}">${mod.type}</span>
+                </div>
+                <div class="mod-desc">${mod.desc}</div>
+                <div class="mod-footer">
+                    <span class="mod-size">${mod.size} · ☁ cloud</span>
+                    <button class="mod-toggle ${mod.installed ? 'on' : ''}" onclick="toggleMod('${mod.id}')"></button>
+                </div>
+            </div>
+        `).join('');
+        }
+
+        window.toggleMod = function (id) {
+            const mod = MODS.find(m => m.id === id);
+            if (mod) {
+                mod.installed = !mod.installed;
+                renderMods();
+                addMessage(`${mod.installed ? '✅ Installed' : '❌ Removed'}: <strong>${mod.name}</strong> (${mod.size}) — processed by cloud bee swarm`, 'system');
+            }
+        };
+
+        renderMods();
+
+        // ─── Swarm Monitor ───────────────────────────────────────────
+        const BEES = [
+            'agents', 'auto-success', 'brain', 'config', 'connectors', 'creative',
+            'deployment', 'device-provisioner', 'documentation', 'engines', 'governance',
+            'health', 'intelligence', 'lifecycle', 'mcp', 'memory', 'middleware',
+            'midi', 'ops', 'orchestration', 'pipeline', 'providers', 'refactor',
+            'resilience', 'routes', 'security', 'services', 'sync-projection',
+            'telemetry', 'template', 'trading', 'vector-ops', 'vector-template',
+        ];
+
+        function renderSwarm() {
+            document.getElementById('swarmStats').innerHTML = `
+            <div class="stat-card"><div class="stat-value">${BEES.length}</div><div class="stat-label">Active Bees</div></div>
+            <div class="stat-card"><div class="stat-value">☁</div><div class="stat-label">Cloud Hosted</div></div>
+            <div class="stat-card"><div class="stat-value">φ</div><div class="stat-label">Parallelism</div></div>
+            <div class="stat-card"><div class="stat-value">0</div><div class="stat-label">Local CPU %</div></div>
+        `;
+            document.getElementById('beeList').innerHTML = BEES.map(bee => {
+                const status = Math.random() > 0.3 ? 'ready' : (Math.random() > 0.5 ? 'working' : 'cloud');
+                return `
+                <div class="bee-item">
+                    <span class="bee-emoji">🐝</span>
+                    <span class="bee-domain">${bee}</span>
+                    <span class="cloud-badge">☁ cloud</span>
+                    <span class="bee-status ${status}">${status}</span>
+                </div>
+            `;
+            }).join('');
+        }
+
+        document.getElementById('blastBtn').addEventListener('click', () => {
+            addMessage('⚡ <strong>Swarm blast initiated!</strong> All 35 bees executing via cloud infrastructure. Local device CPU: 0%.', 'system');
+            renderSwarm();
+        });
+
+        renderSwarm();
+
+        // ─── Settings ────────────────────────────────────────────────
+        function renderSettings() {
+            const platform = navigator.platform || 'Unknown';
+            const ua = navigator.userAgent;
+            let deviceType = 'Unknown';
+            if (/Android/.test(ua)) deviceType = 'OnePlus Open (Android)';
+            else if (/Win/.test(platform)) deviceType = 'Windows Laptop';
+            else if (/Linux/.test(platform)) deviceType = 'Linux Mini Computer';
+
+            document.getElementById('settingsBody').innerHTML = `
+            <div class="settings-group">
+                <div class="settings-group-title">Device</div>
+                <div class="setting-row"><span class="setting-label">Device Type</span><span class="setting-value">${deviceType}</span></div>
+                <div class="setting-row"><span class="setting-label">Platform</span><span class="setting-value">${platform}</span></div>
+                <div class="setting-row"><span class="setting-label">Version</span><span class="setting-value">${VERSION}</span></div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">Cloud Connection</div>
+                <div class="setting-row"><span class="setting-label">API Endpoint</span><span class="setting-value">${CLOUD_API}</span></div>
+                <div class="setting-row"><span class="setting-label">Swarm Status</span><span class="setting-value" style="color:var(--accent-secondary)">Connected (35 bees)</span></div>
+                <div class="setting-row"><span class="setting-label">Ops Mode</span><span class="setting-value">Cloud-Orchestrated</span></div>
+                <div class="setting-row"><span class="setting-label">Local Resources</span><span class="setting-value">Thin Client (0% CPU)</span></div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">Authorization</div>
+                <div class="setting-row"><span class="setting-label">Root Access</span><span class="setting-value">${fsAuthorized ? '✅ Authorized' : '❌ Not Authorized'}</span></div>
+                <div class="setting-row"><span class="setting-label">FS Scope</span><span class="setting-value">${fsAuthorized ? 'Full (/**)' : 'User only'}</span></div>
+                <div class="setting-row"><span class="setting-label">Expires</span><span class="setting-value">${fsAuthorized ? '30 days' : '—'}</span></div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">Danger Zone</div>
+                <div class="setting-row">
+                    <span class="setting-label">Revoke Root Access</span>
+                    <button class="btn-sm danger" onclick="revokeAuth()">Revoke</button>
+                </div>
+                <div class="setting-row">
+                    <span class="setting-label">Factory Reset</span>
+                    <button class="btn-sm danger">Reset</button>
+                </div>
+            </div>
+        `;
+        }
+
+        window.revokeAuth = function () {
+            fsAuthorized = false;
+            document.getElementById('authCode').textContent = 'HEADY-FS-REVOKED';
+            document.getElementById('authBanner').querySelector('.auth-icon').textContent = '🔒';
+            document.getElementById('authBanner').querySelector('h3').textContent = 'Root Access Revoked';
+            renderSettings();
+            addMessage('🔒 Root access revoked. Re-authorize from the Filesystem panel.', 'system');
+        };
+
+        renderSettings();
+
+        // ─── Auto-resize textarea ────────────────────────────────────
+        chatInput.addEventListener('input', () => {
+            chatInput.style.height = 'auto';
+            chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+        });
+
+    </script>
+</body>
+
+</html>
