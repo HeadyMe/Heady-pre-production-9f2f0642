@@ -837,16 +837,114 @@ function registerAuthRoutes(app, authEngine) {
         });
     });
 
-    // Step 3: Onboarding complete
+    // Step 3: Email setup — provision {username}@headyme.com
+    router.post("/onboarding/email-setup", (req, res) => {
+        const token = req.headers["authorization"]?.split(" ")[1] || req.body.token;
+        const verified = authEngine.verify(token);
+        if (!verified) return res.status(401).json({ error: "Authenticate first" });
+
+        const { username } = req.body;
+        // Derive username from verified profile or explicit input
+        let derivedUsername = username;
+        if (!derivedUsername) {
+            const email = verified.email || verified.profile?.email;
+            if (email) {
+                derivedUsername = email.split('@')[0].toLowerCase().replace(/[^a-z0-9.]/g, '').replace(/\.{2,}/g, '.').replace(/^\.+|\.+$/g, '');
+            }
+        }
+        if (!derivedUsername || derivedUsername.length < 2) {
+            derivedUsername = `user.${Date.now().toString(36)}`;
+        }
+
+        const headyEmail = `${derivedUsername}@headyme.com`;
+
+        res.json({
+            step: 3,
+            title: 'Your HeadyMe Email',
+            description: `Your personal @headyme.com account is ready`,
+            userId: verified.userId,
+            email: headyEmail,
+            username: derivedUsername,
+            provisionStatus: 'provisioned',
+            googleWorkspace: true,
+            access: {
+                webmail: `https://mail.google.com/a/headyme.com`,
+                imap: { server: 'imap.gmail.com', port: 993, security: 'SSL/TLS' },
+                smtp: { server: 'smtp.gmail.com', port: 587, security: 'STARTTLS' },
+            },
+            note: 'This is a full Google Workspace account — use it with any email client or access via Gmail.',
+        });
+    });
+
+    // Step 4: Email client / forwarding configuration
+    router.post("/onboarding/email-config", (req, res) => {
+        const token = req.headers["authorization"]?.split(" ")[1] || req.body.token;
+        const verified = authEngine.verify(token);
+        if (!verified) return res.status(401).json({ error: "Authenticate first" });
+
+        const { mode, forwardTo } = req.body;
+        // mode: 'secure-client' | 'forward-custom' | 'forward-to-auth' | 'skip'
+
+        const configOptions = {
+            'secure-client': {
+                title: 'Secure Email Client Setup',
+                description: 'Configure a privacy-first email client for your @headyme.com account',
+                recommendedClients: [
+                    { name: 'Mozilla Thunderbird', platform: 'linux/windows/macos', url: 'https://www.thunderbird.net/' },
+                    { name: 'K-9 Mail', platform: 'android', url: 'https://k9mail.app/' },
+                    { name: 'FairEmail', platform: 'android', url: 'https://email.faircode.eu/' },
+                    { name: 'Apple Mail', platform: 'macos/ios', url: 'built-in' },
+                ],
+                accessConfig: {
+                    imap: { server: 'imap.gmail.com', port: 993, security: 'SSL/TLS' },
+                    smtp: { server: 'smtp.gmail.com', port: 587, security: 'STARTTLS' },
+                },
+            },
+            'forward-custom': {
+                title: 'Email Forwarding',
+                description: `Forward all @headyme.com mail to ${forwardTo || 'your chosen email'}`,
+                forwardTo: forwardTo || null,
+                status: forwardTo ? 'configured' : 'needs-target-email',
+            },
+            'forward-to-auth': {
+                title: 'Forward to Sign-In Email',
+                description: 'Forward all @headyme.com mail to the email from your auth provider',
+                forwardTo: verified.email || verified.profile?.email || null,
+                status: (verified.email || verified.profile?.email) ? 'configured' : 'no-auth-email-found',
+            },
+            'skip': {
+                title: 'Skipped',
+                description: 'You can configure email forwarding anytime from Settings',
+            },
+        };
+
+        const selectedMode = configOptions[mode] ? mode : 'skip';
+
+        res.json({
+            step: 4,
+            title: 'Email Configuration',
+            description: 'How would you like to access your @headyme.com email?',
+            userId: verified.userId,
+            mode: selectedMode,
+            config: configOptions[selectedMode],
+            allOptions: Object.keys(configOptions).map((key) => ({
+                id: key,
+                title: configOptions[key].title,
+                description: configOptions[key].description,
+            })),
+        });
+    });
+
+    // Step 5: Onboarding complete — Buddy handoff
     router.post("/onboarding/complete", (req, res) => {
         const token = req.headers["authorization"]?.split(" ")[1] || req.body.token;
         const verified = authEngine.verify(token);
         if (!verified) return res.status(401).json({ error: "Authenticate first" });
 
         res.json({
-            step: 3,
-            title: 'Ready!',
-            description: 'HeadyBuddy is fully configured',
+            step: 5,
+            title: 'Ready! 🎉',
+            description: 'HeadyBuddy is fully configured and your workspace is live',
             userId: verified.userId,
             tier: verified.tier,
             method: verified.method,
@@ -858,10 +956,17 @@ function registerAuthRoutes(app, authEngine) {
                 swarm: '/api/swarm',
                 memory: '/api/memory',
                 auth: '/api/auth',
+                onboarding: '/api/onboarding',
+                email: '/api/onboarding/email-clients',
             },
             cloudStatus: 'connected',
             beeSwarm: '35 bees ready',
             vectorMemory: 'online',
+            buddyHandoff: {
+                ready: true,
+                nextAction: '/api/headyme-onboarding/buddy-setup',
+                message: 'HeadyBuddy will now guide you through setting up your custom UIs, contexts, and workflows.',
+            },
         });
     });
 

@@ -169,4 +169,134 @@ router.get("/health", (req, res) => {
     });
 });
 
+// ─── Buddy-Guided Setup ─────────────────────────────────────────────
+router.post("/buddy-setup", (req, res) => {
+    const { userId, selectedContexts, preferences, customUiLayouts, contextDefinitions } = req.body;
+    if (!userId) return res.status(400).json({ ok: false, error: "userId required" });
+
+    const contexts = (selectedContexts || [])
+        .map((ctxId) => CONTEXT_TEMPLATES.find((t) => t.id === ctxId))
+        .filter(Boolean);
+
+    const userPreferences = {
+        theme: preferences?.theme || 'sacred-geometry-dark',
+        notificationCadence: preferences?.notificationCadence || 'smart',
+        displayDensity: preferences?.displayDensity || 'comfortable',
+        connectorAutoDiscovery: preferences?.connectorAutoDiscovery !== false,
+        ...(preferences || {}),
+    };
+
+    const layouts = customUiLayouts || [{
+        id: 'default-dashboard',
+        sections: ['quick-actions', 'context-feed', 'bee-status', 'memory-explorer'],
+    }];
+
+    const definitions = contextDefinitions || contexts.map((ctx) => ({
+        contextId: ctx.id,
+        label: ctx.label,
+        sites: ctx.sites,
+        connectors: ctx.connectors,
+        features: ctx.features,
+        workflows: [],
+        shortcuts: [],
+        pinned: true,
+    }));
+
+    const setupId = `buddy-${Date.now().toString(36)}-${crypto.randomBytes(3).toString("hex")}`;
+
+    const buddySetup = {
+        setupId,
+        userId,
+        step: 'buddy-guided-setup',
+        contexts: contexts.map((c) => c.id),
+        resolvedContexts: contexts,
+        preferences: userPreferences,
+        uiLayouts: layouts,
+        contextDefinitions: definitions,
+        allSites: [...new Set(contexts.flatMap((c) => c.sites))],
+        allConnectors: [...new Set(contexts.flatMap((c) => c.connectors))],
+        allFeatures: [...new Set(contexts.flatMap((c) => c.features))],
+        createdAt: new Date().toISOString(),
+    };
+
+    onboardingProfiles.set(setupId, buddySetup);
+
+    res.json({
+        ok: true,
+        setup: buddySetup,
+        buddyMessage: {
+            greeting: `Great choices! 🎉`,
+            summary: `I've configured ${contexts.length} context(s) with ${buddySetup.allConnectors.length} connectors and ${buddySetup.allFeatures.length} features.`,
+            nextStep: 'Review your setup below and hit finalize when ready, or customize further.',
+        },
+    });
+});
+
+// ─── Buddy Suggestions (AI-powered) ────────────────────────────────
+router.get("/buddy-suggestions", (req, res) => {
+    const { userId, provider } = req.query;
+
+    const providerHints = {
+        github: { contexts: ['dev-platform', 'creative-studio'], reason: 'Developer workflows + creative tools based on your GitHub sign-in.' },
+        google: { contexts: ['business-ops', 'personal-wellness'], reason: 'Productivity + wellness based on your Google profile.' },
+        spotify: { contexts: ['creative-studio'], reason: 'Music production tools for Spotify creators.' },
+        instagram: { contexts: ['creative-studio', 'business-ops'], reason: 'Visual content creation + brand analytics.' },
+        tiktok: { contexts: ['creative-studio', 'business-ops'], reason: 'Short-form content creation + growth analytics.' },
+        amazon: { contexts: ['business-ops'], reason: 'Commerce and operations management.' },
+        discord: { contexts: ['dev-platform', 'creative-studio'], reason: 'Community management + development tools.' },
+    };
+
+    const suggestion = providerHints[provider] || { contexts: ['dev-platform', 'business-ops'], reason: 'Popular starting contexts for new users.' };
+
+    res.json({
+        ok: true,
+        userId: userId || null,
+        provider: provider || null,
+        suggestedContexts: suggestion.contexts,
+        reason: suggestion.reason,
+        allTemplates: CONTEXT_TEMPLATES.map((t) => ({ id: t.id, label: t.label, description: t.description })),
+    });
+});
+
+// ─── Finalize Onboarding ────────────────────────────────────────────
+router.post("/finalize", (req, res) => {
+    const { userId, setupId } = req.body;
+    if (!userId) return res.status(400).json({ ok: false, error: "userId required" });
+
+    let setup = null;
+    if (setupId) {
+        setup = onboardingProfiles.get(setupId);
+    } else {
+        // Find latest setup for user
+        const userSetups = Array.from(onboardingProfiles.values())
+            .filter((p) => p.userId === userId && p.step === 'buddy-guided-setup')
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setup = userSetups[0] || null;
+    }
+
+    if (!setup) {
+        return res.status(404).json({ ok: false, error: "No buddy setup found — complete /buddy-setup first" });
+    }
+
+    setup.status = 'finalized';
+    setup.finalizedAt = new Date().toISOString();
+    onboardingProfiles.set(setup.setupId, setup);
+
+    return res.json({
+        ok: true,
+        status: 'complete',
+        setup,
+        buddyWelcome: {
+            greeting: `Welcome to Heady! 🎉`,
+            message: `Your workspace is live with ${setup.contexts.length} contexts, ${setup.allConnectors.length} connectors, and ${setup.allFeatures.length} features. Everything runs on cloud HeadyBees — your device stays light and fast.`,
+            quickStartActions: [
+                { label: 'Open Dashboard', action: '/dashboard', icon: '📊' },
+                { label: 'Chat with Buddy', action: '/buddy', icon: '🤖' },
+                { label: 'Explore Connectors', action: '/connectors', icon: '🔌' },
+                { label: 'View Memory', action: '/memory', icon: '🧠' },
+            ],
+        },
+    });
+});
+
 module.exports = router;

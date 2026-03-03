@@ -550,6 +550,15 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ LiquidUnifiedRuntime not loaded: ${err.message}`);
 }
 
+// ─── Onboarding Orchestrator (5-stage flow: auth → permissions → email → config → buddy) ──
+try {
+  const { registerOnboardingOrchestratorRoutes } = require("./src/services/onboarding-orchestrator");
+  registerOnboardingOrchestratorRoutes(app);
+  logger.logNodeActivity("CONDUCTOR", "  ∞ OnboardingOrchestrator: LOADED (5-stage flow + @headyme.com email + buddy setup)");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ OnboardingOrchestrator not loaded: ${err.message}`);
+}
+
 // ─── Spatial Embedder (3D coordinate mapping) ─────────────────────────────
 try {
   const spatialEmbedder = require("./src/services/spatial-embedder");
