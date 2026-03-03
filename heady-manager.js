@@ -464,6 +464,56 @@ try {
   logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadybeeRegistry not loaded: ${err.message}`);
 }
 
+// ─── Antigravity Runtime — 3D Vector Workspace Enforcement ─────────────────
+// All owner-initiated antigravity operations route through Heady in 3D vector mode.
+// This loads configs/services/antigravity-heady-runtime-policy.json and enforces
+// gateway=heady, workspaceMode=3d-vector for all downstream autonomous ops.
+try {
+  const antigravityRuntime = require("./src/services/antigravity-heady-runtime");
+  const antigravityHealth = antigravityRuntime.getHealthStatus();
+  app.get("/api/antigravity/health", (_req, res) => res.json(antigravityHealth));
+  app.post("/api/antigravity/enforce", (req, res) => {
+    try {
+      const plan = antigravityRuntime.enforceHeadyForAntigravityOperation(req.body);
+      res.json({ ok: true, plan });
+    } catch (err) {
+      res.status(400).json({ ok: false, error: err.message });
+    }
+  });
+  app.get("/api/antigravity/policy", (_req, res) => {
+    try { res.json(antigravityRuntime.readPolicy()); }
+    catch (err) { res.status(500).json({ error: err.message }); }
+  });
+  logger.logNodeActivity("CONDUCTOR", `  🌐 AntigravityRuntime: ENFORCED (gateway=${antigravityHealth.gateway}, mode=${antigravityHealth.workspaceMode})`);
+  logger.logNodeActivity("CONDUCTOR", `    → Endpoints: /api/antigravity/health, /enforce, /policy`);
+  eventBus.emit('antigravity:enforced', { gateway: antigravityHealth.gateway, workspaceMode: antigravityHealth.workspaceMode });
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ AntigravityRuntime not loaded: ${err.message}`);
+}
+
+// ─── Buddy Chat Contract — User-Scoped 3D Vector Workspaces ────────────────
+// Provides user-scoped workspace IDs (vw:site:user:device), auth headers,
+// and confirmed-completion assertions for all buddy chat interactions.
+try {
+  const buddyChatContract = require("./src/services/buddy-chat-contract");
+  app.post("/api/buddy-chat/request", (req, res) => {
+    try {
+      const chatRequest = buddyChatContract.buildChatRequest(req.body);
+      res.json({ ok: true, ...chatRequest });
+    } catch (err) {
+      res.status(400).json({ ok: false, error: err.message });
+    }
+  });
+  app.post("/api/buddy-chat/workspace", (req, res) => {
+    const workspaceId = buddyChatContract.buildUserWorkspaceId(req.body);
+    res.json({ ok: true, workspaceId });
+  });
+  logger.logNodeActivity("CONDUCTOR", "  🤝 BuddyChatContract: LOADED (user-scoped 3D workspaces + vector3d=true)");
+  logger.logNodeActivity("CONDUCTOR", "    → Endpoints: /api/buddy-chat/request, /workspace");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ BuddyChatContract not loaded: ${err.message}`);
+}
+
 // ─── Digital Presence Orchestrator (templates + projections + maintenance) ─
 try {
   const { registerDigitalPresenceOrchestratorRoutes } = require("./src/services/digital-presence-orchestrator");

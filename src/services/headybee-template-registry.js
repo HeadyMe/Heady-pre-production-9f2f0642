@@ -156,6 +156,32 @@ function getOptimizationState() {
     };
 }
 
+function registerHeadybeeTemplateRegistryRoutes(app) {
+    app.get('/api/headybee-template-registry/health', (_req, res) => {
+        try { res.json(getHealthStatus()); }
+        catch (err) { res.status(500).json({ error: err.message }); }
+    });
+    app.get('/api/headybee-template-registry/state', (_req, res) => {
+        try { res.json(getOptimizationState()); }
+        catch (err) { res.status(500).json({ error: err.message }); }
+    });
+    app.get('/api/headybee-template-registry/report', (_req, res) => {
+        try { res.json(buildOptimizationReport()); }
+        catch (err) { res.status(500).json({ error: err.message }); }
+    });
+    app.post('/api/headybee-template-registry/select', (req, res) => {
+        try {
+            const { situation, limit } = req.body || {};
+            const registry = readRegistry();
+            const policy = readOptimizationPolicy();
+            const templates = selectTemplatesForSituation(registry, situation || 'digital-presence-launch', limit || 3, policy);
+            res.json({ ok: true, situation, templates });
+        } catch (err) {
+            res.status(400).json({ ok: false, error: err.message });
+        }
+    });
+}
+
 module.exports = {
     REGISTRY_PATH,
     OPTIMIZATION_POLICY_PATH,
@@ -168,4 +194,5 @@ module.exports = {
     buildOptimizationReport,
     getHealthStatus,
     getOptimizationState,
+    registerHeadybeeTemplateRegistryRoutes,
 };
