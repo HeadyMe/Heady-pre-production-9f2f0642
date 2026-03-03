@@ -1,16 +1,16 @@
 {
-    "name": "heady-edge-node",
-    "version": "1.0.0",
-    "type": "module",
-    "private": true,
-    "scripts": {
-        "dev": "wrangler dev",
-        "deploy": "wrangler deploy"
-    },
-    "dependencies": {
-        "hono": "^4.0.0"
-    },
-    "devDependencies": {
-        "wrangler": "^3.0.0"
-    }
+  "name": "heady-edge-node",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.12.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.69.0"
+  }
 }

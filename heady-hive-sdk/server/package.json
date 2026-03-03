@@ -1,16 +1,16 @@
 {
-    "name": "heady-gateway-service",
-    "version": "1.1.0",
-    "private": true,
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js"
-    },
-    "dependencies": {
-        "express": "^4.21.0",
-        "@anthropic-ai/sdk": "^0.39.0",
-        "@google/genai": "^0.14.0",
-        "openai": "^4.77.0",
-        "@huggingface/inference": "^3.6.0"
-    }
+  "name": "heady-gateway-service",
+  "version": "1.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@google/genai": "^0.14.0",
+    "openai": "^4.77.0",
+    "@huggingface/inference": "^3.6.0"
+  }
 }
