@@ -73,6 +73,16 @@ export const api = {
     getHCFPHistory: (limit = 100) => request(`/hcfp/history?limit=${limit}`),
     getHCFPSubsystem: (id) => request(`/hcfp/subsystems/${id}`),
 
+    // Autonomy Core
+    getAutonomyState: () => request('/autonomy/state'),
+    ingestAutonomyConcept: (data) => request('/autonomy/ingest', { method: 'POST', body: JSON.stringify(data) }),
+    tickAutonomy: () => request('/autonomy/tick', { method: 'POST', body: JSON.stringify({}) }),
+    createMusicSession: (data) => request('/autonomy/music-session', { method: 'POST', body: JSON.stringify(data) }),
+    getAutonomyAudit: (limit = 100) => request(`/autonomy/audit?limit=${limit}`),
+    getMonorepoProjection: () => request('/autonomy/monorepo-projection'),
+    getAutonomyRuntime: () => request('/autonomy/runtime'),
+    streamAutonomyEvents: () => new EventSource('/api/autonomy/stream'),
+
     // Google AI Studio (Gemini)
     getAIModels: () => request('/ai/models'),
     getAIStatus: () => request('/ai/status'),

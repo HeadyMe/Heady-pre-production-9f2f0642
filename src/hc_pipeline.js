@@ -47,10 +47,21 @@ const CACHE_MAX_ENTRIES_FN = _dynamicCacheMax;
 // ─── CONFIG LOADER ──────────────────────────────────────────────────────────
 
 function loadYaml(filename) {
-  const filePath = path.join(CONFIGS_DIR, filename);
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`Config not found: ${filePath}`);
+  const searchPaths = [
+    path.join(CONFIGS_DIR, filename),
+    path.join(CONFIGS_DIR, "pipeline", filename),
+    path.join(CONFIGS_DIR, "resources", filename),
+    path.join(CONFIGS_DIR, "services", filename),
+    path.join(CONFIGS_DIR, "governance", filename),
+    path.join(CONFIGS_DIR, "agent-profiles", filename),
+    path.join(CONFIGS_DIR, "observability", filename),
+  ];
+
+  const filePath = searchPaths.find((candidate) => fs.existsSync(candidate));
+  if (!filePath) {
+    throw new Error(`Config not found: ${searchPaths.join(", ")}`);
   }
+
   return yaml.load(fs.readFileSync(filePath, "utf8"));
 }
 

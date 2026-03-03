@@ -35,6 +35,19 @@ const AUDIT_DIR = path.join(__dirname, "..", "..", "data");
 const BUDDY_STATE_PATH = path.join(AUDIT_DIR, "buddy-state.json");
 const BUDDY_AUDIT_PATH = path.join(AUDIT_DIR, "buddy-audit.jsonl");
 
+
+function clampMidiValue(value, fallback) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return fallback;
+    return Math.max(0, Math.min(127, Math.round(numeric)));
+}
+
+function clampMidiChannel(channel) {
+    const numeric = Number(channel);
+    if (!Number.isFinite(numeric)) return 0;
+    return Math.max(0, Math.min(15, Math.floor(numeric)));
+}
+
 // ─── Buddy Identity ────────────────────────────────────────────────
 function generateBuddyId() {
     const seed = `buddy-${Date.now()}-${crypto.randomBytes(8).toString("hex")}`;
@@ -702,6 +715,7 @@ class BuddyCore extends EventEmitter {
         // Wire conductor
         this._conductor = null;
         this._pipeline = null;
+        this._realtimeEngine = null;
 
         // State
         this.started = Date.now();
@@ -737,6 +751,11 @@ class BuddyCore extends EventEmitter {
         this.taskLocks.setRedisClient(redisClient);
     }
 
+    setRealtimeEngine(realtimeEngine) {
+        this._realtimeEngine = realtimeEngine;
+        logger.logSystem("  🎼 [Buddy] Realtime engine wired — live orchestration active.");
+    }
+
     // ─── Core Decision Engine ──────────────────────────────────────
     /**
      * Make a decision with metacognitive awareness.
@@ -746,6 +765,9 @@ class BuddyCore extends EventEmitter {
      * @returns {Object} - Decision result with metacognitive context
      */
     async decide(task) {
+        if (!task || !task.action) {
+            return { ok: false, error: "task.action is required", buddyId: this.identity.id };
+        }
         const start = Date.now();
         this.decisionCount++;
 
@@ -783,12 +805,32 @@ class BuddyCore extends EventEmitter {
             }
 
             // 5. Build the decision payload with metacognitive context
+            // 5a. Realtime orchestration (if live flag is set)
+            let liveResult = null;
+            if ((task.live === true || task.mode === "live" || task.realtime === true) && this._realtimeEngine) {
+                liveResult = await this.orchestrateLive({
+                    action: task.action,
+                    source: task.source || "buddy-decision",
+                    channel: task.channel ?? routeDecision?.vectorZone?.zone ?? 0,
+                    data1: task.data1,
+                    data2: task.data2,
+                    note: task.payload?.note,
+                    velocity: task.payload?.velocity,
+                    metadata: {
+                        requestId: task.requestId || null,
+                        priority: task.priority || "normal",
+                    },
+                });
+            }
+
+            // 5. Build the decision payload with metacognitive context
             const decision = {
                 ok: true,
                 buddyId: this.identity.id,
                 decisionNumber: this.decisionCount,
                 task: task.action,
                 route: routeDecision,
+                live: liveResult,
                 metacognition: {
                     confidence: meta.confidence,
                     totalErrors: meta.totalErrors,
@@ -839,6 +881,41 @@ class BuddyCore extends EventEmitter {
         }
     }
 
+    async orchestrateLive(task = {}) {
+        if (!this._realtimeEngine) {
+            return { ok: false, error: "Realtime engine not wired" };
+        }
+
+        const livePayload = {
+            source: task.source || "buddy-live",
+            eventType: task.action || "live-orchestration",
+            channel: clampMidiChannel(task.channel ?? 0),
+            data1: clampMidiValue(task.data1 ?? task.note ?? 64, 64),
+            data2: clampMidiValue(task.data2 ?? task.velocity ?? 127, 127),
+            metadata: {
+                ...(task.metadata || {}),
+                mode: "live-realtime",
+                orchestrator: "buddy-core",
+            },
+        };
+
+        const ingested = typeof this._realtimeEngine.ingestExternalEvent === "function"
+            ? await Promise.resolve(this._realtimeEngine.ingestExternalEvent(livePayload, { highPriority: true }))
+            : { ok: false, error: "Realtime engine missing ingestExternalEvent" };
+
+        const flushResult = typeof this._realtimeEngine.flush === "function"
+            ? await this._realtimeEngine.flush()
+            : { ok: false, error: "Realtime engine missing flush" };
+
+        return {
+            ok: !!(ingested?.ok && flushResult?.ok),
+            ingested,
+            flushed: flushResult,
+            ts: new Date().toISOString(),
+        };
+    }
+
+
     // ─── MCP Server Interface ─────────────────────────────────────
     /**
      * Handle an MCP tool call from a sub-agent.
@@ -885,6 +962,7 @@ class BuddyCore extends EventEmitter {
             mcpTools: this.mcpTools.listTools().length,
             conductorWired: !!this._conductor,
             pipelineWired: !!this._pipeline,
+            realtimeWired: !!this._realtimeEngine,
             recentDecisions: this.metacognition.getRecentDecisions(5),
         };
     }
@@ -909,6 +987,28 @@ class BuddyCore extends EventEmitter {
         app.get("/api/buddy/identity", (req, res) => {
             res.json({ ok: true, identity: this.identity, version: this.version });
         });
+        app.get("/api/buddy/live/health", (req, res) => {
+            const realtimeStatus = this._realtimeEngine && typeof this._realtimeEngine.getStatus === "function"
+                ? this._realtimeEngine.getStatus()
+                : null;
+            res.json({
+                ok: !!(realtimeStatus && (realtimeStatus.running || realtimeStatus.queueDepth >= 0)),
+                realtimeWired: !!this._realtimeEngine,
+                realtime: realtimeStatus,
+                ts: new Date().toISOString(),
+            });
+        });
+
+        app.post("/api/buddy/live/orchestrate", async (req, res) => {
+            try {
+                const result = await this.orchestrateLive(req.body || {});
+                if (!result.ok) return res.status(503).json(result);
+                res.json(result);
+            } catch (err) {
+                res.status(500).json({ ok: false, error: err.message });
+            }
+        });
+
 
         app.post("/api/buddy/decide", async (req, res) => {
             try {
@@ -957,9 +1057,9 @@ class BuddyCore extends EventEmitter {
         });
 
         logger.logSystem("  🎼 [Buddy] Routes registered:");
-        logger.logSystem("    → /api/buddy/status, /health, /identity");
+        logger.logSystem("    → /api/buddy/status, /health, /identity, /live/health");
         logger.logSystem("    → /api/buddy/decide, /locks, /mcp-tools, /mcp-invoke");
-        logger.logSystem("    → /api/buddy/metacognition, /interceptor, /learned-rules");
+        logger.logSystem("    → /api/buddy/metacognition, /interceptor, /learned-rules, /live/orchestrate");
     }
 
     // ─── Audit ─────────────────────────────────────────────────────

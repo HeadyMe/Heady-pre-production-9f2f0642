@@ -23,6 +23,12 @@ const { EventEmitter } = require("events");
 const { VectorStore3D } = require("./src/utils/vectorStore3d");
 const { projectVectorRepresentations } = require("./src/utils/vectorProjectionEngine");
 
+// ─── Hardening: Health, Resilience & Orchestration ──────────────────────────────
+let healthRoutes, resilienceMiddleware, resilienceRoutes;
+try { healthRoutes = require("../src/routes/health-routes"); } catch (e) { console.warn("[boot] health-routes not loaded:", e.message); }
+try { resilienceMiddleware = require("../src/middleware/resilience-middleware"); } catch (e) { console.warn("[boot] resilience-middleware not loaded:", e.message); }
+try { resilienceRoutes = require("../src/routes/resilience-routes"); } catch (e) { console.warn("[boot] resilience-routes not loaded:", e.message); }
+
 const fsp = fs.promises;
 
 // ─── Configuration ──────────────────────────────────────────────────────────────
@@ -687,6 +693,11 @@ app.use(express.json({ limit: "2mb" }));
 app.use("/api", rateLimitApi);
 app.use("/api/admin", requireApiKey);
 app.use(express.static("public"));
+
+// ─── Hardening: Health & Resilience Routes ──────────────────────────────────────
+if (healthRoutes) app.use("/health", healthRoutes);
+if (resilienceMiddleware) app.use(resilienceMiddleware);
+if (resilienceRoutes) app.use("/api/resilience", resilienceRoutes);
 
 // ─── Auth Functions ─────────────────────────────────────────────────────────────
 

@@ -14,6 +14,10 @@ describe("Vector Memory", () => {
         vectorMemory.init();
     });
 
+    afterAll(() => {
+        vectorMemory.stopAutonomousMaintenance();
+    });
+
     describe("3D Spatial Indexing", () => {
         test("to3D converts embedding to 3 coordinates", () => {
             // Create a 384-dim embedding (all 1s)
@@ -114,6 +118,9 @@ describe("Vector Memory", () => {
         test("resolveProjectionProfile auto-selects spherical for github", () => {
             const profile = vectorMemory.resolveProjectionProfile({ channel: "github" });
             expect(profile).toBe("spherical");
+
+            const uppercaseProfile = vectorMemory.resolveProjectionProfile({ channel: "GITHUB" });
+            expect(uppercaseProfile).toBe("spherical");
         });
 
         test("projectPoint creates spherical coordinates", () => {
@@ -137,5 +144,55 @@ describe("Vector Memory", () => {
             expect(Array.isArray(outbound.sample)).toBe(true);
             expect(outbound.sample.length).toBeGreaterThan(0);
         });
+
+        test("buildOutboundRepresentation normalizes channel and clamps topK", async () => {
+            await vectorMemory.ingestMemory({
+                content: "outbound projection clamp test",
+                metadata: { type: "system_state", ts: Date.now() + 1 },
+                embedding: new Array(384).fill(0.2),
+            });
+
+            const outbound = vectorMemory.buildOutboundRepresentation({ channel: "GITHUB", topK: 999 });
+            expect(outbound.channel).toBe("github");
+            expect(outbound.top_k).toBe(100);
+            expect(outbound.sample.length).toBeLessThanOrEqual(100);
+        });
+
+        test("normalizeChannel and normalizeTopK enforce safe defaults", () => {
+            expect(vectorMemory.normalizeChannel("GITHUB")).toBe("github");
+            expect(vectorMemory.normalizeChannel("unknown-channel")).toBe("internal");
+            expect(vectorMemory.normalizeTopK("bad")).toBe(12);
+            expect(vectorMemory.normalizeTopK(9999)).toBe(100);
+            expect(vectorMemory.normalizeTopK(0)).toBe(1);
+        });
+
+        test("buildOutboundRepresentation includes generated metadata", () => {
+            const outbound = vectorMemory.buildOutboundRepresentation({ channel: "unknown-channel", topK: "NaN" });
+            expect(outbound.channel).toBe("internal");
+            expect(outbound.top_k).toBe(12);
+            expect(typeof outbound.generated_at).toBe("string");
+            expect(outbound.constraints.max_outbound_sample).toBe(100);
+        });
     });
+
+
+    describe("Autonomous maintenance", () => {
+        test("autonomous state is exposed", () => {
+            const state = vectorMemory.getAutonomousState();
+            expect(typeof state.enabled).toBe("boolean");
+            expect(typeof state.intervalMs).toBe("number");
+        });
+
+        test("runAutonomousMaintenance returns deterministic summary", async () => {
+            const result = await vectorMemory.runAutonomousMaintenance({
+                decayThreshold: 0.0,
+                ltmThreshold: 0.0,
+            });
+            expect(result).toHaveProperty("ok");
+            expect(result).toHaveProperty("duration_ms");
+            expect(result).toHaveProperty("decay");
+            expect(result).toHaveProperty("consolidation");
+        });
+    });
+
 });

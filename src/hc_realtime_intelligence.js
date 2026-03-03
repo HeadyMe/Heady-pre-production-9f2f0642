@@ -29,12 +29,20 @@ class RealtimeIntelligenceEngine extends EventEmitter {
         super();
         this.cfg = { ...DEFAULTS, ...opts };
         this.queue = [];
-        this.metrics = { queued: 0, dropped: 0, persisted: 0, delivered: 0, failed: 0, flushes: 0 };
+        this.metrics = { queued: 0, dropped: 0, persisted: 0, delivered: 0, failed: 0, flushes: 0, externalIngested: 0 };
         this._timer = null;
         this._vectorMemory = opts.vectorMemory || null;
 
         // ─── Ableton Live integration state ─────────────────────────
         this.abletonSession = null;
+    }
+
+    // ─── Vector Memory Resolution ───────────────────────────────────
+    _resolveVectorIngest() {
+        if (this._vectorMemory) return this._vectorMemory;
+        try {
+            return require("./vector-memory");
+        } catch { return null; }
     }
 
     // ─── Lifecycle ───────────────────────────────────────────────────
@@ -100,6 +108,36 @@ class RealtimeIntelligenceEngine extends EventEmitter {
         return true;
     }
 
+    // ─── External Event Ingestion ────────────────────────────────────
+    ingestExternalEvent({ type = "external", source = "unknown", priority = "normal", ...rest } = {}) {
+        const isHighPriority = priority === "high" || priority === "critical";
+        const event = {
+            type,
+            source,
+            meta: { ...rest, priority, external: true },
+        };
+
+        const accepted = this.ingest(event);
+        if (!accepted) {
+            return { ok: false, error: "Queue full", queueDepth: this.queue.length };
+        }
+
+        this.metrics.externalIngested++;
+
+        // High-priority events trigger immediate flush
+        if (isHighPriority) {
+            this._flush().catch(() => { });
+        }
+
+        return {
+            ok: true,
+            queued: true,
+            priority,
+            immediateFlush: isHighPriority,
+            queueDepth: this.queue.length,
+        };
+    }
+
     // ─── Ableton Live Session Management ─────────────────────────────
     startAbletonSession(config = {}) {
         this.abletonSession = {
@@ -132,6 +170,7 @@ class RealtimeIntelligenceEngine extends EventEmitter {
 
     routeAbletonMidi(event) {
         if (!this.abletonSession) return { ok: false, error: "No active Ableton session" };
+        const start = Date.now();
         this.abletonSession.midiEvents++;
         // Ingest into the realtime pipeline
         this.ingest({ ...event, source: "ableton", meta: { sessionId: this.abletonSession.id } });
@@ -139,7 +178,8 @@ class RealtimeIntelligenceEngine extends EventEmitter {
         if (global.midiBus && event.cc != null) {
             global.midiBus.ccMetric(event.cc, event.value || 0, event.channel || 0);
         }
-        return { ok: true, sessionMidiCount: this.abletonSession.midiEvents };
+        this.abletonSession.latencyMs = Date.now() - start;
+        return { ok: true, sessionMidiCount: this.abletonSession.midiEvents, latencyMs: this.abletonSession.latencyMs };
     }
 
     // ─── Feed (recent events for UI polling) ─────────────────────────
@@ -169,14 +209,27 @@ class RealtimeIntelligenceEngine extends EventEmitter {
         this.metrics.flushes++;
 
         // 1. Vector Memory persistence (primary)
-        if (this._vectorMemory) {
+        const vectorMem = this._resolveVectorIngest();
+        if (vectorMem) {
             try {
                 for (const evt of batch) {
-                    this._vectorMemory.store(
-                        `realtime:${evt.id}`,
-                        { type: evt.type, note: evt.note, channel: evt.channel, source: evt.source },
-                        { structural: 0.7, behavioral: 0.8, quality: 0.9 }
-                    );
+                    const content = `${evt.type}:${evt.source} ch=${evt.channel} note=${evt.note ?? "-"} cc=${evt.cc ?? "-"}`;
+                    const metadata = {
+                        type: "realtime_event",
+                        source: evt.source,
+                        channel: evt.channel,
+                        ts: evt.ts,
+                        priority: evt.meta?.priority || "normal",
+                    };
+                    if (typeof vectorMem.ingestMemory === "function") {
+                        await vectorMem.ingestMemory({ content, metadata });
+                    } else if (typeof vectorMem.store === "function") {
+                        vectorMem.store(
+                            `realtime:${evt.id}`,
+                            { type: evt.type, note: evt.note, channel: evt.channel, source: evt.source },
+                            { structural: 0.7, behavioral: 0.8, quality: 0.9 }
+                        );
+                    }
                 }
                 this.metrics.persisted += batch.length;
             } catch { this.metrics.failed += batch.length; }
