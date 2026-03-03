@@ -466,6 +466,126 @@ async function dynamicFocusShift(context) {
   };
 }
 
+// ─── RANDOM OPTIMIZER + IDLE LEARNING (Adaptive Power-Up) ───────────────
+
+/**
+ * Random Optimizer Cycle — Weighted random task selection with priority decay.
+ * Selects improvement tasks using roulette wheel selection.
+ * Ref: docs/research/random-optimizer-adaptive-idle-learning.md
+ */
+async function randomOptimizerCycle(context) {
+  const fs = require("fs");
+  const optDir = path.join(__dirname, "..", "..", "data", "optimizer");
+  fs.mkdirSync(optDir, { recursive: true });
+
+  // Default improvement pool (extensible via config)
+  const improvements = [
+    { name: "cache_warmup", basePriority: 8, cost: 2 },
+    { name: "index_optimization", basePriority: 7, cost: 3 },
+    { name: "dead_code_detection", basePriority: 5, cost: 4 },
+    { name: "dependency_audit", basePriority: 6, cost: 3 },
+    { name: "log_rotation", basePriority: 3, cost: 1 },
+    { name: "config_drift_check", basePriority: 4, cost: 2 },
+    { name: "health_endpoint_scan", basePriority: 9, cost: 2 },
+    { name: "memory_pressure_test", basePriority: 6, cost: 5 },
+  ];
+
+  // Load decay state
+  const decayFile = path.join(optDir, "priority-decay.json");
+  let decayState = {};
+  try { decayState = JSON.parse(fs.readFileSync(decayFile, "utf8")); } catch { /* fresh */ }
+
+  // Apply decay: recently-run tasks get reduced priority
+  const pool = improvements.map(imp => {
+    const decay = decayState[imp.name] || 0;
+    const effectivePriority = Math.max(1, imp.basePriority - decay);
+    return { ...imp, effectivePriority };
+  });
+
+  // Weighted random selection (roulette wheel)
+  const totalWeight = pool.reduce((sum, t) => sum + t.effectivePriority, 0);
+  let roll = Math.random() * totalWeight;
+  let selected = pool[0];
+  for (const task of pool) {
+    roll -= task.effectivePriority;
+    if (roll <= 0) { selected = task; break; }
+  }
+
+  // Apply decay to selected task, regenerate others
+  for (const imp of improvements) {
+    if (imp.name === selected.name) {
+      decayState[imp.name] = Math.min(imp.basePriority - 1, (decayState[imp.name] || 0) + 3);
+    } else {
+      decayState[imp.name] = Math.max(0, (decayState[imp.name] || 0) - 1);
+    }
+  }
+  fs.writeFileSync(decayFile, JSON.stringify(decayState, null, 2));
+
+  // Log the run
+  const entry = { ts: new Date().toISOString(), selected: selected.name, effectivePriority: selected.effectivePriority, totalPool: pool.length };
+  fs.appendFileSync(path.join(optDir, "optimizer-runs.jsonl"), JSON.stringify(entry) + "\n");
+
+  return {
+    task: "random_optimizer_cycle",
+    status: "completed",
+    result: `Selected: ${selected.name} (priority ${selected.effectivePriority}/${selected.basePriority}, cost ${selected.cost})`,
+    selected,
+    poolSize: pool.length,
+    decayState,
+  };
+}
+
+/**
+ * Idle Power Learning — Boosts learning tasks when system is idle.
+ * Monitors CPU load (via /proc/loadavg on Linux) and adjusts budget.
+ * Ref: docs/research/random-optimizer-adaptive-idle-learning.md
+ */
+async function idlePowerLearning(context) {
+  const fs = require("fs");
+  const os = require("os");
+
+  // Get system load
+  const cpuCount = os.cpus().length;
+  let loadAvg = os.loadavg()[0]; // 1-minute load average
+  const loadPercent = Math.round((loadAvg / cpuCount) * 100);
+
+  const IDLE_THRESHOLD = 20;  // Below 20% = idle
+  const BUSY_THRESHOLD = 50;  // Above 50% = busy
+
+  let mode = "NORMAL";
+  let budget = "medium";
+  let allowHeavyTasks = true;
+
+  if (loadPercent < IDLE_THRESHOLD) {
+    mode = "IDLE_POWER_UP";
+    budget = "high";
+    allowHeavyTasks = true;
+  } else if (loadPercent > BUSY_THRESHOLD) {
+    mode = "BUSY_THROTTLE";
+    budget = "low";
+    allowHeavyTasks = false;
+  }
+
+  const optDir = path.join(__dirname, "..", "..", "data", "optimizer");
+  fs.mkdirSync(optDir, { recursive: true });
+  const entry = {
+    ts: new Date().toISOString(),
+    loadPercent,
+    cpuCount,
+    mode,
+    budget,
+    allowHeavyTasks,
+  };
+  fs.appendFileSync(path.join(optDir, "idle-learning.jsonl"), JSON.stringify(entry) + "\n");
+
+  return {
+    task: "idle_power_learning",
+    status: "completed",
+    result: `System load: ${loadPercent}% → Mode: ${mode} (budget: ${budget}, heavy tasks: ${allowHeavyTasks ? 'ENABLED' : 'DISABLED'})`,
+    ...entry,
+  };
+}
+
 // ─── REGISTRATION ────────────────────────────────────────────────────────
 
 const TASK_HANDLERS = {
@@ -497,6 +617,9 @@ const TASK_HANDLERS = {
   // Self-Discovery Optimization Framework (EOD Protocol)
   eod_assertion_protocol: eodAssertionProtocol,
   dynamic_focus_shift: dynamicFocusShift,
+  // Random Optimizer + Idle Learning
+  random_optimizer_cycle: randomOptimizerCycle,
+  idle_power_learning: idlePowerLearning,
 };
 
 async function handleAutomatedFlow(task) {
