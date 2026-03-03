@@ -81,7 +81,10 @@ export const api = {
     getAutonomyAudit: (limit = 100) => request(`/autonomy/audit?limit=${limit}`),
     getMonorepoProjection: () => request('/autonomy/monorepo-projection'),
     getAutonomyRuntime: () => request('/autonomy/runtime'),
+    getAutonomyHealth: () => request('/autonomy/health'),
     streamAutonomyEvents: () => new EventSource('/api/autonomy/stream'),
+    startAutonomyLoop: (adminToken) => request('/autonomy/control/start', { method: 'POST', headers: adminToken ? { 'X-Autonomy-Admin-Token': adminToken } : {} }),
+    stopAutonomyLoop: (adminToken) => request('/autonomy/control/stop', { method: 'POST', headers: adminToken ? { 'X-Autonomy-Admin-Token': adminToken } : {} }),
 
     // Google AI Studio (Gemini)
     getAIModels: () => request('/ai/models'),

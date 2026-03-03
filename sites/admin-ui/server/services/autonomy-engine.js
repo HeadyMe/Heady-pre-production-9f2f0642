@@ -11,18 +11,19 @@ const DATA_DIR = process.env.AUTONOMY_DATA_DIR || join(__dirname, '..', 'data');
 const STATE_FILE = join(DATA_DIR, 'autonomy-state.json');
 const AUDIT_FILE = join(DATA_DIR, 'autonomy-audit.jsonl');
 const PROJECTION_FILE = join(DATA_DIR, 'monorepo-projection.json');
+const TICK_INTERVAL_MS = Math.max(1000, parseInt(process.env.AUTONOMY_TICK_INTERVAL_MS || '4000', 10));
+const MAX_QUEUE_ITEMS = Math.max(100, parseInt(process.env.AUTONOMY_MAX_QUEUE_ITEMS || '1000', 10));
 
 const realtimeBus = new EventEmitter();
 realtimeBus.setMaxListeners(200);
 
 const PRIORITY_WEIGHT = { critical: 4, high: 3, balanced: 2, low: 1 };
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-const TICK_INTERVAL_MS = clamp(Number(process.env.AUTONOMY_TICK_INTERVAL_MS || 4000), 500, 60000);
 
 let loopHandle = null;
 let tickInFlight = false;
+let loopStartedAt = null;
 
-
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const nowIso = () => new Date().toISOString();
 
 function hashLine(payload) {
@@ -55,6 +56,7 @@ function createInitialState() {
             lastTickMs: 0,
             lastUpdated: nowIso(),
             tickCounter: 0,
+            dedupeWindowHashes: [],
         },
         resources: {
             colabProPlusMemberships: 3,
@@ -80,6 +82,8 @@ function createInitialState() {
             activeConnectors: [],
             injections: [],
             lastProjectionCommit: null,
+            uptimeStartedAt: nowIso(),
+            lastError: null,
         },
         audit: {
             latestSeq: 0,
@@ -110,6 +114,14 @@ async function writeState(state) {
     state.system.lastUpdated = nowIso();
     await fs.writeJson(STATE_FILE, state, { spaces: 2 });
     return state;
+}
+
+function validatePriority(priority) {
+    return PRIORITY_WEIGHT[priority] ? priority : 'balanced';
+}
+
+function normalizeText(text) {
+    return String(text || '').trim().replace(/\s+/g, ' ');
 }
 
 async function appendAudit(state, eventType, payload) {
@@ -224,6 +236,7 @@ async function updateMonorepoProjection(state) {
             selfHealingScore: state.system.selfHealingScore,
             orchestrationScore: state.system.orchestrationScore,
             pendingConcepts: state.queues.pendingConcepts.length,
+            tickCounter: state.system.tickCounter,
         },
     };
 
@@ -234,9 +247,14 @@ async function updateMonorepoProjection(state) {
 }
 
 function pruneQueues(state) {
-    if (state.queues.connectorBuilds.length > 1000) state.queues.connectorBuilds.length = 1000;
-    if (state.queues.backgroundLearning.length > 1000) state.queues.backgroundLearning.length = 1000;
-    if (state.queues.musicSessions.length > 200) state.queues.musicSessions.length = 200;
+    if (state.queues.connectorBuilds.length > MAX_QUEUE_ITEMS) state.queues.connectorBuilds.length = MAX_QUEUE_ITEMS;
+    if (state.queues.backgroundLearning.length > MAX_QUEUE_ITEMS) state.queues.backgroundLearning.length = MAX_QUEUE_ITEMS;
+    if (state.queues.musicSessions.length > Math.floor(MAX_QUEUE_ITEMS / 5)) state.queues.musicSessions.length = Math.floor(MAX_QUEUE_ITEMS / 5);
+    if (state.queues.pendingConcepts.length > MAX_QUEUE_ITEMS) state.queues.pendingConcepts.length = MAX_QUEUE_ITEMS;
+}
+
+function markRuntimeError(state, message) {
+    state.runtime.lastError = { message, at: nowIso() };
 }
 
 export async function getAutonomyState() {
@@ -244,15 +262,26 @@ export async function getAutonomyState() {
 }
 
 export async function ingestConcept({ text, priority = 'balanced' }) {
-    if (!text || typeof text !== 'string' || !text.trim()) {
-        throw new Error('Concept text is required');
-    }
-    const normalizedPriority = PRIORITY_WEIGHT[priority] ? priority : 'balanced';
     const state = await readState();
-    const concept = vectorizeConcept(text.trim(), normalizedPriority);
+    const normalizedText = normalizeText(text);
 
+    if (!normalizedText) throw new Error('text is required');
+    if (normalizedText.length > 4000) throw new Error('text exceeds 4000 characters');
+
+    const resolvedPriority = validatePriority(priority);
+    const dedupeHash = hashLine({ text: normalizedText, priority: resolvedPriority });
+
+    if (state.system.dedupeWindowHashes.includes(dedupeHash)) {
+        throw new Error('duplicate concept recently ingested');
+    }
+
+    const concept = vectorizeConcept(normalizedText, resolvedPriority);
     state.queues.pendingConcepts.push(concept);
     prioritizeConcepts(state.queues.pendingConcepts);
+
+    state.system.dedupeWindowHashes.unshift(dedupeHash);
+    if (state.system.dedupeWindowHashes.length > 200) state.system.dedupeWindowHashes.length = 200;
+
     state.queues.backgroundLearning.unshift({
         id: `learn-${Date.now()}`,
         conceptId: concept.id,
@@ -274,9 +303,7 @@ export async function ingestConcept({ text, priority = 'balanced' }) {
 }
 
 export async function runAutonomyTick(trigger = 'manual') {
-    if (tickInFlight) {
-        return { skipped: true, reason: 'tick_in_flight' };
-    }
+    if (tickInFlight) return { skipped: true, reason: 'tick_in_flight' };
 
     tickInFlight = true;
     const started = Date.now();
@@ -324,6 +351,12 @@ export async function runAutonomyTick(trigger = 'manual') {
         await writeState(state);
         realtimeBus.emit('state', state);
         return { state, projection, processed: processed.length, throughput };
+    } catch (error) {
+        const state = await readState();
+        markRuntimeError(state, error.message);
+        await writeState(state);
+        realtimeBus.emit('error', { ts: nowIso(), message: error.message });
+        throw error;
     } finally {
         tickInFlight = false;
     }
@@ -331,18 +364,24 @@ export async function runAutonomyTick(trigger = 'manual') {
 
 export async function createAbletonSession({ user, bpm = 120, key = 'C Minor' }) {
     const state = await readState();
+    const safeUser = normalizeText(user);
+    const safeBpm = clamp(parseInt(bpm, 10) || 120, 40, 260);
+    const safeKey = normalizeText(key) || 'C Minor';
+
+    if (!safeUser) throw new Error('user is required');
+
     const session = {
         id: `ableton-${Date.now()}`,
-        user,
-        bpm,
-        key,
+        user: safeUser,
+        bpm: safeBpm,
+        key: safeKey,
         status: 'scheduled',
         collaborativeAgents: ['bee-reason', 'swarm-orchestrator'],
         createdAt: nowIso(),
     };
 
     state.queues.musicSessions.unshift(session);
-    await appendAudit(state, 'music.session.created', { sessionId: session.id, user, bpm, key });
+    await appendAudit(state, 'music.session.created', { sessionId: session.id, user: safeUser, bpm: safeBpm, key: safeKey });
     pruneQueues(state);
     await writeState(state);
     realtimeBus.emit('state', state);
@@ -350,8 +389,8 @@ export async function createAbletonSession({ user, bpm = 120, key = 'C Minor' })
 }
 
 export async function getAuditEvents(limit = 100) {
-    const safeLimit = clamp(Number(limit) || 100, 1, 1000);
     await ensureData();
+    const safeLimit = clamp(parseInt(limit, 10) || 100, 1, 1000);
     const raw = await fs.readFile(AUDIT_FILE, 'utf8');
     if (!raw.trim()) return [];
     return raw
@@ -373,6 +412,14 @@ export async function getMonorepoProjection() {
 
 export async function getAutonomyRuntimeStatus() {
     const state = await readState();
+    const uptimeMs = loopStartedAt ? Date.now() - loopStartedAt : 0;
+    const avgGpuLoad = state.resources.gpuNodes.reduce((sum, node) => sum + node.load, 0) / state.resources.gpuNodes.length;
+    const health = clamp(
+        (state.system.selfAwareScore + state.system.selfHealingScore + state.system.orchestrationScore) / 3 - (avgGpuLoad * 20),
+        0,
+        100,
+    );
+
     return {
         alive: state.system.alive,
         mode: state.system.mode,
@@ -381,16 +428,41 @@ export async function getAutonomyRuntimeStatus() {
         tickIntervalMs: TICK_INTERVAL_MS,
         tickCounter: state.system.tickCounter,
         lastTickMs: state.system.lastTickMs,
+        uptimeMs,
         pendingConcepts: state.queues.pendingConcepts.length,
+        queueDepth: {
+            concepts: state.queues.pendingConcepts.length,
+            learning: state.queues.backgroundLearning.length,
+            connectors: state.queues.connectorBuilds.length,
+            music: state.queues.musicSessions.length,
+        },
+        avgGpuLoad: Number(avgGpuLoad.toFixed(3)),
+        healthScore: Number(health.toFixed(2)),
+        lastError: state.runtime.lastError,
+    };
+}
+
+export async function getAutonomyHealth() {
+    const runtime = await getAutonomyRuntimeStatus();
+    return {
+        ok: runtime.healthScore >= 70 && runtime.lastTickMs <= (TICK_INTERVAL_MS * 2),
+        runtime,
     };
 }
 
 export function startAutonomyLoop() {
     if (loopHandle) return false;
+    loopStartedAt = Date.now();
     loopHandle = setInterval(async () => {
-        try { await runAutonomyTick('background-loop'); }
-        catch (e) { realtimeBus.emit('error', { ts: nowIso(), message: e.message }); }
+        try {
+            await runAutonomyTick('background-loop');
+        } catch (e) {
+            realtimeBus.emit('error', { ts: nowIso(), message: e.message });
+        }
     }, TICK_INTERVAL_MS);
+
+    loopHandle.unref?.();
+    runAutonomyTick('startup').catch((e) => realtimeBus.emit('error', { ts: nowIso(), message: e.message }));
     return true;
 }
 
@@ -399,10 +471,6 @@ export function stopAutonomyLoop() {
     clearInterval(loopHandle);
     loopHandle = null;
     return true;
-}
-
-export function isAutonomyLoopRunning() {
-    return Boolean(loopHandle);
 }
 
 export function subscribeAutonomyEvents(listener) {

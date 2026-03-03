@@ -23,6 +23,29 @@ const TUNNEL_FILE = join(__dirname, 'data', 'tunnel-config.yml');
 const TASKS_FILE = join(__dirname, 'data', 'tasks.json');
 const ROUTES_FILE = join(__dirname, 'data', 'routes.json');
 
+const AUTONOMY_ADMIN_TOKEN = process.env.AUTONOMY_ADMIN_TOKEN || '';
+
+function parseBoundedInt(value, fallback, min, max) {
+    const n = Number.parseInt(value, 10);
+    if (Number.isNaN(n)) return fallback;
+    return Math.max(min, Math.min(max, n));
+}
+
+function requireAutonomyAdmin(req, res) {
+    if (!AUTONOMY_ADMIN_TOKEN) return true;
+    const token = req.headers['x-autonomy-admin-token'];
+    if (token !== AUTONOMY_ADMIN_TOKEN) {
+        res.status(403).json({ error: 'Forbidden: missing or invalid autonomy admin token' });
+        return false;
+    }
+    return true;
+}
+
+function sanitizePriority(priority) {
+    const value = String(priority || 'balanced').toLowerCase();
+    return ['critical', 'high', 'balanced', 'low'].includes(value) ? value : 'balanced';
+}
+
 app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
@@ -151,7 +174,11 @@ app.post('/api/profiles', async (req, res) => {
 
 // ── Logs ──
 app.get('/api/logs', async (req, res) => {
-    try { res.json(await readLogs()); } catch (e) { res.status(500).json({ error: e.message }); }
+    try {
+        const limit = parseBoundedInt(req.query.limit, 100, 1, 500);
+        const logs = await readLogs();
+        res.json(logs.slice(0, limit));
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── Design ──
@@ -185,7 +212,7 @@ app.get('/api/auto-success/status', async (req, res) => {
     try { res.json(await computeHCFP()); } catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.get('/api/hcfp/history', async (req, res) => {
-    try { res.json(await getHCFPHistory(parseInt(req.query.limit) || 100)); } catch (e) { res.status(500).json({ error: e.message }); }
+    try { res.json(await getHCFPHistory(parseBoundedInt(req.query.limit, 100, 1, 1000))); } catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.get('/api/hcfp/subsystems/:id', async (req, res) => {
     try { res.json(await getHCFPSubsystem(req.params.id)); } catch (e) { res.status(500).json({ error: e.message }); }
@@ -216,8 +243,9 @@ app.post('/api/autonomy/ingest', async (req, res) => {
     try {
         const text = String(req.body?.text || '').trim();
         if (!text) return res.status(400).json({ error: 'text is required' });
-        if (text.length > 10000) return res.status(400).json({ error: 'text too large' });
-        res.status(201).json(await ingestConcept({ text, priority: req.body?.priority || 'balanced' }));
+        if (text.length > 2000) return res.status(400).json({ error: 'text exceeds 2000 characters' });
+        const priority = sanitizePriority(req.body?.priority);
+        res.status(201).json(await ingestConcept({ text, priority }));
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -236,7 +264,7 @@ app.post('/api/autonomy/music-session', async (req, res) => {
 
 app.get('/api/autonomy/audit', async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 100;
+        const limit = parseBoundedInt(req.query.limit, 100, 1, 1000);
         res.json(await getAuditEvents(limit));
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -250,8 +278,14 @@ app.get('/api/autonomy/monorepo-projection', async (req, res) => {
 app.get('/api/autonomy/health', async (req, res) => {
     try {
         const runtime = await getAutonomyRuntimeStatus();
-        const healthy = runtime.alive && runtime.loopActive;
-        res.status(healthy ? 200 : 503).json({ healthy, runtime });
+        const health = runtime.alive && runtime.loopActive ? 'healthy' : 'degraded';
+        res.json({
+            health,
+            realtime: runtime.loopActive,
+            latencyMs: runtime.lastTickMs,
+            pendingConcepts: runtime.pendingConcepts,
+            tickIntervalMs: runtime.tickIntervalMs,
+        });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -277,6 +311,22 @@ app.get('/api/autonomy/stream', async (req, res) => {
         unsubscribe();
         res.end();
     });
+});
+
+app.post('/api/autonomy/control/start', async (req, res) => {
+    try {
+        if (!requireAutonomyAdmin(req, res)) return;
+        const started = startAutonomyLoop();
+        res.json({ success: true, started, runtime: await getAutonomyRuntimeStatus() });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/autonomy/control/stop', async (req, res) => {
+    try {
+        if (!requireAutonomyAdmin(req, res)) return;
+        const stopped = stopAutonomyLoop();
+        res.json({ success: true, stopped, runtime: await getAutonomyRuntimeStatus() });
+    } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── GOOGLE AI STUDIO (Gemini) ──
@@ -339,7 +389,7 @@ app.get('*', (req, res) => {
 });
 
 // ── START ──
-app.listen(PORT, '0.0.0.0', async () => {
+const server = app.listen(PORT, '0.0.0.0', async () => {
     console.log(`Heady Admin UI server running on http://0.0.0.0:${PORT}`);
     console.log(`Drupal 11 Hybrid Admin - HCFP Auto-Success Mode`);
     await addLog('info', `Admin server started on port ${PORT}`, 'system');
@@ -347,14 +397,22 @@ app.listen(PORT, '0.0.0.0', async () => {
     startAutonomyLoop();
 });
 
-process.on('SIGTERM', () => {
-    if (isAutonomyLoopRunning()) stopAutonomyLoop();
-    process.exit(0);
-});
+async function shutdown(signal) {
+    try {
+        stopAutonomyLoop();
+        await addLog('warning', `Admin server stopping (${signal})`, 'system');
+    } catch {
+        // ignore shutdown logging errors
+    }
 
-process.on('SIGINT', () => {
-    if (isAutonomyLoopRunning()) stopAutonomyLoop();
-    process.exit(0);
-});
+    server.close(() => {
+        process.exit(0);
+    });
+
+    setTimeout(() => process.exit(1), 5000).unref?.();
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 export default app;

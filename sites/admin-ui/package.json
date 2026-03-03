@@ -8,7 +8,8 @@
         "build": "vite build",
         "preview": "vite preview",
         "server": "node server/index.js",
-        "start": "node server/index.js"
+        "start": "node server/index.js",
+        "test:autonomy": "node server/services/autonomy-engine.test.mjs"
     },
     "dependencies": {
         "compression": "^1.7.4",
