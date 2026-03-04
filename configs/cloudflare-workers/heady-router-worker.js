@@ -87,9 +87,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 .orb1{width:400px;height:400px;top:-100px;left:-100px;background:radial-gradient(circle,color-mix(in srgb,var(--br) 25%,transparent),transparent 70%);animation:orbFloat 20s ease-in-out infinite,glowPulse 6s ease-in-out infinite}
 .orb2{width:350px;height:350px;bottom:-50px;right:-50px;background:radial-gradient(circle,color-mix(in srgb,var(--ac) 20%,transparent),transparent 70%);animation:orbFloat 25s ease-in-out infinite reverse,glowPulse 8s ease-in-out infinite .5s}
 .orb3{width:250px;height:250px;top:40%;left:50%;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);animation:orbFloat 18s ease-in-out infinite 2s,glowPulse 7s ease-in-out infinite 1s}
-.geo-ring{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border:1px solid rgba(255,255,255,.03);border-radius:50%;z-index:0;animation:geoSpin 60s linear infinite}
-.geo-ring::before{content:'';position:absolute;inset:40px;border:1px solid rgba(255,255,255,.02);border-radius:50%;animation:geoSpin 45s linear infinite reverse}
-.geo-ring::after{content:'';position:absolute;inset:80px;border:1px solid rgba(255,255,255,.015);border-radius:50%;animation:geoSpin 30s linear infinite}
+#sgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.6}
 .ct{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:2rem 1.5rem}
 nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,26,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
 .nb{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:var(--tx)}
@@ -186,7 +184,7 @@ ft a{color:var(--dm);text-decoration:none}
 </head><body>
 <div class="gd"></div><div class="gw"></div><div class="gw2"></div>
 <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
-<div class="geo-ring"></div>
+<canvas id="sgCanvas"></canvas>
 <nav>
   <a class="nb" href="/"><div class="nl">${s.icon}</div><span class="nn">${s.brand}</span></a>
   <div class="nk">
@@ -409,6 +407,131 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
 
 // Log identity
 console.log('[Heady] ${s.brand} v${VERSION} · Edge rendered · PWA ready · HeadyBuddy active');
+
+// Sacred Geometry Canvas Animation
+(function(){
+  const cv=document.getElementById('sgCanvas'),cx=cv.getContext('2d');
+  let W,H,t=0;
+  const br=getComputedStyle(document.documentElement).getPropertyValue('--br').trim()||'#00d4ff';
+  const ac=getComputedStyle(document.documentElement).getPropertyValue('--ac').trim()||'#a78bfa';
+  function sz(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
+  sz();window.addEventListener('resize',sz);
+
+  // Parse hex to rgb
+  function hexRgb(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+  const brC=hexRgb(br),acC=hexRgb(ac);
+
+  function draw(){
+    t+=0.003;
+    cx.clearRect(0,0,W,H);
+    const cX=W/2,cY=H/2;
+    const R=Math.min(W,H)*0.32;
+
+    cx.save();
+    cx.translate(cX,cY);
+    cx.rotate(t*0.3);
+
+    // Flower of Life — 7 overlapping circles
+    cx.strokeStyle='rgba('+brC[0]+','+brC[1]+','+brC[2]+',0.06)';
+    cx.lineWidth=1;
+    const fR=R*0.38;
+    cx.beginPath();cx.arc(0,0,fR,0,Math.PI*2);cx.stroke();
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3+t*0.2;
+      cx.beginPath();cx.arc(Math.cos(a)*fR,Math.sin(a)*fR,fR,0,Math.PI*2);cx.stroke();
+    }
+
+    // Metatron's Cube — 13 nodes
+    const nodes=[];
+    nodes.push([0,0]); // center
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3;
+      nodes.push([Math.cos(a)*R*0.45,Math.sin(a)*R*0.45]); // inner ring
+    }
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3+Math.PI/6;
+      nodes.push([Math.cos(a)*R*0.82,Math.sin(a)*R*0.82]); // outer ring
+    }
+
+    // Connect all 13 nodes (Metatron's pattern)
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const pulse=Math.sin(t*2+i*0.5+j*0.3)*0.5+0.5;
+        const alpha=0.03+pulse*0.04;
+        cx.strokeStyle='rgba('+brC[0]+','+brC[1]+','+brC[2]+','+alpha+')';
+        cx.lineWidth=0.5+pulse*0.5;
+        cx.beginPath();
+        cx.moveTo(nodes[i][0],nodes[i][1]);
+        cx.lineTo(nodes[j][0],nodes[j][1]);
+        cx.stroke();
+      }
+    }
+
+    // Node dots with glow
+    nodes.forEach(function(n,i){
+      const pulse=Math.sin(t*3+i*0.8)*0.5+0.5;
+      const r=2+pulse*3;
+      const grd=cx.createRadialGradient(n[0],n[1],0,n[0],n[1],r*4);
+      grd.addColorStop(0,'rgba('+brC[0]+','+brC[1]+','+brC[2]+','+(0.4+pulse*0.4)+')');
+      grd.addColorStop(1,'rgba('+brC[0]+','+brC[1]+','+brC[2]+',0)');
+      cx.fillStyle=grd;
+      cx.beginPath();cx.arc(n[0],n[1],r*4,0,Math.PI*2);cx.fill();
+      cx.fillStyle='rgba('+brC[0]+','+brC[1]+','+brC[2]+','+(0.6+pulse*0.3)+')';
+      cx.beginPath();cx.arc(n[0],n[1],r,0,Math.PI*2);cx.fill();
+    });
+
+    // Outer rotating hexagon
+    cx.strokeStyle='rgba('+acC[0]+','+acC[1]+','+acC[2]+',0.08)';
+    cx.lineWidth=1;
+    cx.beginPath();
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3+t*0.5;
+      const x=Math.cos(a)*R;
+      const y=Math.sin(a)*R;
+      i===0?cx.moveTo(x,y):cx.lineTo(x,y);
+    }
+    cx.closePath();cx.stroke();
+
+    // Inner rotating triangle
+    cx.strokeStyle='rgba('+acC[0]+','+acC[1]+','+acC[2]+',0.05)';
+    cx.beginPath();
+    for(let i=0;i<3;i++){
+      const a=i*Math.PI*2/3-t*0.4;
+      const x=Math.cos(a)*R*0.6;
+      const y=Math.sin(a)*R*0.6;
+      i===0?cx.moveTo(x,y):cx.lineTo(x,y);
+    }
+    cx.closePath();cx.stroke();
+
+    // Counter-rotating triangle (Star of David / Merkaba)
+    cx.beginPath();
+    for(let i=0;i<3;i++){
+      const a=i*Math.PI*2/3+t*0.4+Math.PI;
+      const x=Math.cos(a)*R*0.6;
+      const y=Math.sin(a)*R*0.6;
+      i===0?cx.moveTo(x,y):cx.lineTo(x,y);
+    }
+    cx.closePath();cx.stroke();
+
+    // Flowing energy particles along connections
+    for(let i=0;i<20;i++){
+      const prog=(t*0.5+i*0.05)%1;
+      const nA=i%nodes.length;
+      const nB=(i*3+7)%nodes.length;
+      const px=nodes[nA][0]+(nodes[nB][0]-nodes[nA][0])*prog;
+      const py=nodes[nA][1]+(nodes[nB][1]-nodes[nA][1])*prog;
+      const grd=cx.createRadialGradient(px,py,0,px,py,6);
+      grd.addColorStop(0,'rgba('+acC[0]+','+acC[1]+','+acC[2]+',0.5)');
+      grd.addColorStop(1,'rgba('+acC[0]+','+acC[1]+','+acC[2]+',0)');
+      cx.fillStyle=grd;
+      cx.beginPath();cx.arc(px,py,6,0,Math.PI*2);cx.fill();
+    }
+
+    cx.restore();
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 </script></body></html>`;
 }
 

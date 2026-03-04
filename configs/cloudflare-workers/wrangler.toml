@@ -7,6 +7,15 @@ workers_dev = true
 [ai]
 binding = "HEADY_AI"
 
+# Domain routes — headyme.com
+[[routes]]
+pattern = "headyme.com/*"
+zone_name = "headyme.com"
+
+[[routes]]
+pattern = "www.headyme.com/*"
+zone_name = "headyme.com"
+
 # KV for owner sessions, device sync, user auth
 [[kv_namespaces]]
 binding = "HEADY_KV"
