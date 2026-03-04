@@ -1,6 +1,6 @@
 ---
 name: heady-security-audit
-description: Comprehensive security auditing — vulnerability scanning, risk assessment, mitigation planning, and pattern analysis via HeadyRisks, HeadyAnalyze, and HeadyPatterns.
+description: Heady™ comprehensive security auditing — vulnerability scanning, risk assessment, mitigation planning, and pattern analysis via HeadyRisks, HeadyAnalyze, and HeadyPatterns.
 ---
 
 # Heady Security Audit Skill

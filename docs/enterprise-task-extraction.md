@@ -1,4 +1,4 @@
-# Heady Enterprise Task Extraction (Current Pre-Production Snapshot)
+# Heady™ Enterprise Task Extraction (Current Pre-Production Snapshot)
 
 This task set converts the architecture narrative into actionable engineering work for the HeadyMe base repositories.
 

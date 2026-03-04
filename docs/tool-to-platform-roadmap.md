@@ -1,4 +1,4 @@
-# Heady Tool-to-Platform Roadmap (Unified Liquid Paradigm)
+# Heady™ Tool-to-Platform Roadmap (Unified Liquid Paradigm)
 
 ## Objective
 

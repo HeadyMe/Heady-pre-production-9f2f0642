@@ -1,5 +1,5 @@
 ---
-description: Multi-domain health check — validates all 9 Heady sites + Cloud Run + internal services
+description: Multi-domain health check — validates all 9 Heady™ sites + Cloud Run + internal services
 ---
 
 # 🏥 Health Check Workflow

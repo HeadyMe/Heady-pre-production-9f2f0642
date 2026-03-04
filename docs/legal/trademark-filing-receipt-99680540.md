@@ -1,6 +1,6 @@
 # USPTO Trademark Filing Receipt
 
-**Mark:** HEADY (Standard Characters)  
+**Mark:** HEADY™ (Standard Characters)  
 **Serial Number:** 99680540  
 **Filing Date:** March 3, 2026 at 4:20:23 PM ET  
 **Application Type:** Trademark/Service Mark, Principal Register  

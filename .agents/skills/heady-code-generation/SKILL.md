@@ -1,6 +1,6 @@
 ---
 name: heady-code-generation
-description: Multi-model code generation, refactoring, and inline suggestions using HeadyCoder, HeadyCodex, HeadyCopilot, and HeadyRefactor.
+description: Multi-model code generation, refactoring, and inline suggestions using Heady™Coder, HeadyCodex, HeadyCopilot, and HeadyRefactor.
 ---
 
 # Heady Code Generation Skill

@@ -1,5 +1,5 @@
 ---
-description: Heady command routing — route "heady {command} input" to the matching Heady service, or use intelligent defaults for "heady input"
+description: Heady™ command routing — route "heady {command} input" to the matching Heady service, or use intelligent defaults for "heady input"
 ---
 
 # Heady Command Router

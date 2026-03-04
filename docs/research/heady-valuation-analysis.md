@@ -1,4 +1,4 @@
-# Heady Project — Valuation & Success Analysis
+# Heady™ Project — Valuation & Success Analysis
 
 ## Deep Research Report | March 3, 2026
 

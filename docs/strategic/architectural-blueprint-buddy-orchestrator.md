@@ -1,4 +1,4 @@
-# Architectural Blueprint for the 'Heady' AI Orchestrator
+# Architectural Blueprint for the 'Heady™' AI Orchestrator
 
 > **Deterministic Workflows, 3D Vector Storage, and IP Synthesis**
 >
@@ -205,4 +205,4 @@ Every user assigned a distinct "Spatial Namespace" in the Octree. Buddy pre-fetc
 
 ---
 
-> *© 2026 Heady Systems LLC — PROPRIETARY AND CONFIDENTIAL*
+> *© 2026 Heady™ Systems LLC — PROPRIETARY AND CONFIDENTIAL*

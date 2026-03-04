@@ -1,6 +1,6 @@
 ---
 name: heady-memory-ops
-description: Persistent 3D vector memory operations — search, store, embed, and learn via HeadyMemory, HeadyEmbed, HeadySoul, and HeadyVinci.
+description: Persistent 3D vector memory operations — search, store, embed, and learn via Heady™Memory, HeadyEmbed, HeadySoul, and HeadyVinci.
 ---
 
 # Heady Memory Operations Skill

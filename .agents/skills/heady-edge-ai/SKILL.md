@@ -1,6 +1,6 @@
 ---
 name: heady-edge-ai
-description: Ultra-low latency AI inference on Cloudflare edge — embeddings, chat, classification, and vector operations with zero origin round-trip.
+description: Heady™ ultra-low latency AI inference on Cloudflare edge — embeddings, chat, classification, and vector operations with zero origin round-trip.
 ---
 
 # Heady Edge AI Skill

@@ -1,4 +1,4 @@
-# Heady Platform Transition Roadmap (Tool → Platform)
+# Heady™ Platform Transition Roadmap (Tool → Platform)
 
 ## Objective
 

@@ -1,4 +1,4 @@
-# Heady Platform Onboarding Roadmap (Tool → Platform)
+# Heady™ Platform Onboarding Roadmap (Tool → Platform)
 
 ## Purpose
 

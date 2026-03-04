@@ -1,4 +1,4 @@
-# Heady Systems
+# Heady™ Systems
 
 [![CI/CD Pipeline](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/heady-consolidated-ci.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/heady-consolidated-ci.yml)
 [![Security Scan](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/security-scan.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/security-scan.yml)
@@ -140,4 +140,6 @@ const scanBee = spawnBee('port-scanner', async () => { /* work */ });
 
 ## License
 
-© 2026 Heady Systems LLC. Proprietary and Confidential.
+© 2026 Heady™ Systems LLC. Proprietary and Confidential.
+
+Heady™ is a trademark of HeadyConnection Inc. USPTO Serial No. 99680540.

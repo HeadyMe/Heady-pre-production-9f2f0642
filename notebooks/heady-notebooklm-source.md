@@ -1,4 +1,4 @@
-# Heady — Comprehensive Project Deep Dive
+# Heady™ — Comprehensive Project Deep Dive
 ## NotebookLM Source Document
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a problem with the Heady AI Platform
+about: Report a problem with the Heady™ AI Platform
 title: '[BUG] '
 labels: bug
 assignees: HeadyMe

@@ -1,6 +1,6 @@
 ---
 name: heady-auto-flow
-description: Full auto-success pipeline via HeadyAutoFlow — chains Battle, Coder, Analyze, Risks, and Patterns into a single automated workflow.
+description: Full auto-success pipeline via Heady™AutoFlow — chains Battle, Coder, Analyze, Risks, and Patterns into a single automated workflow.
 ---
 
 # Heady Auto-Flow Skill

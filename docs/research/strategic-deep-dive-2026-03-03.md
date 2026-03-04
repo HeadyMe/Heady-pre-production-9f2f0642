@@ -1,4 +1,4 @@
-# Heady & HeadyMe: Project Success Deep Dive
+# Heady™ & HeadyMe: Project Success Deep Dive
 
 **Updated March 3, 2026 @ 5:30 PM**
 

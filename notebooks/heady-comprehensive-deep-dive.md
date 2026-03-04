@@ -1,4 +1,4 @@
-# Heady Systems — Comprehensive Deep-Dive
+# Heady™ Systems — Comprehensive Deep-Dive
 
 ## The Autonomous Multi-Agent AI Operating System
 

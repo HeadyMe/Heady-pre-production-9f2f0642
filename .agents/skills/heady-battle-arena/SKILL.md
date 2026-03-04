@@ -1,6 +1,6 @@
 ---
 name: heady-battle-arena
-description: Competitive AI evaluation using HeadyBattle Arena Mode — pit AI nodes against each other to find the best solution for any task.
+description: Competitive AI evaluation using Heady™Battle Arena Mode — pit AI nodes against each other to find the best solution for any task.
 ---
 
 # Heady Battle Arena Skill

@@ -1,5 +1,5 @@
 ---
-description: Foundational Pillars Validation — enforced before every Heady system modification
+description: Foundational Pillars Validation — enforced before every Heady™ system modification
 ---
 
 # 🐝 Heady Foundational Pillars Workflow

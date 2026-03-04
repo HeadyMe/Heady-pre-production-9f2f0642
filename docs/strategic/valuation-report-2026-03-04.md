@@ -1,4 +1,4 @@
-# Heady Valuation & Strategic Report — Mar 4, 2026
+# Heady™ Valuation & Strategic Report — Mar 4, 2026
 
 > Embedded from user-provided assessment. Source of truth for strategic priorities.
 

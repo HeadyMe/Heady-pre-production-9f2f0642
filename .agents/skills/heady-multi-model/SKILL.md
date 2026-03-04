@@ -1,6 +1,6 @@
 ---
 name: heady-multi-model
-description: Cross-provider AI routing — access Claude, GPT-4o, Gemini, Groq, and HeadyBuddy through a unified interface with model-selection guidance.
+description: Heady™ cross-provider AI routing — access Claude, GPT-4o, Gemini, Groq, and HeadyBuddy through a unified interface with model-selection guidance.
 ---
 
 # Heady Multi-Model Routing Skill

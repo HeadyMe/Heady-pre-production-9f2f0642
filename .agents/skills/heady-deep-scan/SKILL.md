@@ -1,6 +1,6 @@
 ---
 name: heady-deep-scan
-description: Project-wide context mapping via HeadyDeepScan — maps an entire workspace into 3D vector memory for deep understanding before any major work.
+description: Project-wide context mapping via Heady™DeepScan — maps an entire workspace into 3D vector memory for deep understanding before any major work.
 ---
 
 # Heady Deep Scan Skill

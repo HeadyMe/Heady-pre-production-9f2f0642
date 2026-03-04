@@ -1,5 +1,5 @@
 ---
-description: how to operate through heady's vector space, bees, and event system for all work
+description: how to operate through Heady™'s vector space, bees, and event system for all work
 ---
 
 # Heady Vector Space Operations

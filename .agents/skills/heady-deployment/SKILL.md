@@ -1,6 +1,6 @@
 ---
 name: heady-deployment
-description: Deploy, monitor, scale, and maintain services using HeadyDeploy, HeadyOps, HeadyHealth, HeadyMaid, and HeadyMaintenance.
+description: Deploy, monitor, scale, and maintain services using Heady™Deploy, HeadyOps, HeadyHealth, HeadyMaid, and HeadyMaintenance.
 ---
 
 # Heady Deployment Skill
