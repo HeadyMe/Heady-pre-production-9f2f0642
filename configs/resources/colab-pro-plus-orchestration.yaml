@@ -1,0 +1,93 @@
+version: 1
+mode: deterministic-colab-triple-orchestration
+updated_at: 2026-03-03T00:00:00Z
+objective: >-
+  Keep 3 Colab Pro+ workspaces continuously utilized for high-utility autonomous
+  operations while preserving deterministic replay and persistent memory receipts.
+operating_model:
+  paradigm: liquid-unified-microservice-fabric
+  explicit_frontend_backend_split: false
+  dynamic_products:
+    - ui-apps
+    - connectors
+    - autonomous-services
+  orchestration_planes:
+    - HeadyConductor
+    - HeadyCloudConductor
+  swarm_layers:
+    - HeadySwarm
+    - HeadyBees
+template_injection:
+  source_workspace: 3d-vector-workspace
+  target_layers:
+    - headybee
+    - headyswarm
+  mode: autonomous
+  deterministic_receipts: true
+cloud_projection:
+  cloud_only_delivery: true
+  local_resource_usage_target_percent: 5
+  projection_mode: always-on-live-state
+ableton_live:
+  realtime_mode: true
+  transport: midi2-ump
+  objective: instantaneous-live-music-control
+workers:
+  - id: colab-a
+    role: realtime-inference
+    tier: primary
+    max_concurrency: 4
+    gpu_profile: high-vram
+    responsibilities:
+      - low-latency embedding inference
+      - foreground user requests
+      - switchover coordinator
+    queues:
+      - user-interaction
+      - instant-ui-generation
+  - id: colab-b
+    role: background-learning
+    tier: secondary
+    max_concurrency: 6
+    gpu_profile: balanced
+    responsibilities:
+      - continuous project indexing
+      - template optimization sweeps
+      - error replay and rule synthesis
+    queues:
+      - background-indexing
+      - template-evolution
+      - deterministic-replay
+  - id: colab-c
+    role: swarm-operations
+    tier: tertiary
+    max_concurrency: 8
+    gpu_profile: throughput
+    responsibilities:
+      - headybees swarm fan-out
+      - headyswarm workload bursts
+      - connector/app build precomputation
+    queues:
+      - swarm-burst
+      - connector-compile
+      - hydration-cache
+determinism:
+  seed_source: git-commit-sha
+  replay_receipt_path: data/determinism-receipts.jsonl
+  require_receipt_for:
+    - provider-routing
+    - template-selection
+    - action-recommendation
+scheduling:
+  rebalance_interval_ms: 30000
+  stale_worker_threshold_ms: 120000
+  autoshed_priority_below: 0.25
+  queue_weights:
+    user-interaction: 1.0
+    instant-ui-generation: 0.95
+    deterministic-replay: 0.85
+    background-indexing: 0.6
+    template-evolution: 0.55
+    connector-compile: 0.75
+    hydration-cache: 0.5
+    swarm-burst: 0.8

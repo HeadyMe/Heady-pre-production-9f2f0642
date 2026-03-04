@@ -1,0 +1,44 @@
+version: 1
+updated_at: 2026-03-04T00:00:00Z
+platform_mission: transition-from-tool-to-developer-platform
+entrypoint:
+  domain: https://headyme.com
+  projection_mode: unified-liquid-fabric
+onboarding_flow:
+  - id: auth-provider-select
+    title: Sign in with HeadySwarm identity bridge
+    templates:
+      - headybee-auth-template
+      - headyswarm-auth-template
+    providers_supported_min: 25
+  - id: permissions-grant
+    title: Grant cross-device workspace permissions
+    capabilities:
+      - filesystem-access
+      - repo-sync
+      - connector-deploy
+    repeat_if_already_granted: false
+  - id: username-provision
+    title: Reserve {username}@headyme.com identity
+    options:
+      - secure-heady-mailbox
+      - forward-to-auth-provider-email
+      - forward-to-custom-email
+  - id: one-click-install
+    title: Install SDK/runtime in one click
+    surfaces:
+      - cli-bootstrap
+      - browser-extension-bridge
+      - ide-connector
+  - id: intent-customization
+    title: Generate custom Heady UI/UX projections from intent
+    outputs:
+      - app-layout
+      - connector-set
+      - automation-rules
+platform_capabilities:
+  dynamic_ui_generation: true
+  dynamic_connector_generation: true
+  cloud_projection_only: true
+  autonomous_monorepo_sync: true
+  huggingface_projection: true

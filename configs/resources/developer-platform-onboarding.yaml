@@ -1,0 +1,68 @@
+version: 1
+updated_at: 2026-03-04T00:00:00Z
+entrypoint:
+  url: https://headyme.com
+  experience: intent-driven-onboarding
+identity_flow:
+  auth_template: preconfigured-headybee-headyswarm-auth
+  providers:
+    - google
+    - github
+    - microsoft
+    - apple
+    - slack
+    - discord
+    - notion
+    - figma
+    - atlassian
+    - linear
+    - dropbox
+    - box
+    - salesforce
+    - hubspot
+    - stripe
+    - shopify
+    - twilio
+    - openai
+    - anthropic
+    - huggingface
+    - aws
+    - gcp
+    - azure
+    - cloudflare
+    - render
+    - vercel
+  remember_prior_grants: true
+  require_mfa_for_admin: true
+permissions:
+  cross_device_filesystem:
+    enabled: true
+    request_once: true
+    revocable: true
+    audit_log_required: true
+  cloud_projection_default: true
+one_click_install:
+  desktop: true
+  browser_extension: true
+  cli: true
+  sdk_bootstrap_command: npx heady-hive init
+headyme_email:
+  address_pattern: '{username}@headyme.com'
+  secure_client_optional: true
+  forwarding:
+    allow_provider_email_forward: true
+    allow_custom_email_forward: true
+customization:
+  setup_mode: intent-to-template
+  dynamic_outputs:
+    - custom-heady-ui
+    - connectors
+    - automations
+    - workflows
+    - sdk-starters
+runtime_projection:
+  projection_target_repos:
+    - github-monorepo
+    - huggingface-spaces
+  update_strategy: continuous-autonomous-projection
+  staleness_budget_ms: 1000

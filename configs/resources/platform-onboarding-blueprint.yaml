@@ -1,0 +1,74 @@
+version: 1
+updated_at: 2026-03-04T00:00:00Z
+entrypoint:
+  url: https://headyme.com
+  flow:
+    - landing
+    - auth-template
+    - permissions
+    - workspace-intent
+    - projection-activation
+
+auth_template:
+  provider_count_min: 25
+  orchestrators:
+    - HeadyBeeAuthTemplate
+    - HeadySwarmAuthMesh
+  providers:
+    - github
+    - google
+    - microsoft
+    - apple
+    - discord
+    - slack
+    - notion
+    - reddit
+    - spotify
+    - linkedin
+  session_policy:
+    skip_if_existing_session: true
+    mfa_optional: true
+
+headyme_identity:
+  pattern: "{username}@headyme.com"
+  secure_client_setup_optional: true
+  forwarding:
+    allow_auth_provider_email: true
+    allow_custom_forward_email: true
+
+permissions:
+  cross_device_filesystem:
+    require_explicit_consent: true
+    remember_prior_grants: true
+    least_privilege_scopes:
+      - project-root
+      - templates
+      - connectors
+  one_click_install:
+    enabled: true
+    methods:
+      - npx
+      - extension-link
+      - desktop-package
+
+customization:
+  intent_profiles:
+    - build-apps
+    - automate-workflows
+    - live-music-performance
+    - enterprise-orchestration
+  generated_surfaces:
+    - dynamic-ui
+    - connectors
+    - automations
+    - ops-dashboards
+
+runtime_model:
+  paradigm: vector-space-first
+  execution_pool:
+    colab_pro_plus_notebooks: 3
+    gpu_required: true
+  projection_targets:
+    - github-monorepo
+    - huggingface-sites
+    - headyme-auth-chat-entry
