@@ -27,6 +27,7 @@ heady {input}               →  Intelligent default processing
 | `deep-research` | `src/deep-research.js` (DeepResearchEngine) | `POST /api/buddy/deep-research` |
 | `deep-intel` | `src/hc_deep_intel.js` | — |
 | `deep-scan` | `src/hc_deep_scan.js` | — |
+| `analysis` | `src/hc_deep_scan.js` + `src/services/unified-enterprise-autonomy.js` | — |
 | `realtime-intelligence` | `src/services/realtime-intelligence-service.js` | — |
 | `scientist` | `src/hc_scientist.js` (HeadyScientist) | `/api/scientist/*` |
 
@@ -49,8 +50,11 @@ heady {input}               →  Intelligent default processing
 | `vector-ops` | `src/vector-space-ops.js` | `/api/vector/*` |
 | `vector-pipeline` | `src/vector-pipeline.js` | — |
 | `vector-federation` | `src/vector-federation.js` | — |
+| `embed` | `src/services/continuous-embedder.js` | `/api/embedder/*` |
+| `patent` | `src/patent-concept-registry.js` | `/api/patents/*` |
 | `spatial` | `src/services/spatial-embedder.js` | — |
 | `octree` | `src/services/octree-manager.js` | — |
+| `vault`, `keys` | `src/services/secure-key-vault.js` | `/api/vault/*` |
 
 ### Swarm & Bees
 
@@ -74,6 +78,7 @@ heady {input}               →  Intelligent default processing
 
 | Command | Service / Module | API Endpoint |
 |---|---|---|
+| `fs`, `device` | `src/services/cross-device-fs.js` | `/api/fs/*` |
 | `auth` | `src/hc_auth.js` | `/api/auth/*` |
 | `qa` | `src/hc_qa.js` (HeadyQA) | `/api/qa/*` |
 | `onboarding` | `src/services/onboarding-orchestrator.js` | `/api/onboarding/*` |

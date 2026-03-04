@@ -1,0 +1,196 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/concepts-index.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+#
+# Concept Index - Tracks implemented, planned, and public-domain patterns.
+# Consulted at every checkpoint for alignment and upgrade decisions.
+
+version: "2.0.0"
+
+# ─── IMPLEMENTED CONCEPTS ─────────────────────────────────────────────────
+implementedConcepts:
+  - id: orchestrator-promoter
+    name: Orchestrator-promoter Pattern
+    description: Central orchestrator with fine control over multi-agent coordination
+    location: heady-manager.js, src/hc_autobuild.js
+    status: active
+
+  - id: sacred-geometry-ui
+    name: Sacred Geometry Aesthetics
+    description: Rounded, organic, breathing UI patterns
+    location: public/, frontend/
+    status: active
+
+  - id: mcp-protocol
+    name: Model Context Protocol
+    description: MCP server for Copilot/AI integration
+    location: heady-manager.js
+    status: active
+
+  - id: deterministic-builds
+    name: Deterministic Build System
+    description: Same inputs produce same outputs across worktrees
+    location: hcautobuild.ps1, commit_and_build.ps1
+    status: active
+
+  - id: checkpoint-recovery
+    name: Checkpoint-Based Recovery
+    description: Pipeline state checkpoints with rollback capability
+    location: scripts/auto-checkpoint.ps1
+    status: active
+
+  - id: rate-limiting
+    name: Rate Limiting & Throttling
+    description: Sliding window rate limits on API endpoints
+    location: heady-manager.js
+    status: active
+
+  - id: multi-worktree
+    name: Multi-Worktree Architecture
+    description: Isolated development environments per system aspect
+    location: scripts/heady-layer.ps1
+    status: active
+
+  - id: direct-api-routing
+    name: Direct API Calls (No-Proxy)
+    description: Bypass proxies for Heady internal service calls
+    location: packages/networking/
+    status: active
+
+  - id: supervisor-pattern
+    name: Supervisor Multi-Agent Pattern
+    description: Direct routing to agents with parallel fan-out and aggregation
+    location: packages/hc-supervisor/
+    status: active
+
+  - id: system-brain
+    name: System Brain Meta-Controller
+    description: Central meta-controller owning catalogs, health, policies, concepts
+    location: packages/hc-brain/
+    status: active
+
+  - id: operational-readiness
+    name: Operational Readiness Evaluator
+    description: Scored readiness assessment at each checkpoint
+    location: packages/hc-readiness/
+    status: active
+
+  - id: claude-code-agent
+    name: Claude Code AI Agent
+    description: Claude Code CLI integrated as pipeline agent for code analysis, security audit, documentation, concept alignment, and task planning
+    location: src/hc_claude_agent.js
+    status: active
+
+  - id: hcfullpipeline-runtime
+    name: HCFullPipeline Runtime Engine
+    description: YAML-driven pipeline executor with topological stage ordering, checkpoints, stop rules, circuit breakers, and pluggable task handlers
+    location: src/hc_pipeline.js
+    status: active
+
+# ─── PLANNED CONCEPTS ─────────────────────────────────────────────────────
+plannedConcepts:
+  - id: saga-compensation
+    name: Saga / Workflow Compensation
+    description: Multi-step workflow undo/correct on partial failure
+    targetLocation: packages/hc-supervisor/src/saga.js
+    priority: high
+
+  - id: auto-tuning-loop
+    name: Auto-Tuning Loop
+    description: Periodic analysis of concurrency, batch sizes, cost to self-optimize
+    targetLocation: packages/hc-brain/src/autotuner.js
+    priority: medium
+
+  - id: hot-cold-path
+    name: Hot Path / Cold Path Separation
+    description: Separate queues and resource pools for latency-sensitive vs async work
+    targetLocation: packages/hc-supervisor/src/scheduler.js
+    priority: medium
+
+  - id: skill-based-routing
+    name: Skill-Based Agent Routing
+    description: Match tasks to agents by skill tags and health, not hard-coded names
+    targetLocation: packages/hc-supervisor/src/router.js
+    priority: high
+
+# ─── PUBLIC DOMAIN PATTERNS (available for integration) ───────────────────
+publicDomainPatterns:
+  - id: circuit-breaker
+    name: Circuit Breaker
+    description: Stop calling failing external services after threshold; periodically test
+    sources:
+      - "Martin Fowler: Circuit Breaker (martinfowler.com)"
+      - "Netflix Hystrix (github.com/Netflix/Hystrix)"
+    status: planned
+    applicability: External API calls, LLM providers
+
+  - id: retry-backoff-jitter
+    name: Retry with Exponential Backoff + Jitter
+    description: Avoid thundering herd; respect rate limits
+    sources:
+      - "AWS Architecture Blog: Exponential Backoff and Jitter"
+    status: implemented
+    applicability: All external HTTP calls
+
+  - id: bulkhead-isolation
+    name: Bulkhead / Isolation
+    description: Separate critical from noisy workloads to prevent starvation
+    sources:
+      - "Microsoft Azure Architecture: Bulkhead Pattern"
+    status: planned
+    applicability: Hot vs cold path separation
+
+  - id: idempotent-tasks
+    name: Idempotent Task Design
+    description: Safe retries without side effects on duplicate execution
+    sources:
+      - "Designing Data-Intensive Applications (Kleppmann)"
+    status: implemented
+    applicability: All pipeline tasks
+
+  - id: multi-agent-supervisor
+    name: Multi-Agent Supervisor
+    description: Central coordinator with agents-as-tools, parallel calls, centralized aggregation
+    sources:
+      - "LangGraph Supervisor Agent pattern"
+      - "AWS Bedrock Multi-Agent Orchestration"
+    status: implemented
+    applicability: HCFullPipeline execute stage
+
+  - id: event-sourcing
+    name: Event Sourcing
+    description: Store all state changes as immutable events for replay and audit
+    sources:
+      - "Martin Fowler: Event Sourcing"
+      - "Greg Young: CQRS and Event Sourcing"
+    status: planned
+    applicability: Audit logs, pipeline run history
+
+  - id: cqrs
+    name: Command Query Responsibility Segregation
+    description: Separate read and write models for optimal query performance
+    sources:
+      - "Microsoft CQRS Pattern Documentation"
+    status: planned
+    applicability: Dashboard reads vs pipeline writes
+
+  - id: observability-three-pillars
+    name: Logs + Metrics + Traces
+    description: Complete observability via structured logs, time-series metrics, distributed traces
+    sources:
+      - "OpenTelemetry (opentelemetry.io)"
+    status: planned
+    applicability: All services and agents
