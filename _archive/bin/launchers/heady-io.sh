@@ -1,7 +1,7 @@
 #!/bin/bash
 # HeadyIO — headyio.com Portal
 # Port: 4500
-APP_DIR="/home/headyme/CascadeProjects/headyio"
+APP_DIR="/home/headyme/HeadyClone/Heady-pre-production-9f2f0642/src/landing"
 PORT=4500
 LOG="/home/headyme/HeadyApps/logs/heady-io.log"
 mkdir -p "$(dirname "$LOG")"

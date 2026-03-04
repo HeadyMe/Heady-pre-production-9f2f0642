@@ -1,7 +1,7 @@
 #!/bin/bash
 # Heady Manager — Main Backend API Server
 # Port: 3300
-APP_DIR="/home/headyme/CascadeProjects/Heady"
+APP_DIR="/home/headyme/HeadyClone/Heady-pre-production-9f2f0642"
 PORT=3300
 LOG="/home/headyme/HeadyApps/logs/heady-manager.log"
 mkdir -p "$(dirname "$LOG")"

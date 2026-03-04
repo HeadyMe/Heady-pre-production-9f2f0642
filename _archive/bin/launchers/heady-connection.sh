@@ -1,7 +1,7 @@
 #!/bin/bash
 # HeadyConnection — headyconnection.org Portal
 # Port: 4600
-APP_DIR="/home/headyme/HeadyConnection/headyconnection-web"
+APP_DIR="/home/headyme/HeadyClone/Heady-pre-production-9f2f0642/src/landing"
 PORT=4600
 LOG="/home/headyme/HeadyApps/logs/heady-connection.log"
 mkdir -p "$(dirname "$LOG")"
