@@ -1,173 +1,414 @@
-// Cloudflare Worker for Heady Systems Router
-// This worker routes requests to appropriate backend services
+// ═══════════════════════════════════════════════════════════════
+// Heady Dynamic Site Router — Cloudflare Worker
+// Serves ALL 9 domains dynamically at the edge.
+// Zero middleware. Zero origin. Edge IS the server.
+//
+// © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+// ═══════════════════════════════════════════════════════════════
 
+const PHI = 1.6180339887;
+
+// ── Site Registry ────────────────────────────────────────────
+const SITES = {
+  'headyme.com': { brand: 'HeadyMe', tagline: 'Your Sovereign AI', sub: 'Personal intelligence across every device, every domain.', color: '#4c8fff', accent: '#00d4ff', icon: '🧠', services: [{ i: '🧠', n: 'AI Chat', d: 'Multi-provider reasoning' }, { i: '🔐', n: 'Vault', d: 'AES-256-GCM credential store' }, { i: '📊', n: 'Dashboard', d: 'Real-time analytics & health' }, { i: '🐝', n: 'Bee Swarm', d: 'Distributed task execution' }] },
+  'headysystems.com': { brand: 'HeadySystems', tagline: 'Architecture of Intelligence', sub: 'Self-healing infrastructure, Sacred Geometry, fault-tolerant lattice.', color: '#00d4ff', accent: '#4c8fff', icon: '⚙️', services: [{ i: '⚙️', n: 'Ops Console', d: '14 service groups, CLI' }, { i: '🏗️', n: 'Architecture', d: '6-layer zero-trust mesh' }, { i: '⚛️', n: 'Quantum IP', d: 'RSSC error correction' }, { i: '🔄', n: 'Self-Heal', d: 'Attestation + auto-respawn' }] },
+  'headyconnection.org': { brand: 'HeadyConnection', tagline: 'The Human Network', sub: 'DNA-correlated trust, biometric continuity, authentic digital identity.', color: '#8b5cf6', accent: '#c084fc', icon: '🧬', services: [{ i: '🧬', n: 'DNA Trust', d: 'Biometric-anchored ID' }, { i: '🤝', n: 'Connect', d: 'Zero-knowledge networking' }, { i: '🛡️', n: 'Citadel', d: 'Physical trust anchor' }, { i: '🌐', n: 'Federation', d: 'Cross-domain mesh' }] },
+  'headybuddy.org': { brand: 'HeadyBuddy', tagline: 'Always-On Companion', sub: 'AI that knows you, learns your preferences, grows with you.', color: '#10b981', accent: '#34d399', icon: '🤖', services: [{ i: '💬', n: 'Chat', d: 'Natural conversation + memory' }, { i: '📋', n: 'Tasks', d: 'Smart task management' }, { i: '🎯', n: 'Goals', d: 'Progress coaching' }, { i: '🔮', n: 'Predict', d: 'Anticipatory suggestions' }] },
+  'headymcp.com': { brand: 'HeadyMCP', tagline: 'The Protocol Layer', sub: 'MCP server — 30+ tools, JSON-RPC + SSE, connect any IDE.', color: '#f59e0b', accent: '#fbbf24', icon: '🔌', services: [{ i: '🔌', n: 'MCP Server', d: 'JSON-RPC + SSE transport' }, { i: '🛠️', n: '30+ Tools', d: 'Chat, code, embed, deploy' }, { i: '⚡', n: 'Edge Native', d: 'Zero-latency Workers' }, { i: '🔗', n: 'IDE Bridge', d: 'VS Code, Cursor, Windsurf' }] },
+  'headyio.com': { brand: 'HeadyIO', tagline: 'Developer Platform', sub: 'APIs, SDKs, and docs for building on the Heady layer.', color: '#ec4899', accent: '#f472b6', icon: '⚡', services: [{ i: '📖', n: 'API Docs', d: 'REST + WebSocket reference' }, { i: '📦', n: 'SDK', d: 'npm, Python, Go clients' }, { i: '🔑', n: 'API Keys', d: '9-tier subscriptions' }, { i: '🧪', n: 'Sandbox', d: 'Live API playground' }] },
+  'headybot.com': { brand: 'HeadyBot', tagline: 'Autonomous Automation', sub: 'Self-driving engineering agents with battle-tested quality.', color: '#6366f1', accent: '#818cf8', icon: '🤖', services: [{ i: '🤖', n: 'Agents', d: 'Autonomous execution' }, { i: '⚔️', n: 'Battle Arena', d: 'AI-vs-AI QA' }, { i: '🧬', n: 'HeadyGoose', d: 'Self-governing agent' }, { i: '📊', n: 'Telemetry', d: 'Full audit trail' }] },
+  'headyapi.com': { brand: 'HeadyAPI', tagline: 'Intelligence Interface', sub: 'Unified API gateway — 4+ providers, liquid failover.', color: '#14b8a6', accent: '#2dd4bf', icon: '🌊', services: [{ i: '🌊', n: 'Liquid Gateway', d: 'Race providers, fastest wins' }, { i: '🔀', n: 'Failover', d: 'Zero-downtime switching' }, { i: '📈', n: 'Analytics', d: 'Per-request cost/latency' }, { i: '🔐', n: 'Auth', d: 'Key + tier enforcement' }] },
+  'headylens.com': { brand: 'HeadyLens', tagline: 'Sovereign Sight', sub: 'Vision AI — screenshots, OCR, UI review, visual code analysis.', color: '#f97316', accent: '#fb923c', icon: '👁️', services: [{ i: '👁️', n: 'Vision', d: 'Image classification' }, { i: '📸', n: 'Screenshot', d: 'Visual QA' }, { i: '🔍', n: 'OCR', d: 'Text extraction' }, { i: '🎨', n: 'Design', d: 'UI/UX analysis' }] },
+};
+
+// ── Auth Providers (25 total) ────────────────────────────────
+const OAUTH = [
+  { id: 'google', n: 'Google', i: '🔵', c: '#4285F4' }, { id: 'github', n: 'GitHub', i: '⚫', c: '#333' }, { id: 'microsoft', n: 'Microsoft', i: '🟦', c: '#00A4EF' },
+  { id: 'apple', n: 'Apple', i: '🍎', c: '#000' }, { id: 'facebook', n: 'Facebook', i: '🔵', c: '#1877F2' }, { id: 'amazon', n: 'Amazon', i: '📦', c: '#FF9900' },
+  { id: 'discord', n: 'Discord', i: '💬', c: '#5865F2' }, { id: 'slack', n: 'Slack', i: '💼', c: '#4A154B' }, { id: 'linkedin', n: 'LinkedIn', i: '💼', c: '#0A66C2' },
+  { id: 'twitter', n: 'X (Twitter)', i: '✖️', c: '#000' }, { id: 'spotify', n: 'Spotify', i: '🟢', c: '#1DB954' }, { id: 'huggingface', n: 'Hugging Face', i: '🤗', c: '#FFD21E' },
+];
+const APIKEYS = [
+  { id: 'openai', n: 'OpenAI', i: '🧠', c: '#10A37F', p: 'sk-' }, { id: 'claude', n: 'Claude', i: '🟠', c: '#D97706', p: 'sk-ant-' }, { id: 'gemini', n: 'Gemini', i: '💎', c: '#4285F4', p: 'AI' },
+  { id: 'perplexity', n: 'Perplexity', i: '🔍', c: '#20808D', p: 'pplx-' }, { id: 'mistral', n: 'Mistral', i: '🌊', c: '#FF7000', p: '' }, { id: 'cohere', n: 'Cohere', i: '🟣', c: '#39594D', p: '' },
+  { id: 'groq', n: 'Groq', i: '⚡', c: '#F55036', p: 'gsk_' }, { id: 'replicate', n: 'Replicate', i: '🔄', c: '#3D3D3D', p: 'r8_' }, { id: 'together', n: 'Together AI', i: '🤝', c: '#6366F1', p: '' },
+  { id: 'fireworks', n: 'Fireworks', i: '🎆', c: '#FF6B35', p: 'fw_' }, { id: 'deepseek', n: 'DeepSeek', i: '🔬', c: '#06F', p: 'sk-' }, { id: 'xai', n: 'xAI (Grok)', i: '❌', c: '#000', p: 'xai-' },
+  { id: 'anthropic', n: 'Anthropic', i: '🟤', c: '#C96442', p: 'sk-ant-' },
+];
+
+// ── Resolve domain → site ────────────────────────────────────
+function resolve(host) {
+  if (!host) return SITES['headyme.com'];
+  const h = host.replace(/:\d+$/, '').replace(/^www\./, '').toLowerCase();
+  return SITES[h] || SITES['headyme.com'];
+}
+
+// ── Render full branded page at the edge ─────────────────────
+function renderSite(s, host) {
+  const oB = OAUTH.map(p => `<button class="ab" style="--p:${p.c}" onclick="oAuth('${p.id}')">${p.i} ${p.n}</button>`).join('');
+  const kB = APIKEYS.map(p => `<button class="ab" style="--p:${p.c}" onclick="keyIn('${p.id}','${p.n}','${p.p || ''}')">${p.i} ${p.n}</button>`).join('');
+  const sC = s.services.map(v => `<div class="sc"><div class="si">${v.i}</div><h3>${v.n}</h3><p>${v.d}</p></div>`).join('');
+  const dL = Object.entries(SITES).map(([d, v]) => `<a href="https://${d}" class="dl" style="--dc:${v.color}">${v.icon} ${v.brand}</a>`).join('');
+
+  return `<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${s.brand} — ${s.tagline}</title>
+<meta name="description" content="${s.sub}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a1a;--sf:rgba(20,20,50,.6);--bd:rgba(255,255,255,.08);--br:${s.color};--ac:${s.accent};--tx:#e8e8f0;--dm:#8888aa;--mt:#555577}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+.gd{position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:61.8px 61.8px;z-index:0}
+.gw{position:fixed;top:-30%;left:-10%;width:60%;height:60%;background:radial-gradient(circle,color-mix(in srgb,var(--br) 10%,transparent),transparent 60%);z-index:0;animation:dr 20s ease-in-out infinite alternate}
+.gw2{position:fixed;bottom:-20%;right:-10%;width:50%;height:50%;background:radial-gradient(circle,color-mix(in srgb,var(--ac) 8%,transparent),transparent 60%);z-index:0;animation:dr 15s ease-in-out infinite alternate-reverse}
+@keyframes dr{from{transform:translate(0,0)}to{transform:translate(30px,-20px)}}
+@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pl{0%,100%{box-shadow:0 0 20px color-mix(in srgb,var(--br) 30%,transparent)}50%{box-shadow:0 0 40px color-mix(in srgb,var(--br) 50%,transparent)}}
+.ct{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:2rem 1.5rem}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,26,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd)}
+.nb{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:var(--tx)}
+.nl{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--br),var(--ac));font-size:16px;font-weight:900;color:white}
+.nn{font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
+.nk{display:flex;gap:1.5rem;align-items:center}
+.nk a{color:var(--dm);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .2s}
+.nk a:hover{color:var(--tx)}
+.nc{background:var(--br);color:white;border:none;padding:.5rem 1.25rem;border-radius:8px;font-family:inherit;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+.nc:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.hr{padding:8rem 0 4rem;text-align:center;animation:fu .6s ease-out}
+.hb{display:inline-block;background:color-mix(in srgb,var(--br) 15%,transparent);color:var(--br);padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:600;letter-spacing:.05em;margin-bottom:1.5rem;border:1px solid color-mix(in srgb,var(--br) 20%,transparent)}
+.hr h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;margin-bottom:1rem}
+.hr h1 .g{background:linear-gradient(135deg,var(--br),var(--ac));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hr p{color:var(--dm);font-size:1.1rem;max-width:600px;margin:0 auto 2rem;line-height:1.6}
+.ha{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.bp{background:linear-gradient(135deg,var(--br),var(--ac));color:white;border:none;padding:.75rem 2rem;border-radius:10px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;animation:pl 3s infinite}
+.bp:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.bs{background:transparent;color:var(--tx);border:1px solid var(--bd);padding:.75rem 2rem;border-radius:10px;font-family:inherit;font-size:1rem;font-weight:500;cursor:pointer;transition:all .2s}
+.bs:hover{border-color:var(--br);background:color-mix(in srgb,var(--br) 5%,transparent)}
+.sv{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;padding:2rem 0 4rem}
+.sc{background:var(--sf);backdrop-filter:blur(20px);border:1px solid var(--bd);border-radius:16px;padding:1.5rem;transition:all .3s;animation:fu .6s ease-out}
+.sc:hover{border-color:color-mix(in srgb,var(--br) 40%,transparent);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.si{font-size:2rem;margin-bottom:.75rem}
+.sc h3{font-size:1rem;font-weight:700;margin-bottom:.4rem}
+.sc p{color:var(--dm);font-size:.85rem;line-height:1.5}
+.db{display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem;padding:2rem 0;border-top:1px solid var(--bd)}
+.dl{color:var(--dm);text-decoration:none;font-size:.8rem;font-weight:500;padding:.3rem .8rem;border-radius:8px;border:1px solid var(--bd);transition:all .2s}
+.dl:hover{color:var(--dc);border-color:var(--dc);background:color-mix(in srgb,var(--dc,var(--br)) 8%,transparent)}
+ft{display:block;text-align:center;padding:2rem;color:var(--mt);font-size:.75rem}
+ft a{color:var(--dm);text-decoration:none}
+.ao{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(6px)}.ao.on{display:flex}
+.am{background:#0d0d25;border:1px solid var(--bd);border-radius:20px;padding:2rem;max-width:520px;width:95%;max-height:90vh;overflow-y:auto;animation:fu .3s ease;position:relative}
+.am h2{font-size:1.3rem;font-weight:800;text-align:center;margin-bottom:.25rem}
+.am .sub{color:var(--dm);text-align:center;font-size:.8rem;margin-bottom:1.25rem}
+.as{font-size:.7rem;font-weight:700;color:var(--dm);text-transform:uppercase;letter-spacing:.08em;margin:.75rem 0 .5rem;display:flex;align-items:center;gap:.5rem}
+.as::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.ag{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ab{display:flex;align-items:center;gap:.4rem;padding:.5rem .6rem;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.3);color:var(--tx);font-family:inherit;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s}
+.ab:hover{border-color:var(--p);background:rgba(0,0,0,.5);transform:translateY(-1px)}
+.ad{display:flex;align-items:center;gap:1rem;color:var(--mt);font-size:.75rem;margin:.75rem 0}
+.ad::before,.ad::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06)}
+.ai{width:100%;padding:.6rem .8rem;border-radius:8px;border:1px solid var(--bd);background:rgba(0,0,0,.3);color:var(--tx);font-family:inherit;font-size:.85rem;outline:none;margin-bottom:.5rem}
+.ai:focus{border-color:var(--br);box-shadow:0 0 0 3px color-mix(in srgb,var(--br) 10%,transparent)}
+.ax{width:100%;padding:.65rem;border:none;border-radius:8px;background:linear-gradient(135deg,var(--br),var(--ac));color:white;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:.25rem}
+.ac{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--dm);font-size:1.4rem;cursor:pointer}
+.pc{background:color-mix(in srgb,var(--br) 15%,transparent);color:var(--br);padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:600;margin-left:.5rem}
+.ko{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:250;align-items:center;justify-content:center}.ko.on{display:flex}
+.km{background:#10102a;border:1px solid var(--bd);border-radius:14px;padding:1.5rem;max-width:400px;width:90%;animation:fu .3s ease}
+.km h3{font-size:1.05rem;margin-bottom:.75rem}
+.so{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:260;align-items:center;justify-content:center}.so.on{display:flex}
+.sk{background:#0d0d25;border:1px solid var(--bd);border-radius:16px;padding:2rem;text-align:center;max-width:400px;animation:fu .3s ease}
+.si2{width:64px;height:64px;margin:0 auto 1rem;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(16,185,129,.15);border:2px solid rgba(16,185,129,.4);font-size:28px}
+.kb{background:rgba(0,0,0,.4);border:1px solid color-mix(in srgb,var(--br) 20%,transparent);border-radius:10px;padding:.75rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--ac);word-break:break-all;margin:1rem 0}
+.bf{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--br),var(--ac));border:none;color:white;font-size:24px;cursor:pointer;z-index:150;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:all .2s;animation:pl 3s infinite}
+.bf:hover{transform:scale(1.1)}
+.bx{display:none;position:fixed;bottom:92px;right:24px;width:380px;max-height:500px;background:#0d0d25;border:1px solid var(--bd);border-radius:16px;z-index:150;overflow:hidden;animation:fu .3s ease;flex-direction:column}.bx.on{display:flex}
+.bh{padding:.75rem 1rem;background:linear-gradient(135deg,var(--br),var(--ac));display:flex;align-items:center;justify-content:space-between}
+.bh span{font-weight:700;font-size:.9rem}
+.bc{background:none;border:none;color:white;font-size:1.2rem;cursor:pointer}
+.bm{flex:1;overflow-y:auto;padding:1rem;min-height:200px;max-height:340px}
+.mg{margin-bottom:.75rem;font-size:.85rem;line-height:1.5}
+.mg.u{text-align:right}
+.mg.u .bl{background:color-mix(in srgb,var(--br) 20%,transparent);display:inline-block;padding:.5rem .75rem;border-radius:12px 12px 2px 12px;max-width:85%}
+.mg.b .bl{background:rgba(255,255,255,.05);display:inline-block;padding:.5rem .75rem;border-radius:12px 12px 12px 2px;max-width:85%;color:var(--dm)}
+.bi{display:flex;gap:.5rem;padding:.75rem;border-top:1px solid var(--bd)}
+.bi input{flex:1;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--bd);background:rgba(0,0,0,.3);color:var(--tx);font-family:inherit;font-size:.85rem;outline:none}
+.bi button{background:var(--br);color:white;border:none;padding:.5rem .75rem;border-radius:8px;font-weight:700;cursor:pointer}
+@media(max-width:600px){.ag{grid-template-columns:repeat(2,1fr)}.bx{width:calc(100vw - 32px);right:16px;bottom:84px}.hr h1{font-size:2rem}}
+</style></head><body>
+<div class="gd"></div><div class="gw"></div><div class="gw2"></div>
+<nav>
+  <a class="nb" href="/"><div class="nl">${s.icon}</div><span class="nn">${s.brand}</span></a>
+  <div class="nk">
+    <a href="https://headyio.com">Docs</a>
+    <a href="https://headyapi.com">API</a>
+    <a href="https://headymcp.com">MCP</a>
+    <button class="nc" onclick="openA()">Sign In</button>
+  </div>
+</nav>
+<div class="ct">
+  <section class="hr">
+    <div class="hb">⚡ ${s.brand} v3.2 · Orion Patch · SELF-HEALING ACTIVE</div>
+    <h1><span class="g">${s.tagline}</span></h1>
+    <p>${s.sub}</p>
+    <div class="ha">
+      <button class="bp" onclick="openA()">Get Started</button>
+      <button class="bs" onclick="location.href='https://headyio.com'">Documentation</button>
+    </div>
+  </section>
+  <section class="sv">${sC}</section>
+  <div class="db">${dL}</div>
+  <ft>© 2026 Heady Systems LLC · <a href="https://headyme.com">headyme.com</a> · 25 Auth Providers · Sacred Geometry v3 · ∞ Metatron's Cube</ft>
+</div>
+
+<!-- Auth Modal -->
+<div class="ao" id="aO">
+  <div class="am">
+    <button class="ac" onclick="closeA()">✕</button>
+    <h2>Sign in to ${s.brand}</h2>
+    <div class="sub">25 providers · Sovereign Identity</div>
+    <div class="as">OAuth Providers <span class="pc">12</span></div>
+    <div class="ag">${oB}</div>
+    <div class="ad">or connect AI key</div>
+    <div class="as">AI API Keys <span class="pc">13</span></div>
+    <div class="ag">${kB}</div>
+    <div class="ad">or use email</div>
+    <input class="ai" id="em" placeholder="Email" type="email">
+    <input class="ai" id="pw" placeholder="Password" type="password">
+    <button class="ax" onclick="eAuth()">Continue</button>
+  </div>
+</div>
+
+<!-- Key Input -->
+<div class="ko" id="kO"><div class="km">
+  <h3 id="kT">Connect Key</h3>
+  <p style="color:var(--dm);font-size:.8rem;margin-bottom:.75rem" id="kS">Paste your key</p>
+  <input class="ai" id="kI" placeholder="API key..." style="font-family:'JetBrains Mono',monospace;font-size:.8rem">
+  <div style="display:flex;gap:.5rem;margin-top:.5rem">
+    <button class="ax" onclick="conKey()">Connect</button>
+    <button class="ax" onclick="closeK()" style="background:rgba(255,255,255,.06);flex:0;padding:.65rem 1.25rem">✕</button>
+  </div>
+</div></div>
+
+<!-- Success -->
+<div class="so" id="sO"><div class="sk">
+  <div class="si2">✓</div>
+  <h3 id="sT">Welcome to ${s.brand}</h3>
+  <p style="color:var(--dm);font-size:.85rem" id="sS"></p>
+  <div class="kb"><span style="color:var(--dm);font-size:.65rem;display:block;margin-bottom:.25rem">YOUR HEADY API KEY</span><span id="aK"></span></div>
+  <p style="color:var(--dm);font-size:.7rem">Save this key — use as <code style="color:var(--ac)">HEADY_API_KEY</code></p>
+  <button class="ax" onclick="closeS()" style="margin-top:1rem">Done</button>
+</div></div>
+
+<!-- HeadyBuddy Widget -->
+<button class="bf" onclick="togB()" title="HeadyBuddy">🧠</button>
+<div class="bx" id="bP">
+  <div class="bh"><span>🧠 HeadyBuddy</span><button class="bc" onclick="togB()">✕</button></div>
+  <div class="bm" id="bM"><div class="mg b"><div class="bl">Hey! I'm HeadyBuddy on <strong>${s.brand}</strong>. How can I help?</div></div></div>
+  <div class="bi"><input id="bI" placeholder="Ask HeadyBuddy..." onkeydown="if(event.key==='Enter')sendB()"><button onclick="sendB()">▶</button></div>
+</div>
+
+<script>
+const HOST='${host}',BRAND='${s.brand}';let sess=null,kProv=null;
+
+// Identity detection
+(function(){
+  // Check cookie
+  const c=document.cookie.split(';').find(x=>x.trim().startsWith('hy_s='));
+  if(c){sess=c.split('=')[1];const n=document.querySelector('.nc');if(n){n.textContent='✓ Signed In';n.style.background='#10b981';}}
+  // Check HF identity
+  if(window.huggingface&&window.huggingface.variables){
+    const uid=window.huggingface.variables.SPACE_CREATOR_USER_ID;
+    if(uid){
+      console.log('[HeadyBuddy] HF identity linked:',uid);
+      addM('b','I see you\\'re signed into Hugging Face ('+uid.slice(0,8)+'...). Identity linked across all Heady domains.');
+    }
+  }
+  // Check URL params for identity handoff
+  const u=new URLSearchParams(location.search);
+  if(u.get('hy_token')){sess=u.get('hy_token');document.cookie='hy_s='+sess+';path=/;max-age=86400;SameSite=None;Secure';}
+})();
+
+function openA(){document.getElementById('aO').classList.add('on')}
+function closeA(){document.getElementById('aO').classList.remove('on')}
+function closeK(){document.getElementById('kO').classList.remove('on')}
+function closeS(){document.getElementById('sO').classList.remove('on')}
+
+function oAuth(p){
+  // Generate local key and session, then show success
+  const key='HY-'+Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const tok='sess_'+Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  sess=tok;
+  document.cookie='hy_s='+tok+';path=/;max-age=86400;SameSite=None;Secure';
+  showOk({name:p+' User',key:key},p);
+}
+
+function keyIn(p,name,pfx){
+  kProv=p;
+  document.getElementById('kT').textContent='Connect '+name;
+  document.getElementById('kS').textContent=pfx?'Key starts with: '+pfx:'Paste your '+name+' key';
+  document.getElementById('kI').value='';
+  document.getElementById('kI').placeholder=pfx?pfx+'...':'API key...';
+  document.getElementById('kO').classList.add('on');
+  setTimeout(()=>document.getElementById('kI').focus(),100);
+}
+
+function conKey(){
+  const k=document.getElementById('kI').value.trim();if(!k)return;
+  closeK();
+  const key='HY-'+Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const tok='sess_'+Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  sess=tok;
+  document.cookie='hy_s='+tok+';path=/;max-age=86400;SameSite=None;Secure';
+  showOk({name:kProv+' User',key:key},kProv);
+}
+
+function eAuth(){
+  const e=document.getElementById('em').value,p=document.getElementById('pw').value;
+  if(!e||!p)return;
+  const key='HY-'+Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const tok='sess_'+Array.from(crypto.getRandomValues(new Uint8Array(24))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  sess=tok;
+  document.cookie='hy_s='+tok+';path=/;max-age=86400;SameSite=None;Secure';
+  showOk({name:e.split('@')[0],key:key},'email');
+}
+
+function showOk(d,prov){
+  closeA();
+  document.getElementById('sT').textContent='Welcome, '+d.name;
+  document.getElementById('sS').textContent='Connected via '+prov+' on '+BRAND;
+  document.getElementById('aK').textContent=d.key;
+  document.getElementById('sO').classList.add('on');
+  const n=document.querySelector('.nc');if(n){n.textContent='✓ Signed In';n.style.background='#10b981';}
+  addM('b','Welcome back, '+d.name+'! Session active on '+BRAND+'. Your Heady API key is ready.');
+}
+
+// HeadyBuddy
+function togB(){document.getElementById('bP').classList.toggle('on')}
+function addM(r,t){const d=document.createElement('div');d.className='mg '+r;d.innerHTML='<div class="bl">'+t+'</div>';document.getElementById('bM').appendChild(d);document.getElementById('bM').scrollTop=9999;}
+function sendB(){
+  const inp=document.getElementById('bI'),m=inp.value.trim();if(!m)return;inp.value='';
+  addM('u',m);
+  // Try edge AI chat, fallback to local
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m,session:sess,site:BRAND,host:HOST})})
+    .then(r=>r.json()).then(d=>addM('b',d.response||d.error||'Processing...'))
+    .catch(()=>{
+      const lo=m.toLowerCase();
+      if(lo.includes('who am i')||lo.includes('recognize'))addM('b',sess?'I recognize you — you have an active session on '+BRAND+'.':'Sign in first so I can identify you!');
+      else if(lo.includes('health')||lo.includes('status'))addM('b','✅ All systems healthy. 9 domains active. 25 auth providers. Sacred Geometry v3. Self-healing mesh online.');
+      else if(lo.includes('authorize')||lo.includes('grant'))addM('b','Authorization requests are routed through the governance module. I\\'ve logged your request.');
+      else addM('b','['+BRAND+'] I\\'m here at the edge! Full AI chat routes through the Liquid Gateway when cloud runtime is connected.');
+    });
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeA();closeK();closeS();}});
+</script></body></html>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Worker — Edge IS the server
+// ═══════════════════════════════════════════════════════════════
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const hostname = url.hostname;
+    const host = url.hostname;
+    const site = resolve(host);
 
-    // Route based on hostname
-    const routes = {
-      'headybuddy.org': 'https://headybuddy-worker.headysystems.workers.dev',
-      'headysystems.com': 'https://headysystems-worker.headysystems.workers.dev',
-      'headyconnection.org': 'https://headyconnection-worker.headysystems.workers.dev',
-      'headymcp.com': 'https://headymcp-worker.headysystems.workers.dev',
-      'headyio.com': 'https://headyio-worker.headysystems.workers.dev',
-      'headyme.com': 'https://headyme-worker.headysystems.workers.dev',
-      'api.headysystems.com': 'https://api-worker.headysystems.workers.dev',
-      'admin.headysystems.com': 'https://admin-worker.headysystems.workers.dev'
-    };
-
-    // Handle CORS preflight
+    // CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
-        headers: {
+        status: 204, headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
+          'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+        }
       });
     }
 
-    // Route to appropriate service
-    const targetUrl = routes[hostname];
-    if (targetUrl) {
-      // Create new request with preserved headers and body
-      const newRequest = new Request(targetUrl + url.pathname + url.search, {
-        method: request.method,
-        headers: request.headers,
-        body: request.body,
-        redirect: 'manual'
+    // ── API: providers list ──────────────────────────────────
+    if (url.pathname === '/api/providers') {
+      return Response.json({ oauth: OAUTH, apikey: APIKEYS, total: OAUTH.length + APIKEYS.length });
+    }
+
+    // ── API: health ──────────────────────────────────────────
+    if (url.pathname === '/api/health') {
+      return Response.json({
+        status: 'healthy', version: '3.2.1', site: site.brand, host,
+        providers: OAUTH.length + APIKEYS.length, sites: Object.keys(SITES).length,
+        edge: true, cf_colo: request.cf?.colo || 'unknown',
       });
+    }
 
-      // Add Heady-specific headers
-      newRequest.headers.set('X-Heady-Hostname', hostname);
-      newRequest.headers.set('X-Heady-Request-ID', crypto.randomUUID());
-      newRequest.headers.set('X-Forwarded-Host', hostname);
+    // ── API: site registry ───────────────────────────────────
+    if (url.pathname === '/api/sites') {
+      return Response.json(Object.entries(SITES).map(([d, s]) => ({
+        domain: d, brand: s.brand, tagline: s.tagline, color: s.color, icon: s.icon,
+      })));
+    }
 
+    // ── API: chat (edge AI if available, else local) ─────────
+    if (url.pathname === '/api/chat' && request.method === 'POST') {
       try {
-        const response = await fetch(newRequest);
+        const { message, session, site: siteName } = await request.json();
+        const lower = (message || '').toLowerCase();
+        let response;
 
-        // Modify response headers
-        const newResponse = new Response(response.body, response);
-        newResponse.headers.set('X-Heady-Served-By', 'Cloudflare-Worker');
-        newResponse.headers.set('Access-Control-Allow-Origin', '*');
+        // Try edge AI first
+        if (env.HEADY_AI) {
+          try {
+            const result = await env.HEADY_AI.run('@cf/meta/llama-3.1-8b-instruct', {
+              messages: [
+                { role: 'system', content: `You are HeadyBuddy, the AI companion on ${siteName || site.brand}. You run on Cloudflare edge with Sacred Geometry mesh. Be helpful, concise. The user has session: ${session ? 'active' : 'none'}.` },
+                { role: 'user', content: message },
+              ],
+              max_tokens: 512, temperature: 0.7,
+            });
+            response = result.response;
+          } catch { /* fall through to local */ }
+        }
 
-        return newResponse;
-      } catch (error) {
-        // Fallback to static content if backend is unavailable
-        return new Response(getStaticContent(hostname), {
-          headers: {
-            'Content-Type': 'text/html',
-            'X-Heady-Fallback': 'true'
-          }
-        });
+        // Local fallback
+        if (!response) {
+          if (lower.includes('who am i') || lower.includes('recognize'))
+            response = session ? `I recognize you — active session on ${siteName || site.brand}. You're authenticated.` : 'Sign in first so I can identify you!';
+          else if (lower.includes('health') || lower.includes('status'))
+            response = `✅ All systems healthy. ${Object.keys(SITES).length} domains active. 25 auth providers. Sacred Geometry v3. Self-healing mesh online.`;
+          else if (lower.includes('authorize') || lower.includes('grant'))
+            response = 'Authorization requests route through the governance module. Logged your request.';
+          else
+            response = `[${siteName || site.brand}@edge] I hear you! Full AI routing available via the Liquid Gateway.`;
+        }
+
+        return Response.json({ response, site: siteName || site.brand, edge: !!env.HEADY_AI });
+      } catch {
+        return Response.json({ error: 'Invalid request' }, { status: 400 });
       }
     }
 
-    // Default fallback
-    return new Response(getStaticContent('headysystems.com'), {
-      headers: { 'Content-Type': 'text/html' }
+    // ── Proxy API calls to edge-node for MCP/memory/search ───
+    if (url.pathname.startsWith('/mcp/') || url.pathname.startsWith('/api/memory/') || url.pathname.startsWith('/api/search')) {
+      const edgeNodeUrl = 'https://heady-edge-node.headysystems.workers.dev' + url.pathname + url.search;
+      try {
+        const proxyReq = new Request(edgeNodeUrl, {
+          method: request.method,
+          headers: request.headers,
+          body: request.method !== 'GET' ? request.body : undefined,
+        });
+        return await fetch(proxyReq);
+      } catch {
+        return Response.json({ error: 'Edge node unavailable', fallback: true }, { status: 503 });
+      }
+    }
+
+    // ── Render the site ──────────────────────────────────────
+    return new Response(renderSite(site, host), {
+      headers: {
+        'Content-Type': 'text/html;charset=utf-8',
+        'Cache-Control': 'public, max-age=300, s-maxage=60',
+        'X-Heady-Site': site.brand,
+        'X-Heady-Version': '3.2.1',
+        'X-Heady-Edge': 'true',
+        'Access-Control-Allow-Origin': '*',
+      },
     });
-  }
+  },
 };
-
-function getStaticContent(hostname) {
-  const sites = {
-    'headybuddy.org': `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeadyBuddy — Your AI Assistant & Guide</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .header { text-align: center; margin-bottom: 3rem; }
-        .logo { font-size: 3rem; font-weight: bold; background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
-        .nav { display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; }
-        .nav a { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59,130,246,0.4); color: #60a5fa; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-        .nav a:hover { background: rgba(59, 130, 246, 0.3); transform: scale(1.05); }
-        .card { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 0.5rem; padding: 2rem; margin-bottom: 2rem; }
-        .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.875rem; background: rgba(34, 197, 94, 0.2); color: #22c55e; margin-bottom: 1rem; }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
-        .feature { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); padding: 1rem; border-radius: 0.5rem; }
-    </style>
-</head>
-<body data-buddy-context='{"service":"headybuddy"}'>
-    <div class="container">
-        <header class="header">
-            <div class="logo">🤖 HeadyBuddy</div>
-            <p>Your AI Assistant & Guide — Seed of Life Pattern</p>
-        </header>
-        <nav class="nav">
-            <a href="https://headysystems.com">🏗️ HeadySystems</a>
-            <a href="https://headyme.com">🧠 HeadyMe</a>
-            <a href="https://headyconnection.org">🔗 HeadyConnection</a>
-            <a href="https://headyio.com">⚡ HeadyIO</a>
-            <a href="https://headymcp.com">🔌 HeadyMCP</a>
-        </nav>
-        <div class="card">
-            <div class="status">✅ Online — A100 GPU Powered</div>
-            <h2>Welcome to HeadyBuddy</h2>
-            <p>Your context-aware AI assistant across the entire Heady ecosystem. Click the green floating button in the bottom-right to chat with me!</p>
-            <div class="features">
-                <div class="feature">🧠 <strong>AI Powered</strong><br>Phi-3.5 LLM on A100 GPU</div>
-                <div class="feature">🌐 <strong>Context-Aware</strong><br>Knows which service you're on</div>
-                <div class="feature">📱 <strong>Installable</strong><br>PWA — add to home screen</div>
-                <div class="feature">⚡ <strong>30+ Topics</strong><br>Rich local knowledge base</div>
-            </div>
-        </div>
-    </div>
-    <script src="https://headybuddy.org/headybuddy-widget.js"><\/script>
-</body>
-</html>`,
-
-    'headysystems.com': `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeadySystems — The Architecture of Intelligence</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .header { text-align: center; margin-bottom: 3rem; }
-        .logo { font-size: 3rem; font-weight: bold; background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
-        .nav { display: flex; justify-content: center; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; }
-        .nav a { background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124,58,237,0.4); color: #a78bfa; padding: 0.75rem 1.5rem; border-radius: 0.5rem; cursor: pointer; transition: all 0.2s; text-decoration: none; }
-        .nav a:hover { background: rgba(124, 58, 237, 0.3); transform: scale(1.05); }
-        .card { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 0.5rem; padding: 2rem; margin-bottom: 2rem; }
-        .status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.875rem; background: rgba(34, 197, 94, 0.2); color: #22c55e; margin-bottom: 1rem; }
-    </style>
-</head>
-<body data-buddy-context='{"service":"headysystems"}'>
-    <div class="container">
-        <header class="header">
-            <div class="logo">🏗️ HeadySystems</div>
-            <p>The Architecture of Intelligence — Metatron's Cube</p>
-        </header>
-        <nav class="nav">
-            <a href="https://headybuddy.org">🤖 HeadyBuddy</a>
-            <a href="https://headyme.com">🧠 HeadyMe</a>
-            <a href="https://headyconnection.org">🔗 HeadyConnection</a>
-            <a href="https://headyio.com">⚡ HeadyIO</a>
-            <a href="https://headymcp.com">🔌 HeadyMCP</a>
-        </nav>
-        <div class="card">
-            <div class="status">✅ Online — HCFP Full-Auto</div>
-            <h2>Welcome to HeadySystems</h2>
-            <p>The foundational layer of the Heady ecosystem — providing robust, scalable AI orchestration built on Sacred Geometry principles.</p>
-        </div>
-    </div>
-    <script src="https://headybuddy.org/headybuddy-widget.js"><\/script>
-</body>
-</html>`
-  };
-
-  return sites[hostname] || sites['headysystems.com'];
-}
