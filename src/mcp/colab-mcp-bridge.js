@@ -24,7 +24,7 @@ const crypto = require('crypto');
 const path = require('path');
 
 // ── Configuration ────────────────────────────────────────────────
-const PORT = parseInt(process.env.HEADY_MCP_PORT || '8420');
+const PORT = parseInt(process.env.PORT || process.env.HEADY_MCP_PORT || '8420');
 const TRANSPORT = process.env.HEADY_MCP_TRANSPORT || 'all';
 const HEADY_DIR = process.env.HEADY_DIR || path.join(__dirname, '..', '..');
 

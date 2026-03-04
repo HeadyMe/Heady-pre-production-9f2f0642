@@ -1,0 +1,14 @@
+# Cloud Run deploy ignore
+_archive/
+.git/
+node_modules/
+.gemini/
+notebooks/
+docs/
+scripts/
+*.md
+*.ipynb
+.env*
+*.log
+data/vector-shards/
+data/telemetry/
