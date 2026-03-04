@@ -10,6 +10,21 @@
 
 const { createBee, spawnBee } = require('./bee-factory');
 
+const ENTERPRISE_TASK_PATTERNS = [
+    {
+        pattern: /(?:must|need to|should|required to|critical to)\s+([^.!?\n]{12,260})/gi,
+        source: 'directive',
+    },
+    {
+        pattern: /(?:implementation of|integrating|enabling|transitioning to)\s+([^.!?\n]{12,260})/gi,
+        source: 'implementation',
+    },
+    {
+        pattern: /(?:immediate|phase\s*\d+|non-negotiable|before production)\s*[:\-]?\s*([^\n]{12,260})/gi,
+        source: 'timeline',
+    },
+];
+
 // ═══════════════════════════════════════════════════════════════
 // HeadyBee: input-task-extractor
 // Parses any text input and extracts actionable items
@@ -39,24 +54,27 @@ const inputTaskExtractor = createBee('input-task-extractor', {
             for (const pattern of actionPatterns) {
                 let match;
                 while ((match = pattern.exec(input)) !== null) {
-                    const task = match[1].trim();
-                    if (task.length > 10 && task.length < 300 && !tasks.some(t => t.text === task)) {
-                        tasks.push({
-                            text: task,
-                            priority: classifyPriority(task),
-                            category: classifyCategory(task),
-                            source: 'pattern-match',
-                        });
+                    const text = match[1].trim();
+                    if (text.length > 10 && text.length < 300) {
+                        if (!tasks.some(t => t.text === text)) {
+                            tasks.push({
+                                text,
+                                priority: classifyPriority(text),
+                                category: classifyCategory(text),
+                                source: 'action-pattern',
+                            });
+                        }
                     }
                 }
             }
 
-            // Pattern 2: Imperative sentences (commands)
+            // Pattern 2: Imperative sentences (Deploy X, Build Y, Fix Z)
             const imperativeVerbs = [
                 'deploy', 'build', 'create', 'fix', 'update', 'launch', 'configure',
-                'set up', 'implement', 'test', 'verify', 'write', 'publish', 'release',
+                'set', 'implement', 'test', 'verify', 'write', 'publish', 'release',
                 'push', 'remove', 'add', 'enable', 'disable', 'migrate', 'refactor',
-                'resolve', 'unify', 'formalize', 'move', 'cease', 'focus', 'ensure',
+                'upgrade', 'install', 'monitor', 'audit', 'scan', 'review', 'merge',
+                'integrate', 'optimize', 'secure', 'validate', 'connect', 'register',
             ];
 
             for (const line of lines) {
@@ -87,7 +105,11 @@ const inputTaskExtractor = createBee('input-task-extractor', {
             }
 
             // Deduplicate by fuzzy similarity
-            const deduped = deduplicateTasks(tasks);
+            const deduped = deduplicateTasks(tasks).map((task) => ({
+                ...task,
+                enterpriseTrack: classifyEnterpriseTrack(task.text),
+                impact: classifyImpact(task.text),
+            }));
 
             console.log(`🐝 input-task-extractor: found ${deduped.length} tasks`);
             return { tasks: deduped, inputLength: input.length };
@@ -139,6 +161,23 @@ function classifyCategory(text) {
     return 'ops';
 }
 
+function classifyEnterpriseTrack(text) {
+    const lower = text.toLowerCase();
+    if (lower.match(/secret|credential|zero trust|mtls|vault|warp|token|auth/)) return 'security-hardening';
+    if (lower.match(/pipeline|ci|cd|build|deploy|script|workflow|audit/)) return 'delivery-automation';
+    if (lower.match(/health|monitor|observability|logging|telemetry/)) return 'observability';
+    if (lower.match(/redis|cache|latency|edge|routing|mesh|proxy|performance/)) return 'reliability-performance';
+    if (lower.match(/ui|projection|template|render|frontend|bundle/)) return 'experience-delivery';
+    return 'platform-foundation';
+}
+
+function classifyImpact(text) {
+    const lower = text.toLowerCase();
+    if (lower.match(/critical|immediate|non-negotiable|must|block|highly critical/)) return 'high';
+    if (lower.match(/should|optimi|improve|transition|refactor/)) return 'medium';
+    return 'low';
+}
+
 function deduplicateTasks(tasks) {
     const seen = new Set();
     return tasks.filter(t => {
@@ -147,6 +186,48 @@ function deduplicateTasks(tasks) {
         seen.add(key);
         return true;
     });
+}
+
+function extractEnterpriseTasksFromArchitecture(input = '') {
+    if (!input || typeof input !== 'string') {
+        return { tasks: [], summary: { total: 0, byTrack: {}, byImpact: {} } };
+    }
+
+    const tasks = [];
+    for (const { pattern, source } of ENTERPRISE_TASK_PATTERNS) {
+        let match;
+        while ((match = pattern.exec(input)) !== null) {
+            const text = match[1].replace(/\s+/g, ' ').trim();
+            if (text.length < 12) continue;
+            tasks.push({
+                text,
+                source,
+                category: classifyCategory(text),
+                priority: classifyPriority(text),
+                enterpriseTrack: classifyEnterpriseTrack(text),
+                impact: classifyImpact(text),
+            });
+        }
+    }
+
+    const deduped = deduplicateTasks(tasks);
+    const byTrack = deduped.reduce((acc, task) => {
+        acc[task.enterpriseTrack] = (acc[task.enterpriseTrack] || 0) + 1;
+        return acc;
+    }, {});
+    const byImpact = deduped.reduce((acc, task) => {
+        acc[task.impact] = (acc[task.impact] || 0) + 1;
+        return acc;
+    }, {});
+
+    return {
+        tasks: deduped,
+        summary: {
+            total: deduped.length,
+            byTrack,
+            byImpact,
+        },
+    };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -180,8 +261,11 @@ function extractFromStrategicReport() {
 module.exports = {
     inputTaskExtractor,
     extractFromStrategicReport,
+    extractEnterpriseTasksFromArchitecture,
     classifyPriority,
     classifyCategory,
+    classifyEnterpriseTrack,
+    classifyImpact,
 };
 
 // Auto-extract on load

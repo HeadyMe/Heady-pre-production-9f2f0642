@@ -18,6 +18,8 @@
 const crypto = require("crypto");
 const logger = require("./utils/logger");
 const EventEmitter = require("events");
+const fs = require("fs");
+const path = require("path");
 
 class CrossDeviceSyncHub extends EventEmitter {
     constructor(opts = {}) {
@@ -26,8 +28,24 @@ class CrossDeviceSyncHub extends EventEmitter {
         this.sessions = new Map();      // sessionId → { deviceId, context, startedAt }
         this.sharedContext = new Map();  // key → { value, updatedBy, updatedAt }
         this.heartbeatInterval = opts.heartbeatInterval || 30000;
+        this.maxMessageBytes = opts.maxMessageBytes || 64 * 1024;
+        this.maxMessagesPerMinute = opts.maxMessagesPerMinute || 300;
+        this.requireAuthToken = opts.requireAuthToken || process.env.HEADY_SYNC_REQUIRE_TOKEN === "true";
+        this.sharedToken = opts.sharedToken || process.env.HEADY_SYNC_SHARED_TOKEN || null;
         this._heartbeatTimer = null;
         this._messageCount = 0;
+        this._rejectedMessageCount = 0;
+        this._rateWindows = new Map();
+        this.storePath = opts.storePath || path.join(__dirname, "..", "data", "cross-device-sync-store.json");
+        this.vectorMemory = opts.vectorMemory || null;
+        if (!this.vectorMemory) {
+            try {
+                this.vectorMemory = require("./vector-memory");
+            } catch { }
+        }
+        this._persistTimer = null;
+        this._persistentState = { users: {}, workspaces: {}, lastUpdatedAt: null };
+        this._loadPersistentState();
     }
 
     /**
@@ -46,14 +64,27 @@ class CrossDeviceSyncHub extends EventEmitter {
         this.wss = new WebSocketServer({ server, path: "/ws/sync" });
 
         this.wss.on("connection", (ws, req) => {
+            if (!this._isAuthorized(req)) {
+                this._rejectedMessageCount++;
+                this._send(ws, { type: "error", error: "Unauthorized device" });
+                ws.close(1008, "Unauthorized");
+                return;
+            }
+
             const deviceId = req.headers["x-device-id"] || crypto.randomBytes(8).toString("hex");
             const deviceName = req.headers["x-device-name"] || "unknown";
             const platform = req.headers["x-device-platform"] || "unknown";
+            const userId = this._getDeviceUserId(req, deviceId);
 
-            this._registerDevice(deviceId, ws, { name: deviceName, platform });
+            this._registerDevice(deviceId, ws, { name: deviceName, platform, userId });
 
             ws.on("message", (raw) => {
                 try {
+                    if (this._isMessageRejected(deviceId, raw)) {
+                        this._send(ws, { type: "error", error: "Message rejected by policy" });
+                        return;
+                    }
+
                     const msg = JSON.parse(raw.toString());
                     this._handleMessage(deviceId, msg);
                 } catch (err) {
@@ -76,11 +107,82 @@ class CrossDeviceSyncHub extends EventEmitter {
         logger.info(`🔗 [SyncHub] Cross-device sync hub active on /ws/sync`);
     }
 
+
+
+    _loadPersistentState() {
+        try {
+            if (fs.existsSync(this.storePath)) {
+                this._persistentState = JSON.parse(fs.readFileSync(this.storePath, "utf8"));
+            }
+        } catch (error) {
+            logger.warn(`⚠ [SyncHub] Failed loading persistent state: ${error.message}`);
+        }
+    }
+
+    _schedulePersist() {
+        if (this._persistTimer) return;
+        this._persistTimer = setTimeout(() => {
+            try {
+                const dir = path.dirname(this.storePath);
+                if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+                this._persistentState.lastUpdatedAt = new Date().toISOString();
+                fs.writeFileSync(this.storePath, JSON.stringify(this._persistentState, null, 0));
+            } catch (error) {
+                logger.warn(`⚠ [SyncHub] Failed persisting state: ${error.message}`);
+            } finally {
+                this._persistTimer = null;
+            }
+        }, 250);
+        if (typeof this._persistTimer.unref === "function") this._persistTimer.unref();
+    }
+
+    _ingestSyncEvent(eventType, payload = {}) {
+        const content = `[SYNC:${eventType}] ${JSON.stringify(payload).substring(0, 1200)}`;
+        if (this.vectorMemory && typeof this.vectorMemory.smartIngest === "function") {
+            this.vectorMemory.smartIngest({
+                content,
+                metadata: {
+                    type: "cross-device-sync",
+                    domain: "system-actions",
+                    category: "sync-event",
+                    eventType,
+                    ts: Date.now(),
+                },
+            }, 0.95).catch(() => { });
+        }
+
+        if (global.eventBus) {
+            global.eventBus.emit("system:action", {
+                actor: "cross-device-sync",
+                action: eventType,
+                target: "cross-device-state",
+                outcome: "recorded",
+                details: payload,
+            });
+
+            if (["context_update", "widget_state_update", "workspace_sync"].includes(eventType)) {
+                global.eventBus.emit("user:action", {
+                    message: `${eventType}:${payload.userId || "unknown"}`,
+                    response: JSON.stringify(payload).substring(0, 800),
+                    userId: payload.userId || "unknown",
+                    sessionId: payload.deviceId || payload.via || "sync",
+                });
+            }
+        }
+    }
+
+    _getDeviceUserId(req, deviceId) {
+        const explicit = req.headers["x-user-id"];
+        if (explicit) return String(explicit).trim();
+        return `user:${String(deviceId).slice(0, 12)}`;
+    }
+
     _registerDevice(deviceId, ws, meta) {
         this.devices.set(deviceId, {
             ws,
             name: meta.name,
             platform: meta.platform,
+            userId: meta.userId || "unknown",
             connectedAt: Date.now(),
             lastSeen: Date.now(),
         });
@@ -93,6 +195,8 @@ class CrossDeviceSyncHub extends EventEmitter {
             deviceId,
             connectedDevices: this._getDeviceList(),
             sharedContext: Object.fromEntries(this.sharedContext),
+            personalState: this._persistentState.users[meta.userId] || {},
+            workspaceState: this._persistentState.workspaces[meta.userId] || {},
         });
 
         // Notify all other devices
@@ -102,7 +206,45 @@ class CrossDeviceSyncHub extends EventEmitter {
             connectedDevices: this._getDeviceList(),
         });
 
+        this._ingestSyncEvent("device_connected", { deviceId, userId: meta.userId, name: meta.name, platform: meta.platform });
         this.emit("device:connected", { deviceId, ...meta });
+    }
+
+    _isAuthorized(req) {
+        if (!this.requireAuthToken) return true;
+        if (!this.sharedToken) {
+            logger.warn("⚠ [SyncHub] Auth token required but HEADY_SYNC_SHARED_TOKEN is not configured");
+            return false;
+        }
+
+        const presented = req.headers["x-sync-token"];
+        return presented === this.sharedToken;
+    }
+
+    _isMessageRejected(deviceId, raw) {
+        const rawLength = typeof raw?.length === "number" ? raw.length : Buffer.byteLength(raw?.toString() || "", "utf8");
+        if (rawLength > this.maxMessageBytes) {
+            this._rejectedMessageCount++;
+            logger.warn(`⚠ [SyncHub] Message rejected (size=${rawLength}) from ${deviceId.slice(0, 8)}...`);
+            return true;
+        }
+
+        const now = Date.now();
+        const existing = this._rateWindows.get(deviceId) || { count: 0, windowStartMs: now };
+        if (now - existing.windowStartMs >= 60000) {
+            existing.count = 0;
+            existing.windowStartMs = now;
+        }
+        existing.count += 1;
+        this._rateWindows.set(deviceId, existing);
+
+        if (existing.count > this.maxMessagesPerMinute) {
+            this._rejectedMessageCount++;
+            logger.warn(`⚠ [SyncHub] Rate limited device ${deviceId.slice(0, 8)}... (${existing.count}/min)`);
+            return true;
+        }
+
+        return false;
     }
 
     _unregisterDevice(deviceId) {
@@ -116,6 +258,7 @@ class CrossDeviceSyncHub extends EventEmitter {
                 deviceId,
                 connectedDevices: this._getDeviceList(),
             });
+            this._ingestSyncEvent("device_disconnected", { deviceId, userId: device.userId, name: device.name });
             this.emit("device:disconnected", { deviceId, name: device.name });
         }
     }
@@ -144,6 +287,14 @@ class CrossDeviceSyncHub extends EventEmitter {
                         value: msg.value,
                         updatedBy: fromDeviceId,
                     });
+                    if (device?.userId) {
+                        if (!this._persistentState.users[device.userId]) this._persistentState.users[device.userId] = {};
+                        this._persistentState.users[device.userId].context = this._persistentState.users[device.userId].context || {};
+                        this._persistentState.users[device.userId].context[msg.key] = msg.value;
+                        this._persistentState.users[device.userId].contextUpdatedAt = Date.now();
+                        this._schedulePersist();
+                        this._ingestSyncEvent("context_update", { userId: device.userId, key: msg.key });
+                    }
                     this.emit("context:updated", { key: msg.key, value: msg.value, deviceId: fromDeviceId });
                 }
                 break;
@@ -171,6 +322,50 @@ class CrossDeviceSyncHub extends EventEmitter {
             case "get_context":
                 this._send(device?.ws, { type: "context_snapshot", context: Object.fromEntries(this.sharedContext) });
                 break;
+
+            case "task_widget_sync":
+            case "widget_state_update": {
+                const state = msg.state || {};
+                if (!device) break;
+                if (!this._persistentState.users[device.userId]) this._persistentState.users[device.userId] = {};
+                this._persistentState.users[device.userId].widget = {
+                    ...this._persistentState.users[device.userId].widget,
+                    ...state,
+                    updatedAt: Date.now(),
+                    updatedBy: fromDeviceId,
+                };
+                this._schedulePersist();
+                this._ingestSyncEvent("widget_state_update", { userId: device.userId, deviceId: fromDeviceId, keys: Object.keys(state) });
+                this._broadcast(fromDeviceId, {
+                    type: "widget_state_updated",
+                    userId: device.userId,
+                    state: this._persistentState.users[device.userId].widget,
+                });
+                break;
+            }
+
+            case "workspace_sync": {
+                const snapshot = msg.snapshot || {};
+                if (!device) break;
+                this._persistentState.workspaces[device.userId] = {
+                    ...snapshot,
+                    updatedAt: Date.now(),
+                    updatedBy: fromDeviceId,
+                };
+                this._schedulePersist();
+                this._ingestSyncEvent("workspace_sync", {
+                    userId: device.userId,
+                    deviceId: fromDeviceId,
+                    vectorWorkspaceId: snapshot.vectorWorkspaceId || null,
+                    templateCount: Array.isArray(snapshot.templates) ? snapshot.templates.length : 0,
+                });
+                this._broadcast(fromDeviceId, {
+                    type: "workspace_synced",
+                    userId: device.userId,
+                    snapshot: this._persistentState.workspaces[device.userId],
+                });
+                break;
+            }
 
             default:
                 this._send(device?.ws, { type: "error", error: `Unknown message type: ${msg.type}` });
@@ -200,8 +395,14 @@ class CrossDeviceSyncHub extends EventEmitter {
             context: sessionData,
         });
 
-        const from = this.devices.get(fromDeviceId);
-        if (from) this._send(from.ws, { type: "session_handoff_ack", sessionId, targetDeviceId });
+        const fromDevice = this.devices.get(fromDeviceId);
+        if (fromDevice) {
+            this._send(fromDevice.ws, {
+                type: "session_handoff_ack",
+                sessionId,
+                to: targetDeviceId,
+            });
+        }
 
         logger.info(`🔗 [SyncHub] Session handoff: ${fromDeviceId.slice(0, 8)} → ${targetDeviceId.slice(0, 8)}`);
         this.emit("session:handoff", { sessionId, from: fromDeviceId, to: targetDeviceId });
@@ -228,6 +429,7 @@ class CrossDeviceSyncHub extends EventEmitter {
                 id: id.slice(0, 12),
                 name: device.name,
                 platform: device.platform,
+                userId: device.userId,
                 connectedAt: device.connectedAt,
                 lastSeen: device.lastSeen,
             });
@@ -258,6 +460,8 @@ class CrossDeviceSyncHub extends EventEmitter {
             activeSessions: this.sessions.size,
             sharedContextKeys: this.sharedContext.size,
             totalMessages: this._messageCount,
+            rejectedMessages: this._rejectedMessageCount,
+            persistentUsers: Object.keys(this._persistentState.users || {}).length,
             devices: this._getDeviceList(),
         };
     }
@@ -268,6 +472,17 @@ class CrossDeviceSyncHub extends EventEmitter {
     registerRoutes(app) {
         app.get("/api/sync/status", (req, res) => {
             res.json(this.getStatus());
+        });
+
+        app.get("/api/sync/health", (req, res) => {
+            res.json({
+                ok: true,
+                service: "cross-device-sync",
+                connectedDevices: this.devices.size,
+                rejectedMessages: this._rejectedMessageCount,
+                persistentUsers: Object.keys(this._persistentState.users || {}).length,
+                checkedAt: new Date().toISOString(),
+            });
         });
 
         app.get("/api/sync/devices", (req, res) => {
@@ -286,6 +501,59 @@ class CrossDeviceSyncHub extends EventEmitter {
             res.json({ ok: true, key });
         });
 
+        app.get("/api/sync/personal/:userId", (req, res) => {
+            const userId = req.params.userId;
+            res.json({ ok: true, userId, state: this._persistentState.users[userId] || {} });
+        });
+
+        app.get("/api/sync/workspace/:userId", (req, res) => {
+            const userId = req.params.userId;
+            res.json({ ok: true, userId, workspace: this._persistentState.workspaces[userId] || {} });
+        });
+
+        app.post("/api/sync/widget/:userId", (req, res) => {
+            const userId = req.params.userId;
+            const state = req.body?.state || {};
+            if (!this._persistentState.users[userId]) this._persistentState.users[userId] = {};
+            this._persistentState.users[userId].widget = { ...state, updatedAt: Date.now(), updatedBy: "api" };
+            this._schedulePersist();
+            this._ingestSyncEvent("widget_state_update", { userId, via: "api", keys: Object.keys(state) });
+            this._broadcast(null, { type: "widget_state_updated", userId, state: this._persistentState.users[userId].widget });
+            res.json({ ok: true, userId });
+        });
+
+        app.post("/api/sync/workspace/:userId", (req, res) => {
+            const userId = req.params.userId;
+            const snapshot = req.body?.snapshot || {};
+            this._persistentState.workspaces[userId] = { ...snapshot, updatedAt: Date.now(), updatedBy: "api" };
+            this._schedulePersist();
+            this._ingestSyncEvent("workspace_sync", { userId, via: "api", vectorWorkspaceId: snapshot.vectorWorkspaceId || null });
+            this._broadcast(null, { type: "workspace_synced", userId, snapshot: this._persistentState.workspaces[userId] });
+            res.json({ ok: true, userId });
+        });
+
+
+        app.get("/api/sync/templates/:userId", (req, res) => {
+            const userId = req.params.userId;
+            const workspace = this._persistentState.workspaces[userId] || {};
+            const templates = Array.isArray(workspace.templates)
+                ? workspace.templates.map((template, idx) => ({
+                    templateId: `sync-template-${userId}-${idx}`,
+                    source: 'cross-device-workspace',
+                    payload: template,
+                    injectedAt: workspace.updatedAt || null,
+                }))
+                : [];
+
+            res.json({
+                ok: true,
+                userId,
+                vectorWorkspaceId: workspace.vectorWorkspaceId || null,
+                templateCount: templates.length,
+                templates,
+            });
+        });
+
         app.post("/api/sync/broadcast", (req, res) => {
             const { event, data } = req.body || {};
             if (!event) return res.status(400).json({ ok: false, error: "event is required" });
@@ -293,7 +561,7 @@ class CrossDeviceSyncHub extends EventEmitter {
             res.json({ ok: true, sentTo: this.devices.size });
         });
 
-        logger.info("  🔗 [SyncHub] Routes: /api/sync/status, /devices, /context, /broadcast");
+        logger.info("  🔗 [SyncHub] Routes: /api/sync/status, /health, /devices, /context, /personal/:userId, /workspace/:userId, /widget/:userId, /templates/:userId, /broadcast");
     }
 
     /**
@@ -307,6 +575,14 @@ class CrossDeviceSyncHub extends EventEmitter {
         }
         this.devices.clear();
         this.sessions.clear();
+        this._rateWindows.clear();
+        if (this._persistTimer) clearTimeout(this._persistTimer);
+        try {
+            this._persistentState.lastUpdatedAt = new Date().toISOString();
+            const dir = path.dirname(this.storePath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(this.storePath, JSON.stringify(this._persistentState, null, 0));
+        } catch { }
     }
 }
 

@@ -3,11 +3,13 @@
  * 
  * RAM-FIRST ARCHITECTURE:
  *   Vector memory IS the source of truth.
- *   Files in src/, configs/, etc. are PROJECTIONS — derived state.
- *   
- *   Flow:
- *     Events → Vector Memory (ingest) → Projections (outbound)
- *                    ↑                         ↓
+ *   Files are just a PROJECTION.
+ *   This service maintains bidirectional sync:
+ *     INBOUND:  Events → Vector Memory (embedding new data)
+ *     OUTBOUND: Vector Memory → File Areas (projecting state)
+ * 
+ * Event Bus Integration:
+ *   INBOUND HOOKS (events → embeddings):
  *             User interactions         src/, configs/, data/
  *             System telemetry          .agents/workflows/
  *             Bee reactions             docs/, _archive/
@@ -33,8 +35,12 @@ const PHI = 1.6180339887;
 const EMBED_INTERVAL_MS = Math.round(PHI ** 5 * 1000); // ~11s phi-derived
 const PROJECTION_INTERVAL_MS = Math.round(PHI ** 7 * 1000); // ~29s phi-derived
 const ENV_INTERVAL_MS = Math.round(PHI ** 8 * 1000); // ~47s phi-derived
+const CONTEXT_REFRESH_INTERVAL_MS = Math.round(PHI ** 6 * 1000); // ~18s
 const BATCH_SIZE = 8;
 const DENSITY_GATE = 0.92;
+const MAX_QUEUE = 1000;
+const BURST_FLUSH_THRESHOLD = 64;
+const MAX_CONTENT_CHARS = 4000;
 
 let vm = null;
 let running = false;
@@ -47,6 +53,9 @@ const stats = {
     totalProjections: 0,
     cycles: 0,
     bySource: {},
+    lastIngestAt: null,
+    lastContextRefreshAt: null,
+    lastTemplateProjectionAt: null,
 };
 
 // ── Inbound Queue ───────────────────────────────────────────────
@@ -77,11 +86,36 @@ function computeRAMHash() {
 
 // ── Inbound: Queue for Embedding ────────────────────────────────
 
+function sanitizeContent(content) {
+    if (content === null || content === undefined) return '';
+    const normalized = typeof content === 'string' ? content : JSON.stringify(content);
+    return normalized.substring(0, MAX_CONTENT_CHARS);
+}
+
+function normalizeMetadata(metadata = {}) {
+    const ts = new Date().toISOString();
+    return {
+        ...metadata,
+        source: metadata.source || 'continuous-embedder',
+        capturedAt: metadata.capturedAt || ts,
+    };
+}
+
 function queueForEmbed(content, metadata) {
-    pendingQueue.push({ content, metadata, queuedAt: Date.now() });
-    if (pendingQueue.length > 500) {
-        pendingQueue.splice(0, pendingQueue.length - 500);
+    const safeContent = sanitizeContent(content);
+    if (!safeContent) return false;
+
+    pendingQueue.push({
+        content: safeContent,
+        metadata: normalizeMetadata(metadata),
+        queuedAt: Date.now(),
+    });
+
+    if (pendingQueue.length > MAX_QUEUE) {
+        pendingQueue.splice(0, pendingQueue.length - MAX_QUEUE);
     }
+
+    return true;
 }
 
 // ── Inbound Event Handlers ──────────────────────────────────────
@@ -102,6 +136,43 @@ function onUserInteraction(data) {
             category: 'conversation',
             userId: userId || 'unknown',
             sessionId: sessionId || 'unknown',
+            source: 'continuous-embedder',
+        },
+    );
+}
+
+function onAnalystAction(data) {
+    const { analystId, action, artifact, note, sessionId } = data || {};
+    if (!action && !note) return;
+
+    queueForEmbed(
+        `Analyst: ${analystId || 'unknown'} | action: ${action || 'annotate'} | artifact: ${artifact || 'n/a'} | note: ${(note || '').substring(0, 700)}`,
+        {
+            type: 'episodic',
+            domain: 'analyst-actions',
+            category: 'human-analysis',
+            analystId: analystId || 'unknown',
+            sessionId: sessionId || 'unknown',
+            artifact: artifact || 'n/a',
+            source: 'continuous-embedder',
+        },
+    );
+}
+
+function onSystemAction(data) {
+    const { actor, action, target, outcome, details } = data || {};
+    if (!action && !outcome) return;
+
+    queueForEmbed(
+        `SystemAction: ${actor || 'system'} -> ${action || 'unknown'} on ${target || 'unknown'} | outcome: ${outcome || 'unknown'} | details: ${JSON.stringify(details || {}).substring(0, 500)}`,
+        {
+            type: 'procedural',
+            domain: 'system-actions',
+            category: 'runtime-action',
+            actor: actor || 'system',
+            action: action || 'unknown',
+            target: target || 'unknown',
+            outcome: outcome || 'unknown',
             source: 'continuous-embedder',
         },
     );
@@ -132,104 +203,102 @@ function onDeployment(data) {
             type: 'procedural',
             domain: 'deployment',
             category: 'system-change',
-            target,
-            commitHash,
+            target: target || 'unknown',
+            status: status || 'completed',
             source: 'continuous-embedder',
         },
     );
-
-    // Mark all projections stale after a deploy
-    for (const [, proj] of projections) proj.stale = true;
 }
 
 function onError(data) {
-    const { error, component, severity, stack } = data || {};
+    const { error, component, severity } = data || {};
     queueForEmbed(
-        `Error [${severity || 'unknown'}]: ${component || 'system'} → ${error || 'unknown'}${stack ? '\n' + stack.substring(0, 300) : ''}`,
+        `Error: [${severity || 'unknown'}] ${component || 'system'}: ${error || 'unknown error'}`,
         {
             type: 'episodic',
             domain: 'errors',
-            category: 'incident',
-            component,
+            category: 'system-error',
             severity: severity || 'unknown',
+            component: component || 'system',
             source: 'continuous-embedder',
         },
     );
 }
 
 function onConfigChange(data) {
-    const { filePath, diff, changedBy } = data || {};
-    if (!filePath) return;
+    const { file, changes, source: src } = data || {};
+    if (!file && !changes) return;
 
-    let content = `Config changed: ${filePath}`;
-    if (diff) content += `\n${diff.substring(0, 500)}`;
-
-    queueForEmbed(content, {
-        type: 'procedural',
-        domain: 'governance',
-        category: 'config-change',
-        filePath,
-        changedBy: changedBy || 'system',
-        source: 'continuous-embedder',
-    });
-
-    projections.get('configs').stale = true;
+    queueForEmbed(
+        `Config changed: ${file || 'unknown'} (source: ${src || 'unknown'})\nChanges: ${JSON.stringify(changes || {}).substring(0, 500)}`,
+        {
+            type: 'procedural',
+            domain: 'config',
+            category: 'system-change',
+            file: file || 'unknown',
+            source: 'continuous-embedder',
+        },
+    );
 }
 
 function onBeeReaction(data) {
-    const { bee, action, result, duration } = data || {};
+    const { beeId, domain, reaction, confidence } = data || {};
+    if (!beeId) return;
+
     queueForEmbed(
-        `Bee: ${bee || 'unknown'} → ${action || 'work'} (${duration || 0}ms): ${JSON.stringify(result || {}).substring(0, 400)}`,
+        `Bee reaction: ${beeId} (${domain || 'unknown'}) → ${reaction || 'processed'} (confidence: ${confidence || 'N/A'})`,
         {
-            type: 'procedural',
-            domain: 'swarm',
-            category: 'bee-work',
-            bee,
-            action,
-            durationMs: duration,
+            type: 'episodic',
+            domain: 'bee-reactions',
+            category: 'swarm-activity',
+            beeId,
+            beeDomain: domain || 'unknown',
             source: 'continuous-embedder',
         },
     );
 }
 
 function onHealthCheck(data) {
-    const { status, components, uptime } = data || {};
+    const { service, status, metrics } = data || {};
     queueForEmbed(
-        `Health: ${status || 'unknown'} | uptime: ${uptime || 0}s | components: ${JSON.stringify(components || {}).substring(0, 400)}`,
+        `Health: ${service || 'system'} → ${status || 'unknown'} | ${JSON.stringify(metrics || {}).substring(0, 300)}`,
         {
             type: 'episodic',
             domain: 'health',
-            category: 'system-health',
-            status,
+            category: 'system-state',
+            service: service || 'system',
+            status: status || 'unknown',
             source: 'continuous-embedder',
         },
     );
 }
 
 function onCodeChange(data) {
-    const { filePath, changeType, content: code, author } = data || {};
-    if (!filePath) return;
+    const { file, changeType, lines, diff } = data || {};
+    if (!file) return;
 
-    // Ingest the actual change into vector memory
     queueForEmbed(
-        `Code ${changeType || 'modified'}: ${filePath}\n${(code || '').substring(0, 1000)}`,
+        `Code ${changeType || 'changed'}: ${file} (${lines || '?'} lines)\n${(diff || '').substring(0, 500)}`,
         {
             type: 'procedural',
-            domain: 'codebase',
-            category: 'code-change',
-            filePath,
+            domain: 'code-changes',
+            category: 'development',
+            file,
             changeType: changeType || 'modified',
-            author: author || 'system',
             source: 'continuous-embedder',
         },
     );
 
-    // Mark appropriate projection stale
-    if (filePath.startsWith('src/')) projections.get('src').stale = true;
-    if (filePath.startsWith('configs/')) projections.get('configs').stale = true;
-    if (filePath.startsWith('.agents/')) projections.get('agents').stale = true;
-    if (filePath.startsWith('docs/')) projections.get('docs').stale = true;
+    // Mark relevant projections stale
+    const normalizedFile = file.replace(/\\/g, '/');
+    for (const [target] of projections) {
+        if (normalizedFile.includes(`/${target}/`) || normalizedFile.startsWith(`${target}/`)) {
+            projections.get(target).stale = true;
+        }
+    }
 }
+
+// ── Environment Capture ─────────────────────────────────────────
 
 function captureEnvironment() {
     const os = require('os');
@@ -261,7 +330,8 @@ function captureEnvironment() {
 async function processBatch() {
     if (!vm || pendingQueue.length === 0) return;
 
-    const batch = pendingQueue.splice(0, BATCH_SIZE);
+    const dynamicBatchSize = pendingQueue.length > BURST_FLUSH_THRESHOLD ? Math.min(BATCH_SIZE * 4, pendingQueue.length) : BATCH_SIZE;
+    const batch = pendingQueue.splice(0, dynamicBatchSize);
     let ingested = 0;
     let filtered = 0;
 
@@ -275,6 +345,7 @@ async function processBatch() {
             if (id) {
                 ingested++;
                 stats.totalIngested++;
+                stats.lastIngestAt = new Date().toISOString();
                 const src = item.metadata.domain || 'unknown';
                 stats.bySource[src] = (stats.bySource[src] || 0) + 1;
             } else {
@@ -322,11 +393,7 @@ async function syncProjections() {
 
         try {
             // Query vector memory for the latest state of this projection area
-            const results = await vm.queryMemory({
-                query: `latest state for ${target} projection`,
-                topK: 5,
-                metadata: { domain: target },
-            });
+            const results = await vm.queryMemory(`latest state for ${target} projection`, 5, { domain: target });
 
             if (results && results.length > 0) {
                 proj.lastHash = computeRAMHash();
@@ -369,6 +436,8 @@ async function start(vectorMemory) {
         // User interaction events
         bus.on('buddy:message', onUserInteraction);
         bus.on('chat:response', onUserInteraction);
+        bus.on('user:action', onUserInteraction);
+        bus.on('analyst:action', onAnalystAction);
 
         // System telemetry events
         bus.on('telemetry:ingested', onTelemetry);
@@ -390,6 +459,11 @@ async function start(vectorMemory) {
 
         // Health events
         bus.on('health:checked', onHealthCheck);
+
+        // Explicit system/environment actions
+        bus.on('system:action', onSystemAction);
+        bus.on('runtime:action', onSystemAction);
+        bus.on('environment:sample', captureEnvironment);
 
         // Code change events (from sync-projection-bee or git hooks)
         bus.on('code:changed', onCodeChange);
@@ -424,6 +498,13 @@ async function start(vectorMemory) {
     };
     setTimeout(envCycle, ENV_INTERVAL_MS);
 
+    const contextCycle = async () => {
+        if (!running) return;
+        await runAutonomyOptimizationCycle();
+        setTimeout(contextCycle, CONTEXT_REFRESH_INTERVAL_MS);
+    };
+    setTimeout(contextCycle, CONTEXT_REFRESH_INTERVAL_MS);
+
     if (global.eventBus) {
         global.eventBus.emit('embedder:started', { service: 'continuous-embedder', mode: 'ram-first' });
     }
@@ -452,22 +533,173 @@ function getStats() {
     };
 }
 
-function ingest(content, metadata = {}) {
-    queueForEmbed(content, { ...metadata, source: 'manual-ingest' });
+async function ingest(content, metadata = {}) {
+    const accepted = queueForEmbed(content, { ...metadata, source: 'manual-ingest' });
+    if (!accepted) return { ok: false, queued: pendingQueue.length };
+
+    if (running && pendingQueue.length >= BURST_FLUSH_THRESHOLD) {
+        await processBatch();
+    }
+
+    return { ok: true, queued: pendingQueue.length };
 }
 
+
+async function buildLiveContextSnapshot() {
+    if (!vm || typeof vm.queryMemory !== 'function') {
+        return {
+            ok: true,
+            mode: 'capture-only',
+            generatedAt: new Date().toISOString(),
+            slices: {},
+        };
+    }
+
+    const slices = {
+        userActions: await vm.queryMemory('latest user actions and intent', 5, { domain: 'user-interaction' }),
+        analystActions: await vm.queryMemory('latest analyst actions and decisions', 5, { domain: 'analyst-actions' }),
+        systemActions: await vm.queryMemory('latest system orchestration actions', 5, { domain: 'system-actions' }),
+        environment: await vm.queryMemory('latest environment telemetry snapshot', 5, { domain: 'environment' }),
+    };
+
+    stats.lastContextRefreshAt = new Date().toISOString();
+
+    return {
+        ok: true,
+        mode: 'ram-first-live-context',
+        generatedAt: stats.lastContextRefreshAt,
+        counts: Object.fromEntries(Object.entries(slices).map(([k, v]) => [k, Array.isArray(v) ? v.length : 0])),
+        slices,
+    };
+}
+
+
+
+async function buildInjectableTemplates({ topK = 12, channel = 'internal' } = {}) {
+    if (!vm || typeof vm.buildOutboundRepresentation !== 'function') {
+        return { ok: true, mode: 'capture-only', templates: [], generatedAt: new Date().toISOString() };
+    }
+
+    const projection = vm.buildOutboundRepresentation({ channel, topK });
+    const templates = (projection.sample || []).map((entry, idx) => ({
+        templateId: `heady-template-${entry.id || idx}`,
+        sourceVectorId: entry.id,
+        archetype: entry.type || 'unknown',
+        profile: projection.profile,
+        injectionTarget: channel,
+        headybee: {
+            role: entry.type || 'assistant',
+            zone: entry.zone,
+            vectorBinding: entry.id,
+        },
+        headyswarm: {
+            swarmId: `swarm-${entry.zone || 0}`,
+            coordinator: 'HeadyConductor',
+            participants: [`bee-${entry.zone || 0}-a`, `bee-${entry.zone || 0}-b`],
+        },
+        representation: entry.representation,
+    }));
+
+    const generatedAt = new Date().toISOString();
+    stats.lastTemplateProjectionAt = generatedAt;
+
+    if (global.eventBus) {
+        global.eventBus.emit('projection:templates:generated', {
+            channel,
+            profile: projection.profile,
+            templateCount: templates.length,
+            generatedAt,
+        });
+    }
+
+    return {
+        ok: true,
+        channel,
+        profile: projection.profile,
+        generatedAt,
+        templateCount: templates.length,
+        templates,
+    };
+}
+
+
+async function runAutonomyOptimizationCycle() {
+    try {
+        const context = await buildLiveContextSnapshot();
+        const templates = await buildInjectableTemplates({ topK: 8, channel: 'internal' });
+        if (global.eventBus) {
+            global.eventBus.emit('self-awareness:assessed', {
+                metric: 'autonomy-optimization-cycle',
+                value: {
+                    contextCounts: context.counts || {},
+                    templateCount: templates.templateCount || 0,
+                },
+                component: 'continuous-embedder',
+                confidence: 0.93,
+            });
+        }
+        return {
+            ok: true,
+            contextCounts: context.counts || {},
+            templateCount: templates.templateCount || 0,
+            ranAt: new Date().toISOString(),
+        };
+    } catch (error) {
+        stats.totalErrors += 1;
+        queueForEmbed(`Autonomy cycle error: ${error.message}`, {
+            type: 'episodic',
+            domain: 'errors',
+            category: 'autonomy-cycle',
+            source: 'continuous-embedder',
+        });
+        return { ok: false, error: error.message, ranAt: new Date().toISOString() };
+    }
+}
 function registerRoutes(app) {
     // Status
     app.get('/api/embedder/status', (req, res) => {
         res.json({ ok: true, mode: 'ram-first', ...getStats() });
     });
 
+    app.get('/api/embedder/health', (req, res) => {
+        res.json({
+            ok: true,
+            service: 'continuous-embedder',
+            running,
+            queueLength: pendingQueue.length,
+            totalIngested: stats.totalIngested,
+            totalErrors: stats.totalErrors,
+            lastIngestAt: stats.lastIngestAt,
+            lastContextRefreshAt: stats.lastContextRefreshAt,
+            lastTemplateProjectionAt: stats.lastTemplateProjectionAt,
+            checkedAt: new Date().toISOString(),
+        });
+    });
+
+    app.get('/api/embedder/context/live', async (req, res) => {
+        const snapshot = await buildLiveContextSnapshot();
+        res.json(snapshot);
+    });
+
+    app.get('/api/embedder/templates/injectable', async (req, res) => {
+        const payload = await buildInjectableTemplates({
+            topK: req.query?.top_k,
+            channel: req.query?.channel || 'internal',
+        });
+        res.json(payload);
+    });
+
+    app.post('/api/embedder/autonomy/run', async (_req, res) => {
+        const result = await runAutonomyOptimizationCycle();
+        res.status(result.ok ? 200 : 500).json(result);
+    });
+
     // Manual ingest (inbound)
-    app.post('/api/embedder/ingest', (req, res) => {
+    app.post('/api/embedder/ingest', async (req, res) => {
         const { content, metadata } = req.body || {};
         if (!content) return res.status(400).json({ error: 'content required' });
-        ingest(content, metadata);
-        res.json({ ok: true, queued: pendingQueue.length });
+        const result = await ingest(content, metadata);
+        res.json(result);
     });
 
     // Flush queue (inbound)
@@ -501,8 +733,13 @@ module.exports = {
     queueForEmbed,
     registerRoutes,
     syncProjections,
+    buildLiveContextSnapshot,
+    buildInjectableTemplates,
+    runAutonomyOptimizationCycle,
     // Event handlers exposed for direct wiring
     onUserInteraction,
+    onAnalystAction,
+    onSystemAction,
     onTelemetry,
     onDeployment,
     onError,

@@ -84,6 +84,67 @@ describe('unified enterprise autonomy service', () => {
         expect(projection.projectionHygiene).toHaveProperty('clean');
         expect(projection.developerPlatform).toHaveProperty('onboarding');
         expect(projection).toHaveProperty('onboardingContract');
+        expect(projection).toHaveProperty('projectionCleanupPlan');
         expect(projection.deterministicReceipt).toHaveLength(64);
+    });
+
+    // ── New enterprise autonomy tests ─────────────────────────────
+
+    test('projection cleanup plan identifies stale files', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const plan = service.buildProjectionCleanupPlan();
+
+        expect(plan).toHaveProperty('candidateCount');
+        expect(typeof plan.candidateCount).toBe('number');
+        expect(plan).toHaveProperty('trackedCandidates');
+        expect(plan).toHaveProperty('localCandidates');
+        expect(Array.isArray(plan.candidates)).toBe(true);
+    });
+
+    test('onboarding and auth flow validation checks required stages and bridge', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const validation = service.validateOnboardingAndAuthFlow();
+
+        expect(validation).toHaveProperty('ok');
+        expect(Array.isArray(validation.missingStages)).toBe(true);
+        expect(Array.isArray(validation.missingBridge)).toBe(true);
+        expect(validation).toHaveProperty('requiredStages');
+        expect(validation).toHaveProperty('securityBridge');
+        expect(validation).toHaveProperty('evaluatedAt');
+    });
+
+    test('alternate paradigm directives include runtime directives', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const directives = service.buildAlternateParadigmDirectives();
+
+        expect(directives.ok).toBe(true);
+        expect(directives.paradigm).toBe('no-frontend-backend-split');
+        expect(Array.isArray(directives.directives)).toBe(true);
+        expect(directives.directives.length).toBeGreaterThan(0);
+        expect(directives).toHaveProperty('runtimeMode');
+        expect(directives).toHaveProperty('templateCollections');
+    });
+
+    test('self-healing cycle combines hygiene, validation, and cleanup', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const result = service.runSelfHealingCycle();
+
+        expect(result).toHaveProperty('ok');
+        expect(result).toHaveProperty('ranAt');
+        expect(result).toHaveProperty('hygiene');
+        expect(result).toHaveProperty('cleanupPlan');
+        expect(result).toHaveProperty('onboardingValidation');
+        expect(result).toHaveProperty('directives');
+        expect(typeof result.hygiene.clean).toBe('boolean');
+    });
+
+    test('health endpoint includes onboarding validation', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        service.start();
+        const health = service.getHealth();
+
+        expect(health.ok).toBe(true);
+        expect(health).toHaveProperty('onboardingValidation');
+        expect(health.onboardingValidation).toHaveProperty('ok');
     });
 });

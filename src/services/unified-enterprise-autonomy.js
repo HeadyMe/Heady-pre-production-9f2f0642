@@ -17,6 +17,13 @@ const EMBEDDING_CATALOG_PATH = path.join(ROOT, 'configs', 'resources', 'vector-e
 const LIQUID_FABRIC_PATH = path.join(ROOT, 'configs', 'resources', 'liquid-unified-fabric.yaml');
 const PLATFORM_BLUEPRINT_PATH = path.join(ROOT, 'configs', 'resources', 'developer-platform-blueprint.yaml');
 
+const STALE_FILE_PATTERNS = [
+    '.bak', '.tmp', '.temp', '.old', '.orig', '.pid', '.log', '.jsonl',
+];
+const STALE_SCAN_DIRECTORIES = ['data', 'logs', 'tmp', '.cache'];
+const STALE_MIN_AGE_HOURS = 24;
+
+
 function loadYaml(filePath) {
     return yaml.load(fs.readFileSync(filePath, 'utf8'));
 }
@@ -60,6 +67,39 @@ function rankWorkersForQueue(queue, queueWeight, workers, queuePressure = {}) {
         .sort((a, b) => b.score - a.score);
 }
 
+
+function walkDirectorySafe(baseDir, collected = []) {
+    if (!fs.existsSync(baseDir)) return collected;
+
+    const entries = fs.readdirSync(baseDir, { withFileTypes: true });
+    for (const entry of entries) {
+        const fullPath = path.join(baseDir, entry.name);
+        const relPath = path.relative(ROOT, fullPath).replace(/\\/g, '/');
+        if (relPath.startsWith('.git/') || relPath.startsWith('node_modules/')) continue;
+
+        if (entry.isDirectory()) {
+            walkDirectorySafe(fullPath, collected);
+        } else {
+            collected.push({ fullPath, relPath });
+        }
+    }
+
+    return collected;
+}
+
+function isLikelyStaleProjectionFile(relPath, ageHours) {
+    const lower = relPath.toLowerCase();
+    const staleByPattern = STALE_FILE_PATTERNS.some((pattern) => lower.endsWith(pattern));
+    const staleByAgeAndLocation = ageHours >= STALE_MIN_AGE_HOURS && (
+        lower.startsWith('data/') ||
+        lower.startsWith('tmp/') ||
+        lower.startsWith('logs/') ||
+        lower.startsWith('.cache/')
+    );
+
+    return staleByPattern || staleByAgeAndLocation;
+}
+
 class UnifiedEnterpriseAutonomyService {
     constructor(opts = {}) {
         this.colabPlanPath = opts.colabPlanPath || COLAB_PLAN_PATH;
@@ -75,6 +115,7 @@ class UnifiedEnterpriseAutonomyService {
         this.startedAt = null;
         this.lastDispatch = null;
         this.lastProjection = null;
+        this.lastSelfHealing = null;
         this.telemetryCache = {
             sourceOfTruth: null,
             projectionHygiene: null,
@@ -85,12 +126,12 @@ class UnifiedEnterpriseAutonomyService {
 
     start() {
         this.startedAt = new Date().toISOString();
-        logger.logSystem('∞ UnifiedEnterpriseAutonomyService: STARTED');
+        logger.info('∞ UnifiedEnterpriseAutonomyService: STARTED');
         return this.getHealth();
     }
 
     stop() {
-        logger.logSystem('∞ UnifiedEnterpriseAutonomyService: STOPPED');
+        logger.info('∞ UnifiedEnterpriseAutonomyService: STOPPED');
     }
 
     getNodeResponsibilities() {
@@ -254,6 +295,7 @@ class UnifiedEnterpriseAutonomyService {
             projectionHygienePolicy: this.liquidFabric.projection_hygiene || {},
             sourceOfTruth,
             projectionHygiene,
+            projectionCleanupPlan: this.buildProjectionCleanupPlan(),
             developerPlatform: platformBlueprint,
             onboardingContract,
             deterministicReceipt: createDeterministicReceipt({
@@ -287,12 +329,86 @@ class UnifiedEnterpriseAutonomyService {
             return lower.endsWith('.bak') || lower.endsWith('.log') || lower.endsWith('.jsonl') || lower.endsWith('server.pid');
         });
 
+        const cleanupPlan = this.buildProjectionCleanupPlan();
+
         return {
             trackedFileCount: trackedFiles.length,
             forbiddenRuntimeFiles,
             serviceWorkerFiles,
-            recommendRemoval: [...forbiddenRuntimeFiles, ...serviceWorkerFiles],
-            clean: forbiddenRuntimeFiles.length === 0,
+            cleanupCandidates: cleanupPlan.candidateCount,
+            recommendRemoval: [...forbiddenRuntimeFiles, ...serviceWorkerFiles, ...cleanupPlan.candidates.map((c) => c.path)],
+            clean: forbiddenRuntimeFiles.length === 0 && cleanupPlan.candidateCount === 0,
+        };
+    }
+
+
+    buildProjectionCleanupPlan() {
+        const tracked = new Set(parseLines(tryExec('git ls-files')));
+        const now = Date.now();
+        const candidates = [];
+
+        for (const dir of STALE_SCAN_DIRECTORIES) {
+            const fullDir = path.join(ROOT, dir);
+            const files = walkDirectorySafe(fullDir);
+            for (const file of files) {
+                let stat;
+                try { stat = fs.statSync(file.fullPath); } catch { continue; }
+                const ageHours = (now - stat.mtimeMs) / (1000 * 60 * 60);
+                if (!isLikelyStaleProjectionFile(file.relPath, ageHours)) continue;
+
+                candidates.push({
+                    path: file.relPath,
+                    tracked: tracked.has(file.relPath),
+                    ageHours: +ageHours.toFixed(1),
+                    sizeBytes: stat.size,
+                    reason: tracked.has(file.relPath) ? 'tracked-runtime-artifact' : 'stale-local-projection',
+                });
+            }
+        }
+
+        const trackedCandidates = candidates.filter((c) => c.tracked);
+        const localCandidates = candidates.filter((c) => !c.tracked);
+
+        return {
+            generatedAt: new Date().toISOString(),
+            candidateCount: candidates.length,
+            trackedCandidates: trackedCandidates.length,
+            localCandidates: localCandidates.length,
+            candidates,
+        };
+    }
+
+    applyProjectionCleanup({ includeTracked = false, limit = 50 } = {}) {
+        const plan = this.buildProjectionCleanupPlan();
+        const safeLimit = Math.max(1, Math.min(500, Number(limit) || 50));
+        const selected = plan.candidates
+            .filter((candidate) => includeTracked || !candidate.tracked)
+            .slice(0, safeLimit);
+
+        const removed = [];
+        const errors = [];
+
+        for (const candidate of selected) {
+            try {
+                const target = path.join(ROOT, candidate.path);
+                if (fs.existsSync(target) && fs.statSync(target).isFile()) {
+                    fs.unlinkSync(target);
+                    removed.push(candidate.path);
+                }
+            } catch (error) {
+                errors.push({ path: candidate.path, error: error.message });
+            }
+        }
+
+        return {
+            ok: errors.length === 0,
+            dryRunCandidates: plan.candidateCount,
+            selected: selected.length,
+            removed,
+            errors,
+            includeTracked,
+            limit: safeLimit,
+            executedAt: new Date().toISOString(),
         };
     }
 
@@ -321,6 +437,73 @@ class UnifiedEnterpriseAutonomyService {
         };
     }
 
+
+
+    validateOnboardingAndAuthFlow() {
+        const flow = this.platformBlueprint.onboarding_flow || [];
+        const securityBridge = this.platformBlueprint.security_bridge || {};
+        const requiredStages = [
+            'auth-provider-select',
+            'permissions-grant',
+            'username-provision',
+            'one-click-install',
+        ];
+
+        const present = new Set(flow.map((stage) => stage.id));
+        const missingStages = requiredStages.filter((stage) => !present.has(stage));
+        const requiredBridge = ['filesystem_access_api', 'indexeddb_serialization'];
+        const missingBridge = requiredBridge.filter((key) => securityBridge[key] !== 'required');
+
+        return {
+            ok: missingStages.length === 0 && missingBridge.length === 0,
+            missingStages,
+            missingBridge,
+            requiredStages,
+            securityBridge,
+            evaluatedAt: new Date().toISOString(),
+        };
+    }
+
+    buildAlternateParadigmDirectives() {
+        const snapshot = this.buildSystemProjectionSnapshot();
+        return {
+            ok: true,
+            paradigm: 'no-frontend-backend-split',
+            directives: [
+                'Treat vector memory as canonical runtime state.',
+                'Generate device UI as template injections from 3D workspace projections.',
+                'Route user, analyst, system, and environment signals continuously into autonomous embedder.',
+                'Use projection cleanup plan continuously to remove stale local artifacts and runtime noise.',
+                'Coordinate headybees/headyswarms via deterministic receipts and health-gated orchestration.',
+            ],
+            runtimeMode: snapshot.runtimeMode,
+            templateCollections: snapshot.templateInjection.vectorWorkspaceCollections,
+            generatedAt: new Date().toISOString(),
+        };
+    }
+
+
+    runSelfHealingCycle({ applyCleanup = false, cleanupLimit = 50 } = {}) {
+        const hygiene = this.scanProjectionNoise();
+        const cleanupPlan = this.buildProjectionCleanupPlan();
+        const onboardingValidation = this.validateOnboardingAndAuthFlow();
+        const directives = this.buildAlternateParadigmDirectives();
+
+        let cleanup = { ok: true, selected: 0, removed: [] };
+        if (applyCleanup) {
+            cleanup = this.applyProjectionCleanup({ includeTracked: false, limit: cleanupLimit });
+        }
+
+        return {
+            ok: hygiene.clean && onboardingValidation.ok && cleanup.ok,
+            ranAt: new Date().toISOString(),
+            hygiene,
+            cleanupPlan,
+            cleanup,
+            onboardingValidation,
+            directives,
+        };
+    }
     getHealth() {
         const { sourceOfTruth, projectionHygiene } = this.getCachedTelemetry();
         const onboardingStages = this.platformBlueprint.onboarding_flow || [];
@@ -338,6 +521,7 @@ class UnifiedEnterpriseAutonomyService {
             determinism: this.colabPlan.determinism || {},
             sourceOfTruth,
             projectionHygiene,
+            onboardingValidation: this.validateOnboardingAndAuthFlow(),
             lastDispatchAt: this.lastDispatch?.at || null,
             lastProjectionAt: this.lastProjection?.generatedAt || null,
         };
@@ -376,6 +560,17 @@ function registerUnifiedEnterpriseAutonomyRoutes(app, service = new UnifiedEnter
         res.json({ ok: true, hygiene: service.scanProjectionNoise() });
     });
 
+    app.get('/api/unified-autonomy/projection-cleanup/plan', (_req, res) => {
+        res.json({ ok: true, plan: service.buildProjectionCleanupPlan() });
+    });
+
+    app.post('/api/unified-autonomy/projection-cleanup/apply', (req, res) => {
+        const includeTracked = req.body?.includeTracked === true;
+        const limit = req.body?.limit;
+        const result = service.applyProjectionCleanup({ includeTracked, limit });
+        res.status(result.ok ? 200 : 500).json(result);
+    });
+
     app.get('/api/unified-autonomy/platform-blueprint', (_req, res) => {
         res.json({ ok: true, blueprint: service.buildDeveloperPlatformBlueprint() });
     });
@@ -384,9 +579,24 @@ function registerUnifiedEnterpriseAutonomyRoutes(app, service = new UnifiedEnter
         res.json({ ok: true, onboarding: service.buildOnboardingContract() });
     });
 
-    logger.logNodeActivity(
+    app.get('/api/unified-autonomy/onboarding/validate', (_req, res) => {
+        res.json(service.validateOnboardingAndAuthFlow());
+    });
+
+    app.get('/api/unified-autonomy/directives/alternate-paradigm', (_req, res) => {
+        res.json(service.buildAlternateParadigmDirectives());
+    });
+
+    app.post('/api/unified-autonomy/self-healing/run', (req, res) => {
+        const applyCleanup = req.body?.applyCleanup === true;
+        const cleanupLimit = req.body?.cleanupLimit;
+        const result = service.runSelfHealingCycle({ applyCleanup, cleanupLimit });
+        res.status(result.ok ? 200 : 500).json(result);
+    });
+
+    logger.info(
         'CONDUCTOR',
-        '    → Endpoints: /api/unified-autonomy/health, /nodes, /embedding-plan, /dispatch, /system-projection, /source-of-truth, /projection-hygiene, /platform-blueprint, /onboarding-contract',
+        '    → Endpoints: /api/unified-autonomy/health, /nodes, /embedding-plan, /dispatch, /system-projection, /source-of-truth, /projection-hygiene, /projection-cleanup/plan, /projection-cleanup/apply, /platform-blueprint, /onboarding-contract, /onboarding/validate, /directives/alternate-paradigm, /self-healing/run',
     );
 
     return service;

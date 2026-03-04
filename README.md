@@ -5,7 +5,7 @@
 [![SBOM & Container](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/sbom-container-scan.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/sbom-container-scan.yml)
 [![Branding](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/branding-enforcement.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/branding-enforcement.yml)
 
-> **v3.0.0** · Sacred Geometry Multi-Agent Orchestration · φ-Scaled Resilience · MCP Integration
+> **v3.0.1** · Sacred Geometry Multi-Agent Orchestration · φ-Scaled Resilience · MCP Integration
 
 ---
 
