@@ -47,6 +47,12 @@ const PBKDF2_ITERATIONS = 100000;
 const PBKDF2_DIGEST = 'sha512';
 const SALT_LENGTH = 32;
 
+// ── Credential Ownership ────────────────────────────────────────
+// personal = Eric's personal accounts (Gmail, personal SSH)
+// system   = Heady platform secrets (service accounts, deploy keys)
+// shared   = overlap (GitHub org tokens used personally AND by Heady)
+const OWNERS = ['personal', 'system', 'shared'];
+
 // ── Credential Domains ──────────────────────────────────────────
 const DOMAINS = {
     github: { label: 'GitHub', zone: 1 },
@@ -187,14 +193,17 @@ class SecureKeyVault {
         const encrypted = this._encrypt(value);
         const credentialId = `credential:${domain}:${name}`;
 
+        const owner = OWNERS.includes(meta.owner) ? meta.owner : 'shared';
+
         // Ingest into vector memory with encrypted payload
         await vectorMemory.ingestMemory({
-            content: `credential:${domain}:${name} ${meta.label || name} ${DOMAINS[domain].label}`,
+            content: `credential:${domain}:${name} ${meta.label || name} ${DOMAINS[domain].label} ${owner}`,
             metadata: {
                 type: 'credential',
                 credentialId,
                 domain,
                 name,
+                owner,
                 label: meta.label || name,
                 encrypted: encrypted.encrypted,
                 iv: encrypted.iv,
@@ -209,7 +218,7 @@ class SecureKeyVault {
 
         // Cache in memory
         this.credentials.set(credentialId, {
-            name, domain, value, label: meta.label || name,
+            name, domain, owner, value, label: meta.label || name,
             scopes: meta.scopes || [], expiresAt: meta.expiresAt || null,
         });
 
@@ -283,6 +292,7 @@ class SecureKeyVault {
                 credentialId: r.metadata.credentialId,
                 name: r.metadata.name,
                 domain: r.metadata.domain,
+                owner: r.metadata.owner || 'shared',
                 label: r.metadata.label,
                 scopes: r.metadata.scopes || [],
                 expiresAt: r.metadata.expiresAt,
@@ -389,8 +399,10 @@ class SecureKeyVault {
         const creds = [...this.credentials.values()];
         const expired = creds.filter(c => c.expiresAt && Date.now() > c.expiresAt);
         const byDomain = {};
+        const byOwner = { personal: 0, system: 0, shared: 0 };
         for (const c of creds) {
             byDomain[c.domain] = (byDomain[c.domain] || 0) + 1;
+            byOwner[c.owner || 'shared'] = (byOwner[c.owner || 'shared'] || 0) + 1;
         }
 
         return {
@@ -398,7 +410,9 @@ class SecureKeyVault {
             totalCredentials: creds.length,
             expiredCredentials: expired.length,
             domainCoverage: byDomain,
+            ownershipBreakdown: byOwner,
             domainsAvailable: Object.keys(DOMAINS),
+            ownersAvailable: OWNERS,
         };
     }
 }
@@ -483,4 +497,5 @@ module.exports = {
     vault,
     registerVaultRoutes,
     DOMAINS,
+    OWNERS,
 };
