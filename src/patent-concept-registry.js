@@ -90,6 +90,7 @@ const PATENT_CONCEPTS = [
     { ppa: 48, name: 'HeadyTube — Content Platform', domain: 'media', filed: false, status: 'missing' },
     { ppa: 49, name: 'HeadyHome — Spatial Computing', domain: 'iot', filed: false, status: 'missing' },
     { ppa: 50, name: 'HeadyArchive — Forever Vault', domain: 'storage', filed: false, status: 'missing' },
+    { ppa: 51, name: 'Orion Attestation — Geometric Agent Verification', domain: 'sacred-geometry', filed: false, status: 'active', codeRef: 'services/self-healing-mesh.js' },
 ];
 
 // ── Query Functions ─────────────────────────────────────────────

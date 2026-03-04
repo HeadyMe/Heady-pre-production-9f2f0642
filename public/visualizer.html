@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady — Geometric Mesh Visualizer</title>
+    <meta name="description" content="Real-time 3D visualization of the Sacred Geometry agent mesh">
+    <style>
+        :root {
+            --phi: 1.6180339887;
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #111827;
+            --gold: #d4af37;
+            --gold-bright: #f5d76e;
+            --cyan: #06d6a0;
+            --red: #ef4444;
+            --orange: #f97316;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ── HUD Overlay ─────────────────────────────── */
+        .hud {
+            position: fixed;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .hud-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            pointer-events: auto;
+        }
+
+        .hud-top-left {
+            top: 24px;
+            left: 24px;
+        }
+
+        .hud-top-right {
+            top: 24px;
+            right: 24px;
+        }
+
+        .hud-bottom-left {
+            bottom: 24px;
+            left: 24px;
+        }
+
+        .hud-bottom-right {
+            bottom: 24px;
+            right: 24px;
+        }
+
+        .logo {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .logo span {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-value.healthy {
+            color: var(--cyan);
+        }
+
+        .stat-value.degraded {
+            color: var(--orange);
+        }
+
+        .stat-value.quarantined {
+            color: var(--red);
+        }
+
+        .node-list {
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--glass-border) transparent;
+        }
+
+        .node-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 12px;
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .node-item:hover {
+            opacity: 0.7;
+        }
+
+        .node-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .node-dot.healthy {
+            background: var(--cyan);
+            box-shadow: 0 0 6px var(--cyan);
+        }
+
+        .node-dot.degraded {
+            background: var(--orange);
+            box-shadow: 0 0 6px var(--orange);
+        }
+
+        .node-dot.quarantined {
+            background: var(--red);
+            box-shadow: 0 0 6px var(--red);
+        }
+
+        .node-dot.dead {
+            background: #475569;
+        }
+
+        .healing-log {
+            max-height: 160px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .log-entry {
+            font-size: 11px;
+            padding: 3px 0;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .log-entry .action-quarantine {
+            color: var(--red);
+        }
+
+        .log-entry .action-respawn {
+            color: var(--cyan);
+        }
+
+        .weight-bar-container {
+            width: 100%;
+            margin-top: 2px;
+        }
+
+        .weight-bar {
+            height: 3px;
+            border-radius: 2px;
+            background: var(--gold);
+            transition: width 0.6s ease;
+        }
+
+        @keyframes pulse-gold {
+
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+            }
+        }
+
+        .master-badge {
+            font-size: 9px;
+            background: var(--gold);
+            color: var(--bg-primary);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            animation: pulse-gold 2s infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvas-container">
+        <canvas id="mesh-canvas"></canvas>
+    </div>
+
+    <!-- Top Left: Title & Stats -->
+    <div class="hud hud-top-left">
+        <div class="hud-panel">
+            <div class="logo">HEADY <span>Geometric Mesh</span></div>
+            <div class="stat-row">
+                <span class="stat-label">Nodes</span>
+                <span class="stat-value" id="stat-nodes">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Healthy</span>
+                <span class="stat-value healthy" id="stat-healthy">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Degraded</span>
+                <span class="stat-value degraded" id="stat-degraded">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Quarantined</span>
+                <span class="stat-value quarantined" id="stat-quarantined">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Healed</span>
+                <span class="stat-value healthy" id="stat-healed">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Epoch</span>
+                <span class="stat-value" id="stat-epoch">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Right: Node List -->
+    <div class="hud hud-top-right">
+        <div class="hud-panel" style="width: 280px;">
+            <div class="logo">Agents <span>ranked by weight</span></div>
+            <div class="node-list" id="node-list"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Left: Healing Log -->
+    <div class="hud hud-bottom-left">
+        <div class="hud-panel" style="width: 360px;">
+            <div class="logo">Healing Log</div>
+            <div class="healing-log" id="healing-log">
+                <div class="log-entry" style="color: var(--text-muted)">— awaiting events —</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PHI = 1.6180339887;
+        const canvas = document.getElementById('mesh-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // ── State ──────────────────────────────────────────
+        let nodes = [];
+        let connections = [];
+        let rotation = 0;
+        let mouseX = 0, mouseY = 0;
+
+        // ── Canvas Setup ───────────────────────────────────
+        function resize() {
+            canvas.width = window.innerWidth * window.devicePixelRatio;
+            canvas.height = window.innerHeight * window.devicePixelRatio;
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // ── Generate Demo Nodes ────────────────────────────
+        function generateNodes(count = 12) {
+            nodes = [];
+            const roles = ['master', 'worker', 'worker', 'worker', 'specialist', 'worker', 'worker', 'guardian', 'worker', 'worker', 'monitor', 'worker'];
+            const states = ['healthy', 'healthy', 'healthy', 'healthy', 'healthy', 'degraded', 'healthy', 'healthy', 'quarantined', 'healthy', 'healthy', 'healthy'];
+
+            for (let i = 0; i < count; i++) {
+                // Icosahedral-inspired positions
+                const angle = (i / count) * Math.PI * 2;
+                const layer = Math.floor(i / 4);
+                const radius = 180 + layer * 80;
+                const zOffset = (layer - 1) * 60;
+
+                nodes.push({
+                    id: `node-${String(i).padStart(2, '0')}`,
+                    role: roles[i % roles.length],
+                    state: states[i % states.length],
+                    x: Math.cos(angle) * radius,
+                    y: Math.sin(angle) * radius,
+                    z: zOffset,
+                    weight: (count - i) * PHI / count,
+                    confidence: 0.7 + Math.random() * 0.3,
+                    latencyMs: Math.round(20 + Math.random() * 180),
+                    generation: 1,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                });
+            }
+
+            // Generate connections (golden-ratio triangulation)
+            connections = [];
+            for (let i = 0; i < count; i++) {
+                const next = (i + 1) % count;
+                const golden = (i + Math.round(count / PHI)) % count;
+                connections.push([i, next]);
+                connections.push([i, golden]);
+            }
+        }
+
+        generateNodes();
+
+        // ── 3D Projection ──────────────────────────────────
+        function project(x, y, z, cx, cy) {
+            const cosR = Math.cos(rotation);
+            const sinR = Math.sin(rotation);
+            const rx = x * cosR - z * sinR;
+            const rz = x * sinR + z * cosR;
+            const tilt = 0.3;
+            const ry = y * Math.cos(tilt) - rz * Math.sin(tilt);
+            const perspective = 800 / (800 + rz * Math.cos(tilt) + y * Math.sin(tilt));
+            return {
+                sx: cx + rx * perspective,
+                sy: cy + ry * perspective,
+                scale: perspective,
+                depth: rz,
+            };
+        }
+
+        // ── Colors ─────────────────────────────────────────
+        function nodeColor(state, alpha = 1) {
+            switch (state) {
+                case 'healthy': return `rgba(6,214,160,${alpha})`;
+                case 'degraded': return `rgba(249,115,22,${alpha})`;
+                case 'quarantined': return `rgba(239,68,68,${alpha})`;
+                case 'dead': return `rgba(71,85,105,${alpha})`;
+                default: return `rgba(148,163,184,${alpha})`;
+            }
+        }
+
+        // ── Render ──────────────────────────────────────────
+        function render() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Background gradient
+            const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.7);
+            bg.addColorStop(0, '#111827');
+            bg.addColorStop(1, '#0a0e1a');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, w, h);
+
+            // Project all nodes
+            const projected = nodes.map((n, i) => ({
+                ...n,
+                index: i,
+                ...project(n.x, n.y, n.z, cx, cy),
+            }));
+
+            // Sort by depth (far to near)
+            projected.sort((a, b) => a.depth - b.depth);
+
+            // Draw connections
+            for (const [i, j] of connections) {
+                const a = projected.find(p => p.index === i);
+                const b = projected.find(p => p.index === j);
+                if (!a || !b) continue;
+
+                const alpha = Math.min(a.scale, b.scale) * 0.3;
+                ctx.beginPath();
+                ctx.moveTo(a.sx, a.sy);
+                ctx.lineTo(b.sx, b.sy);
+                ctx.strokeStyle = `rgba(212,175,55,${alpha})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+
+            // Draw nodes
+            const time = Date.now() / 1000;
+            for (const n of projected) {
+                const pulse = Math.sin(time * 2 + n.pulsePhase) * 0.3 + 0.7;
+                const baseRadius = n.role === 'master' ? 12 : 6;
+                const radius = baseRadius * n.scale;
+
+                // Glow
+                const glow = ctx.createRadialGradient(n.sx, n.sy, 0, n.sx, n.sy, radius * 3);
+                glow.addColorStop(0, nodeColor(n.state, 0.15 * pulse));
+                glow.addColorStop(1, 'transparent');
+                ctx.fillStyle = glow;
+                ctx.fillRect(n.sx - radius * 3, n.sy - radius * 3, radius * 6, radius * 6);
+
+                // Node circle
+                ctx.beginPath();
+                ctx.arc(n.sx, n.sy, radius, 0, Math.PI * 2);
+                ctx.fillStyle = nodeColor(n.state, 0.8 * n.scale);
+                ctx.fill();
+
+                // Master ring
+                if (n.role === 'master') {
+                    ctx.beginPath();
+                    ctx.arc(n.sx, n.sy, radius + 4, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(212,175,55,${0.6 * pulse})`;
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Label
+                if (n.scale > 0.6) {
+                    ctx.fillStyle = `rgba(226,232,240,${n.scale * 0.7})`;
+                    ctx.font = `${Math.round(9 * n.scale)}px Inter, sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.fillText(n.id, n.sx, n.sy + radius + 14);
+                }
+            }
+
+            // Center golden-ratio spiral
+            ctx.beginPath();
+            for (let t = 0; t < Math.PI * 8; t += 0.05) {
+                const r = 3 * Math.pow(PHI, t / (Math.PI * 2));
+                if (r > Math.min(w, h) * 0.45) break;
+                const x = cx + r * Math.cos(t + rotation * 0.5);
+                const y = cy + r * Math.sin(t + rotation * 0.5);
+                if (t === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = 'rgba(212,175,55,0.06)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            rotation += 0.003;
+            requestAnimationFrame(render);
+        }
+
+        // ── HUD Updates ────────────────────────────────────
+        function updateHUD() {
+            const byState = { healthy: 0, degraded: 0, quarantined: 0, dead: 0 };
+            nodes.forEach(n => byState[n.state] = (byState[n.state] || 0) + 1);
+
+            document.getElementById('stat-nodes').textContent = nodes.length;
+            document.getElementById('stat-healthy').textContent = byState.healthy;
+            document.getElementById('stat-degraded').textContent = byState.degraded;
+            document.getElementById('stat-quarantined').textContent = byState.quarantined;
+            document.getElementById('stat-healed').textContent = '0';
+            document.getElementById('stat-epoch').textContent = Math.floor(Date.now() / 2618) % 9999;
+
+            // Node ranking
+            const sorted = [...nodes].sort((a, b) => b.weight - a.weight);
+            const list = document.getElementById('node-list');
+            list.innerHTML = sorted.map(n => `
+        <div class="node-item">
+          <div class="node-dot ${n.state}"></div>
+          <span>${n.id}</span>
+          ${n.role === 'master' ? '<span class="master-badge">φ</span>' : ''}
+          <span style="margin-left:auto; color: var(--text-muted); font-size:10px">${n.latencyMs}ms</span>
+          <span style="font-size:10px; color: var(--gold)">${n.weight.toFixed(2)}</span>
+        </div>
+        <div class="weight-bar-container">
+          <div class="weight-bar" style="width:${Math.min(100, n.weight / PHI * 100)}%"></div>
+        </div>
+      `).join('');
+        }
+
+        // ── Simulate Mesh Events ──────────────────────────
+        function simulateEvents() {
+            // Randomly degrade/heal nodes
+            const idx = Math.floor(Math.random() * nodes.length);
+            const n = nodes[idx];
+            if (n.state === 'healthy' && Math.random() < 0.1) {
+                n.state = 'degraded';
+                addLog('degrade', n.id);
+            } else if (n.state === 'degraded' && Math.random() < 0.3) {
+                n.state = 'quarantined';
+                addLog('quarantine', n.id);
+                // Respawn after delay
+                setTimeout(() => {
+                    n.state = 'healthy';
+                    n.generation++;
+                    n.consecutiveFailures = 0;
+                    addLog('respawn', `${n.id} → gen ${n.generation}`);
+                    updateHUD();
+                }, 3000);
+            } else if (n.state === 'degraded' && Math.random() < 0.5) {
+                n.state = 'healthy';
+            }
+
+            // Update weights with noise
+            nodes.forEach(n => {
+                n.latencyMs = Math.round(20 + Math.random() * 200);
+                n.weight = PHI * (1000 / n.latencyMs) * n.confidence * (n.state === 'healthy' ? 1 : 0.3);
+            });
+
+            updateHUD();
+        }
+
+        function addLog(action, detail) {
+            const log = document.getElementById('healing-log');
+            const time = new Date().toLocaleTimeString();
+            const cls = action === 'quarantine' ? 'action-quarantine' : action === 'respawn' ? 'action-respawn' : '';
+            log.innerHTML = `<div class="log-entry"><span class="${cls}">[${action}]</span> ${time} ${detail}</div>` + log.innerHTML;
+            if (log.children.length > 20) log.removeChild(log.lastChild);
+        }
+
+        // ── Mouse interaction ──────────────────────────────
+        canvas.addEventListener('mousemove', e => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // ── Start ──────────────────────────────────────────
+        updateHUD();
+        render();
+        setInterval(simulateEvents, 2618); // φ² seconds
+    </script>
+</body>
+
+</html>

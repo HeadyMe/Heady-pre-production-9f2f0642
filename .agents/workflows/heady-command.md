@@ -79,6 +79,12 @@ heady {input}               →  Intelligent default processing
 | Command | Service / Module | API Endpoint |
 |---|---|---|
 | `fs`, `device` | `src/services/cross-device-fs.js` | `/api/fs/*` |
+| `mesh`, `heal` | `src/services/self-healing-mesh.js` | `/api/mesh/*` |
+| `doctor` | `scripts/heady-doctor.js` | — |
+| `geometry`, `weights` | `src/services/dynamic-weight-manager.js` | `/api/geometry/*` |
+| `visualizer` | `public/visualizer.html` | — |
+| `governance`, `vote` | `src/services/governance.js` | `/api/governance/*` |
+| `support`, `help` | `src/services/headyme-helper.js` | `/api/support/*` |
 | `auth` | `src/hc_auth.js` | `/api/auth/*` |
 | `qa` | `src/hc_qa.js` (HeadyQA) | `/api/qa/*` |
 | `onboarding` | `src/services/onboarding-orchestrator.js` | `/api/onboarding/*` |
