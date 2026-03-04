@@ -74,3 +74,11 @@ Start at `https://headyme.com` and drive users through deterministic stages:
 
 - Run scheduled projection diffs to GitHub and Hugging Face targets.
 - Add rollback/receipt replay for deterministic remediation.
+
+## Secure Local Bridge + Projection Mechanics
+
+- Use **File System Access API** for explicit, user-granted workspace mounting during onboarding (`permissions-grant` stage).
+- Persist granted handles and onboarding state using **IndexedDB serialization** so users skip repeated permission prompts.
+- Use **npx-based one-click wrappers** as the bootstrap surface for SDK install and runtime connector setup.
+- Use **Model Context Protocol (MCP)** as the main contract between projected UI surfaces and autonomous runtime.
+- Keep core execution in the three Colab Pro+ notebooks and project only synchronized, current state to public surfaces.

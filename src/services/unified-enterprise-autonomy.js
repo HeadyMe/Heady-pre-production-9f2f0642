@@ -160,9 +160,33 @@ class UnifiedEnterpriseAutonomyService {
         };
     }
 
+    buildOnboardingContract() {
+        const flow = this.platformBlueprint.onboarding_flow || [];
+        const bridge = this.platformBlueprint.security_bridge || {};
+        const runtimeParadigm = this.platformBlueprint.runtime_paradigm || {};
+
+        return {
+            generatedAt: new Date().toISOString(),
+            entrypoint: this.platformBlueprint.entrypoint || {},
+            auth: flow.find((stage) => stage.id === 'auth-provider-select') || null,
+            permissions: flow.find((stage) => stage.id === 'permissions-grant') || null,
+            identity: flow.find((stage) => stage.id === 'username-provision') || null,
+            install: flow.find((stage) => stage.id === 'one-click-install') || null,
+            customization: flow.find((stage) => stage.id === 'intent-customization') || null,
+            securityBridge: bridge,
+            runtimeParadigm,
+            deterministicReceipt: createDeterministicReceipt({
+                flow,
+                bridge,
+                runtimeParadigm,
+            }),
+        };
+    }
+
     buildDeveloperPlatformBlueprint() {
         const flow = this.platformBlueprint.onboarding_flow || [];
         const capabilities = this.platformBlueprint.platform_capabilities || {};
+        const onboardingContract = this.buildOnboardingContract();
 
         return {
             generatedAt: new Date().toISOString(),
@@ -173,10 +197,12 @@ class UnifiedEnterpriseAutonomyService {
                 stages: flow,
             },
             capabilities,
+            onboardingContract,
             deterministicReceipt: createDeterministicReceipt({
                 flow,
                 capabilities,
                 mission: this.platformBlueprint.platform_mission,
+                onboardingReceipt: onboardingContract.deterministicReceipt,
             }),
         };
     }
@@ -187,6 +213,7 @@ class UnifiedEnterpriseAutonomyService {
         const activeQueues = Object.keys(queueWeights);
         const fabric = this.liquidFabric.service_topology || {};
         const platformBlueprint = this.buildDeveloperPlatformBlueprint();
+        const onboardingContract = this.buildOnboardingContract();
 
         const { sourceOfTruth, projectionHygiene } = this.getCachedTelemetry();
 
@@ -228,6 +255,7 @@ class UnifiedEnterpriseAutonomyService {
             sourceOfTruth,
             projectionHygiene,
             developerPlatform: platformBlueprint,
+            onboardingContract,
             deterministicReceipt: createDeterministicReceipt({
                 queueWeights,
                 fabric,
@@ -235,6 +263,7 @@ class UnifiedEnterpriseAutonomyService {
                 sourceOfTruth: sourceOfTruth.sourceOfTruth,
                 hygieneClean: projectionHygiene.clean,
                 platformBlueprintReceipt: platformBlueprint.deterministicReceipt,
+                onboardingReceipt: onboardingContract.deterministicReceipt,
             }),
         };
 
@@ -244,7 +273,6 @@ class UnifiedEnterpriseAutonomyService {
 
     scanProjectionNoise() {
         const trackedFiles = parseLines(tryExec('git ls-files'));
-
         const policy = this.liquidFabric.projection_hygiene || {};
         const allowlistedServiceWorkers = policy.allowlisted_service_workers || [];
 
@@ -306,6 +334,7 @@ class UnifiedEnterpriseAutonomyService {
             embeddingCollections: (this.embeddingCatalog.collections || []).length,
             topologyPlanes: (this.liquidFabric.service_topology?.planes || []).length,
             onboardingStages: onboardingStages.length,
+            onboardingSecurityBridge: this.platformBlueprint.security_bridge || {},
             determinism: this.colabPlan.determinism || {},
             sourceOfTruth,
             projectionHygiene,
@@ -351,9 +380,13 @@ function registerUnifiedEnterpriseAutonomyRoutes(app, service = new UnifiedEnter
         res.json({ ok: true, blueprint: service.buildDeveloperPlatformBlueprint() });
     });
 
+    app.get('/api/unified-autonomy/onboarding-contract', (_req, res) => {
+        res.json({ ok: true, onboarding: service.buildOnboardingContract() });
+    });
+
     logger.logNodeActivity(
         'CONDUCTOR',
-        '    → Endpoints: /api/unified-autonomy/health, /nodes, /embedding-plan, /dispatch, /system-projection, /source-of-truth, /projection-hygiene, /platform-blueprint',
+        '    → Endpoints: /api/unified-autonomy/health, /nodes, /embedding-plan, /dispatch, /system-projection, /source-of-truth, /projection-hygiene, /platform-blueprint, /onboarding-contract',
     );
 
     return service;

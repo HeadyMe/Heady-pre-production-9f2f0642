@@ -42,3 +42,35 @@ platform_capabilities:
   cloud_projection_only: true
   autonomous_monorepo_sync: true
   huggingface_projection: true
+
+runtime_paradigm:
+  vector_space_only: true
+  frontend_backend_split: false
+  colab_notebooks: 3
+  gpu_profiles:
+    - high-vram
+    - balanced
+    - throughput
+
+security_bridge:
+  filesystem_access_api: required
+  indexeddb_serialization: required
+  permission_recheck_mode: if-not-granted
+  transport_security:
+    - mcp
+    - websocket
+    - midi2-ump
+
+installation_contract:
+  one_click_wrappers:
+    - npx
+    - extension-installer
+    - ide-installer
+
+mcp_projection:
+  enabled: true
+  dynamic_ui_generation_from_templates: true
+  dynamic_connector_generation_from_templates: true
+  template_sources:
+    - headybee-template-registry
+    - headyswarm-template-registry

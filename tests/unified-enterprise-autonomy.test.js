@@ -40,6 +40,17 @@ describe('unified enterprise autonomy service', () => {
         expect(plan.collections.every((entry) => entry.deterministicReceipt.length === 64)).toBe(true);
     });
 
+    test('onboarding contract includes security bridge requirements', () => {
+        const service = new UnifiedEnterpriseAutonomyService();
+        const onboarding = service.buildOnboardingContract();
+
+        expect(onboarding.entrypoint.domain).toBe('https://headyme.com');
+        expect(onboarding.securityBridge.filesystem_access_api).toBe('required');
+        expect(onboarding.securityBridge.indexeddb_serialization).toBe('required');
+        expect(onboarding.runtimeParadigm.colab_notebooks).toBe(3);
+        expect(onboarding.deterministicReceipt).toHaveLength(64);
+    });
+
     test('platform blueprint exposes deterministic onboarding stages', () => {
         const service = new UnifiedEnterpriseAutonomyService();
         const blueprint = service.buildDeveloperPlatformBlueprint();
@@ -72,6 +83,7 @@ describe('unified enterprise autonomy service', () => {
         expect(projection.sourceOfTruth).toHaveProperty('commit');
         expect(projection.projectionHygiene).toHaveProperty('clean');
         expect(projection.developerPlatform).toHaveProperty('onboarding');
+        expect(projection).toHaveProperty('onboardingContract');
         expect(projection.deterministicReceipt).toHaveLength(64);
     });
 });
