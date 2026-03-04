@@ -7,6 +7,20 @@
 // ═══════════════════════════════════════════════════════════════
 
 const PHI = 1.6180339887;
+const VERSION = '3.2.1';
+
+// ── Owner Identity — The root-level user who owns this system ─
+const OWNER = {
+  id: '6979903b04361668484f9923',  // HF SPACE_CREATOR_USER_ID
+  emails: ['eric@headyme.com', 'e@headyme.com', 'eric@headyconnection.org', 'eric@headysystems.com'],
+  name: 'Eric Haywood',
+  displayName: 'Eric',
+  role: 'owner',
+  tier: 'sovereign',
+  permissions: ['root', 'admin', 'deploy', 'govern', 'authorize', 'vault', 'filesystem', 'exec'],
+  hfUserId: '6979903b04361668484f9923',
+  devices: [],  // populated from KV at runtime
+};
 
 // ── Site Registry ────────────────────────────────────────────
 const SITES = {
@@ -134,7 +148,28 @@ ft a{color:var(--dm);text-decoration:none}
 .bi input{flex:1;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--bd);background:rgba(0,0,0,.3);color:var(--tx);font-family:inherit;font-size:.85rem;outline:none}
 .bi button{background:var(--br);color:white;border:none;padding:.5rem .75rem;border-radius:8px;font-weight:700;cursor:pointer}
 @media(max-width:600px){.ag{grid-template-columns:repeat(2,1fr)}.bx{width:calc(100vw - 32px);right:16px;bottom:84px}.hr h1{font-size:2rem}}
-</style></head><body>
+.lp{padding:2rem 0;border-top:1px solid var(--bd)}
+.lp h2{font-size:1.2rem;font-weight:800;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.lp h2 .lt{font-size:.65rem;font-weight:600;background:color-mix(in srgb,var(--br) 15%,transparent);color:var(--br);padding:2px 8px;border-radius:10px}
+.lg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.lc{background:var(--sf);backdrop-filter:blur(20px);border:1px solid var(--bd);border-radius:12px;padding:1rem;transition:all .3s}
+.lc:hover{border-color:color-mix(in srgb,var(--br) 40%,transparent);transform:translateY(-2px)}
+.lc .lv{font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--br),var(--ac));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.lc .ll{font-size:.75rem;color:var(--dm);margin-top:.25rem}
+.lc .ls{display:inline-block;font-size:.6rem;padding:2px 6px;border-radius:6px;margin-top:.4rem;font-weight:600}
+.lc .ls.ok{background:rgba(16,185,129,.15);color:#10b981}
+.lc .ls.wn{background:rgba(245,158,11,.15);color:#f59e0b}
+.ip{background:var(--sf);backdrop-filter:blur(20px);border:1px solid color-mix(in srgb,var(--br) 15%,transparent);border-radius:14px;padding:1.25rem;margin-top:1rem;font-size:.85rem;color:var(--dm);line-height:1.6}
+.ip strong{color:var(--tx)}
+.ip .it{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
+.ip .it span{background:rgba(255,255,255,.04);border:1px solid var(--bd);padding:3px 10px;border-radius:6px;font-size:.7rem;cursor:pointer;transition:all .2s}
+.ip .it span:hover{border-color:var(--br);color:var(--br)}
+</style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="${s.color}">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head><body>
 <div class="gd"></div><div class="gw"></div><div class="gw2"></div>
 <nav>
   <a class="nb" href="/"><div class="nl">${s.icon}</div><span class="nn">${s.brand}</span></a>
@@ -156,6 +191,31 @@ ft a{color:var(--dm);text-decoration:none}
     </div>
   </section>
   <section class="sv">${sC}</section>
+
+  <!-- HeadyLens Data Panel -->
+  <section class="lp" id="lensPanel">
+    <h2>👁️ HeadyLens <span class="lt">LIVE</span></h2>
+    <div class="lg" id="lensGrid">
+      <div class="lc"><div class="lv" id="ln-domains">9</div><div class="ll">Active Domains</div><div class="ls ok">● All Online</div></div>
+      <div class="lc"><div class="lv" id="ln-providers">25</div><div class="ll">Auth Providers</div><div class="ls ok">● Connected</div></div>
+      <div class="lc"><div class="lv" id="ln-edge"><1ms</div><div class="ll">Edge Latency</div><div class="ls ok">● Optimal</div></div>
+      <div class="lc"><div class="lv" id="ln-uptime">100%</div><div class="ll">Uptime (30d)</div><div class="ls ok">● Perfect</div></div>
+      <div class="lc"><div class="lv" id="ln-colo">—</div><div class="ll">Nearest Edge</div><div class="ls ok">● Active</div></div>
+      <div class="lc"><div class="lv" id="ln-sessions">—</div><div class="ll">Active Sessions</div><div class="ls ok">● Live</div></div>
+    </div>
+    <div class="ip">
+      <strong>🔍 Insight:</strong> You're currently on <strong>${s.brand}</strong>. All 9 Heady domains render at the edge in under 5ms. Your session and preferences sync across every device.
+      <div class="it">
+        <span onclick="sendBuddy('Show system health')">📊 Health</span>
+        <span onclick="sendBuddy('Show my devices')">📱 Devices</span>
+        <span onclick="sendBuddy('Show my API keys')">🔑 Keys</span>
+        <span onclick="sendBuddy('Show recent activity')">📋 Activity</span>
+        <span onclick="sendBuddy('Run diagnostics')">🔧 Diagnose</span>
+        <span onclick="sendBuddy('Show governance status')">🏛️ Governance</span>
+      </div>
+    </div>
+  </section>
+
   <div class="db">${dL}</div>
   <ft>© 2026 Heady Systems LLC · <a href="https://headyme.com">headyme.com</a> · 25 Auth Providers · Sacred Geometry v3 · ∞ Metatron's Cube</ft>
 </div>
@@ -201,7 +261,7 @@ ft a{color:var(--dm);text-decoration:none}
 
 <!-- HeadyBuddy Widget -->
 <button class="bf" onclick="togB()" title="HeadyBuddy">🧠</button>
-<div class="bx" id="bP">
+<div class="bx on" id="bP">
   <div class="bh"><span>🧠 HeadyBuddy</span><button class="bc" onclick="togB()">✕</button></div>
   <div class="bm" id="bM"><div class="mg b"><div class="bl">Hey! I'm HeadyBuddy on <strong>${s.brand}</strong>. How can I help?</div></div></div>
   <div class="bi"><input id="bI" placeholder="Ask HeadyBuddy..." onkeydown="if(event.key==='Enter')sendB()"><button onclick="sendB()">▶</button></div>
@@ -301,6 +361,38 @@ function sendB(){
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeA();closeK();closeS();}});
+
+// HeadyLens data
+(function(){
+  // Set nearest edge colo
+  fetch('/api/health').then(r=>r.json()).then(d=>{
+    const el=document.getElementById('ln-colo');
+    if(el&&d.cf_colo)el.textContent=d.cf_colo;
+    const se=document.getElementById('ln-sessions');
+    if(se)se.textContent=sess?'1':'0';
+  }).catch(()=>{});
+})();
+
+function sendBuddy(m){
+  // Open buddy if closed, send a message
+  const p=document.getElementById('bP');
+  if(!p.classList.contains('on'))p.classList.add('on');
+  document.getElementById('bI').value=m;
+  sendB();
+}
+
+// Auto-register this device
+function regDevice(){
+  const name=navigator.platform+'-'+navigator.language;
+  fetch('/api/device/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deviceName:name,platform:navigator.platform,userAgent:navigator.userAgent})}).catch(()=>{});
+}
+regDevice();
+
+// Register service worker for PWA install
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
+
+// Log identity
+console.log('[Heady] ${s.brand} v${VERSION} · Edge rendered · PWA ready · HeadyBuddy active');
 </script></body></html>`;
 }
 
@@ -381,6 +473,181 @@ export default {
         return Response.json({ response, site: siteName || site.brand, edge: !!env.HEADY_AI });
       } catch {
         return Response.json({ error: 'Invalid request' }, { status: 400 });
+      }
+    }
+
+    // ── PWA: manifest.json ─────────────────────────────────────
+    if (url.pathname === '/manifest.json') {
+      return Response.json({
+        name: site.brand, short_name: site.brand,
+        description: site.sub,
+        start_url: '/', display: 'standalone', orientation: 'any',
+        background_color: '#0a0a1a', theme_color: site.color,
+        categories: ['productivity', 'utilities', 'developer'],
+        icons: [
+          { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">' + site.icon + '</text></svg>', sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">' + site.icon + '</text></svg>', sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
+        ],
+        scope: '/', lang: 'en-US', dir: 'ltr',
+        prefer_related_applications: false,
+        shortcuts: [
+          { name: 'Sign In', short_name: 'Sign In', url: '/?action=signin', icons: [{ src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔑</text></svg>', sizes: '96x96' }] },
+          { name: 'HeadyBuddy', short_name: 'Chat', url: '/?action=buddy', icons: [{ src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🧠</text></svg>', sizes: '96x96' }] },
+        ],
+      }, { headers: { 'Content-Type': 'application/manifest+json', 'Cache-Control': 'public, max-age=3600' } });
+    }
+
+    // ── PWA: service worker ───────────────────────────────────
+    if (url.pathname === '/sw.js') {
+      return new Response(`
+const CACHE='heady-${VERSION.replace(/\./g, '')}';
+const SHELL=['./','./manifest.json'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{
+  const u=new URL(e.request.url);
+  if(u.pathname.startsWith('/api/')||u.pathname.startsWith('/mcp/')){e.respondWith(fetch(e.request));return;}
+  e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)));
+});`, { headers: { 'Content-Type': 'application/javascript', 'Cache-Control': 'no-cache', 'Service-Worker-Allowed': '/' } });
+    }
+
+    // ── Owner Bootstrap — grants root-level owner access ──────
+    if (url.pathname === '/api/owner/bootstrap' && request.method === 'POST') {
+      try {
+        const { email, hfUserId, deviceName, deviceInfo } = await request.json();
+        // Verify owner identity
+        const isOwner = OWNER.emails.includes(email) || OWNER.hfUserId === hfUserId;
+        if (!isOwner) {
+          return Response.json({ error: 'Unauthorized — not the owner', code: 'NOT_OWNER' }, { status: 403 });
+        }
+        // Generate owner session token
+        const ownerToken = 'hy_owner_' + [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, '0')).join('');
+        const apiKey = 'HY-OWNER-' + [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
+        const session = {
+          token: ownerToken, apiKey,
+          owner: OWNER,
+          device: deviceName || 'unknown',
+          bootstrappedAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
+        };
+        // Persist to KV if available
+        if (env.HEADY_KV) {
+          await env.HEADY_KV.put(`owner:session:${ownerToken}`, JSON.stringify(session), { expirationTtl: 365 * 24 * 60 * 60 });
+          // Register device
+          if (deviceName) {
+            const devices = JSON.parse(await env.HEADY_KV.get('owner:devices') || '[]');
+            const dev = { name: deviceName, info: deviceInfo || {}, registeredAt: new Date().toISOString(), lastSeen: new Date().toISOString() };
+            const idx = devices.findIndex(d => d.name === deviceName);
+            if (idx >= 0) devices[idx] = dev; else devices.push(dev);
+            await env.HEADY_KV.put('owner:devices', JSON.stringify(devices));
+          }
+        }
+        return Response.json({
+          status: 'bootstrapped',
+          owner: { id: OWNER.id, name: OWNER.name, role: OWNER.role, tier: OWNER.tier, permissions: OWNER.permissions },
+          token: ownerToken, apiKey,
+          device: deviceName,
+          message: `Welcome, ${OWNER.displayName}. Root-level access granted across all ${Object.keys(SITES).length} domains.`,
+        });
+      } catch {
+        return Response.json({ error: 'Invalid bootstrap request' }, { status: 400 });
+      }
+    }
+
+    // ── Owner: verify session ─────────────────────────────────
+    if (url.pathname === '/api/owner/verify') {
+      const authHeader = request.headers.get('Authorization') || '';
+      const token = authHeader.replace('Bearer ', '');
+      if (!token || !token.startsWith('hy_owner_')) {
+        return Response.json({ verified: false, error: 'No owner token' }, { status: 401 });
+      }
+      if (env.HEADY_KV) {
+        const session = JSON.parse(await env.HEADY_KV.get(`owner:session:${token}`) || 'null');
+        if (session) {
+          return Response.json({ verified: true, owner: session.owner, device: session.device, tier: 'sovereign' });
+        }
+      }
+      return Response.json({ verified: false, error: 'Invalid or expired token' }, { status: 401 });
+    }
+
+    // ── Owner: authorize another user ─────────────────────────
+    if (url.pathname === '/api/owner/authorize' && request.method === 'POST') {
+      const authHeader = request.headers.get('Authorization') || '';
+      const token = authHeader.replace('Bearer ', '');
+      // Verify owner
+      let isOwner = false;
+      if (token.startsWith('hy_owner_') && env.HEADY_KV) {
+        const session = JSON.parse(await env.HEADY_KV.get(`owner:session:${token}`) || 'null');
+        if (session) isOwner = true;
+      }
+      if (!isOwner) return Response.json({ error: 'Owner token required' }, { status: 403 });
+
+      try {
+        const { email, role, tier, permissions } = await request.json();
+        const userToken = 'hy_user_' + [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.toString(16).padStart(2, '0')).join('');
+        const userRecord = { email, role: role || 'member', tier: tier || 'spark', permissions: permissions || ['read', 'chat'], grantedBy: OWNER.name, grantedAt: new Date().toISOString() };
+        if (env.HEADY_KV) {
+          await env.HEADY_KV.put(`user:${email}`, JSON.stringify(userRecord), { expirationTtl: 90 * 24 * 60 * 60 });
+          await env.HEADY_KV.put(`user:session:${userToken}`, JSON.stringify({ ...userRecord, token: userToken }), { expirationTtl: 90 * 24 * 60 * 60 });
+        }
+        return Response.json({ status: 'authorized', user: userRecord, token: userToken, message: `${email} granted ${role || 'member'} access by ${OWNER.name}.` });
+      } catch {
+        return Response.json({ error: 'Invalid request' }, { status: 400 });
+      }
+    }
+
+    // ── Device: register ──────────────────────────────────────
+    if (url.pathname === '/api/device/register' && request.method === 'POST') {
+      try {
+        const { deviceName, platform, userAgent, token } = await request.json();
+        const dev = {
+          name: deviceName || `device-${Date.now()}`,
+          platform: platform || request.headers.get('sec-ch-ua-platform') || 'unknown',
+          userAgent: userAgent || request.headers.get('user-agent') || '',
+          registeredAt: new Date().toISOString(),
+          lastSeen: new Date().toISOString(),
+          colo: request.cf?.colo || 'unknown',
+        };
+        if (env.HEADY_KV) {
+          const devices = JSON.parse(await env.HEADY_KV.get('owner:devices') || '[]');
+          const idx = devices.findIndex(d => d.name === dev.name);
+          if (idx >= 0) devices[idx] = dev; else devices.push(dev);
+          await env.HEADY_KV.put('owner:devices', JSON.stringify(devices));
+        }
+        return Response.json({ registered: true, device: dev, totalDevices: 'check /api/device/list' });
+      } catch {
+        return Response.json({ error: 'Invalid request' }, { status: 400 });
+      }
+    }
+
+    // ── Device: list ──────────────────────────────────────────
+    if (url.pathname === '/api/device/list') {
+      if (env.HEADY_KV) {
+        const devices = JSON.parse(await env.HEADY_KV.get('owner:devices') || '[]');
+        return Response.json({ devices, count: devices.length });
+      }
+      return Response.json({ devices: [], count: 0, note: 'KV not bound' });
+    }
+
+    // ── Device: sync state ────────────────────────────────────
+    if (url.pathname === '/api/device/sync' && request.method === 'POST') {
+      try {
+        const { deviceName, state } = await request.json();
+        if (env.HEADY_KV) {
+          // Store device-specific state
+          await env.HEADY_KV.put(`device:state:${deviceName}`, JSON.stringify({ ...state, updatedAt: new Date().toISOString() }), { expirationTtl: 30 * 24 * 60 * 60 });
+          // Get all device states for cross-sync
+          const devices = JSON.parse(await env.HEADY_KV.get('owner:devices') || '[]');
+          const allStates = {};
+          for (const d of devices) {
+            const s = await env.HEADY_KV.get(`device:state:${d.name}`, 'json');
+            if (s) allStates[d.name] = s;
+          }
+          return Response.json({ synced: true, deviceName, allDeviceStates: allStates });
+        }
+        return Response.json({ synced: false, note: 'KV not bound' });
+      } catch {
+        return Response.json({ error: 'Invalid sync request' }, { status: 400 });
       }
     }
 

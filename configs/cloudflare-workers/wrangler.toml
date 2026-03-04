@@ -6,6 +6,12 @@ compatibility_date = "2024-01-01"
 [ai]
 binding = "HEADY_AI"
 
+# KV for owner sessions, device sync, user auth
+[[kv_namespaces]]
+binding = "HEADY_KV"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+
 # Domain routes — all 9 Heady sites served from this single worker
 # Deploy: wrangler deploy --env production
 [[routes]]
