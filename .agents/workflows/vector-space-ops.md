@@ -143,7 +143,7 @@ All deployments go through vector space → ProjectionManager → deployment-bee
 
 If a new domain is needed:
 
-```javascript
+```javascriptm
 const domain = 'new-domain';
 const description = 'What this bee manages';
 const priority = 0.5; // 0-1, higher = more important
