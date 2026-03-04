@@ -1,6 +1,7 @@
 name = "heady-router"
 main = "heady-router-worker.js"
 compatibility_date = "2024-01-01"
+workers_dev = true
 
 # Workers AI binding for edge chat
 [ai]
@@ -9,82 +10,13 @@ binding = "HEADY_AI"
 # KV for owner sessions, device sync, user auth
 [[kv_namespaces]]
 binding = "HEADY_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
-preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+id = "b4b17b3e4c944aafbc39df7fd8ce35e5"
+preview_id = "b4b17b3e4c944aafbc39df7fd8ce35e5"
 
-# Domain routes — all 9 Heady sites served from this single worker
-# Deploy: wrangler deploy --env production
-[[routes]]
-pattern = "headyme.com/*"
-zone_name = "headyme.com"
-
-[[routes]]
-pattern = "www.headyme.com/*"
-zone_name = "headyme.com"
-
-[[routes]]
-pattern = "headysystems.com/*"
-zone_name = "headysystems.com"
-
-[[routes]]
-pattern = "www.headysystems.com/*"
-zone_name = "headysystems.com"
-
-[[routes]]
-pattern = "headyconnection.org/*"
-zone_name = "headyconnection.org"
-
-[[routes]]
-pattern = "www.headyconnection.org/*"
-zone_name = "headyconnection.org"
-
-[[routes]]
-pattern = "headybuddy.org/*"
-zone_name = "headybuddy.org"
-
-[[routes]]
-pattern = "www.headybuddy.org/*"
-zone_name = "headybuddy.org"
-
-[[routes]]
-pattern = "headymcp.com/*"
-zone_name = "headymcp.com"
-
-[[routes]]
-pattern = "www.headymcp.com/*"
-zone_name = "headymcp.com"
-
-[[routes]]
-pattern = "headyio.com/*"
-zone_name = "headyio.com"
-
-[[routes]]
-pattern = "www.headyio.com/*"
-zone_name = "headyio.com"
-
-[[routes]]
-pattern = "headybot.com/*"
-zone_name = "headybot.com"
-
-[[routes]]
-pattern = "www.headybot.com/*"
-zone_name = "headybot.com"
-
-[[routes]]
-pattern = "headyapi.com/*"
-zone_name = "headyapi.com"
-
-[[routes]]
-pattern = "www.headyapi.com/*"
-zone_name = "headyapi.com"
-
-[[routes]]
-pattern = "headylens.com/*"
-zone_name = "headylens.com"
-
-[[routes]]
-pattern = "www.headylens.com/*"
-zone_name = "headylens.com"
+# Domain routes can be added per-zone once each zone is proxied:
+# [[routes]]
+# pattern = "headyme.com/*"
+# zone_name = "headyme.com"
 
 [env.production]
 vars = { ENVIRONMENT = "production" }
