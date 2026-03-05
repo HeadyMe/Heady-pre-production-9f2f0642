@@ -392,6 +392,35 @@ try {
   });
 }
 
+// ─── OAuth 2.1 Authorization Server (for Claude MCP Connector) ──────
+let oauthProvider = null;
+try {
+  const { HeadyOAuthProvider, registerOAuthRoutes } = require("./src/auth/heady-oauth-provider");
+  oauthProvider = new HeadyOAuthProvider({
+    issuer: process.env.HEADY_OAUTH_ISSUER || "https://manager.headysystems.com",
+    authEngine,
+    adminKey: process.env.HEADY_API_KEY,
+  });
+  registerOAuthRoutes(app, oauthProvider);
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ OAuth 2.1 not loaded: ${err.message}`);
+}
+
+// ─── MCP SSE Transport (Remote MCP for Claude/external clients) ─────
+try {
+  const { McpSseTransport } = require("./src/mcp/mcp-sse-transport");
+  const mcpSse = new McpSseTransport({
+    oauthProvider,
+    baseUrl: process.env.HEADY_MANAGER_URL || `http://localhost:${PORT}`,
+    apiKey: process.env.HEADY_API_KEY,
+  });
+  app.use("/mcp", mcpSse.getRouter());
+  logger.logNodeActivity("CONDUCTOR", "  🔌 MCP SSE Transport: LOADED → /mcp/sse, /mcp/message, /mcp/health");
+  logger.logNodeActivity("CONDUCTOR", "    → Claude connector: https://manager.headysystems.com/mcp/sse");
+} catch (err) {
+  logger.logNodeActivity("CONDUCTOR", `  ⚠ MCP SSE Transport not loaded: ${err.message}`);
+}
+
 app.get("/api/services/groups", (req, res) => {
   const token = req.headers['authorization']?.split(' ')[1];
   const tier = (authEngine && authEngine.verify(token)?.tier) || (token === process.env.HEADY_API_KEY ? "admin" : "core");
