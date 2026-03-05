@@ -12,6 +12,86 @@ const vscode = require("vscode");
 const http = require("http");
 const https = require("https");
 
+// ── Subscription Tier Gating ──────────────────────────────────────
+const TIER_HIERARCHY = ['free', 'pro', 'premium', 'internal'];
+
+const KEY_PREFIX_TO_TIER = {
+    'hdy_free_': 'free',
+    'hdy_pro_': 'pro',
+    'hdy_biz_': 'pro',      // business = pro-level access
+    'hdy_max_': 'premium',
+    'hdy_fam_': 'premium',
+    'hdy_ent_': 'premium',
+    'hdy_epg_': 'premium',
+    'hdy_npo_': 'pro',
+    'hdy_int_': 'internal',  // unlimited
+};
+
+const COMMAND_TIERS = {
+    'heady.chat': 'free',
+    'heady.explain': 'free',
+    'heady.refactor': 'pro',
+    'heady.creative': 'pro',
+    'heady.battle': 'premium',
+    'heady.swarm': 'premium',
+    'heady.audit': 'premium',
+    'heady.simulate': 'premium',
+};
+
+const TIER_LABELS = {
+    'free': '🆓 Free',
+    'pro': '✨ Pro',
+    'premium': '⭐ Premium',
+    'internal': '🐝 Internal',
+};
+
+const UPGRADE_URLS = {
+    'pro': 'https://headyio.com/pricing?tier=pro',
+    'premium': 'https://headyio.com/pricing?tier=premium',
+};
+
+/**
+ * Resolve the user's subscription tier from their API key prefix.
+ * No key → free tier. Unrecognised prefix → free tier.
+ */
+function getUserTier() {
+    const apiKey = (vscode.workspace.getConfiguration("heady").get("apiKey") || '').trim();
+    if (!apiKey) return 'free';
+    for (const [prefix, tier] of Object.entries(KEY_PREFIX_TO_TIER)) {
+        if (apiKey.startsWith(prefix)) return tier;
+    }
+    return 'free';
+}
+
+/** Returns true if userTier >= requiredTier in the hierarchy. */
+function tierMeetsRequirement(userTier, requiredTier) {
+    if (userTier === 'internal') return true;
+    return TIER_HIERARCHY.indexOf(userTier) >= TIER_HIERARCHY.indexOf(requiredTier);
+}
+
+/**
+ * Gate-check before running a command. Shows upgrade prompt if too low.
+ * Returns true if access is granted.
+ */
+function checkTierAccess(commandId) {
+    const requiredTier = COMMAND_TIERS[commandId] || 'free';
+    const userTier = getUserTier();
+    if (tierMeetsRequirement(userTier, requiredTier)) return true;
+
+    const label = TIER_LABELS[requiredTier] || requiredTier;
+    const upgradeUrl = UPGRADE_URLS[requiredTier] || UPGRADE_URLS['premium'];
+    vscode.window.showWarningMessage(
+        `🔒 "${commandId.replace('heady.', '')}" requires ${label} tier or higher. ` +
+        `Your current tier: ${TIER_LABELS[userTier]}.`,
+        'Upgrade', 'Enter API Key'
+    ).then(choice => {
+        if (choice === 'Upgrade') vscode.env.openExternal(vscode.Uri.parse(upgradeUrl));
+        if (choice === 'Enter API Key') vscode.commands.executeCommand('workbench.action.openSettings', 'heady.apiKey');
+    });
+    return false;
+}
+
+// ── Models ────────────────────────────────────────────────────────
 const HEADY_MODELS = [
     { id: 'heady-flash', label: '⚡ Heady Flash', detail: 'Fast & free — 3 fastest nodes', tier: 'free' },
     { id: 'heady-edge', label: '🌐 Heady Edge', detail: 'Sub-200ms edge inference', tier: 'free' },
@@ -111,30 +191,48 @@ function activate(context) {
         statusBar.color = "#ED4245";
     });
 
-    // ── Model Selector Command ──
+    // ── Model Selector Command (tier-aware) ──
     context.subscriptions.push(
         vscode.commands.registerCommand("heady.selectModel", async () => {
-            const picked = await vscode.window.showQuickPick(HEADY_MODELS.map(m => ({
-                ...m,
-                description: m.tier === 'premium' ? '⭐ PREMIUM' : m.tier === 'pro' ? '✨ PRO' : '🆓 FREE',
-            })), {
-                placeHolder: `Current: ${getModel()} — Select a Heady model`,
+            const userTier = getUserTier();
+            const items = HEADY_MODELS.map(m => {
+                const locked = !tierMeetsRequirement(userTier, m.tier);
+                return {
+                    ...m,
+                    description: locked
+                        ? `🔒 Requires ${TIER_LABELS[m.tier]}`
+                        : m.tier === 'premium' ? '⭐ PREMIUM' : m.tier === 'pro' ? '✨ PRO' : '🆓 FREE',
+                    _locked: locked,
+                };
+            });
+            const picked = await vscode.window.showQuickPick(items, {
+                placeHolder: `Current: ${getModel()} | Tier: ${TIER_LABELS[userTier]} — Select a model`,
                 title: '🐝 Heady Model Selector',
             });
-            if (picked) {
-                currentModel = picked.id;
-                await vscode.workspace.getConfiguration("heady").update("model", picked.id, true);
-                updateModelStatusBar();
-                vscode.window.showInformationMessage(`🐝 Switched to ${picked.label}`);
+            if (!picked) return;
+            if (picked._locked) {
+                const upgradeUrl = UPGRADE_URLS[picked.tier] || UPGRADE_URLS['premium'];
+                const choice = await vscode.window.showWarningMessage(
+                    `🔒 ${picked.label} requires ${TIER_LABELS[picked.tier]} tier. Your tier: ${TIER_LABELS[userTier]}.`,
+                    'Upgrade', 'Enter API Key'
+                );
+                if (choice === 'Upgrade') vscode.env.openExternal(vscode.Uri.parse(upgradeUrl));
+                if (choice === 'Enter API Key') vscode.commands.executeCommand('workbench.action.openSettings', 'heady.apiKey');
+                return;
             }
+            currentModel = picked.id;
+            await vscode.workspace.getConfiguration("heady").update("model", picked.id, true);
+            updateModelStatusBar();
+            vscode.window.showInformationMessage(`🐝 Switched to ${picked.label}`);
         })
     );
 
-    // ── Chat Command ──
+    // ── Chat Command (tier-gated) ──
     context.subscriptions.push(
         vscode.commands.registerCommand("heady.chat", async () => {
+            if (!checkTierAccess('heady.chat')) return;
             const input = await vscode.window.showInputBox({
-                prompt: `🐝 Ask Heady (${getModel()})`,
+                prompt: `🐝 Ask Heady (${getModel()}) | ${TIER_LABELS[getUserTier()]}`,
                 placeHolder: "What would you like to know?",
             });
             if (!input) return;
@@ -153,10 +251,11 @@ function activate(context) {
         })
     );
 
-    // ── Selection Commands ──
+    // ── Selection Commands (tier-gated) ──
     function registerSelectionCommand(cmdId, tag, label, defaultModel) {
         context.subscriptions.push(
             vscode.commands.registerCommand(cmdId, async () => {
+                if (!checkTierAccess(cmdId)) return;
                 const editor = vscode.window.activeTextEditor;
                 if (!editor) return;
                 const selection = editor.document.getText(editor.selection);
@@ -207,14 +306,15 @@ function activate(context) {
         })
     );
 
-    vscode.window.showInformationMessage(`🐝 Heady AI activated — Model: ${getModel()} | Ctrl+Shift+H to chat`);
+    vscode.window.showInformationMessage(`🐝 Heady AI activated — Model: ${getModel()} | Tier: ${TIER_LABELS[getUserTier()]} | Ctrl+Shift+H to chat`);
 }
 
 function updateModelStatusBar() {
     const model = getModel();
     const m = HEADY_MODELS.find(m => m.id === model);
-    modelStatusBar.text = m ? `${m.label}` : `$(beaker) ${model}`;
-    modelStatusBar.tooltip = m ? `${m.detail} — Click to change model` : 'Click to select Heady model';
+    const tier = TIER_LABELS[getUserTier()];
+    modelStatusBar.text = m ? `${m.label} | ${tier}` : `$(beaker) ${model}`;
+    modelStatusBar.tooltip = m ? `${m.detail} | Tier: ${tier} — Click to change model` : 'Click to select Heady model';
 }
 
 function getSidebarHtml() {
