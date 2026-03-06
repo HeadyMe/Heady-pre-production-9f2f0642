@@ -27,6 +27,7 @@
 const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
+const CSL = require("../core/semantic-logic");
 
 const DATA_DIR = path.join(__dirname, "..", "..", "data");
 const CONTEXT_FILE = path.join(DATA_DIR, "semantic-contexts.jsonl");
@@ -148,7 +149,11 @@ function clusterMessages(messages) {
             const currentVocab = getVocabulary([msg]);
             const similarity = jaccardSimilarity(recentVocab, currentVocab);
 
-            if (similarity < CONFIG.topicShiftThreshold && currentCluster.messages.length >= CONFIG.minClusterMessages) {
+            // CSL Soft Gate: continuous topic shift detection
+            // Low similarity → high shift activation → new cluster
+            const shiftActivation = 1.0 - CSL.soft_gate(similarity, CONFIG.topicShiftThreshold, 12);
+
+            if (shiftActivation >= 0.5 && currentCluster.messages.length >= CONFIG.minClusterMessages) {
                 // Topic shift detected — seal current cluster, start new
                 currentCluster.topic = extractTopicLabel(currentCluster.messages);
                 clusters.push(currentCluster);
@@ -217,8 +222,8 @@ function packContextWindow(scoredClusters, maxTokens = CONFIG.maxContextWindowTo
             packed.push(cluster);
             packedTokens += cluster.totalTokens;
         } else if (packedTokens + cluster.totalTokens <= maxTokens) {
-            // Over compression target but under hard limit — include if significant
-            if (cluster.significance >= 0.6) {
+            // Over compression target but under hard limit — use CSL Soft Gate
+            if (CSL.soft_gate(cluster.significance, 0.6, 15) >= 0.5) {
                 packed.push(cluster);
                 packedTokens += cluster.totalTokens;
             } else {

@@ -15,6 +15,7 @@
 
 const EventEmitter = require('events');
 const logger = require('../utils/logger');
+const CSL = require('../core/semantic-logic');
 
 // ─── Ternary States ──────────────────────────────────────────────────────────
 const TERNARY = Object.freeze({
@@ -104,8 +105,10 @@ class TernaryDecisionMatrix extends EventEmitter {
             type: signal.type || 'unknown',
         };
 
-        // Confidence from explicit metadata
-        if (signal.confidence !== undefined) features.confidence = signal.confidence;
+        // Confidence from explicit metadata — pipe through CSL Soft Gate
+        if (signal.confidence !== undefined) {
+            features.confidence = CSL.soft_gate(signal.confidence, 0.5, 10);
+        }
         if (signal.verified) features.verified = true;
 
         // Adversarial detection: failed compilations, blocked prompts, errors
@@ -135,21 +138,38 @@ class TernaryDecisionMatrix extends EventEmitter {
     }
 
     /**
-     * Apply ternary logic: {-1, 0, +1} classification.
+     * Apply ternary logic via CSL Ternary Gate: {-1, 0, +1} classification.
+     * Uses continuous sigmoid activation instead of hard thresholds.
      */
     _applyTernaryLogic(features) {
-        // REPEL: adversarial or very low confidence
-        if (features.adversarial || features.confidence < this._thresholds.repelConfidence) {
+        // Forced REPEL for known adversarial signals
+        if (features.adversarial) {
             return TERNARY.REPEL;
         }
 
-        // CORE RESONANCE: high confidence + verified or novel insight
-        if (features.confidence >= this._thresholds.resonanceConfidence && (features.verified || features.novelty > 0.7)) {
-            return TERNARY.CORE_RESONANCE;
-        }
+        // Compute effective score: base confidence boosted by verification
+        let effectiveScore = features.confidence;
+        if (features.verified) effectiveScore = Math.min(1.0, effectiveScore + 0.15);
+        if (features.novelty > 0.7) effectiveScore = Math.min(1.0, effectiveScore + 0.08);
 
-        // EPHEMERAL: everything else is noise
-        return TERNARY.EPHEMERAL;
+        // CSL Ternary Gate: continuous sigmoid classification
+        const gate = CSL.ternary_gate(
+            effectiveScore,
+            this._thresholds.resonanceConfidence,
+            this._thresholds.repelConfidence,
+            15
+        );
+
+        // Attach activation metadata for downstream consumers
+        features._cslActivation = {
+            resonance: gate.resonanceActivation,
+            repel: gate.repelActivation,
+            raw: gate.raw,
+        };
+
+        return gate.state === 1 ? TERNARY.CORE_RESONANCE
+            : gate.state === -1 ? TERNARY.REPEL
+                : TERNARY.EPHEMERAL;
     }
 
     /**

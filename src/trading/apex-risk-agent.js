@@ -10,6 +10,7 @@
  */
 
 const EventEmitter = require('events');
+const CSL = require('../core/semantic-logic');
 
 // ═══ APEX 3.0 RISK PARAMETERS — IMMUTABLE ═══════════════════════════════════
 const APEX_RULES = Object.freeze({
@@ -110,16 +111,31 @@ class ApexRiskAgent extends EventEmitter {
             }
         }
 
-        // Determine ternary signal
+        // ═══ CSL-POWERED SIGNAL DETERMINATION ═══════════════════════════════
+        // Use continuous risk_gate instead of binary comparisons.
+        // The sigmoid activation provides smooth transitions near limits.
         let signal;
         if (violations.length > 0) {
             signal = SIGNAL.REPEL;
             this.emit('risk:violation', { violations, equity, openPnL, ts: state.lastCheckTs });
-        } else if (Math.abs(openPnL) > maeLimit * 0.8) {
-            signal = SIGNAL.HOLD; // Getting close to limits — epistemic hold
-            this.emit('risk:caution', { reason: 'Approaching MAE limit', equity, openPnL });
         } else {
-            signal = SIGNAL.ENGAGE;
+            // CSL Risk Gate: continuous proximity-to-limit evaluation
+            const riskEval = CSL.risk_gate(openPnL, maeLimit, 0.8, 12);
+            // CSL Soft Gate on drawdown proximity
+            const drawdownProximity = (state.highestEquity - equity) / this.rules.trailingDrawdown;
+            const drawdownActivation = CSL.soft_gate(drawdownProximity, 0.7, 15);
+
+            if (riskEval.signal === -1 || drawdownActivation > 0.85) {
+                signal = SIGNAL.HOLD; // Continuous risk approaching critical
+                this.emit('risk:caution', {
+                    reason: 'CSL risk gate activation',
+                    riskLevel: riskEval.riskLevel,
+                    drawdownActivation: +drawdownActivation.toFixed(4),
+                    equity, openPnL,
+                });
+            } else {
+                signal = SIGNAL.ENGAGE;
+            }
         }
 
         // Record signal
