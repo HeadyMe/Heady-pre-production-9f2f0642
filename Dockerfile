@@ -12,7 +12,7 @@ WORKDIR /build
 
 # Copy package files and install deps
 COPY package*.json ./
-RUN npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts 2>/dev/null || true
+RUN npm ci --ignore-scripts || npm install --ignore-scripts
 
 # Copy everything needed for production
 COPY src/ ./src/
@@ -43,7 +43,9 @@ COPY --from=builder /build/docs/ ./docs/
 
 # Copy root-level files needed at runtime
 COPY heady-manager.js ./
-COPY .env ./
+COPY heady-hive-sdk/ ./heady-hive-sdk/
+
+# NOTE: .env is NOT copied — use Cloud Run env vars or Secret Manager
 
 # Create data dirs owned by heady user
 RUN mkdir -p data/vector-shards data/telemetry data/audio && \
