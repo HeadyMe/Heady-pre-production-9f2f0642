@@ -64,6 +64,15 @@ function registerServiceRoutes(app, deps = {}) {
         logger.logNodeActivity("CONDUCTOR", `  ⚠ Auto-Projection not loaded: ${err.message}`);
     }
 
+    // ─── Public Projection Pipeline — GitHub Repo Projection ──────────
+    try {
+        const projectionPipeline = require("../projection/public-projection-pipeline");
+        projectionPipeline.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", `  🚀 Public Projection Pipeline: ACTIVE → /api/projection/* (9 domain repos)`);
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Public Projection Pipeline not loaded: ${err.message}`);
+    }
+
     // ─── Swarm Matrix — 18-Swarm Civilization Runtime ──────────────────
     try {
         const swarmMatrix = require("../services/swarm-matrix");
