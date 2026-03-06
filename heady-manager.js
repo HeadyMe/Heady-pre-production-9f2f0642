@@ -40,6 +40,7 @@ const fetch = require('node-fetch');
 const { createAppAuth } = require('@octokit/auth-app');
 const swaggerUi = require('swagger-ui-express');
 const WebSocket = require('ws');
+const { renderSite, resolveSite } = require("./src/sites/site-renderer");
 
 /**
  * @swagger
@@ -256,6 +257,36 @@ app.use("/api/", rateLimit({
     return true; // Currently unlimited — DDoS shield handled at Cloudflare edge
   },
 }));
+
+// ─── Dynamic Site Renderer — Multi-Domain Delivery ──────────────────
+app.use((req, res, next) => {
+  // Only intercept GET requests for the root or branded sub-paths (not /api)
+  if (req.method !== 'GET' || req.path.startsWith('/api') || req.path.startsWith('/_')) {
+    return next();
+  }
+
+  // Allow subdomains like manager. or admin. to fall through unless they are at root
+  const hostname = req.hostname || req.headers.host || "";
+  if ((hostname.startsWith('manager.') || hostname.startsWith('admin.')) && req.path !== '/') {
+    return next();
+  }
+
+  // Resolve and render branded site
+  const site = resolveSite(hostname);
+
+  // If we're on a root path, render the branded site
+  if (req.path === '/' || req.path.startsWith('/v/')) {
+    try {
+      const html = renderSite(site);
+      return res.send(html);
+    } catch (err) {
+      logger.logNodeActivity("CONDUCTOR", `  ⚠ Dynamic Site Render failed for ${hostname}: ${err.message}`);
+      return next();
+    }
+  }
+
+  next();
+});
 
 const coreApi = require('./services/core-api');
 /**
