@@ -95,7 +95,9 @@
     "battle": "node scripts/battle.js",
     "battle:status": "node scripts/battle.js --status",
     "battle:blueprint": "node scripts/battle.js --blueprint",
-    "battle:repos": "node scripts/battle.js --repos"
+    "battle:repos": "node scripts/battle.js --repos",
+    "battle:build": "node scripts/battle-build.js",
+    "battle:extract": "node scripts/battle-extract.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
