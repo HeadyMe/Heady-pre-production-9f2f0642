@@ -362,28 +362,28 @@
                     href="/v/headybot">HeadyBot</a></nav>
         </header>
         <section class="hero">
-            <div class="status"><span class="status-dot"></span> HeadyBuddy Online</div>
+            <div class="status"><span class="status-dot"></span> HeadyBuddy v3.1 Online</div>
             <h1>HeadyBuddy</h1>
-            <p class="hero-sub">Your AI Companion</p>
-            <div class="sacred-badge">SEED OF LIFE · SACRED GEOMETRY</div>
-            <p class="hero-mantra">The conversational interface to the entire ecosystem. Ask Buddy anything, and it
-                routes through all Heady services.</p>
+            <p class="hero-sub">Your Latent AI Companion</p>
+            <div class="sacred-badge">SEED OF LIFE · 3D CONTEXT AWARENESS</div>
+            <p class="hero-mantra">The conversational gateway to the Continuous Latent OS. 384-dimensional context from
+                3D vector memory in every response.</p>
             <div class="stats">
                 <div class="stat">
-                    <div class="stat-val">24/7</div>
-                    <div class="stat-lbl">Available</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-val">∞</div>
+                    <div class="stat-val">384D</div>
                     <div class="stat-lbl">Context</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-val">Fast</div>
-                    <div class="stat-lbl">Response</div>
+                    <div class="stat-val">Multi</div>
+                    <div class="stat-lbl">Model</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-val">Smart</div>
-                    <div class="stat-lbl">AI Models</div>
+                    <div class="stat-val">Edge</div>
+                    <div class="stat-lbl">Speed</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-val">v3.1</div>
+                    <div class="stat-lbl">Brain</div>
                 </div>
             </div>
         </section>
@@ -391,25 +391,25 @@
             <div class="card">
                 <div class="ci">✦</div>
                 <h3>Multi-Model Chat</h3>
-                <p>Switch between HeadyBrain intelligence engines mid-conversation</p>
+                <p>Battle Arena-selected AI routing across Claude, GPT-4o, Gemini, and Groq</p>
             </div>
             <div class="card">
                 <div class="ci">✦</div>
                 <h3>Browser Extension</h3>
-                <p>Buddy lives in your browser, ready when you are</p>
+                <p>Buddy lives in your browser with full 3D vector context — always ready</p>
             </div>
             <div class="card">
                 <div class="ci">✦</div>
-                <h3>Memory & Context</h3>
-                <p>Remembers your preferences and conversation history</p>
+                <h3>384D Memory</h3>
+                <p>Full 3D spatial vector memory with persistent context across sessions</p>
             </div>
             <div class="card">
                 <div class="ci">✦</div>
-                <h3>Skill System</h3>
-                <p>Extensible skills for specialized tasks</p>
+                <h3>Synaptic Skills</h3>
+                <p>Extensible skill system powered by the Continuous Latent OS toolkit</p>
             </div>
         </div>
-        <footer>© 2026 HeadyBuddy — Powered by HCFP Auto-Success 135</footer>
+        <footer>© 2026 HeadyBuddy — Powered by Continuous Latent OS v3.1</footer>
     </div>
     <button class="fab" onclick="toggleHeadyChat()" title="Chat with HeadyBuddy">✦</button>
     <style>
@@ -697,13 +697,13 @@
         </div>
     </div>
     <script>
-const DK='heady_device_id', TK='heady_auth_token', HK='buddy_history_headybuddy';
-if(!localStorage.getItem(DK)){localStorage.setItem(DK,(crypto&&crypto.randomUUID)?crypto.randomUUID():'heady-'+Date.now());}
-function safe(v){return (v||'').toString().replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function historyKey(){var t=localStorage.getItem(TK)||'anon';return HK+':'+t.slice(0,16);}
-function loadHistory(){try{return JSON.parse(localStorage.getItem(historyKey())||'[]');}catch{return [];}}
-function saveHistory(items){localStorage.setItem(historyKey(),JSON.stringify(items.slice(-40)));}
-function toggleHeadyChat() { var p = document.getElementById('heady-chat-panel'); if (p.classList.contains('open')) { p.classList.remove('open'); p.style.display = 'none'; } else { p.classList.add('open'); p.style.display = 'flex'; document.getElementById('heady-chat-input').focus(); var m = document.getElementById('heady-chat-messages'); m.scrollTop = m.scrollHeight; } }
+        const DK = 'heady_device_id', TK = 'heady_auth_token', HK = 'buddy_history_headybuddy';
+        if (!localStorage.getItem(DK)) { localStorage.setItem(DK, (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'heady-' + Date.now()); }
+        function safe(v) { return (v || '').toString().replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function historyKey() { var t = localStorage.getItem(TK) || 'anon'; return HK + ':' + t.slice(0, 16); }
+        function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey()) || '[]'); } catch { return []; } }
+        function saveHistory(items) { localStorage.setItem(historyKey(), JSON.stringify(items.slice(-40))); }
+        function toggleHeadyChat() { var p = document.getElementById('heady-chat-panel'); if (p.classList.contains('open')) { p.classList.remove('open'); p.style.display = 'none'; } else { p.classList.add('open'); p.style.display = 'flex'; document.getElementById('heady-chat-input').focus(); var m = document.getElementById('heady-chat-messages'); m.scrollTop = m.scrollHeight; } }
         async function sendHeadyChat() { var input = document.getElementById('heady-chat-input'); var msg = input.value.trim(); if (!msg) return; input.value = ''; var container = document.getElementById('heady-chat-messages'); container.innerHTML += '<div class="hc-msg user"><div class="hc-bubble">' + msg.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div></div>'; container.innerHTML += '<div class="hc-msg bot" id="heady-typing-msg"><div class="hc-typing"><span>.</span><span>.</span><span>.</span></div></div>'; container.scrollTop = container.scrollHeight; try { var r = await fetch((window.location.origin) + '/api/brain/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: { vertical: 'headybuddy.org' } }) }); var d = await r.json(); var reply = (d.response || d.message || d.text || 'Processing via HeadyBuddy...').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>'); var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); container.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">' + reply + '</div></div>'; container.scrollTop = container.scrollHeight; } catch (e) { var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); container.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">Connected to HeadyBuddy ecosystem. Full context active! ✨</div></div>'; container.scrollTop = container.scrollHeight; } }
     </script>
 

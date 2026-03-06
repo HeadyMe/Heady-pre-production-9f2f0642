@@ -32,6 +32,7 @@
 const fs = require("fs");
 const path = require("path");
 const logger = require("./utils/logger");
+const CSL = require("./core/semantic-logic");
 let HeadyGateway = null;
 let createProviders = null;
 try {
@@ -436,16 +437,9 @@ function localHashEmbed(text, dims) {
     return Array.from(vec.map(v => v / norm));
 }
 
-// ── Cosine Similarity ───────────────────────────────────────────
+// ── Cosine Similarity — Delegated to CSL Resonance Layer ────────
 function cosineSim(a, b) {
-    if (!a || !b || a.length !== b.length) return 0;
-    let dot = 0, na = 0, nb = 0;
-    for (let i = 0; i < a.length; i++) {
-        dot += a[i] * b[i];
-        na += a[i] * a[i];
-        nb += b[i] * b[i];
-    }
-    return dot / (Math.sqrt(na) * Math.sqrt(nb) || 1);
+    return CSL.cosine_similarity(a, b);
 }
 
 // ── 3D-Aware Ingest ─────────────────────────────────────────────
@@ -867,8 +861,13 @@ async function densityGate(content, gateThreshold = 0.92) {
     const results = await queryMemory(content, 1);
     if (results.length === 0) return true;
 
-    // If the closest match is too similar, reject (redundant)
-    return results[0].score < gateThreshold;
+    // CSL Resonance Gate: if closest match resonates too strongly, reject (redundant)
+    // Inversion: store only if resonance is BELOW the gate threshold
+    return !CSL.resonance_gate(
+        results[0].embedding || [],
+        await embed(typeof content === 'string' ? content : JSON.stringify(content)),
+        gateThreshold
+    ).open;
 }
 
 /**

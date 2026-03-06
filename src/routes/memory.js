@@ -30,6 +30,7 @@ const path = require("path");
 const crypto = require("crypto");
 const http = require("http");
 const logger = require("../utils/logger");
+const CSL = require("../core/semantic-logic");
 
 // Qdrant configuration
 const QDRANT_URL = process.env.QDRANT_URL || "http://127.0.0.1:6333";
@@ -437,23 +438,19 @@ function generateEmbedding(text) {
     return Array.from(vec);
 }
 
+// CSL Resonance Layer — unified geometric similarity
 function cosineSimilarity(a, b) {
-    let dot = 0, na = 0, nb = 0;
-    for (let i = 0; i < a.length; i++) {
-        dot += a[i] * b[i];
-        na += a[i] * a[i];
-        nb += b[i] * b[i];
-    }
-    return dot / (Math.sqrt(na) * Math.sqrt(nb) + 1e-10);
+    return CSL.cosine_similarity(a, b);
 }
 
 function findSimilar(queryVec, threshold) {
     let best = null, bestSim = 0;
     for (const [id, vec] of vectors) {
-        const sim = cosineSimilarity(queryVec, vec);
-        if (sim > bestSim && sim >= threshold) {
-            bestSim = sim;
-            best = { id, similarity: sim };
+        // CSL Resonance Gate for deduplication
+        const resonance = CSL.resonance_gate(queryVec, vec, threshold);
+        if (resonance.score > bestSim && resonance.open) {
+            bestSim = resonance.score;
+            best = { id, similarity: resonance.score };
         }
     }
     return best;

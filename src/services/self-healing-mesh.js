@@ -29,6 +29,7 @@
 
 const crypto = require('crypto');
 const logger = require('../utils/logger');
+const CSL = require('../core/semantic-logic');
 
 const PHI = 1.6180339887;
 const HEARTBEAT_INTERVAL_MS = Math.round(PHI * 5000); // ~8.09s
@@ -109,11 +110,12 @@ class SelfHealingMesh {
             issues.push(`Confidence ${record.confidence.toFixed(3)} below hallucination threshold ${HALLUCINATION_THRESHOLD}`);
         }
 
-        // Geometric fit — check if output is consistent with mesh consensus
-        if (this.meshConsensus && attestation.outputVector) {
-            record.geometricFit = this._cosineSimilarity(attestation.outputVector, this.meshConsensus);
-            if (record.geometricFit < HALLUCINATION_THRESHOLD) {
-                issues.push(`Geometric fit ${record.geometricFit.toFixed(3)} — output diverges from mesh consensus`);
+        // CSL Resonance Gate — check if output resonates with mesh consensus
+        if (this.meshConsensus && attestation.outputVector && Array.isArray(this.meshConsensus)) {
+            const resonance = CSL.resonance_gate(attestation.outputVector, this.meshConsensus, HALLUCINATION_THRESHOLD);
+            record.geometricFit = resonance.score;
+            if (!resonance.open) {
+                issues.push(`Resonance ${resonance.score.toFixed(3)} — output diverges from mesh consensus (gate closed)`);
             }
         }
 
@@ -253,15 +255,8 @@ class SelfHealingMesh {
     }
 
     _cosineSimilarity(a, b) {
-        if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return 0;
-        let dot = 0, magA = 0, magB = 0;
-        for (let i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            magA += a[i] * a[i];
-            magB += b[i] * b[i];
-        }
-        const denom = Math.sqrt(magA) * Math.sqrt(magB);
-        return denom === 0 ? 0 : dot / denom;
+        // CSL Resonance Layer — unified geometric similarity
+        return CSL.cosine_similarity(a, b);
     }
 
     // ── Health & Status ─────────────────────────────────────────

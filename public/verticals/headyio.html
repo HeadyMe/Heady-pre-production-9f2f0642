@@ -705,12 +705,12 @@
         }
     </style>
 
-<link rel="manifest" href="/manifests/headyio.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Headyio">
-<link rel="apple-touch-icon" href="/heady-icon-192.png">
+    <link rel="manifest" href="/manifests/headyio.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Headyio">
+    <link rel="apple-touch-icon" href="/heady-icon-192.png">
 </head>
 
 <body>
@@ -739,10 +739,10 @@
 
         <!-- HERO -->
         <section class="hero">
-            <div class="hero-badge"><span class="dot"></span> Heady Hive SDK v1.0.0</div>
+            <div class="hero-badge"><span class="dot"></span> Heady Hive SDK v3.1 · Continuous Latent OS</div>
             <h1>Build with the Heady Hive SDK</h1>
-            <p class="hero-sub">Connect to 40+ AI services through a single, zero-dependency SDK. Chat, validate,
-                create, search, and deploy — all from one client.</p>
+            <p class="hero-sub">Connect to the Continuous Latent OS through a single SDK. 384D vector context,
+                multi-model routing, and Synaptic Forge deployment — all from one client.</p>
             <div class="hero-actions">
                 <a href="#quickstart" class="btn btn-primary">⚡ Get Started</a>
                 <a href="#modules" class="btn btn-secondary">📖 Documentation</a>
@@ -793,7 +793,8 @@
             </div>
             <div class="code-content" id="code-panel-2" style="display:none">
                 <span class="cmt"># Chat with HeadyBrain via API</span><br>
-                <span class="fn">curl</span> <span class="str">-X POST</span> https://api.headysystems.com/api/brain/chat \<br>
+                <span class="fn">curl</span> <span class="str">-X POST</span>
+                https://api.headysystems.com/api/brain/chat \<br>
                 &nbsp;&nbsp;<span class="str">-H</span> <span class="str">"Content-Type: application/json"</span> \<br>
                 &nbsp;&nbsp;<span class="str">-H</span> <span class="str">"Authorization: Bearer $HEADY_API_KEY"</span>
                 \<br>
@@ -804,7 +805,8 @@
                 <span class="cmt"># Auto-success engine status (155 tasks)</span><br>
                 <span class="fn">curl</span> https://api.headysystems.com/api/auto-success/status<br><br>
                 <span class="cmt"># Validate via HeadyBattle</span><br>
-                <span class="fn">curl</span> <span class="str">-X POST</span> https://api.headysystems.com/api/battle/validate
+                <span class="fn">curl</span> <span class="str">-X POST</span>
+                https://api.headysystems.com/api/battle/validate
                 \<br>
                 &nbsp;&nbsp;<span class="str">-d</span> <span class="str">'{"change":"Added caching layer"}'</span>
             </div>
@@ -1485,14 +1487,14 @@
     </div>
 
     <script>
-const DK='heady_device_id', TK='heady_auth_token', HK='buddy_history_headyio';
-if(!localStorage.getItem(DK)){localStorage.setItem(DK,(crypto&&crypto.randomUUID)?crypto.randomUUID():'heady-'+Date.now());}
-function safe(v){return (v||'').toString().replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function historyKey(){var t=localStorage.getItem(TK)||'anon';return HK+':'+t.slice(0,16);}
-function loadHistory(){try{return JSON.parse(localStorage.getItem(historyKey())||'[]');}catch{return [];}}
-function saveHistory(items){localStorage.setItem(historyKey(),JSON.stringify(items.slice(-40)));}
-function toggleHeadyChat() { var p = document.getElementById('heady-chat-panel'); if (p.classList.contains('open')) { p.classList.remove('open'); p.style.display = 'none'; } else { p.classList.add('open'); p.style.display = 'flex'; document.getElementById('heady-chat-input').focus(); } }
-        async function sendHeadyChat() { var input = document.getElementById('heady-chat-input'); var msg = input.value.trim(); if (!msg) return; input.value = ''; var c = document.getElementById('heady-chat-messages'); c.innerHTML += '<div class="hc-msg user"><div class="hc-bubble">' + msg.replace(/</g, '&lt;') + '</div></div>'; c.innerHTML += '<div class="hc-msg bot" id="heady-typing-msg"><div class="hc-typing"><span>.</span><span>.</span><span>.</span></div></div>'; c.scrollTop = c.scrollHeight; try { var r = await fetch((window.location.origin)+'/api/brain/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: { vertical: 'headyio.com' } }) }); var d = await r.json(); var reply = (d.response || d.message || d.text || 'Connected to HeadyIO SDK hub.').replace(/</g, '&lt;').replace(/\n/g, '<br>'); var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); c.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">' + reply + '</div></div>'; c.scrollTop = c.scrollHeight; } catch (e) { var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); c.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">Connected to HeadyIO SDK ecosystem. Full context active! ⬡</div></div>'; c.scrollTop = c.scrollHeight; } }
+        const DK = 'heady_device_id', TK = 'heady_auth_token', HK = 'buddy_history_headyio';
+        if (!localStorage.getItem(DK)) { localStorage.setItem(DK, (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'heady-' + Date.now()); }
+        function safe(v) { return (v || '').toString().replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function historyKey() { var t = localStorage.getItem(TK) || 'anon'; return HK + ':' + t.slice(0, 16); }
+        function loadHistory() { try { return JSON.parse(localStorage.getItem(historyKey()) || '[]'); } catch { return []; } }
+        function saveHistory(items) { localStorage.setItem(historyKey(), JSON.stringify(items.slice(-40))); }
+        function toggleHeadyChat() { var p = document.getElementById('heady-chat-panel'); if (p.classList.contains('open')) { p.classList.remove('open'); p.style.display = 'none'; } else { p.classList.add('open'); p.style.display = 'flex'; document.getElementById('heady-chat-input').focus(); } }
+        async function sendHeadyChat() { var input = document.getElementById('heady-chat-input'); var msg = input.value.trim(); if (!msg) return; input.value = ''; var c = document.getElementById('heady-chat-messages'); c.innerHTML += '<div class="hc-msg user"><div class="hc-bubble">' + msg.replace(/</g, '&lt;') + '</div></div>'; c.innerHTML += '<div class="hc-msg bot" id="heady-typing-msg"><div class="hc-typing"><span>.</span><span>.</span><span>.</span></div></div>'; c.scrollTop = c.scrollHeight; try { var r = await fetch((window.location.origin) + '/api/brain/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: { vertical: 'headyio.com' } }) }); var d = await r.json(); var reply = (d.response || d.message || d.text || 'Connected to HeadyIO SDK hub.').replace(/</g, '&lt;').replace(/\n/g, '<br>'); var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); c.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">' + reply + '</div></div>'; c.scrollTop = c.scrollHeight; } catch (e) { var t = document.getElementById('heady-typing-msg'); if (t) t.remove(); c.innerHTML += '<div class="hc-msg bot"><div class="hc-bubble">Connected to HeadyIO SDK ecosystem. Full context active! ⬡</div></div>'; c.scrollTop = c.scrollHeight; } }
     </script>
 
     <!-- Cosmic Canvas (Metatron's Cube for developer/SDK theme) -->
@@ -1583,68 +1585,80 @@ function toggleHeadyChat() { var p = document.getElementById('heady-chat-panel')
         })();
     </script>
 
-<script>
-/* ── PWA Service Worker + Install Banner ── */
-(function(){
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('/sw.js',{scope:'/'})
-      .then(r=>console.log('🔧 SW registered, scope:',r.scope))
-      .catch(e=>console.warn('SW reg failed:',e));
-  }
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt',(e)=>{
-    e.preventDefault();
-    deferredPrompt=e;
-    showInstallBanner();
-  });
-  function showInstallBanner(){
-    if(document.getElementById('heady-install-banner'))return;
-    const b=document.createElement('div');
-    b.id='heady-install-banner';
-    b.innerHTML='<div style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:#fff;padding:12px 20px;border-radius:16px;font-size:13px;font-weight:600;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(99,102,241,0.4);backdrop-filter:blur(10px);animation:slideUp .3s ease"><span>📱 Install Headyio on your device</span><button onclick="installPWA()" style="background:#fff;color:#6366f1;border:none;padding:6px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px">Install</button><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:16px;padding:4px">✕</button></div>';
-    document.body.appendChild(b);
-  }
-  window.installPWA=async function(){
-    if(!deferredPrompt)return;
-    deferredPrompt.prompt();
-    const{outcome}=await deferredPrompt.userChoice;
-    console.log('📱 Install:',outcome);
-    deferredPrompt=null;
-    const b=document.getElementById('heady-install-banner');
-    if(b)b.remove();
-  };
-})();
-</script>
-<style>@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}</style>
+    <script>
+        /* ── PWA Service Worker + Install Banner ── */
+        (function () {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(r => console.log('🔧 SW registered, scope:', r.scope))
+                    .catch(e => console.warn('SW reg failed:', e));
+            }
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallBanner();
+            });
+            function showInstallBanner() {
+                if (document.getElementById('heady-install-banner')) return;
+                const b = document.createElement('div');
+                b.id = 'heady-install-banner';
+                b.innerHTML = '<div style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:#fff;padding:12px 20px;border-radius:16px;font-size:13px;font-weight:600;z-index:9999;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(99,102,241,0.4);backdrop-filter:blur(10px);animation:slideUp .3s ease"><span>📱 Install Headyio on your device</span><button onclick="installPWA()" style="background:#fff;color:#6366f1;border:none;padding:6px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px">Install</button><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:16px;padding:4px">✕</button></div>';
+                document.body.appendChild(b);
+            }
+            window.installPWA = async function () {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('📱 Install:', outcome);
+                deferredPrompt = null;
+                const b = document.getElementById('heady-install-banner');
+                if (b) b.remove();
+            };
+        })();
+    </script>
+    <style>
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px)
+            }
 
-<script>
-/* ── Max-Duration Auth (WARP: 365d, Device: 365d, Standard: 180d) ── */
-(function(){
-  const DK='heady_device_id',TK='heady_auth_token',WK='heady_warp',SK='heady_session_start';
-  if(!localStorage.getItem(DK))localStorage.setItem(DK,crypto.randomUUID());
-  if(!localStorage.getItem(SK))localStorage.setItem(SK,Date.now().toString());
-  const warp=navigator.userAgent.includes('Cloudflare-WARP')||localStorage.getItem(WK)==='true';
-  if(warp)localStorage.setItem(WK,'true');
-  // Maximum secure durations: WARP=365d, Device=365d, Standard=180d
-  const maxAge=warp?365*86400000:365*86400000;
-  let tok=localStorage.getItem(TK);
-  try{if(tok&&JSON.parse(atob(tok)).exp<Date.now())tok=null;}catch{tok=null;}
-  if(!tok){
-    tok=btoa(JSON.stringify({
-      sub:localStorage.getItem(DK),
-      iat:Date.now(),
-      exp:Date.now()+maxAge,
-      ver:'headyio.com',
-      warp,
-      pwa:window.matchMedia('(display-mode:standalone)').matches,
-      device:navigator.userAgent.includes('Mobile')?'mobile':'desktop'
-    }));
-    localStorage.setItem(TK,tok);
-  }
-  const days=Math.round((JSON.parse(atob(tok)).exp-Date.now())/86400000);
-  console.log('🔐 Auth: '+days+'d remaining |',warp?'WARP':'Device','| id:',localStorage.getItem(DK).slice(0,8));
-})();
-</script>
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0)
+            }
+        }
+    </style>
+
+    <script>
+        /* ── Max-Duration Auth (WARP: 365d, Device: 365d, Standard: 180d) ── */
+        (function () {
+            const DK = 'heady_device_id', TK = 'heady_auth_token', WK = 'heady_warp', SK = 'heady_session_start';
+            if (!localStorage.getItem(DK)) localStorage.setItem(DK, crypto.randomUUID());
+            if (!localStorage.getItem(SK)) localStorage.setItem(SK, Date.now().toString());
+            const warp = navigator.userAgent.includes('Cloudflare-WARP') || localStorage.getItem(WK) === 'true';
+            if (warp) localStorage.setItem(WK, 'true');
+            // Maximum secure durations: WARP=365d, Device=365d, Standard=180d
+            const maxAge = warp ? 365 * 86400000 : 365 * 86400000;
+            let tok = localStorage.getItem(TK);
+            try { if (tok && JSON.parse(atob(tok)).exp < Date.now()) tok = null; } catch { tok = null; }
+            if (!tok) {
+                tok = btoa(JSON.stringify({
+                    sub: localStorage.getItem(DK),
+                    iat: Date.now(),
+                    exp: Date.now() + maxAge,
+                    ver: 'headyio.com',
+                    warp,
+                    pwa: window.matchMedia('(display-mode:standalone)').matches,
+                    device: navigator.userAgent.includes('Mobile') ? 'mobile' : 'desktop'
+                }));
+                localStorage.setItem(TK, tok);
+            }
+            const days = Math.round((JSON.parse(atob(tok)).exp - Date.now()) / 86400000);
+            console.log('🔐 Auth: ' + days + 'd remaining |', warp ? 'WARP' : 'Device', '| id:', localStorage.getItem(DK).slice(0, 8));
+        })();
+    </script>
 </body>
 
 </html>

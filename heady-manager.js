@@ -1759,6 +1759,46 @@ app.use((err, req, res, _next) => {
   });
 });
 
+// ── CSL API — Continuous Semantic Logic Gates ──────────────────
+const CSL = require('./src/core/semantic-logic');
+
+app.post('/api/csl/resonance', (req, res) => {
+  const { vec_a, vec_b, threshold } = req.body;
+  if (!vec_a || !vec_b) return res.status(400).json({ ok: false, error: 'vec_a and vec_b required' });
+  const result = CSL.resonance_gate(vec_a, vec_b, threshold || 0.95);
+  res.json({ ok: true, gate: 'resonance', ...result });
+});
+
+app.post('/api/csl/superposition', (req, res) => {
+  const { vec_a, vec_b, weight } = req.body;
+  if (!vec_a || !vec_b) return res.status(400).json({ ok: false, error: 'vec_a and vec_b required' });
+  const hybrid = weight != null
+    ? CSL.weighted_superposition(vec_a, vec_b, weight)
+    : CSL.superposition_gate(vec_a, vec_b);
+  res.json({ ok: true, gate: 'superposition', hybrid: Array.from(hybrid), dimensions: hybrid.length });
+});
+
+app.post('/api/csl/orthogonal', (req, res) => {
+  const { target, reject } = req.body;
+  if (!target || !reject) return res.status(400).json({ ok: false, error: 'target and reject required' });
+  const purified = Array.isArray(reject[0])
+    ? CSL.batch_orthogonal(target, reject)
+    : CSL.orthogonal_gate(target, reject);
+  res.json({ ok: true, gate: 'orthogonal', purified: Array.from(purified), dimensions: purified.length });
+});
+
+app.get('/api/csl/status', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'heady-csl',
+    description: 'Continuous Semantic Logic — 3 Universal Vector Gates',
+    gates: ['resonance', 'superposition', 'orthogonal'],
+    extensions: ['multi_resonance', 'weighted_superposition', 'consensus_superposition', 'batch_orthogonal', 'soft_gate'],
+    stats: CSL.getStats(),
+    ts: new Date().toISOString(),
+  });
+});
+
 // 404 catch-all (must be after all routes, before error handler in some setups, but fine here)
 app.use((req, res) => {
   res.status(404).json({
