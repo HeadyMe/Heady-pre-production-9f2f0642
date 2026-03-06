@@ -1,0 +1,57 @@
+# ═══════════════════════════════════════════════════════════════
+# Performance Budgets — P5 Assessment Item
+# FastResponse budgets: TTI, API p95, sync RTT
+# CI fails when exceeded (enforced by performance-budget.test.js)
+# ═══════════════════════════════════════════════════════════════
+
+budgets:
+  # Time to Interactive for projected UI surfaces
+  tti:
+    target_ms: 3000
+    warning_ms: 2500
+    description: "UI projection must be interactive within 3s"
+    measured_at: "headyme.com, antigravity-ui, hf-spaces"
+    
+  # API response time (p95)
+  api_p95:
+    target_ms: 500
+    warning_ms: 350
+    description: "95th percentile API response under 500ms"
+    endpoints:
+      - "/health"
+      - "/api/unified-autonomy/system-projection"
+      - "/api/unified-autonomy/health"
+      - "/api/sync/health"
+      - "/api/governance/health"
+
+  # Real-time sync round-trip time
+  sync_rtt:
+    target_ms: 150
+    warning_ms: 100
+    description: "WebSocket sync round-trip under 150ms"
+    measured_at: "cross-device-sync channels"
+
+  # Edge worker cold-start
+  edge_cold_start:
+    target_ms: 50
+    warning_ms: 30
+    description: "Cloudflare Worker cold start under 50ms"
+
+  # Vector memory query latency
+  vector_query:
+    target_ms: 200
+    warning_ms: 150
+    description: "Vector similarity search under 200ms"
+
+  # Bundle size budgets
+  bundle_size:
+    main_js_kb: 500
+    css_kb: 100
+    total_kb: 1000
+    description: "Production bundle size limits"
+
+ci_enforcement:
+  fail_on_breach: true
+  warn_on_warning: true
+  report_format: "json"
+  history_retention_days: 90

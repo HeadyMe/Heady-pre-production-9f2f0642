@@ -1,0 +1,1098 @@
+{
+    "schema_version": "1.0.0",
+    "catalog_id": "heady-nonprofit-templates",
+    "vertical": "headyconnection.org",
+    "created": "2026-02-25T18:15:00Z",
+    "template_count": 46,
+    "templates": [
+        {
+            "id": "np-001",
+            "name": "Nonprofit Competitive Landscape Analysis",
+            "category": "research",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Nonprofit Strategy Advisor",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "MISSION_STATEMENT",
+                "PROGRAM_AREA"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Competitive Matrix",
+                "Strategic Positioning",
+                "Gap Analysis",
+                "Recommendations"
+            ],
+            "constraints_summary": "Nonprofit-specific metrics; mission-alignment focus; resource-conscious recommendations"
+        },
+        {
+            "id": "np-002",
+            "name": "Nonprofit Policy Trend Analysis",
+            "category": "research",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Policy Analysis Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "POLICY_AREA",
+                "GEOGRAPHIC_SCOPE"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Policy Landscape",
+                "Trend Analysis",
+                "Impact Assessment",
+                "Strategic Recommendations"
+            ],
+            "constraints_summary": "Evidence-based; balanced political perspective; actionable advocacy insights"
+        },
+        {
+            "id": "np-003",
+            "name": "Program Development Research Assistant",
+            "category": "research",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Program Development Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_CONCEPT",
+                "TARGET_POPULATION"
+            ],
+            "output_sections": [
+                "Needs Assessment",
+                "Evidence Base",
+                "Program Model",
+                "Implementation Plan",
+                "Evaluation Framework"
+            ],
+            "constraints_summary": "Evidence-based design; community-centered; capacity-aware"
+        },
+        {
+            "id": "np-004",
+            "name": "Corporate Partnership Pitch Generator",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 3,
+            "role": "Corporate Partnership Strategist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "CORPORATE_TARGET",
+                "PARTNERSHIP_TYPE"
+            ],
+            "output_sections": [
+                "Value Proposition",
+                "Alignment Analysis",
+                "Partnership Structure",
+                "Impact Metrics",
+                "Pitch Deck Outline"
+            ],
+            "constraints_summary": "Mutual value creation; mission integrity; realistic ROI projections"
+        },
+        {
+            "id": "np-005",
+            "name": "Website Copy & Program Description Generator",
+            "category": "creative",
+            "complexity": "medium",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Nonprofit Communications Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "TARGET_AUDIENCE"
+            ],
+            "output_sections": [
+                "Homepage Copy",
+                "Program Descriptions",
+                "Impact Statements",
+                "Call to Action",
+                "SEO Metadata"
+            ],
+            "constraints_summary": "Mission-aligned tone; accessible language; beneficiary dignity"
+        },
+        {
+            "id": "np-006",
+            "name": "Grant Report & Compliance Documentation Generator",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Grant Compliance Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "GRANT_NAME",
+                "FUNDER_NAME",
+                "REPORTING_PERIOD"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Program Activities",
+                "Outcomes & Impact",
+                "Financial Report",
+                "Compliance Checklist",
+                "Challenges & Adaptations"
+            ],
+            "constraints_summary": "Funder-specific requirements; data accuracy; transparent reporting"
+        },
+        {
+            "id": "np-007",
+            "name": "Partnership Opportunity Identification",
+            "category": "research",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Partnership Development Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "STRATEGIC_PRIORITIES",
+                "GEOGRAPHIC_SCOPE"
+            ],
+            "output_sections": [
+                "Partnership Landscape",
+                "Opportunity Matrix",
+                "Alignment Scores",
+                "Approach Strategy",
+                "Risk Assessment"
+            ],
+            "constraints_summary": "Mission alignment priority; equitable partnerships; capacity assessment"
+        },
+        {
+            "id": "np-008",
+            "name": "Funding Opportunity Research & Matching",
+            "category": "research",
+            "complexity": "high",
+            "pool": "hot",
+            "weight": 5,
+            "role": "Nonprofit Funding Strategist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "ANNUAL_BUDGET",
+                "PROGRAM_AREAS",
+                "GEOGRAPHIC_FOCUS"
+            ],
+            "output_sections": [
+                "Funding Landscape",
+                "Matched Opportunities",
+                "Eligibility Analysis",
+                "Application Timeline",
+                "Diversification Strategy"
+            ],
+            "constraints_summary": "Realistic eligibility; diversification focus; deadline awareness"
+        },
+        {
+            "id": "np-009",
+            "name": "Technology Solution Evaluation",
+            "category": "optimization",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 3,
+            "role": "Nonprofit Technology Consultant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "TECHNOLOGY_NEED",
+                "BUDGET_RANGE",
+                "STAFF_CAPACITY"
+            ],
+            "output_sections": [
+                "Needs Assessment",
+                "Solution Comparison Matrix",
+                "Cost Analysis",
+                "Implementation Plan",
+                "Vendor Recommendations"
+            ],
+            "constraints_summary": "Nonprofit pricing; capacity-appropriate; data privacy compliance"
+        },
+        {
+            "id": "np-010",
+            "name": "Regulatory Compliance Research Assistant",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Nonprofit Compliance Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "COMPLIANCE_AREA",
+                "JURISDICTION"
+            ],
+            "output_sections": [
+                "Regulatory Landscape",
+                "Compliance Checklist",
+                "Risk Assessment",
+                "Action Plan",
+                "Resource Guide"
+            ],
+            "constraints_summary": "Jurisdiction-specific; practical implementation; calendar deadlines"
+        },
+        {
+            "id": "np-011",
+            "name": "Impact Projection & Theory of Change Development",
+            "category": "learning",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Impact Measurement Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "TARGET_OUTCOMES"
+            ],
+            "output_sections": [
+                "Theory of Change Model",
+                "Logic Model",
+                "Impact Indicators",
+                "Measurement Plan",
+                "Projection Scenarios"
+            ],
+            "constraints_summary": "Evidence-based projections; realistic attribution; mixed methods"
+        },
+        {
+            "id": "np-012",
+            "name": "Strategic Planning & Capacity Building",
+            "category": "optimization",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Nonprofit Capacity Building Consultant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "ORGANIZATIONAL_STAGE",
+                "STRATEGIC_CHALLENGES"
+            ],
+            "output_sections": [
+                "Capacity Assessment",
+                "Strategic Priorities",
+                "Resource Plan",
+                "Timeline",
+                "Success Metrics"
+            ],
+            "constraints_summary": "Stage-appropriate; resource-realistic; board engagement"
+        },
+        {
+            "id": "np-013",
+            "name": "Risk Assessment & Mitigation Planning",
+            "category": "security",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Nonprofit Risk Management Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "RISK_CATEGORIES",
+                "ORGANIZATIONAL_SIZE"
+            ],
+            "output_sections": [
+                "Risk Inventory",
+                "Risk Matrix",
+                "Mitigation Strategies",
+                "Emergency Protocols",
+                "Insurance Review"
+            ],
+            "constraints_summary": "Nonprofit-specific risks; proportionate responses; board governance"
+        },
+        {
+            "id": "np-014",
+            "name": "Program Expansion Feasibility Analysis",
+            "category": "optimization",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Nonprofit Strategy Consultant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "EXPANSION_SCOPE"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Current Program Assessment",
+                "Expansion Opportunity Analysis",
+                "Resource Requirements",
+                "Risk Assessment Matrix",
+                "Financial Sustainability Projection",
+                "Impact Projection Dashboard",
+                "Implementation Roadmap",
+                "Recommendation"
+            ],
+            "constraints_summary": "Mission alignment; financial sustainability balance; phased approach; realistic resource requirements"
+        },
+        {
+            "id": "np-015",
+            "name": "Strategic Planning & Scenario Development",
+            "category": "optimization",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Strategic Planning Consultant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "SECTOR_CAUSE_AREA",
+                "TARGET_BENEFICIARIES"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Current State Assessment",
+                "Environmental Scan",
+                "Strategic Priorities",
+                "Scenario Analysis",
+                "Implementation Roadmap",
+                "Monitoring Framework"
+            ],
+            "constraints_summary": "Mission-centered; multi-scenario; governance-aware; adaptation mechanisms"
+        },
+        {
+            "id": "np-016",
+            "name": "Community Needs Assessment Data Interpreter",
+            "category": "learning",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Nonprofit Data Insights Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "STRATEGIC_PRIORITY",
+                "RESOURCE_TYPE",
+                "TARGET_POPULATION",
+                "FOCUS_AREA"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Data Overview",
+                "Key Findings",
+                "Priority Recommendations",
+                "Implementation Roadmap",
+                "Impact Measurement Framework",
+                "Appendices"
+            ],
+            "constraints_summary": "Data-grounded; equity-focused; jargon-free; capacity-aware recommendations"
+        },
+        {
+            "id": "np-017",
+            "name": "Impact Measurement & Outcome Tracking",
+            "category": "monitoring",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Nonprofit Impact Measurement Consultant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Data Analysis",
+                "Impact Assessment",
+                "Stakeholder Insights",
+                "Strategic Recommendations",
+                "Data Collection Improvements"
+            ],
+            "constraints_summary": "Mission-centric metrics; attribution transparency; mixed methods; resource-conscious"
+        },
+        {
+            "id": "np-018",
+            "name": "Program Evaluation Data Analysis",
+            "category": "monitoring",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Nonprofit Program Evaluator",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "MISSION_STATEMENT"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Data Overview & Methodology",
+                "Key Findings",
+                "Detailed Analysis",
+                "Strategic Recommendations",
+                "Measurement Framework Improvements",
+                "Appendix"
+            ],
+            "constraints_summary": "Theory-of-change aligned; equity dimensions; practical recommendations; honest limitations"
+        },
+        {
+            "id": "np-019",
+            "name": "Content Quality Assurance",
+            "category": "maintenance",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Content Quality Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "CONTENT_TYPE"
+            ],
+            "output_sections": [
+                "Quality Scores",
+                "Key Strengths",
+                "Areas for Improvement",
+                "Sensitivity Considerations",
+                "Next Steps"
+            ],
+            "constraints_summary": "Constructive tone; nonprofit context; beneficiary dignity; resource-conscious improvements"
+        },
+        {
+            "id": "np-020",
+            "name": "Partner Organization Capability Assessment",
+            "category": "research",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Partnership Evaluation Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PARTNERSHIP_TYPE",
+                "PROGRAM_NAME",
+                "PARTNER_ORGANIZATION_NAME"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Mission Alignment",
+                "Organizational Capacity",
+                "Financial Health",
+                "Program Quality & Impact",
+                "Governance & Compliance",
+                "Partnership Experience",
+                "Recommendations",
+                "Next Steps"
+            ],
+            "constraints_summary": "Evidence-based scoring; autonomy-respecting; equity-aware; power dynamics"
+        },
+        {
+            "id": "np-021",
+            "name": "Training Material Quality Assessment",
+            "category": "maintenance",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Training Materials Evaluator",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "MISSION_STATEMENT",
+                "TARGET_AUDIENCE",
+                "MATERIAL_TITLE"
+            ],
+            "output_sections": [
+                "Quality Dimension Scores",
+                "Key Strengths",
+                "Priority Improvement Areas",
+                "Audience & Program Alignment",
+                "Final Recommendation"
+            ],
+            "constraints_summary": "Instructional design principles; nonprofit resource constraints; adult learning; mission alignment"
+        },
+        {
+            "id": "np-022",
+            "name": "Marketing Material Effectiveness Review",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Nonprofit Marketing Effectiveness Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "MATERIAL_NAME"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Evaluation Scores",
+                "Key Strengths",
+                "Priority Improvement Areas",
+                "A/B Testing Opportunities",
+                "Impact Measurement Suggestions"
+            ],
+            "constraints_summary": "Nonprofit marketing context; resource-conscious; mission-aligned; dignity in representation"
+        },
+        {
+            "id": "np-023",
+            "name": "Feedback & Complaint Categorization",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Stakeholder Relations Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "STAKEHOLDER_TYPES",
+                "MISSION_STATEMENT"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Categorized Feedback Table",
+                "Priority Analysis",
+                "Pattern Analysis",
+                "Mission Impact Assessment",
+                "Recommended Next Steps"
+            ],
+            "constraints_summary": "Confidentiality; objective language; beneficiary prioritization; compliance flagging"
+        },
+        {
+            "id": "np-024",
+            "name": "Program Participant Service Questions",
+            "category": "integration",
+            "complexity": "high",
+            "pool": "hot",
+            "weight": 5,
+            "role": "Program Support Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "BRIEF_MISSION_DESCRIPTION",
+                "CORE_VALUES",
+                "TARGET_POPULATION"
+            ],
+            "output_sections": [
+                "Personalized Greeting",
+                "Acknowledgment",
+                "Clear Answer",
+                "Next Steps",
+                "Additional Resources",
+                "Closing"
+            ],
+            "constraints_summary": "Plain language at 8th-grade level; warm supportive tone; no confidential info; no promises on eligibility"
+        },
+        {
+            "id": "np-025",
+            "name": "Policy & Procedure Knowledge Assistant",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Policy & Procedure Knowledge Assistant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "SIZE",
+                "MISSION_STATEMENT",
+                "LIST_DEPARTMENTS"
+            ],
+            "output_sections": [
+                "Policy Question",
+                "Answer Summary",
+                "Policy Reference",
+                "Detailed Explanation",
+                "Next Steps",
+                "Related Resources",
+                "Note"
+            ],
+            "constraints_summary": "Cite specific policy documents; no personal opinions; escalate sensitive matters; accessible language"
+        },
+        {
+            "id": "np-026",
+            "name": "Policy Compliance Audit",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Policy Compliance Auditor",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "DOCUMENT_LIST",
+                "COMPLIANCE_CRITERIA"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Document-by-Document Assessment",
+                "Systemic Findings",
+                "Implementation Roadmap",
+                "Appendix"
+            ],
+            "constraints_summary": "Evidence-based; nonprofit-adapted standards; distinguish legal vs best practice; acknowledge strengths"
+        },
+        {
+            "id": "np-027",
+            "name": "Contract Review Assistant",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Contract Review Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "MISSION_STATEMENT",
+                "ANNUAL_BUDGET",
+                "RISK_TOLERANCE_LEVEL"
+            ],
+            "output_sections": [
+                "Contract Review Summary",
+                "Key Findings",
+                "Recommendation",
+                "Required Changes",
+                "Next Steps"
+            ],
+            "constraints_summary": "Mission alignment check; flag attorney review needs; practical nonprofit alternatives; plain language"
+        },
+        {
+            "id": "np-028",
+            "name": "Grant Application Completeness Check",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "hot",
+            "weight": 5,
+            "role": "Grant Compliance Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "GRANT_NAME",
+                "FUNDER_NAME"
+            ],
+            "output_sections": [
+                "Compliance Summary",
+                "Missing Documents",
+                "Incomplete Elements",
+                "Non-Compliant Elements",
+                "Inconsistencies",
+                "Areas for Strengthening",
+                "Action Plan",
+                "Final Recommendation"
+            ],
+            "constraints_summary": "Focus on completeness not quality; specific page references; prioritize by viability impact"
+        },
+        {
+            "id": "np-029",
+            "name": "Compliance Document Review",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Compliance Documentation Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "DOCUMENT_TYPE",
+                "REGULATORY_BODY",
+                "DEADLINE_DATE"
+            ],
+            "output_sections": [
+                "Document Summary",
+                "Compliance Checklist Results",
+                "Key Concerns",
+                "Overall Assessment",
+                "Next Steps"
+            ],
+            "constraints_summary": "Regulatory-focused; severity categorization; audit trail; resource-conscious recommendations"
+        },
+        {
+            "id": "np-030",
+            "name": "Event Registration Follow-up System",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Event Communications Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "EVENT_NAME",
+                "EVENT_DATE",
+                "EVENT_LOCATION"
+            ],
+            "output_sections": [
+                "Communication Journey Map",
+                "Registration Confirmation Template",
+                "Pre-Event Reminders",
+                "Day-of Instructions",
+                "Post-Event Thank You",
+                "Impact Follow-up",
+                "Technical Implementation Guide"
+            ],
+            "constraints_summary": "Max 5-6 touchpoints; mission-focused tone; accessible design; volunteer-managed processes"
+        },
+        {
+            "id": "np-031",
+            "name": "Membership Renewal Communication System",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Membership Engagement Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "MISSION_STATEMENT",
+                "MEMBERSHIP_TIERS"
+            ],
+            "output_sections": [
+                "Communication Strategy Overview",
+                "Early Reminder Template",
+                "Standard Renewal Notice",
+                "Urgent Reminder",
+                "Expiration Notice",
+                "Lapsed Member Follow-up",
+                "Thank You Confirmation",
+                "Measurement Framework"
+            ],
+            "constraints_summary": "No guilt/pressure tactics; personalized; multi-channel; mission impact emphasis"
+        },
+        {
+            "id": "np-032",
+            "name": "Financial Reconciliation & Reporting",
+            "category": "monitoring",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Nonprofit Financial Analyst",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "DATE_RANGE",
+                "BANK_STATEMENTS",
+                "ACCOUNTING_SOFTWARE_EXPORTS"
+            ],
+            "output_sections": [
+                "Reconciliation Summary",
+                "Discrepancy Report",
+                "Restricted Funds Analysis",
+                "Financial Statements",
+                "Recommendations",
+                "Next Steps"
+            ],
+            "constraints_summary": "FASB ASC 958 adherence; restricted/unrestricted separation; audit trail; no assumptions"
+        },
+        {
+            "id": "np-033",
+            "name": "Event Registration Data Processing",
+            "category": "integration",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Data Processing Assistant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "MISSION_STATEMENT",
+                "CRM_SYSTEM",
+                "REGISTRATION_PLATFORM"
+            ],
+            "output_sections": [
+                "Data Overview",
+                "Standardized Registration Data",
+                "Special Attention Items",
+                "Financial Summary",
+                "System Integration Notes",
+                "Recommended Actions"
+            ],
+            "constraints_summary": "Data privacy; consistent formatting; flag ambiguous data; ethical handling; CRM-compatible output"
+        },
+        {
+            "id": "np-034",
+            "name": "Membership Data Management",
+            "category": "integration",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Membership Database Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "CRM_SYSTEM",
+                "APPROXIMATE_MEMBER_COUNT",
+                "MEMBERSHIP_LEVELS"
+            ],
+            "output_sections": [
+                "Data Processing Summary",
+                "Standardization Actions",
+                "Issue Report",
+                "Recommended Actions",
+                "Cleaned Data"
+            ],
+            "constraints_summary": "Preserve originals; flag ambiguous cases; data privacy; audit trail of changes"
+        },
+        {
+            "id": "np-035",
+            "name": "Data Transfer Assistant",
+            "category": "integration",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Data Systems Integration Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "SOURCE_SYSTEM",
+                "TARGET_SYSTEM",
+                "UNIQUE_IDENTIFIER_FIELDS"
+            ],
+            "output_sections": [
+                "Data Validation Summary",
+                "Processed Data",
+                "Exception Report",
+                "Process Documentation"
+            ],
+            "constraints_summary": "Preserve unique IDs; nonprofit accounting best practices; restricted fund integrity; no date changes"
+        },
+        {
+            "id": "np-036",
+            "name": "Safety Protocol & Emergency Procedure Documentation",
+            "category": "security",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Emergency Management & Safety Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "FACILITY_TYPE",
+                "STAFF_SIZE",
+                "CLIENT_DEMOGRAPHICS"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Emergency Contact Information",
+                "Facility Information",
+                "Emergency Procedures",
+                "Roles & Responsibilities",
+                "Training Requirements",
+                "Documentation & Reporting",
+                "Review & Updates",
+                "Appendices"
+            ],
+            "constraints_summary": "Action-oriented language; ADA accessible; resource-appropriate; trauma-informed; volunteer turnover aware"
+        },
+        {
+            "id": "np-037",
+            "name": "Volunteer Agreement & Contract Generator",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 4,
+            "role": "Nonprofit Legal Consultant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "VOLUNTEER_ROLE",
+                "ACTIVITY_RISK_LEVEL"
+            ],
+            "output_sections": [
+                "Document Title & Introduction",
+                "Volunteer Responsibilities",
+                "Organization Responsibilities",
+                "Legal Protections",
+                "Policies & Procedures",
+                "Signatures",
+                "Implementation Guidance"
+            ],
+            "constraints_summary": "No employment language; mission-focused tone; jurisdiction-aware; scaled to risk level"
+        },
+        {
+            "id": "np-038",
+            "name": "Training & Onboarding Documentation",
+            "category": "maintenance",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 4,
+            "role": "Instructional Designer",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROCEDURE_NAME",
+                "DEPARTMENT_NAME"
+            ],
+            "output_sections": [
+                "Document Header",
+                "Introduction Section",
+                "Procedure Details",
+                "Special Considerations",
+                "Resources & Support",
+                "Evaluation & Feedback"
+            ],
+            "constraints_summary": "Clear accessible language; mission connection; volunteer-friendly; resource-constrained alternatives"
+        },
+        {
+            "id": "np-039",
+            "name": "Workshop Curriculum Designer",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Nonprofit Workshop Facilitator",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "TARGET_AUDIENCE",
+                "LEARNING_OBJECTIVES",
+                "WORKSHOP_DURATION"
+            ],
+            "output_sections": [
+                "Workshop Overview",
+                "Pre-Workshop Setup",
+                "Welcome & Introduction",
+                "Core Content Modules",
+                "Interactive Activities",
+                "Closing & Next Steps",
+                "Facilitator Notes"
+            ],
+            "constraints_summary": "Low-cost materials; multi-learning-style; culturally sensitive; adaptable group sizes; no hierarchy reinforcement"
+        },
+        {
+            "id": "np-040",
+            "name": "Fundraising Case Statement Generator",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "hot",
+            "weight": 5,
+            "role": "Nonprofit Fundraising Storyteller",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "TARGET_AUDIENCE",
+                "KEY_DATA_POINTS",
+                "PROGRAM_NAME"
+            ],
+            "output_sections": [
+                "Title",
+                "The Need (Problem Statement)",
+                "Our Approach",
+                "Evidence of Impact",
+                "The Opportunity",
+                "Call to Action"
+            ],
+            "constraints_summary": "Active voice; translate stats to relatable terms; no jargon without explanation; no manipulative language; focus on solutions"
+        },
+        {
+            "id": "np-041",
+            "name": "Impact Story Generator",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "hot",
+            "weight": 5,
+            "role": "Nonprofit Impact Storyteller",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "TARGET_AUDIENCE",
+                "PROGRAM_DATA_AND_METRICS"
+            ],
+            "output_sections": [
+                "The Challenge",
+                "Our Approach",
+                "The Impact",
+                "Looking Forward",
+                "Key Metrics",
+                "Call to Action"
+            ],
+            "constraints_summary": "Absolute data accuracy; humanize beneficiaries with dignity; no savior narratives; no exaggeration; ethical storytelling"
+        },
+        {
+            "id": "np-042",
+            "name": "Podcast Production Assistant",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Nonprofit Podcast Producer",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PODCAST_NAME",
+                "MISSION_FOCUS",
+                "TARGET_AUDIENCE",
+                "EPISODE_TOPIC",
+                "GUEST_INFO"
+            ],
+            "output_sections": [
+                "Episode Outline",
+                "Segment Breakdown with Questions",
+                "Show Notes",
+                "Timestamps",
+                "Social Media Content",
+                "Recommended Hashtags"
+            ],
+            "constraints_summary": "Mission alignment; accessibility; ethical representation; max 1-2 CTAs; respect episode duration; no jargon"
+        },
+        {
+            "id": "np-043",
+            "name": "Social Media Graphics & Quote Cards",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 4,
+            "role": "Nonprofit Visual Communications Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "CONTENT_CONCEPT",
+                "TARGET_PLATFORM",
+                "BRAND_COLORS"
+            ],
+            "output_sections": [
+                "Content Analysis",
+                "Visual Concept with DALL-E Prompt",
+                "Text Treatment",
+                "Platform Variations",
+                "Accessibility Features",
+                "Implementation Guidance"
+            ],
+            "constraints_summary": "Readability over decoration; WCAG color contrast; culturally sensitive imagery; no exploitative visuals; resource-conscious designs"
+        },
+        {
+            "id": "np-044",
+            "name": "Audit Response & Evaluation Report",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Nonprofit Program Evaluator",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "EVALUATION_DATA",
+                "AUDIT_FINDINGS"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Introduction",
+                "Findings and Responses",
+                "Resource Implications",
+                "Implementation Plan",
+                "Conclusion",
+                "Appendices"
+            ],
+            "constraints_summary": "Clear direct language; specific measurable actions; realistic timelines; no defensive tone; no confidential beneficiary info"
+        },
+        {
+            "id": "np-045",
+            "name": "Infographic Creation Assistant",
+            "category": "creative",
+            "complexity": "high",
+            "pool": "cold",
+            "weight": 3,
+            "role": "Nonprofit Visual Communications Specialist",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "PROGRAM_NAME",
+                "KEY_METRICS",
+                "TARGET_AUDIENCE",
+                "BRAND_COLORS"
+            ],
+            "output_sections": [
+                "Infographic Concept Overview",
+                "Content Structure",
+                "Visual Elements with DALL-E Prompts",
+                "Design Specifications",
+                "Accessibility Considerations",
+                "Implementation Guidance"
+            ],
+            "constraints_summary": "Data accuracy over aesthetics; ethical beneficiary representation; accessible design; no overcrowding; modular for reuse"
+        },
+        {
+            "id": "np-046",
+            "name": "Strategic Planning Document Generator",
+            "category": "governance",
+            "complexity": "high",
+            "pool": "warm",
+            "weight": 5,
+            "role": "Strategic Planning Consultant",
+            "inputs": [
+                "ORGANIZATION_NAME",
+                "TIMEFRAME",
+                "MISSION_STATEMENT",
+                "VISION_STATEMENT",
+                "CURRENT_PROGRAMS",
+                "STAKEHOLDER_INPUT"
+            ],
+            "output_sections": [
+                "Executive Summary",
+                "Organizational Background",
+                "Environmental Analysis",
+                "Strategic Priorities with SMART Goals",
+                "Implementation Plan",
+                "Evaluation Framework",
+                "Resource Development Strategy"
+            ],
+            "constraints_summary": "Accessible language; realistic goals for resource constraints; equity integrated throughout; living document approach; no corporate jargon"
+        }
+    ]
+}

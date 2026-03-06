@@ -1,0 +1,117 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/cloud-environments.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Heady Cloud Environments Configuration
+# Sacred Geometry v3.0
+#
+# Each environment maps to a cloud layer from cloud-layers.yaml,
+# a brain profile from brain-profiles.yaml, and an edge proxy
+# from workers/edge-proxy/. Product sites from website-definitions.yaml
+# are deployed per-environment.
+
+environments:
+
+  # ─── Local Development ──────────────────────────────────────────
+  local:
+    cloud_layer: local
+    brain_profile: sys-ops
+    api_endpoint: https://dev.headysystems.com/api
+    manager_endpoint: https://dev.headysystems.com
+    registry_endpoint: https://dev.headysystems.com/api/registry
+    brain_endpoint: https://dev.headysystems.com/api/brain
+    orchestrator_endpoint: https://dev.headysystems.com/api/orchestrator
+    edge_proxy: null
+    deployment_strategy: instant
+    resource_profile: developer
+    scaling_policy: none
+
+  # ─── HeadySystems (Cloud-Sys) ───────────────────────────────────
+  sys:
+    cloud_layer: production
+    brain_profile: sys-ops
+    domain: headysystems.com
+    api_endpoint: https://api.heady.systems
+    manager_endpoint: https://manager.heady.systems
+    registry_endpoint: https://api.heady.systems/registry
+    brain_endpoint: https://brain.heady.systems
+    orchestrator_endpoint: https://api.heady.systems/orchestrator
+    edge_proxy: https://api.heady.systems
+    cloud_origin: https://api.headysystems.com
+    deployment_strategy: fast_parallel
+    resource_profile: high
+    scaling_policy: aggressive
+
+  # ─── HeadyMe (Cloud-Me) ────────────────────────────────────────
+  me:
+    cloud_layer: production
+    brain_profile: personal-wellbeing
+    domain: headyme.com
+    api_endpoint: https://api.heady.systems/me
+    manager_endpoint: https://api.heady.systems/me
+    registry_endpoint: https://api.heady.systems/me/registry
+    brain_endpoint: https://brain.me.heady.systems
+    orchestrator_endpoint: https://api.heady.systems/me/orchestrator
+    edge_proxy: https://headyme.com/api
+    cloud_origin: https://me.headysystems.com
+    deployment_strategy: balanced
+    resource_profile: standard
+    scaling_policy: auto
+
+  # ─── HeadyConnection (Cloud-Conn) ──────────────────────────────
+  conn:
+    cloud_layer: production
+    brain_profile: community-impact
+    domain: headyconnection.org
+    api_endpoint: https://api.heady.systems/conn
+    manager_endpoint: https://api.heady.systems/conn
+    registry_endpoint: https://api.heady.systems/conn/registry
+    brain_endpoint: https://brain.conn.heady.systems
+    orchestrator_endpoint: https://api.heady.systems/conn/orchestrator
+    edge_proxy: https://headyconnection.org/api
+    cloud_origin: https://api.headyconnection.org
+    deployment_strategy: thorough
+    resource_profile: standard
+    scaling_policy: conservative
+    pricing_profile: nonprofit-first
+
+  # ─── HeadyWeb (Cloud-Web) ──────────────────────────────────────
+  web:
+    cloud_layer: production
+    brain_profile: web-platform
+    domain: headyweb.com
+    api_endpoint: https://api.heady.systems/web
+    manager_endpoint: https://api.heady.systems/web
+    registry_endpoint: https://api.heady.systems/web/registry
+    brain_endpoint: null
+    orchestrator_endpoint: https://api.heady.systems/web/orchestrator
+    edge_proxy: https://headyweb.com/api
+    cloud_origin: https://app.headyweb.com
+    deployment_strategy: balanced
+    resource_profile: standard
+    scaling_policy: auto
+
+  # ─── Internal / Staging ────────────────────────────────────────
+  staging:
+    cloud_layer: internal
+    brain_profile: team
+    api_endpoint: https://api.staging.headysystems.comheady.systems
+    manager_endpoint: https://manager.staging.headysystems.comheady.systems
+    registry_endpoint: https://api.staging.headysystems.comheady.systems/registry
+    brain_endpoint: https://brain.staging.headysystems.comheady.systems
+    orchestrator_endpoint: https://api.staging.headysystems.comheady.systems/orchestrator
+    edge_proxy: null
+    deployment_strategy: thorough
+    resource_profile: standard
+    scaling_policy: conservative

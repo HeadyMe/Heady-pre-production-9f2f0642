@@ -59,11 +59,23 @@ const DOMAINS = {
     cloudflare: { label: 'Cloudflare', zone: 2 },
     gcloud: { label: 'Google Cloud', zone: 3 },
     workspace: { label: 'Google Workspace', zone: 3 },
+    googleai: { label: 'Google AI Studio', zone: 3 },
     huggingface: { label: 'Hugging Face', zone: 4 },
-    email: { label: 'Email / SMTP', zone: 5 },
-    ssh: { label: 'SSH Keys', zone: 6 },
-    gpg: { label: 'GPG Keys', zone: 6 },
-    custom: { label: 'Custom', zone: 7 },
+    openai: { label: 'OpenAI', zone: 4 },
+    claude: { label: 'Claude / Anthropic', zone: 4 },
+    groq: { label: 'Groq', zone: 4 },
+    perplexity: { label: 'Perplexity', zone: 4 },
+    upstash: { label: 'Upstash Redis', zone: 5 },
+    neon: { label: 'Neon Postgres', zone: 5 },
+    pinecone: { label: 'Pinecone', zone: 5 },
+    sentry: { label: 'Sentry', zone: 6 },
+    stripe: { label: 'Stripe', zone: 6 },
+    onepassword: { label: '1Password', zone: 6 },
+    heady: { label: 'Heady Internal', zone: 7 },
+    email: { label: 'Email / SMTP', zone: 7 },
+    ssh: { label: 'SSH Keys', zone: 8 },
+    gpg: { label: 'GPG Keys', zone: 8 },
+    custom: { label: 'Custom', zone: 8 },
 };
 
 // ── Master Key State ────────────────────────────────────────────
@@ -195,8 +207,8 @@ class SecureKeyVault {
 
         const owner = OWNERS.includes(meta.owner) ? meta.owner : 'shared';
 
-        // Ingest into vector memory with encrypted payload
-        await vectorMemory.ingestMemory({
+        // Ingest into vector memory with encrypted payload (density gating prevents duplicates)
+        await vectorMemory.smartIngest({
             content: `credential:${domain}:${name} ${meta.label || name} ${DOMAINS[domain].label} ${owner}`,
             metadata: {
                 type: 'credential',
@@ -311,7 +323,7 @@ class SecureKeyVault {
         this.credentials.delete(credentialId);
 
         // Mark as deleted in vector memory (soft delete via metadata)
-        await vectorMemory.ingestMemory({
+        await vectorMemory.smartIngest({
             content: `deleted:${credentialId}`,
             metadata: {
                 type: 'credential-deleted',
@@ -342,11 +354,26 @@ class SecureKeyVault {
             case 'github':
                 return { headers: { 'Authorization': `token ${cred.value}` } };
             case 'cloudflare':
+            case 'huggingface':
+            case 'pinecone':
+                return { headers: { 'Authorization': `Bearer ${cred.value}` } };
+            case 'openai':
+                return { headers: { 'Authorization': `Bearer ${cred.value}` } };
+            case 'claude':
+                return { headers: { 'x-api-key': cred.value, 'anthropic-version': '2023-06-01' } };
+            case 'groq':
+                return { headers: { 'Authorization': `Bearer ${cred.value}` } };
+            case 'perplexity':
+                return { headers: { 'Authorization': `Bearer ${cred.value}` } };
+            case 'sentry':
+                return { headers: { 'Authorization': `Bearer ${cred.value}` } };
+            case 'stripe':
+                return { headers: { 'Authorization': `Bearer ${cred.value}` } };
+            case 'neon':
                 return { headers: { 'Authorization': `Bearer ${cred.value}` } };
             case 'gcloud':
+            case 'googleai':
                 return { token: cred.value };
-            case 'huggingface':
-                return { headers: { 'Authorization': `Bearer ${cred.value}` } };
             default:
                 return { value: cred.value };
         }

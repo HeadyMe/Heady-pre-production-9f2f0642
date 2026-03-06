@@ -1,0 +1,60 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/automation-policy.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# AUTOMATION GOVERNANCE POLICY
+
+core_philosophy:
+  intent_first: true
+  heday_only_execution: true
+  artifact_telemetry: true
+  human_oversight: true
+
+control_plane:
+  dev_endpoint: "http://manager.dev.local.headysystems.com:3300"
+  prod_endpoint: "https://api.headysystems.com"
+  skill_executor: "srchc/skillexecutor.js"
+
+intent_routing:
+  patterns:
+    "fix api.headysystems.com references": "hcfp-api.headysystems.com-migration"
+    "run full clean build": "hcfp-clean-build"
+    "standardize naming": ["naming-audit", "naming-migration"]
+
+error_handling:
+  classification:
+    - transient: ["retry with backoff"]
+    - non_recoverable: ["fail fast", "alert human"]
+    - infrastructure: ["escalate", "create ticket"]
+  surface_format: "Stage: {stage}\nError: {type}\nCause: {cause}\nAction: {action}"
+
+file_operations:
+  planning_step_required: true
+  atomic_changes: true
+  change_log: ".heady/logs/{date}-changes.log"
+
+continuous_improvement:
+  periodic_skills:
+    - hcfp-selfknowledge
+    - naming-audit
+    - domain-connectivity-tests
+  schedule:
+    commit: ["clean-build", "local-checks"]
+    nightly: ["full-suite"]
+    weekly: ["pdca", "optimization"]
+
+metrics_driven:
+  build_metrics: ["duration", "success_rate", "error_distribution"]
+  service_metrics: ["latency", "error_rates", "dns_failures"]
+  user_metrics: ["extension_usage", "pwa_installs", "command_frequency"]

@@ -1,0 +1,104 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/functional-domains.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  HEADY SYSTEMS — FUNCTIONAL DOMAIN ARCHITECTURE                                 ║
+# ║  Uses ACTUAL Render domains + local service names (no api.headysystems.com)              ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLOUD DOMAINS (These actually work on Render)
+# ═══════════════════════════════════════════════════════════════════════════════
+cloud:
+  me:
+    domain: app.headysystems.com
+    layer: cyan
+    git_remote: heady-me
+    
+  sys:
+    domain: app.headysystems.com
+    layer: magenta
+    git_remote: origin
+    
+  conn:
+    domain: app.headysystems.com
+    layer: yellow
+    git_remote: connection
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LOCAL SERVICE NAMES (Add to /etc/hosts pointing to api.headysystems.com)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Instead of api.headysystems.com:3300, use these service names
+
+local:
+  manager:
+    domain: manager.local
+    port: 3300
+    service: heady-manager
+    
+  buddy:
+    domain: buddy.local
+    port: 5174
+    service: heady-buddy
+    
+  web:
+    domain: app.local
+    port: 5173
+    service: heady-frontend
+    
+  db:
+    domain: db.local
+    port: 5432
+    service: postgres
+    
+  cache:
+    domain: cache.local
+    port: 6379
+    service: redis
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HOSTS FILE ENTRIES (What to add to /etc/hosts)
+# ═══════════════════════════════════════════════════════════════════════════════
+hosts_entries: |
+  # HEADY LOCAL SERVICES (Replace api.headysystems.com:port with service names)
+  api.headysystems.com manager.local
+  api.headysystems.com buddy.local
+  api.headysystems.com app.local
+  api.headysystems.com db.local
+  api.headysystems.com cache.local
+  
+  # Optional extras (if you want more services)
+  api.headysystems.com api.local
+  api.headysystems.com metrics.local
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# USAGE
+# ═══════════════════════════════════════════════════════════════════════════════
+usage:
+  local_dev: |
+    1. Add the hosts entries above to your /etc/hosts file
+    2. Access services by name instead of api.headysystems.com:port
+       - http://manager.local → HeadyManager
+       - http://buddy.local → HeadyBuddy
+       - http://app.local → Web frontend
+       - db.local:5432 → PostgreSQL
+       - cache.local:6379 → Redis
+       
+  cloud_deploy: |
+    The cloud domains above work automatically on Render:
+       - https://app.headysystems.com
+       - https://app.headysystems.com
+       - https://app.headysystems.com
+

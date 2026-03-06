@@ -1,0 +1,91 @@
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. THE BRAIN: LiteLLM Gateway
+  # Routes traffic between Colab (GPU) and Groq (Failover).
+  # ---------------------------------------------------------------------------
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: heady-gateway
+    restart: always
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ./logs:/app/logs
+    command: [ "--config", "/app/config.yaml" ]
+    depends_on:
+      - redis
+    env_file: .env
+
+  # ---------------------------------------------------------------------------
+  # 2. THE MEMORY: Redis
+  # High-speed caching. If a user asks the same question twice, 
+  # Redis answers instantly. Zero GPU needed.
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:alpine
+    container_name: heady-redis
+    restart: always
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis_data:/data
+
+  # ---------------------------------------------------------------------------
+  # 3. THE BRIDGE: Cloudflare Tunnel
+  # Exposes your Gateway + Dashboards securely to the internet.
+  # ---------------------------------------------------------------------------
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: heady-tunnel
+    restart: always
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+
+  # ---------------------------------------------------------------------------
+  # 4. BENEFICIAL EXTRA: Uptime Kuma (Status Dashboard)
+  # Visually monitors your remote Colab nodes. 
+  # Access at: http://localhost:3001
+  # ---------------------------------------------------------------------------
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: heady-status
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+
+  # ---------------------------------------------------------------------------
+  # 5. BENEFICIAL EXTRA: Dozzle (Log Viewer)
+  # Real-time streaming logs in your browser. Debug routing issues instantly.
+  # Access at: http://localhost:8080
+  # ---------------------------------------------------------------------------
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: heady-logs
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOZZLE_LEVEL: info
+
+  # ---------------------------------------------------------------------------
+  # 6. AUTO-UPDATER: Watchtower
+  # Keeps the Command Center up to date.
+  # ---------------------------------------------------------------------------
+  watchtower:
+    image: containrrr/watchtower
+    container_name: heady-updater
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 3600 --cleanup
+
+volumes:
+  redis_data:
+  uptime-kuma-data:

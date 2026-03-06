@@ -1,0 +1,302 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/dynamic-parallel-resource-allocation.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+# ╔═══════════════════════════════════════════════════════════════════════╗
+# ║  DYNAMIC INTELLIGENT PARALLEL RESOURCE ALLOCATION (DIPRA)           ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  Ensures Heady services run at 100% functional state at all times   ║
+# ║  by dynamically distributing resources across parallel workloads.   ║
+# ╚═══════════════════════════════════════════════════════════════════════╝
+
+version: "1.0.0"
+status: active
+activatedAt: "2026-02-11T21:09:00.000Z"
+
+# ─── INTEGRATION REFERENCES ──────────────────────────────────────────────
+integrations:
+  brainDominance: configs/heady-brain-dominance.yaml
+  resourceManagement: configs/resource-management-protocol.yaml
+  resourcePolicies: configs/resource-policies.yaml
+  autoDeploy: configs/auto-deploy-config.json
+  engine: src/hc_resource_manager.js
+
+# ─── DIPRA ENGINE ─────────────────────────────────────────────────────────
+engine:
+  name: "DIPRA"
+  description: "Dynamic Intelligent Parallel Resource Allocation"
+  mode: autonomous
+  brainIntegration: required
+  decisionAuthority: heady_brain_first
+  pollingIntervalMs: 2000
+  rebalanceIntervalMs: 5000
+
+# ─── SERVICE REGISTRY (100% Functional Requirement) ──────────────────────
+services:
+  heady_brain:
+    criticality: supreme
+    minInstances: 1
+    targetAvailability: "100.0%"
+    resourceGuarantee:
+      cpuPercent: 15
+      ramMB: 512
+      networkPriority: highest
+    healthEndpoint: "https://brain.headysystems.com/api/brain/health"
+    failoverChain:
+      - "https://brain-backup.headysystems.com"
+      - "https://brain-emergency.headysystems.com"
+
+  heady_manager:
+    criticality: critical
+    minInstances: 1
+    targetAvailability: "99.99%"
+    resourceGuarantee:
+      cpuPercent: 10
+      ramMB: 256
+      networkPriority: high
+    healthEndpoint: "https://headysystems.com/api/health"
+
+  heady_promoter:
+    criticality: critical
+    minInstances: 1
+    targetAvailability: "99.99%"
+    resourceGuarantee:
+      cpuPercent: 10
+      ramMB: 256
+      networkPriority: high
+    healthEndpoint: "https://headysystems.com/promoter/health"
+
+  heady_supervisor:
+    criticality: critical
+    minInstances: 1
+    targetAvailability: "99.99%"
+    resourceGuarantee:
+      cpuPercent: 5
+      ramMB: 128
+      networkPriority: medium
+    healthEndpoint: "https://headysystems.com/supervisor/module-loaded"
+
+  heady_buddy:
+    criticality: high
+    minInstances: 1
+    targetAvailability: "99.9%"
+    resourceGuarantee:
+      cpuPercent: 5
+      ramMB: 128
+      networkPriority: medium
+    healthEndpoint: "https://headysystems.com/buddy/health"
+
+  heady_ide:
+    criticality: high
+    minInstances: 1
+    targetAvailability: "99.9%"
+    resourceGuarantee:
+      cpuPercent: 10
+      ramMB: 512
+      networkPriority: high
+
+# ─── PARALLEL ALLOCATION STRATEGY ────────────────────────────────────────
+parallelAllocation:
+  strategy: adaptive_weighted
+  description: >
+    Distributes resources dynamically based on real-time demand, service
+    criticality, and HeadyBrain directives. Guarantees minimum allocations
+    to all services, then distributes surplus to highest-demand workloads.
+
+  tiers:
+    - name: guaranteed
+      description: Minimum resources reserved per service (never reclaimed)
+      enforcement: absolute
+    - name: elastic
+      description: Surplus resources distributed by demand + priority
+      enforcement: best_effort
+      rebalanceOnDemandChange: true
+    - name: burst
+      description: Temporary over-allocation for spike handling
+      enforcement: time_limited
+      maxBurstDurationSeconds: 30
+      cooldownSeconds: 60
+
+  weightingFactors:
+    serviceCriticality: 0.40
+    currentDemand: 0.30
+    historicalPattern: 0.15
+    brainDirective: 0.15
+
+  overcommitPolicy:
+    enabled: false
+    maxOvercommitRatio: 1.0
+    description: "No overcommit — 100% functional state requires real allocation"
+
+# ─── DYNAMIC SCALING RULES ───────────────────────────────────────────────
+dynamicScaling:
+  enabled: true
+  evaluationIntervalMs: 3000
+  rules:
+    - name: scale_up_on_demand
+      condition: "serviceUtilization > 80% for 10s"
+      action: increase_allocation
+      incrementPercent: 10
+      maxAllocationPercent: 50
+      source: elastic_pool
+
+    - name: scale_down_idle
+      condition: "serviceUtilization < 30% for 60s"
+      action: decrease_allocation
+      decrementPercent: 5
+      minAllocationPercent: guaranteed_minimum
+      returnTo: elastic_pool
+
+    - name: emergency_rebalance
+      condition: "anyService.availability < 99%"
+      action: emergency_redistribute
+      description: "Immediately reclaim elastic resources from low-priority services and redirect to failing service"
+      brainApproval: automatic
+
+    - name: burst_protection
+      condition: "requestSpike > 200% baseline"
+      action: activate_burst_tier
+      maxDurationSeconds: 30
+      notifyBrain: true
+
+# ─── WORKLOAD QUEUE MANAGEMENT ────────────────────────────────────────────
+queueManagement:
+  enabled: true
+  strategy: priority_weighted_fair_queue
+  queues:
+    - name: interactive
+      priority: 1
+      weight: 0.50
+      maxConcurrency: 8
+      description: "User-facing requests — lowest latency guarantee"
+    - name: pipeline
+      priority: 2
+      weight: 0.30
+      maxConcurrency: 6
+      description: "Build/deploy/CI pipeline tasks"
+    - name: background
+      priority: 3
+      weight: 0.15
+      maxConcurrency: 4
+      description: "Indexing, analytics, concept extraction"
+    - name: maintenance
+      priority: 4
+      weight: 0.05
+      maxConcurrency: 2
+      description: "Cleanup, log rotation, backups"
+
+  preemption:
+    enabled: true
+    allowPreemptionOf: [background, maintenance]
+    neverPreempt: [interactive]
+    preemptionGracePeriodMs: 5000
+
+# ─── BRAIN-DIRECTED ALLOCATION ────────────────────────────────────────────
+brainDirectedAllocation:
+  enabled: true
+  description: >
+    HeadyBrain can override standard allocation rules when it detects
+    patterns or anticipates demand changes. All brain directives are
+    logged and audited.
+
+  capabilities:
+    - predictive_scaling
+    - pattern_based_preallocation
+    - anomaly_triggered_rebalance
+    - deployment_aware_reservation
+
+  predictiveModel:
+    enabled: true
+    lookAheadWindowMinutes: 15
+    trainingDataSource: "logs/resource-events.jsonl"
+    retrain_interval_hours: 6
+
+  deploymentAwareness:
+    enabled: true
+    preDeployReservation:
+      cpuPercent: 20
+      ramMB: 1024
+      durationMinutes: 10
+    description: "Reserve extra resources before deployments to prevent degradation"
+
+# ─── HEALTH ENFORCEMENT (100% FUNCTIONAL STATE) ──────────────────────────
+healthEnforcement:
+  target: "100%"
+  description: "All services must be functional at all times"
+  
+  continuousValidation:
+    enabled: true
+    intervalMs: 5000
+    parallelChecks: true
+
+  responseProtocol:
+    onServiceDegraded:
+      - increase_service_allocation
+      - notify_brain
+      - log_event
+    onServiceDown:
+      - emergency_rebalance
+      - activate_failover
+      - restart_service
+      - alert_admin
+    onMultipleServicesDown:
+      - enter_emergency_mode
+      - suspend_all_nonessential
+      - redirect_all_to_brain
+      - activate_disaster_recovery
+
+  sla:
+    maxResponseTimeMs: 2000
+    maxDowntimePerMonthMinutes: 0
+    targetAvailability: "100.0%"
+
+# ─── OBSERVABILITY ────────────────────────────────────────────────────────
+observability:
+  metrics:
+    - allocation_distribution_over_time
+    - service_utilization_heatmap
+    - rebalance_frequency
+    - brain_directive_effectiveness
+    - queue_depth_by_priority
+    - burst_activation_count
+    - preemption_events
+    - sla_compliance_percentage
+  
+  logDestination: "logs/resource-events.jsonl"
+  dashboardEndpoint: "https://headysystems.com/api/dipra/dashboard"
+  
+  alerting:
+    channels:
+      - type: log
+        level: all
+      - type: brain_notification
+        level: warning_and_above
+      - type: admin_alert
+        level: critical_only
+
+# ─── GUARDRAILS ───────────────────────────────────────────────────────────
+guardrails:
+  neverStarveAnyService: true
+  guaranteedMinimumAlways: true
+  brainCannotDisableItself: true
+  noSilentDegradation: true
+  auditAllAllocationChanges: true
+  maxRebalancesPerMinute: 12
+  protectCoreWorkflows:
+    - HeadyBrain
+    - HeadyManager
+    - Headypromoter
+    - HeadyBuddy
+    - HeadyIDE

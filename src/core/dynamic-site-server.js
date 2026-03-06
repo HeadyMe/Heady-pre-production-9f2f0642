@@ -24,174 +24,204 @@ const PHI = 1.6180339887;
 
 // ── Site Registry ───────────────────────────────────────────────
 const SITES = {
-    'headyme.com': {
-        brand: 'HeadyMe',
-        tagline: 'Your Sovereign AI',
-        subtitle: 'Personal intelligence that works for you — across every device, every domain.',
-        color: '#4c8fff',
-        accent: '#00d4ff',
-        icon: 'H',
-        heroServices: [
-            { icon: '🧠', name: 'AI Chat', desc: 'Multi-provider reasoning with auto-failover' },
-            { icon: '🔐', name: 'Secure Vault', desc: 'AES-256-GCM encrypted credential storage' },
-            { icon: '📊', name: 'Dashboard', desc: 'Real-time system health and analytics' },
-            { icon: '🐝', name: 'Bee Swarm', desc: 'Distributed task execution at scale' },
-        ],
-        showAuth: true,
-    },
-    'headysystems.com': {
-        brand: 'HeadySystems',
-        tagline: 'The Architecture of Intelligence',
-        subtitle: 'Self-healing infrastructure powered by Sacred Geometry and fault-tolerant lattice computing.',
-        color: '#00d4ff',
-        accent: '#4c8fff',
-        icon: 'S',
-        heroServices: [
-            { icon: '⚙️', name: 'Ops Console', desc: '14 service groups, CLI-driven' },
-            { icon: '🏗️', name: 'Architecture', desc: '6-layer zero-trust mesh' },
-            { icon: '⚛️', name: 'Quantum IP', desc: 'Rotated Subsystem Surface Code' },
-            { icon: '🔄', name: 'Self-Healing', desc: 'Attestation, quarantine, respawn' },
-        ],
-        showAuth: false,
-    },
-    'headyconnection.org': {
-        brand: 'HeadyConnection',
-        tagline: 'The Human Network',
-        subtitle: 'DNA-correlated trust and biometric continuity for authentic digital relationships.',
-        color: '#8b5cf6',
-        accent: '#c084fc',
-        icon: 'C',
-        heroServices: [
-            { icon: '🧬', name: 'DNA Trust', desc: 'Biometric-anchored identity' },
-            { icon: '🤝', name: 'Connect', desc: 'Zero-knowledge verified networking' },
-            { icon: '🛡️', name: 'Citadel', desc: 'Physical trust-anchored auth' },
-            { icon: '🌐', name: 'Federation', desc: 'Cross-domain identity mesh' },
-        ],
-        showAuth: false,
-    },
-    'headybuddy.org': {
-        brand: 'HeadyBuddy',
-        tagline: 'Your Always-On Companion',
-        subtitle: 'AI assistant that knows you, learns your preferences, and grows with you over time.',
-        color: '#10b981',
-        accent: '#34d399',
-        icon: 'B',
-        heroServices: [
-            { icon: '💬', name: 'Chat', desc: 'Natural conversation with memory' },
-            { icon: '📋', name: 'Tasks', desc: 'Smart task management' },
-            { icon: '🎯', name: 'Goals', desc: 'Progress tracking and coaching' },
-            { icon: '🔮', name: 'Predict', desc: 'Anticipatory suggestions' },
-        ],
-        showAuth: true,
-    },
-    'headymcp.com': {
-        brand: 'HeadyMCP',
-        tagline: 'The Protocol Layer',
-        subtitle: 'Model Context Protocol server with 30+ native tools — connect any IDE to Heady.',
-        color: '#f59e0b',
-        accent: '#fbbf24',
-        icon: 'M',
-        heroServices: [
-            { icon: '🔌', name: 'MCP Server', desc: 'JSON-RPC + SSE native transport' },
-            { icon: '🛠️', name: '30+ Tools', desc: 'Chat, code, search, embed, deploy' },
-            { icon: '⚡', name: 'Edge Native', desc: 'Cloudflare Workers — zero latency' },
-            { icon: '🔗', name: 'IDE Bridge', desc: 'VS Code, Cursor, Windsurf' },
-        ],
-        showAuth: false,
-    },
-    'headyio.com': {
-        brand: 'HeadyIO',
-        tagline: 'Developer Platform',
-        subtitle: 'APIs, SDKs, and documentation for building on the Heady intelligence layer.',
-        color: '#ec4899',
-        accent: '#f472b6',
-        icon: 'I',
-        heroServices: [
-            { icon: '📖', name: 'API Docs', desc: 'Full REST + WebSocket reference' },
-            { icon: '📦', name: 'SDK', desc: 'npm, Python, Go clients' },
-            { icon: '🔑', name: 'API Keys', desc: '9-tier subscription system' },
-            { icon: '🧪', name: 'Sandbox', desc: 'Live API playground' },
-        ],
-        showAuth: true,
-    },
-    'headybot.com': {
-        brand: 'HeadyBot',
-        tagline: 'Autonomous Automation',
-        subtitle: 'Self-driving engineering agents with adversarial validation and battle-tested quality.',
-        color: '#6366f1',
-        accent: '#818cf8',
-        icon: 'R',
-        heroServices: [
-            { icon: '🤖', name: 'Agents', desc: 'Autonomous task execution' },
-            { icon: '⚔️', name: 'Battle Arena', desc: 'AI-vs-AI quality assurance' },
-            { icon: '🧬', name: 'HeadyGoose', desc: 'Self-governing engineering agent' },
-            { icon: '📊', name: 'Telemetry', desc: 'Full audit trail and replay' },
-        ],
-        showAuth: false,
-    },
-    'headyapi.com': {
-        brand: 'HeadyAPI',
-        tagline: 'The Intelligence Interface',
-        subtitle: 'Unified API gateway routing to 4+ AI providers with liquid failover.',
-        color: '#14b8a6',
-        accent: '#2dd4bf',
-        icon: 'A',
-        heroServices: [
-            { icon: '🌊', name: 'Liquid Gateway', desc: 'Race providers, fastest wins' },
-            { icon: '🔀', name: 'Auto-Failover', desc: 'Zero-downtime provider switching' },
-            { icon: '📈', name: 'Analytics', desc: 'Per-request cost and latency' },
-            { icon: '🔐', name: 'Auth', desc: 'API key + tier enforcement' },
-        ],
-        showAuth: true,
-    },
-    'headylens.com': {
-        brand: 'HeadyLens',
-        tagline: 'Sovereign Sight',
-        subtitle: 'Vision AI for screenshots, UI review, OCR, and visual code analysis.',
-        color: '#f97316',
-        accent: '#fb923c',
-        icon: 'L',
-        heroServices: [
-            { icon: '👁️', name: 'Vision', desc: 'Image analysis and classification' },
-            { icon: '📸', name: 'Screenshot', desc: 'Automated visual QA' },
-            { icon: '🔍', name: 'OCR', desc: 'Text extraction from images' },
-            { icon: '🎨', name: 'Design', desc: 'UI/UX analysis and suggestions' },
-        ],
-        showAuth: false,
-    },
+  'headyme.com': {
+    brand: 'HeadyMe',
+    tagline: 'Your Sovereign AI',
+    subtitle: 'Personal intelligence that works for you — across every device, every domain.',
+    color: '#4c8fff',
+    accent: '#00d4ff',
+    icon: 'H',
+    heroServices: [
+      { icon: '🧠', name: 'AI Chat', desc: 'Multi-provider reasoning with auto-failover' },
+      { icon: '🔐', name: 'Secure Vault', desc: 'AES-256-GCM encrypted credential storage' },
+      { icon: '📊', name: 'Dashboard', desc: 'Real-time system health and analytics' },
+      { icon: '🐝', name: 'Bee Swarm', desc: 'Distributed task execution at scale' },
+    ],
+    showAuth: true,
+  },
+  'headysystems.com': {
+    brand: 'HeadySystems',
+    tagline: 'The Architecture of Intelligence',
+    subtitle: 'Self-healing infrastructure powered by Sacred Geometry and fault-tolerant lattice computing.',
+    color: '#00d4ff',
+    accent: '#4c8fff',
+    icon: 'S',
+    heroServices: [
+      { icon: '⚙️', name: 'Ops Console', desc: '14 service groups, CLI-driven' },
+      { icon: '🏗️', name: 'Architecture', desc: '6-layer zero-trust mesh' },
+      { icon: '⚛️', name: 'Quantum IP', desc: 'Rotated Subsystem Surface Code' },
+      { icon: '🔄', name: 'Self-Healing', desc: 'Attestation, quarantine, respawn' },
+    ],
+    showAuth: false,
+  },
+  'headyconnection.org': {
+    brand: 'HeadyConnection',
+    tagline: 'The Human Network',
+    subtitle: 'DNA-correlated trust and biometric continuity for authentic digital relationships.',
+    color: '#8b5cf6',
+    accent: '#c084fc',
+    icon: 'C',
+    heroServices: [
+      { icon: '🧬', name: 'DNA Trust', desc: 'Biometric-anchored identity' },
+      { icon: '🤝', name: 'Connect', desc: 'Zero-knowledge verified networking' },
+      { icon: '🛡️', name: 'Citadel', desc: 'Physical trust-anchored auth' },
+      { icon: '🌐', name: 'Federation', desc: 'Cross-domain identity mesh' },
+    ],
+    showAuth: false,
+  },
+  'headybuddy.org': {
+    brand: 'HeadyBuddy',
+    tagline: 'Your Always-On Companion',
+    subtitle: 'AI assistant that knows you, learns your preferences, and grows with you over time.',
+    color: '#10b981',
+    accent: '#34d399',
+    icon: 'B',
+    heroServices: [
+      { icon: '💬', name: 'Chat', desc: 'Natural conversation with memory' },
+      { icon: '📋', name: 'Tasks', desc: 'Smart task management' },
+      { icon: '🎯', name: 'Goals', desc: 'Progress tracking and coaching' },
+      { icon: '🔮', name: 'Predict', desc: 'Anticipatory suggestions' },
+    ],
+    showAuth: true,
+  },
+  'headymcp.com': {
+    brand: 'HeadyMCP',
+    tagline: 'The Protocol Layer',
+    subtitle: 'Model Context Protocol server with 30+ native tools — connect any IDE to Heady.',
+    color: '#f59e0b',
+    accent: '#fbbf24',
+    icon: 'M',
+    heroServices: [
+      { icon: '🔌', name: 'MCP Server', desc: 'JSON-RPC + SSE native transport' },
+      { icon: '🛠️', name: '30+ Tools', desc: 'Chat, code, search, embed, deploy' },
+      { icon: '⚡', name: 'Edge Native', desc: 'Cloudflare Workers — zero latency' },
+      { icon: '🔗', name: 'IDE Bridge', desc: 'VS Code, Cursor, Windsurf' },
+    ],
+    showAuth: false,
+  },
+  'headyio.com': {
+    brand: 'HeadyIO',
+    tagline: 'Developer Platform',
+    subtitle: 'APIs, SDKs, and documentation for building on the Heady intelligence layer.',
+    color: '#ec4899',
+    accent: '#f472b6',
+    icon: 'I',
+    heroServices: [
+      { icon: '📖', name: 'API Docs', desc: 'Full REST + WebSocket reference' },
+      { icon: '📦', name: 'SDK', desc: 'npm, Python, Go clients' },
+      { icon: '🔑', name: 'API Keys', desc: '9-tier subscription system' },
+      { icon: '🧪', name: 'Sandbox', desc: 'Live API playground' },
+    ],
+    showAuth: true,
+  },
+  'headybot.com': {
+    brand: 'HeadyBot',
+    tagline: 'Autonomous Automation',
+    subtitle: 'Self-driving engineering agents with adversarial validation and battle-tested quality.',
+    color: '#6366f1',
+    accent: '#818cf8',
+    icon: 'R',
+    heroServices: [
+      { icon: '🤖', name: 'Agents', desc: 'Autonomous task execution' },
+      { icon: '⚔️', name: 'Battle Arena', desc: 'AI-vs-AI quality assurance' },
+      { icon: '🧬', name: 'HeadyGoose', desc: 'Self-governing engineering agent' },
+      { icon: '📊', name: 'Telemetry', desc: 'Full audit trail and replay' },
+    ],
+    showAuth: false,
+  },
+  'headyapi.com': {
+    brand: 'HeadyAPI',
+    tagline: 'The Intelligence Interface',
+    subtitle: 'Unified API gateway routing to 4+ AI providers with liquid failover.',
+    color: '#14b8a6',
+    accent: '#2dd4bf',
+    icon: 'A',
+    heroServices: [
+      { icon: '🌊', name: 'Liquid Gateway', desc: 'Race providers, fastest wins' },
+      { icon: '🔀', name: 'Auto-Failover', desc: 'Zero-downtime provider switching' },
+      { icon: '📈', name: 'Analytics', desc: 'Per-request cost and latency' },
+      { icon: '🔐', name: 'Auth', desc: 'API key + tier enforcement' },
+    ],
+    showAuth: true,
+  },
+  'headylens.com': {
+    brand: 'HeadyLens',
+    tagline: 'Sovereign Sight',
+    subtitle: 'Vision AI for screenshots, UI review, OCR, and visual code analysis.',
+    color: '#f97316',
+    accent: '#fb923c',
+    icon: 'L',
+    heroServices: [
+      { icon: '👁️', name: 'Vision', desc: 'Image analysis and classification' },
+      { icon: '📸', name: 'Screenshot', desc: 'Automated visual QA' },
+      { icon: '🔍', name: 'OCR', desc: 'Text extraction from images' },
+      { icon: '🎨', name: 'Design', desc: 'UI/UX analysis and suggestions' },
+    ],
+    showAuth: false,
+  },
+  'headyai.com': {
+    brand: 'HeadyAI',
+    tagline: 'The Intelligence Hub',
+    subtitle: 'Multi-model AI playground — route tasks to Claude, Gemini, GPT-4o, Groq, and Perplexity through one unified interface.',
+    color: '#a855f7',
+    accent: '#c084fc',
+    icon: 'Σ',
+    heroServices: [
+      { icon: '🧠', name: 'Models', desc: '5+ providers, auto-failover routing' },
+      { icon: '🎓', name: 'Training', desc: 'Fine-tune on your data' },
+      { icon: '⚡', name: 'Inference', desc: 'Sub-100ms edge inference' },
+      { icon: '🌐', name: 'Edge AI', desc: 'Cloudflare Workers AI native' },
+    ],
+    showAuth: true,
+  },
+  'perfecttrader.com': {
+    brand: 'PerfectTrader',
+    tagline: 'Algorithmic Intelligence',
+    subtitle: 'AI-powered trading signals, backtesting, and portfolio optimization with real-time market data.',
+    color: '#22c55e',
+    accent: '#86efac',
+    icon: '₿',
+    heroServices: [
+      { icon: '📈', name: 'Strategy', desc: 'AI-generated trading strategies' },
+      { icon: '🔬', name: 'Backtest', desc: '16-asset historical simulation' },
+      { icon: '🔔', name: 'Signals', desc: 'Real-time entry/exit alerts' },
+      { icon: '💼', name: 'Portfolio', desc: 'Risk-optimized allocation' },
+    ],
+    showAuth: true,
+  },
 };
 
 // ── Auth Providers (same 25 from auth-page-server.js) ───────
 const AUTH_PROVIDERS = {
-    oauth: [
-        { id: 'google', name: 'Google', icon: '🔵', color: '#4285F4' },
-        { id: 'github', name: 'GitHub', icon: '⚫', color: '#333333' },
-        { id: 'microsoft', name: 'Microsoft', icon: '🟦', color: '#00A4EF' },
-        { id: 'apple', name: 'Apple', icon: '🍎', color: '#000000' },
-        { id: 'facebook', name: 'Facebook', icon: '🔵', color: '#1877F2' },
-        { id: 'amazon', name: 'Amazon', icon: '📦', color: '#FF9900' },
-        { id: 'discord', name: 'Discord', icon: '💬', color: '#5865F2' },
-        { id: 'slack', name: 'Slack', icon: '💼', color: '#4A154B' },
-        { id: 'linkedin', name: 'LinkedIn', icon: '💼', color: '#0A66C2' },
-        { id: 'twitter', name: 'X (Twitter)', icon: '✖️', color: '#000000' },
-        { id: 'spotify', name: 'Spotify', icon: '🟢', color: '#1DB954' },
-        { id: 'huggingface', name: 'Hugging Face', icon: '🤗', color: '#FFD21E' },
-    ],
-    apikey: [
-        { id: 'openai', name: 'OpenAI', icon: '🧠', color: '#10A37F', prefix: 'sk-' },
-        { id: 'claude', name: 'Claude', icon: '🟠', color: '#D97706', prefix: 'sk-ant-' },
-        { id: 'gemini', name: 'Gemini', icon: '💎', color: '#4285F4', prefix: 'AI' },
-        { id: 'perplexity', name: 'Perplexity', icon: '🔍', color: '#20808D', prefix: 'pplx-' },
-        { id: 'mistral', name: 'Mistral', icon: '🌊', color: '#FF7000', prefix: '' },
-        { id: 'cohere', name: 'Cohere', icon: '🟣', color: '#39594D', prefix: '' },
-        { id: 'groq', name: 'Groq', icon: '⚡', color: '#F55036', prefix: 'gsk_' },
-        { id: 'replicate', name: 'Replicate', icon: '🔄', color: '#3D3D3D', prefix: 'r8_' },
-        { id: 'together', name: 'Together AI', icon: '🤝', color: '#6366F1', prefix: '' },
-        { id: 'fireworks', name: 'Fireworks', icon: '🎆', color: '#FF6B35', prefix: 'fw_' },
-        { id: 'deepseek', name: 'DeepSeek', icon: '🔬', color: '#0066FF', prefix: 'sk-' },
-        { id: 'xai', name: 'xAI (Grok)', icon: '❌', color: '#000000', prefix: 'xai-' },
-        { id: 'anthropic', name: 'Anthropic', icon: '🟤', color: '#C96442', prefix: 'sk-ant-' },
-    ],
+  oauth: [
+    { id: 'google', name: 'Google', icon: '🔵', color: '#4285F4' },
+    { id: 'github', name: 'GitHub', icon: '⚫', color: '#333333' },
+    { id: 'microsoft', name: 'Microsoft', icon: '🟦', color: '#00A4EF' },
+    { id: 'apple', name: 'Apple', icon: '🍎', color: '#000000' },
+    { id: 'facebook', name: 'Facebook', icon: '🔵', color: '#1877F2' },
+    { id: 'amazon', name: 'Amazon', icon: '📦', color: '#FF9900' },
+    { id: 'discord', name: 'Discord', icon: '💬', color: '#5865F2' },
+    { id: 'slack', name: 'Slack', icon: '💼', color: '#4A154B' },
+    { id: 'linkedin', name: 'LinkedIn', icon: '💼', color: '#0A66C2' },
+    { id: 'twitter', name: 'X (Twitter)', icon: '✖️', color: '#000000' },
+    { id: 'spotify', name: 'Spotify', icon: '🟢', color: '#1DB954' },
+    { id: 'huggingface', name: 'Hugging Face', icon: '🤗', color: '#FFD21E' },
+  ],
+  apikey: [
+    { id: 'openai', name: 'OpenAI', icon: '🧠', color: '#10A37F', prefix: 'sk-' },
+    { id: 'claude', name: 'Claude', icon: '🟠', color: '#D97706', prefix: 'sk-ant-' },
+    { id: 'gemini', name: 'Gemini', icon: '💎', color: '#4285F4', prefix: 'AI' },
+    { id: 'perplexity', name: 'Perplexity', icon: '🔍', color: '#20808D', prefix: 'pplx-' },
+    { id: 'mistral', name: 'Mistral', icon: '🌊', color: '#FF7000', prefix: '' },
+    { id: 'cohere', name: 'Cohere', icon: '🟣', color: '#39594D', prefix: '' },
+    { id: 'groq', name: 'Groq', icon: '⚡', color: '#F55036', prefix: 'gsk_' },
+    { id: 'replicate', name: 'Replicate', icon: '🔄', color: '#3D3D3D', prefix: 'r8_' },
+    { id: 'together', name: 'Together AI', icon: '🤝', color: '#6366F1', prefix: '' },
+    { id: 'fireworks', name: 'Fireworks', icon: '🎆', color: '#FF6B35', prefix: 'fw_' },
+    { id: 'deepseek', name: 'DeepSeek', icon: '🔬', color: '#0066FF', prefix: 'sk-' },
+    { id: 'xai', name: 'xAI (Grok)', icon: '❌', color: '#000000', prefix: 'xai-' },
+    { id: 'anthropic', name: 'Anthropic', icon: '🟤', color: '#C96442', prefix: 'sk-ant-' },
+  ],
 };
 
 // ── In-memory stores ────────────────────────────────────────
@@ -201,47 +231,47 @@ const sessions = new Map();
 function generateApiKey() { return `HY-${crypto.randomBytes(16).toString('hex')}`; }
 function generateSession() { return `sess_${crypto.randomBytes(32).toString('hex')}`; }
 function hashPw(pw, salt) {
-    salt = salt || crypto.randomBytes(16).toString('hex');
-    const hash = crypto.pbkdf2Sync(pw, salt, 100000, 64, 'sha512').toString('hex');
-    return { hash, salt };
+  salt = salt || crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(pw, salt, 100000, 64, 'sha512').toString('hex');
+  return { hash, salt };
 }
 
 // ── Resolve site from Host header ────────────────────────────
 function resolveSite(host) {
-    if (!host) return SITES['headyme.com'];
-    const clean = host.replace(/:\d+$/, '').toLowerCase();
-    // Direct match
-    if (SITES[clean]) return SITES[clean];
-    // www. prefix
-    if (SITES[clean.replace(/^www\./, '')]) return SITES[clean.replace(/^www\./, '')];
-    // Subdomain match
-    for (const domain of Object.keys(SITES)) {
-        if (clean.endsWith(domain)) return SITES[domain];
-    }
-    // Default
-    return SITES['headyme.com'];
+  if (!host) return SITES['headyme.com'];
+  const clean = host.replace(/:\d+$/, '').toLowerCase();
+  // Direct match
+  if (SITES[clean]) return SITES[clean];
+  // www. prefix
+  if (SITES[clean.replace(/^www\./, '')]) return SITES[clean.replace(/^www\./, '')];
+  // Subdomain match
+  for (const domain of Object.keys(SITES)) {
+    if (clean.endsWith(domain)) return SITES[domain];
+  }
+  // Default
+  return SITES['headyme.com'];
 }
 
 // ── Render Page ──────────────────────────────────────────────
 function renderSite(site, host) {
-    const oauthBtns = AUTH_PROVIDERS.oauth.map(p =>
-        `<button class="auth-btn" style="--pcolor:${p.color}" onclick="oauthLogin('${p.id}')">
+  const oauthBtns = AUTH_PROVIDERS.oauth.map(p =>
+    `<button class="auth-btn" style="--pcolor:${p.color}" onclick="oauthLogin('${p.id}')">
       <span class="auth-icon">${p.icon}</span><span>${p.name}</span>
     </button>`).join('');
-    const apikeyBtns = AUTH_PROVIDERS.apikey.map(p =>
-        `<button class="auth-btn" style="--pcolor:${p.color}" onclick="showKeyInput('${p.id}','${p.name}','${p.prefix || ''}')">
+  const apikeyBtns = AUTH_PROVIDERS.apikey.map(p =>
+    `<button class="auth-btn" style="--pcolor:${p.color}" onclick="showKeyInput('${p.id}','${p.name}','${p.prefix || ''}')">
       <span class="auth-icon">${p.icon}</span><span>${p.name}</span>
     </button>`).join('');
-    const serviceCards = site.heroServices.map(s =>
-        `<div class="svc-card">
+  const serviceCards = site.heroServices.map(s =>
+    `<div class="svc-card">
       <div class="svc-icon">${s.icon}</div>
       <h3>${s.name}</h3>
       <p>${s.desc}</p>
     </div>`).join('');
-    const allDomains = Object.entries(SITES).map(([d, s]) =>
-        `<a href="https://${d}" class="domain-link" style="--dcolor:${s.color}">${s.brand}</a>`).join('');
+  const allDomains = Object.entries(SITES).map(([d, s]) =>
+    `<a href="https://${d}" class="domain-link" style="--dcolor:${s.color}">${s.brand}</a>`).join('');
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -590,137 +620,137 @@ function renderSite(site, host) {
 
 // ── HTTP Server ─────────────────────────────────────────────
 const server = http.createServer((req, res) => {
-    const url = new URL(req.url, `http://localhost:${PORT}`);
-    const host = req.headers.host || 'headyme.com';
-    const site = resolveSite(host);
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+  const host = req.headers.host || 'headyme.com';
+  const site = resolveSite(host);
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-    if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
 
-    // ── API Routes ──────────────────────────────────────────
-    if (url.pathname === '/api/providers') {
+  // ── API Routes ──────────────────────────────────────────
+  if (url.pathname === '/api/providers') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(AUTH_PROVIDERS));
+    return;
+  }
+
+  if (url.pathname === '/api/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      status: 'healthy', version: '3.2.1',
+      site: site.brand, host,
+      providers: AUTH_PROVIDERS.oauth.length + AUTH_PROVIDERS.apikey.length,
+      users: users.size, sessions: sessions.size,
+      sites: Object.keys(SITES).length,
+    }));
+    return;
+  }
+
+  if (url.pathname === '/api/sites') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(Object.entries(SITES).map(([d, s]) => ({ domain: d, brand: s.brand, tagline: s.tagline, color: s.color }))));
+    return;
+  }
+
+  if (url.pathname === '/api/signup' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { email, password, displayName, provider, connectedKey } = JSON.parse(body);
+        if (users.has(email)) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Email already exists' })); return; }
+        const { hash, salt } = hashPw(password);
+        const key = generateApiKey();
+        const user = { id: crypto.randomUUID(), email, displayName: displayName || email.split('@')[0], hash, salt, apiKey: key, provider: provider || 'email', connectedKeys: connectedKey ? { [provider]: connectedKey } : {}, createdAt: new Date().toISOString() };
+        users.set(email, user);
+        const token = generateSession();
+        sessions.set(token, { userId: user.id, email });
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(AUTH_PROVIDERS));
-        return;
-    }
-
-    if (url.pathname === '/api/health') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-            status: 'healthy', version: '3.2.1',
-            site: site.brand, host,
-            providers: AUTH_PROVIDERS.oauth.length + AUTH_PROVIDERS.apikey.length,
-            users: users.size, sessions: sessions.size,
-            sites: Object.keys(SITES).length,
-        }));
-        return;
-    }
-
-    if (url.pathname === '/api/sites') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(Object.entries(SITES).map(([d, s]) => ({ domain: d, brand: s.brand, tagline: s.tagline, color: s.color }))));
-        return;
-    }
-
-    if (url.pathname === '/api/signup' && req.method === 'POST') {
-        let body = '';
-        req.on('data', c => body += c);
-        req.on('end', () => {
-            try {
-                const { email, password, displayName, provider, connectedKey } = JSON.parse(body);
-                if (users.has(email)) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Email already exists' })); return; }
-                const { hash, salt } = hashPw(password);
-                const key = generateApiKey();
-                const user = { id: crypto.randomUUID(), email, displayName: displayName || email.split('@')[0], hash, salt, apiKey: key, provider: provider || 'email', connectedKeys: connectedKey ? { [provider]: connectedKey } : {}, createdAt: new Date().toISOString() };
-                users.set(email, user);
-                const token = generateSession();
-                sessions.set(token, { userId: user.id, email });
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ user: { id: user.id, email, displayName: user.displayName, tier: 'spark', apiKey: key, provider: user.provider }, token }));
-            } catch { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid request' })); }
-        });
-        return;
-    }
-
-    if (url.pathname === '/api/login' && req.method === 'POST') {
-        let body = '';
-        req.on('data', c => body += c);
-        req.on('end', () => {
-            try {
-                const { email, password } = JSON.parse(body);
-                const user = users.get(email);
-                if (!user) { res.writeHead(401, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid credentials' })); return; }
-                const { hash } = hashPw(password, user.salt);
-                if (hash !== user.hash) { res.writeHead(401, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid credentials' })); return; }
-                const token = generateSession();
-                sessions.set(token, { userId: user.id, email });
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ user: { id: user.id, email, displayName: user.displayName, tier: 'spark', apiKey: user.apiKey, provider: user.provider }, token }));
-            } catch { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid request' })); }
-        });
-        return;
-    }
-
-    if (url.pathname === '/api/chat' && req.method === 'POST') {
-        let body = '';
-        req.on('data', c => body += c);
-        req.on('end', () => {
-            try {
-                const { message, session, site: siteName } = JSON.parse(body);
-                // Identity check
-                let identity = 'guest';
-                if (session && sessions.has(session)) {
-                    const s = sessions.get(session);
-                    const u = users.get(s.email);
-                    identity = u ? u.displayName : s.email;
-                }
-                // Basic chat response
-                const lower = (message || '').toLowerCase();
-                let response;
-                if (lower.includes('who am i') || lower.includes('my name') || lower.includes('recognize')) {
-                    response = identity !== 'guest'
-                        ? `You are ${identity}. I recognize you from your active session on ${siteName || 'Heady'}.`
-                        : 'I don\'t have your identity yet. Please sign in first!';
-                } else if (lower.includes('authorize') || lower.includes('grant') || lower.includes('access')) {
-                    response = identity !== 'guest'
-                        ? `Got it, ${identity}. I've noted your authorization request. This requires admin-level action — I'll route it through the governance module.`
-                        : 'You need to be signed in to manage authorizations.';
-                } else if (lower.includes('how') && lower.includes('work')) {
-                    response = `I'm HeadyBuddy, the AI companion embedded in ${siteName || 'Heady'}. I run on the Sacred Geometry mesh with 4+ AI providers, self-healing nodes, and 3D vector memory. I know who you are (${identity}) and can help with anything across the Heady ecosystem.`;
-                } else if (lower.includes('health') || lower.includes('status') || lower.includes('diagnos')) {
-                    response = `System status: ✅ Healthy.\n• ${Object.keys(SITES).length} domains active\n• 25 auth providers configured\n• Self-healing mesh: online\n• Sacred Geometry v3: φ-weighted\n• Identity: ${identity}`;
-                } else {
-                    response = `[${identity}@${siteName || 'Heady'}] I hear you! I'm running locally on the dynamic site server. Full AI routing via the Liquid Gateway is available when the cloud runtime is connected.`;
-                }
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ response, identity, site: siteName }));
-            } catch { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid request' })); }
-        });
-        return;
-    }
-
-    // ── Serve dynamic page ──────────────────────────────────
-    res.writeHead(200, {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'X-Heady-Site': site.brand,
-        'X-Heady-Version': '3.2.1',
+        res.end(JSON.stringify({ user: { id: user.id, email, displayName: user.displayName, tier: 'spark', apiKey: key, provider: user.provider }, token }));
+      } catch { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid request' })); }
     });
-    res.end(renderSite(site, host));
+    return;
+  }
+
+  if (url.pathname === '/api/login' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { email, password } = JSON.parse(body);
+        const user = users.get(email);
+        if (!user) { res.writeHead(401, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid credentials' })); return; }
+        const { hash } = hashPw(password, user.salt);
+        if (hash !== user.hash) { res.writeHead(401, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid credentials' })); return; }
+        const token = generateSession();
+        sessions.set(token, { userId: user.id, email });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ user: { id: user.id, email, displayName: user.displayName, tier: 'spark', apiKey: user.apiKey, provider: user.provider }, token }));
+      } catch { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid request' })); }
+    });
+    return;
+  }
+
+  if (url.pathname === '/api/chat' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { message, session, site: siteName } = JSON.parse(body);
+        // Identity check
+        let identity = 'guest';
+        if (session && sessions.has(session)) {
+          const s = sessions.get(session);
+          const u = users.get(s.email);
+          identity = u ? u.displayName : s.email;
+        }
+        // Basic chat response
+        const lower = (message || '').toLowerCase();
+        let response;
+        if (lower.includes('who am i') || lower.includes('my name') || lower.includes('recognize')) {
+          response = identity !== 'guest'
+            ? `You are ${identity}. I recognize you from your active session on ${siteName || 'Heady'}.`
+            : 'I don\'t have your identity yet. Please sign in first!';
+        } else if (lower.includes('authorize') || lower.includes('grant') || lower.includes('access')) {
+          response = identity !== 'guest'
+            ? `Got it, ${identity}. I've noted your authorization request. This requires admin-level action — I'll route it through the governance module.`
+            : 'You need to be signed in to manage authorizations.';
+        } else if (lower.includes('how') && lower.includes('work')) {
+          response = `I'm HeadyBuddy, the AI companion embedded in ${siteName || 'Heady'}. I run on the Sacred Geometry mesh with 4+ AI providers, self-healing nodes, and 3D vector memory. I know who you are (${identity}) and can help with anything across the Heady ecosystem.`;
+        } else if (lower.includes('health') || lower.includes('status') || lower.includes('diagnos')) {
+          response = `System status: ✅ Healthy.\n• ${Object.keys(SITES).length} domains active\n• 25 auth providers configured\n• Self-healing mesh: online\n• Sacred Geometry v3: φ-weighted\n• Identity: ${identity}`;
+        } else {
+          response = `[${identity}@${siteName || 'Heady'}] I hear you! I'm running locally on the dynamic site server. Full AI routing via the Liquid Gateway is available when the cloud runtime is connected.`;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ response, identity, site: siteName }));
+      } catch { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: 'Invalid request' })); }
+    });
+    return;
+  }
+
+  // ── Serve dynamic page ──────────────────────────────────
+  res.writeHead(200, {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'no-cache',
+    'X-Heady-Site': site.brand,
+    'X-Heady-Version': '3.2.1',
+  });
+  res.end(renderSite(site, host));
 });
 
 server.listen(PORT, () => {
-    console.log(`\n  ⚡ Heady Dynamic Sites — http://localhost:${PORT}`);
-    console.log(`     ${Object.keys(SITES).length} domains registered`);
-    console.log(`     ${AUTH_PROVIDERS.oauth.length + AUTH_PROVIDERS.apikey.length} auth providers`);
-    console.log(`     HeadyBuddy widget: embedded\n`);
-    console.log('  Domains:');
-    for (const [domain, site] of Object.entries(SITES)) {
-        console.log(`    ${site.icon} ${domain} → ${site.brand}`);
-    }
-    console.log('');
+  console.log(`\n  ⚡ Heady Dynamic Sites — http://localhost:${PORT}`);
+  console.log(`     ${Object.keys(SITES).length} domains registered`);
+  console.log(`     ${AUTH_PROVIDERS.oauth.length + AUTH_PROVIDERS.apikey.length} auth providers`);
+  console.log(`     HeadyBuddy widget: embedded\n`);
+  console.log('  Domains:');
+  for (const [domain, site] of Object.entries(SITES)) {
+    console.log(`    ${site.icon} ${domain} → ${site.brand}`);
+  }
+  console.log('');
 });
 
 module.exports = { SITES, AUTH_PROVIDERS, server, resolveSite };

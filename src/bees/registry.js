@@ -17,6 +17,7 @@ const logger = require("../utils/logger");
 
 const BEES_DIR = __dirname;
 const _registry = new Map();
+let _discoveryStats = { loaded: 0, failed: 0, failedFiles: [], discoveredAt: null };
 
 /**
  * Auto-discover all bee worker modules in this directory.
@@ -26,6 +27,10 @@ function discover() {
     const files = fs.readdirSync(BEES_DIR).filter(f =>
         f.endsWith(".js") && f !== "registry.js" && !f.startsWith("_")
     );
+
+    let loaded = 0;
+    let failed = 0;
+    const failedFiles = [];
 
     for (const file of files) {
         try {
@@ -39,10 +44,25 @@ function discover() {
                     priority: mod.priority || 0.5,
                 });
                 logger.logNodeActivity("BEE-REGISTRY", `  🐝 Discovered: ${mod.domain} (${file})`);
+                loaded++;
             }
         } catch (err) {
             logger.logNodeActivity("BEE-REGISTRY", `  ⚠ Failed to load ${file}: ${err.message}`);
+            failed++;
+            failedFiles.push({ file, error: err.message });
         }
+    }
+
+    _discoveryStats = { loaded, failed, failedFiles, discoveredAt: Date.now() };
+
+    // Emit discovery telemetry
+    if (global.eventBus) {
+        global.eventBus.emit('telemetry:ingested', {
+            metric: 'bee_discovery',
+            value: { loaded, failed, total: _registry.size },
+            component: 'bee-registry',
+            confidence: 1.0,
+        });
     }
 
     return _registry.size;
@@ -101,6 +121,18 @@ function getAllWork(context = {}) {
     return tasks;
 }
 
+/**
+ * Get health status of the bee registry.
+ * Shows discovery stats: loaded, failed, total.
+ */
+function getHealth() {
+    return {
+        registered: _registry.size,
+        ..._discoveryStats,
+        domains: Array.from(_registry.keys()),
+    };
+}
+
 // ─── DYNAMIC BEE FACTORY ────────────────────────────────────────────────
 // Heady can create any type of bee on the fly — no pre-definition needed
 const factory = require('./bee-factory');
@@ -110,6 +142,7 @@ module.exports = {
     getWork,
     listDomains,
     getAllWork,
+    getHealth,
     registry: _registry,
     // Dynamic bee creation — available everywhere
     createBee: factory.createBee,

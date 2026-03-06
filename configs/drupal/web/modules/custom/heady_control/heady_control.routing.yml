@@ -1,0 +1,31 @@
+heady_control.overview:
+  path: '/admin/heady'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyDashboard::overview'
+    _title: 'Heady Systems Control Center'
+  requirements:
+    _permission: 'access administration pages'
+
+heady_control.deploy:
+  path: '/admin/heady/deploy/{domain}'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyDashboard::triggerDeploy'
+  methods: [POST]
+  requirements:
+    _permission: 'access administration pages'
+
+heady_control.sync:
+  path: '/admin/heady/sync'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyDashboard::runFullSync'
+    methods: [POST]
+  requirements:
+    _permission: 'access administration pages'
+
+heady_control.warp_status:
+  path: '/admin/heady/warp-status'
+  defaults:
+    _controller: '\Drupal\heady_control\Controller\HeadyDashboard::getWARPStatus'
+    methods: [GET]
+  requirements:
+    _permission: 'access administration pages'

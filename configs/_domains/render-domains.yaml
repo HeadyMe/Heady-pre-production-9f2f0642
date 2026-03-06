@@ -1,0 +1,51 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/render-domains.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# RENDER SERVICE DOMAIN CONFIGURATION
+# Version: 1.0.0
+# Last Updated: 2026-02-09
+
+services:
+  # HeadyManager Production
+  heady-manager-headysystems:
+    primary_domain: "api.headysystems.com"
+    domains:
+      - "admin.headysystems.com"
+      - "api.headysystems.com"
+    environment:
+      BASE_URL: "https://api.headysystems.com"
+      ADMIN_URL: "https://admin.headysystems.com"
+
+  # HeadyManager Staging
+  heady-manager-staging:
+    primary_domain: "api.staging.headysystems.com"
+    domains:
+      - "api.staging.headysystems.com"
+    environment:
+      BASE_URL: "https://api.staging.headysystems.com"
+
+  # HeadyApp Production
+  heady-app:
+    primary_domain: "app.headysystems.com"
+    domains:
+      - "app.headysystems.com"
+    environment:
+      BASE_URL: "https://app.headysystems.com"
+
+# Configuration Notes
+# 1. All services use branded custom domains via Cloudflare
+# 2. Environment variables use canonical branded domains only
+# 3. DNS records managed in Cloudflare
+# 4. SSL certificates auto-provisioned via Cloudflare

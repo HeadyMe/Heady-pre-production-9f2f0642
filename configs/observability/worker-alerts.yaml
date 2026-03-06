@@ -1,0 +1,36 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/worker-alerts.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+alerts:
+  - name: "high-error-rate"
+    condition: "errors/requests > 0.05"
+    severity: "critical"
+    channels:
+      - "email:admin@headyio.com"
+      - "slack:#alerts"
+  
+  - name: "high-latency"
+    condition: "p99_latency > 500"
+    severity: "warning"
+    channels:
+      - "slack:#alerts"
+
+notification_channels:
+  email:
+    admin@headyio.com:
+      type: "smtp"
+  slack:
+    "#alerts":
+      webhook: "https://hooks.slack.com/services/..."

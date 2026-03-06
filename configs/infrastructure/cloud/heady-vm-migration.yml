@@ -1,0 +1,78 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/heady-vm-migration.yml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# HeadyVM Migration Configuration
+# Auto-generated for seamless migration to HeadyVM
+
+version: "3.8"
+services:
+  # HeadyVM Core Services
+  heady-vm-core:
+    image: headysystems/heady-vm-core:latest
+    container_name: heady-vm-core
+    environment:
+      - NODE_ENV=production
+      - HEADY_VM_MODE=cloud
+      - API_ENDPOINT=https://headysystems.com/api
+      - MANAGER_ENDPOINT=https://headysystems.com/manager
+      - REGISTRY_ENDPOINT=https://headysystems.com/registry
+    ports:
+      - "3400:3400"
+    networks:
+      - heady-vm-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://headysystems.com/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # HeadyVM Service Mesh
+  heady-vm-mesh:
+    image: headysystems/heady-vm-mesh:latest
+    container_name: heady-vm-mesh
+    environment:
+      - VM_CORE_URL=http://heady-vm-core:3400
+      - CLOUD_API=https://headysystems.com/api
+    depends_on:
+      - heady-vm-core
+    networks:
+      - heady-vm-network
+    restart: unless-stopped
+
+  # HeadyVM Storage Controller
+  heady-vm-storage:
+    image: headysystems/heady-vm-storage:latest
+    container_name: heady-vm-storage
+    environment:
+      - STORAGE_MODE=cloud
+      - BACKUP_ENDPOINT=https://headysystems.com/api/backup
+    volumes:
+      - heady_vm_data:/data
+    networks:
+      - heady-vm-network
+    restart: unless-stopped
+
+networks:
+  heady-vm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  heady_vm_data:
+    driver: local

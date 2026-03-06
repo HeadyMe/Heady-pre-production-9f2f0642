@@ -1,0 +1,116 @@
+version: 1
+objective: deterministic-autonomous-embedding
+slo:
+  max_ingest_latency_ms: 900
+  max_retrieval_latency_ms: 450
+  target_success_rate: 0.999
+  learning_feedback_cycle_minutes: 5
+colab:
+  subscriptions:
+    - id: colab-pro-plus-a
+      role: low-latency-ingest
+      max_parallel_jobs: 8
+      gpu_memory_gb: 24
+      cpu_cores: 8
+    - id: colab-pro-plus-b
+      role: model-evaluation-and-template-learning
+      max_parallel_jobs: 6
+      gpu_memory_gb: 24
+      cpu_cores: 8
+    - id: colab-pro-plus-c
+      role: background-index-maintenance
+      max_parallel_jobs: 4
+      gpu_memory_gb: 16
+      cpu_cores: 4
+node_responsibilities:
+  headybees:
+    primary_capabilities:
+      - ingest-runtime-events
+      - score-template-quality
+      - emit-error-signatures
+    writes:
+      - vector:event
+      - vector:template_quality
+      - graph:error_causality
+  headyswarm:
+    primary_capabilities:
+      - route-autonomous-tasks
+      - enforce-budget-aware-provider-routing
+      - trigger-self-healing-retries
+    writes:
+      - vector:task_outcome
+      - graph:provider_transition
+      - vector:policy_decision
+  buddy:
+    primary_capabilities:
+      - perform-5-phase-deterministic-optimization
+      - synthesize-learned-rules
+      - validate-semantic-equivalence
+    writes:
+      - vector:error_resolution
+      - graph:rule_causality
+      - vector:state_snapshot
+data_sources:
+  - id: repository-code
+    type: git
+    schedule: realtime
+    priority: critical
+    embedding_type: semantic-384d
+  - id: runtime-telemetry
+    type: events
+    schedule: every_10_seconds
+    priority: critical
+    embedding_type: temporal-384d
+  - id: ui-template-artifacts
+    type: templates
+    schedule: every_2_minutes
+    priority: high
+    embedding_type: multimodal-384d
+  - id: user-interaction-feedback
+    type: analytics
+    schedule: every_1_minute
+    priority: high
+    embedding_type: preference-384d
+  - id: pipeline-failures
+    type: incidents
+    schedule: realtime
+    priority: critical
+    embedding_type: error-signature-384d
+storage:
+  vector:
+    dimensions: 384
+    octants: 8
+    shards: 5
+    pca_projection: true
+  graph:
+    enabled: true
+    relation_types:
+      - caused_by
+      - resolved_by
+      - supersedes
+      - optimized_for
+orchestration:
+  deterministic_capture_required: true
+  use_seeded_rng: true
+  enforce_budget_checks: true
+  mandatory_metadata_fields:
+    - provider
+    - account
+    - model
+    - tokens
+    - cost
+    - latency_ms
+    - stage
+learning_loops:
+  - id: template-optimization-loop
+    cadence_minutes: 15
+    success_metric: template_acceptance_rate
+    owner: headybees
+  - id: error-immunization-loop
+    cadence_minutes: 5
+    success_metric: repeat_failure_rate
+    owner: buddy
+  - id: routing-efficiency-loop
+    cadence_minutes: 10
+    success_metric: cost_per_successful_completion
+    owner: headyswarm

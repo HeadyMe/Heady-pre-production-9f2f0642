@@ -30,6 +30,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const logger = require('../utils/logger').child('bee-factory');
 
 const BEES_DIR = __dirname;
 const _dynamicRegistry = new Map();
@@ -55,18 +56,33 @@ function createBee(domain, config = {}) {
         persist = false,
     } = config;
 
+    // Validate workers are callable
+    let validated = true;
+    for (let i = 0; i < workers.length; i++) {
+        const w = workers[i];
+        if (typeof w !== 'function' && (typeof w !== 'object' || typeof w.fn !== 'function')) {
+            validated = false;
+            try { logger.warn(`Worker ${i} in '${domain}' is not callable`); } catch { }
+        }
+    }
+
     const entry = {
         domain,
         description,
         priority,
         createdAt: Date.now(),
         dynamic: true,
+        validated,
         file: `dynamic:${domain}`,
         getWork: (ctx = {}) => workers.map(w => {
             if (typeof w === 'function') return w;
             if (typeof w.fn === 'function') return async () => {
-                const result = await w.fn(ctx);
-                return { bee: domain, action: w.name || 'work', ...result };
+                try {
+                    const result = await w.fn(ctx);
+                    return { bee: domain, action: w.name || 'work', ...result };
+                } catch (err) {
+                    return { bee: domain, action: w.name || 'work', error: err.message };
+                }
             };
             return async () => ({ bee: domain, action: w.name || 'noop', status: 'no-handler' });
         }),
@@ -173,10 +189,25 @@ function createFromTemplate(template, config = {}) {
             workers: [
                 {
                     name: 'probe', fn: async () => {
+                        const url = cfg.url || `https://${cfg.target}/api/health`;
+                        const timeout = cfg.timeout || 5000;
+                        const start = Date.now();
                         try {
-                            const url = cfg.url || `https://${cfg.target}/api/health`;
-                            return { target: cfg.target, url, status: 'checked' };
-                        } catch (err) { return { target: cfg.target, error: err.message }; }
+                            const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+                            const latency = Date.now() - start;
+                            const body = res.headers.get('content-type')?.includes('json')
+                                ? await res.json().catch(() => null)
+                                : await res.text().catch(() => null);
+                            return {
+                                target: cfg.target, url, status: res.ok ? 'healthy' : 'degraded',
+                                statusCode: res.status, latency, body,
+                            };
+                        } catch (err) {
+                            return {
+                                target: cfg.target, url, status: 'down',
+                                error: err.message, latency: Date.now() - start,
+                            };
+                        }
                     }
                 },
             ],
@@ -190,10 +221,38 @@ function createFromTemplate(template, config = {}) {
                 {
                     name: 'metrics', fn: async () => {
                         const mem = process.memoryUsage();
-                        return { target: cfg.target, heapUsed: mem.heapUsed, heapTotal: mem.heapTotal, ts: Date.now() };
+                        // Measure event loop lag
+                        const lagStart = Date.now();
+                        await new Promise(r => setImmediate(r));
+                        const eventLoopLag = Date.now() - lagStart;
+                        return {
+                            target: cfg.target,
+                            heapUsedMB: Math.round(mem.heapUsed / 1048576 * 10) / 10,
+                            heapTotalMB: Math.round(mem.heapTotal / 1048576 * 10) / 10,
+                            rssMB: Math.round(mem.rss / 1048576 * 10) / 10,
+                            externalMB: Math.round(mem.external / 1048576 * 10) / 10,
+                            eventLoopLagMs: eventLoopLag,
+                            ts: Date.now(),
+                        };
                     }
                 },
-                { name: 'uptime', fn: async () => ({ target: cfg.target, uptime: process.uptime(), ts: Date.now() }) },
+                {
+                    name: 'uptime', fn: async () => {
+                        const uptimeSec = process.uptime();
+                        return {
+                            target: cfg.target,
+                            uptimeSeconds: Math.round(uptimeSec),
+                            uptimeHuman: uptimeSec > 86400
+                                ? `${Math.floor(uptimeSec / 86400)}d ${Math.floor((uptimeSec % 86400) / 3600)}h`
+                                : uptimeSec > 3600
+                                    ? `${Math.floor(uptimeSec / 3600)}h ${Math.floor((uptimeSec % 3600) / 60)}m`
+                                    : `${Math.floor(uptimeSec / 60)}m ${Math.round(uptimeSec % 60)}s`,
+                            cpuUsage: process.cpuUsage(),
+                            pid: process.pid,
+                            ts: Date.now(),
+                        };
+                    }
+                },
             ],
         }),
 
@@ -212,8 +271,79 @@ function createFromTemplate(template, config = {}) {
             description: `Scanner for ${cfg.target}`,
             priority: 0.8,
             workers: [
-                { name: 'scan', fn: cfg.scanFn || (async () => ({ scanned: cfg.target, ts: Date.now() })) },
-                { name: 'report', fn: cfg.reportFn || (async () => ({ report: `Scan complete: ${cfg.target}` })) },
+                {
+                    name: 'scan', fn: cfg.scanFn || (async () => {
+                        const fs = require('fs');
+                        const path = require('path');
+                        const targetDir = cfg.scanPath || cfg.target || '.';
+                        const patterns = cfg.patterns || ['.env', '.key', '.pem', 'secret'];
+                        const findings = [];
+
+                        const walk = (dir, depth = 0) => {
+                            if (depth > 5) return;
+                            try {
+                                const entries = fs.readdirSync(dir, { withFileTypes: true });
+                                for (const entry of entries) {
+                                    if (entry.name === 'node_modules' || entry.name === '.git') continue;
+                                    const fullPath = path.join(dir, entry.name);
+                                    if (entry.isDirectory()) {
+                                        walk(fullPath, depth + 1);
+                                    } else if (patterns.some(p => entry.name.includes(p))) {
+                                        findings.push({
+                                            file: fullPath,
+                                            pattern: patterns.find(p => entry.name.includes(p)),
+                                            size: fs.statSync(fullPath).size,
+                                        });
+                                    }
+                                }
+                            } catch { /* permission denied or missing dir */ }
+                        };
+                        walk(targetDir);
+
+                        return { scanned: targetDir, findings, count: findings.length, ts: Date.now() };
+                    })
+                },
+                {
+                    name: 'report', fn: cfg.reportFn || (async (ctx) => {
+                        const findings = ctx?.findings || [];
+                        const severity = findings.length > 5 ? 'high' : findings.length > 0 ? 'medium' : 'clean';
+                        return {
+                            report: `Scan complete: ${cfg.target}`,
+                            severity,
+                            totalFindings: findings.length,
+                            summary: findings.slice(0, 10).map(f => f.file),
+                        };
+                    })
+                },
+            ],
+        }),
+
+        'alerter': (cfg) => ({
+            domain: cfg.domain || `alerter-${cfg.target}`,
+            description: `Threshold alerter for ${cfg.target}`,
+            priority: 0.85,
+            workers: [
+                {
+                    name: 'check-thresholds', fn: async () => {
+                        const mem = process.memoryUsage();
+                        const heapPercent = (mem.heapUsed / mem.heapTotal) * 100;
+                        const alerts = [];
+
+                        if (heapPercent > (cfg.heapThreshold || 85)) {
+                            alerts.push({ type: 'heap', level: 'warning', value: `${heapPercent.toFixed(1)}%`, threshold: `${cfg.heapThreshold || 85}%` });
+                        }
+
+                        if (process.uptime() > (cfg.maxUptimeSeconds || 86400 * 7)) {
+                            alerts.push({ type: 'uptime', level: 'info', value: `${Math.floor(process.uptime() / 86400)}d`, threshold: 'restart recommended' });
+                        }
+
+                        if (global.eventBus && alerts.length > 0) {
+                            global.eventBus.emit('bee:alerts', { target: cfg.target, alerts });
+                        }
+
+                        return { target: cfg.target, alerts, alertCount: alerts.length, ts: Date.now() };
+                    }
+                },
             ],
         }),
     };
@@ -224,6 +354,103 @@ function createFromTemplate(template, config = {}) {
     }
 
     return createBee(config.domain || `${template}-${config.target || config.name || 'dynamic'}`, templateFn(config));
+}
+
+/**
+ * Create a coordinated swarm of bees with an orchestration policy.
+ * Swarms run multiple bees together with consensus collection.
+ *
+ * @param {string} name - Swarm name
+ * @param {Array} beeConfigs - Array of { domain, config } for each bee
+ * @param {Object} policy - Orchestration policy
+ * @param {string} policy.mode - 'parallel', 'sequential', or 'pipeline'
+ * @param {boolean} policy.requireConsensus - If true, all bees must succeed
+ * @param {number} policy.timeoutMs - Max execution time per bee (default: 30000)
+ * @returns {Object} The swarm bee entry
+ */
+function createSwarm(name, beeConfigs = [], policy = {}) {
+    const {
+        mode = 'parallel',
+        requireConsensus = false,
+        timeoutMs = 30000,
+    } = policy;
+
+    // Create individual bees first
+    const bees = beeConfigs.map(({ domain, config }) =>
+        createBee(domain, config || {})
+    );
+
+    // Create the orchestrating swarm bee
+    const swarmBee = createBee(`swarm-${name}`, {
+        description: `Swarm: ${name} (${mode}, ${bees.length} bees)`,
+        priority: 1.0,
+        isSwarm: true,
+        workers: [{
+            name: 'orchestrate',
+            fn: async (ctx = {}) => {
+                const results = {};
+                const startTime = Date.now();
+
+                if (mode === 'parallel') {
+                    const settled = await Promise.allSettled(
+                        bees.map(async (bee) => {
+                            const workFns = bee.getWork(ctx);
+                            const beeResults = [];
+                            for (const fn of workFns) {
+                                const result = await Promise.race([
+                                    fn(ctx),
+                                    new Promise((_, reject) =>
+                                        setTimeout(() => reject(new Error('timeout')), timeoutMs)
+                                    ),
+                                ]);
+                                beeResults.push(result);
+                            }
+                            return { domain: bee.domain, results: beeResults };
+                        })
+                    );
+
+                    for (const s of settled) {
+                        if (s.status === 'fulfilled') {
+                            results[s.value.domain] = { status: 'ok', results: s.value.results };
+                        } else {
+                            results[s.reason?.domain || 'unknown'] = { status: 'error', error: s.reason?.message };
+                        }
+                    }
+                } else if (mode === 'sequential' || mode === 'pipeline') {
+                    let pipelineCtx = { ...ctx };
+                    for (const bee of bees) {
+                        try {
+                            const workFns = bee.getWork(pipelineCtx);
+                            const beeResults = [];
+                            for (const fn of workFns) {
+                                const result = await fn(pipelineCtx);
+                                beeResults.push(result);
+                                if (mode === 'pipeline' && typeof result === 'object') {
+                                    pipelineCtx = { ...pipelineCtx, ...result };
+                                }
+                            }
+                            results[bee.domain] = { status: 'ok', results: beeResults };
+                        } catch (err) {
+                            results[bee.domain] = { status: 'error', error: err.message };
+                            if (requireConsensus) break;
+                        }
+                    }
+                }
+
+                const allOk = Object.values(results).every(r => r.status === 'ok');
+                return {
+                    swarm: name,
+                    mode,
+                    beeCount: bees.length,
+                    consensus: requireConsensus ? allOk : null,
+                    durationMs: Date.now() - startTime,
+                    results,
+                };
+            },
+        }],
+    });
+
+    return swarmBee;
 }
 
 /**
@@ -297,6 +524,7 @@ module.exports = {
     spawnBee,
     createWorkUnit,
     createFromTemplate,
+    createSwarm,
     listDynamicBees,
     dissolveBee,
     dynamicRegistry: _dynamicRegistry,

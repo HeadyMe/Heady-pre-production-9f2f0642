@@ -1,0 +1,230 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/cloud-first-pipeline.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+# Cloud-First Pipeline Configuration
+# HeadyMe/Sandbox as primary development cloud
+# Zero api.headysystems.com — all connections route through cloud endpoints
+
+pipeline:
+  name: "HeadyMe Cloud-First Pipeline"
+  version: "1.0.0"
+  mode: cloud_only
+  api.headysystems.com_allowed: false
+
+# ============================================================================
+# CLOUD TOPOLOGY
+# ============================================================================
+clouds:
+  primary:
+    name: "HeadyMe"
+    description: "Personal development cloud — all changes start here"
+    git_remote: "heady-me"
+    git_url: "git@github.com:HeadyMe/Heady.git"
+    cloud_url: "https://me.headysystems.com"
+    role: development
+    auto_deploy: true
+    auto_train: true
+
+  sandbox:
+    name: "HeadyMe/Sandbox"
+    description: "Testing/staging environment — validates before production"
+    git_remote: "sandbox"
+    git_url: "git@github.com:HeadySystems/sandbox.git"
+    role: staging
+    auto_deploy: true
+    connected_to: primary
+
+  production:
+    name: "HeadySystems"
+    description: "Production live — only receives 100% validated changes"
+    git_remote: "origin"
+    git_url: "git@github.com:HeadySystems/Heady.git"
+    cloud_url: "https://api.headysystems.com"
+    role: production
+    auto_deploy: false
+    gate_required: true
+
+  connection:
+    name: "HeadyConnection"
+    description: "Cross-cloud sync and connection hub"
+    cloud_url: "https://api.headyconnection.org"
+    role: sync
+    auto_deploy: true
+
+# ============================================================================
+# DEPLOYMENT FLOW
+# ============================================================================
+# Change → HeadyMe (dev) → Sandbox (test) → 100% Gate → Production (live)
+flow:
+  stages:
+    - name: "develop"
+      cloud: primary
+      actions:
+        - commit_changes
+        - push_to_heady_me
+        - trigger_render_deploy
+        - run_hc_train_auto
+      auto: true
+
+    - name: "sandbox_test"
+      cloud: sandbox
+      actions:
+        - sync_from_primary
+        - run_full_test_suite
+        - validate_all_services
+        - check_health_endpoints
+      auto: true
+      depends_on: develop
+
+    - name: "production_gate"
+      description: "100% functionality check before production push"
+      checks:
+        - all_tests_pass: true
+        - all_services_healthy: true
+        - no_regressions: true
+        - build_succeeds: true
+        - lint_clean: true
+        - security_scan_pass: true
+      threshold: 100
+      auto: true
+      depends_on: sandbox_test
+
+    - name: "production_push"
+      cloud: production
+      actions:
+        - push_to_origin
+        - push_to_heady_sys
+        - trigger_render_deploy
+        - update_all_monorepos
+        - sync_local_repos
+      auto: true
+      depends_on: production_gate
+
+    - name: "resume_development"
+      cloud: primary
+      actions:
+        - sync_sandbox_from_production
+        - resume_sandbox_workflow
+      auto: true
+      depends_on: production_push
+
+# ============================================================================
+# MONOREPO SYNC
+# ============================================================================
+monorepos:
+  source_of_truth: "HeadyMe/Heady"
+  sync_targets:
+    - remote: "heady-me"
+      branch: "main"
+      role: "primary-sot"
+      auto_sync: true
+
+    - remote: "sandbox"
+      branch: "main"
+      role: "staging"
+      auto_sync: true
+
+    - remote: "origin"
+      branch: "main"
+      role: "production"
+      auto_sync: false
+      requires_gate: true
+
+    - remote: "heady-sys"
+      branch: "main"
+      role: "production-mirror"
+      auto_sync: false
+      requires_gate: true
+
+  local_repos:
+    - path: "C:\\Users\\erich\\Heady"
+      role: "local-primary"
+      auto_sync: true
+
+    - path: "C:\\Users\\erich\\Heady-Sandbox"
+      role: "local-sandbox"
+      auto_sync: true
+
+# ============================================================================
+# AUTO-TRAIN CONFIGURATION
+# ============================================================================
+training:
+  mode: auto
+  endpoint: "https://brain.headysystems.com"
+  fallback_ip: "52.32.178.8"
+  data_sources:
+    - type: "codebase"
+      path: "."
+      include: ["src/**", "configs/**", "scripts/**", "docs/**"]
+    - type: "registry"
+      path: "heady-registry.json"
+    - type: "patterns"
+      path: "configs/patterns/**"
+    - type: "metrics"
+      path: ".heady-memory/**"
+    - type: "history"
+      source: "git_log"
+  schedule:
+    on_commit: true
+    on_deploy: true
+    continuous: true
+    interval_minutes: 30
+  objectives:
+    - optimal_planning
+    - prediction_accuracy
+    - build_optimization
+    - pattern_recognition
+    - self_improvement
+
+# ============================================================================
+# SERVICE ENDPOINTS (Cloud-Only)
+# ============================================================================
+endpoints:
+  manager: "https://me.headysystems.com"
+  api: "https://me.headysystems.com/api"
+  health: "https://me.headysystems.com/api/health"
+  train: "https://brain.headysystems.com/api/v1/train"
+  mcp: "https://me.headysystems.com/mcp"
+  dashboard: "https://me.headysystems.com"
+
+# ============================================================================
+# POLICIES
+# ============================================================================
+policies:
+  api.headysystems.com_ban:
+    enabled: true
+    action: "block_and_redirect"
+    redirect_to: "primary"
+    exceptions: []
+
+  auto_deploy:
+    enabled: true
+    on_push: true
+    on_merge: true
+    max_parallel: 3
+    verification_timeout: 300
+
+  production_gate:
+    threshold: 100
+    require_all_tests: true
+    require_all_services: true
+    require_clean_build: true
+    block_on_failure: true
+
+  rollback:
+    enabled: true
+    auto_rollback_on_failure: true
+    keep_last_n_versions: 5

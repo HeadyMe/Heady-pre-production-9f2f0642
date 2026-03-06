@@ -81,4 +81,4 @@ Start at `https://headyme.com` and drive users through deterministic stages:
 - Persist granted handles and onboarding state using **IndexedDB serialization** so users skip repeated permission prompts.
 - Use **npx-based one-click wrappers** as the bootstrap surface for SDK install and runtime connector setup.
 - Use **Model Context Protocol (MCP)** as the main contract between projected UI surfaces and autonomous runtime.
-- Keep core execution in the three Colab Pro+ notebooks and project only synchronized, current state to public surfaces.
+- Keep core execution in the 3–4 Colab Pro+ runtimes per account and project only synchronized, current state to public surfaces.

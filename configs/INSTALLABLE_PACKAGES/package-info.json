@@ -1,0 +1,54 @@
+{
+  "packages": {
+    "HeadyBuddy": {
+      "name": "HeadyBuddy - AI Assistant Companion",
+      "version": "1.0.0",
+      "description": "AI-powered chat assistant with sacred geometry UI",
+      "build_size": "159.23 kB (gzipped: 50.74 kB)",
+      "url": "https://headyme.com/buddy",
+      "features": [
+        "Real-time AI chat",
+        "Sacred geometry animations",
+        "Responsive design",
+        "Modern React UI"
+      ]
+    },
+    "HeadyAI-IDE": {
+      "name": "HeadyAI-IDE - AI-Powered Development Environment",
+      "version": "1.0.0",
+      "description": "AI-powered code editor and development environment",
+      "build_size": "150.99 kB (gzipped: 48.70 kB)",
+      "url": "https://headyme.com/ide",
+      "features": [
+        "Monaco-style code editor",
+        "AI code analysis",
+        "Real-time suggestions",
+        "Development tools"
+      ]
+    },
+    "HeadyWeb": {
+      "name": "HeadyWeb - Main Web Platform",
+      "version": "1.0.0",
+      "description": "Main web platform for Heady Systems",
+      "build_size": "150.94 kB (gzipped: 48.68 kB)",
+      "url": "https://headyme.com",
+      "features": [
+        "Modern responsive design",
+        "Feature showcase",
+        "Navigation system",
+        "Professional UI"
+      ]
+    }
+  },
+  "total_builds": 3,
+  "total_size": "461.16 kB (gzipped: 148.12 kB)",
+  "deployment": {
+    "script": "./deploy-all.sh",
+    "target": "Cloudflare Pages",
+    "domain": "headyme.com",
+    "technology": "Static HTML/CSS/JS deployed via Wrangler"
+  },
+  "production_ready": true,
+  "optimized": true,
+  "sourcemaps": true
+}

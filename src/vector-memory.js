@@ -48,7 +48,7 @@ const EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2";
 const MAX_VECTORS_PER_SHARD = 2000;
 const NUM_SHARDS = 5;
 const PERSIST_DEBOUNCE = Math.round(PHI ** 2 * 1000);
-const ZONE_EXPAND_THRESHOLD = 0.5;
+const ZONE_EXPAND_THRESHOLD = 0.35; // Lowered from 0.5 — MiniLM cosine sims on short text rarely exceed 0.5
 const REPRESENTATION_PROFILES = Object.freeze({
     cartesian: "cartesian",
     spherical: "spherical",
@@ -226,18 +226,24 @@ function buildOutboundRepresentation({ channel = "internal", profile, topK = DEF
     const totalVectors = shards.reduce((s, sh) => s + sh.vectors.length, 0);
     const sample = shards
         .flatMap(shard => shard.vectors)
+        .map(entry => ({ entry, importance: computeImportance(entry) }))
         .sort((a, b) => {
-            const tsDiff = (b.metadata?.ts || 0) - (a.metadata?.ts || 0);
+            // Primary sort: importance score (highest first)
+            const impDiff = b.importance - a.importance;
+            if (Math.abs(impDiff) > 0.01) return impDiff;
+            // Tiebreaker: recency
+            const tsDiff = (b.entry.metadata?.ts || 0) - (a.entry.metadata?.ts || 0);
             if (tsDiff !== 0) return tsDiff;
-            return String(a.id || "").localeCompare(String(b.id || ""));
+            return String(a.entry.id || "").localeCompare(String(b.entry.id || ""));
         })
         .slice(0, clampedTopK)
-        .map(entry => ({
+        .map(({ entry, importance }) => ({
             id: entry.id,
             zone: entry._zone ?? 0,
             representation: projectPoint(entry._3d || { x: 0, y: 0, z: 0 }, resolvedProfile),
             type: entry.metadata?.type || "unknown",
             ts: entry.metadata?.ts || null,
+            importance: +importance.toFixed(3),
         }));
 
     return {
@@ -533,7 +539,11 @@ async function queryMemory(query, topK = 5, filter = {}) {
         zoneStats.zoneHits++;
     }
 
-    return deduped.slice(0, topK);
+    // Track access for importance scoring (frequency component)
+    const finalResults = deduped.slice(0, topK);
+    finalResults.forEach(r => trackAccess(r.id));
+
+    return finalResults;
 }
 
 /**
@@ -1035,10 +1045,341 @@ function stopAutonomousMaintenance() {
     return getAutonomousState();
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// SEMANTIC DRIFT DETECTION (Whitepaper §Vector Embeddings)
+// Compares baseline embedding snapshots against current state.
+// Detects when module meaning has diverged > threshold (default 0.75).
+// ═══════════════════════════════════════════════════════════════════════
+
+const DRIFT_BASELINE_PATH = path.join(__dirname, '..', 'data', 'drift-baselines.json');
+const DRIFT_ALERT_THRESHOLD = 0.75;
+const driftBaselines = new Map();
+
+// Load persisted baselines on startup
+function loadDriftBaselines() {
+    try {
+        if (fs.existsSync(DRIFT_BASELINE_PATH)) {
+            const data = JSON.parse(fs.readFileSync(DRIFT_BASELINE_PATH, 'utf-8'));
+            for (const [id, baseline] of Object.entries(data)) {
+                driftBaselines.set(id, baseline);
+            }
+            logger.info(`  ∞ VectorMemory: ${driftBaselines.size} drift baselines loaded`);
+        }
+    } catch { /* no baselines yet */ }
+}
+
+function persistDriftBaselines() {
+    try {
+        const data = {};
+        driftBaselines.forEach((v, k) => { data[k] = v; });
+        fs.writeFileSync(DRIFT_BASELINE_PATH, JSON.stringify(data, null, 0));
+    } catch { /* best-effort */ }
+}
+
+/**
+ * Snapshot current embedding for a given vector ID as its drift baseline.
+ * Future drift checks compare the current embedding against this snapshot.
+ */
+function snapshotBaseline(vectorId) {
+    for (const shard of shards) {
+        const entry = shard.vectors.find(v => v.id === vectorId);
+        if (entry && entry.embedding) {
+            driftBaselines.set(vectorId, {
+                embedding: entry.embedding,
+                _3d: entry._3d,
+                snapshotAt: new Date().toISOString(),
+                content: entry.content?.substring(0, 100),
+            });
+            persistDriftBaselines();
+            return { ok: true, id: vectorId, snapshotAt: driftBaselines.get(vectorId).snapshotAt };
+        }
+    }
+    return { ok: false, error: `Vector ${vectorId} not found` };
+}
+
+/**
+ * Snapshot ALL current vectors as baselines (full system checkpoint).
+ */
+function snapshotAllBaselines() {
+    let count = 0;
+    shards.forEach(shard => {
+        shard.vectors.forEach(v => {
+            if (v.embedding) {
+                driftBaselines.set(v.id, {
+                    embedding: v.embedding,
+                    _3d: v._3d,
+                    snapshotAt: new Date().toISOString(),
+                    content: v.content?.substring(0, 100),
+                });
+                count++;
+            }
+        });
+    });
+    persistDriftBaselines();
+    return { ok: true, baselined: count };
+}
+
+/**
+ * Detect semantic drift: compare current embeddings vs baselines.
+ * Returns vectors where cosine similarity has dropped below the threshold.
+ * §Autonomous Refactoring Feedback Loop — detects when meaning has degraded.
+ */
+function detectDrift(threshold = DRIFT_ALERT_THRESHOLD) {
+    const drifted = [];
+    const checked = [];
+
+    driftBaselines.forEach((baseline, id) => {
+        // Find the current version of this vector
+        for (const shard of shards) {
+            const current = shard.vectors.find(v => v.id === id);
+            if (current && current.embedding && baseline.embedding) {
+                const sim = cosineSim(current.embedding, baseline.embedding);
+                const entry = {
+                    id,
+                    similarity: +sim.toFixed(4),
+                    baselineDate: baseline.snapshotAt,
+                    content: current.content?.substring(0, 80),
+                    zone: current._zone,
+                };
+                checked.push(entry);
+                if (sim < threshold) {
+                    drifted.push({ ...entry, alert: 'SEMANTIC_DRIFT', threshold });
+                }
+                break;
+            }
+        }
+    });
+
+    return {
+        ok: true,
+        threshold,
+        checked: checked.length,
+        baselines: driftBaselines.size,
+        drifted: drifted.length,
+        alerts: drifted,
+        checkedAt: new Date().toISOString(),
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// COSINE SIMILARITY ALERTING (Whitepaper §Self-Awareness)
+// Monitor pairwise similarity between zone centroids.
+// Alert when any zone centroid pair drops below threshold.
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Compute centroid for each zone and check pairwise cosine similarity.
+ * Alerts if zone coherence drops below threshold (modules are diverging).
+ */
+function checkZoneCoherence(alertThreshold = 0.75) {
+    const centroids = new Map();
+    const alerts = [];
+
+    // Compute zone centroids in embedding space
+    for (let z = 0; z < 8; z++) {
+        const zoneVecs = shards.flatMap(s =>
+            s.vectors.filter(v => v._zone === z && v.embedding)
+        );
+        if (zoneVecs.length === 0) continue;
+
+        const dims = zoneVecs[0].embedding.length;
+        const centroid = new Array(dims).fill(0);
+        zoneVecs.forEach(v => {
+            v.embedding.forEach((val, i) => { centroid[i] += val; });
+        });
+        centroid.forEach((_, i) => { centroid[i] /= zoneVecs.length; });
+        centroids.set(z, { embedding: centroid, count: zoneVecs.length });
+    }
+
+    // Pairwise cosine similarity between zone centroids
+    const zoneIds = Array.from(centroids.keys());
+    const pairs = [];
+    for (let i = 0; i < zoneIds.length; i++) {
+        for (let j = i + 1; j < zoneIds.length; j++) {
+            const sim = cosineSim(centroids.get(zoneIds[i]).embedding, centroids.get(zoneIds[j]).embedding);
+            const pair = {
+                zoneA: zoneIds[i],
+                zoneB: zoneIds[j],
+                similarity: +sim.toFixed(4),
+            };
+            pairs.push(pair);
+            if (sim < alertThreshold) {
+                alerts.push({ ...pair, alert: 'ZONE_COHERENCE_DROP', threshold: alertThreshold });
+            }
+        }
+    }
+
+    // Intra-zone coherence: average similarity within each zone
+    const intraZone = [];
+    for (const [z, data] of centroids) {
+        const zoneVecs = shards.flatMap(s =>
+            s.vectors.filter(v => v._zone === z && v.embedding)
+        );
+        if (zoneVecs.length < 2) continue;
+
+        let totalSim = 0, pairCount = 0;
+        const sample = zoneVecs.slice(0, 20); // sample for perf
+        for (let i = 0; i < sample.length; i++) {
+            for (let j = i + 1; j < sample.length; j++) {
+                totalSim += cosineSim(sample[i].embedding, sample[j].embedding);
+                pairCount++;
+            }
+        }
+        const avgSim = pairCount > 0 ? totalSim / pairCount : 1;
+        intraZone.push({ zone: z, avgSimilarity: +avgSim.toFixed(4), vectorCount: zoneVecs.length });
+        if (avgSim < alertThreshold) {
+            alerts.push({ zone: z, avgSimilarity: +avgSim.toFixed(4), alert: 'INTRA_ZONE_FRAGMENTED', threshold: alertThreshold });
+        }
+    }
+
+    return {
+        ok: alerts.length === 0,
+        activeZones: centroids.size,
+        pairwiseChecks: pairs.length,
+        intraZoneChecks: intraZone.length,
+        alerts,
+        pairs,
+        intraZone,
+        checkedAt: new Date().toISOString(),
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// AGENT LIFECYCLE MANAGER (Whitepaper §Sacred Geometry Multi-Agent)
+// Spawn, observe, and terminate agent threads with 3D position tracking.
+// Agents occupy positions in the vector space and model each other's
+// boundaries — group-structured state spaces.
+// ═══════════════════════════════════════════════════════════════════════
+
+const activeAgents = new Map();
+let agentIdCounter = 0;
+
+/**
+ * Spawn a new agent thread in the 3D vector space.
+ * @param {Object} opts - Agent configuration
+ * @param {string} opts.type - Agent type (refactor, test, security, deploy, research)
+ * @param {string} opts.task - Task description
+ * @param {number} opts.zone - Preferred zone (0-7), or auto-assigned
+ */
+function spawnAgent({ type = 'general', task = '', zone = null } = {}) {
+    const id = `agent_${++agentIdCounter}_${Date.now()}`;
+
+    // Auto-assign zone if not specified: pick least-saturated zone
+    if (zone === null) {
+        let minCount = Infinity;
+        let minZone = 0;
+        for (const [z, refs] of zoneIndex) {
+            const agentsInZone = Array.from(activeAgents.values()).filter(a => a.zone === z).length;
+            const total = refs.length + agentsInZone;
+            if (total < minCount) { minCount = total; minZone = z; }
+        }
+        zone = minZone;
+    }
+
+    // Compute 3D position: zone centroid + random offset
+    const zoneVecs = shards.flatMap(s => s.vectors.filter(v => v._zone === zone && v._3d));
+    let position;
+    if (zoneVecs.length > 0) {
+        const cx = zoneVecs.reduce((s, v) => s + v._3d.x, 0) / zoneVecs.length;
+        const cy = zoneVecs.reduce((s, v) => s + v._3d.y, 0) / zoneVecs.length;
+        const cz = zoneVecs.reduce((s, v) => s + v._3d.z, 0) / zoneVecs.length;
+        const jitter = 0.01;
+        position = { x: cx + (Math.random() - 0.5) * jitter, y: cy + (Math.random() - 0.5) * jitter, z: cz + (Math.random() - 0.5) * jitter };
+    } else {
+        const sign = (bit) => (zone & bit) ? 0.1 : -0.1;
+        position = { x: sign(1), y: sign(2), z: sign(4) };
+    }
+
+    const agent = {
+        id,
+        type,
+        task,
+        zone,
+        position,
+        status: 'spawned',
+        spawnedAt: new Date().toISOString(),
+        lastUpdate: new Date().toISOString(),
+        metrics: { actionsCompleted: 0, vectorsModified: 0, errors: 0 },
+    };
+
+    activeAgents.set(id, agent);
+    logger.info(`  ∞ AgentManager: Spawned ${type} agent ${id} in zone ${zone}`);
+    return agent;
+}
+
+/**
+ * Observe all active agents — returns positions, status, and group state.
+ * §Group-structured state spaces: each agent models the boundaries of others.
+ */
+function observeAgents() {
+    const agents = Array.from(activeAgents.values());
+
+    // Compute boundary awareness: each agent knows about its neighbors
+    const withBoundaries = agents.map(agent => {
+        const neighbors = agents
+            .filter(a => a.id !== agent.id)
+            .map(a => ({
+                id: a.id,
+                type: a.type,
+                distance: dist3D(agent.position, a.position),
+                zone: a.zone,
+                status: a.status,
+            }))
+            .sort((a, b) => a.distance - b.distance);
+
+        return {
+            ...agent,
+            nearestAgents: neighbors.slice(0, 3),
+            zonePopulation: agents.filter(a => a.zone === agent.zone).length,
+        };
+    });
+
+    return {
+        ok: true,
+        totalAgents: agents.length,
+        byType: agents.reduce((acc, a) => { acc[a.type] = (acc[a.type] || 0) + 1; return acc; }, {}),
+        byZone: agents.reduce((acc, a) => { acc[a.zone] = (acc[a.zone] || 0) + 1; return acc; }, {}),
+        agents: withBoundaries,
+        observedAt: new Date().toISOString(),
+    };
+}
+
+/**
+ * Update an agent's status and metrics.
+ */
+function updateAgent(agentId, update = {}) {
+    const agent = activeAgents.get(agentId);
+    if (!agent) return { ok: false, error: `Agent ${agentId} not found` };
+
+    if (update.status) agent.status = update.status;
+    if (update.task) agent.task = update.task;
+    if (update.actionsCompleted) agent.metrics.actionsCompleted += update.actionsCompleted;
+    if (update.vectorsModified) agent.metrics.vectorsModified += update.vectorsModified;
+    if (update.errors) agent.metrics.errors += update.errors;
+    agent.lastUpdate = new Date().toISOString();
+
+    return { ok: true, agent };
+}
+
+/**
+ * Terminate an agent thread.
+ */
+function terminateAgent(agentId) {
+    const agent = activeAgents.get(agentId);
+    if (!agent) return { ok: false, error: `Agent ${agentId} not found` };
+
+    agent.status = 'terminated';
+    agent.terminatedAt = new Date().toISOString();
+    activeAgents.delete(agentId);
+    logger.info(`  ∞ AgentManager: Terminated ${agent.type} agent ${agentId}`);
+    return { ok: true, agent };
+}
+
 // ── Init ────────────────────────────────────────────────────────
 function init() {
     initShards();
     initHFClients();
+    loadDriftBaselines();
     startAutonomousMaintenance();
 }
 
@@ -1060,7 +1401,7 @@ function registerRoutes(app) {
         try {
             const { content, metadata } = req.body;
             if (!content) return res.status(400).json({ error: "content required" });
-            const id = await ingestMemory({ content, metadata });
+            const id = await smartIngest({ content, metadata });
             const total = shards.reduce((s, sh) => s + sh.vectors.length, 0);
             res.json({ ok: true, id, total_vectors: total, shard: ingestCount % NUM_SHARDS });
         } catch (err) {
@@ -1143,6 +1484,110 @@ function registerRoutes(app) {
         res.json(payload);
     });
 
+    // ── Semantic Drift Detection Endpoints ───────────────────────
+    app.post("/api/vector/drift/snapshot", (req, res) => {
+        const { vectorId } = req.body || {};
+        if (vectorId) {
+            res.json(snapshotBaseline(vectorId));
+        } else {
+            res.json(snapshotAllBaselines());
+        }
+    });
+
+    app.get("/api/vector/drift/check", (req, res) => {
+        const threshold = parseFloat(req.query.threshold) || DRIFT_ALERT_THRESHOLD;
+        res.json(detectDrift(threshold));
+    });
+
+    // ── Zone Coherence Alerting Endpoints ────────────────────────
+    app.get("/api/vector/coherence/check", (req, res) => {
+        const threshold = parseFloat(req.query.threshold) || 0.75;
+        res.json(checkZoneCoherence(threshold));
+    });
+
+    // ── 3D Visualization Endpoint (full topology) ───────────────
+    app.get("/api/vector/3d/topology", (req, res) => {
+        const topK = Math.min(50, parseInt(req.query.top_k) || 20);
+        const zones = [];
+
+        for (let z = 0; z < 8; z++) {
+            const zoneVecs = shards.flatMap(s =>
+                s.vectors.filter(v => v._zone === z && v._3d)
+            );
+            const count = zoneVecs.length;
+            if (count === 0) {
+                zones.push({ zone: z, count: 0, centroid: null, density: 0, vectors: [] });
+                continue;
+            }
+
+            // Centroid
+            const cx = zoneVecs.reduce((s, v) => s + v._3d.x, 0) / count;
+            const cy = zoneVecs.reduce((s, v) => s + v._3d.y, 0) / count;
+            const cz = zoneVecs.reduce((s, v) => s + v._3d.z, 0) / count;
+
+            // Density = vectors per unit volume (spread)
+            const spread = count > 1
+                ? zoneVecs.reduce((s, v) => s + dist3D(v._3d, { x: cx, y: cy, z: cz }), 0) / count
+                : 0.01;
+
+            // Sample vectors for visualization
+            const sample = zoneVecs.slice(0, topK).map(v => ({
+                id: v.id,
+                x: +v._3d.x.toFixed(5),
+                y: +v._3d.y.toFixed(5),
+                z: +v._3d.z.toFixed(5),
+                type: v.metadata?.type || 'unknown',
+                tier: v.metadata?._memoryTier || 'STM',
+                content: v.content?.substring(0, 60),
+            }));
+
+            zones.push({
+                zone: z,
+                octant: `(${z & 1 ? '+' : '-'}, ${z & 2 ? '+' : '-'}, ${z & 4 ? '+' : '-'})`,
+                count,
+                centroid: { x: +cx.toFixed(5), y: +cy.toFixed(5), z: +cz.toFixed(5) },
+                density: +(count / Math.max(0.001, spread)).toFixed(2),
+                avgSpread: +spread.toFixed(5),
+                vectors: sample,
+            });
+        }
+
+        // Agent positions in 3D space
+        const agentPositions = Array.from(activeAgents.values()).map(a => ({
+            id: a.id, type: a.type, zone: a.zone, status: a.status,
+            x: +a.position.x.toFixed(5), y: +a.position.y.toFixed(5), z: +a.position.z.toFixed(5),
+        }));
+
+        res.json({
+            ok: true,
+            architecture: '3d-spatial-octant-topology',
+            total_vectors: shards.reduce((s, sh) => s + sh.vectors.length, 0),
+            active_zones: zones.filter(z => z.count > 0).length,
+            active_agents: activeAgents.size,
+            zones,
+            agents: agentPositions,
+            generated_at: new Date().toISOString(),
+        });
+    });
+
+    // ── Agent Lifecycle Endpoints ────────────────────────────────
+    app.post("/api/agents/spawn", (req, res) => {
+        const { type, task, zone } = req.body || {};
+        res.json(spawnAgent({ type, task, zone }));
+    });
+
+    app.get("/api/agents/observe", (req, res) => {
+        res.json(observeAgents());
+    });
+
+    app.patch("/api/agents/:agentId", (req, res) => {
+        res.json(updateAgent(req.params.agentId, req.body || {}));
+    });
+
+    app.delete("/api/agents/:agentId", (req, res) => {
+        res.json(terminateAgent(req.params.agentId));
+    });
+
     // ── Graph RAG Endpoints ─────────────────────────────────────
     app.post("/api/vector/graph/query", async (req, res) => {
         try {
@@ -1173,11 +1618,14 @@ function registerRoutes(app) {
 module.exports = {
     init, ingestMemory, queryMemory, queryWithRelationships,
     addRelationship, getRelationships,
-    getStats, registerRoutes, embed, to3D, assignZone,
+    getStats, registerRoutes, embed, to3D, assignZone, cosineSim,
     projectPoint, resolveProjectionProfile, buildOutboundRepresentation,
     normalizeChannel, normalizeTopK,
     getAutonomousState, runAutonomousMaintenance, startAutonomousMaintenance, stopAutonomousMaintenance,
     // Evolutionary Memory Architecture
     computeImportance, trackAccess, applyDecay,
     densityGate, smartIngest, consolidateMemory,
+    // Whitepaper Gap Tasks — Semantic Drift & Alert & Agent Lifecycle
+    snapshotBaseline, snapshotAllBaselines, detectDrift, checkZoneCoherence,
+    spawnAgent, observeAgents, updateAgent, terminateAgent,
 };

@@ -1,0 +1,112 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/auto-deploy.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Auto Deployment Configuration
+# Defines all deployment targets with redundancy settings
+
+targets:
+  # HeadyMe Cloud (PRIMARY — all changes start here)
+  - name: "headyme-primary"
+    type: "cloud"
+    git_remote: "heady-me"
+    cloud_url: "https://me.headysystems.com"
+    branch: "main"
+    role: "primary"
+    auto_deploy: true
+    redundancy: 1
+
+  # Sandbox (STAGING — validates before production)
+  - name: "sandbox-staging"
+    type: "cloud"
+    git_remote: "sandbox"
+    branch: "main"
+    role: "staging"
+    auto_deploy: true
+    connected_to: "headyme-primary"
+    redundancy: 1
+
+  # HeadySystems (PRODUCTION — only after 100% gate)
+  - name: "headysystems-production"
+    type: "cloud"
+    git_remote: "origin"
+    cloud_url: "https://api.headysystems.com"
+    branch: "main"
+    role: "production"
+    auto_deploy: false
+    requires_gate: true
+    gate_threshold: 100
+    redundancy: 1
+
+  # HeadyConnection (SYNC hub)
+  - name: "headyconnection-sync"
+    type: "cloud"
+    cloud_url: "https://api.headyconnection.org"
+    role: "sync"
+    auto_deploy: true
+    redundancy: 1
+
+  # Local primary workspace
+  - name: "local-primary"
+    type: "path"
+    path: "C:\\Users\\erich\\Heady"
+    role: "local-sot"
+    auto_sync: true
+    redundancy: 1
+
+  # Local sandbox workspace
+  - name: "local-sandbox"
+    type: "path"
+    path: "C:\\Users\\erich\\Heady-Sandbox"
+    role: "local-sandbox"
+    auto_sync: true
+    redundancy: 1
+
+# Deployment policies
+policies:
+  max_parallel: 3
+  verification_timeout: 300
+  retry_count: 2
+  required_success_rate: 1.0  # 100% for production
+  api.headysystems.com_allowed: false
+
+# Production Gate — must pass before pushing to production
+production_gate:
+  threshold: 100
+  checks:
+    - all_tests_pass
+    - all_services_healthy
+    - clean_build
+    - no_regressions
+    - security_scan
+    - lint_clean
+  block_on_failure: true
+  auto_rollback: true
+
+# Monorepo Sync
+monorepo_sync:
+  source_of_truth: "heady-me"
+  auto_sync_on_push: true
+  sync_targets:
+    - "sandbox"
+    - "origin"  # only after gate
+    - "heady-sys"  # mirror of origin
+
+# Auto-Train
+auto_train:
+  enabled: true
+  on_commit: true
+  on_deploy: true
+  mode: "auto"
+  endpoint: "https://headyio.com/api/v1/train"

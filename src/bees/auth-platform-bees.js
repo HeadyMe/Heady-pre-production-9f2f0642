@@ -16,6 +16,7 @@
 
 const { createBee } = require('./bee-factory');
 const vectorMemory = require('../vector-memory');
+const logger = require('../utils/logger').child('auth-platform-bees');
 
 // ═══════════════════════════════════════════════════════════════
 // HeadyBee: auth-flow
@@ -31,10 +32,10 @@ const authFlowBee = createBee('auth-flow', {
             // Serve auth page — the actual server lives in auth-page-server.js
             // This bee orchestrates it from vector space
             const authServer = require('../core/auth-page-server');
-            console.log('🐝 auth-flow: serving auth page from vector space');
+            logger.info('auth-flow: serving auth page from vector space');
 
             // Ingest the auth flow configuration into vector memory
-            await vectorMemory.ingestMemory({
+            await vectorMemory.smartIngest({
                 content: `Auth flow configuration: 5 tiers (Spark Free, Glow $9, Blaze $29, Nova $79, Sovereign $199), PBKDF2 hashing, HY- prefixed API keys, session tokens. Port 3847.`,
                 metadata: {
                     type: 'auth-config',
@@ -54,9 +55,9 @@ const authFlowBee = createBee('auth-flow', {
             const email = ctx.email || 'anonymous';
             const tier = ctx.tier || 'spark';
 
-            console.log(`🐝 auth-flow: tracking ${event} for ${email} (${tier})`);
+            logger.info(`auth-flow: tracking ${event} for ${email} (${tier})`);
 
-            await vectorMemory.ingestMemory({
+            await vectorMemory.smartIngest({
                 content: `Auth event: ${event} by ${email} at tier ${tier}. Timestamp: ${new Date().toISOString()}`,
                 metadata: {
                     type: 'auth-event',
@@ -75,7 +76,7 @@ const authFlowBee = createBee('auth-flow', {
         fn: async (ctx = {}) => {
             // Query auth event patterns from vector space
             const query = ctx.query || 'auth signup login patterns';
-            console.log(`🐝 auth-flow: querying auth patterns: "${query}"`);
+            logger.info(`auth-flow: querying auth patterns: "${query}"`);
 
             const results = await vectorMemory.queryMemory(query, ctx.topK || 10, {
                 type: 'auth-event',
@@ -98,7 +99,7 @@ const platformOnboardingAnalyzer = createBee('platform-onboarding-analyzer', {
     workers: [{
         name: 'analyze',
         fn: async (ctx = {}) => {
-            console.log('🐝 platform-onboarding-analyzer: analyzing onboarding platforms');
+            logger.info('platform-onboarding-analyzer: analyzing onboarding platforms');
 
             // Platform analysis — which platforms make Heady easiest to adopt
             const platforms = [
@@ -221,7 +222,7 @@ const platformOnboardingAnalyzer = createBee('platform-onboarding-analyzer', {
 
             // Ingest analysis into vector space for future recall
             for (const p of platforms) {
-                await vectorMemory.ingestMemory({
+                await vectorMemory.smartIngest({
                     content: `Onboarding platform analysis: ${p.name} (score: ${p.score}/10). Install: "${p.command}". Verdict: ${p.verdict}. Strengths: ${p.strengths.join(', ')}. Weaknesses: ${p.weaknesses.join(', ')}.`,
                     metadata: {
                         type: 'platform-analysis',
@@ -233,7 +234,7 @@ const platformOnboardingAnalyzer = createBee('platform-onboarding-analyzer', {
                 });
             }
 
-            console.log(`🐝 platform-onboarding-analyzer: analyzed ${platforms.length} platforms, ingested into vector space`);
+            logger.info(`platform-onboarding-analyzer: analyzed ${platforms.length} platforms, ingested into vector space`);
 
             // Priority action plan
             const actionPlan = [
@@ -251,7 +252,7 @@ const platformOnboardingAnalyzer = createBee('platform-onboarding-analyzer', {
         fn: async (ctx = {}) => {
             // Query vector space for platform analysis
             const query = ctx.query || 'easiest platform to onboard developers to Heady';
-            console.log(`🐝 platform-onboarding-analyzer: querying: "${query}"`);
+            logger.info(`platform-onboarding-analyzer: querying: "${query}"`);
 
             const results = await vectorMemory.queryMemory(query, 5, {
                 type: 'platform-analysis',
@@ -268,4 +269,4 @@ module.exports = {
     platformOnboardingAnalyzer,
 };
 
-console.log('  🐝 Loaded auth-flow + platform-onboarding-analyzer bees (3D vector space dispatch)');
+logger.info('Loaded auth-flow + platform-onboarding-analyzer bees (3D vector space dispatch)');

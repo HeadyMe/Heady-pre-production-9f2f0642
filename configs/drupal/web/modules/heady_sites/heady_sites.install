@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Install file for heady_sites module.
+ */
+
+use Drupal\taxonomy\Entity\Term;
+
+/**
+ * Implements hook_install().
+ */
+function heady_sites_install($is_syncing) {
+  if ($is_syncing) {
+    return;
+  }
+
+  $sites = [
+    'headysystems' => ['HeadySystems', 'Infrastructure backbone — Metatron\'s Cube'],
+    'headyme' => ['HeadyMe', 'Personal AI companion — Flower of Life'],
+    'headyconnection' => ['HeadyConnection', 'Social intelligence — Sri Yantra'],
+    'headyio' => ['HeadyIO', 'Data orchestration gateway — Torus'],
+    'headybuddy' => ['HeadyBuddy', 'AI assistant — Seed of Life'],
+    'headymcp' => ['HeadyMCP', 'Model Context Protocol hub — Vesica Piscis'],
+  ];
+
+  foreach ($sites as $machine_name => [$name, $description]) {
+    Term::create([
+      'vid' => 'heady_sites',
+      'name' => $name,
+      'description' => ['value' => $description, 'format' => 'plain_text'],
+      'field_machine_name' => $machine_name,
+    ])->save();
+  }
+}

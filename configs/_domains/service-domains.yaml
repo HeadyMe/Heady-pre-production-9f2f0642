@@ -1,0 +1,399 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/service-domains.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Heady Service Domain Registry
+# 
+# This file maps all service domains for discovery, security, and observability.
+# All references use cloud domains — no api.headysystems.com/api.headysystems.com/local paths permitted.
+#
+# Root Domain: internal.heady.systems (production) / staging.headysystems.comheady.systems
+# Pattern: {service}.{environment}.{region}.headysystems.comheady.systems
+
+root_domains:
+  dev: "dev.headysystems.comheady.systems"
+  staging: "staging.headysystems.comheady.systems"  
+  production: "internal.heady.systems"
+
+# ============================================================================
+# CORE SERVICES - Heady Manager & API Gateway
+# ============================================================================
+core_services:
+  heady_manager:
+    description: "Main Node.js MCP server and API gateway"
+    ports:
+      http: 3300
+      https: 3443
+    domains:
+      local: "manager.headysystems.com"
+      staging: "manager.staging.headysystems.comheady.systems"
+      production: "manager.us-west.headysystems.comheady.systems"
+    protocols:
+      - http
+      - https
+      - websocket
+    security:
+      auth_required: true
+      mtls: false
+      api_key: true
+      allowed_origins:
+        - "https://*.headysystems.com"
+        - "https://*.headysystems.comheady.systems"
+    health_check:
+      endpoint: "/api/health"
+      interval: 30s
+
+  heady_buddy:
+    description: "Desktop overlay assistant"
+    ports:
+      http: 3301
+    domains:
+      local: "buddy.headysystems.com"
+      staging: "buddy.staging.headysystems.comheady.systems"
+    protocols:
+      - http
+      - websocket
+    security:
+      auth_required: true
+      local_only: true  # Never exposed externally
+
+  heady_lens:
+    description: "Monitoring and observability layer"
+    ports:
+      http: 3302
+      grpc: 3303
+    domains:
+      local: "lens.headysystems.com"
+      staging: "lens.staging.headysystems.comheady.systems"
+      production: "lens.us-west.headysystems.comheady.systems"
+    protocols:
+      - http
+      - grpc
+    security:
+      auth_required: true
+      service_mesh: true
+
+# ============================================================================
+# BACKEND SERVICES
+# ============================================================================
+backend_services:
+  python_worker:
+    description: "Python task processing worker"
+    ports:
+      http: 5000
+      grpc: 5001
+    domains:
+      local: "worker.headysystems.com"
+      staging: "worker.staging.headysystems.comheady.systems"
+      production: "worker.us-west.headysystems.comheady.systems"
+    protocols:
+      - http
+      - grpc
+    queue_connections:
+      - redis://cache.headysystems.com:6379
+      - postgres://db.headysystems.com:5432
+
+  render_mcp_server:
+    description: "Render.com MCP server"
+    ports:
+      http: 3500
+    domains:
+      local: "render.headysystems.com"
+      staging: "render.staging.headysystems.comheady.systems"
+    protocols:
+      - http
+      - mcp_protocol
+
+  mcp_tool_servers:
+    description: "MCP tool servers (GitHub, filesystem, terminal, browser, search)"
+    ports:
+      filesystem: 3600
+      terminal: 3601
+      browser: 3602
+      github: 3603
+      search: 3604
+    domains:
+      local: "mcp-{tool}.headysystems.com"  # e.g., mcp-filesystem.headysystems.com
+      staging: "mcp-{tool}.staging.headysystems.comheady.systems"
+    protocols:
+      - http
+      - stdio
+
+# ============================================================================
+# DATABASE & CACHE
+# ============================================================================
+data_services:
+  postgres:
+    description: "PostgreSQL database"
+    ports:
+      postgres: 5432
+    domains:
+      local: "db.headysystems.com"
+      staging: "db.staging.headysystems.comheady.systems"
+      production: "db.us-west.headysystems.comheady.systems"
+    protocols:
+      - postgresql
+    security:
+      ssl_mode: require
+      auth: password
+      network_policy: internal_only
+
+  redis:
+    description: "Redis cache and message broker"
+    ports:
+      redis: 6379
+    domains:
+      local: "cache.headysystems.com"
+      staging: "cache.staging.headysystems.comheady.systems"
+      production: "cache.us-west.headysystems.comheady.systems"
+    protocols:
+      - redis
+    security:
+      auth: password
+      network_policy: internal_only
+
+# ============================================================================
+# FRONTEND & STATIC
+# ============================================================================
+frontend_services:
+  web_dashboard:
+    description: "Heady web dashboard (React)"
+    ports:
+      http: 3000
+    domains:
+      local: "dashboard.headysystems.com"
+      staging: "dashboard.staging.headysystems.comheady.systems"
+      production: "app.heady.systems"  # Public-facing
+    protocols:
+      - https
+    security:
+      auth_required: true
+      oauth_providers:
+        - github
+        - google
+
+  public_site:
+    description: "Marketing/documentation site"
+    ports:
+      http: 8080
+    domains:
+      local: "www.headysystems.com"
+      staging: "www.staging.heady.systems"
+      production: "www.heady.systems"
+    protocols:
+      - https
+    security:
+      auth_required: false
+      cdn: cloudflare
+
+# ============================================================================
+# API & INTEGRATION SERVICES
+# ============================================================================
+api_services:
+  api_gateway:
+    description: "Public API gateway"
+    ports:
+      https: 443
+    domains:
+      local: "api.headysystems.com"
+      staging: "api.staging.heady.systems"
+      production: "api.heady.systems"
+    protocols:
+      - https
+      - http2
+    rate_limits:
+      free: 100/hour
+      pro: 1000/hour
+      enterprise: 10000/hour
+
+  webhook_receiver:
+    description: "Incoming webhooks (GitHub, Stripe, etc.)"
+    ports:
+      http: 8081
+    domains:
+      local: "webhooks.headysystems.com"
+      staging: "webhooks.staging.heady.systems"
+      production: "webhooks.heady.systems"
+    protocols:
+      - https
+    security:
+      webhook_signatures: true
+      ip_allowlist: true
+
+  connector_services:
+    description: "Third-party connectors (Slack, Discord, Teams)"
+    ports:
+      slack: 8082
+      discord: 8083
+      teams: 8084
+      email: 8085
+    domains:
+      local: "{service}-connector.headysystems.com"
+      staging: "{service}-connector.staging.headysystems.comheady.systems"
+
+# ============================================================================
+# MONITORING & OBSERVABILITY
+# ============================================================================
+observability_services:
+  prometheus:
+    description: "Metrics collection"
+    ports:
+      http: 9090
+    domains:
+      local: "metrics.headysystems.com"
+      staging: "metrics.staging.headysystems.comheady.systems"
+    protocols:
+      - http
+
+  grafana:
+    description: "Metrics visualization"
+    ports:
+      http: 3001
+    domains:
+      local: "grafana.headysystems.com"
+      staging: "grafana.staging.headysystems.comheady.systems"
+    protocols:
+      - http
+
+  jaeger:
+    description: "Distributed tracing"
+    ports:
+      http: 16686
+    domains:
+      local: "traces.headysystems.com"
+      staging: "traces.staging.headysystems.comheady.systems"
+
+  alertmanager:
+    description: "Alert routing and management"
+    ports:
+      http: 9093
+    domains:
+      local: "alerts.headysystems.com"
+      staging: "alerts.staging.headysystems.comheady.systems"
+
+# ============================================================================
+# IMAGINATION ENGINE SERVICES
+# ============================================================================
+imagination_services:
+  imagination_api:
+    description: "Imagination Engine REST API"
+    ports:
+      http: 3400
+    domains:
+      local: "imagination.headysystems.com"
+      staging: "imagination.staging.headysystems.comheady.systems"
+    protocols:
+      - http
+      - websocket
+
+  concept_store:
+    description: "Concept and primitive storage"
+    ports:
+      http: 3401
+    domains:
+      local: "concepts.headysystems.com"
+
+# ============================================================================
+# api.headysystems.com REPLACEMENT RULES
+# ============================================================================
+# All services resolve via cloud domains — no api.headysystems.com references permitted
+# Enforcement: configs/api.headysystems.com-elimination-protocol.yaml
+
+# ============================================================================
+# SECURITY CLASSIFICATIONS
+# ============================================================================
+security_zones:
+  public:
+    description: "Internet-facing services"
+    services:
+      - public_site
+      - api_gateway
+    requirements:
+      - https_only
+      - waf_enabled
+      - ddos_protection
+      - audit_logging
+
+  internal:
+    description: "Internal services, VPN/mesh required"
+    services:
+      - heady_manager
+      - heady_buddy
+      - heady_lens
+      - python_worker
+      - mcp_tool_servers
+      - imagination_api
+    requirements:
+      - mTLS_or_strong_auth
+      - network_segmentation
+      - internal_dns_only
+
+  data:
+    description: "Data stores, highest protection"
+    services:
+      - postgres
+      - redis
+    requirements:
+      - encryption_at_rest
+      - encryption_in_transit
+      - access_logging
+      - backup_encryption
+      - no_direct_external_access
+
+  management:
+    description: "Admin and monitoring interfaces"
+    services:
+      - grafana
+      - prometheus
+      - alertmanager
+      - jaeger
+    requirements:
+      - strong_auth_required
+      - vpn_access_only
+      - admin_audit_logs
+
+# ============================================================================
+# DNS CONFIGURATION
+# ============================================================================
+dns_configuration:
+  cloud:
+    # All DNS resolves via Cloudflare — no hosts file hacks
+    method: "cloudflare_dns"
+    domains:
+      - manager.headysystems.com
+      - worker.headysystems.com
+      - app.headysystems.com
+      - cache.headysystems.com
+      - db.headysystems.com
+      - www.headysystems.com
+      - api.headysystems.com
+      - metrics.headysystems.com
+      - grafana.headysystems.com
+      - imagination.headysystems.com
+      
+  docker_compose:
+    # Docker network DNS
+    network_name: "heady_internal"
+    aliases:
+      manager: ["manager.headysystems.com", "api.headysystems.com"]
+      worker: ["worker.headysystems.com"]
+      postgres: ["db.headysystems.com"]
+      redis: ["cache.headysystems.com"]
+      
+  kubernetes:
+    # K8s service DNS
+    namespace: "heady-systems"
+    service_discovery: "headless_services"
+    ingress_class: "cloudflare-tunnel"
+

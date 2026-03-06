@@ -1,0 +1,71 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/notebook-ci.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+#
+# Notebook CI Configuration
+# Defines which notebooks are validated in CI and how.
+
+version: "1.0.0"
+
+# ─── NOTEBOOK VALIDATION ────────────────────────────────────────────────
+validation:
+  enabled: true
+  failOnError: true
+  timeout: 120  # seconds per notebook
+
+  # Notebooks to validate in CI
+  notebooks:
+    - path: notebooks/quick-start/heady-quick-start.ipynb
+      mode: syntax   # syntax = parse only, execute = full run
+      description: Quick start orientation notebook
+
+    - path: notebooks/tutorials/hcfullpipeline-walkthrough.ipynb
+      mode: syntax
+      description: Pipeline walkthrough tutorial
+
+    - path: notebooks/examples/registry-api-demo.ipynb
+      mode: syntax
+      description: Registry API demonstration
+
+  # Directories to scan for additional notebooks
+  scanDirs:
+    - notebooks/quick-start/
+    - notebooks/tutorials/
+    - notebooks/examples/
+
+  # Exclude personal/experimental notebooks from CI
+  excludePatterns:
+    - notebooks/personal/**
+
+# ─── EXECUTION REQUIREMENTS ─────────────────────────────────────────────
+execution:
+  pythonVersion: "3.12"
+  requiredPackages:
+    - requests
+    - pyyaml
+  optionalPackages:
+    - transformers
+    - torch
+
+# ─── DRIFT DETECTION ────────────────────────────────────────────────────
+driftDetection:
+  enabled: true
+  # When these files change, flag notebooks for re-validation
+  triggers:
+    - heady-manager.js        # API changes
+    - heady-registry.json     # Registry schema changes
+    - configs/hcfullpipeline.yaml  # Pipeline changes
+    - configs/service-catalog.yaml # Service changes

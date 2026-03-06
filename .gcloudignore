@@ -1,14 +1,54 @@
-# Cloud Run deploy ignore
-_archive/
+# ═══════════════════════════════════════════════════════════════
+# Heady™ .gcloudignore
+# Excludes non-essential files from Cloud Run source deploy.
+# Keeps container small and deploy fast.
+# ═══════════════════════════════════════════════════════════════
+
+# Respect .gitignore
+#!include:.gitignore
+
+# Git
 .git/
-node_modules/
-.gemini/
-notebooks/
-docs/
-scripts/
-*.md
-*.ipynb
-.env*
+.github/
+
+# Archive (dead weight — logic is embedded in the registry)
+_archive/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dev tooling
+.eslintrc*
+.prettierrc*
+jest.config.*
+tsconfig.*
+
+# Docs we don't need at runtime (strategic docs)
+docs/strategic/
+docs/patents/
+
+# Tests
+__tests__/
+**/*.test.js
+**/*.spec.js
+coverage/
+
+# Build artifacts
+*.map
 *.log
-data/vector-shards/
-data/telemetry/
+
+# Large unnecessary directories
+cloudflare-workers/
+src/landing/
+
+# Agents/skills/workflows (IDE-only)
+.agents/
+.agent/
+_agents/
+_agent/
+
+# Gemini brain (local only)
+.gemini/

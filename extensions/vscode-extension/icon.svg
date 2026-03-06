@@ -1,0 +1,36 @@
+<!--
+  © 2026 Heady Systems LLC.
+  PROPRIETARY AND CONFIDENTIAL.
+  Unauthorized copying, modification, or distribution is strictly prohibited.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED"/>
+      <stop offset="100%" style="stop-color:#60A5FA"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#g)" stroke-width="0.8" opacity="0.9">
+    <!-- Outer hexagon -->
+    <polygon points="12,2 21,7 21,17 12,22 3,17 3,7"/>
+    <!-- Inner connections (Metatron's Cube simplified) -->
+    <line x1="12" y1="2" x2="12" y2="22"/>
+    <line x1="3" y1="7" x2="21" y2="17"/>
+    <line x1="21" y1="7" x2="3" y2="17"/>
+    <line x1="12" y1="2" x2="3" y2="17"/>
+    <line x1="12" y1="2" x2="21" y2="17"/>
+    <line x1="3" y1="7" x2="12" y2="22"/>
+    <line x1="21" y1="7" x2="12" y2="22"/>
+    <!-- Inner hexagon -->
+    <polygon points="12,6 17,8.5 17,15.5 12,18 7,15.5 7,8.5"/>
+    <!-- Center -->
+    <circle cx="12" cy="12" r="1.5" fill="url(#g)"/>
+    <!-- Vertices -->
+    <circle cx="12" cy="2" r="1" fill="url(#g)"/>
+    <circle cx="21" cy="7" r="1" fill="url(#g)"/>
+    <circle cx="21" cy="17" r="1" fill="url(#g)"/>
+    <circle cx="12" cy="22" r="1" fill="url(#g)"/>
+    <circle cx="3" cy="17" r="1" fill="url(#g)"/>
+    <circle cx="3" cy="7" r="1" fill="url(#g)"/>
+  </g>
+</svg>

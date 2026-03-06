@@ -1,0 +1,49 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/auto-monitoring.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Heady Auto-Monitoring Configuration
+# Sacred Geometry v3.0
+
+monitoring:
+  patterns:
+    - name: deployment_failure
+      category: reliability
+      thresholds:
+        error_rate: 5%
+        duration: 5m
+      remediation:
+        auto_retry: true
+        max_attempts: 3
+        rollback_on_failure: true
+        
+    - name: resource_exhaustion
+      category: performance
+      thresholds:
+        cpu: 90%
+        memory: 85%
+      remediation:
+        scale_up: true
+        notify: false
+        
+circuit_breakers:
+  - service: api
+    failure_threshold: 10
+    timeout: 1m
+    half_open_after: 5m
+    
+  - service: database
+    failure_threshold: 5
+    timeout: 2m
+    half_open_after: 10m

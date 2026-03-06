@@ -1,0 +1,29 @@
+global:
+  css:
+    theme:
+      css/admin.css: {}
+  js:
+    js/admin.js: {}
+
+admin_dashboard:
+  css:
+    theme:
+      css/admin.css: {}
+  js:
+    js/admin.js: {}
+    js/dashboard.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+
+headylens:
+  css:
+    theme:
+      css/admin.css: {}
+      css/headylens.css: {}
+  js:
+    js/admin.js: {}
+    js/headylens.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings

@@ -1,0 +1,32 @@
+version: 1
+description: Predicted situations to optimal HeadyBee template/workflow mappings.
+default_template: health-check
+situations:
+  - id: incident-response
+    keywords: [incident, outage, failure, degraded, remediation]
+    preferred_template: health-check
+    node: buddy
+    workflow: deterministic_error_loop
+    headyswarm_task: triage_and_recover
+    required_skills: [headylens_zero_defect, hcfp_self_knowledge]
+  - id: security-hardening
+    keywords: [security, vulnerability, scan, harden, trufflehog]
+    preferred_template: scanner
+    node: battle
+    workflow: security_sweep
+    headyswarm_task: scan_and_patch
+    required_skills: [hcfp_pdca_implementation, research_before_build]
+  - id: scale-optimization
+    keywords: [latency, throughput, optimize, performance, traffic]
+    preferred_template: monitor
+    node: conductor
+    workflow: adaptive_scale_loop
+    headyswarm_task: rebalance_and_autoscale
+    required_skills: [monte_carlo_optimization, pattern_recognition]
+  - id: data-pipeline-ops
+    keywords: [pipeline, ingest, batch, template, projection]
+    preferred_template: processor
+    node: hcfp
+    workflow: autonomous_projection_sync
+    headyswarm_task: process_and_project
+    required_skills: [checkpoint_sync, heady_sync]

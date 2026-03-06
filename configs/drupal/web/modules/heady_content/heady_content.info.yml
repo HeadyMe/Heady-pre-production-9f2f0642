@@ -1,0 +1,9 @@
+name: Heady Content Types
+type: module
+description: 'Provides site_page and ai_capability content types for headless COPE delivery.'
+core_version_requirement: ^10 || ^11
+package: Heady
+dependencies:
+  - drupal:node
+  - drupal:taxonomy
+  - heady_sites:heady_sites

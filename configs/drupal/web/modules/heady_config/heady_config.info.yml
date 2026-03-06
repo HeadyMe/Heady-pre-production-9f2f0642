@@ -1,0 +1,7 @@
+name: Heady Config
+type: module
+description: 'Exposes Heady system configuration (AI models, routing rules, health) via JSON:API.'
+core_version_requirement: ^10 || ^11
+package: Heady
+dependencies:
+  - drupal:jsonapi

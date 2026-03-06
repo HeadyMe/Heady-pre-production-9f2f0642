@@ -1,0 +1,315 @@
+<!--
+  © 2026 Heady Systems LLC.
+  PROPRIETARY AND CONFIDENTIAL.
+  Heady Chrome Extension — Options / Settings Page
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Heady AI — Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0a0b14;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #7C3AED, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: .75rem;
+            color: rgba(255, 255, 255, .4);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card h3 {
+            font-size: .8rem;
+            font-weight: 600;
+            color: #C084FC;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        .field label {
+            display: block;
+            font-size: .75rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, .6);
+            margin-bottom: 6px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: .85rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: rgba(124, 58, 237, .5);
+        }
+
+        .field select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23C084FC' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        .field select option {
+            background: #1a1b2e;
+            color: #e2e8f0;
+        }
+
+        .field .hint {
+            font-size: .65rem;
+            color: rgba(255, 255, 255, .3);
+            margin-top: 4px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: .82rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7C3AED, #6D28D9);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, .06);
+            color: #C084FC;
+            border: 1px solid rgba(124, 58, 237, .2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(124, 58, 237, .1);
+        }
+
+        .status-box {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: .78rem;
+            display: none;
+            animation: fadeIn .2s;
+        }
+
+        .status-box.success {
+            display: block;
+            background: rgba(87, 242, 135, .08);
+            border: 1px solid rgba(87, 242, 135, .2);
+            color: #57F287;
+        }
+
+        .status-box.error {
+            display: block;
+            background: rgba(237, 66, 69, .08);
+            border: 1px solid rgba(237, 66, 69, .2);
+            color: #ED4245;
+        }
+
+        .status-box.info {
+            display: block;
+            background: rgba(124, 58, 237, .08);
+            border: 1px solid rgba(124, 58, 237, .2);
+            color: #C084FC;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .version {
+            text-align: center;
+            margin-top: 24px;
+            font-size: .65rem;
+            color: rgba(255, 255, 255, .2);
+        }
+
+        .version a {
+            color: rgba(192, 132, 252, .5);
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐝 Heady AI Settings</h1>
+            <p>Chrome Extension Configuration</p>
+        </div>
+
+        <div class="card">
+            <h3>Connection</h3>
+            <div class="field">
+                <label>API Endpoint</label>
+                <input type="url" id="endpoint" placeholder="https://manager.headysystems.com/api">
+                <div class="hint">Default: https://manager.headysystems.com/api</div>
+            </div>
+            <div class="field">
+                <label>API Key</label>
+                <input type="password" id="apiKey" placeholder="Enter your Heady API key">
+                <div class="hint">Required for premium models. Get one at headyio.com</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Preferences</h3>
+            <div class="field">
+                <label>Default Model</label>
+                <select id="model">
+                    <option value="heady-flash">⚡ Heady Flash — Fast general purpose</option>
+                    <option value="heady-reason">🧠 Heady Reason — Deep analysis</option>
+                    <option value="heady-battle-v1">🏆 Heady Battle v1 — Multi-node arena</option>
+                    <option value="heady-edge">🌐 Heady Edge — Low latency</option>
+                    <option value="heady-buddy">🐝 Heady Buddy — Conversational</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" id="saveBtn">Save Settings</button>
+            <button class="btn btn-secondary" id="testBtn">Test Connection</button>
+        </div>
+
+        <div class="status-box" id="statusBox"></div>
+
+        <div class="version">
+            Heady AI Extension v2.0.0 · <a href="https://headyme.com" target="_blank">headyme.com</a>
+        </div>
+    </div>
+
+    <script>
+        const endpointEl = document.getElementById('endpoint');
+        const apiKeyEl = document.getElementById('apiKey');
+        const modelEl = document.getElementById('model');
+        const statusBox = document.getElementById('statusBox');
+
+        // Load saved settings
+        chrome.storage.sync.get(['headyEndpoint', 'headyApiKey', 'headyModel'], (result) => {
+            if (result.headyEndpoint) endpointEl.value = result.headyEndpoint;
+            if (result.headyApiKey) apiKeyEl.value = result.headyApiKey;
+            if (result.headyModel) modelEl.value = result.headyModel;
+        });
+
+        function showStatus(msg, type = 'info') {
+            statusBox.textContent = msg;
+            statusBox.className = `status-box ${type}`;
+        }
+
+        // Save
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const settings = {
+                headyEndpoint: endpointEl.value.trim() || 'https://manager.headysystems.com/api',
+                headyApiKey: apiKeyEl.value.trim(),
+                headyModel: modelEl.value,
+            };
+            chrome.storage.sync.set(settings, () => {
+                showStatus('✓ Settings saved successfully', 'success');
+                setTimeout(() => { statusBox.className = 'status-box'; }, 3000);
+            });
+        });
+
+        // Test connection
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            showStatus('Testing connection...', 'info');
+            const endpoint = endpointEl.value.trim() || 'https://manager.headysystems.com/api';
+            try {
+                const res = await fetch(`${endpoint}/health`, { signal: AbortSignal.timeout(8000) });
+                const data = await res.json();
+                if (data.status === 'ok') {
+                    showStatus(`✓ Connected to ${data.service || 'Heady'} — ${data.timestamp || 'OK'}`, 'success');
+                } else {
+                    showStatus(`⚠ Server responded but status: ${data.status}`, 'error');
+                }
+            } catch (err) {
+                showStatus(`✗ Connection failed: ${err.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

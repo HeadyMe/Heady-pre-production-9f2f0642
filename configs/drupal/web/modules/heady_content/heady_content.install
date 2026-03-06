@@ -1,0 +1,244 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for heady_content module.
+ */
+
+use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_install().
+ */
+function heady_content_install($is_syncing) {
+  if ($is_syncing) {
+    return;
+  }
+
+  _heady_content_create_site_page_type();
+  _heady_content_create_ai_capability_type();
+}
+
+/**
+ * Creates the site_page content type and fields.
+ */
+function _heady_content_create_site_page_type() {
+  // Create content type
+  $type = NodeType::create([
+    'type' => 'site_page',
+    'name' => 'Site Page Section',
+    'description' => 'A content section for any Heady website (hero, features, about, footer, etc).',
+    'display_submitted' => FALSE,
+  ]);
+  $type->save();
+
+  // field_site (reference to heady_sites taxonomy)
+  FieldStorageConfig::create([
+    'field_name' => 'field_site',
+    'entity_type' => 'node',
+    'type' => 'entity_reference',
+    'cardinality' => -1,
+    'settings' => ['target_type' => 'taxonomy_term'],
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_site',
+    'entity_type' => 'node',
+    'bundle' => 'site_page',
+    'label' => 'Site(s)',
+    'description' => 'Which Heady site(s) this content belongs to.',
+    'required' => TRUE,
+    'settings' => [
+      'handler' => 'default:taxonomy_term',
+      'handler_settings' => [
+        'target_bundles' => ['heady_sites' => 'heady_sites'],
+      ],
+    ],
+  ])->save();
+
+  // field_section
+  FieldStorageConfig::create([
+    'field_name' => 'field_section',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_section',
+    'entity_type' => 'node',
+    'bundle' => 'site_page',
+    'label' => 'Section',
+    'description' => 'e.g. hero, features, about, footer, cta',
+    'required' => TRUE,
+  ])->save();
+
+  // field_heading
+  FieldStorageConfig::create([
+    'field_name' => 'field_heading',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_heading',
+    'entity_type' => 'node',
+    'bundle' => 'site_page',
+    'label' => 'Heading',
+  ])->save();
+
+  // body is provided by default on node types, but let's add custom fields
+
+  // field_cta_text
+  FieldStorageConfig::create([
+    'field_name' => 'field_cta_text',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_cta_text',
+    'entity_type' => 'node',
+    'bundle' => 'site_page',
+    'label' => 'CTA Text',
+    'description' => 'Button text for the call-to-action.',
+  ])->save();
+
+  // field_cta_url
+  FieldStorageConfig::create([
+    'field_name' => 'field_cta_url',
+    'entity_type' => 'node',
+    'type' => 'link',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_cta_url',
+    'entity_type' => 'node',
+    'bundle' => 'site_page',
+    'label' => 'CTA URL',
+    'description' => 'The link destination for the call-to-action.',
+  ])->save();
+
+  // field_icon
+  FieldStorageConfig::create([
+    'field_name' => 'field_icon',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_icon',
+    'entity_type' => 'node',
+    'bundle' => 'site_page',
+    'label' => 'Icon',
+    'description' => 'Icon class, SVG name, or emoji.',
+  ])->save();
+
+  // field_sort_order
+  FieldStorageConfig::create([
+    'field_name' => 'field_sort_order',
+    'entity_type' => 'node',
+    'type' => 'integer',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_sort_order',
+    'entity_type' => 'node',
+    'bundle' => 'site_page',
+    'label' => 'Sort Order',
+    'description' => 'Display ordering (lower = first).',
+  ])->save();
+}
+
+/**
+ * Creates the ai_capability content type and fields.
+ */
+function _heady_content_create_ai_capability_type() {
+  $type = NodeType::create([
+    'type' => 'ai_capability',
+    'name' => 'AI Capability',
+    'description' => 'Describes an AI capability or service in the Heady Intelligence Stack.',
+    'display_submitted' => FALSE,
+  ]);
+  $type->save();
+
+  // Reuse field_site from site_page (already created as storage)
+  FieldConfig::create([
+    'field_name' => 'field_site',
+    'entity_type' => 'node',
+    'bundle' => 'ai_capability',
+    'label' => 'Service',
+    'description' => 'Which Heady service provides this capability.',
+    'required' => TRUE,
+    'settings' => [
+      'handler' => 'default:taxonomy_term',
+      'handler_settings' => [
+        'target_bundles' => ['heady_sites' => 'heady_sites'],
+      ],
+    ],
+  ])->save();
+
+  // field_capability_name
+  FieldStorageConfig::create([
+    'field_name' => 'field_capability_name',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_capability_name',
+    'entity_type' => 'node',
+    'bundle' => 'ai_capability',
+    'label' => 'Capability Name',
+    'description' => 'e.g. Vector Memory, Code Intelligence, Vision Analysis',
+    'required' => TRUE,
+  ])->save();
+
+  // field_endpoint
+  FieldStorageConfig::create([
+    'field_name' => 'field_endpoint',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_endpoint',
+    'entity_type' => 'node',
+    'bundle' => 'ai_capability',
+    'label' => 'API Endpoint',
+    'description' => 'The endpoint URL for this capability.',
+  ])->save();
+
+  // field_status
+  FieldStorageConfig::create([
+    'field_name' => 'field_capability_status',
+    'entity_type' => 'node',
+    'type' => 'list_string',
+    'cardinality' => 1,
+    'settings' => [
+      'allowed_values' => [
+        'active' => 'Active',
+        'beta' => 'Beta',
+        'planned' => 'Planned',
+        'deprecated' => 'Deprecated',
+      ],
+    ],
+  ])->save();
+
+  FieldConfig::create([
+    'field_name' => 'field_capability_status',
+    'entity_type' => 'node',
+    'bundle' => 'ai_capability',
+    'label' => 'Status',
+    'default_value' => [['value' => 'active']],
+  ])->save();
+}

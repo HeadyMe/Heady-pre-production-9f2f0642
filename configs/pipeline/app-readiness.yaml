@@ -1,0 +1,149 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/app-readiness.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+#
+# App Readiness Probes - Business-level health checks for all apps and websites.
+
+version: "2.0.0"
+
+# ─── READINESS PROBES ────────────────────────────────────────────────────
+probes:
+  - name: heady-manager-api
+    type: http
+    url: https://api.headysystems.com/api/health
+    method: GET
+    expectedStatus: 200
+    expectedBody: { contains: "ok" }
+    maxLatencyMs: 2000
+    interval: 60
+    criticality: critical
+
+  - name: heady-manager-pulse
+    type: http
+    url: https://api.headysystems.com/api/pulse
+    method: GET
+    expectedStatus: 200
+    maxLatencyMs: 2000
+    interval: 60
+    criticality: high
+
+  - name: heady-frontend
+    type: http
+    url: https://app.headysystems.com/
+    method: GET
+    expectedStatus: 200
+    expectedBody: { contains: "Heady" }
+    maxLatencyMs: 3000
+    interval: 300
+    criticality: high
+
+  - name: heady-admin
+    type: http
+    url: https://api.headysystems.com/api/registry
+    method: GET
+    expectedStatus: 200
+    maxLatencyMs: 3000
+    interval: 300
+    criticality: medium
+
+  - name: postgres-connection
+    type: connection
+    connectionVar: DATABASE_URL
+    maxLatencyMs: 5000
+    interval: 120
+    criticality: low
+
+  - name: render-deployment
+    type: http
+    url: https://app.headysystems.com/api/health
+    method: GET
+    expectedStatus: 200
+    maxLatencyMs: 10000
+    interval: 300
+    criticality: high
+
+  - name: headybuddy-api
+    type: http
+    url: https://api.headysystems.com/api/buddy/health
+    method: GET
+    expectedStatus: 200
+    expectedBody: { contains: "headybuddy" }
+    maxLatencyMs: 2000
+    interval: 60
+    criticality: high
+
+  - name: headybuddy-widget
+    type: http
+    url: https://buddy.headysystems.com
+    method: GET
+    expectedStatus: 200
+    maxLatencyMs: 3000
+    interval: 300
+    criticality: medium
+
+  - name: headybuddy-suggestions
+    type: http
+    url: https://api.headysystems.com/api/buddy/suggestions
+    method: GET
+    expectedStatus: 200
+    maxLatencyMs: 2000
+    interval: 120
+    criticality: low
+
+# ─── READINESS SCORING ───────────────────────────────────────────────────
+scoring:
+  description: >
+    Operational Readiness Score (ORS) 0-100, computed at each checkpoint.
+  weights:
+    critical_probes: 40   # % weight for critical probes passing
+    high_probes: 20       # % weight for high probes passing
+    medium_probes: 10     # % weight for medium probes passing
+    error_budget: 15      # % weight for error budget remaining
+    config_alignment: 15  # % weight for config hash alignment
+
+  thresholds:
+    buildAggressively: 85
+    normalOperation: 70
+    maintenanceMode: 50
+    recoveryMode: 0
+
+  actions:
+    above85: "Full parallelism, new optimizations allowed, aggressive building"
+    70to85: "Normal operation, standard parallelism"
+    50to70: "Maintenance mode, reduced load, no new large builds"
+    below50: "Recovery mode, repair only, escalate to owner"
+
+# ─── ALERT CONFIGURATION ────────────────────────────────────────────────
+alerts:
+  - name: critical-probe-failure
+    condition: "Any critical probe fails for 2 consecutive checks"
+    action: enter_recovery
+    notify: checkpoint-email
+
+  - name: readiness-degraded
+    condition: "ORS drops below 70"
+    action: reduce_parallelism
+    notify: checkpoint-email
+
+  - name: readiness-critical
+    condition: "ORS drops below 50"
+    action: enter_recovery
+    notify: checkpoint-email-urgent
+
+  - name: all-probes-healthy
+    condition: "ORS above 85 after recovery"
+    action: resume_normal
+    notify: checkpoint-email

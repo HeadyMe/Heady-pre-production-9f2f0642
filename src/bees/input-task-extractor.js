@@ -9,6 +9,7 @@
  */
 
 const { createBee, spawnBee } = require('./bee-factory');
+const logger = require('../utils/logger').child('input-task-extractor');
 
 const ENTERPRISE_TASK_PATTERNS = [
     {
@@ -39,7 +40,7 @@ const inputTaskExtractor = createBee('input-task-extractor', {
             const input = ctx.input || ctx.text || '';
             if (!input) return { tasks: [], error: 'No input provided' };
 
-            console.log(`🐝 input-task-extractor: scanning ${input.length} chars`);
+            logger.info(`scanning ${input.length} chars`);
 
             const tasks = [];
             const lines = input.split('\n');
@@ -111,7 +112,7 @@ const inputTaskExtractor = createBee('input-task-extractor', {
                 impact: classifyImpact(task.text),
             }));
 
-            console.log(`🐝 input-task-extractor: found ${deduped.length} tasks`);
+            logger.info(`found ${deduped.length} tasks`);
             return { tasks: deduped, inputLength: input.length };
         }
     }, {
@@ -124,7 +125,7 @@ const inputTaskExtractor = createBee('input-task-extractor', {
             for (const task of tasks) {
                 const bee = spawnBee(`task-${task.category}-${Date.now()}`,
                     async () => {
-                        console.log(`🐝 Executing: ${task.text}`);
+                        logger.info(`Executing: ${task.text}`);
                         return { task: task.text, status: 'ready' };
                     },
                     task.priority
@@ -132,7 +133,7 @@ const inputTaskExtractor = createBee('input-task-extractor', {
                 bees.push({ task: task.text, beeId: bee.id });
             }
 
-            console.log(`🐝 input-task-extractor: spawned ${bees.length} task bees`);
+            logger.info(`spawned ${bees.length} task bees`);
             return { bees };
         }
     }],
@@ -271,6 +272,6 @@ module.exports = {
 // Auto-extract on load
 const extracted = extractFromStrategicReport();
 if (extracted.tasks.length > 0) {
-    console.log(`  🐝 Extracted ${extracted.tasks.length} tasks from strategic report:`);
-    extracted.tasks.forEach((t, i) => console.log(`     ${i + 1}. [${t.category}] ${t.text.slice(0, 80)}...`));
+    logger.info(`Extracted ${extracted.tasks.length} tasks from strategic report:`);
+    extracted.tasks.forEach((t, i) => logger.info(`  ${i + 1}. [${t.category}] ${t.text.slice(0, 80)}...`));
 }

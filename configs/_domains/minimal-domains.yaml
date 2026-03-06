@@ -1,0 +1,163 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/minimal-domains.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  HEADY SYSTEMS — MINIMAL ESSENTIAL DOMAINS                                     ║
+# ║  Only What Actually Runs • Cancelled Everything Else                          ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ESSENTIAL ONLY — THESE ACTUALLY EXIST AND RUN
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# CORE (2) — MUST HAVE
+core:
+  heady-manager:
+    domain: manager.headysystems.com
+    port: 3300
+    status: running
+    required: true
+    
+  heady-buddy:
+    domain: buddy.headysystems.com
+    port: 5174
+    status: planned
+    required: true
+
+# DATA (3) — MUST HAVE
+data:
+  postgres:
+    domain: db.headysystems.com
+    port: 5432
+    required: true
+    
+  redis-cache:
+    domain: cache.headysystems.com
+    port: 6379
+    required: true
+    
+  redis-pubsub:
+    domain: pubsub.headysystems.com
+    port: 6380
+    required: false  # Optional
+
+# FRONTEND (1) — MUST HAVE
+frontend:
+  web:
+    domain: app.headysystems.com
+    port: 5173
+    required: true
+
+# OBSERVABILITY (1) — COMBINED
+observability:
+  domain: metrics.headysystems.com
+  port: 9090
+  required: false  # Optional but recommended
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CANCELLED — THESE DOMAINS REMOVED
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ❌ AI NODES (CANCELLED — Not actually running as separate services)
+#    - jules.headysystems.com
+#    - observer.headysystems.com
+#    - builder.headysystems.com
+#    - atlas.headysystems.com
+#    - pythia.headysystems.com
+#
+# ❌ INTELLIGENCE SUBSYSTEMS (CANCELLED — In code, not separate domains)
+#    - intelligence.headysystems.com
+#    - mc.headysystems.com
+#    - patterns.headysystems.com
+#    - critique.headysystems.com
+#    - imagine.headysystems.com
+#    - stories.headysystems.com
+#
+# ❌ BROWSERS (CANCELLED — Extensions, not domains)
+#    - chrome.headysystems.com
+#    - firefox.headysystems.com
+#    - edge.headysystems.com
+#    - safari.headysystems.com
+#    - browser.headysystems.com
+#
+# ❌ IDES (CANCELLED — Extensions, not domains)
+#    - vscode.headysystems.com
+#    - jetbrains.headysystems.com
+#    - neovim.headysystems.com
+#    - sublime.headysystems.com
+#    - emacs.headysystems.com
+#    - ide.headysystems.com
+#
+# ❌ INTEGRATIONS (CANCELLED — External APIs, not local domains)
+#    - slack.headysystems.com
+#    - discord.headysystems.com
+#    - teams.headysystems.com
+#    - mail.headysystems.com
+#    - calendar.headysystems.com
+#    - github.headysystems.com
+#    - notion.headysystems.com
+#    - connect.headysystems.com
+#
+# ❌ MCP SERVERS (CANCELLED — In code, not separate domains yet)
+#    - mcp.headysystems.com
+#    - fs.headysystems.com
+#    - shell.headysystems.com
+#    - browser.mcp.headysystems.com
+#    - search.headysystems.com
+#    - tools.headysystems.com
+#
+# ❌ BUSINESS (CANCELLED — Not running as service yet)
+#    - billing.headysystems.com
+#    - telemetry.headysystems.com
+#    - business.headysystems.com
+#
+# ❌ HEADYOS (CANCELLED — Build targets, not running services)
+#    - os-docker.headysystems.com
+#    - os-metal.headysystems.com
+#    - os-linux.headysystems.com
+#    - os-android.headysystems.com
+#    - os-embedded.headysystems.com
+#
+# ❌ SECURITY (CANCELLED — In code, not separate service)
+#    - secrets.headysystems.com
+#    - vault.headysystems.com
+#    - cloudflare.headysystems.com
+#
+# ❌ DISCOVERY (CANCELLED — Not running yet)
+#    - registry.headysystems.com
+#    - dns.headysystems.com
+#    - discovery.headysystems.com
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# TOTAL: 7 ESSENTIAL DOMAINS (Down from 50+)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Hosts file entries (minimal)
+hosts_entries: |
+  # ═══ CORE ═══
+  manager.headysystems.com
+  buddy.headysystems.com
+  
+  # ═══ DATA ═══
+  db.headysystems.com
+  cache.headysystems.com
+  pubsub.headysystems.com
+  
+  # ═══ FRONTEND ═══
+  app.headysystems.com
+  
+  # ═══ OBSERVABILITY (optional) ═══
+  metrics.headysystems.com
+

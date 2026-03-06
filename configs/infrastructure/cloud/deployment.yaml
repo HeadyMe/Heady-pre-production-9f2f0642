@@ -1,0 +1,57 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/deployment.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Auto-Deployment Configuration
+
+strategies:
+  fast_parallel:
+    max_parallel: 8
+    timeout: 300
+    retries: 2
+    
+  balanced:
+    max_parallel: 4
+    timeout: 600
+    retries: 3
+    
+  thorough:
+    max_parallel: 2
+    timeout: 900
+    retries: 5
+
+auto_mode:
+  enabled: true
+  default_strategy: balanced
+  selection_weights:
+    speed: 0.5
+    reliability: 0.3
+    cost: 0.2
+  
+monitoring:
+  health_check_interval: 30
+  performance_sample_size: 100
+  
+services:
+  claude:
+    deployment_group: ai_services
+    critical: true
+  
+  codex:
+    deployment_group: ai_services
+    critical: false
+  
+  gemini:
+    deployment_group: ai_services
+    critical: false

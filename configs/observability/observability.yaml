@@ -1,0 +1,400 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/observability.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Heady Observability & Alerting System
+# Production-style monitoring with actionable alerts
+# "Alert me when I need to do something"
+
+observability_stack:
+  metrics: prometheus
+  logs: loki
+  traces: jaeger
+  dashboard: grafana
+  alerting: alertmanager
+
+# Alert Configuration - Only actionable alerts
+alerts:
+  # Critical Alerts - Page immediately
+  critical:
+    - name: HeadyManagerDown
+      condition: up{job="heady-manager"} == 0
+      duration: 1m
+      severity: critical
+      summary: "Heady Manager is DOWN"
+      description: "The main Heady orchestrator is not responding on {{ $labels.instance }}"
+      runbook_url: https://docs.headyio.com/runbooks/manager-down
+      
+    - name: DatabaseConnectionFailed
+      condition: pg_up == 0
+      duration: 2m
+      severity: critical
+      summary: "PostgreSQL connection failed"
+      description: "Cannot connect to database at {{ $labels.instance }}"
+      
+    - name: HighErrorRate
+      condition: |
+        (
+          sum(rate(http_requests_total{status=~"5.."}[5m])) 
+          / 
+          sum(rate(http_requests_total[5m]))
+        ) > 0.05
+      duration: 3m
+      severity: critical
+      summary: "High error rate detected"
+      description: "Error rate is {{ $value | humanizePercentage }} - above 5% threshold"
+      
+  # Warning Alerts - Notify but don't page
+  warning:
+    - name: HighLatency
+      condition: |
+        histogram_quantile(0.95, 
+          sum(rate(http_request_duration_seconds_bucket[5m])) by (le)
+        ) > 2
+      duration: 5m
+      severity: warning
+      summary: "High API latency"
+      description: "95th percentile latency is {{ $value }}s"
+      
+    - name: DiskSpaceLow
+      condition: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.2
+      duration: 10m
+      severity: warning
+      summary: "Low disk space"
+      description: "Disk is {{ $value | humanizePercentage }} full on {{ $labels.device }}"
+      action: "Clean up logs or expand storage"
+      
+    - name: MemoryHigh
+      condition: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.15
+      duration: 5m
+      severity: warning
+      summary: "High memory usage"
+      description: "Only {{ $value | humanizePercentage }} memory available"
+      action: "Check for memory leaks or restart services"
+      
+    - name: BuildFailed
+      condition: heady_build_success == 0
+      duration: 0m  # Immediate
+      severity: warning
+      summary: "HCFP Clean Build Failed"
+      description: "Build failed for commit {{ $labels.commit }}"
+      action: "Review build logs and fix errors"
+      
+  # Info Alerts - Log only, no notification
+  info:
+    - name: DeploymentComplete
+      condition: heady_deployment_status == 1
+      severity: info
+      summary: "Deployment successful"
+      
+    - name: api.headysystems.comReferenceFound
+      condition: heady_api.headysystems.com_ref_count > 0
+      severity: info
+      summary: "api.headysystems.com references detected in code"
+      description: "Found {{ $value }} api.headysystems.com references - migration needed"
+
+# Notification Channels
+notifications:
+  # Primary - Slack for most alerts
+  slack:
+    webhook: ${{ secrets.SLACK_ALERTS_WEBHOOK }}
+    channel: "#heady-alerts"
+    username: "HeadyBot"
+    emoji: ":warning:"
+    
+    routing:
+      critical: "@channel"  # Mention everyone
+      warning: ""
+      info: ""
+      
+  # Secondary - Email for critical only
+  email:
+    smtp_server: smtp.headyio.com
+    from: alerts@headyio.com
+    to:
+      - devops@headyio.com
+      - oncall@headyio.com
+    
+    routing:
+      critical: immediate
+      warning: digest_hourly
+      info: never
+      
+  # Mobile - Push notifications
+  push:
+    provider: pushover  # or: pushbullet, onesignal
+    api_key: ${{ secrets.PUSHOVER_API_KEY }}
+    user_key: ${{ secrets.PUSHOVER_USER_KEY }}
+    
+    routing:
+      critical: high_priority
+      warning: normal
+      info: none
+      
+  # SMS - Only for critical
+  sms:
+    provider: twilio
+    account_sid: ${{ secrets.TWILIO_ACCOUNT_SID }}
+    auth_token: ${{ secrets.TWILIO_AUTH_TOKEN }}
+    from_number: "+1HEADYALERT"
+    to_numbers:
+      - "${{ secrets.ONCALL_PHONE }}"
+    
+    routing:
+      critical: true
+      warning: false
+      info: false
+
+# Device Health Monitoring
+device_monitoring:
+  enabled: true
+  check_interval: 60s
+  
+  metrics:
+    - name: device_online
+      check: ping or http health endpoint
+      
+    - name: disk_usage
+      warning: 80%
+      critical: 90%
+      
+    - name: memory_usage
+      warning: 85%
+      critical: 95%
+      
+    - name: cpu_usage
+      warning: 80% sustained
+      critical: 95% sustained
+      
+    - name: battery_level
+      warning: 20%
+      critical: 10%
+      
+    - name: sync_status
+      check: last successful sync timestamp
+      warning: "> 1 hour ago"
+      critical: "> 4 hours ago"
+      
+  alerts:
+    - name: DeviceOffline
+      condition: device_online == 0
+      duration: 5m
+      severity: warning
+      action: "Check device connectivity or power"
+      
+    - name: SyncFailed
+      condition: sync_status == "failed"
+      severity: warning
+      action: "Check network and retry sync"
+
+# Build Pipeline Monitoring
+build_monitoring:
+  metrics:
+    - name: build_duration_seconds
+      type: histogram
+      labels:
+        - component
+        - success
+        
+    - name: build_success
+      type: gauge
+      values: 0 or 1
+      
+    - name: test_pass_rate
+      type: gauge
+      range: 0-1
+      
+    - name: api.headysystems.com_refs_found
+      type: gauge
+      help: "Number of api.headysystems.com references in codebase"
+      
+  alerts:
+    - name: BuildDurationHigh
+      condition: build_duration_seconds > 600  # 10 minutes
+      severity: warning
+      action: "Optimize build process or parallelize"
+      
+    - name: TestPassRateLow
+      condition: test_pass_rate < 0.9
+      severity: critical
+      action: "Fix failing tests before deploying"
+      
+    - name: api.headysystems.comRefsIncreasing
+      condition: |
+        increase(heady_api.headysystems.com_ref_count[1h]) > 0
+      severity: warning
+      action: "Remove new api.headysystems.com references - use service domains"
+
+# Service Discovery Health
+discovery_monitoring:
+  metrics:
+    - name: service_registered
+      type: gauge
+      labels: [service_name, domain]
+      
+    - name: dns_resolution_time_ms
+      type: histogram
+      
+    - name: service_health_check_passed
+      type: gauge
+      
+  alerts:
+    - name: ServiceNotRegistered
+      condition: service_registered == 0
+      duration: 2m
+      severity: warning
+      action: "Check service discovery registration"
+      
+    - name: DNSResolutionSlow
+      condition: dns_resolution_time_ms > 100
+      duration: 5m
+      severity: warning
+      action: "Check DNS configuration or caching"
+
+# Extension Management Monitoring
+extension_monitoring:
+  metrics:
+    - name: extension_install_success
+      type: gauge
+      labels: [browser, extension_id, device]
+      
+    - name: extension_version
+      type: gauge
+      labels: [browser, extension_id, version]
+      
+    - name: extension_sync_status
+      type: gauge
+      
+  alerts:
+    - name: ExtensionInstallFailed
+      condition: extension_install_success == 0
+      severity: warning
+      action: "Check extension manifest and permissions"
+      
+    - name: ExtensionVersionMismatch
+      condition: |
+        count by (extension_id) (
+          count by (extension_id, version) (extension_version)
+        ) > 1
+      severity: info
+      action: "Update extensions to latest version"
+
+# Alert Suppression & Routing
+alert_routing:
+  # Time-based suppression
+  business_hours_only:
+    - alert: BuildFailed
+      timezone: America/Los_Angeles
+      active_hours: "09:00-18:00"
+      
+  # Maintenance windows
+  maintenance_suppression:
+    - window: "Sunday 02:00-04:00 UTC"
+      alerts: ["*"]  # Suppress all
+      
+  # Alert grouping
+  grouping:
+    - name: build_issues
+      alerts:
+        - BuildFailed
+        - BuildDurationHigh
+        - TestPassRateLow
+      group_wait: 30s
+      group_interval: 5m
+      
+    - name: infrastructure
+      alerts:
+        - HeadyManagerDown
+        - DatabaseConnectionFailed
+        - HighErrorRate
+      group_wait: 10s
+      group_interval: 1m
+
+# Self-Healing Actions
+auto_remediation:
+  enabled: true
+  
+  actions:
+    - trigger: HeadyManagerDown
+      action: restart_service
+      service: heady-manager
+      max_attempts: 3
+      cooldown: 5m
+      
+    - trigger: HighMemoryUsage
+      action: restart_service
+      service: heady-manager
+      max_attempts: 1
+      cooldown: 10m
+      
+    - trigger: DiskSpaceLow
+      action: exec_script
+      script: "scripts/cleanup-logs.sh"
+      max_attempts: 1
+      
+    - trigger: ExtensionInstallFailed
+      action: retry_install
+      max_attempts: 3
+      delay: 30s
+
+# Dashboard Configuration
+dashboards:
+  - name: "Heady System Overview"
+    url: https://grafana.headyio.com/d/system-overview
+    refresh: 30s
+    
+  - name: "Build Pipeline"
+    url: https://grafana.headyio.com/d/build-pipeline
+    refresh: 10s
+    
+  - name: "Device Fleet Health"
+    url: https://grafana.headyio.com/d/device-fleet
+    refresh: 60s
+    
+  - name: "Service Discovery Map"
+    url: https://grafana.headyio.com/d/service-map
+    refresh: 5s
+    
+  - name: "Extension Rollout Status"
+    url: https://grafana.headyio.com/d/extensions
+    refresh: 5m
+
+# Alert Acknowledgment & Tracking
+alert_management:
+  require_acknowledgment: true
+  auto_resolve: true
+  
+  escalation:
+    - level: 1
+      after: 0m
+      notify: [slack, email]
+      
+    - level: 2
+      after: 15m
+      notify: [push, email]
+      
+    - level: 3
+      after: 30m
+      notify: [sms]
+      
+  tracking:
+    incident_tracking: pagerduty  # or: opsgenie, victorops
+    post_mortem_required: true
+    blameless: true
+    
+  metrics:
+    - mttr  # Mean Time To Recovery
+    - mtbf  # Mean Time Between Failures
+    - alert_frequency
+    - false_positive_rate

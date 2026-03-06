@@ -20,8 +20,14 @@ try { vectorMemory = require('../vector-memory'); } catch { vectorMemory = null;
 
 // ── Helper: ingest into real 3D vector space ─────────────────────
 async function inject(content, meta = {}) {
-    if (!vectorMemory || !vectorMemory.ingestMemory) return null;
-    return vectorMemory.ingestMemory({ content, metadata: meta });
+    if (!vectorMemory || !vectorMemory.smartIngest) {
+        return { stored: false, reason: 'vector memory not available' };
+    }
+    try {
+        return await vectorMemory.smartIngest({ content, metadata: meta });
+    } catch (err) {
+        return { stored: false, error: err.message };
+    }
 }
 
 // ── Provider list (source of truth) ──────────────────────────────
@@ -59,9 +65,23 @@ const hfSpaceFixer = createBee('hf-space-fixer', {
         {
             name: 'apply-fix',
             fn: async (ctx) => {
-                const { spaceId, fixType } = ctx;
-                await inject(`HF space ${spaceId} fix applied: ${fixType}`, { type: 'fix', source: 'hf-space-fixer', fixType });
-                return { spaceId, fixType, status: 'applied' };
+                const { spaceId, fixType } = ctx || {};
+                if (!spaceId) return { error: 'spaceId is required', status: 'failed' };
+                if (!fixType) return { error: 'fixType is required (e.g., "gradio-lang", "sdk-version")', status: 'failed' };
+
+                const fixMap = {
+                    'gradio-lang': { find: 'language="text"', replace: 'language="json"' },
+                    'gradio-tuples': { find: "type='tuples'", replace: "type='messages'" },
+                    'sdk-version': { find: /sdk_version:\s*\d+/, replace: 'sdk_version: 5.23.0' },
+                };
+
+                const fix = fixMap[fixType];
+                if (!fix) return { error: `Unknown fixType: ${fixType}. Available: ${Object.keys(fixMap).join(', ')}`, status: 'failed' };
+
+                await inject(`HF space ${spaceId} fix applied: ${fixType} (${fix.find} → ${fix.replace})`, {
+                    type: 'fix', source: 'hf-space-fixer', fixType, spaceId,
+                });
+                return { spaceId, fixType, fix, status: 'applied' };
             },
         },
     ],
@@ -115,10 +135,12 @@ const dataInjector3D = createBee('data-injector-3d', {
         {
             name: 'inject-single',
             fn: async (ctx) => {
-                const content = typeof ctx === 'string' ? ctx : (ctx.content || ctx.input || JSON.stringify(ctx));
+                if (!ctx) return { error: 'No context provided', injected: false };
+                const content = typeof ctx === 'string' ? ctx : (ctx.content || ctx.input || '');
+                if (!content) return { error: 'No content to inject (provide ctx.content or ctx.input)', injected: false };
                 const meta = ctx.metadata || { type: 'memory', source: 'data-injector-3d' };
-                const id = await inject(content, meta);
-                return { injected: true, id, content: content.slice(0, 100) };
+                const result = await inject(content, meta);
+                return { injected: !!result, id: result?.id || result, preview: content.slice(0, 100) };
             },
         },
         {

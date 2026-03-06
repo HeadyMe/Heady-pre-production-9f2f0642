@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ * Heady Admin module — theme hook definitions.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function heady_admin_theme() {
+  return [
+    'heady_admin_dashboard' => [
+      'variables' => [
+        'stats' => [],
+        'services' => [],
+        'ecosystem' => [],
+        'current_user' => '',
+        'user_roles' => [],
+      ],
+      'template' => 'heady-admin-dashboard',
+    ],
+    'heady_admin_services' => [
+      'variables' => [
+        'services' => [],
+        'ecosystem' => [],
+      ],
+      'template' => 'heady-admin-services',
+    ],
+    'heady_admin_hcfp' => [
+      'variables' => [
+        'hcfp' => [],
+      ],
+      'template' => 'heady-admin-hcfp',
+    ],
+    'heady_admin_headylens' => [
+      'variables' => [
+        'websocket_url' => '',
+        'api_url' => '',
+      ],
+      'template' => 'heady-admin-headylens',
+    ],
+    'heady_admin_customize' => [
+      'variables' => [
+        'current_theme' => [],
+      ],
+      'template' => 'heady-admin-customize',
+    ],
+    'heady_admin_access' => [
+      'variables' => [
+        'users' => [],
+        'roles' => [],
+      ],
+      'template' => 'heady-admin-access',
+    ],
+    'heady_admin_settings' => [
+      'variables' => [
+        'config' => [],
+      ],
+      'template' => 'heady-admin-settings',
+    ],
+    'heady_admin_tunnels' => [
+      'variables' => [
+        'tunnels' => [],
+      ],
+      'template' => 'heady-admin-tunnels',
+    ],
+    'heady_admin_domains' => [
+      'variables' => [
+        'domains' => [],
+      ],
+      'template' => 'heady-admin-domains',
+    ],
+  ];
+}

@@ -1,0 +1,10 @@
+name: 'Heady Tasks'
+type: module
+description: 'Headless task management for HeadyBuddy AI companion. Exposes tasks via JSON:API for browser extension integration.'
+core_version_requirement: ^10 || ^11
+package: Heady
+dependencies:
+  - drupal:jsonapi
+  - drupal:node
+  - drupal:rest
+configure: entity.node_type.edit_form.task

@@ -1,0 +1,126 @@
+<div class="heady-dashboard" id="heady-dashboard">
+  <header class="dashboard-header">
+    <h1>Heady Systems Control Center</h1>
+    <div class="real-time-indicator">
+      <span class="pulse"></span> Live Monitoring
+    </div>
+    <div class="last-update">
+      Last updated: <span id="last-update">{{ "now"|date("H:i:s") }}</span>
+    </div>
+  </header>
+
+  <section class="services-grid">
+    <h2>Core Services</h2>
+    <div class="grid">
+      {% for name, service in services %}
+        <div class="service-card {{ service.online ? 'online' : 'offline' }}">
+          <h3>{{ name }}</h3>
+          <div class="status-badge">
+            {{ service.online ? '✓ Online' : '✗ Offline' }}
+          </div>
+          {% if service.online %}
+            <p>Version: {{ service.version }}</p>
+            <p>Response: {{ service.response_time }}ms</p>
+            <p>Status: {{ service.status }}</p>
+          {% else %}
+            <p class="error">{{ service.error }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="domains-grid">
+    <h2>Domain Status</h2>
+    <div class="grid">
+      {% for domain, status in domains %}
+        <div class="domain-card {{ status.online ? 'online' : 'offline' }}">
+          <h3>{{ domain }}</h3>
+          <div class="status-badge">
+            {{ status.online ? '✓ Online' : '✗ Offline' }}
+          </div>
+          {% if status.online %}
+            <p>SSL: {{ status.ssl ? 'Valid' : 'Invalid' }}</p>
+            <p>Response: {{ status.response_time }}ms</p>
+            <p>Code: {{ status.status_code }}</p>
+            <div class="actions">
+              <button onclick="window.open('https://{{ domain }}', '_blank')">
+                Open Site
+              </button>
+              <button onclick="triggerDeploy('{{ domain }}')">
+                Deploy Now
+              </button>
+            </div>
+          {% else %}
+            <p class="error">{{ status.error }}</p>
+            <div class="actions">
+              <button onclick="debugDomain('{{ domain }}')">
+                Troubleshoot
+              </button>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="pipeline-status">
+    <h2>HCFullPipeline Status</h2>
+    <div class="pipeline-visualization">
+      {% if pipelines.error %}
+        <p class="error">{{ pipelines.error }}</p>
+      {% else %}
+        <div class="stages">
+          {% for stage in pipelines.stages %}
+            <div class="stage {{ stage.status }}">
+              <h4>Stage {{ stage.number }}: {{ stage.name }}</h4>
+              <p>Status: {{ stage.status }}</p>
+              <p>Duration: {{ stage.duration }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="warp-status">
+    <h2>WARP Network Status</h2>
+    <div id="warp-dashboard">
+      <div class="warp-loading">Loading WARP status...</div>
+    </div>
+  </section>
+
+  <section class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <button onclick="runFullSync()">🔄 Full System Sync</button>
+      <button onclick="triggerCleanBuild()">🔨 Clean Build All</button>
+      <button onclick="restartServices()">🔄 Restart Services</button>
+      <button onclick="viewLogs()">📋 View Logs</button>
+      <button onclick="runHealthCheck()">🏥 Health Check</button>
+      <button onclick="deployAll()">🚀 Deploy All Domains</button>
+      <button onclick="refreshDashboard()">🔄 Refresh Dashboard</button>
+      <button onclick="toggleAutoRefresh()">⏱️ Auto Refresh: <span id="auto-refresh-status">ON</span></button>
+    </div>
+  </section>
+
+  <section class="heady-buddy-control">
+    <h2>HeadyBuddy Control</h2>
+    <div class="buddy-panel">
+      <div class="sync-status">
+        <h3>Cross-Device Sync</h3>
+        <p>Active Sessions: <span id="active-sessions">0</span></p>
+        <p>Last Sync: <span id="last-sync">Never</span></p>
+        <p>Devices Connected: <span id="devices-count">0</span></p>
+      </div>
+      <div class="buddy-actions">
+        <button onclick="forceBuddySync()">Force Sync</button>
+        <button onclick="clearBuddyCache()">Clear Cache</button>
+        <button onclick="testBuddyConnection()">Test Connection</button>
+        <button onclick="viewBuddyLogs()">View Buddy Logs</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="notifications" class="notifications"></div>
+</div>

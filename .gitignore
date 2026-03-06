@@ -136,3 +136,6 @@ docker-compose.*.local.yml
 # Vector Vault encrypted secrets (NEVER commit)
 data/vector-secrets-vault.enc
 data/secrets-audit.jsonl
+
+# Vault seed contains credentials — NEVER commit
+scripts/vault-seed.js

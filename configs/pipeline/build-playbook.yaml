@@ -1,0 +1,124 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/build-playbook.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔═══════════════════════════════════════════════════════════════╗
+# ║  HEADY SYSTEMS                                                 ║
+# ║  ━━━━━━━━━━━━━━                                                ║
+# ║  ∞ Sacred Geometry Architecture ∞                              ║
+# ║                                                                ║
+# ║  build-playbook.yaml - Build Apps Perfect First Time           ║
+# ╚═══════════════════════════════════════════════════════════════╝
+
+version: "1.0.0"
+
+mindset:
+  definition: >
+    Perfection is an engineered process, not lucky code.
+    Design process, patterns, and tools so mistakes are caught early,
+    low-impact when they appear, and easy to locate and repair.
+  targets:
+    - zeroCriticalBugsInCoreFlows
+    - securityAndPrivacyByDefault
+    - clearPredictableBehaviorInEdgeCases
+    - fastPathToFixAnything
+
+stage0_define:
+  name: Define Perfect Up Front
+  artifacts: [SUCCESS_CRITERIA.md]
+  mustAnswer:
+    - What are the must-work flows?
+    - What are the non-negotiable constraints?
+    - What is the error budget?
+  HeadyBattleQuestions:
+    - What happens if the network is slow?
+    - What happens if a user does X in the wrong order?
+    - What are the worst-case security/privacy failures?
+
+stage1_specFirst:
+  name: Spec-First Pattern-First Design
+  functionalSpec:
+    contents: [actors, useCases, primaryUserJourneys, inputsOutputsStateChanges, dataModel]
+  architecturePatterns:
+    backend: [microservice, modularMonolith, restApi, graphql, eventDriven]
+    frontend: [viewStateManagement, navigation, errorHandling]
+  explicitConstraints:
+    examples: [noLongRunningOpsOnMainThread, maxResponseTimeMs, maxPayloadSizeKb]
+
+stage2_contracts:
+  name: Contract-Driven and Type-Driven Design
+  contractTypes:
+    - apiContracts
+    - domainContracts
+    - uiContracts
+  tools: [typeDefinitionGeneration, mockServerGeneration, testDataGeneration]
+
+stage3_agenticLoops:
+  name: Agentic Coding Loops
+  loop: Plan -> Implement -> Test -> Review -> Refine
+  planningLoop:
+    agent: planner
+    actions: [breakFeaturesIntoTasks, mapToPatterns, storePlanObject]
+  implementationLoop:
+    agent: implementer
+    rules: [keepChangesSmallAndCohesive, useExistingPatterns, noRandomNewPatterns]
+  testingLoop:
+    agent: test_writer
+    actions: [generateTests, runTests, parseFailures, proposeFixesAutomatically]
+  reviewLoop:
+    agents: [evaluator, human]
+    checks: [performanceIssues, securityPitfalls, missingEdgeCaseHandling]
+
+stage4_errorHandling:
+  name: Error Handling and Failure Mode Design
+  errorInventory:
+    perFlow: [networkIssues, apiTimeouts, invalidData, userMistakes, serverErrors]
+  patterns: [retryWithBackoff, circuitBreakers, gracefulDegradation, fallbackUI, cachedData]
+  userFacingBehavior: [clearNonTechnicalMessages, nextStepGuidance, neverFailSilently]
+
+stage5_security:
+  name: Security Privacy and Compliance By Default
+  securePatterns: [authenticationOAuthOIDC, authorizationRBACOrABAC, secretsManagement, inputValidation]
+  threatModeling:
+    steps: [identifyAssets, identifyAttacks, mapMitigations, addTestsAndMonitoring]
+
+stage6_performance:
+  name: Performance and Resource Correctness
+  budgets:
+    maxResponseTimeMs: 200
+    maxMemoryUsageMb: 512
+  optimization: [lazyLoadNonCriticalModules, efficientDataStructures, monitorAndFixNPlus1]
+
+stage7_preLaunch:
+  name: Pre-Launch Rehearsal and Shadow Run
+  endToEndRunthrough:
+    guide: HeadyBuddy
+    actions: [walkEachCriticalJourney, logAndVerifySteps, matchSuccessCriteria]
+  launchChecklist:
+    - securityChecklistComplete
+    - observabilityAndAlertingConfigured
+    - rollbackAndIncidentPatternsInPlace
+
+postLaunch:
+  name: Perfection Through Fast Repair
+  monitoring: [crashReports, logs, metrics, userFeedback]
+  automatedTriage: [clusterErrors, identifyRootCauses, proposeFixesWithTests]
+
+dailyPractices:
+  - neverStartWithCode_startWithSuccessCriteriaAndSpec
+  - neverSkipPatterns_alwaysPickFromProvenSet
+  - neverMergeUntestedCode
+  - neverBypassOrchestrator_alwaysDeclareGoalsConstraints
+  - alwaysTreatAgentsAsCollaborators
+  - alwaysCaptureLearnings_everyBugEvolvesPatterns

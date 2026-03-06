@@ -1,0 +1,416 @@
+[
+    {
+        "id": "np-001",
+        "name": "Nonprofit Competitive Landscape Analysis",
+        "cat": "research",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Analyze competitor landscape for nonprofit strategic positioning",
+        "template_ref": "np-001"
+    },
+    {
+        "id": "np-002",
+        "name": "Nonprofit Policy Trend Analysis",
+        "cat": "research",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Identify and analyze policy trends impacting nonprofit operations",
+        "template_ref": "np-002"
+    },
+    {
+        "id": "np-003",
+        "name": "Program Development Research",
+        "cat": "research",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Research evidence base and best practices for program design",
+        "template_ref": "np-003"
+    },
+    {
+        "id": "np-004",
+        "name": "Corporate Partnership Pitch Generation",
+        "cat": "creative",
+        "pool": "warm",
+        "w": 3,
+        "desc": "Generate value-aligned corporate partnership pitch materials",
+        "template_ref": "np-004"
+    },
+    {
+        "id": "np-005",
+        "name": "Website Copy & Program Description Generation",
+        "cat": "creative",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Generate mission-aligned website copy and program descriptions",
+        "template_ref": "np-005"
+    },
+    {
+        "id": "np-006",
+        "name": "Grant Report & Compliance Documentation",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Generate funder-specific grant reports and compliance documentation",
+        "template_ref": "np-006"
+    },
+    {
+        "id": "np-007",
+        "name": "Partnership Opportunity Identification",
+        "cat": "research",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Identify and score potential partnership opportunities",
+        "template_ref": "np-007"
+    },
+    {
+        "id": "np-008",
+        "name": "Funding Opportunity Research & Matching",
+        "cat": "research",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Research and match funding opportunities to organizational profile",
+        "template_ref": "np-008"
+    },
+    {
+        "id": "np-009",
+        "name": "Technology Solution Evaluation",
+        "cat": "optimization",
+        "pool": "warm",
+        "w": 3,
+        "desc": "Evaluate technology solutions for nonprofit-appropriate fit",
+        "template_ref": "np-009"
+    },
+    {
+        "id": "np-010",
+        "name": "Regulatory Compliance Research",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Research jurisdiction-specific regulatory compliance requirements",
+        "template_ref": "np-010"
+    },
+    {
+        "id": "np-011",
+        "name": "Impact & Theory of Change Development",
+        "cat": "learning",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Develop theory of change and impact projection models",
+        "template_ref": "np-011"
+    },
+    {
+        "id": "np-012",
+        "name": "Strategic Planning & Capacity Building",
+        "cat": "optimization",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Conduct strategic capacity assessment and planning",
+        "template_ref": "np-012"
+    },
+    {
+        "id": "np-013",
+        "name": "Risk Assessment & Mitigation Planning",
+        "cat": "security",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Assess organizational risks and develop mitigation strategies",
+        "template_ref": "np-013"
+    },
+    {
+        "id": "np-014",
+        "name": "Program Expansion Feasibility Analysis",
+        "cat": "optimization",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Analyze feasibility of program expansion across multiple dimensions",
+        "template_ref": "np-014"
+    },
+    {
+        "id": "np-015",
+        "name": "Strategic Planning & Scenario Development",
+        "cat": "optimization",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Develop strategic plans with multi-scenario analysis",
+        "template_ref": "np-015"
+    },
+    {
+        "id": "np-016",
+        "name": "Community Needs Assessment Interpretation",
+        "cat": "learning",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Interpret community needs assessment data for strategic decisions",
+        "template_ref": "np-016"
+    },
+    {
+        "id": "np-017",
+        "name": "Impact Measurement & Outcome Tracking",
+        "cat": "monitoring",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Measure program impact and track outcome metrics",
+        "template_ref": "np-017"
+    },
+    {
+        "id": "np-018",
+        "name": "Program Evaluation Data Analysis",
+        "cat": "monitoring",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Analyze program evaluation data for actionable insights",
+        "template_ref": "np-018"
+    },
+    {
+        "id": "np-019",
+        "name": "Nonprofit Content Quality Assurance",
+        "cat": "maintenance",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Evaluate nonprofit content against quality standards",
+        "template_ref": "np-019"
+    },
+    {
+        "id": "np-020",
+        "name": "Partner Capability Assessment",
+        "cat": "research",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Assess partner organization capabilities and partnership readiness",
+        "template_ref": "np-020"
+    },
+    {
+        "id": "np-021",
+        "name": "Training Material Quality Assessment",
+        "cat": "maintenance",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Evaluate training materials against instructional design standards",
+        "template_ref": "np-021"
+    },
+    {
+        "id": "np-022",
+        "name": "Marketing Material Effectiveness Review",
+        "cat": "creative",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Review marketing material effectiveness for nonprofit context",
+        "template_ref": "np-022"
+    },
+    {
+        "id": "np-023",
+        "name": "Feedback & Complaint Categorization",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Categorize and prioritize stakeholder feedback and complaints",
+        "template_ref": "np-023"
+    },
+    {
+        "id": "np-024",
+        "name": "Program Participant Service Q&A",
+        "cat": "integration",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Generate warm, accessible answers to participant service questions",
+        "template_ref": "np-024"
+    },
+    {
+        "id": "np-025",
+        "name": "Policy & Procedure Knowledge Assistant",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Answer staff questions about organizational policies with specific citations",
+        "template_ref": "np-025"
+    },
+    {
+        "id": "np-026",
+        "name": "Policy Compliance Audit",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Audit organizational documents against compliance criteria",
+        "template_ref": "np-026"
+    },
+    {
+        "id": "np-027",
+        "name": "Contract Review Assistant",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Review contracts for mission alignment, risk, and nonprofit-specific concerns",
+        "template_ref": "np-027"
+    },
+    {
+        "id": "np-028",
+        "name": "Grant Application Completeness Check",
+        "cat": "governance",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Verify grant applications for completeness, compliance, and consistency",
+        "template_ref": "np-028"
+    },
+    {
+        "id": "np-029",
+        "name": "Compliance Document Review",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Review regulatory compliance documents with severity categorization",
+        "template_ref": "np-029"
+    },
+    {
+        "id": "np-030",
+        "name": "Event Registration Follow-up System",
+        "cat": "creative",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Design multi-touchpoint event communication journey",
+        "template_ref": "np-030"
+    },
+    {
+        "id": "np-031",
+        "name": "Membership Renewal Communication System",
+        "cat": "creative",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Create mission-driven membership renewal communication sequences",
+        "template_ref": "np-031"
+    },
+    {
+        "id": "np-032",
+        "name": "Financial Reconciliation & Reporting",
+        "cat": "monitoring",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Reconcile financial records with FASB ASC 958 compliance",
+        "template_ref": "np-032"
+    },
+    {
+        "id": "np-033",
+        "name": "Event Registration Data Processing",
+        "cat": "integration",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Standardize and process event registration data for CRM integration",
+        "template_ref": "np-033"
+    },
+    {
+        "id": "np-034",
+        "name": "Membership Data Management",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Clean, standardize, and manage membership database records",
+        "template_ref": "np-034"
+    },
+    {
+        "id": "np-035",
+        "name": "Data Transfer Assistant",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Validate and transfer data between nonprofit systems",
+        "template_ref": "np-035"
+    },
+    {
+        "id": "np-036",
+        "name": "Safety Protocol & Emergency Procedures",
+        "cat": "security",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Create trauma-informed safety and emergency procedure documentation",
+        "template_ref": "np-036"
+    },
+    {
+        "id": "np-037",
+        "name": "Volunteer Agreement & Contract Generator",
+        "cat": "governance",
+        "pool": "cold",
+        "w": 4,
+        "desc": "Generate risk-scaled volunteer agreements with legal protections",
+        "template_ref": "np-037"
+    },
+    {
+        "id": "np-038",
+        "name": "Training & Onboarding Documentation",
+        "cat": "maintenance",
+        "pool": "cold",
+        "w": 4,
+        "desc": "Create accessible onboarding and training procedure documents",
+        "template_ref": "np-038"
+    },
+    {
+        "id": "np-039",
+        "name": "Workshop Curriculum Designer",
+        "cat": "creative",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Design inclusive, low-cost workshop curricula for nonprofit audiences",
+        "template_ref": "np-039"
+    },
+    {
+        "id": "np-040",
+        "name": "Fundraising Case Statement Generator",
+        "cat": "creative",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Transform program data into persuasive fundraising case statements",
+        "template_ref": "np-040"
+    },
+    {
+        "id": "np-041",
+        "name": "Impact Story Generator",
+        "cat": "creative",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Create emotionally resonant impact stories from program statistics",
+        "template_ref": "np-041"
+    },
+    {
+        "id": "np-042",
+        "name": "Podcast Production Assistant",
+        "cat": "creative",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Generate podcast episode outlines, show notes, and social promotion content",
+        "template_ref": "np-042"
+    },
+    {
+        "id": "np-043",
+        "name": "Social Media Graphics & Quote Cards",
+        "cat": "creative",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Design accessible social media graphics with platform-specific variations",
+        "template_ref": "np-043"
+    },
+    {
+        "id": "np-044",
+        "name": "Audit Response & Evaluation Report",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Create structured audit responses with actionable remediation plans",
+        "template_ref": "np-044"
+    },
+    {
+        "id": "np-045",
+        "name": "Infographic Creation Assistant",
+        "cat": "creative",
+        "pool": "cold",
+        "w": 3,
+        "desc": "Develop infographic concepts with DALL-E prompts and design specs",
+        "template_ref": "np-045"
+    },
+    {
+        "id": "np-046",
+        "name": "Strategic Planning Document Generator",
+        "cat": "governance",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Generate comprehensive multi-year strategic planning documents with SMART goals",
+        "template_ref": "np-046"
+    }
+]

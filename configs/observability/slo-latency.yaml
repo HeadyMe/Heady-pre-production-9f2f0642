@@ -1,0 +1,47 @@
+version: 1
+service: heady-manager
+updated_at: 2026-02-28
+
+classes:
+  static_cacheable:
+    objective: p95
+    target_ms: 150
+    stretch_target_ms: 100
+    availability_slo: 99.9
+  dynamic_non_llm:
+    objective: p95
+    target_ms: 700
+    stretch_target_ms: 500
+    availability_slo: 99.9
+  llm:
+    objective: p95
+    ttft_target_ms: 1200
+    full_completion_target_ms: 8000
+    availability_slo: 99.5
+
+ci_synthetic:
+  base_url: http://localhost:3301
+  samples_per_endpoint: 7
+  timeout_ms: 5000
+  baseline_file: configs/slo-latency-baseline.json
+  endpoints:
+    - name: health
+      path: /api/health
+      class: dynamic_non_llm
+      p95_target_ms: 700
+    - name: pulse
+      path: /api/pulse
+      class: dynamic_non_llm
+      p95_target_ms: 700
+    - name: introspection
+      path: /api/introspection
+      class: dynamic_non_llm
+      p95_target_ms: 700
+    - name: branding
+      path: /api/branding
+      class: dynamic_non_llm
+      p95_target_ms: 700
+    - name: principles
+      path: /api/principles
+      class: dynamic_non_llm
+      p95_target_ms: 700

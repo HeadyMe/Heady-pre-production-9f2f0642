@@ -1,0 +1,57 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/auto-pipeline.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Auto-pipeline configuration
+
+services:
+  - name: HeadyBrain
+    endpoint: https://api.headyme.com/api/brain
+    weight: 1.0
+  - name: HeadyBrainFallback
+    endpoint: https://api.headyme.com/api
+    weight: 0.1
+  - name: HeadyMCP
+    endpoint: https://tools.headyme.com/mcp
+    weight: 0.8
+  - name: HeadyRender
+    endpoint: https://api.headyme.com/render
+    weight: 0.7
+  - name: HeadyLens
+    endpoint: https://api.headyme.com/api/lens
+    weight: 0.9
+    providers:
+      - google-gemini
+      - openai-vision
+
+task_types:
+  analysis: HeadyBrain
+  deployment: HeadyMCP
+  build: HeadyRender
+  maintenance: HeadyBrain
+  security_audit: HeadyBrain
+  backup: HeadyMCP
+  cleanup: HeadyMCP
+  threat_detection: HeadyBrain
+  cost_optimization: HeadyBrain
+  drift_detection: HeadyBrain
+  scan_3d_persistent_vector_storage: HeadyBrain
+  vision_analyze: HeadyLens
+  vision_detect: HeadyLens
+  vision_process: HeadyLens
+  default: HeadyBrain  # Fallback for all unconfigured types
+
+optimization:
+  interval: 300 # seconds
+  max_retries: 3

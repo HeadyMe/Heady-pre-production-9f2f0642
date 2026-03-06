@@ -18,10 +18,10 @@
 
 const path = require("path");
 
-// Lightweight logger fallback — template-bee is edge-compatible,
-// must not depend on pino or heavy node modules (Pillar 0: HeadyOS self-contained bees)
+// Structured logger — delegates to StructuredLogger for JSON output
+const _logger = require('../utils/logger').child('template-bee');
 const logger = {
-    logNodeActivity: (node, msg) => { try { console.log(`[${node}] ${msg}`); } catch { } },
+    logNodeActivity: (node, msg) => { try { _logger.info(`[${node}] ${msg}`); } catch { } },
 };
 
 const domain = "templates";

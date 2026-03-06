@@ -1,0 +1,196 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/website-definitions.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ═══════════════════════════════════════════════════════════════════════
+# HEADY SYSTEMS — Website & Product Site Definitions
+# ═══════════════════════════════════════════════════════════════════════
+#
+# Defines all Heady product websites, their domains, backend targets,
+# brain profiles, and deployment configs. Each site is a thin frontend
+# that consumes the foundation API — no duplicated logic.
+#
+# This file is read by deploy scripts, DNS config, and Cloudflare Workers.
+
+version: "1.0.0"
+name: WebsiteDefinitions
+
+# ─── PRODUCT SITES ─────────────────────────────────────────────────
+sites:
+
+  headysystems:
+    domain: headysystems.com
+    aliases: [www.headysystems.com]
+    type: platform-hub
+    description: "Primary platform — developer tools, API docs, admin dashboard"
+    brain_profile: sys-ops
+    cloud_layer: production
+    backend:
+      api: "https://api.heady.systems"
+      manager: "https://manager.heady.systems"
+      brain: "https://brain.heady.systems"
+    render_service: heady-manager-headysystems
+    edge_worker: edge-proxy
+    repo: HeadySystems/Heady
+    framework: react
+    features:
+      - admin-dashboard
+      - api-docs
+      - developer-portal
+      - pricing-page
+      - status-page
+    env_overrides:
+      HEADY_PRODUCT_ID: headysystems
+      HEADY_BRAIN_PROFILE: sys-ops
+
+  headyme:
+    domain: headyme.com
+    aliases: [www.headyme.com, app.headyme.com]
+    type: personal-app
+    description: "Personal AI companion — wellbeing, teaching, wealth tools"
+    brain_profile: personal-wellbeing
+    cloud_layer: production
+    backend:
+      api: "https://api.heady.systems"
+      manager: "https://manager.heady.systems"
+      brain: "https://brain.heady.systems"
+    render_service: heady-manager-headyme
+    edge_worker: edge-proxy
+    repo: HeadySystems/HeadyMe
+    framework: nextjs
+    features:
+      - personal-dashboard
+      - wellbeing-tracker
+      - teaching-hub
+      - wealth-redistribution-tools
+      - cross-device-sync
+    env_overrides:
+      HEADY_PRODUCT_ID: headyme
+      HEADY_BRAIN_PROFILE: personal-wellbeing
+
+  headyconnection:
+    domain: headyconnection.org
+    aliases: [www.headyconnection.org, app.headyconnection.org]
+    type: community-platform
+    description: "Nonprofit community platform — grants, impact, shared knowledge"
+    brain_profile: community-impact
+    cloud_layer: production
+    backend:
+      api: "https://api.heady.systems"
+      manager: "https://manager.heady.systems"
+      brain: "https://brain.heady.systems"
+    render_service: heady-manager-headyconnection
+    edge_worker: edge-proxy
+    repo: HeadySystems/HeadyConnection
+    framework: nextjs
+    features:
+      - community-dashboard
+      - grant-finder
+      - impact-tracker
+      - donation-planning
+      - shared-workspaces
+    env_overrides:
+      HEADY_PRODUCT_ID: headyconnection
+      HEADY_BRAIN_PROFILE: community-impact
+    pricing_profile: nonprofit-first
+
+  headyweb:
+    domain: headyweb.com
+    aliases: [www.headyweb.com]
+    type: browser-platform
+    description: "Heady-powered browser and web tools"
+    brain_profile: web-platform
+    cloud_layer: production
+    backend:
+      api: "https://api.heady.systems"
+      manager: "https://manager.heady.systems"
+    render_service: heady-manager-headyweb
+    edge_worker: edge-proxy
+    repo: HeadySystems/HeadyWeb
+    framework: react
+    features:
+      - web-browser
+      - ad-blocking
+      - ai-sidebar
+      - workspace-management
+    env_overrides:
+      HEADY_PRODUCT_ID: headyweb
+      HEADY_BRAIN_PROFILE: web-platform
+
+  headymcp:
+    domain: headymcp.com
+    aliases: [www.headymcp.com]
+    type: mcp-hub
+    description: "MCP server directory and documentation"
+    brain_profile: sys-ops
+    cloud_layer: production
+    backend:
+      api: "https://api.heady.systems"
+    repo: HeadySystems/HeadyMCP
+    framework: eleventy
+    features:
+      - mcp-server-directory
+      - integration-guides
+      - tool-documentation
+    env_overrides:
+      HEADY_PRODUCT_ID: headymcp
+
+  headybuddy:
+    domain: null
+    type: companion-app
+    description: "Desktop/mobile companion — no standalone website"
+    brain_profile: companion
+    cloud_layer: local
+    backend:
+      api: "https://api.heady.systems"
+      buddy: "https://buddy.headysystems.com"
+    repo: HeadySystems/Heady
+    framework: react
+    platforms: [desktop-electron, mobile-android, browser-extension]
+    env_overrides:
+      HEADY_PRODUCT_ID: headybuddy
+      HEADY_BRAIN_PROFILE: companion
+
+# ─── SHARED CONFIGURATION ─────────────────────────────────────────
+shared:
+  cdn: cloudflare
+  ssl: cloudflare-managed
+  analytics: cloudflare-web-analytics
+  error_tracking: sentry
+  ui_kit: "packages/ui-kit"
+  sdk: "packages/core-sdk"
+  sacred_geometry: true
+  default_locale: en-US
+
+# ─── DEPLOYMENT TARGETS ───────────────────────────────────────────
+deployment:
+  static_sites:
+    provider: cloudflare-pages
+    build_command: "npm run build"
+    output_dir: "dist"
+  dynamic_apps:
+    provider: render
+    docker: true
+    health_check: "/api/health"
+  edge:
+    provider: cloudflare-workers
+    proxy_pattern: "Thin reverse proxy with CORS, headers, and metrics"
+
+# ─── URL STYLE GUIDE ──────────────────────────────────────────────
+url_style:
+  api: "https://api.heady.systems/{version}/{resource}"
+  docs: "https://docs.heady.systems/{product}/{page}"
+  app: "https://app.{product-domain}/"
+  edge: "https://{product-domain}/api/*"
+  production: "https://{service}.headysystems.com"

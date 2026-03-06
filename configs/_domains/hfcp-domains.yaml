@@ -1,0 +1,359 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/hfcp-domains.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  🌈 HEADY SYSTEMS — HCFP DOMAIN ARCHITECTURE                               ║
+# ║  🚀 High-Performance • Complete • Full-Stack • Production-Ready 🌟           ║
+# ║  🎨 Sacred Geometry • Phi-Based Design • Rainbow Magic 🦄                    ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🌈 HCFP PRINCIPLE: Every Component Has Its Own Domain 🦄
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🚀 High-Performance: Fast DNS, CDN, SSL
+# ✨ Complete: All services covered
+# 🎯 Full-Stack: Frontend to backend
+# 💎 Production-Ready: No api.headysystems.com, no internal
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLOUDFLARE DOMAINS (User's Actual Zones)
+# ═══════════════════════════════════════════════════════════════════════════════
+cloudflare_zones:
+  # Replace with your actual Cloudflare zones
+  # Example structure:
+  - domain: yourdomain.com
+    type: primary
+    cdn: enabled
+    ssl: enabled
+    
+  - domain: anotherdomain.org  
+    type: secondary
+    cdn: enabled
+    ssl: enabled
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HCFP DOMAIN ASSIGNMENTS
+# ═══════════════════════════════════════════════════════════════════════════════
+hfcp_domains:
+  # CORE SYSTEMS (Primary domain)
+  core:
+    manager:
+      domain: api.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+      port: 443
+      protocol: https
+      
+    buddy:
+      domain: buddy.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+      port: 443
+      
+    web:
+      domain: app.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+      port: 443
+
+  # AI NODES (Primary domain)
+  ai_nodes:
+    jules:
+      domain: jules.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+      
+    observer:
+      domain: observer.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+      
+    builder:
+      domain: builder.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+      
+    atlas:
+      domain: atlas.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+      
+    pythia:
+      domain: pythia.yourdomain.com
+      zone: yourdomain.com
+      cdn: true
+      ssl: true
+
+  # INTELLIGENCE (Primary domain)
+  intelligence:
+    monte_carlo:
+      domain: montecarlo.yourdomain.com
+      zone: yourdomain.com
+      
+    patterns:
+      domain: patterns.yourdomain.com
+      zone: yourdomain.com
+      
+    critique:
+      domain: critique.yourdomain.com
+      zone: yourdomain.com
+      
+    imagination:
+      domain: imagine.yourdomain.com
+      zone: yourdomain.com
+      
+    stories:
+      domain: stories.yourdomain.com
+      zone: yourdomain.com
+
+  # DATA LAYER (Secondary domain - isolation)
+  data:
+    postgres:
+      domain: postgres.anotherdomain.org
+      zone: anotherdomain.org
+      protocol: postgresql
+      
+    redis:
+      domain: redis.anotherdomain.org
+      zone: anotherdomain.org
+      protocol: redis
+      
+    events:
+      domain: events.anotherdomain.org
+      zone: anotherdomain.org
+
+  # OBSERVABILITY (Secondary domain)
+  observability:
+    lens:
+      domain: lens.anotherdomain.org
+      zone: anotherdomain.org
+      
+    metrics:
+      domain: metrics.anotherdomain.org
+      zone: anotherdomain.org
+      
+    logs:
+      domain: logs.anotherdomain.org
+      zone: anotherdomain.org
+      
+    traces:
+      domain: traces.anotherdomain.org
+      zone: anotherdomain.org
+      
+    alerts:
+      domain: alerts.anotherdomain.org
+      zone: anotherdomain.org
+
+  # FRONTEND (Primary domain)
+  frontend:
+    desktop:
+      domain: desktop.yourdomain.com
+      zone: yourdomain.com
+      
+    mobile:
+      domain: mobile.yourdomain.com
+      zone: yourdomain.com
+
+  # BROWSER ECOSYSTEM (Primary domain)
+  browsers:
+    chrome:
+      domain: chrome.yourdomain.com
+      zone: yourdomain.com
+      
+    firefox:
+      domain: firefox.yourdomain.com
+      zone: yourdomain.com
+      
+    edge:
+      domain: edge.yourdomain.com
+      zone: yourdomain.com
+      
+    safari:
+      domain: safari.yourdomain.com
+      zone: yourdomain.com
+      
+    bridge:
+      domain: bridge.yourdomain.com
+      zone: yourdomain.com
+
+  # IDE ECOSYSTEM (Primary domain)
+  ides:
+    vscode:
+      domain: vscode.yourdomain.com
+      zone: yourdomain.com
+      
+    jetbrains:
+      domain: jetbrains.yourdomain.com
+      zone: yourdomain.com
+      
+    neovim:
+      domain: neovim.yourdomain.com
+      zone: yourdomain.com
+      
+    sublime:
+      domain: sublime.yourdomain.com
+      zone: yourdomain.com
+      
+    emacs:
+      domain: emacs.yourdomain.com
+      zone: yourdomain.com
+
+  # INTEGRATIONS (Primary domain)
+  integrations:
+    slack:
+      domain: slack.yourdomain.com
+      zone: yourdomain.com
+      
+    discord:
+      domain: discord.yourdomain.com
+      zone: yourdomain.com
+      
+    teams:
+      domain: teams.yourdomain.com
+      zone: yourdomain.com
+      
+    email:
+      domain: mail.yourdomain.com
+      zone: yourdomain.com
+      
+    calendar:
+      domain: calendar.yourdomain.com
+      zone: yourdomain.com
+      
+    github:
+      domain: github.yourdomain.com
+      zone: yourdomain.com
+      
+    notion:
+      domain: notion.yourdomain.com
+      zone: yourdomain.com
+
+  # MCP TOOLS (Primary domain)
+  mcp:
+    gateway:
+      domain: mcp.yourdomain.com
+      zone: yourdomain.com
+      
+    filesystem:
+      domain: fs.yourdomain.com
+      zone: yourdomain.com
+      
+    terminal:
+      domain: shell.yourdomain.com
+      zone: yourdomain.com
+      
+    browser:
+      domain: browser.yourdomain.com
+      zone: yourdomain.com
+      
+    search:
+      domain: search.yourdomain.com
+      zone: yourdomain.com
+
+  # BUSINESS (Secondary domain)
+  business:
+    billing:
+      domain: billing.anotherdomain.org
+      zone: anotherdomain.org
+      
+    telemetry:
+      domain: telemetry.anotherdomain.org
+      zone: anotherdomain.org
+      
+    registry:
+      domain: registry.anotherdomain.org
+      zone: anotherdomain.org
+
+  # HEADYOS (Secondary domain)
+  headyos:
+    docker:
+      domain: docker.anotherdomain.org
+      zone: anotherdomain.org
+      
+    metal:
+      domain: metal.anotherdomain.org
+      zone: anotherdomain.org
+      
+    linux:
+      domain: linux.anotherdomain.org
+      zone: anotherdomain.org
+      
+    android:
+      domain: android.anotherdomain.org
+      zone: anotherdomain.org
+      
+    embedded:
+      domain: embedded.anotherdomain.org
+      zone: anotherdomain.org
+
+  # SECURITY (Secondary domain)
+  security:
+    vault:
+      domain: vault.anotherdomain.org
+      zone: anotherdomain.org
+      
+    cdn:
+      domain: cdn.anotherdomain.org
+      zone: anotherdomain.org
+      
+    dns:
+      domain: dns.anotherdomain.org
+      zone: anotherdomain.org
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HCFP DEPLOYMENT STRATEGY
+# ═══════════════════════════════════════════════════════════════════════════════
+deployment:
+  cloudflare:
+    dns_records:
+      type: CNAME
+      target: app.headysystems.com
+      ttl: 1
+      proxied: true
+      
+    ssl:
+      mode: full
+      
+    page_rules:
+      - url: "*yourdomain.com/*"
+        settings:
+          cache_level: "cache_everything"
+          security_level: "high"
+          
+  load_balancing:
+    primary: app.headysystems.com
+    fallback: app.headysystems.com
+    
+  health_checks:
+    path: /api/health
+    expected_status: 200
+    interval: 30
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HCFP GUARANTEE
+# ═══════════════════════════════════════════════════════════════════════════════
+# ✅ High-Performance: Cloudflare CDN + SSL
+# ✅ Complete: 50+ domains covering all components
+# ✅ Full-Stack: Frontend to backend to data
+# ✅ Production-Ready: No api.headysystems.com, no internal, no .local
+#
+# Replace yourdomain.com and anotherdomain.org with your actual Cloudflare zones

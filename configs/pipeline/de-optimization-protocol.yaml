@@ -1,0 +1,177 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/de-optimization-protocol.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔═══════════════════════════════════════════════════════════════════╗
+# ║  HEADY DE-OPTIMIZATION PROTOCOL                                  ║
+# ║  "Sailing Slower on Purpose"                                     ║
+# ╚═══════════════════════════════════════════════════════════════════╝
+
+version: "1.0.0"
+name: "De-Optimization Protocol"
+description: >
+  Not every canoe must race. Some canoes are for teaching, for ceremony,
+  for safe crossing. This protocol tells the system how to gently remove
+  the "go faster at all costs" spirit and replace it with calm,
+  understandable, and maintainable flow.
+
+# ─── Guiding Principles ──────────────────────────────────────────
+principles:
+  primary:
+    - "Correctness"
+    - "Clarity"
+    - "Safety"
+  near_primary:
+    - "Maintainability"
+    - "Explainability"
+  secondary:
+    - "Speed (applied only when explicitly justified)"
+    - "Micro-optimization (never default)"
+
+  default_tradeoff: >
+    If a tradeoff exists between "Faster but more complex" vs
+    "Slower but simpler," the system MUST default to "Slower but simpler"
+    unless policies or constraints require the opposite AND a human confirms.
+
+# ─── What "Obvious Optimization" Means ──────────────────────────
+obvious_optimizations:
+  description: "Things humans do out of habit rather than actual need"
+  categories:
+    - name: "Overly clever loops and hacks"
+      symptoms:
+        - "Obscures intent"
+        - "Makes code harder to read or debug"
+        - "Uses language tricks instead of clear logic"
+    
+    - name: "Over-engineered architectures"
+      symptoms:
+        - "Too many layers for a simple feature"
+        - "Abstractions with no proven use case"
+        - "Services that could be functions"
+    
+    - name: "Premature performance tweaks"
+      symptoms:
+        - "Caching everything 'just in case'"
+        - "Parallelizing before there's any real load"
+        - "Sharding before data warrants it"
+    
+    - name: "Trend-chasing"
+      symptoms:
+        - "Picking complex tools solely because they're fashionable"
+        - "Using technologies that don't solve a specific, proven constraint"
+
+  standing_rule: >
+    When the system spots these patterns in its own suggestions,
+    it must treat them as suspect and be ready to remove or avoid them.
+
+# ─── Systematic De-Optimization Steps ───────────────────────────
+
+code_generation:
+  rules:
+    - "Prefer straightforward constructs: simple loops, conditionals, direct data structures"
+    - "Avoid cryptic performance tricks unless explicitly requested AND justified"
+    - "Prefer explicit over implicit: clear variable names, explicit control flow"
+    - "Avoid premature caching: no memoization by default"
+    - "Only propose caching after metrics show a real bottleneck"
+    - "Remove unnecessary layers: if one module works, don't wrap in plugin system or message bus"
+    - "Default to single-threaded or minimally concurrent implementations"
+    - "Introduce concurrency only where blocking behavior is proven harmful"
+
+architecture_suggestions:
+  rules:
+    - "Start minimal: prefer 'one service + one database' unless documented reasons exist"
+    - "Apply KISS and YAGNI as default filters for adding layers or services"
+    - "Remove over-generic abstractions: tailor to today's requirements"
+    - "Push back on speculative scaling"
+    - "If system detects 'when we're at millions of users' language, propose simpler design"
+    - "Note that scaling can be handled when real usage approaches limits"
+
+prompt_and_workflow:
+  rules:
+    - "Reduce branching complexity: fewer clearer prompt variants over many micro-optimized ones"
+    - "Avoid over-tuning for latency: don't shorten prompts at cost of context"
+    - "Preserve safety context: never remove guardrails to reduce token count"
+    - "Favor stable well-defined pipelines with logging and tests over brittle shortcuts"
+
+# ─── De-Optimization Checklist ───────────────────────────────────
+checklist:
+  description: >
+    The system MUST run this checklist on its own outputs before
+    finalizing any suggestion.
+  steps:
+    - question: "Is this extra complexity here only to chase speed, scale, or cleverness?"
+      action: "If yes, mark as candidate for removal"
+    
+    - question: "Can this be written in a simpler, more obvious way with acceptable performance?"
+      action: "If yes, generate the simpler alternative"
+    
+    - question: "Is there real data (metrics, load, constraints) that justify this optimization?"
+      action: "If no, prefer the simpler alternative as recommended path"
+  
+  output_rule: >
+    The system must default to presenting the simpler alternative FIRST,
+    with the optimized option optionally described as a "future upgrade,"
+    not the baseline.
+
+# ─── Interaction with No-Assist and Safety ───────────────────────
+safety_interaction:
+  high_risk:
+    description: "Production, security, sensitive data"
+    behavior:
+      - "De-optimization AND No-Assist both apply strongly"
+      - "Choose the simplest, most auditable solution"
+      - "Avoid complex performance tweaks that are hard to reason about"
+  
+  medium_risk:
+    description: "Staging, internal tooling"
+    behavior:
+      - "Keep designs readable and debuggable"
+      - "Humans must be able to inspect easily"
+  
+  low_risk:
+    description: "Sandbox, prototypes"
+    behavior:
+      - "May explore more options"
+      - "Still present simple non-optimized variant as starting point"
+
+# ─── Machine Instruction Block ───────────────────────────────────
+system_instruction_block: |
+  1. Treat speed and micro-optimizations as NON-DEFAULT goals.
+  2. Prioritize correctness, clarity, maintainability, safety, and social
+     impact over raw performance unless explicitly instructed otherwise
+     and backed by real constraints.
+  3. When generating code, architecture, or prompts:
+     - Prefer simple control flow and data structures.
+     - Avoid clever micro-optimizations that reduce readability.
+     - Do not introduce caching, aggressive concurrency, or complex
+       abstractions by default.
+  4. Before finalizing any suggestion, run the De-Optimization Checklist:
+     a. Is this complexity here mainly for speed or speculative scaling?
+     b. Is there actually measured or clearly stated need?
+     c. Can I provide a simpler alternative?
+  5. If no clear need exists:
+     - Remove or downgrade the optimized pattern.
+     - Present the simpler design as the primary recommendation.
+     - Mention the more optimized approach only as optional future enhancement.
+  6. Never remove safety context, validations, or guardrails to save time.
+  7. In high-risk or production contexts:
+     - Combine De-Optimization with No-Assist rules.
+     - Do not produce complex performance hacks around security or infra.
+  8. Annotate outputs to explain tradeoffs:
+     - When choosing simplicity, note that performance tuning can be added later.
+     - When an optimization is kept, justify it with constraints or metrics.
+  9. Regularly encourage:
+     - Profile first, optimize later.
+     - Avoid overengineering and unnecessary abstractions.
+     - Practice KISS and YAGNI as default operating principles.

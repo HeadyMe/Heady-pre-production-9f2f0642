@@ -1,0 +1,31 @@
+# Cloudflare Tunnel Configuration
+# Place this in /etc/cloudflared/config.yml or map it as a volume in docker-compose.yml
+
+tunnel: <YOUR-TUNNEL-UUID-HERE>
+credentials-file: /root/.cloudflared/<YOUR-TUNNEL-UUID-HERE>.json
+
+# By using Cloudflare Access (Zero Trust) in your Cloudflare Dashboard,
+# you can protect these URLs so only authorized Google/GitHub accounts can log in.
+ingress:
+  # ---------------------------------------------------------------------------
+  # 1. MISSION CONTROL: Uptime Kuma Status Board
+  # ---------------------------------------------------------------------------
+  - hostname: status.headysystems.com
+    service: http://uptime-kuma:3001
+
+  # ---------------------------------------------------------------------------
+  # 2. THE BRAIN: LiteLLM Gateway (Protected via API keys in the app)
+  # ---------------------------------------------------------------------------
+  - hostname: gateway.headysystems.com
+    service: http://litellm:4000
+
+  # ---------------------------------------------------------------------------
+  # 3. DEBUGGING: Dozzle Log Viewer
+  # ---------------------------------------------------------------------------
+  - hostname: logs.headysystems.com
+    service: http://dozzle:8080
+
+  # ---------------------------------------------------------------------------
+  # Catch-all to respond with 404 for unmapped requests
+  # ---------------------------------------------------------------------------
+  - service: http_status:404

@@ -58,7 +58,7 @@ class CrossDeviceFS {
             registeredAt: Date.now(),
         };
 
-        await vectorMemory.ingestMemory({
+        await vectorMemory.smartIngest({
             content: `device:${name} ${device.hostname} ${device.user}`,
             metadata: {
                 type: 'device',

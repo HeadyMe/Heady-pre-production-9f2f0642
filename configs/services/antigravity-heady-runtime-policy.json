@@ -1,0 +1,27 @@
+{
+    "version": 1,
+    "ownerAliases": [
+        "owner",
+        "heady-owner",
+        "eric"
+    ],
+    "enforce": {
+        "gateway": "heady",
+        "workspaceMode": "3d-vector",
+        "autonomousMode": "optimized-autonomous",
+        "requiredContext": [
+            "initiatedBy",
+            "source",
+            "task",
+            "situation"
+        ]
+    },
+    "defaultSwarmTasks": [
+        "vector-context-bootstrap",
+        "template-selection",
+        "autonomous-execution",
+        "projection-sync",
+        "post-op-learning-ingest"
+    ],
+    "healthEndpoint": "/api/antigravity/health"
+}

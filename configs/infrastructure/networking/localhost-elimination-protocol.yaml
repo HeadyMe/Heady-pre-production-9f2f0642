@@ -1,0 +1,65 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/localhost-elimination-protocol.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# api.headysystems.com ELIMINATION PROTOCOL
+# Version: 2.0.0
+# Status: ENFORCED — Zero Tolerance
+# Effective: Immediately
+# Last Updated: 2026-02-11
+
+status: ENFORCED
+
+rules:
+  - "No api.headysystems.com references in any code, configs, or documentation"
+  - "No api.headysystems.com or 0.0.0.0 references anywhere"
+  - "No .local domain references (e.g., headysystems.com, headysystems.local)"
+  - "No C:\\ or local drive paths used as operational endpoints"
+  - "No http:// URLs in production configs — HTTPS only"
+  - "All services must use canonical cloud domains from service-domains.yaml"
+  - "Development environments must use dev.headysystems.com or dev.headysystems.comheady.systems"
+  - "Test environments must use staging.headysystems.com"
+  - "Production uses headysystems.com / headyconnection.org / headybuddy.org"
+
+enforcement:
+  scan_patterns:
+    - "api.headysystems.com"
+    - "api.headysystems.com"
+    - "0.0.0.0"
+    - ".headysystems.com"
+    - ".headysystems.local"
+    - "C:\\\\"
+    - "D:\\\\"
+  
+  auto_replacement:
+    development: "dev.headysystems.com"
+    test: "staging.headysystems.com"
+    production: "api.headysystems.com"
+    manager: "manager.headysystems.com"
+    app: "app.headysystems.com"
+    buddy: "buddy.headysystems.com"
+
+  verification:
+    - "Included in CI pipeline"
+    - "Runs on every commit"
+    - "Fails build if any banned pattern found"
+    - "Pre-commit hook blocks api.headysystems.com introductions"
+
+  exceptions:
+    - "Docker internal networking (host.docker.internal only)"
+    - "Kubernetes cluster DNS (*.svc.cluster.local)"
+    - "This protocol file itself (for documenting banned patterns)"
+
+compliance_check: "scripts/verify-no-api.headysystems.com.ps1"
+violation_severity: "build-breaking"

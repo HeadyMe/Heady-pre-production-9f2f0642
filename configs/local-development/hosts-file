@@ -1,0 +1,50 @@
+# Heady Systems Local Development DNS Mapping
+# Add these entries to your /etc/hosts (Linux/Mac) or C:\Windows\System32\drivers\etc\hosts (Windows)
+
+# Local development domains - all point to 127.0.0.1
+127.0.0.1 app.heady.local
+127.0.0.1 api.heady.local
+127.0.0.1 admin.heady.local
+127.0.0.1 buddy.heady.local
+127.0.0.1 connection.heady.local
+127.0.0.1 systems.heady.local
+127.0.0.1 cdn.heady.local
+127.0.0.1 static.heady.local
+127.0.0.1 ws.heady.local
+
+# Service-specific local domains
+127.0.0.1 heady-manager.local
+127.0.0.1 heady-buddy.local
+127.0.0.1 heady-browser.local
+127.0.0.1 heady-ide.local
+
+# Development environment domains
+127.0.0.1 dev.heady.local
+127.0.0.1 staging.heady.local
+127.0.0.1 test.heady.local
+
+# Monitoring and debugging domains
+127.0.0.1 logs.heady.local
+127.0.0.1 metrics.heady.local
+127.0.0.1 health.heady.local
+127.0.0.1 status.heady.local
+
+# Documentation and examples
+127.0.0.1 docs.heady.local
+127.0.0.1 examples.heady.local
+127.0.0.1 tutorials.heady.local
+
+# API versioning
+127.0.0.1 api.v1.heady.local
+127.0.0.1 api.v2.heady.local
+127.0.0.1 graphql.heady.local
+
+# WebSocket endpoints
+127.0.0.1 realtime.heady.local
+127.0.0.1 socket.heady.local
+127.0.0.1 notifications.heady.local
+
+# Asset domains
+127.0.0.1 assets.heady.local
+127.0.0.1 images.heady.local
+127.0.0.1 fonts.heady.local

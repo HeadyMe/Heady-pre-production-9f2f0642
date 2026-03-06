@@ -1,0 +1,396 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/device-management.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Heady Device Management (MDM) Configuration
+# Cross-platform device management for seamless multi-device experience
+# Platforms: Windows, macOS, Linux, iOS, Android
+
+mdm_provider: intune  # or: jumpcloud, fleet, custom
+enrollment: zero_touch
+
+# Device Types & Baselines
+device_profiles:
+  # Development Workstation (Primary)
+  dev_workstation:
+    platforms: [windows, macos, linux]
+    baseline_apps:
+      browsers:
+        - name: chrome
+          channel: stable
+          extensions:
+            - id: heady-assistant-chrome
+              source: local
+              path: distribution/browser/extensions/chrome/
+            - id: react-developer-tools
+              source: chrome_web_store
+            - id: redux-devtools
+              source: chrome_web_store
+            - id: postman
+              source: chrome_web_store
+            - id: wappalyzer
+              source: chrome_web_store
+            - id: lighthouse
+              source: chrome_web_store
+              
+        - name: edge
+          channel: stable
+          extensions:
+            - id: heady-assistant-edge
+              source: local
+              path: distribution/browser/extensions/edge/
+              
+        - name: firefox
+          channel: stable
+          extensions:
+            - id: heady-assistant-firefox
+              source: local
+              path: distribution/browser/extensions/firefox/
+              
+        - name: brave
+          channel: stable
+          extensions:
+            - id: heady-assistant-chrome  # Chrome extensions work in Brave
+              source: local
+              path: distribution/browser/extensions/chrome/
+      
+      editors:
+        - name: vscode
+          version: latest
+          extensions:
+            - ms-vscode.vscode-json
+            - ms-python.python
+            - ms-vscode.vscode-typescript-next
+            - ms-vscode.vscode-eslint
+            - esbenp.prettier-vscode
+            - ms-vscode.vscode-yaml
+            - github.copilot
+            - github.copilot-chat
+            - ms-vscode.vscode-docker
+            - ms-vscode.vscode-git-graph
+            - heady.heady-extension  # Local Heady extension
+            
+        - name: jetbrains-toolbox
+          apps:
+            - IntelliJ IDEA
+            - PyCharm
+            - WebStorm
+            - DataGrip
+          plugins:
+            - Heady Assistant
+            - .ignore
+            - Rainbow Brackets
+            - GitToolBox
+            - Key Promoter X
+            
+        - name: vim/neovim
+          plugins:
+            - heady.vim
+            - coc.nvim
+            - nerdtree
+            - fugitive
+      
+      development:
+        - nodejs:
+            version: "20.18.1"
+            packages:
+              - npm
+              - yarn
+              - pnpm
+              - "@anthropic-ai/claude-code"
+              
+        - python:
+            version: "3.12.7"
+            packages:
+              - pip
+              - virtualenv
+              - poetry
+              - transformers
+              - torch
+              
+        - docker:
+            version: latest
+            compose: true
+            
+        - git:
+            config:
+              user.name: "Heady Developer"
+              user.email: "dev@headyio.com"
+              init.defaultBranch: main
+              pull.rebase: true
+              
+      security:
+        - vpn_client: wireguard
+        - password_manager: 1password
+        - 2fa_authenticator: authy
+        - disk_encryption: true
+        
+      communication:
+        - slack
+        - discord
+        - signal
+        - zoom
+        
+      productivity:
+        - notion
+        - obsidian
+        - figma
+        - postman
+        
+      heady_specific:
+        - heady_manager:
+            port: 3300
+            autostart: true
+            service_discovery: true
+        - heady_buddy:
+            overlay: true
+            autostart: true
+        - heady_lens:
+            monitoring: true
+            telemetry: true
+  
+  # Mobile Devices
+  mobile_dev:
+    platforms: [ios, android]
+    apps:
+      browsers:
+        - safari
+        - chrome_mobile
+        - firefox_mobile
+      
+      development:
+        - testflight  # iOS
+        - android_studio  # Android
+        - termius  # SSH client
+        
+      heady_mobile:
+        - heady_chat
+        - heady_voice
+        - heady_automations
+        
+      security:
+        - vpn: wireguard
+        - authenticator: authy
+        
+      communication:
+        - slack
+        - signal
+
+# Cross-Device Sync Configuration
+sync:
+  identity_provider:
+    type: oidc
+    provider: auth0
+    domains:
+      - headyio.com
+      - headysystems.com
+      - headyconnection.com
+      
+  settings_sync:
+    vscode:
+      enabled: true
+      sync_settings: true
+      sync_extensions: true
+      sync_keybindings: true
+      
+    jetbrains:
+      enabled: true
+      settings_repository: github:heady/jetbrains-settings
+      
+    browsers:
+      enabled: true
+      bookmarks: true
+      passwords: false  # Use password manager
+      history: false
+      extensions: true
+      
+  dotfiles:
+    repository: github:heady/dotfiles
+    auto_sync: true
+    platforms:
+      - bash
+      - zsh
+      - powershell
+      - fish
+    files:
+      - .bashrc
+      - .zshrc
+      - .vimrc
+      - .gitconfig
+      - .ssh/config
+      
+  projects:
+    sync_method: git
+    auto_pull: true
+    repositories:
+      - heady
+      - heady-os
+      - heady-mobile
+
+# Security Policies
+security:
+  device_compliance:
+    require_encryption: true
+    require_password: true
+    min_password_length: 12
+    password_complexity: high
+    screen_lock_timeout: 5  # minutes
+    
+  network:
+    firewall: enabled
+    allowed_ports:
+      - 3300  # Heady Manager
+      - 3301  # Heady Buddy
+      - 3000  # Web Dev
+      - 8080  # RAG
+      - 11434 # Ollama
+    blocked_ports: []
+    
+  app_restrictions:
+    allow_sideloading: true  # For dev
+    require_code_signing: false  # Allow local dev builds
+    blacklist_apps:
+      - malicious-apps-list
+      
+  monitoring:
+    device_health: true
+    security_alerts: true
+    compliance_reporting: true
+
+# Extension Management
+extension_management:
+  auto_update: true
+  update_interval: daily
+  
+  browser_extensions:
+    chrome:
+      - id: heady-assistant-chrome
+        install_type: allowed
+        install_mode: force_installed
+        update_url: file:///C:/Heady/extensions/chrome/update.xml
+        
+      - id: react-developer-tools
+        install_type: allowed
+        install_mode: normal_installed
+        
+      - id: github-copilot
+        install_type: allowed
+        install_mode: normal_installed
+        
+    edge:
+      - id: heady-assistant-edge
+        install_type: allowed
+        install_mode: force_installed
+        
+    firefox:
+      - id: heady-assistant@headyio.com
+        install_type: allowed
+        install_mode: force_installed
+        
+  ide_extensions:
+    vscode:
+      marketplace_extensions:
+        - ms-python.python
+        - ms-vscode.vscode-typescript-next
+        - esbenp.prettier-vscode
+        - ms-vscode.vscode-eslint
+        - ms-vscode.vscode-yaml
+        - github.copilot
+        - ms-vscode.vscode-docker
+        - ms-vscode.vscode-git-graph
+        
+      local_extensions:
+        - path: distribution/ide/vscode/heady-extension.vsix
+          enabled: true
+          
+    jetbrains:
+      marketplace_plugins:
+        - com.intellij.plugins. HeadyAssistant
+        - com.jetbrains.plugins.idea
+        
+      custom_plugins:
+        - path: distribution/ide/jetbrains/heady-assistant.jar
+          enabled: true
+
+# Automation & Alerting
+automation:
+  device_onboarding:
+    zero_touch: true
+    enrollment_url: https://enroll.headyio.com
+    
+  software_updates:
+    auto_update_os: false  # Manual for dev machines
+    auto_update_security: true
+    auto_update_apps: false
+    notify_available: true
+    
+  health_monitoring:
+    disk_space_threshold: 20  # Alert when <20% free
+    memory_threshold: 85      # Alert when >85% used
+    cpu_threshold: 90         # Alert when >90% sustained
+    
+    alerts:
+      - type: slack
+        webhook: ${{ secrets.SLACK_DEVICE_ALERTS }}
+        severity: warning
+        
+      - type: email
+        recipients:
+          - devops@headyio.com
+          - admin@headyio.com
+        severity: critical
+        
+  backup:
+    enabled: true
+    frequency: daily
+    retention: 30_days
+    destinations:
+      - type: cloud
+        provider: backblaze
+        encrypted: true
+      - type: local
+        path: /backup
+        encrypted: true
+
+# Deployment Workflows
+deployment:
+  golden_image:
+    update_frequency: monthly
+    validation_tests: true
+    rollback_enabled: true
+    
+  staged_rollout:
+    stages:
+      - name: canary
+        percentage: 5
+        duration: 24h
+        
+      - name: pilot
+        percentage: 25
+        duration: 48h
+        
+      - name: production
+        percentage: 100
+        duration: ongoing
+        
+    rollback_triggers:
+      - error_rate > 5%
+      - crash_rate > 1%
+      - user_complaints > threshold
+      
+  reporting:
+    compliance_dashboard: https://admin.headyio.com/devices
+    health_metrics: prometheus
+    logs: loki
+    traces: jaeger

@@ -1,0 +1,11 @@
+heady_control.dashboard:
+  version: 1.x
+  css:
+    theme:
+      css/dashboard.css: {}
+  js:
+    js/dashboard.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery

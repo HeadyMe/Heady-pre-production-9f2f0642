@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HeadyWeb — Universal Shell</title>
+    <meta name="description" content="Heady™ Autonomous Multi-Agent Platform — One shell, every product." />
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐝</text></svg>" />
+    <style>
+        :root {
+            --heady-gold: #F5A623;
+            --heady-dark: #0D0D0D;
+            --heady-accent: #7B61FF;
+            --heady-glow: rgba(245, 166, 35, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--heady-dark);
+            color: #E0E0E0;
+            min-height: 100vh;
+        }
+
+        #heady-root {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .heady-shell-loading {
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .heady-shell-spinner {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            border: 3px solid rgba(245, 166, 35, 0.2);
+            border-top-color: var(--heady-gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .heady-shell-fallback,
+        .heady-shell-error {
+            text-align: center;
+            padding: 48px 24px;
+            max-width: 480px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .heady-shell-fallback h1 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--heady-gold), var(--heady-accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .heady-shell-meta {
+            color: #888;
+            font-size: 0.85rem;
+            margin: 8px 0;
+        }
+
+        .heady-shell-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: var(--heady-gold);
+            text-decoration: none;
+        }
+
+        .heady-shell-link:hover {
+            text-decoration: underline;
+        }
+
+        .heady-shell-error h2 {
+            color: #FF6B6B;
+            margin-bottom: 8px;
+        }
+
+        .heady-shell-error button {
+            margin-top: 16px;
+            padding: 8px 24px;
+            background: var(--heady-gold);
+            color: var(--heady-dark);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="heady-root"></div>
+</body>
+
+</html>

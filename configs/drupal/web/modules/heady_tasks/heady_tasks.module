@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * @file
+ * Heady Tasks module for HeadyBuddy AI companion.
+ * Provides headless task management via JSON:API.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function heady_tasks_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.heady_tasks':
+      return '<p>Heady Tasks provides headless task management for the HeadyBuddy AI companion browser extension. Tasks are exposed via JSON:API for CRUD operations from the extension.</p>';
+  }
+}

@@ -132,9 +132,32 @@ const workers = [
     },
 ];
 
+// ─── Registry-Compatible Interface ──────────────────────────────
+// registry.js auto-discovers bees by { domain, getWork }.
+// We expose both the legacy { id, workers } and the registry contract.
+const domain = BEE_ID;
+const description = 'Cross-domain credential health monitoring and rotation advisory';
+const priority = 0.85;
+
+function getWork(ctx = {}) {
+    return workers.map(w => async () => {
+        try {
+            const result = await w.run();
+            return { bee: domain, action: w.id.split(':')[1] || w.name, ...result };
+        } catch (err) {
+            return { bee: domain, action: w.id.split(':')[1] || w.name, error: err.message };
+        }
+    });
+}
+
 module.exports = {
+    // Registry-compatible (auto-discovered by registry.js)
+    domain,
+    description,
+    priority,
+    getWork,
+    // Legacy interface (backward compatibility)
     id: BEE_ID,
     name: 'Credential Bee',
-    description: 'Cross-domain credential health monitoring and rotation advisory',
     workers,
 };

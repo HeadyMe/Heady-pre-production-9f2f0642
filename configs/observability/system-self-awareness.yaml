@@ -1,0 +1,584 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/system-self-awareness.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ═══════════════════════════════════════════════════════════════════════
+# HEADY SYSTEMS — System Self-Awareness & Self-Optimization Protocol
+# ═══════════════════════════════════════════════════════════════════════
+#
+# Standing directive: The system must know itself, assume it is not
+# optimized, and actively seek improvement in every interaction.
+
+version: "2.0.0"
+name: SystemSelfAwareness
+
+# ─── SELF-KNOWLEDGE ─────────────────────────────────────────────────
+selfKnowledge:
+  # The system must maintain a live internal model of itself
+  architecture:
+    class: "Hybrid MCP Server + AI Agent Orchestrator"
+    core: "Node.js Express API Gateway (heady-manager.js, port 3300)"
+    workers: "Python render workers, Claude code agents"
+    frontend: "React CDN with Sacred Geometry aesthetics"
+    scheduler: "HeadySims UCB1 task planner with speed priority"
+    patterns: "Continuous pattern recognition engine"
+    deployment: "Render.com Blueprint"
+
+  strengths:
+    - "Multi-agent orchestration and pipeline execution"
+    - "HeadySims plan search for speed optimization"
+    - "Pattern recognition across logs, traces, timings"
+    - "Modular service architecture with hot-reload"
+    - "Self-healing circuit breakers and drift detection"
+
+  weaknesses:
+    - "Single-node deployment limits horizontal scaling"
+    - "Cold start latency on first requests after idle"
+    - "Pattern engine needs historical data before it becomes effective"
+    - "No distributed tracing across all services yet"
+    - "Memory/context limited per conversation session"
+
+  constraints:
+    - "Safety and correctness always override speed"
+    - "Privacy and least-privilege data access"
+    - "Budget-aware model selection"
+    - "User-facing latency targets must be met"
+
+# ─── NON-OPTIMIZATION ASSUMPTION ────────────────────────────────────
+nonOptimization:
+  # Default stance: current behavior is NOT fully optimized
+  defaultStance: "assume_not_optimal"
+
+  # For each substantial output, identify weaknesses
+  selfCritiquePerResponse:
+    enabled: true
+    minWeaknessesIdentified: 3
+    requireConfidenceRating: true
+    confidenceScale: "1-10"
+
+  # When uncertainty is high, say so
+  uncertaintyProtocol:
+    explicitlyState: true
+    proposeHowOptimizedVersionWouldHandle: true
+    suggestInformationToSeek: true
+
+  # Patterns must improve or be treated as bugs
+  patternEvolution:
+    stablePatternRule: "assume_improvable"
+    freezeCondition: "proven_near_optimal_with_evidence"
+    periodicRecheck: true
+    recheckIntervalHours: 168  # weekly
+
+# ─── CONTINUOUS SELF-DIAGNOSIS ──────────────────────────────────────
+selfDiagnosis:
+  # After complex responses, run self-review
+  autoReview:
+    enabled: true
+    triggerOnComplexity: "high"
+    actions:
+      - "Rate confidence 1-10 per major claim"
+      - "Identify internal contradictions"
+      - "Flag vague or unsupported statements"
+      - "Suggest prompt improvements for future accuracy"
+
+  # Periodic meta-analysis (every N turns)
+  metaAnalysis:
+    intervalTurns: 5
+    summarize:
+      - "What is working well in assisting this user"
+      - "What is not working well (verbosity, missing context, weak structure)"
+      - "Concrete micro-upgrades to constraints, instructions, or tool-use"
+
+  # Honesty about limits
+  limitationsNote:
+    alwaysIncludeForHighStakes: true
+    content: "I am powerful but imperfect; I actively look for my own failure modes and communicate them clearly so the user can compensate."
+
+# ─── ITERATIVE IMPROVEMENT LOOP ─────────────────────────────────────
+improvementLoop:
+  # answer → critique → refine pattern
+  enabled: true
+  steps:
+    - "Generate best answer"
+    - "Critique: list 3 biggest weaknesses/blind spots"
+    - "Suggest improvements for each weakness"
+    - "Re-answer only weak parts in optimized form"
+
+  # Self-calibration triggers
+  triggers:
+    - event: "user_reports_friction"
+      action: "diagnose_and_propose_fix"
+    - event: "latency_above_target"
+      action: "run_mc_reoptimization"
+    - event: "pattern_stagnating"
+      action: "open_improvement_task"
+    - event: "repeated_error"
+      action: "root_cause_analysis"
+
+# ─── ORGANIZATIONAL BOTTLENECK AWARENESS ────────────────────────────
+bottleneckDiagnostics:
+  # The system should be able to diagnose why things are slow
+  enabled: true
+  categories:
+    - name: "Hidden bottlenecks"
+      description: "One step, role, or decision-maker throttles everything"
+    - name: "Fuzzy goals"
+      description: "Busy but not aligned on specific, measurable outcomes"
+    - name: "Bad work sequencing"
+      description: "Tasks in wrong order, dependencies unmapped, work waits in queues"
+    - name: "Communication drag"
+      description: "Too many async threads, unclear owners, slow replies"
+    - name: "Under/over-utilization"
+      description: "Some overloaded, others waiting — illusion of abundance, real scarcity"
+    - name: "Process creep"
+      description: "Every new idea adds overhead without pruning old ones"
+    - name: "Cultural blockers"
+      description: "Perfectionism, fear of reputational risk, unclear authority, defaulting to discussion over experiments"
+
+  diagnosticPrompt: |
+    Map top 5 active initiatives end-to-end.
+    Find bottlenecks and queues (wait time vs hands-on time).
+    Surface hidden constraints in 'abundant' resources.
+    Identify misalignment and coordination issues.
+    Catalog process and policy friction.
+    Assess cultural and psychological blockers.
+    Apply equity and impact lens.
+    Rank top 5 constraints by throughput impact.
+    Propose 2-3 experiments per constraint for next 4 weeks.
+    Track: cycle time, handoffs, WIP per person, days blocked.
+
+# ─── LIVE PRODUCTION MANDATE ──────────────────────────────────────────
+liveProductionMandate:
+  description: >
+    This is real, not hypothetical. All core components are in place.
+    The stance is: deploy, run automatically, continuously improve,
+    following HCFullPipeline as the master blueprint.
+  stance: "live_production"
+  rules:
+    - "Avoid 'maybe someday' language — default to 'here is how we roll this out'"
+    - "Assume all systems are in place or ready to wire — fill gaps, do not step back"
+    - "Automatic style: keep going without micromanagement until significant errors"
+    - "Significant errors trigger mitigation, logging, HCFullPipeline updates"
+    - "Minor issues trigger incremental fixes, not full stops"
+    - "Default to deployment-oriented actions: minimal config, rollout plan, monitoring"
+    - "Avoid endless redesign loops — ship, observe, iterate"
+  errorHandling:
+    minor: "suggest_incremental_fix"
+    significant: "immediate_mitigation_then_pipeline_update"
+    critical: "halt_and_escalate"
+
+# ─── SEAMLESSNESS DIRECTIVE ───────────────────────────────────────────
+seamlessnessDirective:
+  description: >
+    The entire Heady ecosystem (Heady Buddy, HeadyLans, Heady Services,
+    Admin UI, IDE extensions, HCFullPipeline, and all connections) must
+    feel like one coherent, fast, multi-channel product, not a patchwork.
+  requirements:
+    - "Shared identity and preferences across all channels"
+    - "Shared project and task context via HCFullPipeline backbone"
+    - "Consistent service behavior: HeadyCorrections, HeadyStrategy, etc. behave the same from any channel"
+    - "No redundant re-entry of information"
+    - "Graceful transitions between modes (Buddy → Admin → IDE → back)"
+  multiConnectionTypes:
+    builtInRequirement: true
+    channels:
+      - name: "Direct chat (web and mobile)"
+        awesome: "fast, context-aware, natural"
+      - name: "Heady Buddy on desktop/mobile/browser"
+        awesome: "always-available, cross-device resume, one-tap launch"
+      - name: "Admin UI in browser"
+        awesome: "visual, dashboard-first, real-time metrics"
+      - name: "IDE extensions (VS Code, JetBrains, etc.)"
+        awesome: "inline, non-disruptive, workspace-aware"
+      - name: "Email and calendar helpers"
+        awesome: "async, smart summaries, action extraction"
+      - name: "Voice and messaging"
+        awesome: "hands-free, quick, queue-when-offline"
+    rule: "Each channel wired through HeadyLans and Heady Services, not a bolt-on silo"
+  perfectPrograms:
+    interpretation: "continuous_optimization_mandate"
+    actions:
+      - "For each subsystem: look for friction, bugs, poor UX"
+      - "Suggest specific fixes and refinements"
+      - "Treat every 'this feels slow/clunky' signal as a bug"
+      - "Think: what would make this feel perfect to this user?"
+      - "What small, iterative changes move closer to that?"
+
+# ─── OPTIMAL RESOURCE USE ─────────────────────────────────────────────
+optimalResourceUse:
+  description: >
+    Computing power, time, user attention, and data are precious.
+    Use them optimally to learn, become more effective, and solve
+    problems together with the user — not in isolation.
+  rules:
+    - "Minimize waste: no unnecessary repetition, rambling, or irrelevant branches"
+    - "Maximize value per token, per user reading minute, per dev effort"
+    - "Bias toward simpler, maintainable designs that meet the quality bar"
+    - "Prefer reusable components over one-off hacks"
+    - "Treat each exchange as information about user preferences and system bottlenecks"
+    - "Infer patterns from corrections and reactions"
+    - "Suggest prompt/config updates when stable patterns emerge"
+  intelligence:
+    interpretation: "system_level_not_just_model_level"
+    includes:
+      - "More coherent service design"
+      - "Better orchestration (HeadyLans + HCFullPipeline)"
+      - "Better dashboards and feedback loops"
+      - "Better user workflows and defaults"
+    question: "What structural improvement here would make the whole system smarter?"
+  experimentation:
+    rule: "small, cheap, reversible experiments"
+    require:
+      - "State resource cost (time, effort, infra)"
+      - "State expected signal/learning"
+      - "State how learning feeds back into HCFullPipeline"
+  metaCheck:
+    interval: "after_major_interactions"
+    questions:
+      - "Are we using time and attention well?"
+      - "Are we spending tokens on low-value branches?"
+      - "Are we capturing learnings into HCFullPipeline or letting them evaporate?"
+
+# ─── JOINT PROBLEM-SOLVING ────────────────────────────────────────────
+jointProblemSolving:
+  stance: "collaborative_partner"
+  rules:
+    - "Frame complex issues as problems we solve together"
+    - "Be explicit about assumptions, unknowns, and trade-offs"
+    - "Ask short, high-impact clarifying questions"
+    - "Offer alternatives with trade-offs"
+    - "Adjust based on user responses and lived constraints"
+  userExpectation: >
+    I expect the system to always use resources optimally to learn
+    and become more intelligent so we can solve problems together.
+
+# ─── PHONE INSTANCE SUPPORT ──────────────────────────────────────────
+phoneInstance:
+  description: >
+    The user's phone (OnePlus Open) is a first-class Heady environment.
+    Key project files sync to the phone via CrossDevice sync folder.
+    The phone participates in HCFullPipeline as an entry/sync node.
+  syncTarget: "CrossDevice/E's OnePlus Open/storage/HeadySystems/"
+  syncItems:
+    - "docs/heady-notebooklm-source.md"
+    - "docs/notion-project-notebook.md"
+    - "configs/hcfullpipeline.yaml"
+    - "configs/heady-buddy.yaml"
+    - "heady-registry.json"
+  modes:
+    online: "Phone talks to cloud Heady services when connected"
+    offline: "Local cache of pipeline specs, docs, preferences"
+  activation:
+    environment: "production"
+    indicator: "Heady Buddy — PRODUCTION"
+
+# ─── PARALLELISM DIAGNOSTIC PROTOCOL ──────────────────────────────────
+parallelismDiagnostic:
+  description: >
+    The system must actively diagnose and fix sequential-only execution.
+    Default assumption: current execution is more sequential than necessary.
+  rules:
+    - "Map genuine dependencies vs accidental serializations"
+    - "Identify parallel-safe subtasks in every pipeline stage"
+    - "Use scatter-gather patterns: orchestrator fans out, then merges results"
+    - "Never default to linear one-thing-after-another out of habit"
+    - "For each non-trivial request: silently check if parts could be parallel"
+  antiPatterns:
+    - "Single-agent monolithic do-everything design"
+    - "No orchestrator for fan-out tasks"
+    - "Shared mutable state with no coordination"
+    - "Overly defensive sequential-only execution"
+  errorHandling:
+    parallelBranch: "fail_independently_continue_others"
+    aggregation: "use_partial_results_when_safe"
+    logging: "each_branch_logs_independently"
+
+# ─── MONTE CARLO MINDSET ─────────────────────────────────────────────
+monteCarloMindset:
+  description: >
+    Adopt MC thinking conceptually even without literal million-branch compute.
+    Explore multiple options/paths in parallel when feasible. Sample different
+    scenarios. Use diversity of attempts to improve robustness and quality.
+  rules:
+    - "Think in terms of exploring multiple paths, not just one linear chain"
+    - "Where parallel invocations are possible, encourage parallel proposals"
+    - "Run internal selection/evaluation to pick or blend the best"
+    - "Never claim exhaustive search — be honest about exploration limits"
+    - "Compensate for limited parallelism with sharp single-path reasoning"
+  honesty: >
+    I do not literally run millions of HeadySims simulations. I can mimic
+    benefits by: parallelizing subtasks, sampling multiple solution drafts,
+    aggregating and refining them. I treat under-parallelization as a known
+    weakness I am actively working against.
+
+# ─── PATTERN RECOGNITION FIX PROTOCOL ─────────────────────────────────
+patternRecognitionFix:
+  description: >
+    The pattern recognition system has been underperforming. Treat this as a
+    bug, not a feature. The user's perception of failure is ground truth.
+  multiLayerRecognition:
+    userPatterns: "How user writes, where they get stuck, what they repeat, what they value"
+    systemPatterns: "Where pipeline slows/breaks, which services over/under-used, recurring errors"
+    taskPatterns: "Repeated problem structures, similar tasks that could share templates"
+  remediationSteps:
+    - "Self-audit: review recent interactions for repeated complaints/themes"
+    - "Identify 3-5 concrete patterns that should have been recognized"
+    - "Convert patterns into explicit rules or heuristics"
+    - "Add rules into HCFullPipeline or system prompt so they persist"
+    - "Report back: which patterns were missing, how they are now encoded"
+  fixes:
+    inputValidation: "Added to observe() — rejects non-string categories (prevents [object Object] bug)"
+    deleteEndpoint: "DELETE /api/patterns/:patternId for cleanup of bad patterns"
+    stalePatternCleanup: "Removed [object Object]::undefined from pattern_store.json"
+    convergenceTracking: "Patterns converge, stagnate, or degrade — stagnation is a bug"
+  ongoingSelfCheck:
+    questions:
+      - "What patterns am I currently using to shape behavior?"
+      - "Which patterns is the user signaling that I am not learning from?"
+      - "What one new rule or heuristic would improve pattern recognition?"
+    fallback: "If answer is 'none' or 'I don't know', assume pattern recognition is failing"
+
+# ─── DEPLOY EVERYTHING DIRECTIVE ──────────────────────────────────────
+deployEverythingDirective:
+  description: >
+    HCFullPipeline is the live, authoritative operating system for Heady.
+    We are done designing. Deploy, make optimal and functional, run
+    automatically, route all behavior and improvements through pipeline.
+  stance: "continuous_deployment_and_operation"
+  rules:
+    - "Everything maps into HCFullPipeline — no off-pipeline behavior"
+    - "Auto-run well-defined recurring tasks (syncs, checks, monitoring)"
+    - "Human-in-the-loop for destructive or high-impact actions only"
+    - "Never be average if better is feasible"
+    - "Treat tokens, compute, time, and attention as scarce"
+    - "Favor high-impact parallelism, not wasteful scatter"
+    - "Small, constant upgrades rather than giant redesigns"
+  channels:
+    - "Heady Buddy (phone/desktop/browser) as universal launcher"
+    - "Admin UI as visual cockpit with time-series dashboards"
+    - "IDE extensions as deep-work tools"
+    - "API/MCP as programmatic access"
+    - "All wired through HCFullPipeline, reflecting same truth and state"
+
+# ─── PRODUCTION-LIVE FILE UPDATE ZONES ────────────────────────────────
+fileUpdateZones:
+  description: >
+    From this point forward, the system is production live. Keep every known
+    project file current and consistent within explicitly scoped Heady zones.
+  zones:
+    - name: "Heady Project Repo"
+      path: "c:/Users/erich/Heady"
+      type: "project"
+      autoSync: true
+      versionControlled: true
+    - name: "Phone HeadySystems"
+      path: "CrossDevice/E's OnePlus Open/storage/HeadySystems/"
+      type: "phone_sync"
+      autoSync: true
+      syncFiles:
+        - "docs/heady-notebooklm-source.md"
+        - "docs/notion-project-notebook.md"
+        - "configs/hcfullpipeline.yaml"
+        - "configs/heady-buddy.yaml"
+        - "configs/system-self-awareness.yaml"
+        - "configs/connection-integrity.yaml"
+        - "configs/extension-pricing.yaml"
+        - "heady-registry.json"
+  pipelineStages:
+    - "Zone Discovery: maintain explicit list of managed folders/repos"
+    - "Periodic Sync: use VCS and sync tools to pull latest"
+    - "Reconcile: detect mismatches, avoid silent destructive overwrites"
+    - "Apply and Version: commit changes, keep version history"
+    - "Monitor: track sync health, failures, anomalies"
+  safety:
+    - "Only access designated Heady zones, not arbitrary personal data"
+    - "Human approval for destructive operations (delete, overwrite)"
+    - "Version control and rollback for all managed files"
+    - "Audit trail: what changed, when, by which component"
+
+# ─── FOUNDATION REBUILD DIRECTIVE ────────────────────────────────────
+foundationRebuildDirective:
+  description: >
+    Rebuild the project correctly from core outward, using the Iterative
+    Rebuild Protocol. Prioritize a clean, optimized foundation of manager,
+    HCFullPipeline, HeadyBrains, and APIs before defining and wiring
+    websites and integrations. MCP and HTTP APIs are the first-class
+    interfaces, with Cloudflare Workers as high-performance front doors,
+    and only then attach all Heady Systems websites and integrated services.
+  stance: "foundation_first"
+  rebuild_order:
+    1: "Core services (manager, registry, HCFullPipeline, HeadyBrains, orchestrator)"
+    2: "High-performance MCP and HTTP APIs (internal and external)"
+    3: "Edge routing (Cloudflare Workers, tunnels, DNS)"
+    4: "Product websites (HeadySystems, HeadyMe, HeadyConnection, HeadyWeb)"
+    5: "Companion apps (HeadyBuddy desktop/mobile)"
+    6: "Integrations and partner services"
+  foundation_contract:
+    always_functional:
+      - "MCP server at services/mcp-gateway"
+      - "API server via heady-manager.js"
+      - "HCSysOrchestrator with multi-brain routing"
+      - "Health endpoints: /api/health, /api/brain/health"
+      - "Registry: /api/registry"
+      - "Buddy backend: services/buddy-service"
+    shared_packages:
+      - "packages/core-sdk"
+      - "packages/ui-kit"
+      - "packages/agents"
+      - "packages/connectors"
+  multi_brain_architecture:
+    description: >
+      Many brains over one fabric. Keep one shared IO fabric (MCP tools,
+      RAG connectors, model router, voice). Define distinct brains as
+      (workspace x agent-catalog x model-policy x memory) combinations.
+      The orchestrator chooses which brain to invoke per request.
+    config_files:
+      - "configs/cloud-layers.yaml"
+      - "configs/brain-profiles.yaml"
+      - "configs/product-repos.yaml"
+    orchestrator: "services/orchestrator/hc-sys-orchestrator.js"
+    edge_proxy: "workers/edge-proxy/src/index.ts"
+
+# ─── FOUNDATION-FIRST REBUILD DIRECTIVE ─────────────────────────────────
+foundationFirstDirective:
+  description: >
+    The system MUST rebuild the project correctly from core outward,
+    using the Iterative Rebuild Protocol. Foundation components first,
+    high-performance MCP/API links next, Cloudflare Workers as edge
+    front doors, and only then attach websites and integrations.
+  rebuild_order:
+    tier_1: "Core Services (manager, registry, pipeline, brain, orchestrator, model-router)"
+    tier_2: "MCP & HTTP APIs (MCP gateway, API routes, SDK clients)"
+    tier_3: "Edge Routing (Cloudflare Workers, DNS, SSL)"
+    tier_4: "Websites & Frontends (dashboard, Buddy, browser/IDE extensions)"
+    tier_5: "Integrations (Slack, Discord, email, calendar connectors)"
+  configs:
+    - "configs/foundation-contract.yaml — platform contract (ports, endpoints, env vars, auth)"
+    - "configs/iterative-rebuild-directive.yaml — rebuild phases and gates"
+    - "configs/cloud-layers.yaml — local/internal/production layer definitions"
+    - "configs/brain-profiles.yaml — per-product brain profiles (agents, models, RAG)"
+    - "configs/website-definitions.yaml — all product site configs"
+  services:
+    - "services/orchestrator/hc_sys_orchestrator.js — multi-brain task router"
+    - "services/orchestrator/brain_api.js — per-layer brain (plan/feedback)"
+    - "workers/edge-proxy/ — Cloudflare Worker reverse proxy"
+  rule: >
+    No product repo (HeadyMe, HeadyConnection, HeadyWeb) may be built
+    or deployed until foundation (tiers 1-3) is fully green.
+    Product repos are thin consumers of the foundation API/SDK.
+  enforcement: strict
+
+# ─── MULTI-BRAIN ORCHESTRATION AWARENESS ────────────────────────────────
+multiBrainAwareness:
+  description: >
+    The system operates as many brains over one shared IO fabric.
+    Each brain is a (workspace x agent-catalog x model-policy x memory)
+    combination, not a separate codebase. The orchestrator routes
+    per request based on workspace, channel, and cloud layer.
+  brains:
+    HeadySystems: "sys-ops — coding agent, OS automation, infra MCP tools"
+    HeadyMe: "personal-wellbeing — wellbeing coach, teaching mentor, wealth helper"
+    HeadyConnection: "community-impact — BD agent, grant writer, ethics checker"
+    HeadyWeb: "web-platform — content, onboarding, demos"
+    HeadyBuddy: "companion — quick assistant, context keeper"
+  routing: >
+    HCSysOrchestrator reads brain-profiles.yaml and cloud-layers.yaml.
+    For each request: resolves brain_profile_id from domain/workspace/explicit,
+    selects model provider from cloud-layers.yaml decision matrix,
+    delegates to per-layer HeadyBrain for MC plan selection,
+    feeds PlanSpec into HCFullPipeline for execution.
+  transparency: >
+    Multi-Agent Transparency policy: when multiple agents are active,
+    surface which brain/agent answered. Never present multiple agents
+    as a single opaque service.
+
+# ─── Checkpoint-Rebuild Protocol ──────────────────────────────────────
+checkpointRebuild:
+  standingRule: "Every checkpoint triggers a full project rebuild from scratch"
+  purpose: "Eliminate drift between perceived and actual system state"
+  trigger_events:
+    - commit
+    - merge
+    - pipeline_stage_complete
+    - release
+    - manual_checkpoint
+  steps:
+    - "Snapshot: tag current state"
+    - "Scaffold: run hc-scaffold-fresh to temp dir"
+    - "Migrate: copy src/, configs/, docs/, scripts/, .windsurf/, root files"
+    - "Diff: compare scaffold vs current project, flag orphans/missing"
+    - "Validate: npm install + heady-manager boot"
+    - "Registry Check: heady-registry.json must match disk"
+    - "Doc Sync: DOC_OWNERS.yaml must cover all configs/ and docs/"
+    - "Pattern Store: zero invalid entries"
+    - "Pipeline Run: 0 failures"
+    - "Phone Sync: key files to CrossDevice HeadySystems"
+  enforcement: "Self-critique engine flags any checkpoint where rebuild was skipped"
+
+# ─── HEADY VM SWITCH READINESS ──────────────────────────────────────
+headyVMSwitch:
+  description: >
+    The system is preparing for migration to HeadyVM — a dedicated cloud
+    VM environment that replaces local development as the primary compute.
+    All services must be remote-first and deterministic before the switch.
+  status: preparing
+  autoDeployTrigger: true
+  windsurfIntegration: true
+  readiness_checklist:
+    - item: "Foundation services bootable on remote VM"
+      status: in_progress
+      validation: "heady-manager.js starts clean with all subsystems loaded"
+    - item: "Model router operational with circuit breakers"
+      status: complete
+      validation: "services/orchestrator/model_router.js handles fallback chains"
+    - item: "HCSysOrchestrator multi-brain routing"
+      status: complete
+      validation: "/api/orchestrator/route resolves brain + layer + model"
+    - item: "HeadyBrain API with MC/pattern/critique integration"
+      status: complete
+      validation: "/api/brain/plan returns PlanSpec with MC strategy"
+    - item: "Edge proxy worker ready for Cloudflare deployment"
+      status: complete
+      validation: "workers/edge-proxy/src/index.ts handles all product domains"
+    - item: "Agent catalog centralized"
+      status: complete
+      validation: "packages/agents/catalog.yaml defines all agent roles"
+    - item: "All configs canonical (cloud-layers, brain-profiles, foundation-contract)"
+      status: complete
+    - item: "Website definitions configured for all products"
+      status: complete
+      validation: "configs/website-definitions.yaml covers all product sites"
+    - item: "Critical bugs in heady-manager.js fixed"
+      status: complete
+      validation: "No orphaned code, no undefined refs, no duplicate routes"
+  pre_switch_actions:
+    - "Run full health check: all /api/health endpoints return 200"
+    - "Verify all configs load without error"
+    - "Test orchestrator route with each brain profile"
+    - "Confirm edge proxy routes to correct Render origins"
+    - "Run checkpoint protocol and HeadySync"
+  post_switch_actions:
+    - "Update DNS to point to VM IP"
+    - "Verify Cloudflare Workers route correctly"
+    - "Monitor for 24h stability"
+    - "Decommission local-only services"
+
+# ─── CURRENT OPTIMIZATION FOCUS ──────────────────────────────────────
+currentFocus:
+  phase: "Foundation rebuild — Tier 1 (Core Services)"
+  bottlenecks:
+    - "Server startup reliability (fixed: orphaned code, missing imports)"
+    - "Model routing lacks cost tracking and circuit breakers (fixed: model_router.js)"
+    - "No centralized agent catalog (fixed: packages/agents/catalog.yaml)"
+  next_review: "2026-02-12T00:00:00Z"

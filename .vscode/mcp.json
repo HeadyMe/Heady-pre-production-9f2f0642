@@ -1,0 +1,11 @@
+{
+    "servers": {
+        "Heady": {
+            "type": "sse",
+            "url": "https://heady.headyme.com/sse",
+            "headers": {
+                "Authorization": "Bearer hdy_int_4d2d3fe4becc8ad3eea4c9c9b25ba68a83b28335143b89ab"
+            }
+        }
+    }
+}

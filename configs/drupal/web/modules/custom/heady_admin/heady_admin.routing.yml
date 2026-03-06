@@ -1,0 +1,76 @@
+# Routes for the Heady Admin module
+# Each route enforces specific permissions
+
+heady_admin.dashboard:
+  path: '/admin/heady'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::dashboard'
+    _title: 'Heady Dashboard'
+  requirements:
+    _permission: 'view heady dashboard'
+
+heady_admin.services:
+  path: '/admin/heady/services'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::services'
+    _title: 'Services Management'
+  requirements:
+    _permission: 'manage heady services'
+
+heady_admin.hcfp:
+  path: '/admin/heady/hcfp'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::hcfp'
+    _title: 'HCFP Policy Management'
+  requirements:
+    _permission: 'manage hcfp policies'
+
+heady_admin.headylens:
+  path: '/admin/heady/headylens'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::headylens'
+    _title: 'HeadyLens Real-Time Monitoring'
+  requirements:
+    _permission: 'access heady lens'
+
+heady_admin.customize:
+  path: '/admin/heady/customize'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::customize'
+    _title: 'System Customization'
+  requirements:
+    _permission: 'customize heady system'
+
+heady_admin.access_control:
+  path: '/admin/heady/access'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::accessControl'
+    _title: 'User Access Control'
+  requirements:
+    _permission: 'manage user access'
+
+heady_admin.settings:
+  path: '/admin/heady/settings'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::settings'
+    _title: 'Heady Settings'
+  requirements:
+    _permission: 'administer heady ecosystem'
+
+heady_admin.api_status:
+  path: '/admin/heady/api/status'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::apiStatus'
+    _title: 'API Status'
+  requirements:
+    _permission: 'view heady dashboard'
+    _method: 'GET'
+
+heady_admin.api_hcfp:
+  path: '/admin/heady/api/hcfp'
+  defaults:
+    _controller: '\Drupal\heady_admin\Controller\HeadyAdminController::apiHcfp'
+    _title: 'HCFP API'
+  requirements:
+    _permission: 'manage hcfp policies'
+    _method: 'GET|POST'

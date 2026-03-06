@@ -1,0 +1,54 @@
+version: 1
+updated_at: 2026-03-06T00:00:00Z
+mode: full-throttle-auto-success
+user_pipeline:
+  name: heady-auto-pipeline-god-mode
+  description: dedicated priority lane for owner/admin initiated tasks
+  trigger_topic: heady-admin-triggers
+  bypass_topic: heady-swarm-tasks
+  runner: godbee-sandbox
+  sandbox_profile:
+    cpu: 4000m
+    memory: 4Gi
+    priority: critical
+  governance:
+    evaluator: perfect-governance
+    conflict_resolution: recursive-ast-self-correction
+    max_rewrite_attempts: 12
+  projection:
+    target: github-monorepo
+    required_tests: true
+heartbeat_pipeline:
+  name: autonomous-heartbeat
+  schedule:
+    testerbee: "0 * * * *"
+    prunerbee: "0 2 * * *"
+  scheduler: google-cloud-scheduler
+  topic: heady-swarm-tasks
+  tasks:
+    - id: simulate-module-federation-traffic
+      swarm: testerbee
+      patch_on_failure: true
+      patch_engine: master-agent-ast
+    - id: prune-unused-projections
+      swarm: prunerbee
+      remove_orphans:
+        - git-branches
+        - stale-projections
+        - outdated-container-images
+        - unused-local-sync-artifacts
+ableton_sysex:
+  manufacturer_id: 125
+  receiver: max-for-live-js
+  commands:
+    - id: 1
+      name: set-tempo
+      target: live_set.tempo
+terraform:
+  project: heady-liquid-architecture
+  region: us-central1
+  services:
+    - artifact-registry
+    - pubsub
+    - cloud-run
+    - cloud-scheduler

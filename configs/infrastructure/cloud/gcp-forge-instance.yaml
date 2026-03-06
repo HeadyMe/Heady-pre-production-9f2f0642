@@ -1,0 +1,59 @@
+# GCP Heavy Forge — Compute Engine A100 Instance Template
+# Used by LocalFinetuneBee for LoRA fine-tuning
+# Spins up on-demand, terminates after training
+
+apiVersion: compute.googleapis.com/v1
+kind: InstanceTemplate
+metadata:
+  name: heady-forge-a100
+  description: GPU instance for Heady model fine-tuning
+  labels:
+    app: heady
+    component: forge
+    tier: gpu-compute
+spec:
+  properties:
+    machineType: a2-highgpu-1g
+    guestAccelerators:
+      - acceleratorType: nvidia-tesla-a100
+        acceleratorCount: 1
+    scheduling:
+      onHostMaintenance: TERMINATE
+      automaticRestart: false
+      preemptible: true  # Use preemptible for cost savings
+    disks:
+      - boot: true
+        autoDelete: true
+        initializeParams:
+          sourceImage: projects/ml-images/global/images/family/pytorch-2-3-cu121
+          diskSizeGb: 200
+          diskType: pd-ssd
+    networkInterfaces:
+      - network: projects/heady-liquid-architecture/global/networks/default
+        accessConfigs:
+          - type: ONE_TO_ONE_NAT  # Needs internet for model downloads
+    metadata:
+      items:
+        - key: startup-script
+          value: |
+            #!/bin/bash
+            echo ">>> HEADY FORGE A100 BOOTING <<<"
+            pip install -q transformers datasets peft accelerate bitsandbytes
+            # The actual training script is injected by the LocalFinetuneBee
+            # via GCP metadata or environment variables
+            echo ">>> FORGE READY FOR TRAINING <<<"
+        - key: shutdown-script
+          value: |
+            #!/bin/bash
+            echo ">>> FORGE SELF-DESTRUCTING <<<"
+            # Upload training artifacts to GCS before dying
+            gsutil -m cp -r /tmp/heady-training-output/ gs://heady-forge-artifacts/$(date +%Y%m%d_%H%M%S)/
+            echo ">>> ARTIFACTS SAVED. GOODBYE. <<<"
+    serviceAccounts:
+      - email: heady-forge-sa@heady-liquid-architecture.iam.gserviceaccount.com
+        scopes:
+          - https://www.googleapis.com/auth/cloud-platform
+    tags:
+      items:
+        - heady-forge
+        - gpu-workload

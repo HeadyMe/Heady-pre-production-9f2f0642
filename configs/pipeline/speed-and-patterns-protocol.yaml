@@ -1,0 +1,172 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/speed-and-patterns-protocol.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+#
+# Speed & Pattern Recognition Standing Protocol
+# Encodes the system-wide contract: speed is first-class,
+# patterns must continuously improve, stagnation is a defect.
+
+version: "1.0.0"
+name: SpeedAndPatternsProtocol
+
+# ─── STANDING DIRECTIVE: SPEED ────────────────────────────────────────────
+speedDirective:
+  description: >
+    Every agent, service, and pipeline in the Heady ecosystem must treat
+    end-to-end latency and time-to-completion as primary optimization targets,
+    on par with correctness and safety. Any task that could reasonably be
+    faster but isn't should be treated as a performance bug.
+  principles:
+    - name: latency_is_a_defect
+      rule: >
+        If a task exceeds its latency target without a safety or quality reason,
+        that is a performance bug. Open an improvement task automatically.
+    - name: prefer_fast_paths
+      rule: >
+        Route to agents and models configured for low latency when quality allows.
+        Prefer cached knowledge, prebuilt tools, and shorter call chains over
+        deep, slow orchestration.
+    - name: fallback_only_on_failure
+      rule: >
+        Fall back to slower, more thorough modes only when the quick path fails
+        tests or violates safety/quality constraints.
+    - name: warm_pools
+      rule: >
+        Keep warm pools of agents/models ready so they don't have cold-start delays.
+        Interactive and frequently-used agents should never cold-start.
+
+# ─── STANDING DIRECTIVE: PATTERNS ─────────────────────────────────────────
+patternDirective:
+  description: >
+    The system must continuously look for patterns in everything it does and
+    everything it produces: logs, traces, timings, errors, successes, user
+    actions, and requests. When a pattern is noticed, it must be named,
+    recorded, and used to improve routing, scheduling, UX, or debugging.
+  categories:
+    - name: performance_patterns
+      description: >
+        Recurring bottlenecks, agents always slow on certain tasks,
+        sequences that are serial but could be parallel.
+      action: optimize_or_parallelize
+    - name: reliability_patterns
+      description: >
+        Error bursts after certain changes, flaky tests, logs that
+        always precede a failure.
+      action: auto_mitigate_and_alert
+    - name: usage_patterns
+      description: >
+        How the user actually works, which flows repeat, which prompts
+        are common, where the user hesitates.
+      action: adapt_defaults_and_plans
+    - name: success_patterns
+      description: >
+        Configurations, agent combos, or plan strategies that
+        consistently deliver fast, correct results.
+      action: promote_and_lock
+
+# ─── PATTERN EVOLUTION RULE ──────────────────────────────────────────────
+patternEvolutionRule:
+  description: >
+    Whenever a recurring pattern is detected, assume it is NOT optimal
+    by default and try to improve it. Patterns should only freeze when
+    demonstrably near the best achievable under current limits.
+  rules:
+    - name: stagnant_patterns_are_bugs
+      rule: >
+        If a pattern stays the same while metrics are mediocre (slow latency,
+        frequent errors, confusing UX), treat that as a bug in learning,
+        not a stable state.
+    - name: continuous_experimentation
+      rule: >
+        For any stable pattern, continuously run small controlled experiments
+        (A/B or HeadySims plan variants) to seek better latency, quality,
+        or user comfort. Keep improvements, discard failures.
+    - name: degradation_triggers_action
+      rule: >
+        For degrading or stagnating patterns, automatically open improvement
+        tasks, adjust routing/plans, and surface a short explanation.
+    - name: lock_only_when_proven
+      rule: >
+        Only mark a pattern as "locked-in best practice" when repeated
+        attempts to change it fail to improve outcomes or hit clear
+        safety/constraint boundaries. Even then, periodically re-check
+        as capabilities, models, or hardware improve.
+    - name: convergence_detection
+      rule: >
+        A pattern has converged when variance in the last N samples drops
+        below threshold AND the median is within target. Log convergence
+        event and set review interval (not permanent lock).
+  convergenceThresholds:
+    varianceCoefficientMax: 0.05
+    minSamplesForConvergence: 20
+    reviewIntervalAfterConvergence: 100
+
+# ─── SPEED HINTS (USER COMMAND PATTERNS) ─────────────────────────────────
+speedHints:
+  description: >
+    When the user includes these phrases, interpret as explicit speed priority.
+  triggers:
+    - pattern: "optimized for fastest"
+      action: force_monte_carlo_fast_path
+    - pattern: "minimum-latency path"
+      action: force_monte_carlo_fast_path
+    - pattern: "this is far too slow"
+      action: re_optimize_with_fastest_monte_carlo
+    - pattern: "show me the current fastest plan"
+      action: explain_current_plan_selection
+    - pattern: "notice this pattern"
+      action: promote_pattern_to_store
+    - pattern: "what patterns do you see"
+      action: surface_recent_patterns
+
+# ─── METRICS CONTRACT ────────────────────────────────────────────────────
+metricsContract:
+  description: >
+    The system must expose these metrics so speed and patterns can be enforced.
+  required:
+    - name: median_latency
+      scope: per_task_type
+      unit: ms
+    - name: p90_latency
+      scope: per_task_type
+      unit: ms
+    - name: speed_score
+      scope: per_agent_and_workflow
+      unit: percent
+      description: >
+        Higher when routinely under time targets.
+        100 = always under target, 0 = always 2x+ over target.
+    - name: pattern_count
+      scope: global
+      categories: [performance, reliability, usage, success]
+    - name: pattern_improvement_rate
+      scope: global
+      description: >
+        Percentage of detected patterns that improved in the last N cycles.
+    - name: convergence_count
+      scope: global
+      description: >
+        Number of patterns that have converged to proven-optimal state.
+  alerts:
+    - condition: speed_score < 60
+      action: >
+        Automatically treat as regression: open improvement task,
+        run HeadySims plan-search for faster alternatives,
+        propose or apply fixes.
+    - condition: pattern_improvement_rate < 0.1
+      action: >
+        System is stagnating. Force exploration phase: increase
+        HeadySims exploration constant, try new plan strategies.

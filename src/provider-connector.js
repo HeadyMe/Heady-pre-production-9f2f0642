@@ -111,6 +111,25 @@ const PROVIDER_CONFIGS = {
         extractResponse: (data) => data.choices?.[0]?.message?.content,
         extractError: (data) => data.error?.message || data.error,
     },
+
+    groq: {
+        name: "Groq",
+        baseUrl: "https://api.groq.com/openai/v1/chat/completions",
+        models: ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"],
+        defaultModel: "llama-3.3-70b-versatile",
+        authHeader: "Authorization",
+        authPrefix: "Bearer ",
+        formatRequest: (model, system, message, maxTokens) => ({
+            model,
+            messages: [
+                ...(system ? [{ role: "system", content: system }] : []),
+                { role: "user", content: message },
+            ],
+            max_tokens: maxTokens,
+        }),
+        extractResponse: (data) => data.choices?.[0]?.message?.content,
+        extractError: (data) => data.error?.message,
+    },
 };
 
 // ═══ Key Health Tracker ═══
@@ -202,6 +221,9 @@ class ProviderConnector extends EventEmitter {
         // HuggingFace
         if (process.env.HUGGINGFACE_TOKEN) this.addKeys("huggingface", [{ key: process.env.HUGGINGFACE_TOKEN, label: "env", account: "env" }]);
         if (process.env.HF_TOKEN) this.addKeys("huggingface", [{ key: process.env.HF_TOKEN, label: "hf", account: "env" }]);
+
+        // Groq
+        if (process.env.GROQ_API_KEY) this.addKeys("groq", [{ key: process.env.GROQ_API_KEY, label: "env", account: "env" }]);
 
         return this;
     }

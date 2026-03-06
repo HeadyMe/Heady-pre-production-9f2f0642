@@ -1,0 +1,46 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:base",
+        ":preserveSemverRanges",
+        "group:allNonMajor",
+        "schedule:weekly"
+    ],
+    "packageRules": [
+        {
+            "matchUpdateTypes": [
+                "minor",
+                "patch"
+            ],
+            "matchCurrentVersion": "!/^0/",
+            "automerge": true,
+            "automergeType": "branch",
+            "automergeSchedule": [
+                "weekend"
+            ]
+        },
+        {
+            "matchManagers": [
+                "helmv3"
+            ],
+            "matchUpdateTypes": [
+                "patch",
+                "minor"
+            ],
+            "automerge": true,
+            "labels": [
+                "helm",
+                "infrastructure",
+                "renovate-auto"
+            ]
+        }
+    ],
+    "helmv3": {
+        "fileMatch": [
+            "(^|/)charts/.*/Chart\\.yaml$"
+        ],
+        "registryAliases": {
+            "stable": "https://charts.helm.sh/stable"
+        }
+    }
+}

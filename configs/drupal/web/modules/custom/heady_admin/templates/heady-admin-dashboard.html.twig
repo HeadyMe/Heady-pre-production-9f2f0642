@@ -1,0 +1,148 @@
+{#
+/**
+ * Heady Systems Admin Dashboard — Comprehensive Template
+ * 
+ * Tabbed interface: Dashboard | Services | HCFP | HeadyLens | Customize | Access | Settings
+ * Includes HeadyBuddy widget for AI-assisted admin tasks.
+ */
+#}
+
+{# ── Admin Navigation Tab Bar ── #}
+<div class="heady-admin-wrapper">
+  <nav class="heady-admin-nav">
+    <div class="heady-admin-logo">
+      <span class="heady-admin-logo-icon">🌟</span>
+      <span>Heady Admin</span>
+    </div>
+    <div class="heady-admin-tabs">
+      <a href="{{ path('heady_admin.dashboard') }}" class="heady-tab active">📊 Dashboard</a>
+      <a href="{{ path('heady_admin.services') }}" class="heady-tab">🔌 Services</a>
+      <a href="{{ path('heady_admin.hcfp') }}" class="heady-tab">🛡️ HCFP</a>
+      <a href="{{ path('heady_admin.headylens') }}" class="heady-tab">🔭 HeadyLens</a>
+      <a href="{{ path('heady_admin.customize') }}" class="heady-tab">🎨 Customize</a>
+      <a href="{{ path('heady_admin.access_control') }}" class="heady-tab">👥 Access</a>
+      <a href="{{ path('heady_admin.settings') }}" class="heady-tab">⚙️ Settings</a>
+    </div>
+    <div class="heady-admin-user">
+      <span class="heady-user-badge">{{ current_user }}</span>
+    </div>
+  </nav>
+
+  {# ── Stats Cards ── #}
+  <div class="heady-dashboard-grid">
+    <div class="heady-card">
+      <div class="heady-card-header">
+        <div>
+          <div class="heady-stat-label">Active Services</div>
+          <div class="heady-stat-value">{{ stats.total_services }}</div>
+          <div class="heady-stat-change change-positive">🟢 All online</div>
+        </div>
+        <div class="heady-card-icon icon-blue">🚀</div>
+      </div>
+    </div>
+
+    <div class="heady-card">
+      <div class="heady-card-header">
+        <div>
+          <div class="heady-stat-label">HCFP Policy</div>
+          <div class="heady-stat-value" style="font-size: 1.2rem">{{ stats.hcfp_mode }}</div>
+          <div class="heady-stat-change change-positive">🛡️ {{ stats.violations }} violations</div>
+        </div>
+        <div class="heady-card-icon icon-green">🔒</div>
+      </div>
+    </div>
+
+    <div class="heady-card">
+      <div class="heady-card-header">
+        <div>
+          <div class="heady-stat-label">System Health</div>
+          <div class="heady-stat-value">{{ stats.system_health }}%</div>
+          <div class="heady-stat-change change-positive">✅ Optimal</div>
+        </div>
+        <div class="heady-card-icon icon-green">💚</div>
+      </div>
+    </div>
+
+    <div class="heady-card">
+      <div class="heady-card-header">
+        <div>
+          <div class="heady-stat-label">Uptime</div>
+          <div class="heady-stat-value">{{ stats.uptime_hours }}h</div>
+          <div class="heady-stat-change change-positive">⏱️ Continuous</div>
+        </div>
+        <div class="heady-card-icon icon-yellow">📈</div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Ecosystem Overview ── #}
+  <div class="heady-section">
+    <h2 class="heady-section-title">Heady Ecosystem — 6 Services</h2>
+    <div class="heady-ecosystem-grid">
+      {% for svc in ecosystem %}
+        <div class="heady-eco-card" style="border-color: {{ svc.color }}40;">
+          <div class="heady-eco-icon" style="background: {{ svc.color }}22; color: {{ svc.color }};">{{ svc.icon }}</div>
+          <h3>{{ svc.name }}</h3>
+          <p class="heady-eco-geometry">{{ svc.geometry }}</p>
+          <a href="{{ svc.url }}" target="_blank" class="heady-eco-link" style="color: {{ svc.color }};">Visit →</a>
+          <span class="heady-eco-status online">● Online</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# ── Services Table ── #}
+  <div class="heady-table-container">
+    <div class="heady-table-header">
+      <h2 class="heady-card-title">Running Services</h2>
+      <div class="heady-search-box">
+        <span class="heady-search-icon">🔍</span>
+        <input type="text" class="heady-search-input" placeholder="Search services..." id="serviceSearch">
+      </div>
+    </div>
+    <table id="servicesTable">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Domain</th>
+          <th>Port</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for service in services %}
+          <tr>
+            <td><strong>{{ service.name }}</strong></td>
+            <td><span class="heady-type-badge">{{ service.type }}</span></td>
+            <td><span class="heady-status-badge status-{{ service.status }}">● {{ service.status|capitalize }}</span></td>
+            <td>{{ service.domain }}</td>
+            <td>{{ service.port }}</td>
+            <td class="heady-actions">
+              <button class="heady-btn heady-btn-sm heady-btn-secondary" title="Restart">🔄</button>
+              <button class="heady-btn heady-btn-sm heady-btn-secondary" title="Configure">⚙️</button>
+              <button class="heady-btn heady-btn-sm heady-btn-danger" title="Stop">⏹️</button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ── Quick Actions Panel ── #}
+  <div class="heady-section">
+    <h2 class="heady-section-title">Quick Actions</h2>
+    <div class="heady-quick-actions">
+      <button class="heady-action-btn" onclick="HeadyAdmin.refreshStatus()">🔄 Refresh All Status</button>
+      <button class="heady-action-btn" onclick="HeadyAdmin.deployAll()">🚀 Deploy All Sites</button>
+      <button class="heady-action-btn" onclick="HeadyAdmin.openLens()">🔭 Open HeadyLens</button>
+      <button class="heady-action-btn" onclick="HeadyAdmin.runHcfpCheck()">🛡️ Run HCFP Check</button>
+      <button class="heady-action-btn" onclick="HeadyAdmin.backupConfig()">💾 Backup Config</button>
+      <button class="heady-action-btn" onclick="HeadyAdmin.viewLogs()">📋 View Logs</button>
+    </div>
+  </div>
+</div>
+
+{# ── HeadyBuddy Widget ── #}
+<script src="https://headybuddy.org/headybuddy-widget.js"></script>

@@ -717,12 +717,113 @@ function registerRoutes(app) {
     });
 
     // Force projection sync (outbound)
+    // Trigger re-embed for a specific file
+    app.post('/api/embedder/re-embed', async (req, res) => {
+        const { filePath } = req.body;
+        if (!filePath) return res.status(400).json({ error: 'filePath required' });
+        onProjectionUpdate(filePath);
+        res.json({ ok: true, queued: true, filePath });
+    });
+
+    // Get embedding pipeline health
+    app.get('/api/embedder/pipeline-health', (_req, res) => {
+        res.json(getEmbeddingHealth());
+    });
+
     app.post('/api/embedder/project', async (req, res) => {
         // Mark all projections stale then sync
         for (const [, proj] of projections) proj.stale = true;
         await syncProjections();
         res.json({ ok: true, projections: Object.fromEntries(projections) });
     });
+}
+
+/**
+ * Auto re-embed when a projection file updates.
+ * Called by projection-engine or file watchers.
+ * @param {string} filePath - Path of the updated file
+ */
+function onProjectionUpdate(filePath) {
+    if (!filePath) return;
+    const normalizedPath = filePath.replace(/\\/g, '/');
+
+    // Mark relevant projection areas stale
+    for (const [target] of projections) {
+        if (normalizedPath.includes(`/${target}/`) || normalizedPath.startsWith(`${target}/`)) {
+            projections.get(target).stale = true;
+        }
+    }
+
+    // Queue the file content for re-embedding
+    try {
+        const content = fs.readFileSync(filePath, 'utf8').substring(0, MAX_CONTENT_CHARS);
+        queueForEmbed(
+            `File updated: ${normalizedPath}\n${content.substring(0, 1000)}`,
+            {
+                type: 'procedural',
+                domain: 'code-changes',
+                category: 'projection-update',
+                file: normalizedPath,
+                changeType: 'projection-sync',
+                source: 'projection-engine',
+            },
+        );
+        logger.info(`ContinuousEmbedder: queued re-embed for ${normalizedPath}`);
+    } catch (err) {
+        logger.warn(`ContinuousEmbedder: failed to read ${filePath} for re-embed: ${err.message}`);
+    }
+}
+
+/**
+ * Get embedding pipeline health metrics.
+ * Returns staleness info, throughput, and error rates.
+ */
+function getEmbeddingHealth() {
+    const now = Date.now();
+    const lastIngestAge = stats.lastIngestAt
+        ? now - new Date(stats.lastIngestAt).getTime()
+        : null;
+
+    const staleProjections = [...projections.entries()]
+        .filter(([, p]) => p.stale)
+        .map(([name]) => name);
+
+    const throughput = stats.cycles > 0
+        ? Math.round(stats.totalIngested / stats.cycles * 100) / 100
+        : 0;
+
+    const errorRate = stats.totalIngested > 0
+        ? Math.round(stats.totalErrors / (stats.totalIngested + stats.totalErrors) * 10000) / 100
+        : 0;
+
+    return {
+        status: running ? 'running' : 'stopped',
+        queueDepth: pendingQueue.length,
+        totalIngested: stats.totalIngested,
+        totalFiltered: stats.totalFiltered,
+        totalErrors: stats.totalErrors,
+        errorRatePercent: errorRate,
+        avgVectorsPerCycle: throughput,
+        lastIngestAgeMs: lastIngestAge,
+        isIngestStale: lastIngestAge !== null && lastIngestAge > EMBED_INTERVAL_MS * 5,
+        staleProjections,
+        projectionsHealth: Object.fromEntries(
+            [...projections.entries()].map(([name, p]) => [
+                name,
+                {
+                    stale: p.stale,
+                    lastSynced: p.lastSynced,
+                    syncAgeMs: p.lastSynced ? now - new Date(p.lastSynced).getTime() : null,
+                },
+            ])
+        ),
+        intervals: {
+            embedMs: EMBED_INTERVAL_MS,
+            projectionMs: PROJECTION_INTERVAL_MS,
+            envMs: ENV_INTERVAL_MS,
+        },
+        checkedAt: new Date().toISOString(),
+    };
 }
 
 module.exports = {
@@ -736,6 +837,8 @@ module.exports = {
     buildLiveContextSnapshot,
     buildInjectableTemplates,
     runAutonomyOptimizationCycle,
+    onProjectionUpdate,
+    getEmbeddingHealth,
     // Event handlers exposed for direct wiring
     onUserInteraction,
     onAnalystAction,

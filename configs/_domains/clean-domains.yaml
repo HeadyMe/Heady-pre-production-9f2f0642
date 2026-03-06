@@ -1,0 +1,123 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/clean-domains.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  HEADY SYSTEMS — CLEAN SERVICE DOMAINS                                        ║
+# ║  NO api.headysystems.com • NO api.headysystems.com • NO .local • NO .internal                    ║
+# ║  Only: Public Cloud Domains OR Service Names for DNS                         ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLOUD DEPLOYMENTS (Production - These Work)
+# ═══════════════════════════════════════════════════════════════════════════════
+cloud:
+  me:
+    domain: app.headysystems.com
+    provider: render
+    layer: cyan
+    
+  sys:
+    domain: app.headysystems.com
+    provider: render
+    layer: magenta
+    
+  conn:
+    domain: app.headysystems.com
+    provider: render
+    layer: yellow
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SERVICE NAMING CONVENTION
+# ═══════════════════════════════════════════════════════════════════════════════
+# For local/network setups WITHOUT using api.headysystems.com/api.headysystems.com:
+# 
+# Option 1: Use machine hostname
+#   - manager.mylaptop → resolves via local DNS
+#   - buddy.mylaptop
+# 
+# Option 2: Use IP addresses directly (no loopback)
+#   - http://192.168.1.100:3300
+#   - http://10.0.0.5:3300
+# 
+# Option 3: Use Docker/Kubernetes DNS
+#   - manager.heady.svc.cluster.local
+#   - buddy.heady.svc.cluster.local
+
+services:
+  manager:
+    name: heady-manager
+    default_port: 3300
+    example_access: http://your-hostname:3300
+    
+  buddy:
+    name: heady-buddy
+    default_port: 5174
+    example_access: http://your-hostname:5174
+    
+  web:
+    name: heady-web
+    default_port: 5173
+    example_access: http://your-hostname:5173
+    
+  postgres:
+    name: heady-db
+    default_port: 5432
+    example_access: postgres://your-hostname:5432
+    
+  redis:
+    name: heady-cache
+    default_port: 6379
+    example_access: redis://your-hostname:6379
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AI NODES
+# ═══════════════════════════════════════════════════════════════════════════════
+ai:
+  jules:
+    name: jules
+    port: 8001
+    
+  observer:
+    name: observer
+    port: 8002
+    
+  builder:
+    name: builder
+    port: 8003
+    
+  atlas:
+    name: atlas
+    port: 8004
+    
+  pythia:
+    name: pythia
+    port: 8005
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NO api.headysystems.com GUARANTEE
+# ═══════════════════════════════════════════════════════════════════════════════
+# This file contains ZERO references to:
+#   - api.headysystems.com
+#   - api.headysystems.com
+#   - 0.0.0.0
+#   - ::1
+#   - *.local
+#   - *.internal
+#   - *.api.headysystems.com
+#
+# For local development, either:
+#   1. Use the cloud domains (they work now)
+#   2. Use your machine's actual IP/hostname
+#   3. Use Docker/K8s internal DNS

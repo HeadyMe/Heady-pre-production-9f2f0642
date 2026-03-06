@@ -1,0 +1,296 @@
+{
+    "$schema": "https://heady.headyme.com/schemas/registry.json",
+    "name": "heady-platform",
+    "version": "3.0.1",
+    "codename": "Aether",
+    "description": "Heady™ Autonomous Multi-Agent Platform — 3D Vector Space + Sacred Geometry Orchestration",
+    "releaseDate": "2026-03-06",
+    "environment": "pre-production",
+    "architecture": {
+        "framework": "Liquid Architecture v3.1",
+        "vectorDimensions": 384,
+        "projectionDimensions": 3,
+        "shardStrategy": "fibonacci",
+        "orchestration": "Sacred Geometry v3"
+    },
+    "services": {
+        "core": {
+            "heady-manager": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "deployment": "cloud-run"
+            },
+            "heady-edge": {
+                "version": "3.0.1",
+                "runtime": "cloudflare-workers",
+                "deployment": "cloudflare"
+            },
+            "heady-mcp": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "deployment": "cloud-run"
+            },
+            "vector-memory": {
+                "version": "3.0.1",
+                "type": "module"
+            },
+            "bee-factory": {
+                "version": "3.0.1",
+                "type": "module"
+            },
+            "llm-router": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "type": "module",
+                "engine": "src/services/llm-router.js"
+            },
+            "autonomous-scheduler": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "type": "module",
+                "engine": "src/services/autonomous-scheduler.js"
+            },
+            "domain-router": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "type": "module",
+                "engine": "src/services/domain-router.js"
+            },
+            "budget-tracker": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "type": "module",
+                "engine": "src/services/budget-tracker.js"
+            },
+            "projection-governance": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "type": "module",
+                "engine": "src/services/projection-governance.js"
+            },
+            "sdk-registration": {
+                "version": "3.0.1",
+                "runtime": "node:20",
+                "type": "module",
+                "engine": "src/services/sdk-registration.js"
+            }
+        },
+        "resilience": {
+            "self-healing-mesh": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "circuit-breaker": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "saga-orchestrator": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "bulkhead-isolation": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "event-store": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "cqrs-bus": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "auto-tuner": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "hot-cold-router": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "skill-based-router": {
+                "version": "3.0.1",
+                "status": "active"
+            }
+        },
+        "observability": {
+            "structured-logger": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "health-registry": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "opentelemetry-tracing": {
+                "version": "3.0.1",
+                "status": "active"
+            }
+        },
+        "governance": {
+            "decentralized-governance": {
+                "version": "3.0.1",
+                "status": "active"
+            },
+            "redis-connection-pool": {
+                "version": "3.0.1",
+                "status": "active"
+            }
+        }
+    },
+    "deployments": {
+        "cloud-run": {
+            "project": "heady-platform",
+            "region": "us-central1",
+            "services": [
+                "heady-manager",
+                "heady-mcp"
+            ]
+        },
+        "cloudflare": {
+            "zones": [
+                "headyme.com",
+                "headyconnection.org",
+                "headyai.org"
+            ],
+            "workers": [
+                "heady-edge-proxy",
+                "heady-edge-node"
+            ]
+        },
+        "huggingface": {
+            "org": "HeadyMe",
+            "spaces": [
+                "heady-ai",
+                "heady-demo",
+                "heady-systems",
+                "heady-connection"
+            ]
+        }
+    },
+    "ci": {
+        "pipeline": "5-phase autonomous projections",
+        "securityGates": [
+            "trufflehog",
+            "codeql-sast",
+            "npm-audit",
+            "sbom-cyclonedx",
+            "trivy-container-scan"
+        ],
+        "smokeTests": true,
+        "autoSuccess": true,
+        "autoCorrectionStrategies": [
+            "REWRITE_FUNCTION",
+            "INJECT_OPTIMIZATION",
+            "BYPASS_LEGACY",
+            "ESCALATE_MODEL"
+        ],
+        "maxCorrectionIterations": 10
+    },
+    "infrastructure": {
+        "terraform": "infra/main.tf",
+        "database": "db/schema.sql",
+        "ignitionScript": "scripts/heady-swarm-ignition.sh",
+        "pubsub": {
+            "backgroundTopic": "heady-swarm-tasks",
+            "priorityTopic": "heady-admin-triggers",
+            "deadLetterTopic": "heady-dead-letter"
+        },
+        "edge": {
+            "daemon": "src/edge/heady-edge-daemon.js",
+            "sysexReceiver": "src/edge/heady-sysex-receiver.js",
+            "port": 9876
+        },
+        "cli": "bin/heady-cli.js",
+        "moduleFederation": {
+            "config": "webpack.config.js",
+            "loader": "src/shell/load-dynamic-remote.js"
+        }
+    },
+    "projections": {
+        "targets": {
+            "cloud-run": {
+                "type": "container",
+                "endpoint": "https://heady-manager-609590223909.us-central1.run.app",
+                "stalenessBudgetMs": 60000,
+                "status": "active"
+            },
+            "cloudflare-edge": {
+                "type": "worker",
+                "endpoint": "https://heady.headyme.com",
+                "stalenessBudgetMs": 30000,
+                "status": "active"
+            },
+            "huggingface-spaces": {
+                "type": "container",
+                "endpoint": "https://headyme-heady-demo.hf.space",
+                "stalenessBudgetMs": 300000,
+                "status": "active"
+            },
+            "github-monorepo": {
+                "type": "source-of-truth",
+                "endpoint": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642",
+                "stalenessBudgetMs": 0,
+                "status": "active"
+            }
+        },
+        "syncMode": "event-driven",
+        "engine": "src/services/projection-engine.js"
+    },
+    "uiManifest": {
+        "shell": "HeadyWeb",
+        "version": "3.0.1",
+        "registeredApps": [
+            {
+                "id": "antigravity",
+                "status": "active",
+                "route": "/app/antigravity"
+            },
+            {
+                "id": "landing",
+                "status": "active",
+                "route": "/"
+            },
+            {
+                "id": "heady-ide",
+                "status": "planned",
+                "route": "/app/ide"
+            },
+            {
+                "id": "swarm-dashboard",
+                "status": "planned",
+                "route": "/app/swarm"
+            },
+            {
+                "id": "governance-panel",
+                "status": "planned",
+                "route": "/app/governance"
+            },
+            {
+                "id": "projection-monitor",
+                "status": "planned",
+                "route": "/app/projections"
+            },
+            {
+                "id": "vector-explorer",
+                "status": "planned",
+                "route": "/app/vectors"
+            }
+        ],
+        "engine": "src/services/ui-registry.js"
+    },
+    "embeddingPipeline": {
+        "model": "all-MiniLM-L6-v2",
+        "dimensions": 384,
+        "projectionDimensions": 3,
+        "densityGate": 0.92,
+        "intervals": {
+            "embedMs": 11090,
+            "projectionMs": 29034,
+            "envCaptureMs": 46979
+        },
+        "reEmbedTrigger": "onProjectionUpdate",
+        "engine": "src/services/continuous-embedder.js"
+    },
+    "lastUpdated": "2026-03-06T16:27:00Z"
+}

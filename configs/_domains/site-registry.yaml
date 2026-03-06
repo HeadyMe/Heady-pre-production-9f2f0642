@@ -1,0 +1,166 @@
+# Heady Canonical Site Registry
+# SINGLE SOURCE OF TRUTH — 24 web properties total
+# Last audited: 2026-02-25 01:48 MST
+# Rule: This file is the ONLY authority on what sites exist. Period.
+
+sites:
+  # ── Primary Branded Domains (8 public domains) ──
+  - id: headysystems
+    domain: headysystems.com
+    port: 9000
+    pm2: site-headysystems
+    purpose: "Platform operations homepage"
+    dir: /home/headyme/sites/headysystems
+
+  - id: headyme
+    domain: headyme.com
+    port: 9001
+    pm2: site-headyme-com
+    purpose: "Personal AI command center"
+    dir: /home/headyme/sites/headyme-com
+
+  - id: headyconnection
+    domain: headyconnection.org
+    port: 9002
+    pm2: site-headyconnection-org
+    purpose: "Nonprofit AI for social impact"
+    dir: /home/headyme/sites/headyconnection-org
+
+  - id: headybuddy
+    domain: headybuddy.org
+    port: 9003
+    pm2: site-headybuddy-org
+    purpose: "Personal AI assistant & guide"
+    dir: /home/headyme/sites/headybuddy-org
+
+  - id: headymcp
+    domain: headymcp.com
+    port: 9004
+    pm2: site-headymcp
+    purpose: "MCP protocol hub & marketplace"
+    dir: /home/headyme/sites/headymcp
+
+  - id: headyio
+    domain: headyio.com
+    port: 9005
+    pm2: site-headyio
+    purpose: "Developer portal & SDK"
+    dir: /home/headyme/sites/headyio
+
+  - id: headyapi
+    domain: headyapi.com
+    port: 9006
+    pm2: site-headyapi
+    purpose: "Interactive API playground"
+    dir: /home/headyme/sites/headyapi
+
+  - id: headyos
+    domain: headyos.com
+    port: 9007
+    pm2: site-headyos
+    purpose: "AI agent operating system dashboard"
+    dir: /home/headyme/sites/headyos
+
+  # ── Internal/Secondary Sites ──
+  - id: headyweb
+    domain: null
+    port: 3000
+    pm2: site-headyweb
+    purpose: "HeadyWeb AI search engine"
+    dir: /home/headyme/sites/headyweb
+
+  - id: admin-ui
+    domain: null
+    port: 9008
+    pm2: site-admin-ui
+    purpose: "Internal admin dashboard"
+    dir: /home/headyme/sites/admin-ui
+
+  - id: headydocs
+    domain: null
+    port: 9009
+    pm2: site-headydocs
+    purpose: "Documentation site"
+    dir: /home/headyme/sites/headydocs
+
+  - id: instant
+    domain: null
+    port: 9010
+    pm2: site-instant
+    purpose: "Instant preview/demo"
+    dir: /home/headyme/sites/instant
+
+  - id: 1ime1
+    domain: null
+    port: 9011
+    pm2: site-1ime1
+    purpose: "1ime1 creative project"
+    dir: /home/headyme/sites/1ime1
+
+  # ── Duplicate/Alias Processes (serve same content on different ports) ──
+  - id: headysystems-com
+    alias_of: headysystems
+    pm2: site-headysystems-com
+    dir: /home/headyme/sites/headysystems-com
+
+  - id: headyio-com
+    alias_of: headyio
+    pm2: site-headyio-com
+    dir: /home/headyme/sites/headyio-com
+
+  - id: headyconnection-orig
+    alias_of: headyconnection
+    pm2: site-headyconnection
+    dir: /home/headyme/sites/headyconnection
+
+  - id: headybuddy-orig
+    alias_of: headybuddy
+    pm2: site-headybuddy
+    dir: /home/headyme/sites/headybuddy
+
+  - id: headymcp-com
+    alias_of: headymcp
+    pm2: site-headymcp-com
+    dir: /home/headyme/sites/headymcp-com
+
+  - id: headyme-orig
+    alias_of: headyme
+    pm2: site-headyme
+    dir: /home/headyme/sites/headyme
+
+  # ── Discord Bots ──
+  - id: heady-discord
+    pm2: site-heady-discord
+    purpose: "Discord bot"
+    dir: /home/headyme/sites/heady-discord
+
+  - id: heady-discord-connection
+    pm2: site-heady-discord-connection
+    purpose: "Discord HeadyConnection bot"
+    dir: /home/headyme/sites/heady-discord-connection
+
+  # ── HuggingFace Spaces (3) ──
+  - id: hf-brain-demo
+    url: https://huggingface.co/spaces/HeadyMe/heady-ai
+    dir: heady-hf-spaces/main
+    deploy_script: scripts/deploy-hf-spaces.js
+
+  - id: hf-systems
+    url: https://huggingface.co/spaces/HeadySystems/heady-systems
+    dir: heady-hf-spaces/systems
+    deploy_script: scripts/deploy-hf-spaces.js
+
+  - id: hf-connection
+    url: https://huggingface.co/spaces/HeadyConnection/heady-connection
+    dir: heady-hf-spaces/connection
+    deploy_script: scripts/deploy-hf-spaces.js
+
+# ── Summary ──
+# 8 public branded domains
+# 5 internal/secondary sites
+# 6 alias/duplicate processes
+# 2 Discord bots
+# 3 HuggingFace Spaces
+# = 24 total web properties
+# = 22 PM2 site processes
+# = 8 public domains routed through Cloudflare tunnels

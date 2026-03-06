@@ -1,0 +1,89 @@
+{# Customization Panel Template #}
+<div class="heady-admin-wrapper">
+  <nav class="heady-admin-nav">
+    <div class="heady-admin-logo"><span class="heady-admin-logo-icon">🌟</span><span>Heady Admin</span></div>
+    <div class="heady-admin-tabs">
+      <a href="{{ path('heady_admin.dashboard') }}" class="heady-tab">📊 Dashboard</a>
+      <a href="{{ path('heady_admin.services') }}" class="heady-tab">🔌 Services</a>
+      <a href="{{ path('heady_admin.hcfp') }}" class="heady-tab">🛡️ HCFP</a>
+      <a href="{{ path('heady_admin.headylens') }}" class="heady-tab">🔭 HeadyLens</a>
+      <a href="{{ path('heady_admin.customize') }}" class="heady-tab active">🎨 Customize</a>
+      <a href="{{ path('heady_admin.access_control') }}" class="heady-tab">👥 Access</a>
+      <a href="{{ path('heady_admin.settings') }}" class="heady-tab">⚙️ Settings</a>
+    </div>
+  </nav>
+
+  <div class="heady-section">
+    <h2 class="heady-section-title">🎨 System Customization</h2>
+    <div class="heady-customize-grid">
+      <div class="heady-card">
+        <h3 style="margin-bottom:1rem;">Theme Colors</h3>
+        <div class="heady-form-group">
+          <label class="heady-form-label">Primary Color</label>
+          <input type="color" value="{{ current_theme.primary_color }}" class="heady-form-input" style="height:40px;padding:4px;">
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-form-label">Secondary Color</label>
+          <input type="color" value="{{ current_theme.secondary_color }}" class="heady-form-input" style="height:40px;padding:4px;">
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-form-label">Geometry Pattern</label>
+          <select class="heady-form-select">
+            <option value="cosmic_rainbow" {{ current_theme.geometry_pattern == 'cosmic_rainbow' ? 'selected' : '' }}>Cosmic Rainbow</option>
+            <option value="dark_minimal">Dark Minimal</option>
+            <option value="light_clean">Light Clean</option>
+            <option value="neon_glow">Neon Glow</option>
+          </select>
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-form-label">Glass Opacity ({{ current_theme.glass_opacity }})</label>
+          <input type="range" min="0.5" max="1" step="0.05" value="{{ current_theme.glass_opacity }}" class="heady-form-input" style="padding:0;">
+        </div>
+      </div>
+
+      <div class="heady-card">
+        <h3 style="margin-bottom:1rem;">HeadyBuddy Widget</h3>
+        <div class="heady-form-group">
+          <label class="heady-toggle"><input type="checkbox" {{ current_theme.buddy_enabled ? 'checked' : '' }}><span>Enable HeadyBuddy Widget</span></label>
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-form-label">Widget Position</label>
+          <select class="heady-form-select">
+            <option value="bottom-right" {{ current_theme.buddy_position == 'bottom-right' ? 'selected' : '' }}>Bottom Right</option>
+            <option value="bottom-left">Bottom Left</option>
+            <option value="top-right">Top Right</option>
+          </select>
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-form-label">Animation Speed</label>
+          <select class="heady-form-select">
+            <option value="slow">Slow</option>
+            <option value="normal" {{ current_theme.animation_speed == 'normal' ? 'selected' : '' }}>Normal</option>
+            <option value="fast">Fast</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="heady-card">
+        <h3 style="margin-bottom:1rem;">Notifications</h3>
+        <div class="heady-form-group">
+          <label class="heady-toggle"><input type="checkbox" {{ current_theme.notifications_enabled ? 'checked' : '' }}><span>Enable Notifications</span></label>
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-toggle"><input type="checkbox" checked><span>HCFP Violation Alerts</span></label>
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-toggle"><input type="checkbox" checked><span>Service Down Alerts</span></label>
+        </div>
+        <div class="heady-form-group">
+          <label class="heady-toggle"><input type="checkbox"><span>Deployment Notifications</span></label>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1rem;">
+      <button class="heady-btn heady-btn-primary">💾 Save Customization</button>
+      <button class="heady-btn heady-btn-secondary" style="margin-left:0.5rem;">Reset to Defaults</button>
+    </div>
+  </div>
+</div>
+<script src="https://headybuddy.org/headybuddy-widget.js"></script>

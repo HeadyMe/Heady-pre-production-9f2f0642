@@ -1,0 +1,370 @@
+[
+    {
+        "id": "buddy-001",
+        "name": "Intent analysis from freeform input",
+        "cat": "orchestration",
+        "pool": "hot",
+        "w": 8,
+        "desc": "Parse any natural language input to extract goals, topics, entities, constraints, and desired depth"
+    },
+    {
+        "id": "buddy-002",
+        "name": "Context layering with vector memory",
+        "cat": "orchestration",
+        "pool": "hot",
+        "w": 7,
+        "desc": "Enrich user requests with conversation history, vector memory recall, and user profile data"
+    },
+    {
+        "id": "buddy-003",
+        "name": "Multi-node swarm routing",
+        "cat": "orchestration",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Dispatch sub-tasks to optimal Heady swarm nodes for parallel intelligent processing"
+    },
+    {
+        "id": "buddy-004",
+        "name": "Output format auto-detection",
+        "cat": "orchestration",
+        "pool": "hot",
+        "w": 8,
+        "desc": "Detect best output format from user's natural language cues and context signals"
+    },
+    {
+        "id": "buddy-005",
+        "name": "Real-time format switching",
+        "cat": "orchestration",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Enable on-the-fly switching between 15 output formats without re-processing"
+    },
+    {
+        "id": "buddy-006",
+        "name": "Raw data output generation",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Generate unprocessed JSON/object output for machine consumption"
+    },
+    {
+        "id": "buddy-007",
+        "name": "Plain text output rendering",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Render clean text-only output with no markup or styling"
+    },
+    {
+        "id": "buddy-008",
+        "name": "Markdown structured output",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Generate structured markdown with headers, lists, code blocks, and tables"
+    },
+    {
+        "id": "buddy-009",
+        "name": "Pretty print visual output",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Format output with color coding, indentation, and visual hierarchy"
+    },
+    {
+        "id": "buddy-010",
+        "name": "Branded Heady output rendering",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Apply full Heady branding with company colors, logos, themed typography and layout"
+    },
+    {
+        "id": "buddy-011",
+        "name": "Infographic generation",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Create visual data representations with charts, icons, and design specifications"
+    },
+    {
+        "id": "buddy-012",
+        "name": "Animated visual output",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Generate motion graphics with micro-animations, transitions, and dynamic elements"
+    },
+    {
+        "id": "buddy-013",
+        "name": "Dashboard view rendering",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Build interactive dashboard layouts with KPIs, metrics, and live data widgets"
+    },
+    {
+        "id": "buddy-014",
+        "name": "Slide deck generation",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Create presentation-ready slides with speaker notes and visual storytelling"
+    },
+    {
+        "id": "buddy-015",
+        "name": "Formal report output",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Generate executive-quality documents with cover page, TOC, sections, and appendices"
+    },
+    {
+        "id": "buddy-016",
+        "name": "Conversational chat output",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Deliver warm, conversational tone for quick Q&A and casual interaction"
+    },
+    {
+        "id": "buddy-017",
+        "name": "Technical specification output",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Generate engineering-grade output with code samples, architecture diagrams, and specs"
+    },
+    {
+        "id": "buddy-018",
+        "name": "Audience-adapted content transform",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Transform content for specific audiences — donors, board members, volunteers, general public"
+    },
+    {
+        "id": "buddy-019",
+        "name": "CSV data export",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Export tabular data in CSV format for spreadsheet import"
+    },
+    {
+        "id": "buddy-020",
+        "name": "API response formatting",
+        "cat": "output-format",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Structure output as API-compatible JSON with status codes, pagination, and metadata"
+    },
+    {
+        "id": "buddy-021",
+        "name": "Progressive enhancement delivery",
+        "cat": "intelligence",
+        "pool": "hot",
+        "w": 8,
+        "desc": "Stream initial results immediately then progressively layer depth, visuals, and alternatives"
+    },
+    {
+        "id": "buddy-022",
+        "name": "Confidence calibration protocol",
+        "cat": "intelligence",
+        "pool": "hot",
+        "w": 7,
+        "desc": "Build user confidence through precision-matched output quality and operating perfection"
+    },
+    {
+        "id": "buddy-023",
+        "name": "Query decomposition engine",
+        "cat": "intelligence",
+        "pool": "hot",
+        "w": 8,
+        "desc": "Break complex freeform queries into atomic sub-tasks for parallel swarm processing"
+    },
+    {
+        "id": "buddy-024",
+        "name": "User profile adaptive response",
+        "cat": "intelligence",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Adapt response depth, tone, and format based on user history and preferences"
+    },
+    {
+        "id": "buddy-025",
+        "name": "Depth calibration optimizer",
+        "cat": "intelligence",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Dynamically adjust output depth from quick summary to deep-dive analysis"
+    },
+    {
+        "id": "buddy-026",
+        "name": "Visual theme injection",
+        "cat": "presentation",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Apply visual themes and brand consistency to all formatted outputs"
+    },
+    {
+        "id": "buddy-027",
+        "name": "Micro-animation engine",
+        "cat": "presentation",
+        "pool": "cold",
+        "w": 5,
+        "desc": "Generate CSS/JS micro-animations for dynamic output presentation"
+    },
+    {
+        "id": "buddy-028",
+        "name": "Chart and graph generation",
+        "cat": "presentation",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Create data visualizations including bar, line, pie, scatter, and custom charts"
+    },
+    {
+        "id": "buddy-029",
+        "name": "KPI widget rendering",
+        "cat": "presentation",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Build key performance indicator widgets with trends and comparisons"
+    },
+    {
+        "id": "buddy-030",
+        "name": "Metric card generation",
+        "cat": "presentation",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Generate compact metric display cards with labels, values, and sparklines"
+    },
+    {
+        "id": "buddy-031",
+        "name": "Interactive data table",
+        "cat": "presentation",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Build sortable, filterable, paginated data tables from any dataset"
+    },
+    {
+        "id": "buddy-032",
+        "name": "Executive summary distillation",
+        "cat": "intelligence",
+        "pool": "hot",
+        "w": 8,
+        "desc": "Distill complex information into concise executive summaries with key takeaways"
+    },
+    {
+        "id": "buddy-033",
+        "name": "Guided user walkthrough",
+        "cat": "intelligence",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Generate step-by-step guided walkthroughs for complex outputs and processes"
+    },
+    {
+        "id": "buddy-034",
+        "name": "Service description sync",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Ensure all service descriptions across docs, APIs, and UIs communicate HeadyBuddy's intelligent processing capability"
+    },
+    {
+        "id": "buddy-035",
+        "name": "CLI natural language interface",
+        "cat": "integration",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Process freeform command-line input and deliver intelligent responses with format options"
+    },
+    {
+        "id": "buddy-036",
+        "name": "Cross-channel format consistency",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Maintain consistent format switching capability across web, mobile, CLI, and API channels"
+    },
+    {
+        "id": "buddy-037",
+        "name": "Brand integrity in all outputs",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Ensure Heady branding and quality standards in every output format"
+    },
+    {
+        "id": "buddy-038",
+        "name": "Real-time streaming pipeline",
+        "cat": "integration",
+        "pool": "hot",
+        "w": 8,
+        "desc": "SSE/WebSocket streaming for progressive result delivery"
+    },
+    {
+        "id": "buddy-039",
+        "name": "Format preference memory",
+        "cat": "intelligence",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Remember user's preferred output formats and apply them to future interactions"
+    },
+    {
+        "id": "buddy-040",
+        "name": "Multi-format simultaneous export",
+        "cat": "output-format",
+        "pool": "cold",
+        "w": 5,
+        "desc": "Export the same content in multiple formats simultaneously (e.g., markdown + CSV + PDF)"
+    },
+    {
+        "id": "buddy-041",
+        "name": "Contextual help and onboarding",
+        "cat": "intelligence",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Guide new users through HeadyBuddy capabilities with interactive examples"
+    },
+    {
+        "id": "buddy-042",
+        "name": "Error recovery with suggestions",
+        "cat": "intelligence",
+        "pool": "hot",
+        "w": 7,
+        "desc": "When intent is ambiguous, provide smart suggestions instead of error messages"
+    },
+    {
+        "id": "buddy-043",
+        "name": "Output quality scoring",
+        "cat": "intelligence",
+        "pool": "warm",
+        "w": 5,
+        "desc": "Self-evaluate output quality and offer to regenerate if below threshold"
+    },
+    {
+        "id": "buddy-044",
+        "name": "Template-driven output customization",
+        "cat": "presentation",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Allow users to define custom output templates for recurring use cases"
+    },
+    {
+        "id": "buddy-045",
+        "name": "Accessibility-optimized output",
+        "cat": "presentation",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Ensure all visual outputs meet WCAG accessibility standards"
+    },
+    {
+        "id": "buddy-046",
+        "name": "Intelligent caching and recall",
+        "cat": "integration",
+        "pool": "hot",
+        "w": 7,
+        "desc": "Cache processed outputs for instant recall and format re-rendering without recomputation"
+    }
+]

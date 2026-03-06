@@ -1,0 +1,17 @@
+heady_config.api:
+  path: '/api/heady/config'
+  defaults:
+    _controller: '\Drupal\heady_config\Controller\HeadyConfigController::getConfig'
+    _title: 'Heady System Configuration'
+  requirements:
+    _access: 'TRUE'
+  methods: [GET]
+
+heady_config.health:
+  path: '/api/heady/health'
+  defaults:
+    _controller: '\Drupal\heady_config\Controller\HeadyConfigController::getHealth'
+    _title: 'Heady Health Check'
+  requirements:
+    _access: 'TRUE'
+  methods: [GET]

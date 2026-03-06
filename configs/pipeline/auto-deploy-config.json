@@ -1,0 +1,61 @@
+{
+  "Version": "2.0.0",
+  "PrimaryCloud": "HeadyMe",
+  "SandboxCloud": "HeadySystems/Sandbox",
+  "ProductionCloud": "HeadySystems",
+  "CloudEndpoints": {
+    "HeadyMe": "https://headyio.com",
+    "HeadySystems": "https://headyio.com/api",
+    "HeadyConnection": "https://api.headyconnection.org",
+    "Brain": "https://headyio.com/api/brain",
+    "BrainFallback": "172.67.136.19"
+  },
+  "GitRemotes": {
+    "primary": "heady-me",
+    "sandbox": "sandbox",
+    "production": "origin",
+    "prodMirror": "heady-sys"
+  },
+  "DeploymentFlow": [
+    "HeadyMe",
+    "Sandbox",
+    "ProductionGate",
+    "Production"
+  ],
+  "DeploymentTargets": [
+    "HeadyMe",
+    "Sandbox",
+    "Windows",
+    "Android",
+    "Linux",
+    "Websites"
+  ],
+  "CriticalTargets": [
+    "HeadyMe",
+    "Windows",
+    "Websites"
+  ],
+  "ProductionGate": {
+    "Threshold": 100,
+    "RequireAllTests": true,
+    "RequireAllServices": true,
+    "RequireCleanBuild": true
+  },
+  "AutoTrain": {
+    "enabled": true,
+    "endpoint": "/api/v1/train",
+    "dataSources": ["codebase", "registry", "patterns", "metrics", "history"],
+    "objectives": ["optimal_planning", "prediction_accuracy", "build_optimization", "pattern_recognition"]
+  },
+  "AutoDeploy": true,
+  "LocalhostAllowed": false,
+  "DIPRA": {
+    "enabled": true,
+    "configPath": "configs/dynamic-parallel-resource-allocation.yaml",
+    "preDeployReservation": true,
+    "parallelAllocation": true,
+    "brainDirected": true,
+    "healthEnforcement": "100%",
+    "description": "Dynamic Intelligent Parallel Resource Allocation — ensures 100% service functional state"
+  }
+}

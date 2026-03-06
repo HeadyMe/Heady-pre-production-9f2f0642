@@ -1,0 +1,281 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/activation-manifest.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔═══════════════════════════════════════════════════════════════╗
+# ║  HEADY SYSTEMS                                                 ║
+# ║  ━━━━━━━━━━━━━━                                                ║
+# ║  ∞ Sacred Geometry Architecture ∞                              ║
+# ║                                                                ║
+# ║  activation-manifest.yaml - System Ready to Build              ║
+# ╚═══════════════════════════════════════════════════════════════╝
+
+#
+# Activation Manifest — The official declaration that all resources,
+# patterns, configs, and capabilities are in place. From this point,
+# the system treats every new project as a "build from scratch" event
+# using HCFullPipeline, HeadyBuddy, HeadyAutoIDE, and orchestrated agents.
+
+version: "1.0.0"
+activatedAt: "2026-02-06T16:11:00.000Z"
+activatedBy: HCFullPipeline
+
+# ─── ACTIVATION STATUS ────────────────────────────────────────────────────
+status: ACTIVATED
+description: >
+  Resources are ready and in place. From this moment onward, treat
+  projects from zero to production using HCFullPipeline, HeadyBuddy,
+  HeadyAutoIDE, orchestrated agents, GPU policies, and secure integrations.
+  This is the default operating mode for all new projects and major changes.
+
+# ─── VERIFIED RESOURCES ───────────────────────────────────────────────────
+verifiedResources:
+  configs:
+    - name: hcfullpipeline.yaml
+      status: verified
+      description: Pipeline stages, stop rules, checkpoints
+    - name: resource-policies.yaml
+      status: verified
+      description: Model tiers, GPU policies, circuit breakers
+    - name: service-catalog.yaml
+      status: verified
+      description: Internal/external service definitions
+    - name: governance-policies.yaml
+      status: verified
+      description: Access control, cost limits, change policies
+    - name: concepts-index.yaml
+      status: verified
+      description: Implemented/planned concepts, public-domain patterns
+    - name: app-readiness.yaml
+      status: verified
+      description: Health probes, readiness scoring, alerts
+    - name: heady-auto-ide.yaml
+      status: verified
+      description: IDE specification, agent roles, workflow loops
+    - name: build-playbook.yaml
+      status: verified
+      description: Build-perfect-first-time methodology
+    - name: agentic-coding.yaml
+      status: verified
+      description: Agentic coding techniques and resource annotation
+    - name: public-domain-integration.yaml
+      status: verified
+      description: Public-domain technique discovery and integration
+    - name: resource-management-protocol.yaml
+      status: verified
+      description: Intelligent Resource Management Protocol — thresholds, mitigation policies, escalation, predictive scheduling
+    - name: story-driver.yaml
+      status: verified
+      description: Story Driver — narrative intelligence, event-to-story mapping, timeline generation, integration hooks
+
+  coreEngines:
+    - name: hc_pipeline.js
+      status: verified
+      description: HCFullPipeline runtime with stages, checkpoints, circuit breakers
+    - name: heady-manager.js
+      status: verified
+      description: API gateway, registry, HeadyBuddy, connections, Docker
+    - name: hc_monte_carlo.js
+      status: verified
+      description: HeadySims simulation engine
+    - name: hc_resource_manager.js
+      status: verified
+      description: Intelligent Resource Manager — structured events, severity classification, mitigation engine, escalation protocol
+    - name: hc_story_driver.js
+      status: verified
+      description: Story Driver — turns system events into coherent narratives at project, feature, incident, experiment scopes
+
+  companionSystems:
+    - name: HeadyBuddy
+      status: verified
+      components:
+        - SYSTEM_PROMPT.md
+        - DESIGN.md
+        - adaptive-cards/
+        - src/App.jsx
+        - src/components/
+      description: Desktop overlay AI companion widget
+
+  registryNodes:
+    total: 16
+    verified:
+      - BRIDGE
+      - MUSE
+      - SENTINEL
+      - NOVA
+      - OBSERVER
+      - JANITOR
+      - JULES
+      - SOPHIA
+      - CIPHER
+      - ATLAS
+      - MURPHY
+      - SASHA
+      - SCOUT
+      - OCULUS
+      - BUILDER
+      - PYTHIA
+
+# ─── OPERATING DIRECTIVES ────────────────────────────────────────────────
+operatingDirectives:
+  - id: always-pipeline
+    directive: >
+      Always start by creating an HCFullPipeline plan for new projects.
+      Initialize all pipeline stages: discover_define, design_plan,
+      build_integrate, test_validate, evaluate_optimize, secure_observe,
+      deploy_deliver.
+
+  - id: always-patterns
+    directive: >
+      For every decision — architecture, workflow, security, testing,
+      error handling — select and apply explicit patterns. If no suitable
+      pattern exists, propose a new one based on public-domain and internal
+      techniques, marked as experimental.
+
+  - id: always-buddy
+    directive: >
+      Use HeadyBuddy as the conversational interface for capturing goals,
+      refining specs, and guiding users. Always clarify desired outcome,
+      correctness importance, latency/cost constraints.
+
+  - id: always-ide
+    directive: >
+      Use HeadyAutoIDE as the canonical environment. All project code,
+      tests, specs, patterns, and prompts must live in version control.
+      Code agents may only operate through HeadyAutoIDE and must respect
+      project contracts and patterns.
+
+  - id: always-deterministic
+    directive: >
+      Favor deterministic planning and routing for core behavior. Use
+      versioned prompts and low-variance decoding. Record all decisions
+      so same inputs produce same plans and resource allocations.
+
+  - id: always-parallel
+    directive: >
+      Run independent subtasks simultaneously, subject to resource policies
+      and safety constraints. Keep dependent or high-risk steps sequential
+      with evaluator agents and/or human review.
+
+  - id: always-resource-aware
+    directive: >
+      Model tiers: S for simple, M for mainstream, L for complex/high-risk.
+      GPU policies: interactive for user-facing, batch for background,
+      training for long-running improvements. Never oversubscribe VRAM.
+      Re-use cached results before recomputing expensive operations.
+
+  - id: always-monitor
+    directive: >
+      Track latency, error rates, cost, resource utilization, and quality
+      metrics for each pattern, prompt, node, and GPU. Use this data to
+      tune routing rules, GPU allocations, and pattern defaults.
+
+  - id: always-integrate-public
+    directive: >
+      Actively scan and evaluate open techniques. Integrate superior
+      techniques into pattern catalog, update templates and prompts,
+      deprecate inferior approaches while preserving backward compatibility.
+
+  - id: always-first-time-correct
+    directive: >
+      Use spec-driven and contract-driven design. Make tests, error
+      handling, security, and observability first-class from the start.
+      Employ HeadyBattle and evaluator agents for high-risk areas.
+
+# ─── PIPELINE INITIALIZATION TEMPLATE ─────────────────────────────────────
+pipelineInitTemplate:
+  description: >
+    When creating a new project, initialize with these HCFullPipeline stages.
+  stages:
+    - id: discover_define
+      name: Discover & Define
+      tasks:
+        - gatherRequirements
+        - classifyTask
+        - defineSuccessCriteria
+        - runHeadyBattleQuestions
+      checkpoint: true
+
+    - id: design_plan
+      name: Design & Patterning
+      dependsOn: [discover_define]
+      tasks:
+        - decomposeIntoSubtasks
+        - selectPatterns
+        - buildDeterministicPlan
+        - generateContracts
+      checkpoint: true
+
+    - id: build_integrate
+      name: Build & Integrate
+      dependsOn: [design_plan]
+      parallel: true
+      tasks:
+        - scaffoldProject
+        - implementCore
+        - implementTests
+        - wireIntegrations
+      checkpoint: true
+
+    - id: test_validate
+      name: Test & Validate
+      dependsOn: [build_integrate]
+      tasks:
+        - runUnitTests
+        - runIntegrationTests
+        - runEvaluators
+        - checkResourceUsage
+      checkpoint: true
+
+    - id: evaluate_optimize
+      name: Evaluate & Optimize
+      dependsOn: [test_validate]
+      tasks:
+        - scoreQualityAndEfficiency
+        - proposeRoutingImprovements
+        - reviewPublicDomainPatterns
+      checkpoint: true
+
+    - id: secure_observe
+      name: Secure & Observe
+      dependsOn: [evaluate_optimize]
+      tasks:
+        - securityScan
+        - complianceCheck
+        - emitTelemetry
+        - configureAlerts
+      checkpoint: true
+
+    - id: deploy_deliver
+      name: Deploy & Deliver
+      dependsOn: [secure_observe]
+      tasks:
+        - shipArtifacts
+        - updateDashboards
+        - notifyStakeholders
+        - createRollbackPlan
+      checkpoint: true
+
+# ─── CONTINUOUS LEARNING ──────────────────────────────────────────────────
+continuousLearning:
+  description: >
+    This is not a one-off batch. This is the default operating mode.
+    Always start with HCFullPipeline plan, always use patterns and
+    contracts, always orchestrate resources intelligently, and always
+    evolve based on evidence.
+  feedbackLoop:
+    - telemetryAndIncidentsFeedBackToPatterns
+    - nextProjectBenefitsFromImprovedScaffolds
+    - tunedAgentsAndTestedPatterns
+    - promptsEvolveThroughABExperiments

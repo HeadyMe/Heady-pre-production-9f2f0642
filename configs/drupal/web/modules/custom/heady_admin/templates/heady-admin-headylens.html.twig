@@ -1,0 +1,45 @@
+{# HeadyLens — Real-Time Monitoring Template #}
+<div class="heady-admin-wrapper">
+  <nav class="heady-admin-nav">
+    <div class="heady-admin-logo"><span class="heady-admin-logo-icon">🌟</span><span>Heady Admin</span></div>
+    <div class="heady-admin-tabs">
+      <a href="{{ path('heady_admin.dashboard') }}" class="heady-tab">📊 Dashboard</a>
+      <a href="{{ path('heady_admin.services') }}" class="heady-tab">🔌 Services</a>
+      <a href="{{ path('heady_admin.hcfp') }}" class="heady-tab">🛡️ HCFP</a>
+      <a href="{{ path('heady_admin.headylens') }}" class="heady-tab active">🔭 HeadyLens</a>
+      <a href="{{ path('heady_admin.customize') }}" class="heady-tab">🎨 Customize</a>
+      <a href="{{ path('heady_admin.access_control') }}" class="heady-tab">👥 Access</a>
+      <a href="{{ path('heady_admin.settings') }}" class="heady-tab">⚙️ Settings</a>
+    </div>
+    <div id="wsStatus"><span style="color:#eab308;">● Connecting...</span></div>
+  </nav>
+
+  {# ── Live Metrics ── #}
+  <div class="heady-dashboard-grid">
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">CPU Usage</div><div class="heady-stat-value" id="cpuValue">--</div></div><div class="heady-card-icon icon-blue">🖥️</div></div></div>
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">Memory</div><div class="heady-stat-value" id="memValue">--</div></div><div class="heady-card-icon icon-green">💾</div></div></div>
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">Uptime</div><div class="heady-stat-value" id="uptimeValue">--</div></div><div class="heady-card-icon icon-yellow">⏱️</div></div></div>
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">Connection</div><div class="heady-stat-value" style="font-size:1rem;">{{ websocket_url }}</div></div><div class="heady-card-icon icon-red">🔗</div></div></div>
+  </div>
+
+  {# ── Real-Time Charts ── #}
+  <div class="heady-section">
+    <h2 class="heady-section-title">🔭 Live System Metrics</h2>
+    <div class="heady-lens-charts">
+      <div class="heady-chart-box"><h3 style="font-size:0.85rem;margin-bottom:0.5rem;color:#94a3b8;">CPU Usage</h3><canvas id="cpuChart"></canvas></div>
+      <div class="heady-chart-box"><h3 style="font-size:0.85rem;margin-bottom:0.5rem;color:#94a3b8;">Memory Usage</h3><canvas id="memoryChart"></canvas></div>
+      <div class="heady-chart-box"><h3 style="font-size:0.85rem;margin-bottom:0.5rem;color:#94a3b8;">Response Times</h3><canvas id="responseChart"></canvas></div>
+    </div>
+  </div>
+
+  {# ── Alerts Panel ── #}
+  <div class="heady-section">
+    <h2 class="heady-section-title">⚠️ System Alerts</h2>
+    <div class="heady-lens-panel" id="alertsPanel">
+      <p style="color:#94a3b8;">No active alerts — all systems nominal.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="https://headybuddy.org/headybuddy-widget.js"></script>

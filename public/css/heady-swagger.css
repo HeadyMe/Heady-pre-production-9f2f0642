@@ -1,0 +1,179 @@
+/**
+ * Heady Visual Identity — Swagger UI Aesthetics
+ * Injecting the dark glassmorphism, neon glows, and gradient branding
+ * into the standard Swagger UI.
+ */
+
+:root {
+    --heady-primary: #667eea;
+    --heady-secondary: #764ba2;
+    --heady-accent: #a855f7;
+    --bg-void: #0a0a0f;
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    --bg-panel-hover: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --glow-blue: 0 0 20px rgba(102, 126, 234, 0.2);
+    --font-display: 'Inter', system-ui, sans-serif;
+}
+
+/* Base Body Override */
+body {
+    background-color: var(--bg-void) !important;
+    color: #e2e8f0 !important;
+    font-family: var(--font-display) !important;
+}
+
+.swagger-ui {
+    font-family: var(--font-display) !important;
+    color: #e2e8f0 !important;
+}
+
+/* Typography Overrides */
+.swagger-ui p,
+.swagger-ui li,
+.swagger-ui td,
+.swagger-ui table {
+    color: #cbd5e1 !important;
+}
+
+.swagger-ui h1,
+.swagger-ui h2,
+.swagger-ui h3,
+.swagger-ui h4,
+.swagger-ui h5 {
+    color: #fff !important;
+    font-family: var(--font-display) !important;
+}
+
+.swagger-ui .title {
+    color: #fff !important;
+    background: linear-gradient(135deg, var(--heady-primary), var(--heady-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800 !important;
+}
+
+/* Info Container */
+.swagger-ui .info {
+    margin: 30px 0 !important;
+    background: var(--bg-glass) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 16px !important;
+    padding: 30px !important;
+    box-shadow: var(--glow-blue) !important;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.swagger-ui .info:hover {
+    border-color: rgba(102, 126, 234, 0.4) !important;
+    box-shadow: 0 0 30px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* Panels / Blocks */
+.swagger-ui .opblock {
+    background: var(--bg-glass) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    margin-bottom: 20px !important;
+    backdrop-filter: blur(8px) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.swagger-ui .opblock:hover {
+    transform: translateY(-2px);
+    border-color: var(--heady-primary) !important;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15) !important;
+}
+
+/* Summaries (Endpoint headers) */
+.swagger-ui .opblock .opblock-summary {
+    border-bottom: 1px solid var(--border-subtle) !important;
+    transition: background 0.2s ease !important;
+}
+
+.swagger-ui .opblock .opblock-summary:hover {
+    background: var(--bg-panel-hover) !important;
+}
+
+.swagger-ui .opblock .opblock-summary-method {
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3) !important;
+}
+
+.swagger-ui .opblock .opblock-summary-path {
+    color: #fff !important;
+}
+
+.swagger-ui .opblock .opblock-summary-description {
+    color: #94a3b8 !important;
+}
+
+/* GET Method */
+.swagger-ui .opblock.opblock-get {
+    border-color: rgba(97, 175, 254, 0.3) !important;
+    background: rgba(97, 175, 254, 0.05) !important;
+}
+
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+    background: #61affe !important;
+}
+
+/* POST Method */
+.swagger-ui .opblock.opblock-post {
+    border-color: rgba(73, 204, 144, 0.3) !important;
+    background: rgba(73, 204, 144, 0.05) !important;
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+    background: #49cc90 !important;
+}
+
+/* Code Blocks / Responses */
+.swagger-ui .highlight-code {
+    background: #0f172a !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Input Fields */
+.swagger-ui input,
+.swagger-ui select,
+.swagger-ui textarea {
+    background: #0f172a !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+}
+
+.swagger-ui input:focus,
+.swagger-ui select:focus,
+.swagger-ui textarea:focus {
+    border-color: var(--heady-primary) !important;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3) !important;
+    outline: none !important;
+}
+
+/* Execute Button */
+.swagger-ui .btn.execute {
+    background: linear-gradient(135deg, var(--heady-primary), var(--heady-secondary)) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.4) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.swagger-ui .btn.execute:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 0 25px rgba(102, 126, 234, 0.6) !important;
+}
+
+/* Hide Topbar entirely, keep it clean */
+.swagger-ui .topbar {
+    display: none !important;
+}

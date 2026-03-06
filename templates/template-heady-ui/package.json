@@ -1,0 +1,38 @@
+{
+    "name": "@heady/template-ui",
+    "version": "1.0.0",
+    "description": "Heady™ React Micro-Frontend Base — Liquid UI Template",
+    "private": true,
+    "scripts": {
+        "dev": "webpack serve --mode development --port 3000",
+        "build": "webpack --mode production",
+        "start": "node server.js",
+        "docker:build": "docker build -t heady-ui .",
+        "docker:run": "docker run -p 3000:3000 heady-ui"
+    },
+    "dependencies": {
+        "react": "^18.3.0",
+        "react-dom": "^18.3.0"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.24.0",
+        "@babel/preset-env": "^7.24.0",
+        "@babel/preset-react": "^7.24.0",
+        "babel-loader": "^9.1.0",
+        "css-loader": "^7.1.0",
+        "html-webpack-plugin": "^5.6.0",
+        "style-loader": "^4.0.0",
+        "webpack": "^5.90.0",
+        "webpack-cli": "^5.1.0",
+        "webpack-dev-server": "^5.0.0"
+    },
+    "heady": {
+        "template": "heady-ui",
+        "liquidDeploy": true,
+        "projectionTargets": [
+            "cloudflare-edge",
+            "cloud-run",
+            "browser"
+        ]
+    }
+}

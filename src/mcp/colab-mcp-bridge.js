@@ -84,11 +84,11 @@ let HEADY_TOOLS = [];
 
 function loadMCPTools() {
     HEADY_TOOLS = [
-        { name: 'heady_deep_scan', description: 'Dynamic Edge Node: massive single-pass project map + 3D vector memory pull.', inputSchema: { type: 'object', properties: { directory: { type: 'string', description: 'Target workspace directory' } } } },
+        // heady_deep_scan merged into heady_analyze (type: 'deep-scan')
         { name: 'heady_auto_flow', description: 'Combined auto-flow: HeadyBattle + HeadyCoder + HeadyAnalyze + HeadyRisks + HeadyPatterns via HCFP.', inputSchema: { type: 'object', properties: { task: { type: 'string' }, code: { type: 'string' }, context: { type: 'string' } }, required: ['task'] } },
         { name: 'heady_chat', description: 'Chat with Heady Brain. Routes 100% through Heady AI.', inputSchema: { type: 'object', properties: { message: { type: 'string' }, system: { type: 'string' }, model: { type: 'string', default: 'heady-brain' }, temperature: { type: 'number', default: 0.7 }, max_tokens: { type: 'integer', default: 4096 } }, required: ['message'] } },
         { name: 'heady_complete', description: 'Code/text completion via Heady Brain.', inputSchema: { type: 'object', properties: { prompt: { type: 'string' }, language: { type: 'string' }, max_tokens: { type: 'integer', default: 2048 } }, required: ['prompt'] } },
-        { name: 'heady_analyze', description: 'Analyze code/text via Heady Brain intelligence.', inputSchema: { type: 'object', properties: { content: { type: 'string' }, type: { type: 'string', enum: ['code', 'text', 'security', 'performance', 'architecture', 'general'] }, language: { type: 'string' }, focus: { type: 'string' } }, required: ['content'] } },
+        { name: 'heady_analyze', description: 'Unified Heady analysis — code, deep-scan, web research (Perplexity Sonar Pro), architecture, security, performance. All analysis flows through this tool.', inputSchema: { type: 'object', properties: { content: { type: 'string' }, type: { type: 'string', enum: ['code', 'text', 'security', 'performance', 'architecture', 'general', 'deep-scan', 'research', 'academic', 'news'], default: 'general' }, language: { type: 'string' }, focus: { type: 'string' }, directory: { type: 'string' }, timeframe: { type: 'string', default: 'all' }, maxSources: { type: 'integer', default: 10 }, context: { type: 'string' } }, required: ['content'] } },
         { name: 'heady_embed', description: 'Generate vector embeddings via Heady embedding service.', inputSchema: { type: 'object', properties: { text: { type: 'string' }, model: { type: 'string', default: 'nomic-embed-text' } }, required: ['text'] } },
         { name: 'heady_health', description: 'Check health/status of all Heady services.', inputSchema: { type: 'object', properties: { service: { type: 'string', enum: ['all', 'brain', 'manager', 'hcfp', 'mcp'], default: 'all' } } } },
         { name: 'heady_deploy', description: 'Trigger deployment/service action via Heady Manager.', inputSchema: { type: 'object', properties: { action: { type: 'string', enum: ['deploy', 'restart', 'status', 'logs', 'scale'] }, service: { type: 'string' }, config: { type: 'object' } }, required: ['action'] } },
@@ -96,7 +96,7 @@ function loadMCPTools() {
         { name: 'heady_memory', description: 'Search HeadyMemory (3D vector space) for persistent user facts.', inputSchema: { type: 'object', properties: { query: { type: 'string' }, limit: { type: 'integer', default: 5 }, minScore: { type: 'number', default: 0.6 } }, required: ['query'] } },
         { name: 'heady_refactor', description: 'Code refactoring suggestions from Heady Brain.', inputSchema: { type: 'object', properties: { code: { type: 'string' }, language: { type: 'string' }, goals: { type: 'array', items: { type: 'string' } } }, required: ['code'] } },
         { name: 'heady_jules_task', description: 'Dispatch async background coding task to HeadyJules agent.', inputSchema: { type: 'object', properties: { task: { type: 'string' }, repository: { type: 'string' }, priority: { type: 'string', enum: ['low', 'normal', 'high', 'critical'], default: 'normal' }, autoCommit: { type: 'boolean', default: false } }, required: ['task', 'repository'] } },
-        { name: 'heady_perplexity_research', description: 'Deep research/web search via HeadyResearch (Sonar Pro).', inputSchema: { type: 'object', properties: { query: { type: 'string' }, mode: { type: 'string', enum: ['quick', 'deep', 'academic', 'news'], default: 'deep' }, timeframe: { type: 'string', default: 'all' }, maxSources: { type: 'integer', default: 10 } }, required: ['query'] } },
+        // heady_perplexity_research merged into heady_analyze (type: 'research'|'academic'|'news')
         { name: 'heady_huggingface_model', description: 'Search/interact with HeadyHub models via HuggingFace.', inputSchema: { type: 'object', properties: { action: { type: 'string', enum: ['search', 'info', 'inference'] }, modelId: { type: 'string' }, query: { type: 'string' } }, required: ['action'] } },
         { name: 'heady_soul', description: 'HeadySoul — intelligence, consciousness, and learning layer.', inputSchema: { type: 'object', properties: { content: { type: 'string' }, action: { type: 'string', enum: ['analyze', 'optimize', 'learn'], default: 'analyze' } }, required: ['content'] } },
         { name: 'heady_hcfp_status', description: 'HCFP auto-success engine status and metrics.', inputSchema: { type: 'object', properties: { detail: { type: 'string', enum: ['status', 'metrics', 'health'], default: 'status' } } } },
@@ -164,34 +164,64 @@ async function callTool(name, args) {
         case 'heady_telemetry': {
             return { content: [{ type: 'text', text: JSON.stringify(telemetry.getStats(), null, 2) }] };
         }
+        case 'heady_deep_scan': {
+            // Backward compat — redirect to heady_analyze type: 'deep-scan'
+            args.content = args.directory || 'project';
+            args.type = 'deep-scan';
+            // Fall through to heady_analyze
+        }
         case 'heady_perplexity_research': {
-            // Direct Perplexity Sonar API call — no proxy needed
-            const PPLX_KEY = process.env.PERPLEXITY_API_KEY;
-            if (!PPLX_KEY) {
-                return { content: [{ type: 'text', text: 'PERPLEXITY_API_KEY not set' }], isError: true };
+            // Backward compat — redirect to heady_analyze type: 'research'
+            if (name === 'heady_perplexity_research') {
+                args.content = args.query || args.content;
+                args.type = args.mode || 'research';
             }
-            const modeMap = { quick: 'sonar', deep: 'sonar-deep-research', academic: 'sonar-deep-research', news: 'sonar' };
-            const model = modeMap[args.mode || 'deep'] || 'sonar-deep-research';
-            try {
-                const res = await fetch('https://api.perplexity.ai/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PPLX_KEY}` },
-                    body: JSON.stringify({
-                        model,
-                        messages: [
-                            { role: 'system', content: 'You are a deep research specialist. Provide thorough analysis with citations and evidence.' },
-                            { role: 'user', content: args.query },
-                        ],
-                        max_tokens: model === 'sonar-deep-research' ? 16384 : 4096,
-                        temperature: 0.3,
-                    }),
-                    signal: AbortSignal.timeout(60000),
-                });
-                const data = await res.json();
-                return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
-            } catch (err) {
-                return { content: [{ type: 'text', text: `Perplexity Error: ${err.message}` }], isError: true };
+            // Fall through to heady_analyze
+        }
+        case 'heady_analyze': {
+            const analyzeType = args.type || 'general';
+
+            // ── Research: direct Perplexity Sonar API ──
+            if (['research', 'deep', 'academic', 'news', 'quick'].includes(analyzeType)) {
+                const PPLX_KEY = process.env.PERPLEXITY_API_KEY;
+                if (!PPLX_KEY) {
+                    return { content: [{ type: 'text', text: 'PERPLEXITY_API_KEY not set' }], isError: true };
+                }
+                const modeMap = { quick: 'sonar', research: 'sonar-deep-research', deep: 'sonar-deep-research', academic: 'sonar-deep-research', news: 'sonar' };
+                const model = modeMap[analyzeType] || 'sonar-deep-research';
+                try {
+                    const res = await fetch('https://api.perplexity.ai/chat/completions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${PPLX_KEY}` },
+                        body: JSON.stringify({
+                            model,
+                            messages: [
+                                { role: 'system', content: 'You are a deep research specialist. Provide thorough analysis with citations and evidence.' },
+                                { role: 'user', content: args.content || args.query },
+                            ],
+                            max_tokens: model === 'sonar-deep-research' ? 16384 : 4096,
+                            temperature: 0.3,
+                        }),
+                        signal: AbortSignal.timeout(90000),
+                    });
+                    const data = await res.json();
+                    // Persist to vector memory
+                    try {
+                        learner.learn(`[Research:${analyzeType}] ${(args.content || '').substring(0, 200)}`, 'interaction', { type: 'research', mode: analyzeType });
+                    } catch (e) { /* non-critical */ }
+                    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+                } catch (err) {
+                    return { content: [{ type: 'text', text: `Perplexity Error: ${err.message}` }], isError: true };
+                }
             }
+
+            // ── Deep-scan: proxy to edge ──
+            if (analyzeType === 'deep-scan') {
+                break; // Fall through to HTTP proxy below, routed via routes map
+            }
+
+            // ── Standard analysis: proxy to brain ──
+            break; // Fall through to HTTP proxy below
         }
     }
 

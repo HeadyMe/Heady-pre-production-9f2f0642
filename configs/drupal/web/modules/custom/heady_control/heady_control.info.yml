@@ -1,0 +1,13 @@
+name: 'Heady System Control'
+type: module
+description: 'Complete system monitoring and control for Heady ecosystem'
+core_version_requirement: ^11
+package: 'Heady'
+dependencies:
+  - drupal:rest
+  - drupal:jsonapi
+  - drupal:views
+  - drupal:block
+  - drupal:system
+
+configure: heady_control.settings

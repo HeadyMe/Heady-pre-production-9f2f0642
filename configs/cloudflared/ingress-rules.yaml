@@ -1,0 +1,37 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/cloudflared/ingress-rules.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+tunnel: heady-mtls-tunnel
+credentials-file: /etc/cloudflared/heady-mtls-tunnel.json
+
+# Ingress rules for mTLS services
+ingress:
+  - hostname: headyide.headyio.com
+    service: http://api.headysystems.com:3400
+    originRequest:
+      noTLSVerify: true
+
+  - hostname: api.headymcp.com
+    service: https://api.headysystems.com:8443
+    originRequest:
+      caPool: /etc/cloudflared/ca.crt
+      clientTLS:
+        cert: /etc/cloudflared/client.pem
+        key: /etc/cloudflared/client.key
+  - hostname: "*.headymcp.com"
+    service: https://api.headysystems.com:8443
+    originRequest:
+      caPool: /etc/cloudflared/ca.crt
+  - service: http_status:404

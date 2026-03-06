@@ -1,0 +1,39 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/deployment-strategy.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Portable Drive Deployment Strategy
+drives:
+  E:
+    purpose: primary_deployment
+    services: [heady-core, heady-manager, heady-db]
+    sync_mode: realtime
+  F:
+    purpose: backup_archive
+    services: [backups, logs, archives]
+    sync_mode: daily
+
+backup_rules:
+  - source: c:\Users\erich\Heady
+    destinations: [E:\HeadyBackup, F:\HeadyBackup]
+    frequency: hourly
+    retention: 7_days
+
+sync_rules:
+  - source: c:\Users\erich\Heady\configs
+    destination: E:\HeadyConfigs
+    mode: bidirectional
+  - source: c:\Users\erich\Heady\data
+    destination: F:\HeadyData
+    mode: mirror

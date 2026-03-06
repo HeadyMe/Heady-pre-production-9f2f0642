@@ -1,0 +1,71 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/cloudflare-dns.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# HEADY CLOUDFLARE DNS CONFIGURATION
+# Version: 1.1.0
+# Last Updated: 2026-02-11
+#
+# INFRASTRUCTURE-ONLY: CNAME targets below reference the hosting provider.
+# Users and code NEVER see these — all traffic uses branded domains via Cloudflare proxy.
+
+# Production DNS Records
+records:
+  - name: "api.headysystems.com"
+    type: CNAME
+    target: "heady-manager-headysystems.headysystems.com"
+    proxied: true
+    ttl: 1 # Auto
+    comment: "Primary API endpoint"
+
+  - name: "app.headysystems.com"
+    type: CNAME
+    target: "heady-app-headysystems.headysystems.com"
+    proxied: true
+    ttl: 1
+    comment: "Main application interface"
+
+  - name: "admin.headysystems.com"
+    type: CNAME
+    target: "heady-admin-headysystems.headysystems.com"
+    proxied: true
+    ttl: 1
+    comment: "Administration console"
+
+# Staging DNS Records
+  - name: "api.staging.headysystems.com"
+    type: CNAME
+    target: "heady-manager-staging-headysystems.headysystems.com"
+    proxied: true
+    ttl: 1
+    comment: "Staging API endpoint"
+
+# SSL/TLS Settings
+ssl:
+  mode: "full"
+  universal: true
+  always_use_https: true
+
+# Security Headers
+headers:
+  strict_transport_security: "max-age=31536000; includeSubDomains; preload"
+  x_frame_options: "DENY"
+  x_content_type_options: "nosniff"
+
+# Infrastructure Notes
+# 1. CNAME targets are hosting provider addresses — NOT user-facing
+# 2. proxied=true means users only see branded domains (Cloudflare proxy)
+# 3. Code and configs must ONLY reference branded domains, never these targets
+# 4. TTL=1 sets automatic TTL for dynamic environments
+

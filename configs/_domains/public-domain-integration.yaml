@@ -1,0 +1,120 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/public-domain-integration.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔═══════════════════════════════════════════════════════════════╗
+# ║  HEADY SYSTEMS                                                 ║
+# ║  ━━━━━━━━━━━━━━                                                ║
+# ║  ∞ Sacred Geometry Architecture ∞                              ║
+# ║                                                                ║
+# ║  public-domain-integration.yaml - Technique Discovery Process  ║
+# ╚═══════════════════════════════════════════════════════════════╝
+
+version: "1.0.0"
+
+systemTechniques:
+  patternBasedReasoning:
+    description: >
+      Never jump from request to code. Map each request to architecture,
+      workflow, error-handling, security, and observability patterns.
+  taskDecompositionAndPlanning:
+    description: >
+      Every request becomes a Task with deterministic Plan including
+      unique ID, type, priority, constraints, subtask dependencies,
+      pattern ID, node type, resource tier, execution mode.
+  parallelResourceAwareOrchestration:
+    description: >
+      Independent subtasks grouped and executed concurrently. Routes
+      to S/M/L tiers based on complexity and risk.
+  HeadyBattleAndEvaluatorLoops:
+    description: >
+      Ambiguous or high-risk decisions use HeadyBattle agents to question
+      assumptions and evaluator agents to critique outputs and plans.
+  determinismWherePossible:
+    description: >
+      Planning, routing, and critical flows use low-variance settings
+      with versioned prompts and policies.
+
+continuousDiscovery:
+  scanSources:
+    - researchPapers
+    - publicGuidelines
+    - openSourcePatterns
+    - communityBestPractices
+    - industryStandards
+  scanDomains:
+    - architecture
+    - testing
+    - security
+    - orchestration
+    - gpuOptimization
+    - developerTools
+    - promptEngineering
+    - agenticWorkflows
+  licenseFilter:
+    allowed: [MIT, Apache-2.0, CC-BY, CC-BY-SA, BSD-2-Clause, BSD-3-Clause, publicDomain]
+    excluded: [proprietary, restrictedCommercialUse, unknownLicense]
+
+evaluation:
+  process:
+    - mapToExistingPatternCategory
+    - compareOnClarity
+    - compareOnRobustness
+    - compareOnEmpiricalResults
+    - compareOnMissionAlignment
+    - runSmallPilotOrSimulationTask
+  comparisonCriteria:
+    - fewerCriticalBugs
+    - betterPerformanceAndResourceUsage
+    - higherSatisfaction
+    - lowerMaintenanceEffort
+    - clearerDocumentation
+  pilotApproach:
+    scope: smallNonCriticalProject
+    durationDays: 7
+    metricsCollected: [bugRate, performanceMetrics, developerTime, codeComplexity]
+
+integrationProcess:
+  steps:
+    - promoteToPatternCatalog
+    - updatePromptsTemplatesScaffolds
+    - keepOldPatternsVersioned
+  rolloutPolicy:
+    approach: controlledExperiment
+    steps:
+      - smallRollout
+      - metricsComparison
+      - fullAdoption
+
+safetyGovernance:
+  checks:
+    - noSecurityRegressions
+    - noPrivacyViolations
+    - noSocialImpactViolations
+    - compatibleLicense
+    - noExternalIPDependencies
+  humanReview:
+    requiredFor: [highImpactChanges, securityRelatedPatterns, architecturePatterns]
+
+metricDrivenSelection:
+  metricsPerPattern: [bugRates, performanceMetrics, developerTime, userExperienceOutcomes, maintenanceEffort]
+  selectionCriteria: >
+    Promote technique to default only when it demonstrably improves results
+    in controlled experiments.
+
+controlledExperiments:
+  approach: [runOnSmallLowRiskTasks, compareOutcomes, promoteOnlyWhenDemonstrablyBetter]
+  humanInTheLoop:
+    forContentiousChanges: true
+    restrictionOptions: [adoptFully, adaptPartially, reject, restrictToCertainDomains]

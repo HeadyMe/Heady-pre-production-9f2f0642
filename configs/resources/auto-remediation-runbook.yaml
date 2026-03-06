@@ -1,0 +1,114 @@
+# ═══════════════════════════════════════════════════════════════
+# Auto-Remediation Runbook — P4 Assessment Item
+# Standardized runbooks for auto-remediation and post-incident synthesis
+# ═══════════════════════════════════════════════════════════════
+
+runbooks:
+  # ── Edge Service Failures ──────────────────────────────────
+  edge-latency-spike:
+    trigger: "edge.latency > 200ms for 5 consecutive checks"
+    severity: warning
+    auto_remediate: true
+    steps:
+      - action: "purge_edge_cache"
+        target: "heady.headyme.com"
+        api: "cloudflare purge_cache"
+      - action: "restart_worker"
+        target: "heady-edge-proxy"
+      - action: "log_incident"
+        fields: [timestamp, latency_ms, affected_routes]
+    escalation:
+      after_failures: 3
+      notify: "ops@headysystems.com"
+
+  edge-worker-crash:
+    trigger: "edge.health returns non-200 for 3 checks"
+    severity: critical
+    auto_remediate: true
+    steps:
+      - action: "redeploy_worker"
+        source: "cloudflare-workers/heady-edge-proxy.js"
+      - action: "verify_health"
+        timeout_ms: 10000
+      - action: "synthesize_rule"
+        description: "LR-NEW: Edge crash detected — add pre-warm trigger"
+
+  # ── Swarm Saturation ───────────────────────────────────────
+  swarm-saturation:
+    trigger: "swarm.saturation > 85%"
+    severity: warning
+    auto_remediate: true
+    steps:
+      - action: "scale_bee_pool"
+        increment: 4
+        max_pool_size: 32
+      - action: "redistribute_queues"
+        strategy: "least-loaded-first"
+      - action: "log_metric"
+        metric: "swarm.auto_scale"
+
+  # ── Projection Queue Backup ────────────────────────────────
+  projection-queue-depth:
+    trigger: "projection.queue_depth > 100"
+    severity: warning
+    auto_remediate: true
+    steps:
+      - action: "increase_batch_size"
+        from: 10
+        to: 25
+      - action: "pause_non_critical_projections"
+        categories: [analytics, dashboard_refresh]
+      - action: "resume_after"
+        condition: "queue_depth < 20"
+
+  # ── Memory Pressure ────────────────────────────────────────
+  memory-pressure:
+    trigger: "memory.usage > 80%"
+    severity: warning
+    auto_remediate: true
+    steps:
+      - action: "garbage_collect"
+        target: "vector-memory stale entries"
+      - action: "evict_cache"
+        strategy: "lru"
+        preserve: ["auth_tokens", "active_sessions"]
+      - action: "log_metric"
+        metric: "memory.auto_gc"
+
+  # ── Stale Device Cleanup ───────────────────────────────────
+  stale-device-cleanup:
+    trigger: "device.last_seen > 24h"
+    severity: info
+    auto_remediate: true
+    steps:
+      - action: "disconnect_device"
+      - action: "archive_session"
+      - action: "log_metric"
+        metric: "device.stale_cleanup"
+
+  # ── Cloud Run Health ───────────────────────────────────────
+  cloudrun-unhealthy:
+    trigger: "cloudrun.health returns non-200"
+    severity: critical
+    auto_remediate: false
+    steps:
+      - action: "check_logs"
+        command: "gcloud logging read 'resource.type=cloud_run_revision' --limit 50"
+      - action: "restart_revision"
+        command: "gcloud run services update heady-manager --region us-central1"
+    escalation:
+      after_failures: 1
+      notify: "ops@headysystems.com"
+
+# ── Post-Incident Rule Synthesis ─────────────────────────────
+post_incident:
+  auto_synthesize: true
+  rule_prefix: "LR-AUTO"
+  storage: "configs/resources/learned-rules.yaml"
+  fields:
+    - incident_id
+    - trigger
+    - root_cause
+    - remediation_steps
+    - time_to_resolve_ms
+    - prevention_rule

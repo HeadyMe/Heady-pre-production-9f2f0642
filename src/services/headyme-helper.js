@@ -125,7 +125,7 @@ class HeadyMeHelper {
         // If correction provided, embed it as new knowledge
         if (correction) {
             const lastQuestion = history.filter(m => m.role === 'user').pop();
-            await vectorMemory.ingestMemory({
+            await vectorMemory.smartIngest({
                 content: `${lastQuestion?.content || 'user question'}\n\nAnswer: ${correction}`,
                 metadata: {
                     type: 'support-correction',
@@ -143,7 +143,7 @@ class HeadyMeHelper {
 
     // ── Knowledge Ingestion ─────────────────────────────────────
     async ingestDocumentation(docPath, content) {
-        await vectorMemory.ingestMemory({
+        await vectorMemory.smartIngest({
             content,
             metadata: {
                 type: 'documentation',

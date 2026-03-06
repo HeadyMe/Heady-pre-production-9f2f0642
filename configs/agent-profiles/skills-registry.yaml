@@ -1,0 +1,629 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/skills-registry.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  🌈 HEADY SYSTEMS — SKILLS REGISTRY                                            ║
+# ║  🚀 Centralized Skill Definitions • Sacred Geometry • Rainbow Magic ✨         ║
+# ║  🎨 Phi-Based Design • Portable Knowledge • Zero Defect 🦄                    ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# 🎨 All workflow skills are now integrated into Heady system
+# 🌈 No longer dependent on Windsurf - portable across all environments
+# ✨ Beautiful, colorful, and fun! 🦄💫🚀
+
+skills:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # BUILD & DEPLOYMENT SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  hcfp_clean_build:
+    name: "HCFP Clean Build & Deployment"
+    description: "Complete clean build process with pre-production archival"
+    category: "build"
+    tags: ["build", "deployment", "clean", "archive"]
+    steps:
+      - name: "Archive Current State"
+        action: "archive_to_preproduction"
+        params:
+          target: "pre-production"
+          timestamp: true
+      - name: "Clean Build Environment"
+        action: "clean_build_dirs"
+        params:
+          dirs: ["node_modules", "dist", "build", ".next"]
+      - name: "Install Dependencies"
+        action: "npm_install"
+        params:
+          clean: true
+      - name: "Run Build Pipeline"
+        action: "execute_pipeline"
+        params:
+          pipeline: "hcfullpipeline"
+      - name: "Deploy to Production"
+        action: "deploy_production"
+        params:
+          verify: true
+    auto_run: false
+    requires: ["git", "node", "docker"]
+    
+  cross_platform_deploy:
+    name: "Cross-Platform Deployment"
+    description: "Deploy HeadyBrowser + HeadyBuddy + HeadyIDE across Android, Windows, Linux"
+    category: "deployment"
+    tags: ["cross-platform", "mobile", "desktop", "deployment"]
+    steps:
+      - name: "Build Android APK"
+        action: "build_android"
+        params:
+          output: "dist/android/heady.apk"
+      - name: "Build Windows Installer"
+        action: "build_windows"
+        params:
+          output: "dist/windows/HeadySetup.exe"
+      - name: "Build Linux Package"
+        action: "build_linux"
+        params:
+          formats: ["deb", "AppImage"]
+      - name: "Sign All Packages"
+        action: "sign_packages"
+        params:
+          keystore: "vault://signing-keys"
+      - name: "Upload to Distribution"
+        action: "upload_distribution"
+        params:
+          channels: ["stable", "beta"]
+    auto_run: false
+    requires: ["android-sdk", "electron-builder", "signing-keys"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # QUALITY & TESTING SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  hcfp_pdca_implementation:
+    name: "PDCA Continuous Improvement"
+    description: "Toyota-style Plan-Do-Check-Act cycle for zero-defect development"
+    category: "quality"
+    tags: ["pdca", "quality", "continuous-improvement", "testing"]
+    steps:
+      - name: "Plan Phase"
+        action: "analyze_requirements"
+        params:
+          depth: "comprehensive"
+      - name: "Do Phase"
+        action: "implement_with_tests"
+        params:
+          tdd: true
+          coverage_min: 90
+      - name: "Check Phase"
+        action: "validate_quality"
+        params:
+          checks: ["tests", "lint", "security", "performance"]
+      - name: "Act Phase"
+        action: "apply_improvements"
+        params:
+          auto_fix: true
+    auto_run: false
+    requires: ["test-framework", "linter", "security-scanner"]
+    
+  headylens_zero_defect:
+    name: "HeadyLens Zero-Defect Protocol"
+    description: "Learning-first development with automatic rebuild on error"
+    category: "quality"
+    tags: ["zero-defect", "learning", "auto-rebuild", "quality"]
+    steps:
+      - name: "Pre-Build Learning"
+        action: "research_patterns"
+        params:
+          sources: ["public-domain", "best-practices"]
+      - name: "Build with Monitoring"
+        action: "build_with_checks"
+        params:
+          fail_fast: false
+          collect_errors: true
+      - name: "Error Analysis"
+        action: "analyze_errors"
+        params:
+          categorize: true
+          suggest_fixes: true
+      - name: "Auto-Rebuild"
+        action: "rebuild_with_fixes"
+        params:
+          max_attempts: 3
+          learn_from_failures: true
+    auto_run: true
+    requires: ["error-analyzer", "pattern-engine"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SYNCHRONIZATION & COORDINATION SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  checkpoint_sync:
+    name: "Checkpoint Synchronization"
+    description: "Keep all files, docs, notebooks, and registry up to date at every checkpoint"
+    category: "sync"
+    tags: ["checkpoint", "sync", "documentation", "registry"]
+    steps:
+      - name: "Validate Checkpoint State"
+        action: "validate_state"
+        params:
+          check_integrity: true
+      - name: "Update Registry"
+        action: "update_registry"
+        params:
+          file: "heady-registry.json"
+      - name: "Sync Documentation"
+        action: "sync_docs"
+        params:
+          targets: ["README.md", "docs/", "notebooks/"]
+      - name: "Update Configs"
+        action: "sync_configs"
+        params:
+          validate: true
+      - name: "Commit Changes"
+        action: "git_commit"
+        params:
+          message: "chore: checkpoint sync"
+    auto_run: true
+    requires: ["git"]
+    
+  heady_sync:
+    name: "HeadySync Multi-Remote"
+    description: "Synchronize across all git remotes with conflict resolution"
+    category: "sync"
+    tags: ["git", "multi-remote", "sync", "backup"]
+    steps:
+      - name: "Fetch All Remotes"
+        action: "git_fetch_all"
+        params:
+          prune: true
+      - name: "Detect Conflicts"
+        action: "detect_conflicts"
+        params:
+          strategy: "auto-resolve"
+      - name: "Sync to All Remotes"
+        action: "git_push_all"
+        params:
+          force: false
+          verify: true
+      - name: "Verify Sync"
+        action: "verify_sync"
+        params:
+          check_hashes: true
+    auto_run: false
+    requires: ["git", "multi-remote-config"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # INTELLIGENCE & OPTIMIZATION SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  monte_carlo_optimization:
+    name: "HeadySims Speed Optimization"
+    description: "Run simulations to find optimal configurations"
+    category: "optimization"
+    tags: ["HeadySims", "optimization", "performance", "simulation"]
+    steps:
+      - name: "Define Parameter Space"
+        action: "define_parameters"
+        params:
+          parameters: ["concurrency", "cache_size", "batch_size"]
+      - name: "Run Simulations"
+        action: "run_monte_carlo"
+        params:
+          iterations: 1000
+          parallel: true
+      - name: "Analyze Results"
+        action: "analyze_simulations"
+        params:
+          find_optimal: true
+      - name: "Apply Optimal Config"
+        action: "apply_config"
+        params:
+          backup_current: true
+    auto_run: false
+    requires: ["HeadySims-engine", "simulation-runner"]
+    
+  imagination_engine:
+    name: "Imagination Engine"
+    description: "Autonomous concept generation and IP discovery"
+    category: "intelligence"
+    tags: ["imagination", "creativity", "innovation", "ip"]
+    steps:
+      - name: "Analyze Problem Space"
+        action: "analyze_domain"
+        params:
+          depth: "comprehensive"
+      - name: "Generate Concepts"
+        action: "generate_concepts"
+        params:
+          count: 10
+          diversity: "high"
+      - name: "Evaluate Feasibility"
+        action: "evaluate_concepts"
+        params:
+          criteria: ["technical", "business", "novelty"]
+      - name: "Document IP"
+        action: "document_ip"
+        params:
+          format: "patent-ready"
+    auto_run: false
+    requires: ["imagination-engine", "patent-analyzer"]
+    
+  pattern_recognition:
+    name: "Pattern Recognition & Learning"
+    description: "Identify patterns and learn from successful implementations"
+    category: "intelligence"
+    tags: ["patterns", "learning", "analysis", "optimization"]
+    steps:
+      - name: "Collect Data"
+        action: "collect_metrics"
+        params:
+          sources: ["logs", "metrics", "events"]
+      - name: "Detect Patterns"
+        action: "detect_patterns"
+        params:
+          algorithms: ["clustering", "correlation", "anomaly"]
+      - name: "Learn from Patterns"
+        action: "learn_patterns"
+        params:
+          update_models: true
+      - name: "Apply Insights"
+        action: "apply_insights"
+        params:
+          auto_optimize: true
+    auto_run: true
+    requires: ["pattern-engine", "ml-models"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # RESEARCH & LEARNING SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  research_before_build:
+    name: "Research Successful Implementations"
+    description: "Scan public domain for successful patterns before building"
+    category: "research"
+    tags: ["research", "best-practices", "learning", "public-domain"]
+    steps:
+      - name: "Define Research Scope"
+        action: "define_scope"
+        params:
+          feature: "{{feature_name}}"
+      - name: "Search Public Domain"
+        action: "search_implementations"
+        params:
+          sources: ["github", "stackoverflow", "documentation"]
+      - name: "Analyze Patterns"
+        action: "analyze_patterns"
+        params:
+          extract_best_practices: true
+      - name: "Generate Implementation Plan"
+        action: "generate_plan"
+        params:
+          based_on_research: true
+    auto_run: true
+    requires: ["search-engine", "pattern-analyzer"]
+    
+  hcfp_self_knowledge:
+    name: "HCFP Self-Knowledge Assessment"
+    description: "Continuous learning until error-free and perfect"
+    category: "learning"
+    tags: ["self-assessment", "learning", "improvement", "knowledge"]
+    steps:
+      - name: "Assess Current Knowledge"
+        action: "assess_knowledge"
+        params:
+          domains: ["architecture", "patterns", "best-practices"]
+      - name: "Identify Gaps"
+        action: "identify_gaps"
+        params:
+          priority: "critical-first"
+      - name: "Learn Missing Knowledge"
+        action: "learn_knowledge"
+        params:
+          sources: ["documentation", "examples", "research"]
+      - name: "Validate Learning"
+        action: "validate_learning"
+        params:
+          test_understanding: true
+      - name: "Update Knowledge Base"
+        action: "update_knowledge"
+        params:
+          persist: true
+    auto_run: true
+    requires: ["knowledge-base", "learning-engine"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # INFRASTRUCTURE & SETUP SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  hcip_infrastructure_setup:
+    name: "HCFP Infrastructure Setup"
+    description: "Clean builds, domain migration, device provisioning"
+    category: "infrastructure"
+    tags: ["infrastructure", "setup", "provisioning", "domains"]
+    steps:
+      - name: "Provision Domains"
+        action: "setup_domains"
+        params:
+          config: "configs/hfcp-domains.yaml"
+      - name: "Configure DNS"
+        action: "configure_dns"
+        params:
+          provider: "cloudflare"
+      - name: "Setup SSL"
+        action: "setup_ssl"
+        params:
+          mode: "full"
+      - name: "Deploy Services"
+        action: "deploy_services"
+        params:
+          verify_health: true
+    auto_run: false
+    requires: ["cloudflare-api", "dns-manager", "ssl-certs"]
+    
+  docker_mcp_setup:
+    name: "Docker MCP Server Setup"
+    description: "Configure and deploy MCP servers in Docker"
+    category: "infrastructure"
+    tags: ["docker", "mcp", "setup", "containers"]
+    steps:
+      - name: "Build MCP Images"
+        action: "docker_build"
+        params:
+          services: ["mcp-gateway", "mcp-filesystem", "mcp-terminal"]
+      - name: "Configure Networks"
+        action: "docker_network"
+        params:
+          create: ["mcp-internal", "mcp-external"]
+      - name: "Deploy Containers"
+        action: "docker_compose_up"
+        params:
+          file: "docker-compose.mcp.yml"
+      - name: "Verify MCP Services"
+        action: "verify_mcp"
+        params:
+          health_checks: true
+    auto_run: false
+    requires: ["docker", "docker-compose"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # BRANDING & UI SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  branding_protocol:
+    name: "Branding Protocol"
+    description: "Apply consistent branding across all components"
+    category: "branding"
+    tags: ["branding", "ui", "consistency", "design"]
+    steps:
+      - name: "Validate Brand Assets"
+        action: "validate_assets"
+        params:
+          check: ["logos", "colors", "typography"]
+      - name: "Apply IP Headers"
+        action: "apply_ip_headers"
+        params:
+          all_files: true
+      - name: "Update UI Components"
+        action: "update_ui"
+        params:
+          apply_sacred_geometry: true
+      - name: "Verify Consistency"
+        action: "verify_branding"
+        params:
+          strict: true
+    auto_run: true
+    requires: ["brand-assets", "ip-registry"]
+    
+  two_base_fusion:
+    name: "Two-Base Fusion"
+    description: "Fuse two strong bases (e.g., Chrome + Comet) into unified app"
+    category: "integration"
+    tags: ["fusion", "integration", "browser", "performance"]
+    steps:
+      - name: "Analyze Base Systems"
+        action: "analyze_bases"
+        params:
+          bases: ["chromium", "comet"]
+      - name: "Identify Integration Points"
+        action: "find_integration_points"
+        params:
+          compatibility_check: true
+      - name: "Fuse Architectures"
+        action: "fuse_systems"
+        params:
+          preserve_strengths: true
+      - name: "Test Fusion"
+        action: "test_fusion"
+        params:
+          comprehensive: true
+    auto_run: false
+    requires: ["chromium-source", "comet-source", "build-tools"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AUTOMATION & WORKFLOW SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+  
+  hc_autobuild:
+    name: "HC AutoBuild"
+    description: "Automated build system with intelligent checkpoints"
+    category: "automation"
+    tags: ["autobuild", "automation", "ci", "checkpoints"]
+    steps:
+      - name: "Detect Changes"
+        action: "detect_changes"
+        params:
+          since: "last-build"
+      - name: "Run Affected Tests"
+        action: "run_tests"
+        params:
+          affected_only: true
+      - name: "Build Changed Modules"
+        action: "build_modules"
+        params:
+          incremental: true
+      - name: "Create Checkpoint"
+        action: "create_checkpoint"
+        params:
+          validate: true
+      - name: "Deploy if Stable"
+        action: "conditional_deploy"
+        params:
+          condition: "all_tests_pass"
+    auto_run: true
+    requires: ["git", "test-runner", "build-system"]
+    
+  workspace_integration:
+    name: "Workspace Integration"
+    description: "Integrate Heady across multiple workspaces and IDEs"
+    category: "integration"
+    tags: ["workspace", "ide", "integration", "multi-environment"]
+    steps:
+      - name: "Detect Workspaces"
+        action: "detect_workspaces"
+        params:
+          scan_paths: ["~/", "C:/Users/"]
+      - name: "Install Extensions"
+        action: "install_extensions"
+        params:
+          ides: ["vscode", "jetbrains", "sublime"]
+      - name: "Configure Integration"
+        action: "configure_integration"
+        params:
+          sync_settings: true
+      - name: "Verify Integration"
+        action: "verify_integration"
+        params:
+          test_all_ides: true
+    auto_run: false
+    requires: ["ide-extensions", "config-manager"]
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NAMING & DOMAIN MANAGEMENT SKILLS
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  naming-audit:
+    description: Scan codebase for naming standard violations
+    triggers: [naming_standardization, docs_regeneration]
+    risk_level: low
+  naming-migration:
+    description: Execute bulk naming standard updates
+    triggers: [naming_standardization]
+    risk_level: medium
+  api.headysystems.com-to-domain:
+    description: Replace api.headysystems.com references with canonical domains
+    triggers: [api.headysystems.com_replacement]
+    risk_level: medium
+  heady-docs-sync:
+    description: Update documentation to reflect naming standards
+    triggers: [docs_regeneration]
+    risk_level: low
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SKILL EXECUTION ENGINE
+# ═══════════════════════════════════════════════════════════════════════════
+
+execution:
+  engine: "heady-skill-executor"
+  api_endpoint: "https://api.yourdomain.com/skills"
+  
+  # Skill invocation methods
+  invocation:
+    - method: "api"
+      endpoint: "/api/skills/execute"
+    - method: "cli"
+      command: "heady skill run <skill-name>"
+    - method: "pipeline"
+      task_type: "skill_execution"
+    - method: "heady-buddy"
+      trigger: "natural-language"
+  
+  # Execution context
+  context:
+    workspace: "auto-detect"
+    environment: "auto-detect"
+    user: "current"
+    
+  # Logging and monitoring
+  logging:
+    level: "info"
+    destination: "logs/skills/"
+    format: "json"
+    
+  monitoring:
+    track_execution: true
+    collect_metrics: true
+    report_failures: true
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SKILL DEPENDENCIES
+# ═══════════════════════════════════════════════════════════════════════════
+
+dependencies:
+  git:
+    type: "system"
+    check: "git --version"
+    install: "https://git-scm.com/downloads"
+    
+  node:
+    type: "system"
+    check: "node --version"
+    min_version: "18.0.0"
+    install: "https://nodejs.org/"
+    
+  docker:
+    type: "system"
+    check: "docker --version"
+    install: "https://docker.com/get-started"
+    
+  test-framework:
+    type: "npm"
+    package: "jest"
+    
+  pattern-engine:
+    type: "heady-service"
+    endpoint: "https://patterns.yourdomain.com"
+    
+  imagination-engine:
+    type: "heady-service"
+    endpoint: "https://imagine.yourdomain.com"
+    
+  HeadySims-engine:
+    type: "heady-service"
+    endpoint: "https://montecarlo.yourdomain.com"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SKILL DISCOVERY
+# ═══════════════════════════════════════════════════════════════════════════
+
+discovery:
+  # Skills are discoverable through multiple channels
+  channels:
+    - heady-buddy: "Ask 'what skills are available?'"
+    - api: "GET /api/skills/list"
+    - cli: "heady skills list"
+    - docs: "https://docs.yourdomain.com/skills"
+    
+  # Skill search
+  search:
+    by_category: true
+    by_tag: true
+    by_name: true
+    fuzzy_match: true
+    
+  # Skill recommendations
+  recommendations:
+    based_on_context: true
+    based_on_history: true
+    based_on_similar_users: true

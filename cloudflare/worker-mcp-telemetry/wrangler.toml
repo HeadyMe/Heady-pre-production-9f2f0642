@@ -1,0 +1,18 @@
+name = "worker-mcp-telemetry"
+main = "src/index.js"
+compatibility_date = "2026-03-06"
+account_id = "" # Set via wrangler secret
+
+# Durable Objects for WebSocket state
+[durable_objects]
+bindings = [
+    { name = "TELEMETRY_SESSIONS", class_name = "TelemetrySession" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["TelemetrySession"]
+
+[vars]
+ALLOWED_ORIGINS = "https://headymcp.com,https://headysystems.com,https://headyconnection.org"
+MAX_SESSIONS = "100"

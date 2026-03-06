@@ -1,0 +1,185 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/connection-integrity.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ═══════════════════════════════════════════════════════════════════════
+# HEADY SYSTEMS — Connection Integrity & Multi-Channel Routing
+# ═══════════════════════════════════════════════════════════════════════
+#
+# All inputs/outputs go through Heady Services. Every connection type
+# must be proper, appropriate, and optimized for its use case.
+
+version: "1.0.0"
+name: ConnectionIntegrity
+
+# ─── HEADY AS SMART GATEWAY ─────────────────────────────────────────
+gateway:
+  role: "Normalize inputs → route to services → apply policies → adapt response to channel"
+  policies:
+    - "Safety and correctness first"
+    - "Privacy and least-privilege data access"
+    - "Performance targets per channel"
+    - "Cost-aware model selection"
+    - "Graceful degradation on failure"
+
+# ─── CONNECTION CHANNELS ────────────────────────────────────────────
+channels:
+  ide_extension:
+    name: "IDE Extension (VS Code, JetBrains)"
+    priorities:
+      - "Ultra-low latency (< 500ms for autocomplete)"
+      - "Inline code context awareness"
+      - "Streaming responses"
+    optimizations:
+      - "Keep warm model connections"
+      - "Local caching of frequent completions"
+      - "Preload project context on workspace open"
+      - "Debounced requests to avoid overload"
+    contract:
+      input: "Code context, cursor position, file tree, user intent"
+      output: "Code completions, inline suggestions, chat responses"
+      auth: "API key or OAuth token per seat"
+      rateLimit: "60 req/min autocomplete, 20 req/min chat"
+    errorHandling:
+      retry: true
+      maxRetries: 2
+      fallback: "Local model or cached response"
+      circuitBreaker: true
+
+  web_chat:
+    name: "Web Chat (HeadyBuddy)"
+    priorities:
+      - "Conversational flow"
+      - "Context retention across turns"
+      - "Rich media support (cards, links, images)"
+    optimizations:
+      - "Session-based context caching"
+      - "Adaptive response length based on device"
+      - "Precompute common follow-ups"
+    contract:
+      input: "User message, session history, user profile"
+      output: "Text, adaptive cards, action suggestions"
+      auth: "Session token"
+      rateLimit: "30 req/min"
+
+  mobile_app:
+    name: "Mobile App (HeadyBuddy Mobile)"
+    priorities:
+      - "Minimal payload size"
+      - "Offline-capable for cached responses"
+      - "Touch-friendly output formatting"
+    optimizations:
+      - "Compressed responses"
+      - "Progressive loading"
+      - "Background sync for non-urgent tasks"
+    contract:
+      input: "User message, device context, location (optional)"
+      output: "Compact text, action cards, push notifications"
+      auth: "JWT token"
+      rateLimit: "20 req/min"
+
+  api_mcp:
+    name: "API / MCP Protocol (Agent-to-Agent)"
+    priorities:
+      - "Strict contracts and idempotency"
+      - "Observability and tracing"
+      - "Low overhead"
+    optimizations:
+      - "Connection pooling"
+      - "Batch request support"
+      - "Schema validation at gateway"
+    contract:
+      input: "Structured JSON, tool calls, resource requests"
+      output: "Structured JSON responses with metadata"
+      auth: "HEADY_API_KEY header"
+      rateLimit: "100 req/min"
+
+  email:
+    name: "Email Integration"
+    priorities:
+      - "Proper tone and threading"
+      - "Contact context awareness"
+      - "Async processing acceptable"
+    optimizations:
+      - "Template-based for common patterns"
+      - "Batch processing for bulk operations"
+    contract:
+      input: "Email content, sender, thread context"
+      output: "Draft or sent email, summary, action items"
+      auth: "OAuth (Gmail/Outlook)"
+      rateLimit: "10 req/min"
+
+  voice:
+    name: "Voice / Phone Interface"
+    priorities:
+      - "Real-time response timing"
+      - "Error-tolerant (speech recognition noise)"
+      - "Short memory windows"
+    optimizations:
+      - "Streaming TTS/STT"
+      - "Intent pre-classification"
+      - "Concise responses (< 30 seconds spoken)"
+    contract:
+      input: "Transcribed speech, caller ID, session state"
+      output: "Spoken response text, actions triggered"
+      auth: "Phone number verification"
+      rateLimit: "Concurrent call limit: 5"
+
+  messaging:
+    name: "Messaging (SMS, WhatsApp, Slack)"
+    priorities:
+      - "Character limits awareness"
+      - "Quick acknowledgment"
+      - "Link-rich responses"
+    optimizations:
+      - "Short-form response templates"
+      - "Webhook-based async processing"
+    contract:
+      input: "Message text, platform, user ID"
+      output: "Short text, links, quick-reply buttons"
+      auth: "Platform webhook verification"
+      rateLimit: "30 req/min"
+
+# ─── CONNECTION QUALITY MONITORING ──────────────────────────────────
+qualityChecks:
+  enabled: true
+  metrics:
+    - name: "response_latency_ms"
+      targets:
+        ide_extension: 500
+        web_chat: 2000
+        mobile_app: 3000
+        api_mcp: 1000
+        email: 30000
+        voice: 1000
+        messaging: 2000
+    - name: "error_rate_percent"
+      maxAcceptable: 1.0
+    - name: "availability_percent"
+      minAcceptable: 99.5
+
+  onFriction:
+    action: "diagnose_connection"
+    steps:
+      - "Identify which channel/connection is slow or broken"
+      - "Check if it's upstream (model), gateway (Heady), or downstream (client)"
+      - "Propose fix: better SDK, retry logic, circuit breaker, provider switch"
+      - "Log as pattern for continuous improvement"
+
+  continuousImprovement:
+    - "A/B test connection configurations"
+    - "Track latency percentiles per channel weekly"
+    - "Auto-suggest SDK or client library upgrades"
+    - "MCP/API unification over ad-hoc integrations"
+    - "Load balancing across multiple backends when available"

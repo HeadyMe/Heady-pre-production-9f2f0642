@@ -1,0 +1,42 @@
+heady_admin.admin:
+  title: 'Heady Ecosystem'
+  route_name: heady_admin.dashboard
+  description: 'Manage the Heady AI Ecosystem'
+  parent: system.admin
+  weight: -20
+
+heady_admin.services_link:
+  title: 'Services'
+  route_name: heady_admin.services
+  parent: heady_admin.admin
+  weight: 1
+
+heady_admin.hcfp_link:
+  title: 'HCFP Policies'
+  route_name: heady_admin.hcfp
+  parent: heady_admin.admin
+  weight: 2
+
+heady_admin.headylens_link:
+  title: 'HeadyLens Monitor'
+  route_name: heady_admin.headylens
+  parent: heady_admin.admin
+  weight: 3
+
+heady_admin.customize_link:
+  title: 'Customize'
+  route_name: heady_admin.customize
+  parent: heady_admin.admin
+  weight: 4
+
+heady_admin.access_link:
+  title: 'User Access'
+  route_name: heady_admin.access_control
+  parent: heady_admin.admin
+  weight: 5
+
+heady_admin.settings_link:
+  title: 'Settings'
+  route_name: heady_admin.settings
+  parent: heady_admin.admin
+  weight: 10

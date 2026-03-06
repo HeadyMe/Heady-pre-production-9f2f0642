@@ -1,0 +1,177 @@
+# ═══════════════════════════════════════════════════════════════
+# Projection Contracts — P5 Assessment Item
+# Maps 3D vector state to 2D UI schemas for deterministic rendering
+# ═══════════════════════════════════════════════════════════════
+
+contracts:
+  system-projection:
+    description: "Projects full system state from 3D vector space to 2D UI/API consumers"
+    source: "vector-memory.js → buildSystemProjectionSnapshot()"
+    schema:
+      type: object
+      required: [receipt, colabPlan, embeddingPlan, projectionNoise, sourceOfTruth, health]
+      properties:
+        receipt:
+          type: object
+          required: [hash, timestamp]
+          properties:
+            hash: { type: string, format: sha256 }
+            timestamp: { type: string, format: date-time }
+        colabPlan:
+          type: object
+          description: "Colab runtime orchestration state"
+        embeddingPlan:
+          type: object
+          description: "Current embedding pipeline status"
+        projectionNoise:
+          type: object
+          description: "Detected stale projection artifacts"
+        sourceOfTruth:
+          type: object
+          description: "GitHub monorepo sync status"
+        health:
+          type: object
+          description: "Aggregated service health"
+
+  onboarding-blueprint:
+    description: "Projects onboarding config to deterministic UI wizard steps"
+    source: "developer-platform-blueprint.yaml → buildOnboardingContract()"
+    schema:
+      type: object
+      required: [receipt, stages]
+      properties:
+        receipt:
+          type: object
+        stages:
+          type: array
+          items:
+            type: object
+            required: [id, title, status]
+            properties:
+              id: { type: string }
+              title: { type: string }
+              status: { type: string, enum: [pending, active, completed, skipped] }
+
+  device-sync-delta:
+    description: "Cross-device context reconciliation delta"
+    source: "cross-device-sync.js"
+    schema:
+      type: object
+      required: [receipt, deviceId, deltaType, payload]
+      properties:
+        receipt:
+          type: object
+        deviceId:
+          type: string
+        deltaType:
+          type: string
+          enum: [state_push, state_pull, conflict_resolution]
+        payload:
+          type: object
+          description: "Serialized state diff for reconciliation"
+
+  swarm-dispatch:
+    description: "Swarm worker assignment and queue routing"
+    source: "unified-enterprise-autonomy.js → dispatch()"
+    schema:
+      type: object
+      required: [receipt, assignments]
+      properties:
+        receipt:
+          type: object
+        assignments:
+          type: array
+          items:
+            type: object
+            required: [workerId, queue, weight]
+
+  ide-proposal:
+    description: "Schema for HeadyAI-IDE code modification proposals"
+    source: "ide-bridge.js → submitProposal()"
+    schema:
+      type: object
+      required: [receipt, proposalId, intent, targetFile, state]
+      properties:
+        receipt:
+          type: object
+          required: [hash, timestamp]
+        proposalId:
+          type: string
+          pattern: "^prop_[a-f0-9]{12}$"
+        intent:
+          type: string
+          description: "Natural language description of the proposed change"
+        targetFile:
+          type: string
+          description: "File path relative to repo root"
+        proposedDiff:
+          type: string
+          description: "The diff or new content proposed"
+        state:
+          type: string
+          enum: [submitted, validating, validated, validation_failed, governance_pending, approved, rejected, applied, rolled_back]
+        validationResult:
+          type: object
+          properties:
+            passed: { type: boolean }
+            checks: { type: array }
+        governanceResult:
+          type: object
+          properties:
+            status: { type: string }
+            approvedAt: { type: string, format: date-time }
+
+  ui-manifest:
+    description: "Schema for HeadyWeb UI registry manifest responses"
+    source: "ui-registry.js → getUIManifest()"
+    schema:
+      type: object
+      required: [receipt, shell, apps]
+      properties:
+        receipt:
+          type: object
+          required: [hash, timestamp]
+        shell:
+          type: object
+          required: [name, version]
+          properties:
+            name: { type: string }
+            version: { type: string }
+        totalApps:
+          type: integer
+        activeApps:
+          type: integer
+        categories:
+          type: array
+          items: { type: string }
+        apps:
+          type: array
+          items:
+            type: object
+            required: [id, name, route, status]
+            properties:
+              id: { type: string }
+              name: { type: string }
+              route: { type: string }
+              status: { type: string, enum: [active, planned, deprecated] }
+              icon: { type: string }
+
+rendering:
+  central:
+    description: "Single-thread projection rendering for consistency"
+    max_frame_time_ms: 16
+    deterministic: true
+    
+  parallel:
+    description: "Multi-worker projection for high-throughput surfaces"
+    max_workers: 4
+    deterministic: true
+    reconciliation: "last-write-wins with receipt ordering"
+
+staleness_budgets:
+  ui_projection: "500ms"
+  api_response: "200ms"
+  sync_delta: "2000ms"
+  edge_cache: "30000ms"
+  ide_proposal: "5000ms"
+  ui_manifest: "1000ms"

@@ -1,0 +1,29 @@
+{
+    "beeClass": "GenericBee",
+    "version": "1.0.0",
+    "description": "Template swarm bee — override beeClass and logic for your specific agent.",
+    "llmRouting": {
+        "primary": "groq-llama",
+        "fallback": "gpt-4o"
+    },
+    "permissions": {
+        "vectorRead": true,
+        "vectorWrite": false,
+        "edgePush": false,
+        "governanceLog": true
+    },
+    "trigger": {
+        "type": "pubsub",
+        "subscription": "heady-swarm-tasks-sub"
+    },
+    "ephemeral": true,
+    "maxLifetimeMs": 60000,
+    "reporting": {
+        "resultTopic": "heady-bee-results"
+    },
+    "resourceLimits": {
+        "maxMemoryMb": 512,
+        "maxCpuCores": 1,
+        "maxContextNodes": 50
+    }
+}

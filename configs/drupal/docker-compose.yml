@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  drupal:
+    image: drupal:11-php8.3-apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web/modules:/opt/drupal/web/modules/custom
+      - ./web/themes:/opt/drupal/web/themes/custom
+      - ./config:/opt/drupal/config/sync
+      - ./files:/opt/drupal/web/sites/default/files
+    environment:
+      DRUPAL_DATABASE_HOST: db
+      DRUPAL_DATABASE_NAME: heady_admin
+      DRUPAL_DATABASE_USER: heady
+      DRUPAL_DATABASE_PASSWORD: ${DB_PASSWORD}
+      DRUPAL_HASH_SALT: ${HASH_SALT}
+      DRUPAL_TRUSTED_HOST_PATTERNS: ^admin\.headysystems\.com$$
+      HEADY_API_BASE: ${PUBLIC_API_URL:-https://api.headysystems.com}
+      WARP_ENABLED: ${WARP_ENABLED:-false}
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: heady_admin
+      POSTGRES_USER: heady
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./logs:/var/log/nginx
+    depends_on:
+      - drupal
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  redis_data:

@@ -1,0 +1,306 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/vm-headyconnection.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+# HeadyConnection VM Configuration
+# VMware VM running Parrot OS 7 Security
+# Fully managed by Heady Systems
+
+vm:
+  name: "HeadyConnection"
+  os: "Parrot OS 7 Security"
+  platform: "VMware"
+  user: "heady"
+  
+# Required System Packages
+packages:
+  system:
+    - "git"
+    - "curl"
+    - "wget"
+    - "nano"
+    - "vim"
+    - "ssh"
+    - "build-essential"
+  
+  node:
+    version: "20"
+    packages:
+      - "npm"
+      - "nodejs"
+  
+  python:
+    version: "3.12"
+    packages:
+      - "python3"
+      - "python3-pip"
+      - "python3-venv"
+  
+  docker:
+    enabled: true
+    compose: true
+
+# Heady Services Configuration
+services:
+  heady-manager:
+    enabled: true
+    port: 3300
+    repo: "https://github.com/HeadySystems/Heady.git"
+    path: "/home/heady/Heady"
+    startup: true
+    
+  postgres:
+    enabled: true
+    port: 5432
+    version: "15"
+    data_dir: "/var/lib/postgresql/data"
+    
+  redis:
+    enabled: true
+    port: 6379
+    version: "7"
+    
+  python-worker:
+    enabled: true
+    repo: "https://github.com/HeadySystems/Heady.git"
+    path: "/home/heady/Heady/python_worker"
+    
+  mcp-server:
+    enabled: true
+    port: 3001
+    repo: "https://github.com/HeadySystems/Heady.git"
+    path: "/home/heady/Heady/mcp-servers"
+
+# Repository Configuration
+repositories:
+  primary:
+    name: "Heady"
+    url: "https://github.com/HeadySystems/Heady.git"
+    branch: "main"
+    path: "/home/heady/Heady"
+    
+  connection:
+    name: "HeadyConnection"
+    url: "https://github.com/HeadySystems/HeadyConnection.git"
+    branch: "main"
+    path: "/home/heady/HeadyConnection"
+    
+  me:
+    name: "HeadyMe"
+    url: "https://github.com/HeadySystems/HeadyMe.git"
+    branch: "main"
+    path: "/home/heady/HeadyMe"
+    
+  sandbox:
+    name: "sandbox"
+    url: "https://github.com/HeadySystems/sandbox.git"
+    branch: "main"
+    path: "/home/heady/sandbox"
+
+# Configuration Files
+configs:
+  environment:
+    source: "configs/.env.example"
+    target: "/home/heady/Heady/.env"
+    variables:
+      HEADY_API_KEY: "auto-generated"
+      DATABASE_URL: "postgresql://heady:password@postgres.headyio.com:5432/heady"
+      REDIS_URL: "redis://redis.headyio.com:6379"
+      NODE_ENV: "production"
+      
+  render:
+    source: "render.yaml"
+    target: "/home/heady/Heady/render.yaml"
+    
+  mcp:
+    source: ".github/copilot-mcp-config.json"
+    target: "/home/heady/Heady/.github/copilot-mcp-config.json"
+    
+  app_readiness:
+    source: "configs/app-readiness.yaml"
+    target: "/home/heady/Heady/configs/app-readiness.yaml"
+    
+  registry:
+    source: "heady-registry.json"
+    target: "/home/heady/Heady/heady-registry.json"
+
+# Windsurf Configuration
+windsurf:
+  install: true
+  version: "latest"
+  workspace:
+    settings:
+      "heady.modelEndpoint": "https://api.headysystems.com/api/brain"
+      "heady.mcpServersOnly": true
+      "heady.useHeadyServices": true
+    mcp_config:
+      servers:
+        - name: "filesystem"
+          command: "node"
+          args: ["mcp-servers/filesystem.js"]
+        - name: "git"
+          command: "node"
+          args: ["mcp-servers/git.js"]
+        - name: "postgres"
+          command: "node"
+          args: ["mcp-servers/postgres.js"]
+
+# Startup Services
+startup:
+  services:
+    - name: "postgresql"
+      enabled: true
+      type: "systemd"
+      
+    - name: "redis"
+      enabled: true
+      type: "systemd"
+      
+    - name: "heady-manager"
+      enabled: true
+      type: "systemd"
+      user: "heady"
+      working_dir: "/home/heady/Heady"
+      command: "npm start"
+      
+    - name: "python-worker"
+      enabled: true
+      type: "systemd"
+      user: "heady"
+      working_dir: "/home/heady/Heady/python_worker"
+      command: "python worker.py"
+      
+    - name: "mcp-server"
+      enabled: true
+      type: "systemd"
+      user: "heady"
+      working_dir: "/home/heady/Heady/mcp-servers"
+      command: "node render-mcp-server.js"
+
+# Health Checks
+health:
+  endpoints:
+    - name: "heady-manager"
+      url: "https://api.headysystems.com/health"
+      expected_status: 200
+      
+    - name: "postgres"
+      command: "pg_isready -U heady"
+      expected_exit: 0
+      
+    - name: "redis"
+      command: "redis-cli ping"
+      expected_output: "PONG"
+      
+    - name: "mcp-server"
+      url: "https://headymcp.com/health"
+      expected_status: 200
+
+# Security Configuration
+security:
+  ssh:
+    enabled: true
+    port: 22
+    key_auth: true
+    
+  firewall:
+    enabled: true
+    open_ports:
+      - 22    # SSH
+      - 3300  # HeadyManager
+      - 5432  # PostgreSQL (internal)
+      - 6379  # Redis (internal)
+      - 3001  # MCP Server
+
+# Operational Readiness Score (ORS) Configuration
+ors:
+  thresholds:
+    aggressive: 85
+    normal: 70
+    maintenance: 50
+    recovery: 0
+    
+  probes:
+    critical:
+      - "heady-manager"
+      - "postgres"
+      - "redis"
+      
+    high:
+      - "mcp-server"
+      - "python-worker"
+      
+    medium:
+      - "disk-space"
+      - "memory-usage"
+
+# Pipeline Configuration
+pipeline:
+  name: "vm-prep-headyconnection"
+  stages:
+    - name: "health-check"
+      type: "validation"
+      required_ors: "normal"
+      
+    - name: "package-install"
+      type: "execution"
+      parallel: true
+      
+    - name: "repo-clone"
+      type: "execution"
+      parallel: true
+      
+    - name: "config-deploy"
+      type: "execution"
+      parallel: false
+      
+    - name: "service-setup"
+      type: "execution"
+      parallel: false
+      
+    - name: "windsurf-install"
+      type: "execution"
+      parallel: false
+      
+    - name: "startup-configure"
+      type: "execution"
+      parallel: false
+      
+    - name: "final-validation"
+      type: "validation"
+      required_ors: "normal"
+
+# Determinism Requirements
+determinism:
+  config_hash_required: true
+  commit_tracking: true
+  ors_logging: true
+  rollback_on_drift: true
+
+# Migration Readiness
+migration:
+  ready: false
+  blockers:
+    - "VM creation and base OS install"
+    - "VMware tools installation"
+    - "Network configuration"
+    - "SSH key setup"
+  
+  prerequisites:
+    - "VMware Workstation/Player installed"
+    - "Parrot OS 7 Security ISO available"
+    - "SSH access from host"
+    - "Sufficient disk space (50GB+)"
+    - "Network connectivity"

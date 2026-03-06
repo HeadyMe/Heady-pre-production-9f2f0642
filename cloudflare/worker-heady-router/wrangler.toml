@@ -1,0 +1,26 @@
+name = "worker-heady-router"
+main = "src/index.js"
+compatibility_date = "2026-03-06"
+
+# KV Namespace for UI Manifest (compiled UI chunks by domain/path)
+[[kv_namespaces]]
+binding = "HEADY_UI_MANIFEST"
+id = "238f7a3f1c5c4060bfc07dccb78bd1ee"
+
+# Internal auth token for triggering Colab compiler
+[vars]
+# HEADY_INTERNAL_TOKEN = "set via wrangler secret"
+
+# Route all 9+ Heady domains through this worker
+# Configure in Cloudflare Dashboard → Workers Routes:
+#   *headymcp.com/*
+#   *headysystems.com/*
+#   *headyme.com/*
+#   *headyapi.com/*
+#   *headyio.com/*
+#   *headytrader.com/*
+#   *headymusic.com/*
+#   *headyfoundation.org/*
+#   *headyconnection.org/*
+#   *myheady.ai/*
+#   *heady.headyme.com/*

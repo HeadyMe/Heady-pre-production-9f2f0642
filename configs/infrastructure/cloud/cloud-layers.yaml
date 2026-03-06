@@ -1,0 +1,188 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/cloud-layers.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# ═══════════════════════════════════════════════════════════════════════
+# HEADY SYSTEMS — Cloud Layers Configuration
+# ═══════════════════════════════════════════════════════════════════════
+# Defines local/internal/public cloud layer semantics, allowed providers,
+# brain routing, and service deployment targets per layer.
+
+version: "1.0.0"
+name: CloudLayers
+
+# ─── LAYER DEFINITIONS ─────────────────────────────────────────────────
+layers:
+  local:
+    id: local
+    description: "Developer/personal layer — local Docker, Ollama, private data"
+    dns_zone: "*.headysystems.com"
+    providers:
+      compute: [HeadyDocker, HeadyNative]
+      models: [HeadyBrain]
+      storage: [HeadyStorage, HeadyCache]
+    defaults:
+      privacy: strict
+      cost_sensitivity: high
+      cloud_calls: disabled_unless_explicit
+      model_preference: local-first
+    services:
+      manager: "manager.headysystems.com:3300"
+      api: "api.headysystems.com:3300"
+      mcp: "mcp.headysystems.com:3300"
+      buddy: "buddy.headysystems.com:3301"
+      brain: "brain.headysystems.com:3400"
+    docker_profile: "local-dev.yml"
+    brain_profile: personal
+
+  internal:
+    id: internal
+    description: "Team/staging layer — shared knowledge bases, team MCP connectors"
+    dns_zone: "*.staging.headysystems.comheady.systems"
+    providers:
+      compute: [HeadyRender, HeadyDocker]
+      models: [HeadyBrain]
+      storage: [HeadyStorage, HeadyCache]
+    defaults:
+      privacy: team
+      cost_sensitivity: medium
+      cloud_calls: hybrid
+      model_preference: hybrid
+    services:
+      manager: "manager.staging.headysystems.comheady.systems"
+      api: "api.staging.headysystems.comheady.systems"
+      mcp: "mcp.staging.headysystems.comheady.systems"
+      buddy: "buddy.staging.headysystems.comheady.systems"
+      brain: "brain.staging.headysystems.comheady.systems"
+    docker_profile: "cloud-saas.yml"
+    brain_profile: team
+
+  production:
+    id: production
+    description: "Public production layer — customer-facing, full PQ mTLS, multi-tenant"
+    dns_zone: "*.heady.systems"
+    providers:
+      compute: [HeadyRender, HeadyWorkers]
+      models: [HeadyBrain]
+      storage: [HeadyStorage, HeadyCache, HeadyR2]
+    defaults:
+      privacy: per-tenant
+      cost_sensitivity: ppp-aware
+      cloud_calls: enabled
+      model_preference: quality-first
+    services:
+      manager: "manager.heady.systems"
+      api: "api.heady.systems"
+      mcp: "mcp.heady.systems"
+      buddy: "buddy.heady.systems"
+      brain: "brain.heady.systems"
+    docker_profile: "cloud-saas.yml"
+    brain_profile: production
+    edge:
+      provider: cloudflare
+      workers:
+        - route: "api.heady.systems/*"
+          worker: edge-proxy
+        - route: "brain.heady.systems/*"
+          worker: edge-proxy
+
+# ─── PER-LAYER CLOUD PRODUCT MAPPINGS ──────────────────────────────────
+# Maps each Heady product to its cloud layer and brain
+product_layers:
+  HeadySystems:
+    layer: production
+    brain_profile: sys-ops
+    domain: headysystems.com
+    render_service: heady-manager-headysystems
+    description: "Developer/ops brains — coding agent, OS automation, infra MCP tools"
+
+  HeadyMe:
+    layer: production
+    brain_profile: personal-wellbeing
+    domain: headyme.com
+    render_service: heady-manager-headyme
+    description: "Personal workspace — wellbeing coach, teaching mentor, wealth redistribution"
+
+  HeadyConnection:
+    layer: production
+    brain_profile: community-impact
+    domain: headyconnection.org
+    render_service: heady-manager-headyconnection
+    description: "Team/community — BD agent, grant writer, ethics checker, shared RAG"
+
+  HeadyWeb:
+    layer: production
+    brain_profile: web-platform
+    domain: headyweb.com
+    render_service: heady-manager-headyweb
+    description: "Public web platform — marketing, docs, onboarding"
+
+  HeadyBuddy:
+    layer: local
+    brain_profile: companion
+    domain: null
+    render_service: null
+    description: "Desktop/mobile companion — always-on, cross-device, local-first"
+
+# ─── SECURITY PER LAYER ───────────────────────────────────────────────
+security:
+  local:
+    tls: optional
+    auth: api-key
+    mtls: false
+    pq_crypto: false
+  internal:
+    tls: required
+    auth: jwt
+    mtls: true
+    pq_crypto: optional
+  production:
+    tls: required
+    auth: jwt + api-key
+    mtls: true
+    pq_crypto: required
+    cert_hierarchy: separate-intermediates-per-zone
+
+# ─── MODEL ROUTER DECISION MATRIX ─────────────────────────────────────
+model_routing:
+  decision_keys: [layer, task_type, privacy, cost_sensitivity]
+  matrix:
+    - when: { layer: local, privacy: strict }
+      use: ollama
+      fallback: null
+    - when: { layer: local, privacy: normal }
+      use: ollama
+      fallback: gpt-4o-mini
+    - when: { layer: internal, task_type: CODE }
+      use: claude-3.5-sonnet
+      fallback: gpt-4o
+    - when: { layer: internal, task_type: RESEARCH }
+      use: gpt-4o
+      fallback: gemini-pro
+    - when: { layer: production, task_type: CODE }
+      use: claude-3.5-sonnet
+      fallback: gpt-4o
+    - when: { layer: production, task_type: VOICE }
+      use: gpt-4o-realtime
+      fallback: gpt-4o
+    - when: { layer: production, task_type: RESEARCH }
+      use: gpt-4o
+      fallback: gemini-pro
+    - when: { layer: production, cost_sensitivity: high }
+      use: gpt-4o-mini
+      fallback: ollama
+    - when: { layer: production, privacy: strict }
+      use: ollama
+      fallback: null
+

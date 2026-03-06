@@ -1,0 +1,98 @@
+[
+    {
+        "id": "long814-001",
+        "name": "Migrate Python ML Agents to Pydantic V2",
+        "cat": "maintenance",
+        "pool": "hot",
+        "w": 10,
+        "desc": "Update all Python data models to replace deprecated .dict() calls with .model_dump() to silence deprecation warnings and align with Long-814 Spec."
+    },
+    {
+        "id": "long814-002",
+        "name": "Update Ollama Model Handling",
+        "cat": "maintenance",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Correct startup event logic to use models['models'] instead of the deprecated models.get('models') during Ollama agent initialization."
+    },
+    {
+        "id": "long814-003",
+        "name": "Refactor God Class: site-generator.js",
+        "cat": "optimization",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Deconstruct the 91KB site-generator.js file into smaller, granular, template-specific modules to resolve architectural sprawl."
+    },
+    {
+        "id": "long814-004",
+        "name": "Refactor God Class: heady-manager.js",
+        "cat": "optimization",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Deconstruct the 90KB heady-manager.js file into strictly separated routing, middleware, node orchestration, and health monitoring layers."
+    },
+    {
+        "id": "long814-005",
+        "name": "Consolidate Configuration Directories",
+        "cat": "maintenance",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Merge any remaining config/ files into the unified configs/ directory to enforce pentagonal architecture constraints."
+    },
+    {
+        "id": "long814-006",
+        "name": "Enforce Canonical Build Scripts",
+        "cat": "maintenance",
+        "pool": "warm",
+        "w": 8,
+        "desc": "Identify and run the single canonical hc-build.ps1. Delete obsolete redundant variants (hcautobuild.ps1, etc.) from tracking."
+    },
+    {
+        "id": "long814-007",
+        "name": "Execute Package Manager Standardization",
+        "cat": "maintenance",
+        "pool": "hot",
+        "w": 9,
+        "desc": "Delete package-lock.json to avoid dependency resolution conflicts. Strictly enforce pnpm and pnpm-lock.yaml across all environments."
+    },
+    {
+        "id": "long814-008",
+        "name": "Align Semantic Versioning Matrix",
+        "cat": "integration",
+        "pool": "hot",
+        "w": 10,
+        "desc": "Synchronize package.json (v2.1.0), .env files (v2.0.0), and documentation (v3.0.0+) into a single continuous v3.0.0 designated in heady-registry.json."
+    },
+    {
+        "id": "long814-009",
+        "name": "Deploy Native SAST Integration",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 9,
+        "desc": "Trigger and monitor Github Advanced Security and Semgrep/CodeQL actions to ensure zero-day auditing on all pipeline code deployments."
+    },
+    {
+        "id": "long814-010",
+        "name": "Continuous Quantum Bridge Health Check",
+        "cat": "monitoring",
+        "pool": "warm",
+        "w": 7,
+        "desc": "Regularly connect to the secure /quantum-bridge/{session_id} WebSocket to verify live archetype consultations are active and responsive."
+    },
+    {
+        "id": "long814-011",
+        "name": "Generate 3D Visual Metadata Maps",
+        "cat": "discovery",
+        "pool": "cold",
+        "w": 5,
+        "desc": "Initiate background simulations using the Chaos Factor to generate novel 'Sacred Geometry' Pentagonal Pattern visualizations."
+    },
+    {
+        "id": "long814-012",
+        "name": "Decentralized Human Unique ID Sync",
+        "cat": "integration",
+        "pool": "warm",
+        "w": 6,
+        "desc": "Periodically poll HUID endpoints to verify Sybil-resistant decentralized governance compliance is maintained for all active operators."
+    }
+]

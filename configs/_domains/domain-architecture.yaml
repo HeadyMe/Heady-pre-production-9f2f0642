@@ -1,0 +1,194 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/domain-architecture.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# Heady Systems Domain Architecture
+# Production-ready domain mapping and brand structure
+
+version: "2.0"
+created: "2025-02-08"
+purpose: "Canonical domain architecture for Heady ecosystem"
+
+# Core brand architecture
+brands:
+  nonprofit:
+    primary: "HeadyConnection.org"
+    description: "Parent nonprofit brand, governance, impact reporting"
+    tagline: "AI for social impact and global happiness"
+    
+  commercial:
+    primary: "HeadySystems.com"
+    description: "Commercial hub, products, APIs, infrastructure"
+    tagline: "Enterprise AI infrastructure and tools"
+    
+  program:
+    name: "HeadyBuddy"
+    domain: "HeadyBuddy.org"
+    description: "Peer support and buddy program"
+    relationship: "A program of HeadyConnection"
+    tagline: "Peer support for AI-powered social impact"
+
+# Domain hierarchy and routing
+domains:
+  # Primary production domains
+  production:
+    - domain: "headyconnection.org"
+      type: "nonprofit"
+      purpose: "Main nonprofit site, governance, impact"
+      ssl: "required"
+      redirects: []
+      
+    - domain: "www.headyconnection.org"
+      type: "redirect"
+      purpose: "WWW redirect to main domain"
+      target: "headyconnection.org"
+      
+    - domain: "headysystems.com"
+      type: "commercial"
+      purpose: "Commercial products and APIs"
+      ssl: "required"
+      redirects: []
+      
+    - domain: "www.headysystems.com"
+      type: "redirect"
+      purpose: "WWW redirect to main domain"
+      target: "headysystems.com"
+      
+    - domain: "headybuddy.org"
+      type: "program"
+      purpose: "Peer support program site"
+      ssl: "required"
+      redirects: []
+      branding: "Powered by HeadyConnection"
+      
+    - domain: "www.headybuddy.org"
+      type: "redirect"
+      purpose: "WWW redirect to main domain"
+      target: "headybuddy.org"
+
+  # API subdomains
+  apis:
+    - domain: "api.headysystems.com"
+      backend: "heady-manager.headysystems.com"
+      purpose: "Main API endpoint"
+      auth: "JWT"
+      
+    - domain: "app.headysystems.com"
+      backend: "heady-web.headysystems.com"
+      purpose: "Web application frontend"
+      
+    - domain: "admin.headysystems.com"
+      backend: "heady-admin.headysystems.com"
+      purpose: "Admin dashboard"
+      auth: "Basic + JWT"
+      
+    - domain: "api.headyconnection.org"
+      backend: "heady-connection-api.headysystems.com"
+      purpose: "Nonprofit API endpoints"
+      auth: "API Key"
+      
+    - domain: "app.headyconnection.org"
+      backend: "heady-connection-web.headysystems.com"
+      purpose: "Nonprofit application frontend"
+
+  # Development and staging
+  development:
+    - domain: "dev.headysystems.com"
+      backend: "heady-dev.headysystems.com"
+      purpose: "Development environment"
+      ssl: "required"
+      
+    - domain: "staging.headysystems.com"
+      backend: "staging-backend:8000"
+      purpose: "Staging environment"
+      ssl: "required"
+
+# All development uses cloud-hosted domains — no local domain mapping
+# Enforcement: configs/api.headysystems.com-elimination-protocol.yaml
+
+# Domain policies
+policies:
+  no_api.headysystems.com:
+    description: "Never expose api.headysystems.com or internal IPs in user-facing content"
+    applies_to: ["docs", "configs", "examples", "screenshots", "error_messages"]
+    
+  https_everywhere:
+    description: "All production domains must use HTTPS with valid certificates"
+    applies_to: ["production", "apis"]
+    
+  security_headers:
+    description: "All domains must include security headers via Nginx"
+    headers:
+      - "Strict-Transport-Security"
+      - "Content-Security-Policy"
+      - "X-Frame-Options"
+      - "X-Content-Type-Options"
+      - "Referrer-Policy"
+      - "Permissions-Policy"
+
+# OAuth callback URLs (standardized)
+oauth_callbacks:
+  production:
+    - "https://app.headysystems.com/oauth/callback"
+    - "https://app.headyconnection.org/oauth/callback"
+    - "https://headybuddy.org/oauth/callback"
+    
+  development:
+    - "https://dev.headysystems.com/oauth/callback"
+    - "https://dev.headyconnection.org/oauth/callback"
+
+# Redirect rules for legacy/unused domains
+redirects:
+  # Legacy domains to redirect
+  legacy:
+    - from: "heady.io"
+      to: "headysystems.com"
+      type: "301"
+      
+    - from: "heady.ai"
+      to: "headysystems.com"
+      type: "301"
+      
+    - from: "heady.tech"
+      to: "headysystems.com"
+      type: "301"
+
+# CDN and static assets
+cdn:
+  primary: "cdn.headysystems.com"
+  purpose: "Static assets, images, JavaScript, CSS"
+  domains:
+    - "assets.headysystems.com"
+    - "static.headyconnection.org"
+
+# Email domains
+email:
+  commercial:
+    - "headysystems.com"
+    - "noreply.headysystems.com"
+    
+  nonprofit:
+    - "headyconnection.org"
+    - "noreply.headyconnection.org"
+    
+  program:
+    - "headybuddy.org"
+    - "hello@headybuddy.org"
+
+# Monitoring and analytics domains
+monitoring:
+  - "status.headysystems.com"
+  - "analytics.headyconnection.org"
+  - "health.headybuddy.org"
+

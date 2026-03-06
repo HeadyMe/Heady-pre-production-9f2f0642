@@ -1,0 +1,73 @@
+{# User Access Control Template #}
+<div class="heady-admin-wrapper">
+  <nav class="heady-admin-nav">
+    <div class="heady-admin-logo"><span class="heady-admin-logo-icon">🌟</span><span>Heady Admin</span></div>
+    <div class="heady-admin-tabs">
+      <a href="{{ path('heady_admin.dashboard') }}" class="heady-tab">📊 Dashboard</a>
+      <a href="{{ path('heady_admin.services') }}" class="heady-tab">🔌 Services</a>
+      <a href="{{ path('heady_admin.hcfp') }}" class="heady-tab">🛡️ HCFP</a>
+      <a href="{{ path('heady_admin.headylens') }}" class="heady-tab">🔭 HeadyLens</a>
+      <a href="{{ path('heady_admin.customize') }}" class="heady-tab">🎨 Customize</a>
+      <a href="{{ path('heady_admin.access_control') }}" class="heady-tab active">👥 Access</a>
+      <a href="{{ path('heady_admin.settings') }}" class="heady-tab">⚙️ Settings</a>
+    </div>
+  </nav>
+
+  <div class="heady-section">
+    <h2 class="heady-section-title">User Roles</h2>
+    <div class="heady-roles-grid">
+      {% for role in roles %}
+        <div class="heady-role-card">
+          <h4>{{ role.label }}</h4>
+          <p class="heady-role-perms">{{ role.permissions }}</p>
+          <p style="color:#94a3b8;font-size:0.8rem;margin-top:0.5rem;">{{ role.users }} user(s) assigned</p>
+          <div style="margin-top:0.75rem;">
+            <button class="heady-btn heady-btn-sm heady-btn-secondary">Edit Permissions</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <button class="heady-btn heady-btn-primary">+ Create New Role</button>
+  </div>
+
+  <div class="heady-section">
+    <h2 class="heady-section-title">Active Users</h2>
+    <div class="heady-table-container">
+      <table>
+        <thead><tr><th>User</th><th>Email</th><th>Roles</th><th>Status</th><th>Last Login</th><th>Actions</th></tr></thead>
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td><strong>{{ user.name }}</strong></td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.roles|join(', ') }}</td>
+              <td><span class="heady-status-badge status-online">{{ user.status }}</span></td>
+              <td>{{ user.last_login }}</td>
+              <td><button class="heady-btn heady-btn-sm heady-btn-secondary">Edit</button></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <button class="heady-btn heady-btn-primary" style="margin-top:0.75rem;">+ Add User</button>
+  </div>
+
+  <div class="heady-section">
+    <h2 class="heady-section-title">Permission Matrix</h2>
+    <div class="heady-table-container">
+      <table>
+        <thead><tr><th>Permission</th><th>Administrator</th><th>Editor</th><th>Viewer</th><th>Operator</th></tr></thead>
+        <tbody>
+          <tr><td>View Dashboard</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          <tr><td>Manage Services</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td></tr>
+          <tr><td>Access HeadyLens</td><td>✅</td><td>❌</td><td>❌</td><td>✅</td></tr>
+          <tr><td>Manage HCFP</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+          <tr><td>Customize System</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+          <tr><td>Manage Users</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+          <tr><td>Full Admin</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script src="https://headybuddy.org/headybuddy-widget.js"></script>

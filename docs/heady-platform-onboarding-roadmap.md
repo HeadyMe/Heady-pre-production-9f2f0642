@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This roadmap turns Heady into a developer platform with a deterministic, unified runtime model: 3 Colab Pro+ compute nodes, 3D vector workspace operations, and projection-only delivery to cloud surfaces.
+This roadmap turns Heady into a developer platform with a deterministic, unified runtime model: 3–4 Colab Pro+ runtimes per account, 3D vector workspace operations, and projection-only delivery to cloud surfaces.
 
 ## Platform Principles
 
@@ -35,7 +35,7 @@ This roadmap turns Heady into a developer platform with a deterministic, unified
 - **HeadyConductor / HeadyCloudConductor:** policy, budget, and orchestration authority.
 - **HeadySwarm:** queue fan-out and concurrency scheduling.
 - **HeadyBees:** template bees, connector bees, projection bees.
-- **3 Colab Pro+ workers:**
+- **3–4 Colab Pro+ runtimes per account:**
   - low-latency user interaction + inference
   - background indexing/template evolution
   - swarm burst + connector compilation

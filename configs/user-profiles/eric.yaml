@@ -1,0 +1,48 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/user-profiles/eric.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+name: Eric
+cloudLayer: cloud-me
+connectors:
+  - SSHPhone
+  - SSHDesktop
+  - CloudflareTunnel
+verticals:
+  - HeadyOS
+  - HeadyBuddy
+  - HeadyMCP
+socialImpactDefaults:
+  donationPlanner: true
+  equityPlanner: true
+  pppPricing: true
+  sponsoredSeats: true
+connectionPresets:
+  ssh-phone: 
+    ports: 8022
+    hostnames: heady-phone
+  ssh-desktop: 
+    ports: 22
+    hostnames: heady-desktop
+  cloudflare-tunnel-home: 
+    ports: 3300,3000,8443
+    hostnames: heady-home.tunnel
+mcpDefaults:
+  enabledTools:
+    - filesystem
+    - memory
+    - web_search
+    - github
+    - docker
+    - browser

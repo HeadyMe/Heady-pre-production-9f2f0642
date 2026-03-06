@@ -1,0 +1,321 @@
+{
+    "latent_os_version": "3.0.0-OMEGA",
+    "swarm_registry": [
+        {
+            "swarm_id": 1,
+            "swarm_name": "Core OS",
+            "category": "infrastructure",
+            "bees": [
+                {
+                    "class": "VectorWeaverBee",
+                    "role": "pgvector Synchronization",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "PrunerBee",
+                    "role": "Debt Eradication",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "GovernanceGatekeeperBee",
+                    "role": "Cryptographic Stamping",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "ChaosTesterBee",
+                    "role": "System Resilience Testing",
+                    "status": "STANDBY"
+                }
+            ]
+        },
+        {
+            "swarm_id": 2,
+            "swarm_name": "The Forge",
+            "category": "engineering",
+            "bees": [
+                {
+                    "class": "ASTMutatorBee",
+                    "role": "Logic Generation",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "UICompilerBee",
+                    "role": "Webpack Federation Delivery",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "DependencySniperBee",
+                    "role": "NPM/PyPI Upgrades",
+                    "status": "STANDBY"
+                },
+                {
+                    "class": "HologramBee",
+                    "role": "On-Demand AST-to-Edge Compiler",
+                    "status": "ACTIVE",
+                    "description": "Pulls JSON AST from pgvector, compiles to executable JS in-memory, pushes to edge cache. Zero file I/O. Replaces CI/CD."
+                },
+                {
+                    "class": "ContextWeaverBee",
+                    "role": "Zero-File Memory Assembler",
+                    "status": "ACTIVE",
+                    "description": "Queries pgvector for semantically relevant AST nodes, stitches them into ephemeral context windows for LLM mutation/analysis."
+                }
+            ]
+        },
+        {
+            "swarm_id": 3,
+            "swarm_name": "The Quant",
+            "category": "finance",
+            "bees": [
+                {
+                    "class": "MarketStreamBee",
+                    "role": "Tick Data Ingestion",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "BacktestBee",
+                    "role": "Parallel Strategy Validation",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 4,
+            "swarm_name": "The Studio",
+            "category": "creative",
+            "bees": [
+                {
+                    "class": "AbletonSysExBee",
+                    "role": "Hardware MIDI Control",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "MelodicAnalysisBee",
+                    "role": "Harmonic Sync",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 5,
+            "swarm_name": "The Oracle",
+            "category": "observability",
+            "bees": [
+                {
+                    "class": "CostOptimizationBee",
+                    "role": "LLM Routing & Billing",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "TelemetryAggregatorBee",
+                    "role": "Latency Profiling",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 6,
+            "swarm_name": "The Emissary",
+            "category": "integration",
+            "bees": [
+                {
+                    "class": "AutoDocBee",
+                    "role": "Markdown Translation",
+                    "status": "ACTIVE"
+                },
+                {
+                    "class": "McpServerForgeBee",
+                    "role": "Protocol Exposure",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 7,
+            "swarm_name": "The Sentinel",
+            "category": "security",
+            "bees": [
+                {
+                    "class": "PenTestBee",
+                    "role": "Red Team Attack Sims",
+                    "status": "STANDBY"
+                },
+                {
+                    "class": "ZeroDayPatchBee",
+                    "role": "CVE Monitoring",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 8,
+            "swarm_name": "The Arbiter",
+            "category": "compliance",
+            "bees": [
+                {
+                    "class": "ComplianceBee",
+                    "role": "GDPR/SEC Verification",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 9,
+            "swarm_name": "The Foundry",
+            "category": "ml-training",
+            "bees": [
+                {
+                    "class": "LocalFinetuneBee",
+                    "role": "Colab LoRA Training",
+                    "status": "STANDBY"
+                }
+            ]
+        },
+        {
+            "swarm_id": 10,
+            "swarm_name": "The Growth Matrix",
+            "category": "marketing",
+            "bees": [
+                {
+                    "class": "SEOProjectorBee",
+                    "role": "Semantic HTML Optimization",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 11,
+            "swarm_name": "The Nexus",
+            "category": "web3",
+            "bees": [
+                {
+                    "class": "ChainAnchorBee",
+                    "role": "Web3 Ledger Anchoring",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 12,
+            "swarm_name": "The Dreamer",
+            "category": "simulation",
+            "bees": [
+                {
+                    "class": "MonteCarloBee",
+                    "role": "Black Swan Simulation",
+                    "status": "STANDBY"
+                }
+            ]
+        },
+        {
+            "swarm_id": 13,
+            "swarm_name": "The Fabricator",
+            "category": "iot",
+            "bees": [
+                {
+                    "class": "IoTEnvironmentBee",
+                    "role": "Physical Workspace Sync",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 14,
+            "swarm_name": "The Diplomat",
+            "category": "enterprise",
+            "bees": [
+                {
+                    "class": "ProcurementBee",
+                    "role": "B2B API Negotiation",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 15,
+            "swarm_name": "The Persona",
+            "category": "bio-sync",
+            "bees": [
+                {
+                    "class": "BioSyncBee",
+                    "role": "UX Cognitive Adjustment",
+                    "status": "ACTIVE"
+                }
+            ]
+        },
+        {
+            "swarm_id": 16,
+            "swarm_name": "The Chronos",
+            "category": "deep-time",
+            "bees": [
+                {
+                    "class": "GlacierBee",
+                    "role": "Deep Time Cold Storage",
+                    "status": "ACTIVE",
+                    "description": "Migrates vectors unused for 18+ months to GCP Coldline/Archive. Initiates slow-thaw retrieval on demand."
+                },
+                {
+                    "class": "TemporalRollbackBee",
+                    "role": "Temporal State Reversal",
+                    "status": "STANDBY",
+                    "description": "Autonomously reverses GitHub monorepo and pgvector state to the exact millisecond of the last stable snapshot."
+                }
+            ]
+        },
+        {
+            "swarm_id": 17,
+            "swarm_name": "The Federation",
+            "category": "inter-system",
+            "bees": [
+                {
+                    "class": "FederationHandshakeBee",
+                    "role": "Zero-Trust Diplomacy",
+                    "status": "STANDBY",
+                    "description": "Establishes secure zero-trust data corridors with external autonomous AI systems. Negotiates exactly what context can leave the pgvector database."
+                }
+            ]
+        },
+        {
+            "swarm_id": 18,
+            "swarm_name": "The Quantum",
+            "category": "future-proofing",
+            "bees": [
+                {
+                    "class": "LatticeCryptographyBee",
+                    "role": "Post-Quantum Migration",
+                    "status": "SLEEPER",
+                    "description": "Monitors global cryptographic consensus. When post-quantum crypto becomes necessary, autonomously rewrites governance hashing logic and migrates entire ledger to quantum-resistant encryption."
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "total_swarms": 18,
+        "total_bees": 31,
+        "active_bees": 20,
+        "standby_bees": 7,
+        "sleeper_bees": 1,
+        "categories": [
+            "infrastructure",
+            "engineering",
+            "finance",
+            "creative",
+            "observability",
+            "integration",
+            "security",
+            "compliance",
+            "ml-training",
+            "marketing",
+            "web3",
+            "simulation",
+            "iot",
+            "enterprise",
+            "bio-sync",
+            "deep-time",
+            "inter-system",
+            "future-proofing"
+        ],
+        "operational_horizon_years": 46,
+        "generated_at": "2026-03-06T12:17:32-07:00"
+    }
+}

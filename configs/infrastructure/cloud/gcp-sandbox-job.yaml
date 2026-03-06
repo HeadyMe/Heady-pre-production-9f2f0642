@@ -1,0 +1,56 @@
+# GCP Ephemeral Sandbox — Cloud Run Job Template
+# Used by ChaosTesterBee and GovernanceGatekeeperBee
+# Isolated VPC, zero outbound, 60-second timeout
+
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: heady-sandbox-job
+  namespace: heady-liquid-architecture
+  labels:
+    app: heady
+    component: sandbox
+    tier: ephemeral
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/vpc-access-connector: projects/heady-liquid-architecture/locations/us-east1/connectors/heady-sandbox-vpc
+        run.googleapis.com/vpc-access-egress: all-traffic
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+            - image: gcr.io/heady-liquid-architecture/heady-sandbox:latest
+              resources:
+                limits:
+                  cpu: "2"
+                  memory: 2Gi
+              env:
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: heady-neon-url
+                      key: latest
+                - name: HEADY_SANDBOX_MODE
+                  value: "true"
+                - name: MAX_EXECUTION_TIME_MS
+                  value: "60000"
+              # No network egress — isolated sandbox
+          maxRetries: 0
+          timeoutSeconds: 60
+          serviceAccountName: heady-sandbox-sa@heady-liquid-architecture.iam.gserviceaccount.com
+
+---
+# VPC Connector for network isolation
+apiVersion: vpcaccess.googleapis.com/v1
+kind: Connector
+metadata:
+  name: heady-sandbox-vpc
+spec:
+  network: heady-sandbox-network
+  ipCidrRange: 10.8.0.0/28
+  minInstances: 2
+  maxInstances: 3

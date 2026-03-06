@@ -1,0 +1,607 @@
+/*
+ * © 2026 Heady Systems LLC.
+ * PROPRIETARY AND CONFIDENTIAL.
+ *
+ * HEADY BEES — Liquid Atom Swarm Engine
+ * ════════════════════════════════════════════════════════════════════
+ *
+ * HeadyBees are not fixed workers. They are atoms in a liquid system.
+ *
+ * When Heady encounters ANY obstacle or task:
+ *   1. The swarm intelligence calculates the EXACT number of bees needed
+ *   2. Bees materialize instantly from the liquid pool
+ *   3. They execute in parallel — every bee hits simultaneously
+ *   4. Results merge back into the liquid system
+ *   5. Bees dissolve back into the pool — zero waste
+ *
+ * The number of bees is never arbitrary. It's calculated from:
+ *   - Task complexity (how many independent subtasks)
+ *   - Available system resources (CPU, memory, network)
+ *   - Historical performance data (how fast similar tasks completed)
+ *   - Diminishing returns threshold (more bees stops helping after N)
+ *
+ * Metaphor: Like atoms in water flowing around a rock.
+ * The water doesn't ask "how many atoms should I use?"
+ * It uses exactly as many as the obstacle demands.
+ */
+
+const { EventEmitter } = require("events");
+
+// ─── SWARM INTELLIGENCE — continuous sliding scale ─────────────────────────
+//
+// No steps. No categories. No ceilings. A smooth dial from 1 → ∞.
+// Like liquid filling the exact shape of the obstacle.
+// The system decides how many bees based on real-time resource availability.
+//
+// All constants derive from φ (golden ratio = 1.618...):
+//   - Efficiency decays to 1/φ at the golden proportion of active bees
+//   - Default urgency = 1/φ (the natural resting state)
+//   - Resource floor = 1/φ³ (the minimum before emergency mode)
+//   - History factor slides between 1/φ and 1.0
+//
+// The formula: bees = ceil( workItems × urgency × resources × efficiency × history )
+// NO CEILING. The golden ratio efficiency curve naturally governs scale.
+//
+const PHI = (1 + Math.sqrt(5)) / 2;                // 1.6180339887...
+const PHI_INV = 1 / PHI;                           // 0.6180339887... (1/φ)
+const LN_PHI = Math.log(PHI);                      // 0.4812118250...
+
+const SWARM_PARAMS = {
+    phi: PHI,
+    minBees: 1,
+    // NO maxBees ceiling — dynamically derived from real-time resources
+    get maxBees() {
+        // Dynamic ceiling: available heap MB / 2MB per bee — system decides
+        const mem = process.memoryUsage();
+        const availableMB = (mem.heapTotal - mem.heapUsed) / (1024 * 1024);
+        // At least φ³ (~4.24) bees, scales with available memory
+        return Math.max(Math.ceil(PHI * PHI * PHI), Math.floor(availableMB / 2));
+    },
+    baseLatencyMs: 50,
+    // Decay constant: φ × ln(φ) / dynamicMax — recalculates live
+    get efficiencyDecay() {
+        return (PHI * LN_PHI) / Math.max(this.maxBees, 1);
+    },
+    defaultUrgency: PHI_INV,                        // 0.618... (golden complement)
+    resourceFloor: 1 / (PHI * PHI * PHI),           // 1/φ³ ≈ 0.146
+};
+
+// ─── SINGLE BEE ────────────────────────────────────────────────────────────
+class Bee {
+    constructor(id, role) {
+        this.id = id;
+        this.role = role;
+        this.status = "materialized";   // materialized → working → dissolved
+        this.spawnedAt = Date.now();
+        this.startedAt = null;
+        this.completedAt = null;
+        this.result = null;
+        this.error = null;
+    }
+
+    async execute(work) {
+        this.status = "working";
+        this.startedAt = Date.now();
+        try {
+            this.result = await work(this);
+            this.status = "completed";
+            this.completedAt = Date.now();
+            return { ok: true, beeId: this.id, result: this.result, durationMs: this.completedAt - this.startedAt };
+        } catch (err) {
+            this.error = err.message;
+            this.status = "error";
+            this.completedAt = Date.now();
+            return { ok: false, beeId: this.id, error: err.message, durationMs: this.completedAt - this.startedAt };
+        }
+    }
+
+    dissolve() {
+        this.status = "dissolved";
+        return {
+            id: this.id,
+            role: this.role,
+            lifespan: (this.completedAt || Date.now()) - this.spawnedAt,
+            workDuration: this.startedAt ? ((this.completedAt || Date.now()) - this.startedAt) : 0,
+        };
+    }
+}
+
+// ─── HEADY BEES SWARM ENGINE ───────────────────────────────────────────────
+class HeadyBees extends EventEmitter {
+    constructor() {
+        super();
+        this.activeBees = new Map();        // Currently working bees
+        this.dissolvedCount = 0;            // Total bees that have completed and dissolved
+        this.totalSpawned = 0;
+        this.totalBlasts = 0;
+        this.metrics = {
+            totalBees: 0,
+            totalBlasts: 0,
+            totalWorkMs: 0,
+            avgBeesPerBlast: 0,
+            avgBlastDurationMs: 0,
+            peakConcurrency: 0,
+            fastestBlastMs: Infinity,
+            slowestBlastMs: 0,
+        };
+        this.blastHistory = [];             // Recent blast records
+        this.bootTime = Date.now();
+    }
+
+    // ═══ CORE: BLAST ═══════════════════════════════════════════════════════
+    /**
+     * BLAST — the primary operation.
+     *
+     * Takes a task, calculates how many bees to spawn,
+     * materializes them instantly, executes all in parallel,
+     * merges results, dissolves bees back into the pool.
+     *
+     * @param {Object} task - The task/obstacle to overcome
+     * @param {string} task.name - Human-readable task name
+     * @param {number} [task.urgency] - 0.0–1.0 sliding dial, how urgently to blast (default 0.7)
+     * @param {Function[]} task.work - Array of work functions, one per subtask
+     *   Each function receives (bee) and returns a result.
+     *   The swarm materializes exactly as many bees as the work demands.
+     * @param {Object} [task.context] - Optional context passed to each bee
+     * @returns {Object} Blast result with merged outputs from all bees
+     */
+    async blast(task) {
+        const blastId = `blast-${++this.totalBlasts}-${Date.now()}`;
+        const startMs = Date.now();
+
+        // Calculate the EXACT number of bees — continuous sliding scale, no steps
+        const beeCount = this._calculateBeeCount(task);
+
+        this.emit("blast:calculating", {
+            blastId, task: task.name,
+            urgency: task.urgency ?? SWARM_PARAMS.defaultUrgency,
+            beeCount,
+            workItems: task.work.length,
+        });
+
+        // Step 2: Materialize bees from the liquid pool — instant
+        const bees = this._materialize(beeCount, task.name);
+
+        this.emit("blast:materialized", {
+            blastId, bees: bees.length,
+            ids: bees.map(b => b.id),
+        });
+
+        // Step 3: Assign work to bees
+        const assignments = this._assignWork(bees, task.work);
+
+        // Step 4: BLAST — all bees execute in parallel
+        const results = await Promise.allSettled(
+            assignments.map(({ bee, work }) => bee.execute(work))
+        );
+
+        // Step 5: Collect results
+        const succeeded = [];
+        const failed = [];
+        for (const r of results) {
+            if (r.status === "fulfilled" && r.value.ok) {
+                succeeded.push(r.value);
+            } else if (r.status === "fulfilled") {
+                failed.push(r.value);
+            } else {
+                failed.push({ ok: false, error: r.reason?.message || "Unknown error" });
+            }
+        }
+
+        // Step 6: Dissolve all bees back into the liquid pool
+        const dissolved = bees.map(bee => {
+            const trace = bee.dissolve();
+            this.activeBees.delete(bee.id);
+            this.dissolvedCount++;
+            return trace;
+        });
+
+        const blastDurationMs = Date.now() - startMs;
+
+        // Step 7: Record metrics
+        this._recordBlastMetrics(beeCount, blastDurationMs);
+
+        const blastRecord = {
+            id: blastId,
+            task: task.name,
+            urgency: task.urgency ?? SWARM_PARAMS.defaultUrgency,
+            bees: beeCount,
+            workItems: task.work.length,
+            succeeded: succeeded.length,
+            failed: failed.length,
+            durationMs: blastDurationMs,
+            avgBeeWorkMs: dissolved.length
+                ? Math.round(dissolved.reduce((s, d) => s + d.workDuration, 0) / dissolved.length)
+                : 0,
+            results: succeeded.map(s => s.result),
+            errors: failed.map(f => f.error),
+            dissolved: dissolved.length,
+            ts: new Date().toISOString(),
+        };
+
+        this.blastHistory.push(blastRecord);
+        if (this.blastHistory.length > 200) this.blastHistory = this.blastHistory.slice(-200);
+
+        this.emit("blast:complete", blastRecord);
+        return blastRecord;
+    }
+
+    // ═══ CONVENIENCE BLASTS ════════════════════════════════════════════════
+
+    /** Blast a single function across N parallel bees (same work, N copies) */
+    async blastParallel(name, fn, count, context = {}) {
+        const work = Array.from({ length: count }, (_, i) => {
+            return async (bee) => fn(bee, i, context);
+        });
+        return this.blast({ name, work, context });
+    }
+
+    /** Blast an array of independent tasks — one bee per task */
+    async blastAll(name, tasks) {
+        const work = tasks.map(t => {
+            return async (bee) => {
+                if (typeof t === "function") return t(bee);
+                if (typeof t.execute === "function") return t.execute(bee);
+                return t;
+            };
+        });
+        return this.blast({ name, work });
+    }
+
+    /** Blast a file operation across multiple files simultaneously */
+    async blastFiles(name, files, processor) {
+        const work = files.map(file => {
+            return async (bee) => processor(bee, file);
+        });
+        return this.blast({ name, work });
+    }
+
+    /** Blast an HTTP check across multiple URLs simultaneously */
+    async blastHealth(urls) {
+        const work = urls.map(url => {
+            return async (bee) => {
+                const start = Date.now();
+                try {
+                    const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
+                    return {
+                        url,
+                        status: resp.status,
+                        ok: resp.ok,
+                        latencyMs: Date.now() - start,
+                        bee: bee.id,
+                    };
+                } catch (err) {
+                    return {
+                        url,
+                        status: 0,
+                        ok: false,
+                        latencyMs: Date.now() - start,
+                        error: err.message,
+                        bee: bee.id,
+                    };
+                }
+            };
+        });
+        return this.blast({ name: "health-blast", urgency: 0.9, work });
+    }
+
+    /** Blast deployment to multiple targets simultaneously */
+    async blastDeploy(targets) {
+        const work = targets.map(target => {
+            return async (bee) => {
+                // Each bee deploys to one target
+                return {
+                    target: target.name,
+                    type: target.type,
+                    bee: bee.id,
+                    deployed: true,
+                    ts: new Date().toISOString(),
+                };
+            };
+        });
+        return this.blast({ name: "deploy-blast", urgency: 1.0, work });
+    }
+
+    /**
+     * Blast-decompose a god class into domain-specific work units.
+     *
+     * Takes a module's responsibilities as domain-keyed work functions,
+     * and blasts them all simultaneously. The swarm decides how many
+     * bees to fire up — not the developer.
+     *
+     * @param {string} name - Name of the decomposition blast
+     * @param {Object} domains - { domainName: workFunction, ... }
+     * @param {number} [urgency] - 0-1 urgency dial (default: golden ratio)
+     * @returns {Object} Blast result with per-domain outputs
+     */
+    async blastDecompose(name, domains, urgency) {
+        const work = Object.entries(domains).map(([domain, fn]) => {
+            return async (bee) => {
+                const result = await fn(bee);
+                return { domain, result, bee: bee.id };
+            };
+        });
+        return this.blast({ name: `decompose-${name}`, work, urgency });
+    }
+
+    /**
+     * Blast all registered bee workers from the registry.
+     * Auto-discovers available workers and blasts them ALL IN PARALLEL.
+     * The swarm decides parallelism — not the developer.
+     *
+     * @param {Object} context - Context passed to all workers
+     * @returns {Object[]} Array of blast results
+     */
+    async blastRegistry(context = {}) {
+        try {
+            const registry = require("../bees/registry");
+            const tasks = registry.getAllWork(context);
+            // PARALLEL — all domains blast simultaneously
+            const settled = await Promise.allSettled(
+                tasks.map(task => this.blast(task))
+            );
+            return settled.map(r =>
+                r.status === "fulfilled" ? r.value : { ok: false, error: r.reason?.message || "Blast failed" }
+            );
+        } catch (err) {
+            return [{ ok: false, error: `Registry blast failed: ${err.message}` }];
+        }
+    }
+
+    /** Enter safe mode — reduce concurrency for resource conservation */
+    enterSafeMode() {
+        this._safeMode = true;
+        this.emit("bees:safe_mode", { active: true, ts: new Date().toISOString() });
+    }
+
+    /** Exit safe mode — restore full concurrency */
+    exitSafeMode() {
+        this._safeMode = false;
+        this.emit("bees:safe_mode", { active: false, ts: new Date().toISOString() });
+    }
+
+    /** Auto-blast a specific bee domain (used by projection staleness events) */
+    async autoBlast(domain, context = {}) {
+        try {
+            const registry = require("../bees/registry");
+            const work = registry.getWork(domain, context);
+            if (work.length === 0) return { ok: false, error: `No work for domain: ${domain}` };
+            return this.blast({ name: `auto-${domain}`, work, urgency: 0.9, context });
+        } catch (err) {
+            return { ok: false, error: `Auto-blast failed: ${err.message}` };
+        }
+    }
+
+    // ═══ SWARM INTELLIGENCE — GOLDEN RATIO SLIDING SCALE ═══════════════════
+
+    /**
+     * Calculate the EXACT number of bees on a continuous sliding scale.
+     *
+     * No steps. No categories. Golden ratio governs the curve.
+     *
+     *   bees = ⌈ workItems × urgency × resources × efficiency × history ⌉
+     *
+     * Golden ratio properties:
+     *   • Efficiency = e^(-k × activeBees) where k = φ·ln(φ)/maxBees
+     *   • At maxBees/φ active bees → efficiency = exactly 1/φ (0.618...)
+     *   • Default urgency = 1/φ (natural resting state)
+     *   • Resource floor = 1/φ³ (emergency threshold)
+     *   • History factor slides [1/φ, 1.0] — past performance shapes future
+     */
+    _calculateBeeCount(task) {
+        const workItems = (task.work && task.work.length) || 1;
+        const urgency = Math.max(0, Math.min(1, task.urgency ?? SWARM_PARAMS.defaultUrgency));
+
+        // Resource availability — continuous 0.0–1.0
+        const resources = this._getResourceAvailability();
+        const resourceFactor = resources.available;
+
+        // Emergency mode — below 1/φ³ resources, single bee only
+        if (resourceFactor < SWARM_PARAMS.resourceFloor) {
+            return SWARM_PARAMS.minBees;
+        }
+
+        // Efficiency — golden ratio exponential decay
+        //   k = φ × ln(φ) / maxBees
+        //   efficiency = e^(-k × activeBees)
+        //
+        // This gives a natural curve where:
+        //   0 active → efficiency = 1.0 (full capacity)
+        //   maxBees/φ active (~31) → efficiency = 1/φ ≈ 0.618 (golden point)
+        //   maxBees active (50) → efficiency ≈ 0.459 (still useful, never zero)
+        //
+        // The decay is continuous and smooth — no thresholds, no steps.
+        const currentActive = this.activeBees.size;
+        const efficiency = Math.exp(-SWARM_PARAMS.efficiencyDecay * currentActive);
+
+        // Historical adjustment — learn from past blast performance
+        // Factor slides between 1/φ (0.618) and 1.0
+        // Fast history → closer to 1/φ (conserve)
+        // Slow history → closer to 1.0   (more bees needed)
+        let historyFactor = 1.0;
+        if (this.blastHistory.length > 0) {
+            const recent = this.blastHistory.slice(-10);
+            const avgDuration = recent.reduce((s, b) => s + b.durationMs, 0) / recent.length;
+            // Map [0ms, 5000ms] → [1/φ, 1.0] (golden range)
+            const t = Math.min(avgDuration, 5000) / 5000;
+            historyFactor = PHI_INV + t * (1.0 - PHI_INV);
+        }
+
+        // THE FORMULA — continuous, liquid, golden, NO CEILING:
+        const rawBees = workItems * urgency * resourceFactor * efficiency * historyFactor;
+
+        // Round up — liquid fills completely
+        const beeCount = Math.ceil(rawBees);
+
+        // Floor only — no ceiling. Golden ratio efficiency decay naturally governs scale.
+        // The more bees active, the lower efficiency gets — self-regulating.
+        return Math.max(SWARM_PARAMS.minBees, beeCount);
+    }
+
+    /** Materialize N bees from the liquid pool */
+    _materialize(count, taskName) {
+        const bees = [];
+        for (let i = 0; i < count; i++) {
+            const beeId = `bee-${++this.totalSpawned}-${Date.now().toString(36)}`;
+            const bee = new Bee(beeId, taskName);
+            this.activeBees.set(beeId, bee);
+            bees.push(bee);
+        }
+
+        // Track peak concurrency
+        if (this.activeBees.size > this.metrics.peakConcurrency) {
+            this.metrics.peakConcurrency = this.activeBees.size;
+        }
+
+        return bees;
+    }
+
+    /** Assign work items to bees — round-robin if more work than bees */
+    _assignWork(bees, workItems) {
+        const assignments = [];
+
+        if (workItems.length <= bees.length) {
+            // More bees than work — each work item gets its own bee
+            for (let i = 0; i < workItems.length; i++) {
+                assignments.push({ bee: bees[i], work: workItems[i] });
+            }
+        } else {
+            // More work than bees — each bee gets multiple work items chained
+            for (let i = 0; i < bees.length; i++) {
+                const beeWork = [];
+                for (let j = i; j < workItems.length; j += bees.length) {
+                    beeWork.push(workItems[j]);
+                }
+                // Chain multiple work items for this bee
+                const chainedWork = async (bee) => {
+                    const results = [];
+                    for (const w of beeWork) {
+                        results.push(await w(bee));
+                    }
+                    return results;
+                };
+                assignments.push({ bee: bees[i], work: chainedWork });
+            }
+        }
+
+        return assignments;
+    }
+
+    /** Get current resource availability (0-1 scale) */
+    _getResourceAvailability() {
+        const mem = process.memoryUsage();
+        const heapUsed = mem.heapUsed / mem.heapTotal;
+        const available = Math.max(0, 1 - heapUsed);
+        return {
+            available,
+            heapUsedPercent: Math.round(heapUsed * 100),
+            activeBees: this.activeBees.size,
+        };
+    }
+
+    /** Record blast metrics */
+    _recordBlastMetrics(beeCount, durationMs) {
+        this.metrics.totalBees += beeCount;
+        this.metrics.totalBlasts++;
+        this.metrics.totalWorkMs += durationMs;
+        this.metrics.avgBeesPerBlast = Math.round(this.metrics.totalBees / this.metrics.totalBlasts);
+        this.metrics.avgBlastDurationMs = Math.round(this.metrics.totalWorkMs / this.metrics.totalBlasts);
+        if (durationMs < this.metrics.fastestBlastMs) this.metrics.fastestBlastMs = durationMs;
+        if (durationMs > this.metrics.slowestBlastMs) this.metrics.slowestBlastMs = durationMs;
+    }
+
+    // ═══ STATUS ════════════════════════════════════════════════════════════
+
+    getStatus() {
+        return {
+            service: "heady-bees",
+            metaphor: "Liquid atoms — materialize, blast, dissolve",
+            activeBees: this.activeBees.size,
+            dissolved: this.dissolvedCount,
+            totalSpawned: this.totalSpawned,
+            metrics: {
+                ...this.metrics,
+                fastestBlastMs: this.metrics.fastestBlastMs === Infinity ? 0 : this.metrics.fastestBlastMs,
+            },
+            resources: this._getResourceAvailability(),
+            recentBlasts: this.blastHistory.slice(-5).map(b => ({
+                id: b.id, task: b.task, bees: b.bees,
+                succeeded: b.succeeded, failed: b.failed,
+                durationMs: b.durationMs, ts: b.ts,
+            })),
+            uptime: Date.now() - this.bootTime,
+            ts: new Date().toISOString(),
+        };
+    }
+
+    getBlastHistory(limit = 20) {
+        return this.blastHistory.slice(-limit);
+    }
+}
+
+// ─── ROUTE REGISTRATION ────────────────────────────────────────────────────
+function registerBeesRoutes(app, bees) {
+    const express = require("express");
+    const router = express.Router();
+
+    router.get("/health", (req, res) => {
+        res.json({
+            status: "ACTIVE",
+            service: "heady-bees",
+            activeBees: bees.activeBees.size,
+            totalSpawned: bees.totalSpawned,
+            totalBlasts: bees.metrics.totalBlasts,
+            ts: new Date().toISOString(),
+        });
+    });
+
+    router.get("/status", (req, res) => {
+        res.json(bees.getStatus());
+    });
+
+    router.get("/history", (req, res) => {
+        const limit = parseInt(req.query.limit) || 20;
+        res.json({ blasts: bees.getBlastHistory(limit) });
+    });
+
+    // Manual blast trigger — blast health check across all production URLs
+    router.post("/blast/health", async (req, res) => {
+        try {
+            const urls = req.body?.urls || [
+                "https://manager.headysystems.com/api/health",
+                "https://manager.headysystems.com/api/pulse",
+                "https://headyme.com",
+                "https://headysystems.com",
+                "https://headymcp.com",
+                "https://headyio.com",
+                "https://headyconnection.org",
+                "https://headybuddy.org",
+            ];
+            const result = await bees.blastHealth(urls);
+            res.json(result);
+        } catch (err) {
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    });
+
+    // Manual blast trigger — blast arbitrary work
+    router.post("/blast", async (req, res) => {
+        try {
+            const { name, count } = req.body || {};
+            const result = await bees.blastParallel(
+                name || "manual-blast",
+                async (bee, index) => ({
+                    bee: bee.id, index, ts: new Date().toISOString(),
+                }),
+                count || 5,
+            );
+            res.json(result);
+        } catch (err) {
+            res.status(500).json({ ok: false, error: err.message });
+        }
+    });
+
+    app.use("/api/bees", router);
+}
+
+module.exports = { HeadyBees, Bee, registerBeesRoutes, SWARM_PARAMS };

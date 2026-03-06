@@ -1,0 +1,111 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the heady_tasks module.
+ */
+
+use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_install().
+ */
+function heady_tasks_install() {
+  // Create Task content type
+  $type = NodeType::create([
+    'type' => 'task',
+    'name' => 'Task',
+    'description' => 'A task managed by HeadyBuddy AI companion.',
+  ]);
+  $type->save();
+
+  // Create fields
+  $fields = [
+    'field_task_status' => [
+      'type' => 'list_string',
+      'label' => 'Status',
+      'settings' => ['allowed_values' => ['pending' => 'Pending', 'active' => 'Active', 'done' => 'Done', 'cancelled' => 'Cancelled']],
+      'default' => 'pending',
+    ],
+    'field_task_priority' => [
+      'type' => 'list_string',
+      'label' => 'Priority',
+      'settings' => ['allowed_values' => ['low' => 'Low', 'normal' => 'Normal', 'high' => 'High', 'critical' => 'Critical']],
+      'default' => 'normal',
+    ],
+    'field_task_source' => [
+      'type' => 'list_string',
+      'label' => 'Source',
+      'settings' => ['allowed_values' => ['extension' => 'Browser Extension', 'widget' => 'Widget', 'manual' => 'Manual', 'ai' => 'AI Generated']],
+      'default' => 'extension',
+    ],
+    'field_task_description' => [
+      'type' => 'text_long',
+      'label' => 'Description',
+      'settings' => [],
+    ],
+    'field_task_context_url' => [
+      'type' => 'link',
+      'label' => 'Context URL',
+      'settings' => [],
+    ],
+    'field_task_due_date' => [
+      'type' => 'datetime',
+      'label' => 'Due Date',
+      'settings' => ['datetime_type' => 'date'],
+    ],
+    'field_task_user_email' => [
+      'type' => 'email',
+      'label' => 'User Email',
+      'settings' => [],
+    ],
+  ];
+
+  foreach ($fields as $field_name => $config) {
+    // Field storage
+    if (!FieldStorageConfig::loadByName('node', $field_name)) {
+      FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'type' => $config['type'],
+        'settings' => $config['settings'] ?? [],
+        'cardinality' => 1,
+      ])->save();
+    }
+
+    // Field instance
+    if (!FieldConfig::loadByName('node', 'task', $field_name)) {
+      $field_config = [
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'bundle' => 'task',
+        'label' => $config['label'],
+      ];
+      if (isset($config['default'])) {
+        $field_config['default_value'] = [['value' => $config['default']]];
+      }
+      FieldConfig::create($field_config)->save();
+    }
+  }
+
+  \Drupal::messenger()->addMessage('Heady Tasks module installed. Task content type and fields created.');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function heady_tasks_uninstall() {
+  // Clean up fields
+  $fields = ['field_task_status', 'field_task_priority', 'field_task_source', 'field_task_description', 'field_task_context_url', 'field_task_due_date', 'field_task_user_email'];
+  foreach ($fields as $field_name) {
+    $field = FieldConfig::loadByName('node', 'task', $field_name);
+    if ($field) $field->delete();
+    $storage = FieldStorageConfig::loadByName('node', $field_name);
+    if ($storage) $storage->delete();
+  }
+  // Delete content type
+  $type = NodeType::load('task');
+  if ($type) $type->delete();
+}

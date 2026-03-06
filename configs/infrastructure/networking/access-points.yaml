@@ -1,0 +1,35 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/access-points.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+access_methods:
+  - name: IDE_Extension
+    type: vscode
+    config: extensions/vscode/package.json
+    endpoint: https://mcp.headymcp.com
+  - name: Mobile_App
+    type: react-native
+    config: headybrowser-mobile/src/config.js
+    endpoint: https://api.headymcp.com
+  - name: Web_Interface
+    type: web
+    config: frontend/src/config.js
+    endpoint: https://app.headymcp.com
+  - name: API_Gateway
+    type: api
+    config: src/routes/api-routes.js
+    endpoint: https://api.headymcp.com
+
+auth_protocol: oauth2
+sync_interval: 300 # 5 minutes

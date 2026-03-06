@@ -1,0 +1,192 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/HeadySims-scheduler.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+
+#
+# HeadySims Task Scheduler Configuration
+# Controls plan generation, sampling, selection, and convergence.
+
+version: "1.0.0"
+name: HeadySimsScheduler
+
+# ─── PLAN GENERATION ──────────────────────────────────────────────────────
+planGeneration:
+  # How many candidate plans to generate per task request
+  candidatesPerTask: 6
+  # Max candidates for complex (multi-stage) tasks
+  candidatesForComplex: 12
+  # Strategies to consider when generating candidate plans
+  strategies:
+    - id: fast_serial
+      description: Single-agent, smallest model, no extra validation
+      parallelism: 1
+      validationLevel: none
+      modelPreference: smallest
+      baseQuality: 80
+    - id: fast_parallel
+      description: Multi-agent fan-out, smallest viable models
+      parallelism: max
+      validationLevel: none
+      modelPreference: smallest
+      baseQuality: 80
+    - id: balanced
+      description: Default routing, standard validation
+      parallelism: auto
+      validationLevel: standard
+      modelPreference: default
+      baseQuality: 90
+    - id: thorough
+      description: Full validation, larger models, sequential
+      parallelism: 1
+      validationLevel: full
+      modelPreference: largest
+      baseQuality: 98
+    - id: cached_fast
+      description: Prefer cached results and prebuilt tools
+      parallelism: auto
+      validationLevel: none
+      modelPreference: cached
+      baseQuality: 85
+    - id: probe_then_commit
+      description: Run tiny probe calls first, commit to fastest
+      parallelism: auto
+      validationLevel: probe
+      modelPreference: adaptive
+      baseQuality: 88
+
+# ─── COST ESTIMATION ──────────────────────────────────────────────────────
+costEstimation:
+  # Use historical latency data when available
+  useHistorical: true
+  # Weight for historical vs default estimates (0-1, higher = trust history more)
+  historicalWeight: 0.7
+  # Default latency estimates per task type (ms) when no history exists
+  defaultLatencyMs:
+    code_generation: 3000
+    code_review: 2000
+    summarize: 800
+    classify: 400
+    route: 200
+    test_generation: 2500
+    security_scan: 4000
+    documentation: 1500
+    planning: 2000
+    data_processing: 3000
+    pipeline_stage: 5000
+  # Overhead per parallelism level (ms) — scheduling + fan-out cost
+  parallelismOverheadMs:
+    1: 0
+    2: 50
+    4: 120
+    8: 250
+    max: 400
+  # Cold start penalty for agents not in warm pool (ms)
+  coldStartPenaltyMs: 1500
+  # Warm pool: agents kept ready (no cold start)
+  warmPoolAgents:
+    - route
+    - classify
+    - summarize
+
+# ─── SELECTION RULE ───────────────────────────────────────────────────────
+selection:
+  # Algorithm: "ucb1" (Upper Confidence Bound), "epsilon_greedy", or "thompson"
+  algorithm: ucb1
+  # Exploration constant for UCB1 (higher = more exploration)
+  explorationConstant: 1.4
+  # Epsilon for epsilon-greedy (probability of trying random plan)
+  epsilon: 0.1
+  # Minimum samples before a plan can be "locked in"
+  minSamplesForLock: 10
+  # Quality constraint: plan must pass this minimum quality score (0-100)
+  # NOTE: Fast strategies have baseQuality 75-85, so threshold must be below that
+  minQualityScore: 50
+  # Safety constraint: never pick a plan that skips safety checks for critical tasks
+  enforceSafetyForCritical: true
+
+# ─── SPEED PRIORITY MODES ─────────────────────────────────────────────────
+# Switch via POST /api/HeadySims/speed-mode {mode: "off"|"on"|"max"}
+speedModes:
+  off:
+    label: normal
+    minQuality: 50
+    speedWeight: 0.6
+    qualityWeight: 0.4
+    description: Balanced speed and quality
+  on:
+    label: speed_priority
+    minQuality: 40
+    speedWeight: 0.8
+    qualityWeight: 0.2
+    description: Prefer fastest plan, accept moderate quality tradeoffs
+  max:
+    label: max_speed
+    minQuality: 30
+    speedWeight: 0.9
+    qualityWeight: 0.1
+    description: Absolute fastest plan, quality only enforced for critical/safety tasks
+
+# ─── FEEDBACK & LEARNING ─────────────────────────────────────────────────
+feedback:
+  # Log every plan execution as a HeadySims sample
+  logAllSamples: true
+  # Max samples to retain per task type (ring buffer)
+  maxSamplesPerType: 500
+  # Re-evaluate plan rankings every N executions
+  reEvaluateEvery: 10
+  # Decay factor for old samples (exponential decay, 0-1)
+  sampleDecayFactor: 0.95
+  # Auto-search for faster plans when median latency drifts above target
+  autoSearchOnDrift: true
+  # Drift detection: trigger re-search if P50 exceeds target by this factor
+  driftThresholdFactor: 1.5
+
+# ─── PARALLELIZATION & BATCHING ───────────────────────────────────────────
+parallelization:
+  # Aggressively decompose tasks into independent sub-tasks
+  aggressiveDecompose: true
+  # Max sub-tasks per decomposition
+  maxSubTasks: 16
+  # Batch model calls when multiple tasks target the same model
+  batchModelCalls: true
+  # Max batch size
+  maxBatchSize: 8
+
+# ─── LATENCY TARGETS ─────────────────────────────────────────────────────
+latencyTargets:
+  # Interactive replies (user-facing) - AGGRESSIVE TARGETS
+  interactive_reply_ms: 800
+  # Pipeline stage completion
+  pipeline_stage_ms: 3000
+  # Full pipeline run
+  full_pipeline_ms: 15000
+  # Batch task
+  batch_task_ms: 5000
+  # If any target is exceeded, treat as performance regression
+  treatExceedanceAs: performance_bug
+
+# ─── METRICS & ALERTS ────────────────────────────────────────────────────
+metrics:
+  # Expose these metrics via /api/HeadySims/metrics
+  expose:
+    - median_latency_by_type
+    - p90_latency_by_type
+    - plan_selection_counts
+    - speed_score_by_agent
+    - drift_alerts
+  # Speed score: 100 when always under target, degrades linearly
+  speedScoreFormula: "100 * (1 - clamp(median / target - 1, 0, 1))"
+  # Alert if speed score drops below this
+  speedScoreAlertThreshold: 60

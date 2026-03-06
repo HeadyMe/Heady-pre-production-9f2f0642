@@ -1,0 +1,57 @@
+# HEADY_BRAND:BEGIN
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ██╗  ██╗███████╗ █████╗ ██████╗ ██╗   ██╗                     ║
+# ║  ██║  ██║██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝                     ║
+# ║  ███████║█████╗  ███████║██║  ██║ ╚████╔╝                      ║
+# ║  ██╔══██║██╔══╝  ██╔══██║██║  ██║  ╚██╔╝                       ║
+# ║  ██║  ██║███████╗██║  ██║██████╔╝   ██║                        ║
+# ║  ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝                        ║
+# ║                                                                  ║
+# ║  ∞ SACRED GEOMETRY ∞  Organic Systems · Breathing Interfaces    ║
+# ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
+# ║  FILE: configs/domain-mappings.yaml                                                    ║
+# ║  LAYER: config                                                  ║
+# ╚══════════════════════════════════════════════════════════════════╝
+# HEADY_BRAND:END
+# HEADY DOMAIN MAPPING CONFIGURATION
+# Version: 1.0.0
+# Last Updated: 2026-02-09
+
+# Production Domains
+production:
+  headysystems:
+    api: "api.headysystems.com"
+    app: "app.headysystems.com"
+    admin: "admin.headysystems.com"
+  headyconnection:
+    api: "api.headyconnection.org"
+    app: "app.headyconnection.org"
+  headybuddy:
+    api: "api.headybuddy.org"
+    app: "app.headybuddy.org"
+
+# Staging Domains
+staging:
+  headysystems:
+    api: "api.staging.headysystems.com"
+    app: "app.staging.headysystems.com"
+  headyconnection:
+    api: "api.staging.headyconnection.org"
+
+# Development Domains
+development:
+  default: "dev.headysystems.local"
+  headyconnection: "dev.headyconnection.local"
+
+# Cloud Service Endpoints (branded)
+cloud_origins:
+  heady-manager-headysystems: "api.headysystems.com"
+  heady-manager-headyme: "me.headysystems.com"
+  heady-manager-headyconnection: "api.headyconnection.org"
+
+# Domain Governance Rules
+governing_rules:
+  - "No .headysystems.com references anywhere — use branded domains only"
+  - "All production traffic must use HTTPS"
+  - "Custom domains must be configured in Cloudflare"
+  - "All endpoints use branded headysystems.com / headyconnection.org domains"

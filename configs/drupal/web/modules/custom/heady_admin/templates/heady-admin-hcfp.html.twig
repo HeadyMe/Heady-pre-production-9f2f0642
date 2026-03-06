@@ -1,0 +1,54 @@
+{# HCFP Policy Management Template #}
+<div class="heady-admin-wrapper">
+  <nav class="heady-admin-nav">
+    <div class="heady-admin-logo"><span class="heady-admin-logo-icon">🌟</span><span>Heady Admin</span></div>
+    <div class="heady-admin-tabs">
+      <a href="{{ path('heady_admin.dashboard') }}" class="heady-tab">📊 Dashboard</a>
+      <a href="{{ path('heady_admin.services') }}" class="heady-tab">🔌 Services</a>
+      <a href="{{ path('heady_admin.hcfp') }}" class="heady-tab active">🛡️ HCFP</a>
+      <a href="{{ path('heady_admin.headylens') }}" class="heady-tab">🔭 HeadyLens</a>
+      <a href="{{ path('heady_admin.customize') }}" class="heady-tab">🎨 Customize</a>
+      <a href="{{ path('heady_admin.access_control') }}" class="heady-tab">👥 Access</a>
+      <a href="{{ path('heady_admin.settings') }}" class="heady-tab">⚙️ Settings</a>
+    </div>
+  </nav>
+
+  <div class="heady-dashboard-grid">
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">HCFP Mode</div><div class="heady-stat-value" style="font-size:1.1rem">{{ hcfp.mode }}</div></div><div class="heady-card-icon icon-green">🛡️</div></div></div>
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">Auto-Success</div><div class="heady-stat-value">{{ hcfp.auto_success ? '✅ ON' : '❌ OFF' }}</div></div><div class="heady-card-icon icon-blue">🎯</div></div></div>
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">HeadyBattle</div><div class="heady-stat-value">{{ hcfp.headybattle_mode|capitalize }}</div></div><div class="heady-card-icon icon-yellow">⚔️</div></div></div>
+    <div class="heady-card"><div class="heady-card-header"><div><div class="heady-stat-label">Sessions</div><div class="heady-stat-value">{{ hcfp.headybattle_sessions }}</div></div><div class="heady-card-icon icon-red">📋</div></div></div>
+  </div>
+
+  <div class="heady-section">
+    <h2 class="heady-section-title">Active Policies</h2>
+    <div class="heady-hcfp-grid">
+      {% for policy in hcfp.policies %}
+        <div class="heady-policy-card">
+          <h4>{{ policy.name }}</h4>
+          <p style="color:#94a3b8;font-size:0.85rem;margin:0.5rem 0;">Type: {{ policy.type }}</p>
+          <span class="heady-policy-status policy-{{ policy.status }}">● {{ policy.status|capitalize }}</span>
+          <div style="margin-top:0.75rem;">
+            <button class="heady-btn heady-btn-sm heady-btn-secondary">Edit</button>
+            <button class="heady-btn heady-btn-sm heady-btn-danger">Disable</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="heady-section">
+    <h2 class="heady-section-title">Communication Chain Latency</h2>
+    <div class="heady-table-container">
+      <table>
+        <thead><tr><th>Hop</th><th>Latency</th></tr></thead>
+        <tbody>
+          {% for hop, latency in hcfp.communication_chain %}
+            <tr><td>{{ hop|replace({'_': ' → '}) }}</td><td>{{ latency }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script src="https://headybuddy.org/headybuddy-widget.js"></script>
