@@ -12,6 +12,7 @@ Heady is the world's first **Unified AI Platform** built on the principles of **
 
 **Core Identity:**
 
+- **Founded by:** Eric Haywood
 - **Company:** HeadyConnection Inc.
 - **Trademark:** Serial 99680540, filed March 3, 2026 ("HEADY").
 - **Domains:** 12+ managed domains (headyme.com, headysystems.com, headyconnection.org, headybuddy.org, headymcp.com, headyio.com, headybot.com, headyos.com, headyapi.com, headyapp.com, headylens.com).

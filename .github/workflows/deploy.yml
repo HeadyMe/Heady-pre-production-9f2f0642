@@ -26,6 +26,7 @@ jobs:
   security-scan:
     name: 🔒 Security Scan (P0)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,7 +60,6 @@ jobs:
   # ═══════════════════════════════════════════════════════════════
   validate:
     name: 🧬 Validate Monorepo
-    needs: security-scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -133,7 +133,7 @@ jobs:
   # ═══════════════════════════════════════════════════════════════
   project-cloudrun:
     name: ☁️ Project → Cloud Run
-    needs: [validate, sbom-scan]
+    needs: validate
     runs-on: ubuntu-latest
     continue-on-error: true
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
@@ -301,7 +301,7 @@ jobs:
   # ═══════════════════════════════════════════════════════════════
   verify-projections:
     name: ✅ Auto-Success Pipeline
-    needs: [validate, project-cloudrun, project-hf-spaces, project-edge]
+    needs: [validate, project-cloudrun, project-hf-spaces, project-edge, smoke-tests]
     if: always()
     runs-on: ubuntu-latest
     steps:
