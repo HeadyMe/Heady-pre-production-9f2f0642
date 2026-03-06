@@ -53,7 +53,7 @@
         "headysystems.com": {
             "name": "HeadySystems",
             "tagline": "The Architecture of Intelligence",
-            "description": "Self-healing infrastructure, Sacred Geometry orchestration, and enterprise-grade AI deployment.",
+            "description": "Enterprise-grade AI infrastructure powering 9 domains, 50+ patents, and 20 autonomous AI nodes. Self-healing, Sacred Geometry orchestration, and continuous deployment — built by Heady Systems LLC since 2024.",
             "role": "infrastructure",
             "sacredGeometry": "Metatrons Cube",
             "accent": "#34d399",
@@ -61,41 +61,51 @@
             "features": [
                 {
                     "icon": "🛡️",
-                    "title": "Self-Healing Infra",
-                    "desc": "Autonomous error recovery and circuit breakers"
+                    "title": "Self-Healing Infrastructure",
+                    "desc": "Auto-heal resilience loops, circuit breakers, and autonomous error recovery across all services"
                 },
                 {
                     "icon": "🎼",
                     "title": "Buddy Orchestrator",
-                    "desc": "Multi-agent orchestration via Sacred Geometry"
+                    "desc": "Multi-agent orchestration via Sacred Geometry — 150+ supervisors coordinating 20 AI nodes"
                 },
                 {
                     "icon": "📊",
-                    "title": "Live Telemetry",
-                    "desc": "Structured logging, health probes, full observability"
+                    "title": "Live Telemetry & Observability",
+                    "desc": "Structured logging, health probes, race audits, and real-time performance dashboards"
                 },
                 {
                     "icon": "⚡",
-                    "title": "Auto-Success Pipeline",
-                    "desc": "HCFP continuous deployment and optimization"
+                    "title": "HCFP Auto-Success Pipeline",
+                    "desc": "Continuous deployment with security scanning, SBOM generation, smoke tests, and auto-verification"
+                },
+                {
+                    "icon": "🔐",
+                    "title": "Zero Trust Security",
+                    "desc": "mTLS client certs, secret rotation, Cloudflare WARP enforcement, and TruffleHog scanning"
+                },
+                {
+                    "icon": "🌐",
+                    "title": "Edge Mesh Network",
+                    "desc": "Cloudflare Workers edge proxy with KV caching, sub-50ms latency, and deterministic routing"
                 }
             ],
             "stats": [
                 {
-                    "value": "150",
+                    "value": "150+",
                     "label": "Supervisors"
                 },
                 {
-                    "value": "40",
-                    "label": "Routes"
+                    "value": "9",
+                    "label": "Domains"
                 },
                 {
                     "value": "99.9%",
                     "label": "Uptime"
                 },
                 {
-                    "value": "20",
-                    "label": "AI Nodes"
+                    "value": "50+",
+                    "label": "Patents"
                 }
             ],
             "chatEnabled": true
