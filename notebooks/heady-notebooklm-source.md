@@ -106,13 +106,45 @@ Heady implements a **Zero-Trust CI/CD Pipeline**:
 As of March 6, 2026, the Heady IP portfolio includes:
 
 - **Trademark:** "HEADY" (Serial 99680540).
-- **Patents:** 50+ provisional patent applications filed, covering:
+- **Patents:** 51+ provisional patent applications filed across 4 batches, covering:
   - Sacred Geometry Orchestration
   - Spatial Vector Workspace
   - Continuous Latent Architecture
   - Zero-Trust Projection Pipelines
   - Multi-Model Battle Arena Protocols
+  - Self-Healing Attestation Mesh (HS-059, App# 63/998,726)
+  - Continuous Semantic Logic Gates (HS-058, App# 63/998,721)
+  - Dynamic Bee Factory & Swarm Consensus (HS-060, App# 63/998,759)
+  - Metacognitive Self-Awareness Loop (HS-061, App# 63/998,764)
+  - Vector-Native Security Scanner (HS-062, App# 63/998,767)
+  - Vibe-Match Latency Delta (HS-051, App# 63/998,709)
+  - Shadow Memory Persistence (HS-052, App# 63/998,713)
+  - Neural Stream Telemetry (HS-053, App# 63/998,718)
+- **March 6, 2026 Session:** 8 applications filed, 59 total claims
 - **Report:** Patent Harvest Report v2.1 defines the formal technical reduction-to-practice (RTP) for all claims.
+
+## 6.1 GitHub Repository Ecosystem (18 Repositories)
+
+| Repository | Purpose |
+|---|---|
+| Heady-pre-production-9f2f0642 | Official monorepo — single source of truth |
+| latent-core-dev | Synaptic Dev — pgvector ↔ Antigravity mirror |
+| template-mcp-server | Template — MCP protocol server shell |
+| template-swarm-bee | Template — Swarm Agent with Pub/Sub lifecycle |
+| template-heady-ui | Template — React micro-frontend with Module Federation |
+| HeadyBuddy | HeadyBuddy Chrome Extension |
+| HeadyWeb | HeadyWeb portal |
+| HeadyAI-IDE | HeadyAI IDE Extension |
+| admin-ui | Admin dashboard |
+| heady-rebuild-groq | Battle Arena — Groq LPU rebuild |
+| heady-rebuild-claude | Battle Arena — Claude Opus rebuild |
+| heady-rebuild-gemini | Battle Arena — Gemini Pro rebuild |
+| heady-rebuild-gpt54 | Battle Arena — GPT-5.4 rebuild |
+| heady-rebuild-codex | Battle Arena — OpenAI Codex rebuild |
+| heady-rebuild-perplexity | Battle Arena — Perplexity Sonar rebuild |
+| heady-rebuild-headycoder | Battle Arena — HeadyCoder rebuild |
+| heady-rebuild-huggingface | Battle Arena — HuggingFace rebuild |
+| heady-rebuild-jules | Battle Arena — Google Jules rebuild |
 
 ---
 
