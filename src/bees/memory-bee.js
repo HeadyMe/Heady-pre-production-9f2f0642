@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Memory Bee — Covers vector-memory.js (667 lines), vector-federation.js,
  * vector-pipeline.js, hybrid-search.js, embedding-provider.js, memory-receipts.js
  */

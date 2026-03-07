@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * Unified Logger — delegates to StructuredLogger for JSON output.
  *
  * API preserved: logger.info(...), logger.child('module'), etc.

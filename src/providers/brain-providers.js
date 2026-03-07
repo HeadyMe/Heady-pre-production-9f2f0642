@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * PROPRIETARY AND CONFIDENTIAL.
  * src/providers/brain-providers.js — Multi-provider AI clients for HeadyBrain
  *

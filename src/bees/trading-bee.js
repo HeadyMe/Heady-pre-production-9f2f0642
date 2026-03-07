@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Trading Bee — Covers all trading/financial modules:
  * trading-tasks.js, apex-risk-agent.js, payment-gateway.js,
  * heady-fintech-agent.js, trader-core.js, biometric-hitl.js, webgl-orderbook.js

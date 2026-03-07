@@ -2,7 +2,7 @@
 
 > **Date:** March 6, 2026
 > **Valuation Model:** Asset-Based (Now) vs. Market-Multiple (Projected)
-> © 2026 Heady Systems LLC. All Rights Reserved.
+> © 2026 HeadySystems Inc.. All Rights Reserved.
 
 ---
 
@@ -107,4 +107,4 @@ The "Sacred Geometry" provides the **soul** of the project, but the "Modular MCP
 
 ---
 
-*This document is confidential and proprietary to Heady Systems LLC.*
+*This document is confidential and proprietary to HeadySystems Inc..*

@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Ops Bee — Covers src/ops/ modules:
  * dag-engine, mlops-logger, scaler
  * Also: deploy-gates, incident-manager, drift-detector

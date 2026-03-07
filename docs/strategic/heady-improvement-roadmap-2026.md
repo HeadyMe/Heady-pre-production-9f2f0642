@@ -92,4 +92,4 @@ Running scheduled state projection diffs to GitHub and Hugging Face, with rollba
 
 ---
 
-*© 2026 Heady Systems LLC. All Rights Reserved.*
+*© 2026 HeadySystems Inc.. All Rights Reserved.*

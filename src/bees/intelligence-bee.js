@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Intelligence Bee — Covers hc_deep_intel.js, hc_deep_scan.js,
  * hc_realtime_intelligence.js, hc_scientist.js, continuous-learning.js,
  * duckdb-memory.js, predictive-cache.js, unified-context.js, voice-relay.js

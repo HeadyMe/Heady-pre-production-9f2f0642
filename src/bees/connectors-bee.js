@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Connectors Bee — Covers all connector/infra services:
  * brain_connector.js, dynamic-synthesizer.js, event-stream.js,
  * hc_cloudflare.js, hc_liquid.js, remote-compute.js, sdk-services.js,

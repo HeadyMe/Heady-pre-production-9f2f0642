@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Creative Bee — Covers hc_creative.js (562 lines), edge-diffusion.js
  * Generation, transformation, composition, analysis, remix, sessions
  */

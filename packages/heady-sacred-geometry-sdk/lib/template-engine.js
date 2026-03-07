@@ -4,7 +4,7 @@
  * Multi-dimensional weighted scoring to select optimal templates
  * from a registry, using Fibonacci-derived scoring weights.
  *
- * © 2026 Heady Systems LLC. All rights reserved.
+ * © 2026 HeadySystems Inc.. All rights reserved.
  */
 
 'use strict';

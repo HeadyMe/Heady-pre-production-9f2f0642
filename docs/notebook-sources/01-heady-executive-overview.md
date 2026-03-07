@@ -1,6 +1,6 @@
 # Heady™ AI Platform — Executive Overview
 
-> © 2026 Heady Systems LLC. All Rights Reserved.
+> © 2026 HeadySystems Inc.. All Rights Reserved.
 
 ## What Is Heady?
 

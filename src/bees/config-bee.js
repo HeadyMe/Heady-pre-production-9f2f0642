@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Config Bee — Covers all config/utility modules:
  * config/global.js, config/errors.js, utils/logger.js, utils/redis-pool.js,
  * structured-logger.js, lib/pretty.js, sites/site-renderer.js

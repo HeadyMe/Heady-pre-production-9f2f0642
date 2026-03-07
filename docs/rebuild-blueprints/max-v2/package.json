@@ -1,0 +1,34 @@
+{
+  "name": "@heady/monorepo",
+  "private": true,
+  "version": "4.0.0-alpha.1",
+  "description": "Heady rebuilt as a cloud-first monorepo with layered domains, thin orchestration, projected verticals, and durable memory services.",
+  "packageManager": "pnpm@10.6.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "validate": "node scripts/validate-configs.mjs",
+    "project:verticals": "node scripts/project-verticals.mjs",
+    "bootstrap": "bash scripts/bootstrap.sh",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "registry:print": "node scripts/print-registry.mjs",
+    "project:repos": "node scripts/project-verticals.mjs",
+    "contracts:check": "node scripts/check-contracts.mjs",
+    "dev:control-plane": "pnpm --parallel --filter @heady/gateway-api --filter @heady/conductor --filter @heady/memory-service --filter @heady/mcp-gateway dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.7",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.2"
+  }
+}

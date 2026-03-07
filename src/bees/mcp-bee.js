@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * MCP Bee — Covers heady-mcp-server.js (1183 lines)
  * MCP tool registration, protocol handling, tool execution
  */

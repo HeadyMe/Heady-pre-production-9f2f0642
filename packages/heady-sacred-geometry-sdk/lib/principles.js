@@ -4,7 +4,7 @@
  * Extracted from src/heady-principles.js for SDK distribution.
  * ALL system parameters derive from: φ (PHI), Base-13, Log-42.
  *
- * © 2026 Heady Systems LLC. All rights reserved.
+ * © 2026 HeadySystems Inc.. All rights reserved.
  */
 
 'use strict';

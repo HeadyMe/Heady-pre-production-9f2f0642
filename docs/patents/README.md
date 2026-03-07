@@ -1,6 +1,6 @@
 # Heady™ Intellectual Property Portfolio
 
-**Owner:** Heady Systems LLC
+**Owner:** HeadySystems Inc.
 **Inventor:** Eric Haywood
 **Customer Number:** 221639
 **Portfolio Status:** Active — 51+ Provisional Applications Filed
@@ -149,5 +149,5 @@ Filed individually via USPTO Patent Center. Full-text applications in Markdown f
 
 ---
 
-*© 2026 Heady Systems LLC. All rights reserved.*
+*© 2026 HeadySystems Inc.. All rights reserved.*
 *This document is confidential and proprietary.*

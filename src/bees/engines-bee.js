@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Engines Bee — Covers all src/engines/ modules:
  * auto-commit-engine, finops-budget-router, midi-event-bus,
  * semantic-contextualizer, spatial-context-engine, ump-udp-transport, xet-storage-engine

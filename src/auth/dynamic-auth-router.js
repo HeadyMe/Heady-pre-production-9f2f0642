@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * PROPRIETARY AND CONFIDENTIAL.
  *
  * Dynamic Auth Router — auto-wires routes from provider-registry.js

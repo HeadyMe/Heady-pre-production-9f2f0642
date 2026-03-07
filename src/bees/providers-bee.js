@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Providers Bee — Covers all AI provider modules:
  * brain-providers.js, claude-sdk.js, provider-benchmark.js,
  * heady-models.js, monte-carlo.js

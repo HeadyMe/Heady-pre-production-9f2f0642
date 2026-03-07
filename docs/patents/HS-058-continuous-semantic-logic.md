@@ -8,7 +8,7 @@
 
 **Application Number:** [To be assigned by USPTO]
 **Filing Date:** [To be filed]
-**Applicant:** Heady Systems LLC
+**Applicant:** HeadySystems Inc.
 **Inventor(s):** Eric Haywood
 **Customer Number:** 221639
 
@@ -93,5 +93,5 @@ A system and method for Continuous Semantic Logic (CSL) that replaces discrete b
 
 ---
 
-*© 2026 Heady Systems LLC. All rights reserved.*
+*© 2026 HeadySystems Inc.. All rights reserved.*
 *Attorney Docket No.: HS-058*

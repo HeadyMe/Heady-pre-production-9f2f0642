@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Deployment Bee — Automated deployment orchestration across
  * Cloud Run, Cloudflare Workers, GitHub, and Hugging Face Spaces.
  *

@@ -1,6 +1,6 @@
 # Heady™ Service Catalog & Platform Capabilities
 
-> © 2026 Heady Systems LLC. All Rights Reserved.
+> © 2026 HeadySystems Inc.. All Rights Reserved.
 
 ## Service Categories
 

@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Orchestration Bee — Decomposes agent-orchestrator.js (666 lines),
  * buddy-core.js (983 lines), cloud-orchestrator.js (773 lines),
  * heady-conductor.js, spatial-mapping.js, rulez-gatekeeper.js

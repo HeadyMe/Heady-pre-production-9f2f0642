@@ -1,11 +1,8 @@
 # Heady™ Systems
 
-[![CI/CD Pipeline](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/heady-consolidated-ci.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/heady-consolidated-ci.yml)
-[![Security Scan](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/security-scan.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/security-scan.yml)
-[![SBOM & Container](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/sbom-container-scan.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/sbom-container-scan.yml)
-[![Branding](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/branding-enforcement.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/branding-enforcement.yml)
+[![Deploy](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/deploy.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/deploy.yml)
 
-> **v3.0.1** · Sacred Geometry Multi-Agent Orchestration · φ-Scaled Resilience · MCP Integration
+> **v3.1.0** · Sacred Geometry Multi-Agent Orchestration · φ-Scaled Resilience · MCP Integration
 
 ---
 
@@ -27,43 +24,36 @@
 ## Quick Start
 
 ```bash
-pnpm install
+npm install
 cp .env.example .env
-pnpm run dev
+npm run dev
 ```
 
-> **Note:** This project uses `pnpm` exclusively. Do not use `npm` or `yarn`.
+> **Note:** This project uses `npm` as its package manager.
 
 ## Architecture
 
 ```
 heady-manager.js                # Node.js MCP Server & API Gateway
 ├── src/
-│   ├── hc-full-pipeline.js     # HCFullPipeline — 12-stage orchestration engine
-│   ├── self-awareness.js       # Internal Monologue Loop — telemetry & metacognition
-│   ├── vector-memory.js        # 3D Spatial Sharded Vector Store + Graph RAG
-│   ├── orchestration/
-│   │   ├── buddy-core.js       # Buddy — Central Intelligence Node (984 lines)
-│   │   ├── buddy-watchdog.js   # Self-healing watchdog (hallucination detection)
-│   │   └── heady-bees.js       # HeadyBees orchestration bridge
-│   ├── bees/                   # 26 domain-specific HeadyBee workers (197 units)
-│   │   ├── bee-factory.js      # Dynamic bee creation at runtime
-│   │   └── registry.js         # Central bee registry + discovery
-│   ├── resilience/
-│   │   ├── circuit-breaker.js  # CLOSED→OPEN→HALF_OPEN for 16 services
-│   │   ├── exponential-backoff.js # φ-scaled delays (PHI = 1.618...)
-│   │   ├── pool.js             # Connection pooling
-│   │   ├── rate-limiter.js     # Per-client rate limiting
-│   │   ├── cache.js            # In-memory caching layer
-│   │   └── retry.js            # Basic retry with jitter
-│   ├── lifecycle/
-│   │   └── graceful-shutdown.js # SIGTERM/SIGINT handlers, LIFO cleanup
-│   └── routes/
-│       └── health-routes.js    # /health/live, /health/ready, /health/full
-├── config/                     # YAML configuration (single directory)
-├── tests/                      # Unit, integration, and smoke tests
-├── data/                       # Vector shards, buddy state, learned rules
-└── .github/workflows/          # 10 CI/CD workflows
+│   ├── orchestration/          # Pipeline, conductor, self-optimizer (25 files)
+│   ├── memory/                 # Vector memory, search, federation (11 files)
+│   ├── agents/                 # Bees (58 workers), buddy, templates (13 files)
+│   ├── intelligence/           # Research, scanning, ML (14 files)
+│   ├── runtime/                # Cloud infra, compute, deployment (12 files)
+│   ├── auth/                   # Authentication, authorization, tiers (5 files)
+│   ├── mcp/                    # MCP server, connectors (7 files)
+│   ├── observability/          # Structured logger, health probes (7 files)
+│   ├── integrations/           # Provider connectors, SDKs (4 files)
+│   ├── shared/                 # Utils, registry, policies (11 files)
+│   ├── types/                  # TypeScript definitions
+│   ├── routes/                 # HTTP route handlers (52 files)
+│   ├── services/               # Service implementations (75 files)
+│   └── bees/                   # 26 domain-specific HeadyBee workers
+├── tests/                      # Unit, integration, and e2e tests
+├── configs/                    # YAML configuration
+├── docs/                       # Architecture, patents, API specs
+└── .github/workflows/          # Deploy pipeline (security → validate → deploy)
 ```
 
 ## Core Systems
@@ -128,7 +118,7 @@ const scanBee = spawnBee('port-scanner', async () => { /* work */ });
 - **Container:** `node:22-alpine` · Non-root user (`heady:1001`)
 - **CI/CD:** 10 GitHub Actions workflows (CodeQL SAST, Gitleaks, SBOM, dependency audit)
 - **Edge:** Cloudflare Workers proxy layer
-- **Lockfile:** `pnpm-lock.yaml` (pnpm-only)
+- **Lockfile:** `package-lock.json` (npm)
 
 ## Security
 
@@ -140,6 +130,6 @@ const scanBee = spawnBee('port-scanner', async () => { /* work */ });
 
 ## License
 
-© 2026 Heady™ Systems LLC. Proprietary and Confidential.
+© 2026 Heady™ — HeadySystems Inc. Proprietary and Confidential.
 
 Heady™ is a trademark of HeadyConnection Inc. USPTO Serial No. 99680540.

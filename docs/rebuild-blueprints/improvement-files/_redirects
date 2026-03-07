@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects
+/health  https://heady-manager-609590223909.us-central1.run.app/health  200
+/api/*   https://heady-manager-609590223909.us-central1.run.app/api/:splat  200

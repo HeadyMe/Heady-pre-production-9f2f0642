@@ -1,6 +1,6 @@
 # Architecting the "Alive" Software System
 
-> **Canonical Architecture Whitepaper — Heady Systems LLC © 2026**
+> **Canonical Architecture Whitepaper — HeadySystems Inc. © 2026**
 >
 > 3D Vector Space Operations, Autonomous Monorepos, and Self-Optimizing Agents
 

@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Routes Bee — Covers all src/routes/ that are service-like:
  * lens.js (671), memory.js (616), battle.js, brain.js (1105),
  * buddy, conductor, governance, harmony, hcfp, health,

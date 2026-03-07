@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * ═══ Latent Space Battle Builder ═══
  *
  * Generates all 9 model rebuild implementations IN MEMORY (latent space),

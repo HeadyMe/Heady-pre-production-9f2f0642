@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * PROPRIETARY AND CONFIDENTIAL.
  *
  * Heady Models Router — OpenAI-compatible model inference & fine-tuning API

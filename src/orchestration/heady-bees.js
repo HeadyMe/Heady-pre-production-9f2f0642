@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * PROPRIETARY AND CONFIDENTIAL.
  *
  * HEADY BEES — Liquid Atom Swarm Engine

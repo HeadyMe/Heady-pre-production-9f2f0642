@@ -12,7 +12,7 @@
 **Patent Center Number:** 74756984
 **Receipt Date/Time:** 03/06/2026 5:38:03 PM ET
 **Application Type:** Utility — Provisional Application under 35 USC 111(b)
-**Applicant:** Heady Systems LLC
+**Applicant:** HeadySystems Inc.
 **Inventor(s):** Eric Haywood
 **Customer Number:** 221639
 
@@ -164,7 +164,7 @@ Claim 7.** A vector-native security system for AI embedding databases, comprisin
 A system and method for detecting security threats within vector databases using geometric analysis directly in the embedding space. The system maintains a registry of known threat patterns stored as embedding vectors and compares new ingestions against them using cosine similarity. Three detection methods operate natively within the vector space: outlier detection identifies vectors geometrically distant from all zone centroids (potential injections), access frequency analysis identifies vectors with suspiciously high query rates (adversarial probes), and zone membership comparison detects vectors that have migrated between zones since baseline (data poisoning). An anti-sprawl engine monitors zone density growth, and a pre-deployment security gate blocks code deployment when vector integrity is compromised. All detection operates within the embedding space using geometric relationships rather than rule-based pattern matching, enabling detection of novel vector attacks.
 
 
-© 2026 Heady Systems LLC. All rights reserved.*
+© 2026 HeadySystems Inc.. All rights reserved.*
 Attorney Docket No.: HS-062*
 References
 [1] Vector databases are a sensitive part of AI systems because embeddings represent private documents; attackers can exploit this memory 【608436556074201†L17-L25】
@@ -177,5 +177,5 @@ References
 
 ---
 
-*© 2026 Heady Systems LLC. All rights reserved.*
+*© 2026 HeadySystems Inc.. All rights reserved.*
 *Attorney Docket No.: HS-062*

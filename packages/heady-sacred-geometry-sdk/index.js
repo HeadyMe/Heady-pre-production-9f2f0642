@@ -7,7 +7,7 @@
  *   Base-13             — Proprietary tier system
  *   Log-42              — Logarithmic scaling
  *
- * © 2026 Heady Systems LLC. All rights reserved.
+ * © 2026 HeadySystems Inc.. All rights reserved.
  */
 
 'use strict';

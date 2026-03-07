@@ -1,22 +1,22 @@
 {
   "name": "heady-systems",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "Heady\u2122 AI Platform \u2014 Autonomous multi-agent AI operating system with 20 specialized intelligence nodes, federated liquid routing, and post-quantum security.",
   "main": "heady-manager.js",
   "license": "UNLICENSED",
   "author": {
     "name": "HeadyMe",
-    "email": "e@headyconnection.org",
+    "email": "eric@headyconnection.org",
     "url": "https://headyme.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/HeadySystems/Heady.git"
+    "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642.git"
   },
   "homepage": "https://headysystems.com",
   "bugs": {
-    "url": "https://github.com/HeadySystems/Heady/issues",
-    "email": "e@headyconnection.org"
+    "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/issues",
+    "email": "eric@headyconnection.org"
   },
   "keywords": [
     "ai",
@@ -34,7 +34,7 @@
     "cli": "python scripts/heady_cli.py",
     "start": "node heady-manager.js",
     "dev": "nodemon heady-manager.js",
-    "build": "echo 'Frontend build not yet configured \u2014 see docs/strategic/heady-improvement-roadmap-2026.md'",
+    "build": "node scripts/generate-sites.js && echo 'Build complete'",
     "test": "fuser -k 3300/tcp 2>/dev/null; jest",
     "lint": "eslint . --fix",
     "lint:fix": "eslint . --fix",
@@ -45,7 +45,7 @@
     "brand:fix": "node scripts/brand_headers.js --fix",
     "test:domains": "node scripts/domain-connectivity-test.js",
     "test:branding": "node scripts/validate-branding.js",
-    "build-all": "echo 'HeadyBrowser desktop/mobile builds not yet available'",
+    "build-all": "npm run build && npm run deploy:hf:dry",
     "deploy": "node scripts/deploy.js",
     "deploy:auto": "node scripts/deploy.js --auto",
     "services:start": "node src/services/service-manager.js",

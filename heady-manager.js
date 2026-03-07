@@ -15,6 +15,10 @@
  * © 2026 HeadySystems Inc. — Proprietary
  */
 
+// Phase 0: Environment Validation (fail-fast if critical config missing)
+const { validateEnvironment } = require('./src/config/env-schema');
+validateEnvironment({ strict: process.env.NODE_ENV === 'production' });
+
 // Phase 1: Environment + Globals (event bus, midi bus, edge cache)
 const { app, logger, eventBus, remoteConfig, secretsManager, cfManager } = require('./src/bootstrap/config-globals');
 

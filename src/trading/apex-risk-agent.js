@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * PROPRIETARY AND CONFIDENTIAL.
  *
  * Apex 3.0 Risk Agent — Hardcoded risk parameters for HeadyBuddy

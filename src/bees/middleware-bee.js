@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Middleware Bee — Covers all src/middleware/ modules:
  * auto-error-pipeline, cors-config, error-handler, request-id,
  * resilience-middleware, security-headers

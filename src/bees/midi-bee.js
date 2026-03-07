@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * MIDI Bee — Covers all music/audio infrastructure:
  * midi/network-midi.js, engines/midi-event-bus.js, engines/ump-udp-transport.js,
  * services/daw-mcp-bridge.js, ableton-remote-script/HeadyBuddy

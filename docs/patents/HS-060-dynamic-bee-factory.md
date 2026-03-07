@@ -8,7 +8,7 @@
 
 **Application Number:** [To be assigned by USPTO]
 **Filing Date:** [To be filed]
-**Applicant:** Heady Systems LLC
+**Applicant:** HeadySystems Inc.
 **Inventor(s):** Eric Haywood
 **Customer Number:** 221639
 
@@ -173,12 +173,12 @@ Claim 9.** A system for runtime AI agent lifecycle management, comprising:
 A system and method for dynamically creating, orchestrating, and dissolving autonomous AI agent workers at runtime. The system provides a factory that creates fully functional agents from declarative specifications or predefined templates, assigns cryptographic identities, and registers them in persistent or ephemeral registries. Multiple agents are organized into coordinated swarms with configurable consensus policies governing parallel or sequential execution. A dissolution protocol cleanly removes agents when no longer needed, releasing resources and identities. Work functions can be injected into existing agents without recreation. This enables autonomous AI systems to adapt to novel domains at runtime without code changes, recompilation, or redeployment.
 
 
-© 2026 Heady Systems LLC. All rights reserved.*
+© 2026 HeadySystems Inc.. All rights reserved.*
 Attorney Docket No.: HS-060*
 References
 [1] Current multi-agent systems use static workflows that cannot adapt to runtime complexity, motivating dynamic agent collaboration 【102338020887129†L10-L17】
 
 ---
 
-*© 2026 Heady Systems LLC. All rights reserved.*
+*© 2026 HeadySystems Inc.. All rights reserved.*
 *Attorney Docket No.: HS-060*

@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Pipeline Bee — Decomposes hc_pipeline.js (1050 lines), hc-full-pipeline.js (515 lines),
  * pipeline-core.js, pipeline-infra.js, pipeline-pools.js, pipeline-runner.js,
  * task-dispatcher.js, task-manifest-schema.js

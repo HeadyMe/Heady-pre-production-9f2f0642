@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Pipeline Core — Config loader, run state, logging, stop rules, checkpoints.
  * Extracted from hc_pipeline.js for maintainability.
  */

@@ -8,29 +8,19 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "security"
-    commit-message:
-      prefix: "deps"
+    groups:
+      production:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "eslint*"
+          - "@typescript-eslint*"
+          - "jest*"
+          - "@types/*"
+      dev:
+        dependency-type: "development"
     reviewers:
-      - "headyme"
-
-  - package-ecosystem: "npm"
-    directory: "/cloudflare/heady-edge-node"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    labels:
-      - "dependencies"
-      - "cloudflare"
-
-  - package-ecosystem: "npm"
-    directory: "/heady-hive-sdk"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    labels:
-      - "dependencies"
-      - "sdk"
+      - "HeadyMe"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -38,4 +28,3 @@ updates:
       interval: "weekly"
     labels:
       - "ci"
-      - "dependencies"

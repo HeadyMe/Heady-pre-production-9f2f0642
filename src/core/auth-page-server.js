@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  *
  * ═══ Universal Auth Page ═══
  *
@@ -215,7 +215,7 @@ function renderAuthPage() {
         </div>
 
         <div class="footer">
-            <a href="https://headyme.com">headyme.com</a> · © 2026 Heady Systems LLC · 25+ providers
+            <a href="https://headyme.com">headyme.com</a> · © 2026 HeadySystems Inc. · 25+ providers
         </div>
     </div>
 

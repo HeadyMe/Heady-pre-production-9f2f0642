@@ -1,0 +1,64 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "commonjs",
+        "lib": [
+            "ES2022"
+        ],
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "declaration": true,
+        "declarationMap": true,
+        "sourceMap": true,
+        "allowJs": true,
+        "checkJs": false,
+        "noEmit": false,
+        "moduleResolution": "node",
+        "types": [
+            "node",
+            "jest"
+        ],
+        "baseUrl": ".",
+        "paths": {
+            "@heady/config/*": [
+                "src/config/*"
+            ],
+            "@heady/orchestration/*": [
+                "src/orchestration/*"
+            ],
+            "@heady/memory/*": [
+                "src/memory/*"
+            ],
+            "@heady/auth/*": [
+                "src/auth/*"
+            ],
+            "@heady/mcp/*": [
+                "src/mcp/*"
+            ],
+            "@heady/agents/*": [
+                "src/agents/*"
+            ],
+            "@heady/observability/*": [
+                "src/observability/*"
+            ],
+            "@heady/shared/*": [
+                "src/shared/*"
+            ]
+        }
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.js"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        "_archive",
+        "tests"
+    ]
+}

@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Security Bee — Active security operations + module wiring:
  *   - Patent Lock enforcement & evidence snapshots
  *   - Credential exposure scanning

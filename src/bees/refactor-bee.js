@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  *
  * Refactor Bee — Learns from EVERY system action, not just major ones.
  * Utility can shift at any moment. This bee observes all operations,

@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Pipeline Pools — Task pool map, priority sorting, breaker mapping, metrics.
  * Extracted from hc_pipeline.js for maintainability.
  */

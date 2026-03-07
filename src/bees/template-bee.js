@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  *
  * Template Bee — Centralized sacred-geometry site template engine.
  * Generates branded, themed pages for every Heady domain by injecting

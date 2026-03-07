@@ -1,10 +1,10 @@
 # Heady™ Intellectual Property Portfolio & Strategic Valuation
 
-> © 2026 Heady Systems LLC. All Rights Reserved.
+> © 2026 HeadySystems Inc.. All Rights Reserved.
 
 ## Patent Portfolio Overview
 
-Heady Systems LLC holds **51+ unique provisional patent applications** filed with the United States Patent and Trademark Office (USPTO), creating one of the most comprehensive IP moats in the autonomous AI computing space.
+HeadySystems Inc. holds **51+ unique provisional patent applications** filed with the United States Patent and Trademark Office (USPTO), creating one of the most comprehensive IP moats in the autonomous AI computing space.
 
 ### Patent Categories
 

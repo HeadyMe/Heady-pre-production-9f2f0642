@@ -3,7 +3,7 @@
 // Serves ALL 9 domains dynamically at the edge.
 // Zero middleware. Zero origin. Edge IS the server.
 //
-// © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+// © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
 // ═══════════════════════════════════════════════════════════════
 
 const PHI = 1.6180339887;
@@ -231,7 +231,7 @@ ft a{color:var(--dm);text-decoration:none}
   </section>
 
   <div class="db">${dL}</div>
-  <ft>© 2026 Heady Systems LLC · <a href="https://headyme.com">headyme.com</a> · 25 Auth Providers · Sacred Geometry v3 · ∞ Metatron's Cube</ft>
+  <ft>© 2026 HeadySystems Inc. · <a href="https://headyme.com">headyme.com</a> · 25 Auth Providers · Sacred Geometry v3 · ∞ Metatron's Cube</ft>
 </div>
 
 <!-- Auth Modal -->

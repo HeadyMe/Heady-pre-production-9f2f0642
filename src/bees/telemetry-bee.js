@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Telemetry Bee — Covers all src/telemetry/ modules:
  * cognitive-telemetry, proof-view-receipts, provider-usage-tracker (502 lines)
  * Also covers system-monitor.js (508 lines) and self-optimizer.js (487 lines)

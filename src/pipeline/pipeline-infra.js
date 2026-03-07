@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Pipeline Infrastructure — CircuitBreaker, WorkerPool, TaskCache.
  * Extracted from hc_pipeline.js for maintainability.
  */

@@ -120,4 +120,4 @@ See whitepaper: [Sacred Geometry in Multi-Agent AI Coordination](../../docs/sacr
 
 ## License
 
-© 2026 Heady Systems LLC. All rights reserved. Proprietary — see LICENSE for terms.
+© 2026 HeadySystems Inc.. All rights reserved. Proprietary — see LICENSE for terms.

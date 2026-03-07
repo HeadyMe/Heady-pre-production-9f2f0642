@@ -1,5 +1,5 @@
 /**
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * ─── Web3 Ledger Anchor (Proof-of-Inference) ─────────────────────────
  * 
  * HeadyScientist Swarm Node: 

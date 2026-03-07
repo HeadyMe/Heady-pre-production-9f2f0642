@@ -1,0 +1,119 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "name": "HeadyRegistry",
+    "purpose": "Canonical domain, service, projection, and ownership map for the Heady ecosystem."
+  },
+  "domains": {
+    "headyme.com": {
+      "product": "HeadyMe",
+      "type": "experience"
+    },
+    "headybuddy.org": {
+      "product": "HeadyBuddy",
+      "type": "experience"
+    },
+    "headyconnection.org": {
+      "product": "HeadyConnection",
+      "type": "experience"
+    },
+    "headyapi.com": {
+      "product": "HeadyAPI",
+      "type": "intelligence"
+    },
+    "headymcp.com": {
+      "product": "HeadyMCP",
+      "type": "intelligence"
+    },
+    "headysystems.com": {
+      "product": "HeadySystems",
+      "type": "infrastructure"
+    },
+    "headyio.com": {
+      "product": "HeadyIO",
+      "type": "developer"
+    },
+    "headybot.com": {
+      "product": "HeadyBot",
+      "type": "automation"
+    },
+    "headyai.com": {
+      "product": "HeadyAI",
+      "type": "routing"
+    }
+  },
+  "services": {
+    "headyapi": {
+      "port": 4100,
+      "health": "/health"
+    },
+    "headymcp": {
+      "port": 4101,
+      "health": "/health"
+    },
+    "headyos": {
+      "port": 4102,
+      "health": "/health"
+    },
+    "headymemory": {
+      "port": 4103,
+      "health": "/health"
+    },
+    "headysystems": {
+      "port": 4104,
+      "health": "/health"
+    },
+    "headybot": {
+      "port": 4105,
+      "health": "/health"
+    }
+  },
+  "projections": {
+    "headyme-core": [
+      "apps/headyme",
+      "packages/heady-core",
+      "packages/heady-sdk"
+    ],
+    "headybuddy-core": [
+      "apps/headybuddy",
+      "packages/heady-core",
+      "packages/heady-contracts"
+    ],
+    "headyconnection-core": [
+      "apps/headyconnection",
+      "docs/governance",
+      "packages/heady-sdk"
+    ],
+    "headyapi-core": [
+      "services/headyapi",
+      "packages/heady-core",
+      "packages/heady-contracts"
+    ],
+    "headymcp-core": [
+      "services/headymcp",
+      "packages/heady-core",
+      "packages/heady-contracts",
+      "packages/heady-projection"
+    ],
+    "headyos-core": [
+      "services/headyos",
+      "packages/heady-core",
+      "packages/heady-contracts"
+    ],
+    "headysystems-core": [
+      "services/headysystems",
+      "infrastructure",
+      "packages/heady-core"
+    ],
+    "headybot-core": [
+      "services/headybot",
+      "packages/heady-core",
+      "packages/heady-contracts"
+    ],
+    "headyio-core": [
+      "packages/heady-sdk",
+      "packages/heady-contracts",
+      "docs/architecture"
+    ]
+  }
+}

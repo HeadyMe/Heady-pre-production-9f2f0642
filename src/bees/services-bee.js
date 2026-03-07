@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Services Bee — Covers all src/services/ modules:
  * arena-mode (600), branch-automation (646), budget (200+), daw-mcp-bridge (796),
  * dynamic-connector, error-sentinel, heady-autonomy, heady-branded-output,

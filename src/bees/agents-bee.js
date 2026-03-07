@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Agents Bee — Covers all src/agents/ modules:
  * buddy-error-protocol (479), claude-code-agent, heady-buddy-agent,
  * heady-fintech-agent, nonprofit-agent, pipeline-handlers

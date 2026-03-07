@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Brain Bee — Decomposes routes/brain.js (1105 lines) into blast-compatible work units.
  * Covers: chat, analyze, embed, search, complete, summarize
  */

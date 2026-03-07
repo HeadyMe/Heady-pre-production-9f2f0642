@@ -1,0 +1,194 @@
+# Heady™ API Specification
+# PR 9: OpenAPI 3.1 contract for the Cloud Run gateway
+
+openapi: "3.1.0"
+info:
+  title: Heady™ Latent OS Gateway
+  version: "3.0.1"
+  description: |
+    Enterprise API gateway for the Heady™ AI Platform.
+    Provides MCP tool access, health monitoring, auth, and vector memory operations.
+  contact:
+    name: HeadySystems
+    email: e@headyconnection.org
+    url: https://headysystems.com
+  license:
+    name: Proprietary
+    identifier: LicenseRef-HeadySystems
+
+servers:
+  - url: https://heady-manager-609590223909.us-central1.run.app
+    description: Production (Cloud Run)
+
+paths:
+  /health:
+    get:
+      summary: Combined health check
+      operationId: getHealth
+      tags: [Health]
+      responses:
+        "200":
+          description: Service is healthy and ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthReport"
+        "503":
+          description: Service is alive but not ready
+
+  /health/live:
+    get:
+      summary: Liveness probe
+      operationId: getLiveness
+      tags: [Health]
+      responses:
+        "200":
+          description: Process is alive
+
+  /health/ready:
+    get:
+      summary: Readiness probe with dependency checks
+      operationId: getReadiness
+      tags: [Health]
+      responses:
+        "200":
+          description: All dependencies healthy
+        "503":
+          description: One or more dependencies unhealthy
+
+  /sse:
+    get:
+      summary: MCP SSE transport endpoint
+      operationId: mcpSSE
+      tags: [MCP]
+      responses:
+        "200":
+          description: SSE stream established
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /api/auth/login:
+    post:
+      summary: Authenticate user
+      operationId: login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        "200":
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResult"
+        "401":
+          description: Invalid credentials
+
+  /api/memory/search:
+    post:
+      summary: Search vector memory
+      operationId: vectorSearch
+      tags: [Memory]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                k:
+                  type: integer
+                  default: 10
+              required: [query]
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VectorSearchResult"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    HealthReport:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, ready, not_ready]
+        service:
+          type: string
+        version:
+          type: string
+        uptime:
+          type: integer
+        checks:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [healthy, unhealthy]
+              latencyMs:
+                type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+    AuthResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            tier:
+              type: string
+              enum: [free, pro, enterprise, admin]
+
+    VectorSearchResult:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              content:
+                type: string
+              score:
+                type: number
+        totalMatches:
+          type: integer
+        searchTime:
+          type: number

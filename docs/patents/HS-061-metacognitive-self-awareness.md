@@ -12,7 +12,7 @@
 **Patent Center Number:** 74755861
 **Receipt Date/Time:** 03/06/2026 5:36:14 PM ET
 **Application Type:** Utility — Provisional Application under 35 USC 111(b)
-**Applicant:** Heady Systems LLC
+**Applicant:** HeadySystems Inc.
 **Inventor(s):** Eric Haywood
 **Customer Number:** 221639
 
@@ -163,7 +163,7 @@ Claim 7.** A metacognitive AI system, comprising:
 A system and method for enabling autonomous AI systems to assess their own operational state through a metacognitive self-awareness loop. The system maintains a ring buffer of operational telemetry events, computes rolling error rates over configurable time windows, and produces a first-person confidence assessment that is injected as context into subsequent AI inference prompts. Before high-stakes decisions, the system queries its own recent operational history — including error rates, degradation patterns, and critical failures — to compute a confidence modifier and generate natural-language recommendations such as "defer to human review" when reliability is compromised. This metacognitive capability enables autonomous AI agents to self-modulate their cognitive assertiveness based on empirical self-knowledge, a prerequisite for trustworthy autonomous operation.
 
 
-© 2026 Heady Systems LLC. All rights reserved.*
+© 2026 HeadySystems Inc.. All rights reserved.*
 Attorney Docket No.: HS-061*
 References
 [1] AI metacognition enables agents to monitor, reflect on, and adapt their own cognitive processes, improving robustness, adaptability, and trustworthiness 【894442746832901†L55-L70】
@@ -171,5 +171,5 @@ References
 
 ---
 
-*© 2026 Heady Systems LLC. All rights reserved.*
+*© 2026 HeadySystems Inc.. All rights reserved.*
 *Attorney Docket No.: HS-061*

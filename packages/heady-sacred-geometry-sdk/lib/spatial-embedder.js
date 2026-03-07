@@ -6,7 +6,7 @@
  *   Y = Temporal State (timestamp normalized → [0,1])
  *   Z = Hierarchy Level (agent depth in Sacred Geometry tree)
  *
- * © 2026 Heady Systems LLC. All rights reserved.
+ * © 2026 HeadySystems Inc.. All rights reserved.
  */
 
 'use strict';

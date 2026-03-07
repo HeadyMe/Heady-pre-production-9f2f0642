@@ -4,7 +4,7 @@
  * Plans resource allocation using Golden Ratio proportional scaling.
  * All parameters derive from: BASE^tier × PHI^level.
  *
- * © 2026 Heady Systems LLC. All rights reserved.
+ * © 2026 HeadySystems Inc.. All rights reserved.
  */
 
 'use strict';

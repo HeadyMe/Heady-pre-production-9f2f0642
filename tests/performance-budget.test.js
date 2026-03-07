@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * Performance Budget Enforcer — P5 Assessment Item
  * Fails CI when TTI, API p95, or sync RTT budgets are exceeded.
  */

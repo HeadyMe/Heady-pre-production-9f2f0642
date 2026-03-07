@@ -26,7 +26,7 @@ jobs:
   security-scan:
     name: 🔒 Security Scan (P0)
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # ENTERPRISE: Security scan MUST pass before any deploy proceeds
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,25 +34,22 @@ jobs:
 
       - name: Secret Detection — TruffleHog
         uses: trufflesecurity/trufflehog@main
-        continue-on-error: true
         with:
           extra_args: --only-verified
 
       - name: SAST — CodeQL Initialize
         uses: github/codeql-action/init@v3
-        continue-on-error: true
         with:
           languages: javascript
 
       - name: SAST — CodeQL Analyze
         uses: github/codeql-action/analyze@v3
-        continue-on-error: true
 
       - name: Dependency Audit
         run: |
           npm install --ignore-scripts 2>/dev/null || true
           echo "🔍 Running npm audit..."
-          npm audit --production --audit-level=critical 2>/dev/null || true
+          npm audit --production --audit-level=critical
           echo "✅ Security scan complete"
 
   # ═══════════════════════════════════════════════════════════════
@@ -95,7 +92,7 @@ jobs:
             console.log('  🐝 Auto-success pipeline: FULL THROTTLE');
           "
       - name: Run test suite
-        run: npx jest --ci --coverage --passWithNoTests 2>/dev/null || true
+        run: npx jest --ci --coverage --passWithNoTests
 
   # ═══════════════════════════════════════════════════════════════
   # PHASE 1.5: SBOM + container scanning gate
@@ -133,9 +130,9 @@ jobs:
   # ═══════════════════════════════════════════════════════════════
   project-cloudrun:
     name: ☁️ Project → Cloud Run
-    needs: validate
+    needs: [security-scan, validate, sbom-scan]
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # ENTERPRISE: Deploy requires passing security + validation gates
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
@@ -144,14 +141,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
-        continue-on-error: true
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-        continue-on-error: true
       - name: Deploy to Cloud Run
-        continue-on-error: true
         run: |
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
             echo "⚠️ GCP_SA_KEY not set — skipping Cloud Run deploy"
@@ -177,7 +171,7 @@ jobs:
     name: 🔥 Post-Deploy Smoke Tests
     needs: project-cloudrun
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # ENTERPRISE: Smoke test failures are logged but don't roll back
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Wait for deployment propagation
@@ -245,9 +239,9 @@ jobs:
   # ═══════════════════════════════════════════════════════════════
   project-hf-spaces:
     name: 🤗 Project → HF Spaces
-    needs: validate
+    needs: [security-scan, validate]
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: true  # Non-critical deployment target
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
@@ -279,9 +273,9 @@ jobs:
   # ═══════════════════════════════════════════════════════════════
   project-edge:
     name: ⚡ Project → Cloudflare Edge
-    needs: validate
+    needs: [security-scan, validate]
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: true  # Non-critical deployment target
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
@@ -333,5 +327,8 @@ jobs:
           echo "  📊 $PASS/$TOTAL projections healthy"
           echo "  🐝 Auto-success pipeline: COMPLETE"
           echo ""
-          # Always exit 0 — auto-success means no failure emails
-          exit 0
+          # ENTERPRISE: Fail if no projections are healthy
+          if [ "$PASS" -eq 0 ]; then
+            echo "❌ CRITICAL: Zero projections healthy — failing pipeline"
+            exit 1
+          fi

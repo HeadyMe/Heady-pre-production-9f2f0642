@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC.
+ * © 2026 HeadySystems Inc..
  * PROPRIETARY AND CONFIDENTIAL.
  *
  * ═══ Dynamic Multi-Domain Site Server ═══
@@ -431,7 +431,7 @@ function renderSite(site, host) {
     <div class="domain-bar">${allDomains}</div>
 
     <footer>
-      © 2026 Heady Systems LLC · All rights reserved ·
+      © 2026 HeadySystems Inc. · All rights reserved ·
       <a href="https://headyme.com">headyme.com</a> ·
       25+ Auth Providers · Sacred Geometry v3
     </footer>

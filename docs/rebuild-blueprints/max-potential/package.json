@@ -1,0 +1,22 @@
+{
+  "name": "heady-max-potential-rebuild",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.6.0",
+  "scripts": {
+    "dev:api": "node services/headyapi/src/server.mjs",
+    "dev:mcp": "node services/headymcp/src/server.mjs",
+    "dev:os": "node services/headyos/src/server.mjs",
+    "dev:memory": "node services/headymemory/src/server.mjs",
+    "dev:systems": "node services/headysystems/src/server.mjs",
+    "dev:bot": "node services/headybot/src/server.mjs",
+    "project:repos": "node scripts/project-repos.mjs",
+    "validate": "node scripts/validate-structure.mjs",
+    "bootstrap": "node scripts/bootstrap.mjs"
+  },
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ]
+}

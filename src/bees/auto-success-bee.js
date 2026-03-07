@@ -1,5 +1,5 @@
 /*
- * © 2026 Heady Systems LLC. PROPRIETARY AND CONFIDENTIAL.
+ * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  * Auto-Success Bee — Decomposes hc_auto_success.js (1483 lines)
  * Covers: task catalog, cycle engine, health probes, audit trail, scheduler
  */

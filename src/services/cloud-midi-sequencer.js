@@ -13,7 +13,7 @@
  *
  * Uses Sacred Geometry timing (φ-based swing, base-13 quantization).
  *
- * © 2026 Heady Systems LLC. All rights reserved.
+ * © 2026 HeadySystems Inc.. All rights reserved.
  */
 
 'use strict';
