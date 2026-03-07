@@ -1,0 +1,7 @@
+{"action":"DEVELOPER_APPROVED","email":"e@headyconnection.org","devId":"HeadyMe","type":"owner","ts":"2026-02-28T21:45:23.570Z","configHash":"0ef6cc0915ab"}
+{"action":"AGENT_BLOCKED","agentId":"antigravity","vendor":"Google DeepMind","reason":"Third-party AI agent — requires owner approval","ts":"2026-02-28T21:45:23.571Z","configHash":"0ef6cc0915ab"}
+{"action":"AGENT_APPROVED","agentId":"heady-brain","type":"internal-agent","ts":"2026-02-28T21:45:23.572Z","configHash":"0ef6cc0915ab"}
+{"action":"AGENT_BLOCKED","agentId":"cursor","vendor":"Anysphere","reason":"Third-party IDE agent — requires owner approval","ts":"2026-02-28T21:45:23.572Z","configHash":"0ef6cc0915ab"}
+{"action":"AUTH_GATE_DENIED","email":"random@unknown.com","agentId":"cursor","step":"agent-check","reason":"BLOCKED: Third-party IDE agent — requires owner approval. Owner must explicitly approve with: \"approve cursor as dev connection\"","ts":"2026-02-28T21:45:23.572Z","configHash":"0ef6cc0915ab"}
+{"action":"DEVELOPER_APPROVED","email":"e@headyconnection.org","devId":"HeadyMe","type":"owner","ts":"2026-02-28T21:47:42.768Z","configHash":"0ef6cc0915ab"}
+{"action":"AGENT_APPROVED_BY_OWNER","agentId":"antigravity","approverEmail":"e@headyconnection.org","permissions":["read","write","commit"],"ts":"2026-02-28T21:47:42.776Z","configHash":null}

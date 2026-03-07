@@ -1,0 +1,74 @@
+node:internal/modules/cjs/loader:1215
+  throw err;
+  ^
+
+Error: Cannot find module '/home/headyme/Heady/src/server.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v20.19.2
+[2m2026-02-27T19:24:26.823Z[0m [1m[36m[CONDUCTOR] [0m   ⚠ Imagination routes not loaded: Cannot find module './src/routes/imagination-routes'
+Require stack:
+- /home/headyme/Heady/heady-manager.js[2m[0m
+[2m2026-02-27T19:24:26.903Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Secrets Manager: LOADED (12 secrets tracked)[2m[0m
+[2m2026-02-27T19:24:26.904Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Cloudflare Manager: LOADED (token valid)[2m[0m
+[2m2026-02-27T19:24:26.913Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Request ID Tracing: INSTALLED[2m[0m
+  ∞ Graceful Shutdown Hooks: INSTALLED
+[2m2026-02-27T19:24:26.924Z[0m [1m[36m[CONDUCTOR] [0m   ⚠ Swagger UI not loaded: ENOENT: no such file or directory, open './docs/api/openapi.yaml'[2m[0m
+[2m2026-02-27T19:24:26.927Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Claude Service: ROUTES LOADED[2m[0m
+[2m2026-02-27T19:24:26.929Z[0m [1m[36m[CONDUCTOR] [0m   ∞ VM Token Routes: LOADED[2m[0m
+[2m2026-02-27T19:24:26.961Z[0m [1m[36m[CONDUCTOR] [0m   🔐 HeadyAuth: LOADED (4 methods: manual, device, WARP, Google OAuth)[2m[0m
+[2m2026-02-27T19:24:26.963Z[0m [1m[36m[CONDUCTOR] [0m     → Endpoints: /api/auth/login, /device, /warp, /google, /verify, /refresh, /sessions[2m[0m
+[2m2026-02-27T19:24:26.963Z[0m [1m[36m[CONDUCTOR] [0m     → Token lengths: WARP 365d, Google 180d, Device 90d, Standard 30d[2m[0m
+  ∞ VectorMemory: 5 shards, 10000 vectors, 10000 indexed in 3D
+  ∞ VectorMemory: Zone distribution: {"0":483,"1":890,"2":502,"3":287,"4":5881,"5":518,"6":1200,"7":239}
+  ∞ VectorMemory: Embeddings via SDK Gateway (sentence-transformers/all-MiniLM-L6-v2)
+  ∞ VectorFederation: LOADED (edge → gcloud → colab → local cascade)
+[2m2026-02-27T19:24:28.687Z[0m [1m[36m[CONDUCTOR] [0m   ∞ VectorPipeline: ACTIVE — every /brain/* call queries memory first[2m[0m
+[2m2026-02-27T19:24:28.688Z[0m [1m[36m[CONDUCTOR] [0m   ∞ VectorMemory: LOADED (HF embeddings + cosine similarity)[2m[0m
+[2m2026-02-27T19:24:28.770Z[0m [1m[36m[CONDUCTOR] [0m   ∞ VectorMemory → Brain: CONNECTED (storeInMemory = real embeddings)[2m[0m
+[2m2026-02-27T19:24:28.772Z[0m [1m[36m[CONDUCTOR] [0m   ∞ HeadyCorrections: LOADED (behavior analysis + audit trail)[2m[0m
+[SECURITY] Heady Sliding-Window Rate Limiter Armed (Redis).
+🛡️ [Conductor] PQC Quantum-Resistant Hybrid Signatures ACTIVE for all mesh RPCs.
+🛡️ [Conductor] Redis Sliding-Window Rate Limiter Armed.
+  🔐 [Conductor] Secret Rotation Audit: 100% healthy (7 tracked, 0 expired)
+redis package not found. Using in-memory state fallback.
+  📊 [MLOpsLogger] Telemetry & Drift Engine WIRED.
+  🔗 [Conductor] DAG Engine and MLOps Telemetry auto-wired.
+  🛑 [Conductor] Governance Layer (RBAC + HITL Gates) auto-wired.
+  ∞ Orchestrator: MIN_CONCURRENT enforced — 150 HeadySupervisors active (min 150)
+[2m2026-02-27T19:24:29.040Z[0m [1m[36m[CONDUCTOR] [0m   ∞ AgentOrchestrator: LOADED (dynamic spawn + deterministic routing)[2m[0m
+[2m2026-02-27T19:24:29.058Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Secret Rotation: INITIALIZED (Score: 100%)[2m[0m
+[2m2026-02-27T19:24:29.058Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Auto-Heal Resilience: ACTIVE[2m[0m
+  ∞ HeadyConductor: LOADED (federated liquid routing)
+    → Endpoints: /api/conductor/status, /route-map, /health, /analyze-route
+    → Layers: taskRouter, vectorZone, patternEngine
+  ∞ ComputeDashboard: LOADED (GET /api/compute/dashboard + SSE /api/compute/stream)
+  🧠 Optimizer: Learning engine WIRED
+  ∞ SelfOptimizer: CONTINUOUS (11s cycle, heartbeat active, error recovery enabled)
+[2m2026-02-27T19:24:29.090Z[0m [1m[36m[CONDUCTOR] [0m   ∞ SelfOptimizer: WIRED (continuous heartbeat + error recovery)[2m[0m
+  🧠 ContinuousLearning: LOADED (multi-provider active learning)
+    → Curriculum: 64 topics, 64 learned
+    → Endpoints: /api/learn/status, /curriculum, /run
+[2m2026-02-27T19:24:29.095Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Vertical Sites: 8 sites served (headyme, headysystems, headybuddy, headyconnection, headymcp, headyio, headyweb, admin)[2m[0m
+[2m2026-02-27T19:24:29.102Z[0m [1m[36m[CONDUCTOR] [0m   ∞ Pipeline engine: LOADED[2m[0m
+💥 [Heady] Uncaught Exception: loadRegistry is not defined
+ReferenceError: loadRegistry is not defined
+    at Object.<anonymous> (/home/headyme/Heady/heady-manager.js:632:3)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+    at node:internal/main/run_main_module:28:49
+
+🛑 [Heady] Graceful shutdown initiated (uncaughtException)
+  ↳ Shutting down: http-server...
+  ✗ http-server shutdown error: Cannot access 'server' before initialization
+🛑 [Heady] Shutdown complete in 2ms
+

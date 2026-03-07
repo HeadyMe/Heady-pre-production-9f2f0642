@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <!-- HeadyWeb Universal Shell v3.1.0 | © 2026 HeadySystems Inc. PROPRIETARY AND CONFIDENTIAL. -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="HeadyWeb — Autonomous Multi-Agent AI Platform v3.1.0 by HeadySystems Inc." />
+  <meta name="theme-color" content="#0a0c10" />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <title>HeadyWeb — Autonomous AI Platform v3.1.0</title>
+
+  <!-- Preconnect for fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg:          #0a0c10;
+      --color-surface:     #111318;
+      --color-border:      #1e2230;
+      --color-text:        #e8eaf0;
+      --color-muted:       #6b7280;
+      --color-gold:        #F5A623;
+      --color-accent:      #7B61FF;
+      --color-accent-cyan: #00d4ff;
+      --color-success:     #10B981;
+      --color-error:       #ef4444;
+      --font-sans:         'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono:         'JetBrains Mono', 'Fira Code', monospace;
+      --shell-version:     '3.0.1';
+    }
+
+    html, body {
+      height: 100%;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* ── Shell loader ── */
+    #heady-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-bg);
+      z-index: 9999;
+      gap: 24px;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    #heady-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .loader-hexagon {
+      animation: hexPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes hexPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.7; transform: scale(0.96); }
+    }
+
+    .loader-wordmark {
+      font-family: var(--font-sans);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--color-text);
+    }
+
+    .loader-wordmark span {
+      color: var(--color-gold);
+    }
+
+    .loader-version {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Spinner ── */
+    .heady-spinner {
+      width: 40px;
+      height: 40px;
+      position: relative;
+    }
+
+    .heady-spinner::before,
+    .heady-spinner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+    }
+
+    .heady-spinner::before {
+      border-top-color: var(--color-gold);
+      animation: spin 0.9s linear infinite;
+    }
+
+    .heady-spinner::after {
+      border-bottom-color: var(--color-accent);
+      animation: spin 1.4s linear infinite reverse;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loader-status {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-muted);
+      max-width: 320px;
+      text-align: center;
+    }
+
+    /* ── Root mount container ── */
+    #heady-root {
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* ── Error fallback ── */
+    #heady-error {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--color-bg);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    #heady-error.visible {
+      display: flex;
+    }
+
+    .error-code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-error);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(239, 68, 68, 0.08);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .error-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .error-message {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-muted);
+      max-width: 480px;
+      line-height: 1.8;
+      word-break: break-all;
+    }
+
+    .error-retry {
+      margin-top: 8px;
+      padding: 10px 24px;
+      background: var(--color-accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .error-retry:hover { opacity: 0.85; }
+
+    /* ── Background grid ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(123, 97, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(123, 97, 255, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #heady-root { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading overlay -->
+  <div id="heady-loader" role="status" aria-label="Loading HeadyWeb">
+    <div class="loader-logo">
+      <svg class="loader-hexagon" width="42" height="42" viewBox="0 0 42 42" fill="none" aria-hidden="true">
+        <path
+          d="M21 2L38.32 11.5V30.5L21 40L3.68 30.5V11.5L21 2Z"
+          stroke="#F5A623" stroke-width="1.5" fill="none"
+        />
+        <path
+          d="M21 8L33.12 14.5V27.5L21 34L8.88 27.5V14.5L21 8Z"
+          stroke="#7B61FF" stroke-width="1" fill="rgba(123,97,255,0.06)"
+        />
+        <circle cx="21" cy="21" r="4" fill="#F5A623" opacity="0.9" />
+        <circle cx="21" cy="21" r="7" stroke="#F5A623" stroke-width="0.5" fill="none" opacity="0.4" />
+      </svg>
+      <div>
+        <div class="loader-wordmark">Heady<span>Web</span></div>
+        <div class="loader-version">Universal Shell · v3.1.0</div>
+      </div>
+    </div>
+
+    <div class="heady-spinner" aria-hidden="true"></div>
+
+    <div class="loader-status" id="loader-status-text">
+      Initializing Module Federation runtime…
+    </div>
+  </div>
+
+  <!-- Error overlay -->
+  <div id="heady-error" role="alert" aria-live="assertive">
+    <div class="error-code">SHELL_BOOT_FAILURE</div>
+    <div class="error-title">Failed to load HeadyWeb</div>
+    <div class="error-message" id="heady-error-message">
+      An unexpected error occurred while booting the shell.
+    </div>
+    <button class="error-retry" onclick="window.location.reload()">
+      Retry
+    </button>
+  </div>
+
+  <!-- Primary mount target for micro-frontends -->
+  <div id="heady-root" aria-live="polite"></div>
+
+</body>
+</html>

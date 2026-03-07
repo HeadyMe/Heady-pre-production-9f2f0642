@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Heady Docs — Developer Documentation</title>
+    <meta name="description"
+        content="Complete developer documentation for Heady Systems — API references, SDK guides, architecture deep-dives, and integration tutorials.">
+    <link rel="canonical" href="https://docs.headysystems.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --primary: #7c3aed;
+            --accent: #06b6d4;
+            --bg: #0a0a1a;
+            --surface: #111127;
+            --surface2: #1a1a3a;
+            --border: rgba(124, 58, 237, .12);
+            --text: #e0e0ff;
+            --dim: #6b7280;
+            --white: #fff;
+            --success: #22c55e
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh
+        }
+
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto
+        }
+
+        .sidebar .brand {
+            padding: 0 20px 24px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px
+        }
+
+        .sidebar .brand span {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .sidebar .section {
+            padding: 0 12px;
+            margin-bottom: 16px
+        }
+
+        .sidebar .section-label {
+            padding: 8px;
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--dim);
+            font-weight: 600
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: .85rem;
+            color: var(--dim);
+            transition: all .15s
+        }
+
+        .sidebar a:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, .04);
+            text-decoration: none
+        }
+
+        .sidebar a.active {
+            color: var(--white);
+            background: rgba(124, 58, 237, .12);
+            font-weight: 600
+        }
+
+        .main {
+            padding: 48px 64px;
+            max-width: 900px
+        }
+
+        .main h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            line-height: 1.2
+        }
+
+        .main h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .main .subtitle {
+            font-size: 1.1rem;
+            color: var(--dim);
+            margin-bottom: 40px;
+            line-height: 1.7
+        }
+
+        .main h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 40px 0 16px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border)
+        }
+
+        .main h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 24px 0 10px
+        }
+
+        .main p {
+            color: var(--dim);
+            line-height: 1.8;
+            margin-bottom: 16px;
+            font-size: .95rem
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px
+        }
+
+        .card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            transition: all .3s
+        }
+
+        .card:hover {
+            border-color: rgba(124, 58, 237, .3);
+            transform: translateY(-2px)
+        }
+
+        .card .icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px
+        }
+
+        .card h4 {
+            font-weight: 600;
+            margin-bottom: 6px
+        }
+
+        .card p {
+            font-size: .82rem;
+            color: var(--dim);
+            margin: 0
+        }
+
+        code {
+            background: rgba(124, 58, 237, .1);
+            color: var(--primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .85em
+        }
+
+        pre {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            line-height: 1.6;
+            color: var(--text)
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase
+        }
+
+        .badge.get {
+            background: rgba(34, 197, 94, .12);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, .2)
+        }
+
+        .badge.post {
+            background: rgba(124, 58, 237, .12);
+            color: var(--primary);
+            border: 1px solid rgba(124, 58, 237, .2)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: .88rem
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        th {
+            font-weight: 600;
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--dim)
+        }
+
+        @media(max-width:900px) {
+            .layout {
+                grid-template-columns: 1fr
+            }
+
+            .sidebar {
+                display: none
+            }
+
+            .main {
+                padding: 32px 20px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">📚 <span>Heady Docs</span></div>
+            <div class="section">
+                <div class="section-label">Getting Started</div>
+                <a href="#" class="active">📖 Introduction</a>
+                <a href="#">🚀 Quickstart</a>
+                <a href="#">⚙️ Installation</a>
+                <a href="#">🔑 Authentication</a>
+            </div>
+            <div class="section">
+                <div class="section-label">API Reference</div>
+                <a href="#">🧠 Brain API</a>
+                <a href="#">💬 Chat Endpoints</a>
+                <a href="#">🔍 Vector Search</a>
+                <a href="#">📦 Memory API</a>
+                <a href="#">❤️ Health & Status</a>
+            </div>
+            <div class="section">
+                <div class="section-label">Products</div>
+                <a href="#">💜 HeadyBuddy</a>
+                <a href="#">🖥️ HeadyOS</a>
+                <a href="#">💙 IDE Extensions</a>
+                <a href="#">🌐 HeadyWeb</a>
+            </div>
+            <div class="section">
+                <div class="section-label">Architecture</div>
+                <a href="#">🏗️ System Overview</a>
+                <a href="#">🤖 AI Nodes</a>
+                <a href="#">📡 Edge Proxy</a>
+                <a href="#">🔐 Security</a>
+            </div>
+            <div class="section">
+                <div class="section-label">Resources</div>
+                <a href="https://headysystems.com">🌐 HeadySystems</a>
+                <a href="https://api.headysystems.com">⚡ API Playground</a>
+                <a href="https://github.com/headysystems">🐙 GitHub</a>
+            </div>
+        </aside>
+        <main class="main">
+            <h1>Welcome to <em>Heady Docs</em></h1>
+            <p class="subtitle">Everything you need to build with Heady Systems — from quick API calls to deep
+                architecture dives. Whether you're integrating HeadyBuddy, deploying HeadyOS, or building on the API.
+            </p>
+
+            <div class="card-grid">
+                <a class="card" href="#">
+                    <div class="icon">🚀</div>
+                    <h4>Quickstart</h4>
+                    <p>Get your first API call running in under 2 minutes.</p>
+                </a>
+                <a class="card" href="#">
+                    <div class="icon">⚡</div>
+                    <h4>API Reference</h4>
+                    <p>Complete endpoint documentation with examples.</p>
+                </a>
+                <a class="card" href="#">
+                    <div class="icon">💜</div>
+                    <h4>HeadyBuddy SDK</h4>
+                    <p>Build custom integrations with the Buddy SDK.</p>
+                </a>
+                <a class="card" href="#">
+                    <div class="icon">🖥️</div>
+                    <h4>HeadyOS Guide</h4>
+                    <p>Deploy and manage your AI operating system.</p>
+                </a>
+            </div>
+
+            <h2>Quick API Example</h2>
+            <p>Send your first message to HeadyBrain:</p>
+            <pre>curl -X POST https://api.headysystems.com/api/brain/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello Heady!"}'</pre>
+
+            <h2>Core Endpoints</h2>
+            <table>
+                <tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><span class="badge post">POST</span></td>
+                    <td><code>/api/brain/chat</code></td>
+                    <td>Send a message to HeadyBrain AI</td>
+                </tr>
+                <tr>
+                    <td><span class="badge post">POST</span></td>
+                    <td><code>/api/vector/query</code></td>
+                    <td>Semantic search across vector memory</td>
+                </tr>
+                <tr>
+                    <td><span class="badge post">POST</span></td>
+                    <td><code>/api/vector/store</code></td>
+                    <td>Store content in vector memory</td>
+                </tr>
+                <tr>
+                    <td><span class="badge post">POST</span></td>
+                    <td><code>/api/memory/process</code></td>
+                    <td>Process and store a memory</td>
+                </tr>
+                <tr>
+                    <td><span class="badge get">GET</span></td>
+                    <td><code>/api/brain/health</code></td>
+                    <td>Check HeadyBrain health status</td>
+                </tr>
+                <tr>
+                    <td><span class="badge get">GET</span></td>
+                    <td><code>/api/vector/stats</code></td>
+                    <td>Get vector database statistics</td>
+                </tr>
+            </table>
+
+            <h2>Architecture Overview</h2>
+            <h3>20 Specialized AI Nodes</h3>
+            <p>Heady operates as a distributed network of 20 specialized AI nodes, each responsible for a specific
+                domain. Nodes communicate through the Conductor (orchestration layer), and all share a 3D vector memory
+                space for persistent context.</p>
+
+            <h3>Key Components</h3>
+            <p><strong>HeadyBrain API</strong> — Central intelligence gateway. Routes requests to optimal AI providers
+                (Gemini, Claude, GPT, Groq) with automatic fallback.</p>
+            <p><strong>3D Vector Memory</strong> — Persistent semantic memory using embedding-based storage. Facts,
+                procedures, and context organized in 3D vector space.</p>
+            <p><strong>HCFP Engine</strong> — Heady Core Functionality Platform. Auto-success execution engine that
+                ensures zero-downtime operations.</p>
+            <p><strong>Edge Proxy</strong> — Cloudflare Workers-based edge deployment for sub-50ms global latency.</p>
+        </main>
+    </div>
+</body>
+
+</html>

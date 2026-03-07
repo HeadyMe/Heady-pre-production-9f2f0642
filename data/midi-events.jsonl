@@ -1,0 +1,54 @@
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-26T10:49:26.189Z","task":"test-task"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T10:49:29.426Z","agent":"HeadyIO"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T10:49:29.448Z","agent":"HeadyIO"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T10:49:29.448Z","agent":"HeadyBot"}
+{"bytes":[144,40,127],"channel":0,"ts":"2026-02-26T10:52:52.218Z"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-26T10:52:52.220Z","task":"verify pipeline wiring is operational"}
+{"bytes":[177,0,36],"channel":1,"ts":"2026-02-26T10:52:52.220Z","tier":"balanced"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T10:52:52.220Z","agent":"HeadyBot"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-26T10:52:52.272Z","task":"verify pipeline wiring is operational"}
+{"bytes":[128,40,0],"channel":0,"ts":"2026-02-26T10:52:52.273Z"}
+{"bytes":[144,40,127],"channel":0,"ts":"2026-02-26T12:39:13.016Z"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T12:39:13.020Z","agent":"HeadyBot"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-26T12:39:13.020Z","task":"Execute the hot-pool weight-5 tasks from the Heady auto-flow-200-tasks pipeline. Focus on: (1) Wire "}
+{"bytes":[177,0,36],"channel":1,"ts":"2026-02-26T12:39:13.020Z","tier":"balanced"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-26T12:39:13.075Z","task":"Execute the hot-pool weight-5 tasks from the Heady auto-flow-200-tasks pipeline. Focus on: (1) Wire "}
+{"bytes":[128,40,0],"channel":0,"ts":"2026-02-26T12:39:13.076Z"}
+{"bytes":[144,40,127],"channel":0,"ts":"2026-02-26T12:48:08.266Z"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T12:48:08.267Z","agent":"HeadyBot"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-26T12:48:08.267Z","task":"Execute the full Phase 4 pipeline: (1) DNS routing update to point traffic to Cloud Run liquid node "}
+{"bytes":[177,0,36],"channel":1,"ts":"2026-02-26T12:48:08.267Z","tier":"balanced"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-26T12:48:08.319Z","task":"Execute the full Phase 4 pipeline: (1) DNS routing update to point traffic to Cloud Run liquid node "}
+{"bytes":[128,40,0],"channel":0,"ts":"2026-02-26T12:48:08.319Z"}
+{"bytes":[144,40,127],"channel":0,"ts":"2026-02-26T12:49:50.044Z"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T12:49:50.045Z","agent":"HeadyBot"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-26T12:49:50.045Z","task":"Execute ALL tasks from the Heady auto-flow-200-tasks.json pipeline — all pools (hot, warm, cold), al"}
+{"bytes":[177,0,36],"channel":1,"ts":"2026-02-26T12:49:50.045Z","tier":"balanced"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-26T12:49:50.105Z","task":"Execute ALL tasks from the Heady auto-flow-200-tasks.json pipeline — all pools (hot, warm, cold), al"}
+{"bytes":[128,40,0],"channel":0,"ts":"2026-02-26T12:49:50.105Z"}
+{"bytes":[144,40,127],"channel":0,"ts":"2026-02-26T12:51:50.739Z"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T12:51:50.741Z","agent":"HeadyBot"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-26T12:51:50.741Z","task":"Fix the embedding pipeline to use Gemini text-embedding-004 API instead of local Ollama nomic-embed-"}
+{"bytes":[177,0,36],"channel":1,"ts":"2026-02-26T12:51:50.741Z","tier":"balanced"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-26T12:51:50.793Z","task":"Fix the embedding pipeline to use Gemini text-embedding-004 API instead of local Ollama nomic-embed-"}
+{"bytes":[128,40,0],"channel":0,"ts":"2026-02-26T12:51:50.794Z"}
+{"bytes":[144,40,127],"channel":0,"ts":"2026-02-26T13:01:34.180Z"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-26T13:01:34.182Z","task":"EXECUTE ALL hot-pool weight-5 tasks NOW: pqc-security (lattice key exchange, ML-KEM integration, hyb"}
+{"bytes":[177,0,48],"channel":1,"ts":"2026-02-26T13:01:34.182Z","tier":"balanced"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-26T13:01:34.182Z","agent":"HeadyBot"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-26T13:01:34.243Z","task":"EXECUTE ALL hot-pool weight-5 tasks NOW: pqc-security (lattice key exchange, ML-KEM integration, hyb"}
+{"bytes":[128,40,0],"channel":0,"ts":"2026-02-26T13:01:34.244Z"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-27T13:42:27.748Z","task":"DAW-MCP-Init"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-27T13:42:27.760Z","task":"UMP-UDP-Init"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-27T13:42:27.759Z","task":"UMP-UDP-Init"}
+{"bytes":[144,49,127],"channel":0,"ts":"2026-02-27T13:42:27.982Z","task":"DAW-MCP-Init"}
+{"bytes":[144,40,127],"channel":0,"ts":"2026-02-27T15:22:51.548Z"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-27T15:22:51.550Z","task":"Execute Full-Throttle-Auto-Flow-Success Pipeline: Deep-scan the entire Heady ecosystem at /home/head"}
+{"bytes":[177,0,36],"channel":1,"ts":"2026-02-27T15:22:51.550Z","tier":"balanced"}
+{"bytes":[146,60,127],"channel":2,"ts":"2026-02-27T15:22:51.550Z","agent":"HeadyBot"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-27T15:22:51.602Z","task":"Execute Full-Throttle-Auto-Flow-Success Pipeline: Deep-scan the entire Heady ecosystem at /home/head"}
+{"bytes":[128,40,0],"channel":0,"ts":"2026-02-27T15:22:51.605Z"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-27T16:23:45.017Z","task":"DAW-MCP-Init"}
+{"bytes":[144,36,127],"channel":0,"ts":"2026-02-27T16:23:45.037Z","task":"UMP-UDP-Init"}
+{"bytes":[128,48,0],"channel":0,"ts":"2026-02-27T16:23:45.038Z","task":"UMP-UDP-Init"}
+{"bytes":[144,49,127],"channel":0,"ts":"2026-02-27T16:23:45.229Z","task":"DAW-MCP-Init"}

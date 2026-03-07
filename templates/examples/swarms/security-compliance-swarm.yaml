@@ -1,0 +1,50 @@
+id: security-compliance-swarm
+name: Security Compliance Swarm
+version: 1.0.0
+role: Validate security, governance, and release gates for template-driven deployment and projection.
+allocation:
+  strategy: fibonacci-weighted
+  weight: 13
+  priorityLevel: 2
+includedBeeTemplates: [incident-response-sentinel, autonomous-projection-keeper]
+workerAssignments:
+  - beeTemplateId: incident-response-sentinel
+    role: primary
+    instances: 1
+  - beeTemplateId: autonomous-projection-keeper
+    role: support
+    instances: 1
+communication:
+  - target: operations-autonomy-swarm
+    channelType: rpc
+    topic: heady.security.ops
+    priority: 9
+  - target: projection-deployment-swarm
+    channelType: rpc
+    topic: heady.security.projection
+    priority: 9
+scaling:
+  rules:
+    - trigger: error_rate_percent
+      threshold: 5
+      direction: up
+      minInstances: 1
+      maxInstances: 8
+healthChecks:
+  - protocol: http
+    endpoint: /security/health
+    intervalSeconds: 20
+    timeoutSeconds: 5
+projection:
+  enabled: true
+  uiRegion: sidebar-right
+  apiSurface: [/api/security/status, /api/security/release-gate]
+  projectionTargets: [headysystems-core, headymcp-core]
+observability:
+  metrics: [release_gate_failures, security_scan_latency_ms]
+  alerts: [HighErrorRate]
+  receipts: [release-gate-report, critique-report]
+governance:
+  ownerNode: projection-governance
+  releaseGate: projection-release-gate
+  requiredReceipts: [release-gate-report]

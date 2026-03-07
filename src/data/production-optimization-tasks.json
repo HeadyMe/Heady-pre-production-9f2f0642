@@ -1,0 +1,98 @@
+[
+    {
+        "id": "prod-opt-001",
+        "name": "Verify Cloudflare edge proxy SERVICE_MAP origin routing",
+        "cat": "mop-infrastructure",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Ensure SERVICE_MAP origins point to actual Cloud Run URLs, not self-referencing Cloudflare domains"
+    },
+    {
+        "id": "prod-opt-002",
+        "name": "Eliminate all fallback naming in provider configs",
+        "cat": "mop-architecture",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Rename heady-cloud-fallback → heady-cloud-vertex, heady-local → heady-edge-local in all configs"
+    },
+    {
+        "id": "prod-opt-003",
+        "name": "Verify HEADY_URL env var across all shells and configs",
+        "cat": "mop-infrastructure",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Confirm HEADY_URL=https://api.headysystems.com everywhere — zero localhost references"
+    },
+    {
+        "id": "prod-opt-004",
+        "name": "Validate auto-success engine full-throttle state",
+        "cat": "optimization",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Confirm auto-success engine is running with 16.18s interval, 13 tasks/batch, 135+ catalog"
+    },
+    {
+        "id": "prod-opt-005",
+        "name": "Verify all 7 public domains serving live pages",
+        "cat": "monitoring",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Confirm headysystems.com, headyme.com, headymcp.com, headyio.com, headyconnection.org, headybuddy.org, headybot.com all return 200"
+    },
+    {
+        "id": "prod-opt-006",
+        "name": "Verify admin.headysystems.com Cloud Run root route",
+        "cat": "mop-infrastructure",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Fix 404 on admin.headysystems.com by ensuring admin static files or redirect are served"
+    },
+    {
+        "id": "prod-opt-007",
+        "name": "Validate liquid provider naming consistency",
+        "cat": "verification",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Ensure all provider names use liquid terminology (no fallback, no hierarchy) across conductor + orchestrator + edge proxy"
+    },
+    {
+        "id": "prod-opt-008",
+        "name": "Verify Cloud Run gateway health endpoint responds real data",
+        "cat": "monitoring",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Confirm heady-edge-gateway Cloud Run service returns live JSON from /v1/health, not cached stubs"
+    },
+    {
+        "id": "prod-opt-009",
+        "name": "Deploy updated edge proxy with corrected SERVICE_MAP",
+        "cat": "mop-cicd",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Deploy Cloudflare Worker with SERVICE_MAP pointing to Cloud Run origin via CI/CD"
+    },
+    {
+        "id": "prod-opt-010",
+        "name": "Validate Cloudflare API token permissions for wrangler deploy",
+        "cat": "mop-security",
+        "pool": "warm",
+        "w": 4,
+        "desc": "Ensure CLOUDFLARE_API_TOKEN has Workers write permissions for automated deployments"
+    },
+    {
+        "id": "prod-opt-011",
+        "name": "Verify all engines started in engine-wiring bootstrap",
+        "cat": "verification",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Confirm AutoSuccess, Scientist, QA, RealtimeIntelligence, PatternEngine, SelfCritique all .start() called"
+    },
+    {
+        "id": "prod-opt-012",
+        "name": "Zero-localhost production audit sweep",
+        "cat": "mop-security",
+        "pool": "hot",
+        "w": 5,
+        "desc": "Scan entire codebase for any remaining 127.0.0.1 or localhost references in production paths"
+    }
+]

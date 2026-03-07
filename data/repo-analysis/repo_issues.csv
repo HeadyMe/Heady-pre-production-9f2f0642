@@ -1,0 +1,35 @@
+repo,category,severity,path,detail
+Heady-pre-production,secret_exposure,critical,heady_protocol.ps1,ghp: ghp_xyz
+Heady-pre-production-9f2f0642,secret_exposure,critical,.vscode/mcp.json,heady_bearer: Bearer hdy_int_4d2d3fe4becc8ad3eea4c9c9b25ba68a83b28335143b89ab
+heady-docs,secret_exposure,critical,api/api-keys-reference.md,ghp: ghp_49EA
+heady-docs,secret_exposure,critical,api/api-keys-reference.md,ghp: ghp_9xLg
+sandbox-pre-production,secret_exposure,critical,heady_protocol.ps1,ghp: ghp_xyz
+Heady,merge_conflicts,high,(multiple),52546 conflict markers detected
+Heady,localhost_drift,high,(multiple),777 localhost/127.0.0.1/0.0.0.0 references detected
+Heady-pre-production,merge_conflicts,high,(multiple),692 conflict markers detected
+Heady-pre-production,localhost_drift,medium,(multiple),202 localhost/127.0.0.1/0.0.0.0 references detected
+Heady-pre-production-9f2f0642,merge_conflicts,high,(multiple),3448 conflict markers detected
+Heady-pre-production-9f2f0642,localhost_drift,medium,(multiple),585 localhost/127.0.0.1/0.0.0.0 references detected
+headyapi-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headyapi-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headybot-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headybot-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headybuddy-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headybuddy-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headyconnection-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headyconnection-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headyio-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headyio-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headymcp-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headymcp-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headyme-core,localhost_drift,medium,(multiple),2 localhost/127.0.0.1/0.0.0.0 references detected
+headyme-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headyos-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headyos-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+headysystems-core,localhost_drift,medium,(multiple),1 localhost/127.0.0.1/0.0.0.0 references detected
+headysystems-core,thin_projection,medium,index.js/package.json,repo appears to be a thin projected shell rather than an autonomous service
+main,localhost_drift,medium,(multiple),21 localhost/127.0.0.1/0.0.0.0 references detected
+sandbox,merge_conflicts,high,(multiple),51709 conflict markers detected
+sandbox,localhost_drift,high,(multiple),572 localhost/127.0.0.1/0.0.0.0 references detected
+sandbox-pre-production,merge_conflicts,high,(multiple),564 conflict markers detected
+sandbox-pre-production,localhost_drift,medium,(multiple),67 localhost/127.0.0.1/0.0.0.0 references detected

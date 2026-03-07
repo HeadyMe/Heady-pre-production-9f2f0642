@@ -1,14 +1,47 @@
 {
-    "name": "@heady-ai/headyweb",
-    "version": "3.2.0",
-    "private": true,
-    "description": "HeadyWeb Central Portal — All Heady Apps & Micro-Frontends",
-    "main": "server.js",
-    "scripts": {
-        "start": "node server.js",
-        "dev": "node server.js"
-    },
-    "dependencies": {
-        "express": "^4.18.0"
+  "name": "heady-web-portal",
+  "version": "3.1.0",
+  "description": "HeadyWeb Universal Shell — Module Federation host and micro-frontend portal for HeadySystems Inc.",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": "HeadySystems Inc. <dev@headysystems.com>",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js --env host",
+    "build:shell": "bash scripts/build-shell.sh",
+    "build:remotes": "bash scripts/build-all-remotes.sh",
+    "build:all": "npm run build:shell && npm run build:remotes",
+    "dev": "bash scripts/dev-server.sh",
+    "dev:shell": "webpack serve --config webpack.config.js --env host --open",
+    "lint": "eslint src/ remotes/",
+    "clean": "rm -rf dist/"
+  },
+  "dependencies": {
+    "three": "^0.163.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^6.10.0",
+    "html-webpack-plugin": "^5.6.0",
+    "style-loader": "^3.3.4",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  },
+  "workspaces": [
+    "remotes/*"
+  ],
+  "turbo": {
+    "pipeline": {
+      "build": {
+        "dependsOn": ["^build"],
+        "outputs": ["dist/**"]
+      }
     }
+  }
 }

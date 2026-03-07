@@ -1,0 +1,254 @@
+[
+  {
+    "repo": "Heady-pre-production-9f2f0642",
+    "files": 2290,
+    "dirs": 482,
+    "package_json": true,
+    "requirements_txt": true,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile",
+      "_archive/Dockerfile",
+      "_archive/cloudflare/heady-cloudrun-failover/Dockerfile",
+      "_archive/cloudflare/heady-hf-liquid-node/Dockerfile",
+      "_archive/heady-hive-sdk/Dockerfile",
+      "_archive/midi_bridge/Dockerfile",
+      "_archive/oracle_service/Dockerfile",
+      "_archive/packages/heady-mcp-server/Dockerfile",
+      "_archive/sites/admin-ui/src/Dockerfile",
+      "_archive/sites/headyme/Dockerfile",
+      "src/landing/Dockerfile",
+      "templates/template-heady-ui/Dockerfile",
+      "templates/template-mcp-server/Dockerfile",
+      "templates/template-swarm-bee/Dockerfile"
+    ],
+    "compose_files": [
+      "docker-compose.yml",
+      "_archive/configs/drupal/docker-compose.yml",
+      "_archive/configs/infrastructure/cloud/cmd-center-compose.yaml",
+      "_archive/infrastructure/docker-compose.cpu-command.yml",
+      "configs/drupal/docker-compose.yml",
+      "configs/infrastructure/cloud/cmd-center-compose.yaml"
+    ],
+    "workflows": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/deploy.yml",
+      ".github/workflows/liquid-deploy.yml",
+      ".github/workflows/quality-gates.yml",
+      ".github/workflows/self-healing.yml"
+    ],
+    "key_paths": [
+      "README.md",
+      "heady-manager.js",
+      "heady-registry.json",
+      "src/vector-memory.js",
+      "src/bees/mcp-bee.js",
+      "src/orchestration/swarm-consensus.js",
+      "src/pipeline/pipeline-core.js"
+    ]
+  },
+  {
+    "repo": "heady-docs",
+    "files": 20,
+    "dirs": 5,
+    "package_json": false,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [],
+    "compose_files": [],
+    "workflows": [],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headyapi-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headybot-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headybuddy-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headyconnection-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headyio-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headymcp-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headymcp-production",
+    "files": 1,
+    "dirs": 0,
+    "package_json": false,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [],
+    "compose_files": [],
+    "workflows": [],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headyme-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headyos-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headysystems-core",
+    "files": 7,
+    "dirs": 2,
+    "package_json": true,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [
+      "Dockerfile"
+    ],
+    "compose_files": [],
+    "workflows": [
+      ".github/workflows/deploy.yml"
+    ],
+    "key_paths": [
+      "README.md"
+    ]
+  },
+  {
+    "repo": "headysystems-production",
+    "files": 4,
+    "dirs": 0,
+    "package_json": false,
+    "requirements_txt": false,
+    "pyproject_toml": false,
+    "dockerfiles": [],
+    "compose_files": [],
+    "workflows": [],
+    "key_paths": [
+      "README.md"
+    ]
+  }
+]

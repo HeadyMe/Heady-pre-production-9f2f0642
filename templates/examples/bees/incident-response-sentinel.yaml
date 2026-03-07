@@ -1,0 +1,38 @@
+id: incident-response-sentinel
+name: Incident Response Sentinel
+version: 1.0.0
+domain: reliability
+intent: Rapid triage, containment, recovery, and hardening for production incidents.
+priority: 0.98
+category: operations
+tags: [incident, recovery, rollback, health, governance]
+skills: [root-cause-analysis, rollback-planning, blast-radius-analysis, health-synthesis]
+workflows: [triage, contain, recover, postmortem]
+nodes: [OBSERVER, CONDUCTOR, BATTLE, GOVERNANCE]
+headyswarmTasks: [detect, contain, recover, harden]
+triggers: [error-spike, latency-regression, service-down, projection-drift]
+runtime:
+  executionMode: hybrid
+  queueClass: interactive
+  timeoutMs: 120000
+  retryBudget: 2
+  factoryTemplate: health-check
+  minConcurrency: 1
+  maxConcurrency: 13
+projection:
+  enabled: true
+  surface: /api/incidents/*
+  manifestTargets: [headysystems-core, headyme-core]
+  freshnessSlaMs: 3000
+observability:
+  healthEndpoint: /api/headybee/incident-response-sentinel/health
+  metrics: [incident_count, triage_latency_ms, rollback_success_rate]
+  receipts: [execution-receipt, projection-receipt, critique-report]
+  alerts: [HeadyManagerDown, HighErrorRate, HighLatency]
+autonomousOptimization:
+  channels: [self-awareness, healing, optimization]
+  scoringDimensions: [success_rate, mean_time_to_recover, blast_efficiency]
+  outcomeStore: template-outcomes
+outputs:
+  artifacts: [incident-report.json, rollback-plan.json, postmortem.md]
+  events: [incident.detected, incident.recovered, incident.hardened]

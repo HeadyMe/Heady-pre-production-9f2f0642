@@ -1,0 +1,182 @@
+{
+  "id": "2db61d6d-c3a7-41ac-b48c-c4a067b6818a",
+  "trigger": "continuous",
+  "startedAt": "2026-02-26T04:54:27.324Z",
+  "results": [
+    {
+      "test": "Health Check",
+      "type": "endpoint",
+      "path": "/healthz",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Brain Chat",
+      "type": "endpoint",
+      "path": "/api/brain/chat",
+      "verdict": "fail",
+      "error": "Parse Error: Expected HTTP/"
+    },
+    {
+      "test": "Brain Analyze",
+      "type": "endpoint",
+      "path": "/api/brain/analyze",
+      "verdict": "fail",
+      "error": "Parse Error: Expected HTTP/"
+    },
+    {
+      "test": "Memory Search",
+      "type": "endpoint",
+      "path": "/api/memory/search",
+      "verdict": "fail",
+      "error": "Parse Error: Expected HTTP/"
+    },
+    {
+      "test": "Conductor Status",
+      "type": "endpoint",
+      "path": "/api/conductor/status",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Vector Federation",
+      "type": "endpoint",
+      "path": "/api/vector/federation",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Optimizer Heartbeat",
+      "type": "endpoint",
+      "path": "/api/optimize/heartbeat",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Scientist Status",
+      "type": "endpoint",
+      "path": "/api/scientist/status",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "HCFP Status",
+      "type": "endpoint",
+      "path": "/api/hcfp/status",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Canvas Models",
+      "type": "endpoint",
+      "path": "/api/canvas/models",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Creative Engine Status",
+      "type": "endpoint",
+      "path": "/api/creative/status",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Learning Stats",
+      "type": "endpoint",
+      "path": "/api/learning/stats",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Registry",
+      "type": "endpoint",
+      "path": "/api/registry",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Battle Status",
+      "type": "endpoint",
+      "path": "/api/battle/status",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Soul Status",
+      "type": "endpoint",
+      "path": "/api/soul/status",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "AI Nodes",
+      "type": "endpoint",
+      "path": "/api/nodes",
+      "verdict": "fail",
+      "error": "socket hang up"
+    },
+    {
+      "test": "Registry Schema",
+      "type": "schema",
+      "verdict": "fail",
+      "error": "Missing field: version"
+    },
+    {
+      "test": "Auto-Success Tasks Schema",
+      "type": "schema",
+      "verdict": "fail",
+      "error": "Missing field: tasks"
+    },
+    {
+      "test": "Optimization State Schema",
+      "type": "schema",
+      "verdict": "fail",
+      "error": "Missing field: cycles"
+    },
+    {
+      "test": "Config: configs/governance-policies.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 4617
+    },
+    {
+      "test": "Config: configs/file-governance.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 5127
+    },
+    {
+      "test": "Config: configs/hcfullpipeline.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 20706
+    },
+    {
+      "test": "Config: configs/ai-routing.yaml",
+      "type": "config",
+      "verdict": "warn",
+      "error": "1 localhost references"
+    },
+    {
+      "test": "Config: configs/stability-first.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 9151
+    },
+    {
+      "test": "Cross-Service Integration",
+      "type": "integration",
+      "verdict": "fail",
+      "error": "socket hang up"
+    }
+  ],
+  "summary": {
+    "pass": 4,
+    "fail": 20,
+    "warn": 1,
+    "skip": 0
+  },
+  "completedAt": "2026-02-26T04:54:27.479Z",
+  "durationMs": 155,
+  "overallVerdict": "FAIL"
+}

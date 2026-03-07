@@ -1,0 +1,157 @@
+{
+  "cycleCount": 10980,
+  "lastRun": "2026-03-02T10:13:44.473Z",
+  "routingWeights": {
+    "hf": 1,
+    "gemini": 1,
+    "claude": 1,
+    "local": 0.5,
+    "edge": 0.8
+  },
+  "providerScores": {},
+  "skills": [
+    {
+      "name": "vector-search",
+      "type": "core",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "behavior-analysis",
+      "type": "core",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "remote-dispatch",
+      "type": "compute",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "provider-benchmark",
+      "type": "perf",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "edge-proxy",
+      "type": "infra",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "hf-embeddings",
+      "type": "ai",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "headypythia-multimodal",
+      "type": "ai",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "headyjules-reasoning",
+      "type": "ai",
+      "available": false,
+      "status": "missing"
+    },
+    {
+      "name": "headycompute-enterprise",
+      "type": "ai",
+      "available": false,
+      "status": "missing"
+    },
+    {
+      "name": "groq-fast",
+      "type": "ai",
+      "available": false,
+      "status": "missing"
+    },
+    {
+      "name": "perplexity-research",
+      "type": "ai",
+      "available": true,
+      "status": "active"
+    },
+    {
+      "name": "notion-sync",
+      "type": "integration",
+      "available": false,
+      "status": "missing"
+    }
+  ],
+  "connectors": [
+    {
+      "name": "http-rest",
+      "protocol": "HTTP/1.1",
+      "latency": "~2ms local",
+      "ready": true,
+      "status": "connected"
+    },
+    {
+      "name": "https-tls13",
+      "protocol": "HTTPS/TLS1.3",
+      "latency": "~5ms local",
+      "ready": true,
+      "status": "connected"
+    },
+    {
+      "name": "sse-stream",
+      "protocol": "Server-Sent Events",
+      "latency": "~1ms push",
+      "ready": true,
+      "status": "connected"
+    },
+    {
+      "name": "sdk-hf",
+      "protocol": "@huggingface/inference",
+      "latency": "varies",
+      "ready": true,
+      "status": "connected"
+    },
+    {
+      "name": "sdk-genai",
+      "protocol": "@google/genai",
+      "latency": "~500ms",
+      "ready": true,
+      "status": "connected"
+    },
+    {
+      "name": "sdk-headynexus",
+      "protocol": "@anthropic-ai/sdk",
+      "latency": "~800ms",
+      "ready": false,
+      "status": "available"
+    },
+    {
+      "name": "edge-worker",
+      "protocol": "Cloudflare Workers",
+      "latency": "~2ms edge",
+      "ready": true,
+      "status": "connected"
+    },
+    {
+      "name": "vector-3d",
+      "protocol": "3D-spatial + cosine",
+      "latency": "~0.5ms",
+      "ready": true,
+      "status": "connected"
+    }
+  ],
+  "improvements": [
+    {
+      "type": "skill_gap",
+      "message": "4 skills missing: headyjules-reasoning, headycompute-enterprise, groq-fast, notion-sync",
+      "priority": "medium"
+    },
+    {
+      "type": "connector_gap",
+      "message": "1 connectors not wired",
+      "priority": "low"
+    }
+  ],
+  "started": 1771917094391
+}

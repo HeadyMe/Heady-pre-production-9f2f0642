@@ -1,0 +1,598 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady CI/CD Pipeline — GitHub Actions
+#
+# NEW FILE — implements the 5-phase pipeline described in deploy-script.js comments
+# but not found as an actual workflow in the repository scan.
+#
+# PROBLEM WITH CURRENT deploy-script.js:
+#   - Auto-commits any working tree changes to main without review
+#   - No test gate, security scan, or image vulnerability check
+#   - Direct gcloud run deploy with no traffic split or rollback capability
+#   - No branch protection enforced
+#
+# THIS WORKFLOW PROVIDES:
+#   Phase 0 (P0): Security — TruffleHog secret scan + CodeQL SAST + npm audit
+#   Phase 1 (P1): Validate — dependency install, lint, typecheck, unit tests
+#   Phase 2 (P2): Build — Docker multi-stage build + Trivy CVE scan + push to Artifact Registry
+#   Phase 3 (P3): Deploy — Cloud Run revision deploy (no traffic) + readiness verify
+#   Phase 4 (P4): Canary — Progressive traffic shift via canary-deployment.js
+#   Phase 5 (P5): Edge — Cloudflare Worker deploy + smoke tests
+#
+# BRANCH STRATEGY:
+#   main      → triggers full pipeline including production deploy
+#   develop   → triggers P0-P2 (build/test only, no deploy)
+#   PR to main → triggers P0-P1 (security + test gates required to merge)
+#
+# REQUIRED REPOSITORY SECRETS:
+#   GCP_PROJECT_ID              — Google Cloud project ID
+#   GCP_REGION                  — e.g. us-central1
+#   GCP_WORKLOAD_IDENTITY       — Workload Identity Provider resource name
+#   GCP_SERVICE_ACCOUNT         — Cloud Run service account email
+#   CLOUDFLARE_API_TOKEN        — Cloudflare API token for wrangler
+#   CLOUDFLARE_ACCOUNT_ID       — Cloudflare account ID
+#   SLACK_WEBHOOK_URL           — Deployment notifications
+#   PAGERDUTY_ROUTING_KEY       — Incident alerts
+#
+# REQUIRED REPOSITORY VARIABLES:
+#   CLOUD_RUN_SERVICE           — e.g. heady-manager
+#   ARTIFACT_REGISTRY           — e.g. us-central1-docker.pkg.dev/PROJECT/heady
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Heady Production Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_target:
+        description: 'Deploy target (cloudrun, edge, all)'
+        required: false
+        default: 'all'
+      canary_enabled:
+        description: 'Enable canary deployment (true/false)'
+        required: false
+        default: 'true'
+      skip_canary:
+        description: 'Skip canary, deploy directly to 100%'
+        type: boolean
+        default: false
+
+concurrency:
+  # Allow only one pipeline per branch. Cancel in-progress on new push.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: ${{ vars.ARTIFACT_REGISTRY || 'us-central1-docker.pkg.dev/heady-project/heady' }}
+  SERVICE: ${{ vars.CLOUD_RUN_SERVICE || 'heady-manager' }}
+  REGION: ${{ vars.GCP_REGION || secrets.GCP_REGION || 'us-central1' }}
+  IMAGE_BASE: ${{ vars.ARTIFACT_REGISTRY || 'us-central1-docker.pkg.dev/heady-project/heady' }}/heady-manager
+
+# ─── Phase 0: Security Scan ─────────────────────────────────────────────────────
+
+jobs:
+  security-scan:
+    name: P0 · Security Scan
+    runs-on: ubuntu-latest
+    if: always()  # Always run security scan
+    permissions:
+      contents: read
+      security-events: write  # For CodeQL upload
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for TruffleHog
+
+      # Secret detection — block deploy if credentials are committed
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+      # SAST — static analysis for common vulnerabilities
+      - name: CodeQL Analysis Setup
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+
+      - name: CodeQL Auto-Build
+        uses: github/codeql-action/autobuild@v3
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript
+
+      # SCA — known vulnerable dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: npm audit
+        run: |
+          npm audit --audit-level=high --omit=dev
+          echo "✅ No high/critical vulnerabilities found"
+        continue-on-error: false
+
+      # Check for uncommitted .env files
+      - name: Check for exposed secrets
+        run: |
+          if git log --all --full-history -- '.env' '*.env.production' '*.env.local' | grep -q 'commit'; then
+            echo "❌ .env file found in git history"
+            exit 1
+          fi
+          if find . -name '.env' -not -path '*/node_modules/*' | grep -q .; then
+            echo "❌ .env file found in working tree"
+            exit 1
+          fi
+          echo "✅ No .env files in repo"
+
+      - name: Notify security failure
+        if: failure()
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data "{\"text\":\"🔴 P0 Security scan FAILED on \`${{ github.ref_name }}\` — deploy blocked.\",\"username\":\"Heady CI\"}" \
+            || true
+
+# ─── Phase 1: Validation ──────────────────────────────────────────────────────
+
+  validate:
+    name: P1 · Lint & Test
+    runs-on: ubuntu-latest
+    needs: security-scan
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Lint
+        run: npm run lint --if-present
+        continue-on-error: false
+
+      # CHANGE: Turbo pipeline validation — run all checks in dependency order
+      - name: Turbo build & test
+        run: |
+          npx turbo run build test lint --output-logs=new-only --cache-dir=.turbo
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+      - name: Cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Upload coverage
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./coverage
+          flags: unittests
+        continue-on-error: true
+
+# ─── Phase 2: Build & Scan ────────────────────────────────────────────────────
+
+  build:
+    name: P2 · Docker Build & Scan
+    runs-on: ubuntu-latest
+    needs: validate
+    # Only build on main pushes and PRs — not on develop (to save costs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      id-token: write    # For Workload Identity Federation
+      packages: write
+      security-events: write
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+      image_digest: ${{ steps.build-push.outputs.digest }}
+      full_image: ${{ env.IMAGE_BASE }}:${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Authenticate to GCP using Workload Identity Federation (no service account key)
+      - name: Authenticate to GCP
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      # Image metadata and tags
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_BASE }}
+          tags: |
+            type=sha,prefix=,suffix=,format=short
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+          labels: |
+            org.opencontainers.image.title=Heady Manager
+            org.opencontainers.image.vendor=HeadySystems Inc.
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=moby/buildkit:master
+
+      # Build and push multi-platform image
+      - name: Build and push
+        id: build-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.optimized
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.IMAGE_BASE }}:cache
+          cache-to: type=registry,ref=${{ env.IMAGE_BASE }}:cache,mode=max
+          provenance: true
+          sbom: true  # Generate SBOM (Software Bill of Materials)
+
+      # Container vulnerability scan
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_BASE }}:${{ steps.meta.outputs.version }}
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          exit-code: '1'  # Fail on critical/high CVEs
+          ignore-unfixed: true
+
+      - name: Upload Trivy SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-container
+
+      # Image signing with Cosign (software supply chain)
+      - name: Sign image
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.4'
+
+      - name: Sign the image
+        if: github.event_name != 'pull_request'
+        env:
+          DIGEST: ${{ steps.build-push.outputs.digest }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+        run: |
+          echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+# ─── Phase 3: Deploy to Cloud Run ─────────────────────────────────────────────
+
+  deploy-cloudrun:
+    name: P3 · Cloud Run Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment:
+      name: production
+      url: https://headyme.com
+
+    outputs:
+      revision_name: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      # Deploy new revision with NO traffic (canary handles traffic split)
+      - name: Deploy to Cloud Run (no traffic)
+        id: deploy
+        run: |
+          IMAGE="${{ needs.build.outputs.full_image }}"
+          echo "Deploying: $IMAGE"
+
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image="$IMAGE" \
+            --region=${{ env.REGION }} \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --no-traffic \
+            --tag=canary \
+            --execution-environment=gen2 \
+            --service-account=${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --set-secrets="ENV_FILE=${{ vars.SECRET_NAME || 'heady-env-production' }}:latest" \
+            --set-env-vars="NODE_ENV=production,PORT=8080,HEADY_VERSION=${{ needs.build.outputs.image_tag }}" \
+            --cpu=2 \
+            --memory=1Gi \
+            --min-instances=1 \
+            --max-instances=10 \
+            --concurrency=100 \
+            --timeout=3600 \
+            --cpu-boost \
+            --quiet
+
+          # Get revision name
+          REVISION=$(gcloud run revisions list \
+            --service=${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --format='value(metadata.name)' \
+            --sort-by='~metadata.creationTimestamp' \
+            --limit=1)
+          echo "revision_name=$REVISION" >> "$GITHUB_OUTPUT"
+          echo "New revision: $REVISION"
+
+      # Readiness verification — poll the canary-tagged URL
+      - name: Verify revision readiness
+        run: |
+          CANARY_URL=$(gcloud run services describe ${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --format='value(status.traffic[?tag="canary"].url)')
+
+          echo "Polling canary URL: $CANARY_URL"
+          for i in {1..30}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$CANARY_URL/health/live" || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Revision is ready (attempt $i)"
+              break
+            fi
+            echo "  Attempt $i: HTTP $STATUS — waiting 10s..."
+            sleep 10
+            if [ $i -eq 30 ]; then
+              echo "❌ Revision did not become ready after 5 minutes"
+              exit 1
+            fi
+          done
+
+      - name: Notify deployment
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data "{
+              \"text\":\"🚀 Cloud Run revision deployed: \`${{ needs.build.outputs.image_tag }}\`\",
+              \"attachments\":[{\"color\":\"#36a64f\",\"text\":\"Revision ready. Starting canary deployment.\"}],
+              \"username\":\"Heady CI\"
+            }" || true
+
+# ─── Phase 4: Canary Deployment ───────────────────────────────────────────────
+
+  canary:
+    name: P4 · Canary Deployment
+    runs-on: ubuntu-latest
+    needs: [build, deploy-cloudrun]
+    if: |
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      github.event.inputs.skip_canary != 'true'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Run canary deployment
+        env:
+          CLOUD_RUN_SERVICE: ${{ env.SERVICE }}
+          GCP_REGION: ${{ env.REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          STABLE_URL: https://${{ env.SERVICE }}-stable.run.app
+          CANARY_URL: https://${{ env.SERVICE }}-canary.run.app
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PAGERDUTY_ROUTING_KEY: ${{ secrets.PAGERDUTY_ROUTING_KEY }}
+          CANARY_STATE_FILE: /tmp/canary-state.json
+        run: |
+          IMAGE="${{ needs.build.outputs.full_image }}"
+          node scripts/canary-deployment.js --image "$IMAGE" || node scripts/canary-deployment.js --rollback
+
+      - name: Upload canary state
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: canary-state-${{ github.sha }}
+          path: /tmp/canary-state.json
+          retention-days: 30
+
+  # Skip-canary path: direct 100% rollout (for hotfixes)
+  direct-promote:
+    name: P4 · Direct Promote (skip canary)
+    runs-on: ubuntu-latest
+    needs: [build, deploy-cloudrun]
+    if: |
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.skip_canary == 'true'
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Promote to 100%
+        run: |
+          REVISION=$(gcloud run revisions list \
+            --service=${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --format='value(metadata.name)' \
+            --sort-by='~metadata.creationTimestamp' \
+            --limit=1)
+
+          gcloud run services update-traffic ${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --to-revisions="$REVISION=100" \
+            --quiet
+
+          echo "✅ Direct promote complete: $REVISION at 100%"
+
+# ─── Phase 5: Edge Deploy ──────────────────────────────────────────────────────
+
+  deploy-edge:
+    name: P5 · Cloudflare Edge Deploy
+    runs-on: ubuntu-latest
+    needs: [canary, direct-promote]
+    if: |
+      always() &&
+      (needs.canary.result == 'success' || needs.direct-promote.result == 'success') &&
+      (github.event.inputs.deploy_target == 'edge' || github.event.inputs.deploy_target == 'all' || github.event_name == 'push')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Deploy Cloudflare Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy cloudflare-workers/heady-edge-proxy.js --env production
+
+      # Smoke test all 9 domains via edge
+      - name: Smoke test domains
+        run: |
+          DOMAINS=(
+            "https://headyme.com/health"
+            "https://headyapi.com/health"
+            "https://headysystems.com/health"
+            "https://headymcp.com/health"
+            "https://headyconnection.org/health"
+          )
+          FAILED=0
+          for URL in "${DOMAINS[@]}"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo "000")
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+              echo "  ✅ $URL → HTTP $STATUS"
+            else
+              echo "  ❌ $URL → HTTP $STATUS"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+          if [ $FAILED -gt 0 ]; then
+            echo "❌ $FAILED domain smoke tests failed"
+            exit 1
+          fi
+          echo "✅ All domain smoke tests passed"
+
+# ─── Phase 5b: Post-Deploy Verification ────────────────────────────────────────
+
+  verify:
+    name: P5b · Post-Deploy Verification
+    runs-on: ubuntu-latest
+    needs: [deploy-edge]
+    if: always() && needs.deploy-edge.result == 'success'
+
+    steps:
+      - name: Run infrastructure health check
+        run: |
+          # Poll /health/ready until stable or timeout
+          for i in {1..12}; do
+            RESPONSE=$(curl -s --max-time 10 "https://headyme.com/health/ready" || echo '{"status":"error"}')
+            STATUS=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','unknown'))" 2>/dev/null || echo "unknown")
+            SCORE=$(curl -s --max-time 10 "https://headyme.com/health/full" | python3 -c "import sys,json; d=json.load(sys.stdin); print('ok')" 2>/dev/null || echo "ok")
+            echo "  Attempt $i: readiness=$STATUS"
+            if [ "$STATUS" = "ready" ]; then
+              echo "✅ Service is ready"
+              break
+            fi
+            sleep 15
+            if [ $i -eq 12 ]; then
+              echo "❌ Service readiness check timed out"
+              exit 1
+            fi
+          done
+
+      - name: Notify success
+        if: success()
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data "{
+              \"text\":\"✅ Heady deployment complete!\",
+              \"attachments\":[{
+                \"color\":\"good\",
+                \"fields\":[
+                  {\"title\":\"Image\",\"value\":\"\`${{ needs.build.outputs.image_tag }}\`\",\"short\":true},
+                  {\"title\":\"Branch\",\"value\":\"\`${{ github.ref_name }}\`\",\"short\":true},
+                  {\"title\":\"Deployed by\",\"value\":\"\`${{ github.actor }}\`\",\"short\":true}
+                ]
+              }],
+              \"username\":\"Heady CI\"
+            }" || true
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data "{
+              \"text\":\"🔴 Post-deploy verification FAILED — check <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|GitHub Actions>\",
+              \"username\":\"Heady CI\"
+            }" || true

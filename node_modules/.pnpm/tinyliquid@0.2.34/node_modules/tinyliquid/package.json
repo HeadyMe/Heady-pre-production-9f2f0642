@@ -1,0 +1,53 @@
+{
+  "name": "tinyliquid",
+  "main": "./lib/index.js",
+  "files": [
+    "lib",
+    "target"
+  ],
+  "version": "0.2.34",
+  "description": "A liquid template engine",
+  "keywords": [
+    "liquid",
+    "template"
+  ],
+  "author": "Zongmin Lei <leizongmin@gmail.com>",
+  "contributors": [
+    {
+      "name": "Zongmin Lei",
+      "email": "leizongmin@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/leizongmin/tinyliquid.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://raw.github.com/leizongmin/tinyliquid/master/MIT-License"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/leizongmin/tinyliquid/issues"
+  },
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "async": "^1.5.2",
+    "blanket": "^1.2.3",
+    "browserify": "^13.0.0",
+    "ejs": "^2.4.1",
+    "mocha": "^2.4.5",
+    "uglify-js": "^2.6.1"
+  },
+  "scripts": {
+    "test": "mocha -t 5000",
+    "test:cov": "mocha --require blanket -R html-cov > coverage.html -t 5000",
+    "browserify": "browserify -e ./lib/index.js -s TinyLiquid -o ./target/tinyliquid.js",
+    "uglifyjs": "uglifyjs ./target/tinyliquid.js -o ./target/tinyliquid.min.js",
+    "build": "npm run browserify && npm run uglifyjs"
+  }
+}

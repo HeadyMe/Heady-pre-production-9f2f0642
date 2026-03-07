@@ -1,0 +1,266 @@
+[
+  {
+    "service": "totally-new-node",
+    "endpoint": "execute",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/totally-new-node/execute"
+    },
+    "ts": "2026-02-26T08:07:54.656Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "tasks",
+    "endpoint": "auto-flow-200",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/tasks/auto-flow-200"
+    },
+    "ts": "2026-02-26T08:31:51.509Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "tasks",
+    "endpoint": "buddy",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/tasks/buddy"
+    },
+    "ts": "2026-02-26T08:31:51.738Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "system",
+    "endpoint": "pm2",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/system/pm2"
+    },
+    "ts": "2026-02-26T08:31:51.767Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "tasks",
+    "endpoint": "nonprofit",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/tasks/nonprofit"
+    },
+    "ts": "2026-02-26T08:31:51.983Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "system",
+    "endpoint": "pm2",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/system/pm2"
+    },
+    "ts": "2026-02-26T08:32:21.103Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "system",
+    "endpoint": "pm2",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/system/pm2"
+    },
+    "ts": "2026-02-26T08:32:51.207Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "health",
+    "endpoint": "ready",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/health/ready"
+    },
+    "ts": "2026-02-26T10:52:34.500Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "store",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/memory/store"
+    },
+    "ts": "2026-02-26T10:52:52.294Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "store",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/memory/store"
+    },
+    "ts": "2026-02-26T12:39:13.164Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "store",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/memory/store"
+    },
+    "ts": "2026-02-26T12:48:08.332Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "patterns",
+    "endpoint": "analyze",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/patterns/analyze"
+    },
+    "ts": "2026-02-26T12:48:22.774Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "store",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/memory/store"
+    },
+    "ts": "2026-02-26T12:49:50.154Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "buddy",
+    "endpoint": "chat",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/buddy/chat"
+    },
+    "ts": "2026-02-26T12:49:58.078Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "store",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/memory/store"
+    },
+    "ts": "2026-02-26T12:51:50.845Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "store",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/memory/store"
+    },
+    "ts": "2026-02-26T13:01:34.347Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "budget",
+    "endpoint": "status",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/budget/status"
+    },
+    "ts": "2026-02-26T14:32:13.068Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "resources",
+    "endpoint": "snapshot",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/resources/snapshot"
+    },
+    "ts": "2026-02-26T14:32:14.298Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "secrets",
+    "endpoint": "status",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/secrets/status"
+    },
+    "ts": "2026-02-26T14:32:15.240Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "status",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/memory/status"
+    },
+    "ts": "2026-02-26T14:32:16.553Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "resources",
+    "endpoint": "events",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/resources/events"
+    },
+    "ts": "2026-02-26T14:32:17.358Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "lens",
+    "endpoint": "snapshot",
+    "status": "auto-healed",
+    "details": {
+      "method": "GET",
+      "path": "/api/lens/snapshot"
+    },
+    "ts": "2026-02-26T14:32:18.567Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "memory",
+    "endpoint": "store",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/memory/store"
+    },
+    "ts": "2026-02-27T15:22:51.626Z",
+    "source": "heady-manager-auto"
+  },
+  {
+    "service": "patterns",
+    "endpoint": "analyze",
+    "status": "auto-healed",
+    "details": {
+      "method": "POST",
+      "path": "/api/patterns/analyze"
+    },
+    "ts": "2026-02-27T15:23:27.865Z",
+    "source": "heady-manager-auto"
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "startedAt": "2026-03-01T00:56:15.552Z",
+  "checkCount": 1,
+  "services": {
+    "heady-manager": {
+      "consecutiveFailures": 0,
+      "totalChecks": 1,
+      "totalFailures": 0,
+      "lastStatus": 200,
+      "lastCheckAt": "2026-03-01T00:56:15.811Z",
+      "lastError": null,
+      "redeploysTriggered": 0
+    },
+    "heady-manager-health": {
+      "consecutiveFailures": 0,
+      "totalChecks": 1,
+      "totalFailures": 0,
+      "lastStatus": 404,
+      "lastCheckAt": "2026-03-01T00:56:15.811Z",
+      "lastError": null,
+      "redeploysTriggered": 0
+    },
+    "headyme": {
+      "consecutiveFailures": 0,
+      "totalChecks": 1,
+      "totalFailures": 0,
+      "lastStatus": 200,
+      "lastCheckAt": "2026-03-01T00:56:15.811Z",
+      "lastError": null,
+      "redeploysTriggered": 0
+    },
+    "1ime1": {
+      "consecutiveFailures": 0,
+      "totalChecks": 1,
+      "totalFailures": 0,
+      "lastStatus": 302,
+      "lastCheckAt": "2026-03-01T00:56:15.811Z",
+      "lastError": null,
+      "redeploysTriggered": 0
+    },
+    "edge-proxy": {
+      "consecutiveFailures": 1,
+      "totalChecks": 1,
+      "totalFailures": 1,
+      "lastStatus": "ERROR",
+      "lastCheckAt": "2026-03-01T00:56:15.811Z",
+      "lastError": "getaddrinfo ENOTFOUND heady-edge-proxy.emailheadyconnection.workers.dev",
+      "redeploysTriggered": 0
+    }
+  },
+  "lastCheck": "2026-03-01T00:56:15.557Z",
+  "redeploysTrigger": 0
+}

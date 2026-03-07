@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HeadyAPI — Interactive API Playground</title>
+    <meta name="description"
+        content="HeadyAPI Interactive Playground — test HeadyBrain AI endpoints with live, editable JSON requests and beautiful response visualization.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        :root {
+            --primary: #7c3aed;
+            --accent: #06b6d4;
+            --bg: #050510;
+            --surface: #0d0d20;
+            --surface2: #161630;
+            --border: rgba(124, 58, 237, .2);
+            --text: #e0e0ff;
+            --dim: #6b7280;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none
+        }
+
+        /* ── Header ── */
+        .header {
+            padding: 20px 32px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, .08), rgba(6, 182, 212, .05));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .header .subtitle {
+            color: var(--dim);
+            font-size: .85rem;
+            margin-top: 2px
+        }
+
+        .header nav {
+            display: flex;
+            gap: 12px
+        }
+
+        .header nav a {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: .82rem;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            color: var(--text);
+            transition: all .2s
+        }
+
+        .header nav a:hover {
+            border-color: var(--primary);
+            background: rgba(124, 58, 237, .1)
+        }
+
+        /* ── Main Layout ── */
+        .playground {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: calc(100vh - 80px)
+        }
+
+        @media(max-width:900px) {
+            .playground {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto
+            }
+        }
+
+        /* ── Request Panel ── */
+        .panel {
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border)
+        }
+
+        .panel:last-child {
+            border-right: none
+        }
+
+        .panel-header {
+            padding: 14px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .panel-title {
+            font-size: .85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em
+        }
+
+        .panel-title.req {
+            color: var(--accent)
+        }
+
+        .panel-title.res {
+            color: var(--success)
+        }
+
+        /* ── Endpoint Selector ── */
+        .endpoint-bar {
+            padding: 12px 20px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        .method-badge {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: .75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace
+        }
+
+        .method-badge.POST {
+            background: rgba(124, 58, 237, .2);
+            color: var(--primary);
+            border: 1px solid rgba(124, 58, 237, .3)
+        }
+
+        .method-badge.GET {
+            background: rgba(34, 197, 94, .15);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, .3)
+        }
+
+        select.endpoint-select {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            cursor: pointer
+        }
+
+        select.endpoint-select:focus {
+            outline: none;
+            border-color: var(--primary)
+        }
+
+        .run-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            color: #fff;
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap
+        }
+
+        .run-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(124, 58, 237, .4)
+        }
+
+        .run-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none
+        }
+
+        .run-btn.running {
+            animation: pulse-glow 1s infinite
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(124, 58, 237, .3)
+            }
+
+            50% {
+                box-shadow: 0 0 24px rgba(124, 58, 237, .6)
+            }
+        }
+
+        /* ── Editor ── */
+        .editor {
+            flex: 1;
+            position: relative
+        }
+
+        .editor textarea {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            background: var(--bg);
+            color: var(--text);
+            border: none;
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .85rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            tab-size: 2
+        }
+
+        .editor textarea::placeholder {
+            color: var(--dim)
+        }
+
+        /* ── Response Panel ── */
+        .response-tabs {
+            display: flex;
+            gap: 0;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border)
+        }
+
+        .response-tab {
+            padding: 10px 20px;
+            font-size: .8rem;
+            font-weight: 500;
+            color: var(--dim);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all .2s
+        }
+
+        .response-tab.active {
+            color: var(--text);
+            border-bottom-color: var(--primary)
+        }
+
+        .response-tab:hover {
+            color: var(--text)
+        }
+
+        .response-content {
+            flex: 1;
+            overflow: auto;
+            position: relative
+        }
+
+        .response-content pre {
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word
+        }
+
+        /* ── Pretty Print ── */
+        .pretty-view {
+            padding: 20px
+        }
+
+        .pretty-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 12px
+        }
+
+        .pretty-card h4 {
+            font-size: .78rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--dim);
+            margin-bottom: 8px
+        }
+
+        .pretty-card .value {
+            font-size: 1rem;
+            color: var(--text)
+        }
+
+        .pretty-card .value.ok {
+            color: var(--success)
+        }
+
+        .pretty-card .value.err {
+            color: var(--error)
+        }
+
+        .json-key {
+            color: var(--accent)
+        }
+
+        .json-str {
+            color: #a78bfa
+        }
+
+        .json-num {
+            color: var(--warning)
+        }
+
+        .json-bool {
+            color: var(--success)
+        }
+
+        .json-null {
+            color: var(--dim)
+        }
+
+        /* ── Status Bar ── */
+        .status-bar {
+            padding: 8px 20px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: .75rem;
+            color: var(--dim)
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%
+        }
+
+        .status-dot.ok {
+            background: var(--success)
+        }
+
+        .status-dot.err {
+            background: var(--error)
+        }
+
+        .status-dot.wait {
+            background: var(--warning);
+            animation: pulse-glow 1s infinite
+        }
+
+        /* ── Empty State ── */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--dim);
+            gap: 8px;
+            padding: 40px
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            opacity: .3
+        }
+
+        .empty-state p {
+            font-size: .85rem
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div>
+            <h1>⚡ HeadyAPI</h1>
+            <div class="subtitle">Interactive API Playground — Edit, Run, Explore</div>
+        </div>
+        <nav>
+            <a href="https://headysystems.com">HeadySystems</a>
+            <a href="https://headybuddy.org">HeadyBuddy</a>
+            <a href="https://headymcp.com">HeadyMCP</a>
+        </nav>
+    </div>
+
+    <div class="playground">
+        <!-- ── Request Panel ── -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title req">⚡ Request</span>
+            </div>
+            <div class="endpoint-bar">
+                <span class="method-badge POST" id="method-badge">POST</span>
+                <select class="endpoint-select" id="endpoint-select" onchange="onEndpointChange()">
+                    <option value="POST|/api/brain/chat" data-body='{"message":"Hello Heady! What can you do?"}'>POST
+                        /api/brain/chat</option>
+                    <option value="POST|/api/vector/query"
+                        data-body='{"query":"How does the memory system work?","top_k":5}'>POST /api/vector/query
+                    </option>
+                    <option value="POST|/api/vector/store"
+                        data-body='{"content":"HeadyAPI is the interactive playground for testing Heady endpoints","metadata":{"source":"playground"}}'>
+                        POST /api/vector/store</option>
+                    <option value="POST|/api/memory/process"
+                        data-body='{"content":"Testing memory gain-or-reject protocol","type":"fact","significance":0.8}'>
+                        POST /api/memory/process</option>
+                    <option value="POST|/api/memory/recall" data-body='{"query":"vector embeddings","limit":5}'>POST
+                        /api/memory/recall</option>
+                    <option value="GET|/api/brain/health" data-body="">GET /api/brain/health</option>
+                    <option value="GET|/api/vector/stats" data-body="">GET /api/vector/stats</option>
+                    <option value="GET|/api/memory/health" data-body="">GET /api/memory/health</option>
+                    <option value="GET|/api/memory/stats" data-body="">GET /api/memory/stats</option>
+                    <option value="GET|/api/vector/3d/map" data-body="">GET /api/vector/3d/map</option>
+                </select>
+                <button class="run-btn" id="run-btn" onclick="runRequest()">▶ Run</button>
+            </div>
+            <div class="editor">
+                <textarea id="request-body" placeholder="Enter JSON request body..."></textarea>
+            </div>
+            <div class="status-bar">
+                <div class="status-dot ok" id="status-dot"></div>
+                <span id="status-text">Ready</span>
+                <span style="margin-left:auto" id="timing"></span>
+            </div>
+        </div>
+
+        <!-- ── Response Panel ── -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title res">📡 Response</span>
+                <span id="response-status" style="font-size:.8rem;font-family:'JetBrains Mono',monospace"></span>
+            </div>
+            <div class="response-tabs">
+                <div class="response-tab active" onclick="switchTab('pretty')" id="tab-pretty">✨ Pretty</div>
+                <div class="response-tab" onclick="switchTab('raw')" id="tab-raw">{ } Raw JSON</div>
+                <div class="response-tab" onclick="switchTab('headers')" id="tab-headers">📋 Headers</div>
+            </div>
+            <div class="response-content" id="response-content">
+                <div class="empty-state">
+                    <div class="icon">🚀</div>
+                    <p>Select an endpoint and hit <strong>Run</strong></p>
+                    <p style="font-size:.75rem;color:var(--dim)">Edit the request body on the left, then see results
+                        here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3301'
+            : 'https://api.headysystems.com';
+        let lastResponse = null, lastHeaders = null, currentTab = 'pretty';
+
+        function onEndpointChange() {
+            const sel = document.getElementById('endpoint-select');
+            const opt = sel.selectedOptions[0];
+            const [method] = sel.value.split('|');
+            const badge = document.getElementById('method-badge');
+            badge.textContent = method;
+            badge.className = `method-badge ${method}`;
+            const body = opt.getAttribute('data-body');
+            document.getElementById('request-body').value = body ? JSON.stringify(JSON.parse(body), null, 2) : '';
+        }
+
+        async function runRequest() {
+            const sel = document.getElementById('endpoint-select');
+            const [method, path] = sel.value.split('|');
+            const bodyText = document.getElementById('request-body').value.trim();
+            const btn = document.getElementById('run-btn');
+            const dot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const timing = document.getElementById('timing');
+
+            btn.disabled = true; btn.classList.add('running'); btn.textContent = '⏳ Running...';
+            dot.className = 'status-dot wait'; statusText.textContent = 'Sending...';
+
+            const start = performance.now();
+            try {
+                const opts = { method, headers: { 'Content-Type': 'application/json' } };
+                if (method === 'POST' && bodyText) opts.body = bodyText;
+                const res = await fetch(API_BASE + path, opts);
+                const elapsed = (performance.now() - start).toFixed(0);
+                const data = await res.json();
+                lastResponse = data;
+                lastHeaders = Object.fromEntries(res.headers.entries());
+
+                dot.className = res.ok ? 'status-dot ok' : 'status-dot err';
+                statusText.textContent = res.ok ? 'Success' : `Error ${res.status}`;
+                timing.textContent = `${elapsed}ms`;
+                document.getElementById('response-status').textContent = `${res.status} ${res.statusText}`;
+                document.getElementById('response-status').style.color = res.ok ? 'var(--success)' : 'var(--error)';
+                renderResponse();
+            } catch (e) {
+                const elapsed = (performance.now() - start).toFixed(0);
+                dot.className = 'status-dot err'; statusText.textContent = 'Failed';
+                timing.textContent = `${elapsed}ms`;
+                lastResponse = { error: e.message };
+                lastHeaders = {};
+                document.getElementById('response-status').textContent = 'Network Error';
+                document.getElementById('response-status').style.color = 'var(--error)';
+                renderResponse();
+            }
+            btn.disabled = false; btn.classList.remove('running'); btn.textContent = '▶ Run';
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.response-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            renderResponse();
+        }
+
+        function renderResponse() {
+            const container = document.getElementById('response-content');
+            if (!lastResponse) return;
+            if (currentTab === 'raw') {
+                container.innerHTML = `<pre>${syntaxHighlight(JSON.stringify(lastResponse, null, 2))}</pre>`;
+            } else if (currentTab === 'headers') {
+                container.innerHTML = `<pre>${syntaxHighlight(JSON.stringify(lastHeaders, null, 2))}</pre>`;
+            } else {
+                container.innerHTML = renderPretty(lastResponse);
+            }
+        }
+
+        function renderPretty(data) {
+            let html = '<div class="pretty-view">';
+            if (typeof data !== 'object' || data === null) {
+                html += `<div class="pretty-card"><div class="value">${escapeHtml(String(data))}</div></div>`;
+                return html + '</div>';
+            }
+            for (const [key, val] of Object.entries(data)) {
+                html += '<div class="pretty-card">';
+                html += `<h4>${escapeHtml(key)}</h4>`;
+                if (Array.isArray(val)) {
+                    html += '<div style="display:flex;flex-direction:column;gap:6px">';
+                    for (const item of val.slice(0, 20)) {
+                        if (typeof item === 'object' && item !== null) {
+                            html += `<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:.82rem">`;
+                            for (const [k, v] of Object.entries(item)) {
+                                const display = typeof v === 'string' ? v.substring(0, 200) : JSON.stringify(v);
+                                html += `<div><span style="color:var(--accent);font-size:.75rem">${escapeHtml(k)}:</span> <span style="color:var(--text)">${escapeHtml(String(display))}</span></div>`;
+                            }
+                            html += '</div>';
+                        } else {
+                            html += `<div style="color:var(--text);font-size:.85rem;padding:4px 0">${escapeHtml(String(item))}</div>`;
+                        }
+                    }
+                    if (val.length > 20) html += `<div style="color:var(--dim);font-size:.75rem">...and ${val.length - 20} more</div>`;
+                    html += '</div>';
+                } else if (typeof val === 'object' && val !== null) {
+                    html += `<pre style="font-size:.8rem;color:var(--text);margin:0">${syntaxHighlight(JSON.stringify(val, null, 2))}</pre>`;
+                } else if (typeof val === 'boolean') {
+                    html += `<div class="value ${val ? 'ok' : 'err'}">${val ? '✅ true' : '❌ false'}</div>`;
+                } else if (typeof val === 'number') {
+                    html += `<div class="value" style="color:var(--warning);font-family:'JetBrains Mono',monospace">${val.toLocaleString()}</div>`;
+                } else {
+                    html += `<div class="value">${escapeHtml(String(val))}</div>`;
+                }
+                html += '</div>';
+            }
+            return html + '</div>';
+        }
+
+        function syntaxHighlight(json) {
+            return escapeHtml(json).replace(/"([^"]+)"(?=\s*:)/g, '"<span class="json-key">$1</span>"')
+                .replace(/:\s*"([^"]*?)"/g, ': "<span class="json-str">$1</span>"')
+                .replace(/:\s*(\d+\.?\d*)/g, ': <span class="json-num">$1</span>')
+                .replace(/:\s*(true|false)/g, ': <span class="json-bool">$1</span>')
+                .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+        }
+
+        function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        // Init
+        onEndpointChange();
+    </script>
+
+    <!-- HeadyBuddy Universal Widget -->
+    <script>window.HEADY_API = 'https://api.headysystems.com';</script>
+    <script src="/buddy-widget.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "headybot-core",
+  "domain": "headybot.com",
+  "version": "1.0.0",
+  "generatedFrom": {
+    "repo": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642",
+    "commit": "REPLACE_WITH_COMMIT_SHA"
+  },
+  "purpose": "automation-runtime",
+  "includedSurfaces": [
+    "/health",
+    "/api/automation/jobs",
+    "/api/automation/status",
+    "/api/templates/recommend"
+  ],
+  "excludedSurfaces": [],
+  "contractPath": "configs/projection/projection-contracts.enhanced.yaml"
+}

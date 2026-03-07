@@ -1,0 +1,211 @@
+{
+  "id": "cb58bc1b-bbfc-4454-8c09-3d38989a66ec",
+  "trigger": "startup",
+  "startedAt": "2026-03-02T02:03:14.097Z",
+  "results": [
+    {
+      "test": "Health Check",
+      "type": "endpoint",
+      "path": "/healthz",
+      "statusCode": 404,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 139
+    },
+    {
+      "test": "Brain Chat",
+      "type": "endpoint",
+      "path": "/api/brain/chat",
+      "verdict": "warn",
+      "error": "timeout"
+    },
+    {
+      "test": "Brain Analyze",
+      "type": "endpoint",
+      "path": "/api/brain/analyze",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 178
+    },
+    {
+      "test": "Memory Search",
+      "type": "endpoint",
+      "path": "/api/memory/search",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 23
+    },
+    {
+      "test": "Conductor Status",
+      "type": "endpoint",
+      "path": "/api/conductor/status",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 20
+    },
+    {
+      "test": "Vector Federation",
+      "type": "endpoint",
+      "path": "/api/vector/federation",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 65
+    },
+    {
+      "test": "Optimizer Heartbeat",
+      "type": "endpoint",
+      "path": "/api/optimize/heartbeat",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 18
+    },
+    {
+      "test": "Scientist Status",
+      "type": "endpoint",
+      "path": "/api/scientist/status",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 14
+    },
+    {
+      "test": "HCFP Status",
+      "type": "endpoint",
+      "path": "/api/hcfp/status",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 20
+    },
+    {
+      "test": "Canvas Models",
+      "type": "endpoint",
+      "path": "/api/canvas/models",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 12
+    },
+    {
+      "test": "Creative Engine Status",
+      "type": "endpoint",
+      "path": "/api/creative/status",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 20
+    },
+    {
+      "test": "Learning Stats",
+      "type": "endpoint",
+      "path": "/api/learning/stats",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 13
+    },
+    {
+      "test": "Registry",
+      "type": "endpoint",
+      "path": "/api/registry",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 13
+    },
+    {
+      "test": "Battle Status",
+      "type": "endpoint",
+      "path": "/api/battle/status",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 191
+    },
+    {
+      "test": "Soul Status",
+      "type": "endpoint",
+      "path": "/api/soul/status",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 109
+    },
+    {
+      "test": "AI Nodes",
+      "type": "endpoint",
+      "path": "/api/nodes",
+      "statusCode": 403,
+      "expected": 200,
+      "verdict": "fail",
+      "responseMs": 13
+    },
+    {
+      "test": "Registry Schema",
+      "type": "schema",
+      "verdict": "fail",
+      "error": "Missing field: nodes"
+    },
+    {
+      "test": "Auto-Success Tasks Schema",
+      "type": "schema",
+      "verdict": "fail",
+      "error": "Missing field: tasks"
+    },
+    {
+      "test": "Optimization State Schema",
+      "type": "schema",
+      "verdict": "fail",
+      "error": "Missing field: cycles"
+    },
+    {
+      "test": "Config: configs/governance-policies.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 4617
+    },
+    {
+      "test": "Config: configs/file-governance.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 5127
+    },
+    {
+      "test": "Config: configs/hcfullpipeline.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 20706
+    },
+    {
+      "test": "Config: configs/ai-routing.yaml",
+      "type": "config",
+      "verdict": "warn",
+      "error": "1 localhost references"
+    },
+    {
+      "test": "Config: configs/stability-first.yaml",
+      "type": "config",
+      "verdict": "pass",
+      "size": 9151
+    },
+    {
+      "test": "Cross-Service Integration",
+      "type": "integration",
+      "verdict": "pass"
+    }
+  ],
+  "summary": {
+    "pass": 5,
+    "fail": 18,
+    "warn": 2,
+    "skip": 0
+  },
+  "completedAt": "2026-03-02T02:03:20.011Z",
+  "durationMs": 5914,
+  "overallVerdict": "FAIL"
+}

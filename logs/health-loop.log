@@ -1,0 +1,5 @@
+[HEALTH-LOOP] [2026-03-01T00:56:15.553Z] [INFO] ═══ Heady Autonomous Health Loop starting ═══
+[HEALTH-LOOP] [2026-03-01T00:56:15.556Z] [INFO] Interval: 60s | Warn after: 2 | Redeploy after: 5
+[HEALTH-LOOP] [2026-03-01T00:56:15.556Z] [INFO] Monitoring 5 services: heady-manager, heady-manager-health, headyme, 1ime1, edge-proxy
+[HEALTH-LOOP] [2026-03-01T00:56:15.811Z] [INFO] Check #1: 4/5 healthy
+[HEALTH-LOOP] [2026-03-01T00:56:15.811Z] [INFO] Single-pass mode — exiting after one check

@@ -1,0 +1,12 @@
+{
+  "name": "@heady/swarm-dashboard",
+  "version": "3.1.0",
+  "description": "Heady Swarm Dashboard — Real-time agent monitoring",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "src/App.js",
+  "scripts": {
+    "build": "webpack --config ../../webpack.config.js --env remote --env appName=swarm-dashboard",
+    "dev": "webpack serve --config ../../webpack.config.js --env remote --env appName=swarm-dashboard --mode development"
+  }
+}

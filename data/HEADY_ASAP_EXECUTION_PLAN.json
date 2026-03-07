@@ -1,0 +1,287 @@
+{
+  "IMMEDIATE_EXECUTION_PLAN": {
+    "generated": "2026-03-07T05:59:51.045618",
+    "status": "ASAP - ALL TASKS NOW",
+    "timeline": "ALL PHASES PARALLEL EXECUTION"
+  },
+  "CRITICAL_PATH_TASKS": [
+    {
+      "id": "CORE-001",
+      "priority": "P0 - BLOCKING",
+      "task": "Consolidate 90+ config files into single heady.config.yaml",
+      "action": "Create configs/heady.config.yaml with all kernel, app, infra, branding, MCP definitions",
+      "validation": "Zero config duplication, single source of truth",
+      "timeline": "NOW",
+      "blocking": [
+        "All subsequent tasks depend on config clarity"
+      ]
+    },
+    {
+      "id": "CORE-002",
+      "priority": "P0 - BLOCKING",
+      "task": "Decompose heady-manager.js (78KB monolith) into AIOS kernel modules",
+      "action": "Split into: scheduler.ts, context-manager.ts, memory-manager.ts, tool-manager.ts, hook-system.ts, access-manager.ts",
+      "validation": "Each module <500 lines, 100% testable",
+      "timeline": "NOW",
+      "blocking": [
+        "Cannot implement orchestration without modular kernel"
+      ]
+    },
+    {
+      "id": "CORE-003",
+      "priority": "P0 - BLOCKING",
+      "task": "Enforce ESM-only, delete all mixed ESM/CJS syntax",
+      "action": "Convert all require() to import, add 'type': 'module' to package.json, delete .cjs files",
+      "validation": "Zero import errors, clean module resolution",
+      "timeline": "NOW",
+      "blocking": [
+        "Build failures prevent all deployment"
+      ]
+    },
+    {
+      "id": "CORE-004",
+      "priority": "P0 - BLOCKING",
+      "task": "Delete all .ps1, .bat, .zip, .exe, deployment logs from repo root",
+      "action": "git rm *.ps1 *.bat *.zip *.exe *.log deployment-* from root and src/",
+      "validation": "Clean git status, zero cruft files",
+      "timeline": "NOW",
+      "blocking": [
+        "Repo hygiene prevents deterministic builds"
+      ]
+    }
+  ],
+  "PHASE_1_EDGE_INFRASTRUCTURE": [
+    {
+      "id": "EDGE-001",
+      "priority": "P1 - HIGH",
+      "task": "Deploy Cloudflare Workers for HeadyOS shell",
+      "action": "Migrate from Render \u2192 CF Workers, setup wrangler.toml, implement dynamic routing",
+      "deliverable": "heady-edge-composer.ts running on workers.dev",
+      "validation": "Sub-50ms TTFB globally, 10x latency reduction",
+      "timeline": "NOW",
+      "cmd": "cd apps/headyos && wrangler deploy"
+    },
+    {
+      "id": "EDGE-002",
+      "priority": "P1 - HIGH",
+      "task": "Setup Webpack 5 Module Federation for all micro-frontends",
+      "action": "Configure HeadyBuddy, HeadyLens, HeadyIDE, HeadyMonitor as remotes with shared design system",
+      "deliverable": "webpack.config.js with ModuleFederationPlugin for each app",
+      "validation": "70% bundle size reduction, lazy loading working",
+      "timeline": "NOW",
+      "cmd": "pnpm install @module-federation/enhanced && pnpm build:federation"
+    },
+    {
+      "id": "EDGE-003",
+      "priority": "P1 - HIGH",
+      "task": "Implement JIT component loading with React.lazy + Suspense",
+      "action": "Wrap all micro-frontend imports in React.lazy, add loading boundaries",
+      "deliverable": "HeadyOS shell loads 12KB, sections load on scroll",
+      "validation": "Zero wasted bandwidth, progressive enhancement",
+      "timeline": "NOW",
+      "file": "apps/headyos/src/App.tsx"
+    }
+  ],
+  "PHASE_2_INTELLIGENT_ORCHESTRATION": [
+    {
+      "id": "ORCH-001",
+      "priority": "P1 - HIGH",
+      "task": "Implement Monte Carlo scheduler with 10K simulations",
+      "action": "Build monte_carlo_scheduler.py with resource allocation logic",
+      "deliverable": "services/heady-orchestration/monte_carlo_scheduler.py",
+      "validation": "Optimal node selection across 10K scenarios, 40% cost reduction",
+      "timeline": "NOW",
+      "cmd": "python -m services.orchestration.monte_carlo_scheduler --test"
+    },
+    {
+      "id": "ORCH-002",
+      "priority": "P1 - HIGH",
+      "task": "Build custom Kubernetes HeadyOperator for morphing apps",
+      "action": "Create CRD HeadyApp.yaml, implement controller with morph logic",
+      "deliverable": "infra/k8s/heady-operator/ with full lifecycle management",
+      "validation": "Single heady/node:latest image morphs to any role",
+      "timeline": "NOW",
+      "cmd": "kubectl apply -f infra/k8s/heady-operator/crds/"
+    },
+    {
+      "id": "ORCH-003",
+      "priority": "P1 - HIGH",
+      "task": "Implement 5-level health probe system",
+      "action": "Build probe-orchestrator.ts with ping \u2192 functional \u2192 e2e \u2192 visual-llm \u2192 domain-sweep",
+      "deliverable": "services/heady-health/probe-orchestrator.ts",
+      "validation": "95% reduction in undetected failures, auto-escalation to HeadyBrain",
+      "timeline": "NOW",
+      "cmd": "node services/heady-health/probe-orchestrator.js --dry-run"
+    },
+    {
+      "id": "ORCH-004",
+      "priority": "P1 - HIGH",
+      "task": "Wire PDCA self-healing loop into HeadyBrain",
+      "action": "Implement Plan-Do-Check-Act cycle for autonomous fix generation",
+      "deliverable": "services/heady-brain/pdca-loop.ts with diagnosis \u2192 fix \u2192 verify",
+      "validation": "System learns from failures, proposes structural improvements",
+      "timeline": "NOW",
+      "file": "services/heady-brain/pdca-loop.ts"
+    }
+  ],
+  "PHASE_3_DYNAMIC_CONNECTORS": [
+    {
+      "id": "CONN-001",
+      "priority": "P1 - HIGH",
+      "task": "Implement MCP Gateway with JIT tool loading",
+      "action": "Build jit-tool-loader.ts with intent detection + on-demand import",
+      "deliverable": "services/heady-mcp/jit-tool-loader.ts",
+      "validation": "60% context window savings, zero startup tool registration",
+      "timeline": "NOW",
+      "cmd": "node services/heady-mcp/jit-tool-loader.js --benchmark"
+    },
+    {
+      "id": "CONN-002",
+      "priority": "P1 - HIGH",
+      "task": "Build intelligent MCP router with multi-tenant support",
+      "action": "Create mcp-gateway/intelligent-router.ts with role-based routing + rate limiting",
+      "deliverable": "services/mcp-gateway/intelligent-router.ts",
+      "validation": "Least-latency routing, 1000 calls/hour per user",
+      "timeline": "NOW",
+      "cmd": "node services/mcp-gateway/intelligent-router.js --test"
+    },
+    {
+      "id": "CONN-003",
+      "priority": "P1 - HIGH",
+      "task": "Implement connector auto-discovery protocol",
+      "action": "Build connector-watcher.ts that auto-registers new MCP servers",
+      "deliverable": "services/mcp-gateway/connector-watcher.ts",
+      "validation": "New connectors live in <5 minutes, agent broadcast working",
+      "timeline": "NOW",
+      "file": "services/mcp-gateway/connector-watcher.ts"
+    }
+  ],
+  "PHASE_4_GENERATIVE_UI": [
+    {
+      "id": "UI-001",
+      "priority": "P2 - MEDIUM",
+      "task": "Implement Gemini-powered UI generation engine",
+      "action": "Build generative-ui-engine.ts with sandboxed component rendering",
+      "deliverable": "services/heady-buddy/generative-ui-engine.ts",
+      "validation": "Generates JSX from prompts, XSS/injection safe",
+      "timeline": "NOW",
+      "cmd": "node services/heady-buddy/generative-ui-engine.js --demo"
+    },
+    {
+      "id": "UI-002",
+      "priority": "P2 - MEDIUM",
+      "task": "Build SandboxedComponent with permission isolation",
+      "action": "Create React component that safely renders LLM-generated JSX",
+      "deliverable": "apps/headyos/src/components/SandboxedComponent.tsx",
+      "validation": "No DOM access, restricted APIs, crash isolation",
+      "timeline": "NOW",
+      "file": "apps/headyos/src/components/SandboxedComponent.tsx"
+    }
+  ],
+  "PHASE_5_HIVE_ARCHITECTURE": [
+    {
+      "id": "HIVE-001",
+      "priority": "P1 - HIGH",
+      "task": "Build universal Docker container heady/node:latest",
+      "action": "Create Dockerfile with morphing capability via NODE_ROLE env var",
+      "deliverable": "infra/docker/Dockerfile.universal",
+      "validation": "Single image, JIT installs tools per role, <500MB base",
+      "timeline": "NOW",
+      "cmd": "docker build -t heady/node:latest -f infra/docker/Dockerfile.universal ."
+    },
+    {
+      "id": "HIVE-002",
+      "priority": "P1 - HIGH",
+      "task": "Implement MorphEngine for hot role-swapping",
+      "action": "Build morph-engine.ts that downloads tools + reconfigures without restart",
+      "deliverable": "services/heady-hive/morph-engine.ts",
+      "validation": "Role change in <10s, zero downtime",
+      "timeline": "NOW",
+      "file": "services/heady-hive/morph-engine.ts"
+    },
+    {
+      "id": "HIVE-003",
+      "priority": "P1 - HIGH",
+      "task": "Create orphan-branch Git forge for deployment artifacts",
+      "action": "Build forge script that squashes history into single compressed commit",
+      "deliverable": "scripts/forge-deployment.sh",
+      "validation": "Deterministic builds, zero Git bloat, single-commit deploys",
+      "timeline": "NOW",
+      "cmd": "bash scripts/forge-deployment.sh --dry-run"
+    }
+  ],
+  "PHASE_6_SECURITY_HARDENING": [
+    {
+      "id": "SEC-001",
+      "priority": "P0 - BLOCKING",
+      "task": "Implement 1Password JIT secrets injection",
+      "action": "Build secrets-manager.ts that fetches credentials on-demand, never in context",
+      "deliverable": "services/heady-security/secrets-manager.ts",
+      "validation": "Zero secrets in LLM context, audit trail for all access",
+      "timeline": "NOW",
+      "cmd": "node services/heady-security/secrets-manager.js --audit"
+    },
+    {
+      "id": "SEC-002",
+      "priority": "P1 - HIGH",
+      "task": "Enforce role isolation matrix (coordinators can't edit, executors can't delegate)",
+      "action": "Build permission enforcer in orchestration kernel",
+      "deliverable": "services/heady-orchestration/role-enforcer.ts",
+      "validation": "Agent tool access matches role definition, violations blocked",
+      "timeline": "NOW",
+      "file": "services/heady-orchestration/role-enforcer.ts"
+    }
+  ],
+  "PHASE_7_WEBSITE_FIXES": [
+    {
+      "id": "WEB-001",
+      "priority": "P0 - BLOCKING",
+      "task": "Fix HeadyMe.com broken auth gating + empty placeholders",
+      "action": "Replace admin UI with public landing page, remove sign-in gate",
+      "deliverable": "apps/headyme/src/pages/index.tsx rewritten",
+      "validation": "Public sees product info, not admin interface",
+      "timeline": "NOW",
+      "file": "apps/headyme/src/pages/index.tsx"
+    },
+    {
+      "id": "WEB-002",
+      "priority": "P0 - BLOCKING",
+      "task": "Fix HeadyAPI.com presenting 'Paste your key' copy",
+      "action": "Replace with API documentation + usage examples",
+      "deliverable": "apps/headyapi/src/pages/index.tsx with docs",
+      "validation": "Developers see how to use API, not admin setup",
+      "timeline": "NOW",
+      "file": "apps/headyapi/src/pages/index.tsx"
+    },
+    {
+      "id": "WEB-003",
+      "priority": "P0 - BLOCKING",
+      "task": "Fix HeadyConnection.com same broken state",
+      "action": "Replace with nonprofit mission + grant info",
+      "deliverable": "apps/headyconnection/src/pages/index.tsx with mission statement",
+      "validation": "Public sees nonprofit purpose, not technical admin",
+      "timeline": "NOW",
+      "file": "apps/headyconnection/src/pages/index.tsx"
+    }
+  ],
+  "DEPLOYMENT_COMMANDS": {
+    "config_consolidation": "cat configs/*.yaml > configs/heady.config.yaml && rm configs/!(heady.config.yaml)",
+    "clean_repo": "git rm *.ps1 *.bat *.zip *.exe *.log deployment-* && git clean -fdx",
+    "esm_only": "find . -name '*.js' -exec sed -i 's/require(/import /g' {} + && jq '.type = \"module\"' package.json > tmp.json && mv tmp.json package.json",
+    "build_universal_container": "docker build -t heady/node:latest -f infra/docker/Dockerfile.universal .",
+    "deploy_edge": "cd apps/headyos && wrangler deploy",
+    "start_orchestration": "docker-compose -f infra/docker/compose.orchestration.yaml up -d",
+    "test_health_probes": "node services/heady-health/probe-orchestrator.js --full-sweep",
+    "deploy_mcp_gateway": "docker run -d -p 3301:3301 heady/mcp-gateway:latest",
+    "fix_websites": "cd apps && for app in headyme headyapi headyconnection; do cd $app && pnpm build && pnpm deploy && cd ..; done"
+  },
+  "SUCCESS_CRITERIA": {
+    "config": "Single heady.config.yaml, zero duplication",
+    "kernel": "12 modular TypeScript files, each <500 lines, 100% coverage",
+    "performance": "Sub-50ms TTFB globally, 70% bundle reduction, 40% cost savings",
+    "reliability": "95% fewer undetected failures, self-healing working",
+    "security": "Zero secrets in LLM context, role isolation enforced",
+    "deployment": "Single universal container, morphs in <10s, deterministic builds",
+    "websites": "All domains show correct public content, zero admin gating"
+  }
+}

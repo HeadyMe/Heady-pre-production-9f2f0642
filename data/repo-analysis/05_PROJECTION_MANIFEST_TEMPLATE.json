@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "projection": true,
+  "source_repo": "HeadyMe/Heady-pre-production-9f2f0642",
+  "source_path": "src/<canonical-module>",
+  "projection_type": "site-shell",
+  "target_repo": "HeadyMe/<target-repo>",
+  "last_projection_commit": "<git-sha>",
+  "last_projection_at": "<iso-8601>",
+  "last_verified_at": "<iso-8601>",
+  "live_url": "https://<domain>",
+  "deploy_mode": "cloud-run",
+  "health_url": "https://<domain>/health",
+  "status": "healthy",
+  "notes": [
+    "Set status to drifted if the target repo is not aligned with the latest source commit.",
+    "Set projection_type to docs, production-target, service-shell, or full-service as needed.",
+    "Publish this file at the repo root of every projected repo."
+  ]
+}

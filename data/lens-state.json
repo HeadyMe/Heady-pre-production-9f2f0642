@@ -1,0 +1,126 @@
+{
+  "lastRealtimePoll": "2026-03-02T02:03:24.183Z",
+  "services": [
+    {
+      "service": "heady-brain",
+      "endpoint": "/api/brain/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.165Z"
+    },
+    {
+      "service": "heady-soul",
+      "endpoint": "/api/soul/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.169Z"
+    },
+    {
+      "service": "heady-battle",
+      "endpoint": "/api/battle/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.171Z"
+    },
+    {
+      "service": "heady-hcfp",
+      "endpoint": "/api/hcfp/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.172Z"
+    },
+    {
+      "service": "heady-patterns",
+      "endpoint": "/api/patterns/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.173Z"
+    },
+    {
+      "service": "heady-ops",
+      "endpoint": "/api/ops/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.174Z"
+    },
+    {
+      "service": "heady-maintenance",
+      "endpoint": "/api/maintenance/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.174Z"
+    },
+    {
+      "service": "heady-vinci",
+      "endpoint": "/api/vinci/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.175Z"
+    },
+    {
+      "service": "heady-notion",
+      "endpoint": "/api/notion/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.177Z"
+    },
+    {
+      "service": "heady-auto-success",
+      "endpoint": "/api/auto-success/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.179Z"
+    },
+    {
+      "service": "heady-conductor",
+      "endpoint": "/api/conductor/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.180Z"
+    },
+    {
+      "service": "heady-lens",
+      "endpoint": "/api/lens/health",
+      "status": "down",
+      "healthy": false,
+      "latencyMs": null,
+      "error": "connect ECONNREFUSED 127.0.0.1:3301",
+      "source": "heady-lens",
+      "ts": "2026-03-02T02:03:24.181Z"
+    }
+  ],
+  "updatedAt": "2026-03-02T02:03:24.183Z"
+}

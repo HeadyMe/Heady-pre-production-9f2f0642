@@ -1,0 +1,24 @@
+[
+  {
+    "id": "LR-AUTO-1772362226756",
+    "errorKey": "ConnectionError:test",
+    "constraintViolation": "LOGIC_DIVERGENCE",
+    "failedModule": "buddy-core.test.js",
+    "errorMessage": "test-error: connection refused",
+    "resolution": "Auto-detected; monitoring for recurrence",
+    "synthesizedAt": "2026-03-01T10:50:26.756Z",
+    "occurrences": 7,
+    "lastSeen": "2026-03-07T12:20:00.910Z"
+  },
+  {
+    "id": "LR-AUTO-1772362226764",
+    "errorKey": "Error:test",
+    "constraintViolation": "TIMEOUT_EXCEEDED",
+    "failedModule": "buddy-core.test.js",
+    "errorMessage": "ETIMEDOUT: operation timed out",
+    "resolution": "Auto-detected; monitoring for recurrence",
+    "synthesizedAt": "2026-03-01T10:50:26.764Z",
+    "occurrences": 11,
+    "lastSeen": "2026-03-07T12:20:00.922Z"
+  }
+]

@@ -1,0 +1,53 @@
+id: projection-deployment-swarm
+name: Projection Deployment Swarm
+version: 1.0.0
+role: Generate and sync projected repos with domain-specific API surfaces and deployment manifests.
+allocation:
+  strategy: fibonacci-weighted
+  weight: 21
+  priorityLevel: 2
+includedBeeTemplates: [autonomous-projection-keeper, deployment-launch-builder, swarm-routing-optimizer]
+workerAssignments:
+  - beeTemplateId: autonomous-projection-keeper
+    role: lead
+    instances: 2
+  - beeTemplateId: deployment-launch-builder
+    role: primary
+    instances: 2
+  - beeTemplateId: swarm-routing-optimizer
+    role: support
+    instances: 1
+communication:
+  - target: operations-autonomy-swarm
+    channelType: state-sync
+    topic: heady.projection.state
+    priority: 8
+  - target: security-compliance-swarm
+    channelType: rpc
+    topic: heady.projection.governance
+    priority: 9
+scaling:
+  rules:
+    - trigger: queue_depth
+      threshold: 30
+      direction: up
+      minInstances: 1
+      maxInstances: 13
+healthChecks:
+  - protocol: http
+    endpoint: /projection/health
+    intervalSeconds: 20
+    timeoutSeconds: 8
+projection:
+  enabled: true
+  uiRegion: panel-top
+  apiSurface: [/api/projection/status, /api/projection/manifest, /api/projection/sync]
+  projectionTargets: [headyme-core, headymcp-core, headysystems-core, headybuddy-core, headyos-core, headybot-core, heady-docs]
+observability:
+  metrics: [projection_sync_count, projection_drift_count, tti, sync_rtt]
+  alerts: [BuildFailed, SyncFailed]
+  receipts: [projection-receipt, release-gate-report]
+governance:
+  ownerNode: projection-engine
+  releaseGate: projection-release-gate
+  requiredReceipts: [projection-receipt, release-gate-report]

@@ -1,0 +1,432 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Production Docker Compose
+#
+# CHANGES from docker-compose.yml (dev):
+#   [NEW]      Production-specific compose — was referenced in docs but didn't exist
+#   [SECURITY] Removed bind mount of entire project directory (:./app) — dev anti-pattern
+#   [SECURITY] Secrets via .env.production file, not baked into image
+#   [SECURITY] No public port exposure for DB/Redis — internal network only
+#   [RESOURCE] CPU + memory limits on all services — prevent one service starving others
+#   [HEALTH]   Proper healthcheck gates with condition: service_healthy on all deps
+#   [OPS]      Explicit restart policies with exponential delay
+#   [OPS]      Named network with explicit subnet for firewall rules
+#   [OPS]      PgBouncer properly depends on postgres healthy
+#   [OPS]      Redis with password, persistence, and maxmemory policy
+#   [OPS]      OTEL collector pinned to specific version (not :latest)
+#   [OPS]      Cloudflared tunnel for production traffic (no public ports)
+#   [OPS]      Log rotation via logging driver options
+#
+# Usage:
+#   docker compose -f docker-compose.production.yml --env-file .env.production up -d
+#   docker compose -f docker-compose.production.yml ps
+#   docker compose -f docker-compose.production.yml logs -f heady-manager
+#
+# Prerequisites:
+#   - .env.production file (see env-example for template)
+#   - configs/observability/otel-config.yml
+#   - CLOUDFLARE_TUNNEL_TOKEN in .env.production
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# CHANGE: 'version' field is deprecated in Compose Spec — removed.
+# Modern Docker Compose (v2.20+) parses without it.
+
+services:
+
+  # ── Primary Application ────────────────────────────────────────────────────
+  heady-manager:
+    image: ${REGISTRY:-us-central1-docker.pkg.dev}/${GCP_PROJECT:-heady-project}/heady/heady-manager:${IMAGE_TAG:-latest}
+    # CHANGE: Use pre-built image in production, not local build.
+    # Build happens in CI/CD pipeline, not at runtime.
+    # To use local build: comment above and uncomment:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.optimized
+
+    container_name: heady-manager
+    restart: unless-stopped
+
+    # CHANGE: Removed public port binding — traffic flows through cloudflared tunnel.
+    # If running without cloudflare, uncomment:
+    # ports:
+    #   - "127.0.0.1:8080:8080"  # Bind to localhost only
+
+    env_file:
+      - .env.production
+
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      # DATABASE_URL and REDIS_URL override .env.production to use internal service names
+      DATABASE_URL: postgresql://${POSTGRES_USER:-heady}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-heady_production}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      OTEL_EXPORTER_ENDPOINT: http://otel-collector:4318
+      # CHANGE: Registry path relative to container working dir, not bare-metal path
+      HEADY_REGISTRY_PATH: /app/heady-registry.json
+      # CHANGE: Never set NODE_TLS_REJECT_UNAUTHORIZED=0 in production
+      # NODE_TLS_REJECT_UNAUTHORIZED: '1' is the default — do NOT override
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_started
+      otel-collector:
+        condition: service_started
+
+    # CHANGE: Explicit resource limits — prevent OOM from taking down other services.
+    # Tune based on observed heap usage from /health/full memory metrics.
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+    # CHANGE: Named volume for data persistence — no bind mount to host FS
+    volumes:
+      - heady-data:/app/data
+      - heady-logs:/app/logs
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health/live"]
+      interval: 30s
+      timeout: 10s
+      start_period: 45s
+      retries: 3
+
+    networks:
+      - heady-internal
+
+    # CHANGE: Structured log output with rotation — prevents disk exhaustion
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "5"
+        tag: "heady-manager"
+
+  # ── Background Worker ──────────────────────────────────────────────────────
+  # CHANGE: Separate worker service for background jobs (autonomous engine, benchmarks)
+  # Isolates long-running jobs from request-serving capacity
+  heady-worker:
+    image: ${REGISTRY:-us-central1-docker.pkg.dev}/${GCP_PROJECT:-heady-project}/heady/heady-manager:${IMAGE_TAG:-latest}
+    container_name: heady-worker
+    restart: unless-stopped
+
+    env_file:
+      - .env.production
+
+    environment:
+      NODE_ENV: production
+      PORT: 8081
+      SERVICE_ROLE: worker
+      DATABASE_URL: postgresql://${POSTGRES_USER:-heady}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-heady_production}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+
+    volumes:
+      - heady-data:/app/data
+      - heady-logs:/app/logs
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/health/live"]
+      interval: 60s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+    networks:
+      - heady-internal
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+        tag: "heady-worker"
+
+  # ── PostgreSQL 16 + pgvector ───────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: heady-postgres
+    restart: unless-stopped
+
+    # CHANGE: No public port binding in production — accessible only within heady-internal network
+    # Expose to host only for emergency maintenance:
+    # ports:
+    #   - "127.0.0.1:5432:5432"
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-heady}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_DB: ${POSTGRES_DB:-heady_production}
+      # Performance tuning
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+
+    # CHANGE: Explicit PostgreSQL performance configuration
+    command:
+      - postgres
+      - -c
+      - max_connections=200
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - effective_cache_size=1GB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - wal_buffers=16MB
+      - -c
+      - default_statistics_target=100
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+      - -c
+      - log_min_duration_statement=1000
+      - -c
+      - log_connections=on
+      - -c
+      - ssl=off  # SSL terminated at pgbouncer/cloudflare level
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-heady} -d ${POSTGRES_DB:-heady_production}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+    networks:
+      - heady-internal
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # ── PgBouncer Connection Pooler ────────────────────────────────────────────
+  pgbouncer:
+    image: edoburu/pgbouncer:1.22.1
+    # CHANGE: Pinned version (was 'latest' — unpredictable upgrades)
+    container_name: heady-pgbouncer
+    restart: unless-stopped
+
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-heady}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-heady_production}
+      POOL_MODE: transaction
+      # CHANGE: Connection limits tuned for Cloud Run concurrency
+      # At 10 max instances × 100 concurrency = 1000 app connections
+      # PgBouncer pools these to MAX_DB_CONNECTIONS connections to Postgres
+      DEFAULT_POOL_SIZE: 25
+      MAX_CLIENT_CONN: 500
+      MAX_DB_CONNECTIONS: 50
+      MIN_POOL_SIZE: 5
+      RESERVE_POOL_SIZE: 5
+      RESERVE_POOL_TIMEOUT: 3
+      SERVER_IDLE_TIMEOUT: 600
+      CLIENT_IDLE_TIMEOUT: 0
+      IGNORE_STARTUP_PARAMETERS: extra_float_digits
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+
+    networks:
+      - heady-internal
+
+  # ── Redis 7 ───────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    # CHANGE: Pinned to minor version (was 7-alpine — patch updates silently apply)
+    container_name: heady-redis
+    restart: unless-stopped
+
+    # CHANGE: Password required in production, AOF persistence enabled
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:?REDIS_PASSWORD required}
+      - --maxmemory
+      - 512mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --appendonly
+      - "yes"
+      - --appendfsync
+      - everysec
+      - --save
+      - "900 1"
+      - --save
+      - "300 10"
+      - --loglevel
+      - notice
+      - --tcp-keepalive
+      - "300"
+      - --timeout
+      - "0"
+
+    volumes:
+      - redisdata:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 768M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+    networks:
+      - heady-internal
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ── OpenTelemetry Collector ────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    # CHANGE: Pinned version (was :latest — major version changes silently apply)
+    container_name: heady-otel-collector
+    restart: unless-stopped
+
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+
+    volumes:
+      - ./configs/observability/otel-config.yml:/etc/otelcol-contrib/config.yaml:ro
+
+    # CHANGE: Internal ports only — Prometheus scrapes within Docker network
+    # External Prometheus access: add 127.0.0.1:8889:8889 for host-level scrape
+    expose:
+      - "4317"  # gRPC
+      - "4318"  # HTTP
+      - "8889"  # Prometheus metrics
+
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:13133/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+    networks:
+      - heady-internal
+
+  # ── Cloudflare Tunnel ──────────────────────────────────────────────────────
+  # CHANGE: Added cloudflared tunnel service — routes all 9 production domains
+  # to heady-manager without exposing public ports on the host.
+  # Replaces: no public port binding requirement
+  cloudflared:
+    image: cloudflare/cloudflared:2025.2.1
+    container_name: heady-cloudflared
+    restart: unless-stopped
+
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN required}
+
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+
+    depends_on:
+      heady-manager:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+
+    networks:
+      - heady-internal
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+# ── Volumes ────────────────────────────────────────────────────────────────────
+volumes:
+  pgdata:
+    driver: local
+    # CHANGE: External volume for data persistence across container recreations
+    # In production: use a managed disk or cloud storage mount
+  redisdata:
+    driver: local
+  heady-data:
+    driver: local
+  heady-logs:
+    driver: local
+
+# ── Networks ───────────────────────────────────────────────────────────────────
+networks:
+  heady-internal:
+    # CHANGE: Named, isolated network with explicit driver.
+    # Services are NOT accessible from outside this network except via cloudflared.
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+    labels:
+      com.heady.network: "production-internal"

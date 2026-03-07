@@ -1,0 +1,6 @@
+{"type":"conductor:task-outcome","taskId":"test-task-a","status":"failed","attempts":1,"reason":"timeout","ts":"2026-03-07T05:16:40.867Z"}
+{"type":"conductor:dlq:add","id":"dlq-mmfvfehw-7mfidg","taskId":"test-task-a","attempts":2,"status":"failed","reason":"timeout","payload":null,"ts":"2026-03-07T05:16:40.868Z"}
+{"type":"conductor:task-outcome","taskId":"test-task-a","status":"failed","attempts":1,"reason":"timeout","ts":"2026-03-07T05:17:06.732Z"}
+{"type":"conductor:dlq:add","id":"dlq-mmfvfygd-vbwxdr","taskId":"test-task-a","attempts":2,"status":"failed","reason":"timeout","payload":null,"ts":"2026-03-07T05:17:06.733Z"}
+{"type":"conductor:task-outcome","taskId":"test-task-a","status":"failed","attempts":1,"reason":"timeout","ts":"2026-03-07T12:20:03.142Z"}
+{"type":"conductor:dlq:add","id":"dlq-mmgajv0m-ty64iz","taskId":"test-task-a","attempts":2,"status":"failed","reason":"timeout","payload":null,"ts":"2026-03-07T12:20:03.142Z"}
