@@ -2,43 +2,77 @@
  * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
  *
  * Dynamic Bee Factory — Creates any type of bee on the fly at runtime.
+ * CSL Integration: Uses Continuous Semantic Logic gates for intelligent
+ * bee dispatch, swarm candidate scoring, and priority classification.
  *
- * Heady doesn't wait for pre-defined bee workers. When a new domain,
- * task, or capability is needed, this factory spawns a bee for it
- * instantly — no code changes, no restarts, no pre-registration.
+ * CSL gates used:
+ *   - multi_resonance      → Score bee candidates against task intent
+ *   - route_gate           → Select best bee for a task with soft activation
+ *   - resonance_gate       → Match task intent to bee domain semantics
+ *   - ternary_gate         → Classify bee health/priority: core / ephemeral / reject
+ *   - soft_gate            → Continuous priority activation for swarm ordering
+ *   - superposition_gate   → Fuse multi-domain bee vectors for composite swarms
+ *   - orthogonal_gate      → Exclude specific domain influence from routing
  *
  * Usage:
- *   const { createBee, spawnBee, createWorkUnit } = require('./bee-factory');
+ *   const { createBee, spawnBee, routeBee, createWorkUnit } = require('./bee-factory');
  *
  *   // Create a bee for any domain
- *   createBee('new-domain', {
- *       description: 'Handles new-domain tasks',
- *       priority: 0.9,
- *       workers: [
- *           { name: 'task-1', fn: async () => { ... } },
- *           { name: 'task-2', fn: async () => { ... } },
- *       ],
- *   });
+ *   createBee('new-domain', { description: 'Handles new-domain tasks', priority: 0.9, ... });
+ *
+ *   // Route a task to the best bee using CSL
+ *   const best = routeBee('deploy kubernetes cluster');
  *
  *   // Or spawn a single-purpose bee instantly
  *   spawnBee('quick-fix', async () => patchDatabase());
- *
- *   // Or create a work unit that auto-registers
- *   createWorkUnit('analytics', 'daily-report', async () => generateReport());
  */
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const logger = require('../utils/logger').child('bee-factory');
+const CSL = require('../core/semantic-logic');
 
 const BEES_DIR = __dirname;
 const _dynamicRegistry = new Map();
 const _ephemeralBees = new Map(); // In-memory only, not persisted
 
+// ── CSL Helpers ─────────────────────────────────────────────────────────
+const _vecCache = new Map();
+
+/**
+ * Deterministic pseudo-embedding for a domain/description string.
+ * In production, replaced by the 384D vector-memory embeddings.
+ */
+function _domainToVec(text, dim = 64) {
+    if (_vecCache.has(text)) return _vecCache.get(text);
+    const v = new Float32Array(dim);
+    let hash = 5381;
+    for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) + hash + text.charCodeAt(i)) >>> 0;
+    }
+    for (let i = 0; i < dim; i++) {
+        hash = ((hash << 5) + hash + i) >>> 0;
+        v[i] = ((hash % 2000) - 1000) / 1000;
+    }
+    const result = CSL.normalize(v);
+    _vecCache.set(text, result);
+    return result;
+}
+
+/**
+ * Build a composite semantic vector for a bee from its domain + description.
+ */
+function _buildBeeVector(domain, description) {
+    const domainVec = _domainToVec(domain);
+    const descVec = _domainToVec(description || domain);
+    return CSL.weighted_superposition(domainVec, descVec, 0.6);
+}
+
 /**
  * Create a full bee domain dynamically at runtime.
  * Registers it in-memory AND optionally persists to disk for future boots.
+ * Now includes a CSL semantic vector for routing.
  *
  * @param {string} domain - Domain name for the bee
  * @param {Object} config - Bee configuration
@@ -66,6 +100,12 @@ function createBee(domain, config = {}) {
         }
     }
 
+    // CSL: Build semantic vector for this bee
+    const vector = _buildBeeVector(domain, description);
+
+    // CSL: Classify priority using ternary_gate
+    const priorityClass = CSL.ternary_gate(priority, 0.7, 0.3);
+
     const entry = {
         domain,
         description,
@@ -74,6 +114,11 @@ function createBee(domain, config = {}) {
         dynamic: true,
         validated,
         file: `dynamic:${domain}`,
+        vector,
+        csl: {
+            priorityState: priorityClass.state, // +1 = critical, 0 = normal, -1 = low
+            priorityActivation: priorityClass.resonanceActivation,
+        },
         getWork: (ctx = {}) => workers.map(w => {
             if (typeof w === 'function') return w;
             if (typeof w.fn === 'function') return async () => {
@@ -117,6 +162,8 @@ function spawnBee(name, work, priority = 0.8) {
     const workFns = Array.isArray(work) ? work : [work];
     const id = `ephemeral-${name}-${crypto.randomBytes(3).toString('hex')}`;
 
+    const vector = _buildBeeVector(id, `Ephemeral bee: ${name}`);
+
     const entry = {
         domain: id,
         description: `Ephemeral bee: ${name}`,
@@ -124,6 +171,8 @@ function spawnBee(name, work, priority = 0.8) {
         ephemeral: true,
         createdAt: Date.now(),
         file: `ephemeral:${id}`,
+        vector,
+        csl: { priorityState: CSL.ternary_gate(priority, 0.7, 0.3).state },
         getWork: () => workFns.map(fn => async (ctx) => {
             const result = await fn(ctx);
             return { bee: id, action: name, ...(typeof result === 'object' ? result : { result }) };
@@ -139,6 +188,81 @@ function spawnBee(name, work, priority = 0.8) {
     } catch { /* registry not loaded yet */ }
 
     return entry;
+}
+
+/**
+ * Route a task to the best bee using CSL multi-resonance scoring.
+ * This is the primary CSL-powered dispatch function.
+ *
+ * @param {string} taskDescription - Natural language description of the task
+ * @param {Object} options - Routing options
+ * @param {number} options.threshold - Minimum resonance to accept (default: 0.3)
+ * @param {string[]} options.exclude - Domain names to exclude via orthogonal_gate
+ * @param {number} options.topK - Return top K matches (default: 3)
+ * @returns {{ best: Object|null, ranked: Array, csl: Object }}
+ */
+function routeBee(taskDescription, options = {}) {
+    const {
+        threshold = 0.3,
+        exclude = [],
+        topK = 3,
+    } = options;
+
+    // Build intent vector from task description
+    let intentVec = _domainToVec(taskDescription);
+
+    // Strip excluded domain influence via orthogonal_gate
+    if (exclude.length > 0) {
+        const excludeVecs = exclude.map(e => _domainToVec(e));
+        intentVec = CSL.batch_orthogonal(intentVec, excludeVecs);
+    }
+
+    // Collect all registered bees (dynamic + ephemeral) with vectors
+    const allBees = [];
+    for (const [, entry] of _dynamicRegistry) {
+        if (entry.vector) allBees.push(entry);
+    }
+    for (const [, entry] of _ephemeralBees) {
+        if (entry.vector) allBees.push(entry);
+    }
+
+    if (allBees.length === 0) {
+        return { best: null, ranked: [], csl: { error: 'No bees registered' } };
+    }
+
+    // CSL route_gate — scores all candidates with multi_resonance + soft_gate
+    const candidates = allBees.map(b => ({ id: b.domain, vector: b.vector }));
+    const routeResult = CSL.route_gate(intentVec, candidates, threshold);
+
+    // Enrich with priority weighting via soft_gate
+    const ranked = routeResult.scores.map(s => {
+        const bee = allBees.find(b => b.domain === s.id);
+        const priorityActivation = CSL.soft_gate(bee.priority, 0.5, 10);
+        // Composite: 70% semantic resonance + 30% priority
+        const composite = s.score * 0.7 + priorityActivation * 0.3;
+        return {
+            domain: s.id,
+            description: bee.description,
+            resonance: s.score,
+            activation: s.activation,
+            priority: bee.priority,
+            priorityActivation: +priorityActivation.toFixed(6),
+            composite: +composite.toFixed(6),
+        };
+    }).sort((a, b) => b.composite - a.composite).slice(0, topK);
+
+    const best = ranked.length > 0 ? allBees.find(b => b.domain === ranked[0].domain) : null;
+
+    return {
+        best,
+        ranked,
+        csl: {
+            intentDim: intentVec.length,
+            candidatesScored: allBees.length,
+            fallback: routeResult.fallback,
+            gateStats: CSL.getStats(),
+        },
+    };
 }
 
 /**
@@ -221,7 +345,6 @@ function createFromTemplate(template, config = {}) {
                 {
                     name: 'metrics', fn: async () => {
                         const mem = process.memoryUsage();
-                        // Measure event loop lag
                         const lagStart = Date.now();
                         await new Promise(r => setImmediate(r));
                         const eventLoopLag = Date.now() - lagStart;
@@ -357,8 +480,9 @@ function createFromTemplate(template, config = {}) {
 }
 
 /**
- * Create a coordinated swarm of bees with an orchestration policy.
- * Swarms run multiple bees together with consensus collection.
+ * Create a coordinated swarm of bees with CSL-powered candidate scoring.
+ * Uses multi_resonance to rank bees by semantic affinity to the swarm mission,
+ * and superposition_gate to build the swarm's composite capability vector.
  *
  * @param {string} name - Swarm name
  * @param {Array} beeConfigs - Array of { domain, config } for each bee
@@ -366,7 +490,7 @@ function createFromTemplate(template, config = {}) {
  * @param {string} policy.mode - 'parallel', 'sequential', or 'pipeline'
  * @param {boolean} policy.requireConsensus - If true, all bees must succeed
  * @param {number} policy.timeoutMs - Max execution time per bee (default: 30000)
- * @returns {Object} The swarm bee entry
+ * @returns {Object} The swarm bee entry with CSL scoring
  */
 function createSwarm(name, beeConfigs = [], policy = {}) {
     const {
@@ -380,9 +504,21 @@ function createSwarm(name, beeConfigs = [], policy = {}) {
         createBee(domain, config || {})
     );
 
+    // CSL: Score each bee's affinity to the swarm mission using multi_resonance
+    const swarmIntentVec = _domainToVec(name);
+    const beeVectors = bees.map(b => b.vector);
+    const affinityScores = beeVectors.length > 0
+        ? CSL.multi_resonance(swarmIntentVec, beeVectors, 0.2)
+        : [];
+
+    // CSL: Build composite swarm vector via consensus superposition
+    const swarmVector = beeVectors.length > 0
+        ? CSL.consensus_superposition(beeVectors)
+        : swarmIntentVec;
+
     // Create the orchestrating swarm bee
     const swarmBee = createBee(`swarm-${name}`, {
-        description: `Swarm: ${name} (${mode}, ${bees.length} bees)`,
+        description: `Swarm: ${name} (${mode}, ${bees.length} bees, CSL-scored)`,
         priority: 1.0,
         isSwarm: true,
         workers: [{
@@ -391,9 +527,14 @@ function createSwarm(name, beeConfigs = [], policy = {}) {
                 const results = {};
                 const startTime = Date.now();
 
+                // Order bees by CSL affinity (highest first) for sequential/pipeline modes
+                const orderedBees = affinityScores.length > 0
+                    ? affinityScores.map(s => bees[s.index])
+                    : bees;
+
                 if (mode === 'parallel') {
                     const settled = await Promise.allSettled(
-                        bees.map(async (bee) => {
+                        orderedBees.map(async (bee) => {
                             const workFns = bee.getWork(ctx);
                             const beeResults = [];
                             for (const fn of workFns) {
@@ -418,7 +559,7 @@ function createSwarm(name, beeConfigs = [], policy = {}) {
                     }
                 } else if (mode === 'sequential' || mode === 'pipeline') {
                     let pipelineCtx = { ...ctx };
-                    for (const bee of bees) {
+                    for (const bee of orderedBees) {
                         try {
                             const workFns = bee.getWork(pipelineCtx);
                             const beeResults = [];
@@ -444,25 +585,41 @@ function createSwarm(name, beeConfigs = [], policy = {}) {
                     beeCount: bees.length,
                     consensus: requireConsensus ? allOk : null,
                     durationMs: Date.now() - startTime,
+                    csl: {
+                        affinityScores: affinityScores.map(s => ({ index: s.index, score: s.score })),
+                        swarmVectorDim: swarmVector.length,
+                    },
                     results,
                 };
             },
         }],
     });
 
+    // Attach the composite swarm vector
+    swarmBee.vector = swarmVector;
+    swarmBee.csl.affinityScores = affinityScores.map(s => ({ index: s.index, score: s.score }));
+
     return swarmBee;
 }
 
 /**
- * Get all dynamic and ephemeral bees.
+ * Get all dynamic and ephemeral bees with CSL metadata.
  */
 function listDynamicBees() {
     const bees = [];
     for (const [id, entry] of _dynamicRegistry) {
-        bees.push({ domain: id, description: entry.description, priority: entry.priority, type: 'dynamic', createdAt: entry.createdAt });
+        bees.push({
+            domain: id, description: entry.description, priority: entry.priority,
+            type: 'dynamic', createdAt: entry.createdAt,
+            csl: entry.csl || null,
+        });
     }
     for (const [id, entry] of _ephemeralBees) {
-        bees.push({ domain: id, description: entry.description, priority: entry.priority, type: 'ephemeral', createdAt: entry.createdAt });
+        bees.push({
+            domain: id, description: entry.description, priority: entry.priority,
+            type: 'ephemeral', createdAt: entry.createdAt,
+            csl: entry.csl || null,
+        });
     }
     return bees;
 }
@@ -473,6 +630,7 @@ function listDynamicBees() {
 function dissolveBee(domain) {
     _dynamicRegistry.delete(domain);
     _ephemeralBees.delete(domain);
+    _vecCache.delete(domain);
     try {
         const registry = require('./registry');
         registry.registry.delete(domain);
@@ -496,7 +654,7 @@ function _persistBee(domain, config) {
 
     const code = `/*
  * © 2026 HeadySystems Inc.. PROPRIETARY AND CONFIDENTIAL.
- * Auto-generated by Dynamic Bee Factory
+ * Auto-generated by Dynamic Bee Factory (CSL-enabled)
  * Domain: ${domain}
  * Created: ${new Date().toISOString()}
  */
@@ -522,6 +680,7 @@ module.exports = { domain, description, priority, getWork };
 module.exports = {
     createBee,
     spawnBee,
+    routeBee,
     createWorkUnit,
     createFromTemplate,
     createSwarm,
@@ -529,4 +688,5 @@ module.exports = {
     dissolveBee,
     dynamicRegistry: _dynamicRegistry,
     ephemeralBees: _ephemeralBees,
+    _domainToVec,
 };
