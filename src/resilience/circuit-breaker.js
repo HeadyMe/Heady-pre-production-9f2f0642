@@ -1,57 +1,41 @@
-/*
- * © 2026 HeadySystems Inc..
- * PROPRIETARY AND CONFIDENTIAL.
- * Unauthorized copying, modification, or distribution is strictly prohibited.
- */
+'use strict';
+
 /**
- * Heady Circuit Breaker — Resilience primitive
- * Prevents cascade failures by tracking error rates per service
- * and opening the circuit when thresholds are exceeded.
- *
- * States: CLOSED (normal) → OPEN (failing) → HALF_OPEN (testing recovery)
+ * Circuit Breaker — Resilience Pattern
+ * Netflix Hystrix-inspired circuit breaker for service calls.
+ * 
+ * States: CLOSED → OPEN → HALF_OPEN → CLOSED
+ * When error rate exceeds threshold, circuit opens and fails fast.
  */
+
+const logger = require('../utils/logger');
+
+const STATES = { CLOSED: 'CLOSED', OPEN: 'OPEN', HALF_OPEN: 'HALF_OPEN' };
 
 class CircuitBreaker {
-    constructor(name, options = {}) {
+    constructor(name, opts = {}) {
         this.name = name;
-        this.failureThreshold = options.failureThreshold || 5;
-        this.resetTimeoutMs = options.resetTimeoutMs || 30000;
-        this.halfOpenMaxCalls = options.halfOpenMaxCalls || 3;
-        this.monitorWindowMs = options.monitorWindowMs || 60000;
-
-        this.state = 'CLOSED';
-        this.failures = 0;
-        this.successes = 0;
-        this.halfOpenCalls = 0;
+        this.state = STATES.CLOSED;
+        this.failureThreshold = opts.failureThreshold || 5;
+        this.successThreshold = opts.successThreshold || 3;
+        this.timeout = opts.timeout || 30000;
+        this.failureCount = 0;
+        this.successCount = 0;
         this.lastFailureTime = null;
-        this.lastStateChange = Date.now();
-        this.metrics = { totalCalls: 0, totalFailures: 0, totalSuccesses: 0, trips: 0 };
+        this.totalCalls = 0;
+        this.totalFailures = 0;
+        this.totalSuccesses = 0;
     }
 
-    /**
-     * Execute a function through the circuit breaker
-     * @param {Function} fn - async function to execute
-     * @param {Function} [fallback] - optional fallback when circuit is open
-     * @returns {Promise<any>} result
-     */
-    async execute(fn, fallback) {
-        this.metrics.totalCalls++;
+    async exec(fn) {
+        this.totalCalls++;
 
-        if (this.state === 'OPEN') {
-            if (Date.now() - this.lastFailureTime >= this.resetTimeoutMs) {
-                this._transition('HALF_OPEN');
+        if (this.state === STATES.OPEN) {
+            if (Date.now() - this.lastFailureTime >= this.timeout) {
+                this.state = STATES.HALF_OPEN;
+                this.successCount = 0;
             } else {
-                if (fallback) return fallback();
-                throw new CircuitOpenError(`Circuit "${this.name}" is OPEN — ${this.failures} failures in window`);
-            }
-        }
-
-        if (this.state === 'HALF_OPEN') {
-            this.halfOpenCalls++;
-            if (this.halfOpenCalls > this.halfOpenMaxCalls) {
-                this._transition('OPEN');
-                if (fallback) return fallback();
-                throw new CircuitOpenError(`Circuit "${this.name}" re-opened after half-open probe failures`);
+                throw new Error(`Circuit breaker [${this.name}] is OPEN. Failing fast.`);
             }
         }
 
@@ -61,107 +45,81 @@ class CircuitBreaker {
             return result;
         } catch (err) {
             this._onFailure();
-            if (this.state === 'OPEN' && fallback) return fallback();
             throw err;
         }
     }
 
     _onSuccess() {
-        this.successes++;
-        this.metrics.totalSuccesses++;
-        if (this.state === 'HALF_OPEN') {
-            this.successes++;
-            if (this.successes >= this.halfOpenMaxCalls) {
-                this._transition('CLOSED');
+        this.totalSuccesses++;
+        if (this.state === STATES.HALF_OPEN) {
+            this.successCount++;
+            if (this.successCount >= this.successThreshold) {
+                this.state = STATES.CLOSED;
+                this.failureCount = 0;
+                logger.logSystem(`🔌 [CB:${this.name}] Circuit CLOSED — service recovered`);
             }
-        } else {
-            this.failures = Math.max(0, this.failures - 1); // decay on success
         }
+        this.failureCount = 0;
     }
 
     _onFailure() {
-        this.failures++;
-        this.metrics.totalFailures++;
+        this.totalFailures++;
+        this.failureCount++;
         this.lastFailureTime = Date.now();
 
-        if (this.state === 'HALF_OPEN') {
-            this._transition('OPEN');
-        } else if (this.failures >= this.failureThreshold) {
-            this._transition('OPEN');
-        }
-    }
-
-    _transition(newState) {
-        const old = this.state;
-        this.state = newState;
-        this.lastStateChange = Date.now();
-        if (newState === 'OPEN') this.metrics.trips++;
-        if (newState === 'CLOSED') { this.failures = 0; this.successes = 0; }
-        if (newState === 'HALF_OPEN') { this.halfOpenCalls = 0; this.successes = 0; }
-        // Emit for HeadyLens
-        if (typeof process !== 'undefined') {
-            process.emit('heady:circuit', { breaker: this.name, from: old, to: newState, time: new Date().toISOString() });
+        if (this.failureCount >= this.failureThreshold) {
+            this.state = STATES.OPEN;
+            logger.warn(`⚡ [CB:${this.name}] Circuit OPENED — ${this.failureCount} consecutive failures`);
         }
     }
 
     getStatus() {
         return {
-            name: this.name,
-            state: this.state,
-            failures: this.failures,
+            name: this.name, state: this.state,
+            failureCount: this.failureCount, successCount: this.successCount,
+            totalCalls: this.totalCalls, totalFailures: this.totalFailures,
+            totalSuccesses: this.totalSuccesses,
             lastFailure: this.lastFailureTime ? new Date(this.lastFailureTime).toISOString() : null,
-            lastStateChange: new Date(this.lastStateChange).toISOString(),
-            metrics: { ...this.metrics }
         };
     }
 
     reset() {
-        this.state = 'CLOSED';
-        this.failures = 0;
-        this.successes = 0;
-        this.halfOpenCalls = 0;
+        this.state = STATES.CLOSED;
+        this.failureCount = 0;
+        this.successCount = 0;
     }
 }
 
-class CircuitOpenError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'CircuitOpenError';
-        this.isCircuitOpen = true;
+class Bulkhead {
+    constructor(name, maxConcurrent = 10) {
+        this.name = name;
+        this.maxConcurrent = maxConcurrent;
+        this.active = 0;
+        this.rejected = 0;
+    }
+
+    async exec(fn) {
+        if (this.active >= this.maxConcurrent) {
+            this.rejected++;
+            throw new Error(`Bulkhead [${this.name}] full: ${this.active}/${this.maxConcurrent} active`);
+        }
+        this.active++;
+        try { return await fn(); } finally { this.active--; }
+    }
+
+    getStatus() {
+        return { name: this.name, active: this.active, max: this.maxConcurrent, rejected: this.rejected };
     }
 }
 
-// ─── Circuit Breaker Registry ──────────────────────────────────────
-// One breaker per service, accessible globally
-const breakers = new Map();
-
-function getBreaker(name, options) {
-    if (!breakers.has(name)) {
-        breakers.set(name, new CircuitBreaker(name, options));
-    }
-    return breakers.get(name);
+const _breakers = new Map();
+function getCircuitBreaker(name, opts) {
+    if (!_breakers.has(name)) _breakers.set(name, new CircuitBreaker(name, opts));
+    return _breakers.get(name);
 }
 
-function getAllBreakers() {
-    const result = {};
-    for (const [name, cb] of breakers) {
-        result[name] = cb.getStatus();
-    }
-    return result;
+function getAllBreakerStatus() {
+    return [..._breakers.entries()].map(([name, cb]) => cb.getStatus());
 }
 
-// Pre-register breakers for all critical services (as recommended by registry)
-const CRITICAL_SERVICES = [
-    'brain', 'soul', 'conductor', 'hcfp', 'patterns',
-    'ops', 'maintenance', 'registry', 'auto-success', 'cloud',
-    'edge-ai', 'headyjules', 'codex', 'headypythia', 'perplexity', 'grok'
-];
-
-for (const svc of CRITICAL_SERVICES) {
-    getBreaker(svc, {
-        failureThreshold: svc === 'cloud' ? 3 : 5,
-        resetTimeoutMs: svc === 'brain' ? 15000 : 30000,
-    });
-}
-
-module.exports = { CircuitBreaker, CircuitOpenError, getBreaker, getAllBreakers, CRITICAL_SERVICES };
+module.exports = { CircuitBreaker, Bulkhead, getCircuitBreaker, getAllBreakerStatus, STATES };
