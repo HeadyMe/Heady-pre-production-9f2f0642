@@ -117,8 +117,8 @@ function injectTemplatesIntoHFSpaces() {
             "headyconnection.org": "connection",
             "headyai.com": "headyai",
             "headyos.com": "headyos",
-            "heady.exchange": "exchange",
-            "heady.investments": "investments",
+            "headyex.com": "exchange",
+            "headyfinance.com": "investments",
             "headyconnection.com": "community",
             "admin.headysystems.com": "admin",
         };

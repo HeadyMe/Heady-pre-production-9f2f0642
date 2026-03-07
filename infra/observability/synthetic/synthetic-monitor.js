@@ -142,8 +142,8 @@ const ENDPOINTS = [
     slaMs: LATENCY_THRESHOLDS.WARNING,
   },
   {
-    id: 'domain-heady-exchange',
-    url: 'https://heady.exchange',
+    id: 'domain-headyex',
+    url: 'https://headyex.com',
     method: 'GET',
     expectedStatus: 200,
     group: 'domains',
@@ -151,8 +151,8 @@ const ENDPOINTS = [
     slaMs: LATENCY_THRESHOLDS.WARNING,
   },
   {
-    id: 'domain-heady-investments',
-    url: 'https://heady.investments',
+    id: 'domain-headyfinance',
+    url: 'https://headyfinance.com',
     method: 'GET',
     expectedStatus: 200,
     group: 'domains',

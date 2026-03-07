@@ -386,7 +386,7 @@ domains=(
   "headyme.com"
   "headyconnection.com"
   "headyos.com"
-  "heady.exchange"
+  "headyex.com"
   "headyai.com"
 )
 

@@ -311,6 +311,7 @@
     }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
   </style>
+  <link rel="stylesheet" href="../../design-system/brand-enhance.css">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -415,7 +416,7 @@
         <p>The autonomous intelligence platform that thinks, orchestrates, and evolves. 51+ patents. 21 microservices. One unified experience.</p>
         <p style="margin-top:12px;font-size:0.78rem;color:var(--text-muted)">Founder: Eric Haywood · 51+ Patents</p>
       </div>
-      <div class="footer-col"><h5>Platform</h5><ul><li><a href="#platform">Dashboard</a></li><li><a href="#nodes">AI Nodes</a></li><li><a href="#">Memory</a></li><li><a href="https://headyapi.com">API</a></li></ul></div><div class="footer-col"><h5>Resources</h5><ul><li><a href="https://headyio.com">Documentation</a></li><li><a href="https://headymcp.com">HeadyMCP</a></li><li><a href="https://headyconnection.org">Community</a></li></ul></div><div class="footer-col"><h5>Company</h5><ul><li><a href="https://headysystems.com">HeadySystems</a></li><li><a href="https://heady.investments">Investors</a></li><li><a href="mailto:eric@headysystems.com">Contact</a></li></ul></div>
+      <div class="footer-col"><h5>Platform</h5><ul><li><a href="#platform">Dashboard</a></li><li><a href="#nodes">AI Nodes</a></li><li><a href="#">Memory</a></li><li><a href="https://headyapi.com">API</a></li></ul></div><div class="footer-col"><h5>Resources</h5><ul><li><a href="https://headyio.com">Documentation</a></li><li><a href="https://headymcp.com">HeadyMCP</a></li><li><a href="https://headyconnection.org">Community</a></li></ul></div><div class="footer-col"><h5>Company</h5><ul><li><a href="https://headysystems.com">HeadySystems</a></li><li><a href="https://headyfinance.com">Investors</a></li><li><a href="mailto:eric@headysystems.com">Contact</a></li></ul></div>
     </div>
     <div class="footer-bottom">
       <p>© 2026 HeadySystems Inc. All rights reserved. Patent Pending.</p>
@@ -512,6 +513,20 @@
     }, { threshold: 0.15 });
     document.querySelectorAll('.fade-up').forEach(function(el) { obs.observe(el); });
   })();
+  </script>
+  <script src="../../design-system/sacred-geometry-bg.js"></script>
+  <script>if(typeof SacredGeometryBG!=="undefined")SacredGeometryBG.init("heroCanvas");</script>
+  <script src="../../design-system/live-monitor.js"></script>
+  <script>if(typeof HeadyMonitor!=="undefined")HeadyMonitor.init();</script>
+  <script>
+  // Mouse-tracking card glow
+  document.querySelectorAll(".feature-card").forEach(c=>{
+    c.addEventListener("mousemove",e=>{
+      const r=c.getBoundingClientRect();
+      c.style.setProperty("--mouse-x",((e.clientX-r.left)/r.width*100)+"%");
+      c.style.setProperty("--mouse-y",((e.clientY-r.top)/r.height*100)+"%");
+    });
+  });
   </script>
 </body>
 </html>

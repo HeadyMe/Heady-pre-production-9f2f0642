@@ -329,8 +329,8 @@ graph TB
     D3[headysystems.com]
     D4[headyai.com]
     D5[headyconnection.org]
-    D6[heady.exchange]
-    D7[heady.investments]
+    D6[headyex.com]
+    D7[headyfinance.com]
     D8[headyconnection.com]
     D9[admin portal]
   end

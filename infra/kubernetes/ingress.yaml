@@ -5,7 +5,7 @@
 # φ = 1.618033988749895 (Golden Ratio)
 # TLS for all 9 domains, path-based routing
 # Domains: headyme.com, headyconnection.com, headyconnection.org,
-#          headyos.com, heady.exchange, heady.investments,
+#          headyos.com, headyex.com, headyfinance.com,
 #          headysystems.com, headyai.com, [admin portal]
 # =============================================================================
 apiVersion: networking.k8s.io/v1
@@ -63,7 +63,7 @@ metadata:
 
     # CORS for API paths
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://headyme.com,https://headyconnection.com,https://headyconnection.org,https://headyos.com,https://heady.exchange,https://heady.investments,https://headysystems.com,https://headyai.com"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://headyme.com,https://headyconnection.com,https://headyconnection.org,https://headyos.com,https://headyex.com,https://headyfinance.com,https://headysystems.com,https://headyai.com"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS, PATCH"
     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Heady-Version,X-Trace-Id"
     # cors max age: fib(11)=89 × 100 = 8900s ≈ 2.47h
@@ -97,13 +97,13 @@ spec:
         - www.headyos.com
       secretName: tls-headyos-com
     - hosts:
-        - heady.exchange
-        - www.heady.exchange
-      secretName: tls-heady-exchange
+        - headyex.com
+        - www.headyex.com
+      secretName: tls-headyex
     - hosts:
-        - heady.investments
-        - www.heady.investments
-      secretName: tls-heady-investments
+        - headyfinance.com
+        - www.headyfinance.com
+      secretName: tls-headyfinance
     - hosts:
         - headysystems.com
         - www.headysystems.com
@@ -272,9 +272,9 @@ spec:
                   name: http
 
     # ---------------------------------------------------------------------------
-    # heady.exchange
+    # headyex.com
     # ---------------------------------------------------------------------------
-    - host: heady.exchange
+    - host: headyex.com
       http:
         paths:
           - path: /
@@ -284,7 +284,7 @@ spec:
                 name: heady-web
                 port:
                   name: http
-    - host: www.heady.exchange
+    - host: www.headyex.com
       http:
         paths:
           - path: /
@@ -296,9 +296,9 @@ spec:
                   name: http
 
     # ---------------------------------------------------------------------------
-    # heady.investments
+    # headyfinance.com
     # ---------------------------------------------------------------------------
-    - host: heady.investments
+    - host: headyfinance.com
       http:
         paths:
           - path: /
@@ -308,7 +308,7 @@ spec:
                 name: heady-web
                 port:
                   name: http
-    - host: www.heady.investments
+    - host: www.headyfinance.com
       http:
         paths:
           - path: /

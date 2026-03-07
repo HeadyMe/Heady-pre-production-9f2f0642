@@ -311,6 +311,7 @@
     }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
   </style>
+  <link rel="stylesheet" href="../../design-system/brand-enhance.css">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -496,6 +497,20 @@
     }, { threshold: 0.15 });
     document.querySelectorAll('.fade-up').forEach(function(el) { obs.observe(el); });
   })();
+  </script>
+  <script src="../../design-system/sacred-geometry-bg.js"></script>
+  <script>if(typeof SacredGeometryBG!=="undefined")SacredGeometryBG.init("heroCanvas");</script>
+  <script src="../../design-system/live-monitor.js"></script>
+  <script>if(typeof HeadyMonitor!=="undefined")HeadyMonitor.init();</script>
+  <script>
+  // Mouse-tracking card glow
+  document.querySelectorAll(".feature-card").forEach(c=>{
+    c.addEventListener("mousemove",e=>{
+      const r=c.getBoundingClientRect();
+      c.style.setProperty("--mouse-x",((e.clientX-r.left)/r.width*100)+"%");
+      c.style.setProperty("--mouse-y",((e.clientY-r.top)/r.height*100)+"%");
+    });
+  });
   </script>
 </body>
 </html>

@@ -39,7 +39,7 @@
  *   npx wrangler publish
  *   Routes: *headyme.com/*, *headyos.com/*, *headysystems.com/*,
  *           *headyai.com/*, *headyconnection.com/*, *headyconnection.org/*,
- *           *heady.exchange/*, *heady.investments/*,
+ *           *headyex.com/*, *headyfinance.com/*,
  *           *.headyme.com/*, *.headyos.com/*
  *
  * SSL Notes:
@@ -72,9 +72,9 @@ const HOSTNAME_VERTICAL_MAP = {
   'headyconnection.com':   'headyconnection',
   'headyconnection.org':   'headyconnection',
   'connect.headyme.com':   'headyconnection',
-  'heady.exchange':        'exchange',
+  'headyex.com':        'exchange',
   'exchange.headyme.com':  'exchange',
-  'heady.investments':     'investments',
+  'headyfinance.com':     'investments',
   'invest.headyme.com':    'investments',
 
   // Industry vertical subdomains
@@ -167,7 +167,7 @@ const VERTICAL_EDGE_CONFIGS = {
     accentLight:    '#fbbf24',
     dataVertical:   'exchange',
     themeColor:     '#0c0e08',
-    ogTitle:        'Heady Exchange — Digital Asset Trading',
+    ogTitle:        'HeadyEX — Digital Asset Trading',
     ogDescription:  'Next-generation digital asset exchange powered by HeadySystems AI.',
     twitterHandle:  '@headyexchange',
     analyticsId:    null,
@@ -179,7 +179,7 @@ const VERTICAL_EDGE_CONFIGS = {
     accentLight:    '#fcd65a',
     dataVertical:   'investments',
     themeColor:     '#0d0b06',
-    ogTitle:        'Heady Investments — Wealth Intelligence',
+    ogTitle:        'HeadyFinance — Wealth Intelligence',
     ogDescription:  'AI-powered investment portfolio management and wealth optimization.',
     twitterHandle:  '@headyinvest',
     analyticsId:    null,

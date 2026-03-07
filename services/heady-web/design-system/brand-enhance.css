@@ -1,0 +1,195 @@
+/* HeadyBrand Enhancement Layer — v2.0
+   Inject after base site CSS for premium upgrades.
+   Usage: <link rel="stylesheet" href="../design-system/brand-enhance.css">
+*/
+
+/* ── Richer gradients & glow effects ── */
+.hero-title,
+h1.hero-title {
+    background: linear-gradient(135deg,
+            #ffffff 0%, #e0f2fe 20%, #00d4aa 45%,
+            #f5c842 65%, #a78bfa 85%, #00d4aa 100%) !important;
+    background-size: 200% 200% !important;
+    animation: gradientShift 8s ease infinite !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* ── Sacred geometry background pattern ── */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(0, 212, 170, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(245, 200, 66, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+    animation: bgBreathing 12s ease-in-out infinite alternate;
+}
+
+@keyframes bgBreathing {
+    0% {
+        opacity: 0.6;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+/* ── Nav glassmorphism upgrade ── */
+.nav {
+    background: rgba(10, 14, 23, 0.65) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    border-bottom: 1px solid rgba(0, 212, 170, 0.08) !important;
+}
+
+/* ── Feature card hover glow ── */
+.feature-card {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.feature-card:hover {
+    box-shadow:
+        0 0 0 1px rgba(0, 212, 170, 0.15),
+        0 20px 60px rgba(0, 212, 170, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(0, 212, 170, 0.25) !important;
+}
+
+.feature-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 212, 170, 0.06) 0%, transparent 60%);
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.feature-card:hover::after {
+    opacity: 1;
+}
+
+/* ── Stat cards with shine ── */
+.stat-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 170, 0.04) 50%, transparent 70%);
+    animation: cardShine 6s ease-in-out infinite;
+}
+
+@keyframes cardShine {
+
+    0%,
+    100% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+
+    50% {
+        transform: translateX(100%) rotate(45deg);
+    }
+}
+
+/* ── Hero badge pulse upgrade ── */
+.hero-badge {
+    animation: badgeGlow 4s ease-in-out infinite alternate !important;
+}
+
+@keyframes badgeGlow {
+    0% {
+        box-shadow: 0 0 10px rgba(0, 212, 170, 0.1);
+    }
+
+    100% {
+        box-shadow: 0 0 25px rgba(0, 212, 170, 0.2), 0 0 50px rgba(0, 212, 170, 0.05);
+    }
+}
+
+/* ── Button micro-animations ── */
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+/* ── Footer brand glow ── */
+footer {
+    position: relative;
+}
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.3), transparent);
+}
+
+/* ── Smooth scrollbar ── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 170, 0.2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 212, 170, 0.4);
+}
+
+/* ── Mouse-tracking card glow (requires JS) ── */
+.feature-card {
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+}

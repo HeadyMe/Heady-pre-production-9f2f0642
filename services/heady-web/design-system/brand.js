@@ -40,8 +40,8 @@ const HeadyBrand = (() => {
         headysystems: { name: 'HeadySystems', tagline: 'Enterprise AI Infrastructure', domain: 'headysystems.com', accent: 'gold', vertical: 'enterprise' },
         'headyconnection-com': { name: 'HeadyConnection', tagline: 'AI-Powered Human Connection', domain: 'headyconnection.com', accent: 'teal', vertical: 'community' },
         'headyconnection-org': { name: 'HeadyConnection.org', tagline: 'Open Source AI Community', domain: 'headyconnection.org', accent: 'teal', vertical: 'community' },
-        'heady-exchange': { name: 'Heady Exchange', tagline: 'AI-Driven Market Intelligence', domain: 'heady.exchange', accent: 'gold', vertical: 'finance' },
-        'heady-investments': { name: 'Heady Investments', tagline: 'Intelligent Wealth Management', domain: 'headyinvestments.com', accent: 'gold', vertical: 'investments' },
+        'headyex': { name: 'HeadyEX', tagline: 'AI-Driven Market Intelligence', domain: 'headyex.com', accent: 'gold', vertical: 'finance' },
+        'headyfinance': { name: 'HeadyFinance', tagline: 'Intelligent Wealth Management', domain: 'headyfinance.com', accent: 'gold', vertical: 'investments' },
         'admin-portal': { name: 'Heady Admin', tagline: 'System Control Plane', domain: 'admin.headyme.com', accent: 'teal', vertical: 'headyme' },
     };
 
@@ -50,7 +50,7 @@ const HeadyBrand = (() => {
         { label: 'AI', href: 'https://headyai.com' },
         { label: 'Enterprise', href: 'https://headysystems.com' },
         { label: 'Community', href: 'https://headyconnection.com' },
-        { label: 'Invest', href: 'https://headyinvestments.com' },
+        { label: 'Invest', href: 'https://headyfinance.com' },
     ];
 
     // ── Brand initialization ──────────────────────────────────────────

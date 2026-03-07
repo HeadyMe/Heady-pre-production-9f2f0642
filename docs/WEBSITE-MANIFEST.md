@@ -45,8 +45,8 @@
 | `A2-websites/headyai/index.html` | A2 | headyai.com | AI research showcase. Research papers, patent timeline, 20 AI nodes, technical blog. |
 | `A2-websites/headyconnection-com/index.html` | A2 | headyconnection.com | Community portal. Forum, events, marketplace, HeadyCoin tokenomics, partners. |
 | `A2-websites/headyconnection-org/index.html` | A2 | headyconnection.org | Non-profit. Mission, grant writing pilot, impact metrics, partner application, success stories. |
-| `A2-websites/heady-exchange/index.html` | A2 | heady.exchange | Token/marketplace. HeadyCoin dashboard, agent marketplace, data marketplace, wallet. |
-| `A2-websites/heady-investments/index.html` | A2 | heady.investments | Investor relations. Metrics dashboard, milestones, financials, gated data room, press, SEC disclaimer. |
+| `A2-websites/headyex/index.html` | A2 | headyex.com | Token/marketplace. HeadyCoin dashboard, agent marketplace, data marketplace, wallet. |
+| `A2-websites/headyfinance/index.html` | A2 | headyfinance.com | Investor relations. Metrics dashboard, milestones, financials, gated data room, press, SEC disclaimer. |
 | `A2-websites/admin-portal/index.html` | A2 | [internal] | Admin dashboard. Service health grid, agent swarm viz, deployments, audit logs, rate limiters, security. |
 
 ### A3 — Industry Verticals (6 verticals, 2 files each)

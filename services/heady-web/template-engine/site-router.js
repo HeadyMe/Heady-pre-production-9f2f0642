@@ -16,8 +16,8 @@
  *   headyai.com                   → vertical: "headyai"       (AI services)
  *   headyconnection.com           → vertical: "headyconnection"
  *   headyconnection.org           → vertical: "headyconnection" (alias)
- *   heady.exchange                → vertical: "exchange"
- *   heady.investments             → vertical: "investments"
+ *   headyex.com                → vertical: "exchange"
+ *   headyfinance.com             → vertical: "investments"
  *
  * Subdomain industry verticals (all under headyme.com):
  *   health.headyme.com            → vertical: "health"

@@ -229,8 +229,8 @@ spec:
     - headyconnection.com
     - headyconnection.org
     - headyos.com
-    - heady.exchange
-    - heady.investments
+    - headyex.com
+    - headyfinance.com
     - headysystems.com
     - headyai.com
 ```

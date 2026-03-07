@@ -28,8 +28,8 @@ const DOMAINS = {
   connection:  'headyconnection.com',
   connectionOrg: 'headyconnection.org',
   os:          'headyos.com',
-  exchange:    'heady.exchange',
-  investments: 'heady.investments',
+  exchange:    'headyex.com',
+  investments: 'headyfinance.com',
   systems:     'headysystems.com',
   ai:          'headyai.com',
   admin:       'admin.headyme.com',
@@ -220,8 +220,8 @@ const PAGE_RULES = {
 
   [DOMAINS.exchange]: [
     {
-      id:      'heady-exchange-api',
-      match:   'heady.exchange/api/*',
+      id:      'headyex-api',
+      match:   'headyex.com/api/*',
       actions: {
         cacheLevel:    'bypass',
         securityLevel: 'high',
@@ -229,8 +229,8 @@ const PAGE_RULES = {
       },
     },
     {
-      id:      'heady-exchange-static',
-      match:   'heady.exchange/assets/*',
+      id:      'headyex-static',
+      match:   'headyex.com/assets/*',
       actions: {
         cacheLevel: 'cache_everything',
         edgeTtl:    { type: 'override', value: FIB[14] * 86400 },
@@ -240,8 +240,8 @@ const PAGE_RULES = {
 
   [DOMAINS.investments]: [
     {
-      id:      'heady-investments-all',
-      match:   'heady.investments/*',
+      id:      'headyfinance-all',
+      match:   'headyfinance.com/*',
       actions: {
         cacheLevel:    'bypass',
         securityLevel: 'high',

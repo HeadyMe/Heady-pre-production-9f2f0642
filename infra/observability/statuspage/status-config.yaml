@@ -199,21 +199,21 @@ components:
     slo_target_percentage: 99.9
     showcase: true
 
-  - id: domain-heady-exchange
-    name: "heady.exchange"
-    description: "Heady Exchange platform."
+  - id: domain-headyex
+    name: "headyex.com"
+    description: "HeadyEX platform."
     group: domain-services
     order: 5
-    synthetic_check_id: domain-heady-exchange
+    synthetic_check_id: domain-headyex
     slo_target_percentage: 99.9
     showcase: true
 
-  - id: domain-heady-investments
-    name: "heady.investments"
-    description: "Heady Investments platform."
+  - id: domain-headyfinance
+    name: "headyfinance.com"
+    description: "HeadyFinance platform."
     group: domain-services
     order: 6
-    synthetic_check_id: domain-heady-investments
+    synthetic_check_id: domain-headyfinance
     slo_target_percentage: 99.9
     showcase: true
 

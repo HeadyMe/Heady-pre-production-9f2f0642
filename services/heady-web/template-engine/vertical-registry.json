@@ -119,8 +119,8 @@
 
     {
       "vertical_id":   "exchange",
-      "domain":        "heady.exchange",
-      "aliases":       ["www.heady.exchange", "exchange.headyme.com"],
+      "domain":        "headyex.com",
+      "aliases":       ["www.headyex.com", "exchange.headyme.com"],
       "config_path":   "exchange/config.json",
       "status":        "planned",
       "deployed_at":   null,
@@ -132,7 +132,7 @@
       },
       "infrastructure": {
         "cdn":       "cloudflare",
-        "r2_bucket": "heady-exchange-prod",
+        "r2_bucket": "headyex-prod",
         "kv_prefix": "vertical:exchange",
         "analytics": null
       }
@@ -140,8 +140,8 @@
 
     {
       "vertical_id":   "investments",
-      "domain":        "heady.investments",
-      "aliases":       ["www.heady.investments", "invest.headyme.com"],
+      "domain":        "headyfinance.com",
+      "aliases":       ["www.headyfinance.com", "invest.headyme.com"],
       "config_path":   "investments/config.json",
       "status":        "planned",
       "deployed_at":   null,
@@ -153,7 +153,7 @@
       },
       "infrastructure": {
         "cdn":       "cloudflare",
-        "r2_bucket": "heady-investments-prod",
+        "r2_bucket": "headyfinance-prod",
         "kv_prefix": "vertical:investments",
         "analytics": null
       }

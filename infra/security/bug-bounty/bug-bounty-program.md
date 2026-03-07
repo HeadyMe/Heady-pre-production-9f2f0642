@@ -28,8 +28,8 @@ HeadySystems welcomes security researchers who identify vulnerabilities in our p
 | headyconnection.com | Web application | P1 |
 | headyconnection.org | Web application | P1 |
 | headyos.com | Web application | P1 |
-| heady.exchange | Web application | P1 |
-| heady.investments | Web application | P1 |
+| headyex.com | Web application | P1 |
+| headyfinance.com | Web application | P1 |
 | headysystems.com | Web application | P2 |
 | headyai.com | Web application | P2 |
 | api.headyme.com | REST API | P1 |
