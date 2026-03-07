@@ -181,7 +181,7 @@ jobs:
       secrets_count: ${{ steps.gitleaks.outputs.count }}
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
@@ -231,7 +231,7 @@ jobs:
       violations_json: ${{ steps.check.outputs.violations_json }}
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 

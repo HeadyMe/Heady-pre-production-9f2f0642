@@ -83,7 +83,7 @@ jobs:
     steps:
       # ── 1. Checkout target branch ──────────────────────────
       - name: Checkout ${{ env.TARGET_BRANCH }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 1
