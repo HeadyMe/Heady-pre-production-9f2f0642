@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Heady Latent OS pricing — sovereign AI infrastructure for developers and enterprises. Community, Developer, Team, and Enterprise plans.">
+<title>Pricing — Heady Latent OS</title>
+<style>
+  /* ── Phi-Math Design Tokens ──
+   *
+   * All spacing, sizing, and ratios are derived from φ (golden ratio) and
+   * the Fibonacci sequence, mirroring shared/phi-math.js:
+   *
+   *   PHI = 1.618033988749895   (golden ratio)
+   *   PSI = 0.618033988749895   (conjugate, 1/φ)
+   *
+   * Fibonacci spacing index convention:
+   *   --fib-N  where N is the Fibonacci index, value is fib(N)px
+   *   fib(3)=2, fib(4)=3, fib(5)=5, fib(6)=8, fib(7)=13, fib(8)=21,
+   *   fib(9)=34, fib(10)=55, fib(11)=89
+   *
+   * Typography golden-ratio scale (base 1rem = 16px):
+   *   h4: 1rem
+   *   h3: 1rem × PHI   = 1.618rem
+   *   h2: 1rem × PHI²  = 2.618rem
+   *   h1: 1rem × PHI³  = 4.236rem  (clamped for readability)
+   *
+   * Layout phi-split proportions:
+   *   major: PSI    ≈ 61.8%
+   *   minor: PSI²   ≈ 38.2%
+   *   nano:  PSI³   ≈ 23.6%
+   *
+   * Annual discount = fib(8) = 21%  (matches stripe-config.js ANNUAL_DISCOUNT_PERCENT)
+   * Trial days      = fib(7) = 13   (matches stripe-config.js TRIAL_DAYS)
+   * ────────────────────────────────────────────────────────────── */
+  :root {
+    /* Golden ratio constants */
+    --phi: 1.618033988749895;
+    --psi: 0.618033988749895;
+
+    /* Fibonacci spacing (--fib-N = fib(N)px) */
+    --fib-3:  2px;
+    --fib-4:  3px;
+    --fib-5:  5px;
+    --fib-6:  8px;
+    --fib-7:  13px;
+    --fib-8:  21px;
+    --fib-9:  34px;
+    --fib-10: 55px;
+    --fib-11: 89px;
+
+    /* Phi-split layout proportions */
+    --phi-major:  61.8%;   /* PSI  ≈ 61.8% */
+    --phi-minor:  38.2%;   /* PSI² ≈ 38.2% */
+    --phi-nano:   23.6%;   /* PSI³ ≈ 23.6% */
+
+    /* Typography golden-ratio scale */
+    --type-h1: clamp(2.4rem, 5vw, 4.236rem);  /* PHI³ × 1rem */
+    --type-h2: clamp(1.6rem, 3vw, 2.618rem);  /* PHI² × 1rem */
+    --type-h3: 1.618rem;                        /* PHI  × 1rem */
+    --type-h4: 1rem;                            /* base         */
+
+    /* Colors */
+    --bg-base: #0a0c0f;
+    --bg-surface: #0f1218;
+    --bg-elevated: #141820;
+    --bg-card: #1a2030;
+    --bg-highlight: #1f2840;
+
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-default: rgba(255,255,255,0.10);
+    --border-strong: rgba(255,255,255,0.18);
+    --border-accent: rgba(99,179,237,0.4);
+
+    --text-primary: #e8ecf0;
+    --text-secondary: #8896a8;
+    --text-muted: #4a5568;
+    --text-accent: #63b3ed;
+    --text-gold: #d4a843;
+    --text-green: #48bb78;
+    --text-red: #fc8181;
+
+    --accent-primary: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-glow: rgba(59,130,246,0.2);
+    --accent-gold: #d4a843;
+    --accent-gold-glow: rgba(212,168,67,0.15);
+
+    /* Border radii (Fibonacci-indexed) */
+    --radius-sm: var(--fib-4);   /* 3px  */
+    --radius-md: var(--fib-6);   /* 8px  */
+    --radius-lg: var(--fib-7);   /* 13px */
+    --radius-xl: var(--fib-8);   /* 21px */
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+    --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-glow: 0 0 40px rgba(59,130,246,0.12);
+    --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ── Typography (phi golden-ratio scale) ── */
+  h1 {
+    font-size: var(--type-h1);   /* clamp(2.4rem, 5vw, 4.236rem) = PHI³ × 1rem */
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  h2 {
+    font-size: var(--type-h2);   /* clamp(1.6rem, 3vw, 2.618rem) = PHI² × 1rem */
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  h3 {
+    font-size: var(--type-h3);   /* 1.618rem = PHI × 1rem */
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  p { color: var(--text-secondary); }
+
+  /* ── Layout ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--fib-8); }
+  .section { padding: var(--fib-11) 0; }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,12,15,0.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto; padding: var(--fib-7) var(--fib-8);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: var(--fib-6);
+    text-decoration: none; color: var(--text-primary);
+  }
+  .nav-logo-mark {
+    width: 32px; height: 32px;
+  }
+  .nav-logo-text { font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; }
+  .nav-links { display: flex; gap: var(--fib-8); align-items: center; }
+  .nav-links a {
+    text-decoration: none; color: var(--text-secondary); font-size: 0.875rem;
+    transition: color var(--transition);
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-cta {
+    background: var(--accent-primary); color: #fff !important;
+    padding: var(--fib-5) var(--fib-7); border-radius: var(--radius-md);
+    font-weight: 500; transition: background var(--transition) !important;
+  }
+  .nav-cta:hover { background: var(--accent-hover) !important; }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    padding: var(--fib-11) 0 var(--fib-10);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse at center top, rgba(59,130,246,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Golden-spiral SVG decoration — subtle, low opacity, non-interactive */
+  .golden-spiral {
+    position: absolute;
+    right: -60px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.05;
+    pointer-events: none;
+    width: 420px;
+    height: 420px;
+  }
+  .golden-spiral-left {
+    position: absolute;
+    left: -80px;
+    bottom: 10%;
+    opacity: 0.04;
+    pointer-events: none;
+    width: 320px;
+    height: 320px;
+    transform: scaleX(-1) rotate(45deg);
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: var(--fib-5);
+    padding: var(--fib-3) var(--fib-7);
+    background: var(--bg-elevated); border: 1px solid var(--border-default);
+    border-radius: 100px; font-size: 0.75rem; color: var(--text-accent);
+    margin-bottom: var(--fib-8); letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .hero-badge-dot {
+    width: 6px; height: 6px; background: #48bb78;
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+  .hero h1 { margin-bottom: var(--fib-7); }
+  .hero h1 span { color: var(--text-accent); }
+  .hero p {
+    font-size: 1.125rem; max-width: 520px; margin: 0 auto var(--fib-9);
+    color: var(--text-secondary);
+  }
+
+  /* ── Billing Toggle ── */
+  .billing-toggle {
+    display: flex; align-items: center; justify-content: center;
+    gap: var(--fib-7); margin-bottom: var(--fib-10);
+  }
+  .toggle-label { font-size: 0.875rem; color: var(--text-secondary); }
+  .toggle-label.active { color: var(--text-primary); font-weight: 500; }
+  .toggle-switch {
+    position: relative; width: 48px; height: 26px;
+    background: var(--bg-elevated); border: 1px solid var(--border-default);
+    border-radius: 100px; cursor: pointer; transition: border-color var(--transition);
+  }
+  .toggle-switch.on { border-color: var(--accent-primary); background: var(--accent-primary); }
+  .toggle-knob {
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; background: var(--text-secondary);
+    border-radius: 50%; transition: transform 0.2s ease, background var(--transition);
+  }
+  .toggle-switch.on .toggle-knob { transform: translateX(22px); background: #fff; }
+  .badge-annual {
+    display: inline-block; padding: var(--fib-3) var(--fib-6);
+    background: rgba(72,187,120,0.15); border: 1px solid rgba(72,187,120,0.3);
+    border-radius: 100px; font-size: 0.7rem; color: var(--text-green);
+    font-weight: 500; letter-spacing: 0.04em;
+  }
+
+  /* ── Pricing Grid ── */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--fib-7);
+    margin-bottom: var(--fib-10);
+  }
+  @media (max-width: 1100px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+  .pricing-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    padding: var(--fib-9);
+    position: relative;
+    transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  }
+  .pricing-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card);
+  }
+  .pricing-card.featured {
+    background: var(--bg-highlight);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-glow);
+  }
+  .pricing-card.enterprise {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(212,168,67,0.04) 100%);
+    border-color: rgba(212,168,67,0.25);
+  }
+  .pricing-card.enterprise:hover { border-color: rgba(212,168,67,0.5); }
+
+  .plan-badge {
+    position: absolute; top: calc(-1 * var(--fib-7)); left: 50%; transform: translateX(-50%);
+    padding: var(--fib-3) var(--fib-7);
+    background: var(--accent-primary);
+    border-radius: 100px; font-size: 0.7rem; font-weight: 600;
+    color: #fff; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
+  }
+  .plan-badge.gold { background: var(--accent-gold); color: #0a0c0f; }
+
+  .plan-name {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: var(--fib-6);
+  }
+  .featured .plan-name { color: var(--text-accent); }
+  .enterprise .plan-name { color: var(--text-gold); }
+
+  .plan-price {
+    display: flex; align-items: baseline; gap: var(--fib-3);
+    margin-bottom: var(--fib-3);
+  }
+  .price-currency { font-size: 1.25rem; font-weight: 500; color: var(--text-secondary); padding-top: 4px; }
+  .price-amount {
+    font-size: 2.8rem; font-weight: 700; letter-spacing: -0.04em;
+    color: var(--text-primary); line-height: 1;
+  }
+  .price-period { font-size: 0.875rem; color: var(--text-muted); }
+  .price-note { font-size: 0.78rem; color: var(--text-muted); margin-bottom: var(--fib-8); min-height: 1.2em; }
+  .price-annual-note { font-size: 0.75rem; color: var(--text-green); font-weight: 500; }
+
+  .plan-desc {
+    font-size: 0.875rem; color: var(--text-secondary);
+    margin-bottom: var(--fib-8); line-height: 1.5;
+  }
+
+  .plan-cta {
+    display: block; width: 100%; padding: var(--fib-7) var(--fib-8);
+    border-radius: var(--radius-lg); font-size: 0.875rem; font-weight: 600;
+    text-align: center; text-decoration: none; cursor: pointer; border: none;
+    transition: all var(--transition); margin-bottom: var(--fib-8);
+  }
+  .plan-cta-outline {
+    background: transparent; border: 1px solid var(--border-strong); color: var(--text-primary);
+  }
+  .plan-cta-outline:hover { background: var(--bg-elevated); border-color: var(--text-secondary); }
+  .plan-cta-primary {
+    background: var(--accent-primary); color: #fff;
+  }
+  .plan-cta-primary:hover { background: var(--accent-hover); box-shadow: 0 0 20px rgba(59,130,246,0.3); }
+  .plan-cta-gold {
+    background: var(--accent-gold); color: #0a0c0f;
+  }
+  .plan-cta-gold:hover { background: #e8b945; box-shadow: 0 0 20px rgba(212,168,67,0.3); }
+
+  .plan-divider { border: none; border-top: 1px solid var(--border-subtle); margin: 0 0 var(--fib-8); }
+
+  .feature-list { list-style: none; display: flex; flex-direction: column; gap: var(--fib-6); }
+  .feature-item {
+    display: flex; align-items: flex-start; gap: var(--fib-6);
+    font-size: 0.825rem; color: var(--text-secondary);
+  }
+  .feature-icon { flex-shrink: 0; margin-top: 2px; }
+  .feature-icon.check { color: var(--text-green); }
+  .feature-icon.cross { color: var(--text-muted); }
+  .feature-icon.star { color: var(--text-gold); }
+
+  /* ── Usage Add-ons ── */
+  .addons-section { padding: var(--fib-10) 0; }
+  .section-header { text-align: center; margin-bottom: var(--fib-10); }
+  .section-header h2 { margin-bottom: var(--fib-7); }
+  .section-label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-accent); margin-bottom: var(--fib-6);
+  }
+
+  .addons-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--fib-7);
+  }
+  .addon-card {
+    background: var(--bg-surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); padding: var(--fib-8);
+    transition: border-color var(--transition);
+  }
+  .addon-card:hover { border-color: var(--border-default); }
+  .addon-icon {
+    width: 36px; height: 36px; background: var(--bg-elevated);
+    border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: var(--fib-7); font-size: 1rem;
+  }
+  .addon-name { font-size: 0.875rem; font-weight: 600; margin-bottom: var(--fib-5); }
+  .addon-price { font-size: 1.2rem; font-weight: 700; color: var(--text-accent); margin-bottom: var(--fib-3); }
+  .addon-unit { font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--fib-6); }
+  .addon-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; }
+
+  /* ── Feature Comparison Table ── */
+  .comparison-section { padding: var(--fib-10) 0 var(--fib-11); }
+  .table-wrapper { overflow-x: auto; border-radius: var(--radius-xl); border: 1px solid var(--border-subtle); }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .compare-table th, .compare-table td {
+    padding: var(--fib-7) var(--fib-8);
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+  }
+  .compare-table th {
+    background: var(--bg-elevated); color: var(--text-secondary);
+    font-weight: 600; font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .compare-table th.plan-col {
+    text-align: center; vertical-align: bottom; padding-top: var(--fib-8);
+  }
+  .compare-table th.plan-col .col-plan-name { font-size: 0.875rem; color: var(--text-primary); margin-bottom: 2px; text-transform: none; letter-spacing: 0; }
+  .compare-table th.plan-col .col-plan-price { font-size: 1.1rem; font-weight: 700; color: var(--text-accent); text-transform: none; letter-spacing: 0; }
+  .compare-table td { color: var(--text-secondary); vertical-align: middle; }
+  .compare-table td.feature-name { color: var(--text-primary); font-weight: 500; }
+  .compare-table td.check-col { text-align: center; }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .category-row td {
+    background: var(--bg-elevated); color: var(--text-muted);
+    font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600;
+    padding-top: var(--fib-8); padding-bottom: var(--fib-6);
+  }
+  .check-yes { color: var(--text-green); font-size: 1rem; }
+  .check-no { color: var(--text-muted); font-size: 0.9rem; }
+  .check-partial { color: var(--text-gold); font-size: 0.85rem; font-weight: 600; }
+  .check-text { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+
+  /* ── FAQ ── */
+  .faq-section { padding: var(--fib-10) 0 var(--fib-11); }
+  .faq-list { max-width: 720px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid var(--border-subtle);
+    overflow: hidden;
+  }
+  .faq-question {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: var(--fib-8) 0;
+    cursor: pointer; font-weight: 500; font-size: 0.95rem; color: var(--text-primary);
+    transition: color var(--transition);
+  }
+  .faq-question:hover { color: var(--text-accent); }
+  .faq-chevron {
+    flex-shrink: 0; width: 20px; height: 20px; color: var(--text-muted);
+    transition: transform 0.2s ease;
+  }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+  .faq-answer {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+  }
+  .faq-answer-inner {
+    padding: 0 0 var(--fib-8);
+    font-size: 0.9rem; line-height: 1.65; color: var(--text-secondary);
+  }
+  .faq-item.open .faq-answer { max-height: 300px; }
+
+  /* ── Social Proof ── */
+  .social-proof {
+    display: flex; justify-content: center; gap: var(--fib-10);
+    flex-wrap: wrap; margin-bottom: var(--fib-9);
+  }
+  .stat { text-align: center; }
+  /* phi-scaled stat number: PHI² × 1rem ≈ 2.618rem → rounded to 1.8rem for stat context */
+  .stat-number { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.03em; }
+  .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── Enterprise CTA ── */
+  .enterprise-cta {
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, rgba(212,168,67,0.06) 100%);
+    border: 1px solid rgba(212,168,67,0.2); border-radius: var(--radius-xl);
+    padding: var(--fib-10) var(--fib-9); text-align: center;
+    margin-bottom: var(--fib-11);
+  }
+  .enterprise-cta h2 { margin-bottom: var(--fib-7); }
+  .enterprise-cta p { max-width: 480px; margin: 0 auto var(--fib-9); }
+  .btn-group { display: flex; gap: var(--fib-7); justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: var(--fib-6);
+    padding: var(--fib-7) var(--fib-9); background: var(--accent-gold); color: #0a0c0f;
+    border-radius: var(--radius-lg); font-size: 0.95rem; font-weight: 600;
+    text-decoration: none; transition: all var(--transition); border: none; cursor: pointer;
+  }
+  .btn-primary:hover { background: #e8b945; box-shadow: 0 0 30px rgba(212,168,67,0.3); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: var(--fib-6);
+    padding: var(--fib-7) var(--fib-9); background: transparent; color: var(--text-primary);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+    font-size: 0.95rem; font-weight: 500; text-decoration: none;
+    transition: all var(--transition);
+  }
+  .btn-secondary:hover { background: var(--bg-elevated); border-color: var(--text-secondary); }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: var(--fib-8) 0;
+    text-align: center; font-size: 0.78rem; color: var(--text-muted);
+  }
+  footer a { color: var(--text-muted); text-decoration: none; }
+  footer a:hover { color: var(--text-secondary); }
+
+  /* ── Phi-split two-column layout helper ── */
+  .phi-split {
+    display: grid;
+    grid-template-columns: var(--phi-major) var(--phi-minor);
+    gap: var(--fib-9);
+    align-items: center;
+  }
+  @media (max-width: 900px) { .phi-split { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- Golden-spiral SVG decorations (subtle, phi-derived, low opacity) -->
+<svg class="golden-spiral" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <!--
+    Approximate golden spiral: sequence of quarter-circle arcs whose radii
+    follow the Fibonacci sequence: 8, 13, 21, 34, 55, 89, 144
+    Each arc is centered at successive corners of the golden rectangle.
+    φ-math: r_n = fib(n) * scale; each is PHI times the previous.
+  -->
+  <!-- Bounding rectangle divided by phi -->
+  <rect x="148" y="148" width="124" height="124" stroke="#63b3ed" stroke-width="0.5" fill="none" opacity="0.4"/>
+  <rect x="225" y="148" width="47" height="47" stroke="#63b3ed" stroke-width="0.5" fill="none" opacity="0.3"/>
+  <rect x="225" y="195" width="47" height="77" stroke="#63b3ed" stroke-width="0.5" fill="none" opacity="0.2"/>
+  <!-- Quarter-circle arcs -->
+  <path d="M 272 148 A 124 124 0 0 1 148 272" stroke="#63b3ed" stroke-width="1" fill="none" opacity="0.6"/>
+  <path d="M 225 148 A 47 47 0 0 0 272 195" stroke="#5ba4f5" stroke-width="1" fill="none" opacity="0.5"/>
+  <path d="M 225 272 A 77 77 0 0 1 148 195" stroke="#63b3ed" stroke-width="1" fill="none" opacity="0.45"/>
+  <path d="M 272 195 A 30 30 0 0 0 242 225" stroke="#5ba4f5" stroke-width="0.8" fill="none" opacity="0.4"/>
+  <path d="M 242 225 A 18 18 0 0 1 225 207" stroke="#63b3ed" stroke-width="0.7" fill="none" opacity="0.35"/>
+  <path d="M 225 207 A 11 11 0 0 0 236 196" stroke="#5ba4f5" stroke-width="0.6" fill="none" opacity="0.3"/>
+  <path d="M 236 196 A 7 7 0 0 1 243 203" stroke="#63b3ed" stroke-width="0.5" fill="none" opacity="0.25"/>
+  <!-- Phi grid lines -->
+  <line x1="225" y1="148" x2="225" y2="272" stroke="#63b3ed" stroke-width="0.3" opacity="0.3"/>
+  <line x1="148" y1="195" x2="272" y2="195" stroke="#63b3ed" stroke-width="0.3" opacity="0.3"/>
+</svg>
+
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg class="nav-logo-mark" viewBox="0 0 32 32" fill="none" aria-label="Heady logo">
+        <polygon points="16,2 30,26 2,26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        <polygon points="16,9 24,23 8,23" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linejoin="round" opacity="0.6"/>
+        <circle cx="16" cy="19" r="1.5" fill="#3b82f6"/>
+      </svg>
+      <span class="nav-logo-text">Heady Latent OS</span>
+    </a>
+    <div class="nav-links">
+      <a href="landing-page.html">Home</a>
+      <a href="docs-portal.html">Docs</a>
+      <a href="#pricing">Pricing</a>
+      <a href="mailto:enterprise@headysystems.com" class="nav-cta">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero section" id="pricing">
+  <div class="container">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      Transparent, developer-friendly pricing
+    </div>
+    <h1>Pricing for every<br><span>stage of sovereignty</span></h1>
+    <p>From open-source community deployments to air-gapped enterprise. Scale from $0 to sovereign infrastructure without compromises.</p>
+
+    <!-- Stats: trial = fib(7)=13 days; annual = fib(8)=21% -->
+    <div class="social-proof">
+      <div class="stat"><div class="stat-number">13-day</div><div class="stat-label">Free trial on paid plans · fib(7)</div></div>
+      <div class="stat"><div class="stat-number">21%</div><div class="stat-label">Annual discount · fib(8)</div></div>
+      <div class="stat"><div class="stat-number">SOC 2</div><div class="stat-label">Type II certified</div></div>
+      <div class="stat"><div class="stat-number">99.9%</div><div class="stat-label">Uptime SLA</div></div>
+    </div>
+
+    <!-- Billing Toggle — "Save 21%" = fib(8) -->
+    <div class="billing-toggle">
+      <span class="toggle-label active" id="monthly-label">Monthly</span>
+      <div class="toggle-switch" id="billing-toggle" onclick="toggleBilling()">
+        <div class="toggle-knob"></div>
+      </div>
+      <span class="toggle-label" id="annual-label">Annual <span class="badge-annual">Save 21%</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING CARDS -->
+<div class="container">
+  <div class="pricing-grid">
+
+    <!-- Community -->
+    <div class="pricing-card">
+      <div class="plan-name">Community</div>
+      <div class="plan-price">
+        <span class="price-amount">$0</span>
+      </div>
+      <div class="price-note">Free forever · Open source</div>
+      <div class="plan-desc">Self-hosted sovereign AI for developers exploring the Heady ecosystem.</div>
+      <a href="https://github.com/headyconnection" class="plan-cta plan-cta-outline">Start for Free</a>
+      <hr class="plan-divider">
+      <ul class="feature-list">
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Self-hosted deployment</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Core Latent OS runtime</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Vector memory (local)</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>MCP protocol support</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>500 API calls/month (cloud)</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Community Discord support</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>MIT licensed core</li>
+        <li class="feature-item"><svg class="feature-icon cross" width="14" height="14" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="2" d="M4 4l8 8M12 4l-8 8" fill="none" stroke-linecap="round"/></svg><span style="color:var(--text-muted)">Agent swarms</span></li>
+        <li class="feature-item"><svg class="feature-icon cross" width="14" height="14" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="2" d="M4 4l8 8M12 4l-8 8" fill="none" stroke-linecap="round"/></svg><span style="color:var(--text-muted)">SSO / SAML</span></li>
+      </ul>
+    </div>
+
+    <!-- Developer -->
+    <div class="pricing-card">
+      <div class="plan-name">Developer</div>
+      <div class="plan-price">
+        <span class="price-currency">$</span>
+        <!--
+          Monthly: $29
+          Annual:  $29 × (1 - 0.21) = $29 × 0.79 ≈ $22.91 → display $23
+          Annual total: $23 × 12 = $276/yr
+          ANNUAL_DISCOUNT_PERCENT = fib(8) = 21%
+        -->
+        <span class="price-amount" data-monthly="29" data-annual="23">29</span>
+        <span class="price-period">/mo</span>
+      </div>
+      <div class="price-note" id="dev-note">Billed monthly · Cancel anytime</div>
+      <div class="plan-desc">Full cloud access for individual developers building sovereign AI applications.</div>
+      <!-- Trial = fib(7) = 13 days -->
+      <a href="#" class="plan-cta plan-cta-outline" onclick="startTrial()">Start 13-day Trial</a>
+      <hr class="plan-divider">
+      <ul class="feature-list">
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Everything in Community</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>50,000 API calls/month</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>1M vector operations/mo</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>10M LLM tokens/month</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>5 parallel agents</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>20 GB vector storage</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Email support (48h SLA)</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>BYO model (BYOM) support</li>
+        <li class="feature-item"><svg class="feature-icon cross" width="14" height="14" viewBox="0 0 16 16"><path stroke="currentColor" stroke-width="2" d="M4 4l8 8M12 4l-8 8" fill="none" stroke-linecap="round"/></svg><span style="color:var(--text-muted)">Team management</span></li>
+      </ul>
+    </div>
+
+    <!-- Team — featured -->
+    <div class="pricing-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Team</div>
+      <div class="plan-price">
+        <span class="price-currency">$</span>
+        <!--
+          Monthly: $99/seat
+          Annual:  $99 × 0.79 ≈ $78.21 → display $78
+          Annual total: $78 × 12 = $936/seat/yr
+          Support SLA = fib(6) = 8h  (matches stripe-config.js)
+        -->
+        <span class="price-amount" data-monthly="99" data-annual="78">99</span>
+        <span class="price-period">/seat/mo</span>
+      </div>
+      <div class="price-note" id="team-note">Billed monthly · Min 3 seats</div>
+      <div class="plan-desc">Centralized management and shared infrastructure for engineering teams.</div>
+      <!-- Trial = fib(7) = 13 days -->
+      <a href="#" class="plan-cta plan-cta-primary" onclick="startTrial()">Start 13-day Trial</a>
+      <hr class="plan-divider">
+      <ul class="feature-list">
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Everything in Developer</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>200,000 API calls/seat/mo</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Pooled vector storage (100 GB)</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>20 parallel agents/team</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Admin dashboard + RBAC</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SSO (Google, GitHub, SAML)</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Usage analytics dashboard</li>
+        <!-- SLA = fib(6) = 8h, matching stripe-config.js team.support_sla_hours -->
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Priority email + chat (8h SLA · fib(6))</li>
+        <li class="feature-item"><svg class="feature-icon check" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M2 8l4 4 8-8" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>SOC 2 Type II coverage</li>
+      </ul>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="pricing-card enterprise">
+      <div class="plan-badge gold">Sovereign</div>
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">
+        <span class="price-amount" style="font-size:2.2rem">Custom</span>
+      </div>
+      <div class="price-note">Volume pricing · Annual contracts</div>
+      <div class="plan-desc">Air-gapped, VPC, or on-prem sovereign deployments for regulated industries.</div>
+      <a href="mailto:enterprise@headysystems.com" class="plan-cta plan-cta-gold">Contact Sales</a>
+      <hr class="plan-divider">
+      <ul class="feature-list">
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>Everything in Team</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>On-prem / VPC / air-gapped</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>BYOM: unlimited usage</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>Unlimited agent swarms</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>SOC 2, HIPAA, ISO 27001</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>Audit logs (7-year retention)</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>Dedicated CSM</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>99.99% uptime SLA</li>
+        <li class="feature-item"><svg class="feature-icon star" width="14" height="14" viewBox="0 0 16 16"><path fill="currentColor" d="M8 1l1.8 3.6L14 5.2l-3 2.9.7 4.1L8 10l-3.7 2.2.7-4.1-3-2.9 4.2-.6z"/></svg>FedRAMP-ready pathway</li>
+      </ul>
+    </div>
+
+  </div><!-- /pricing-grid -->
+</div>
+
+<!-- USAGE ADD-ONS -->
+<section class="addons-section section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Usage-Based Add-Ons</div>
+      <h2>Pay only for what you use</h2>
+      <p>Extend any plan with on-demand usage. Billed at the end of each billing cycle.</p>
+    </div>
+    <div class="addons-grid">
+      <div class="addon-card">
+        <div class="addon-icon">⚡</div>
+        <div class="addon-name">Additional API Calls</div>
+        <div class="addon-price">$0.0004</div>
+        <div class="addon-unit">per call after plan limit</div>
+        <div class="addon-desc">REST and WebSocket API calls to the Latent OS runtime. Billed in blocks of 10,000 at month end.</div>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">🧠</div>
+        <div class="addon-name">Vector Storage</div>
+        <div class="addon-price">$0.10</div>
+        <div class="addon-unit">per GB / month over limit</div>
+        <div class="addon-desc">Persistent vector embeddings stored in the distributed memory layer. Scales with your knowledge base.</div>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">🔤</div>
+        <div class="addon-name">LLM Tokens (Managed)</div>
+        <div class="addon-price">$1.50</div>
+        <div class="addon-unit">per 1M tokens (input + output)</div>
+        <div class="addon-desc">Tokens consumed via Heady-managed inference. BYOM users are exempt — unlimited tokens on your own model.</div>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">🤖</div>
+        <div class="addon-name">Agent Compute Hours</div>
+        <!--
+          unit_amount = round(PSI × fib(7)) = round(0.618 × 13) ≈ round(8.034) = 8¢
+          Matches stripe-config.js agent_hours unit_amount
+        -->
+        <div class="addon-price">$0.08</div>
+        <div class="addon-unit">per agent compute hour · PSI × fib(7)</div>
+        <div class="addon-desc">Parallel agent execution beyond your plan's swarm limit. Ideal for burst workloads and batch processing jobs.</div>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">🔍</div>
+        <div class="addon-name">Vector Operations</div>
+        <div class="addon-price">$0.02</div>
+        <!--
+          transform_quantity.divide_by = fib(10) = 55 (matches stripe-config.js)
+          Displayed as "per 10,000 ops" for user comprehension
+        -->
+        <div class="addon-unit">per 10,000 ops over limit</div>
+        <div class="addon-desc">Read, write, and similarity search operations against the vector memory layer. Scales with retrieval frequency.</div>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon">💾</div>
+        <div class="addon-name">Object Storage</div>
+        <div class="addon-price">$0.023</div>
+        <div class="addon-unit">per GB / month</div>
+        <div class="addon-desc">Persistent object storage for agent artifacts, model weights, fine-tuning datasets, and audit logs.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="comparison-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Full Comparison</div>
+      <h2>Everything, side by side</h2>
+    </div>
+    <div class="table-wrapper">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th style="width:35%">Feature</th>
+            <th class="plan-col">
+              <div class="col-plan-name">Community</div>
+              <div class="col-plan-price">Free</div>
+            </th>
+            <th class="plan-col">
+              <div class="col-plan-name">Developer</div>
+              <div class="col-plan-price">$29/mo</div>
+            </th>
+            <th class="plan-col" style="background:rgba(59,130,246,0.06)">
+              <div class="col-plan-name">Team</div>
+              <div class="col-plan-price">$99/seat</div>
+            </th>
+            <th class="plan-col">
+              <div class="col-plan-name">Enterprise</div>
+              <div class="col-plan-price" style="color:var(--text-gold)">Custom</div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="category-row"><td colspan="5">Core Platform</td></tr>
+          <tr>
+            <td class="feature-name">Latent OS runtime</td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Cloud-hosted deployment</td>
+            <td class="check-col"><span class="check-partial">Limited</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Self-hosted deployment</td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">On-prem / VPC / Air-gapped</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">BYO Model (BYOM)</td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-text">Unlimited</span></td>
+          </tr>
+
+          <tr class="category-row"><td colspan="5">Usage Limits</td></tr>
+          <tr>
+            <td class="feature-name">API calls / month</td>
+            <td class="check-col"><span class="check-text">500</span></td>
+            <td class="check-col"><span class="check-text">50,000</span></td>
+            <td class="check-col"><span class="check-text">200K/seat</span></td>
+            <td class="check-col"><span class="check-text">Unlimited</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Vector operations / month</td>
+            <td class="check-col"><span class="check-text">10K</span></td>
+            <td class="check-col"><span class="check-text">1M</span></td>
+            <td class="check-col"><span class="check-text">10M/team</span></td>
+            <td class="check-col"><span class="check-text">Unlimited</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Vector storage</td>
+            <td class="check-col"><span class="check-text">1 GB</span></td>
+            <td class="check-col"><span class="check-text">20 GB</span></td>
+            <td class="check-col"><span class="check-text">100 GB pooled</span></td>
+            <td class="check-col"><span class="check-text">Custom</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Parallel agents</td>
+            <td class="check-col"><span class="check-text">1</span></td>
+            <td class="check-col"><span class="check-text">5</span></td>
+            <td class="check-col"><span class="check-text">20/team</span></td>
+            <td class="check-col"><span class="check-text">Unlimited</span></td>
+          </tr>
+
+          <tr class="category-row"><td colspan="5">Security & Compliance</td></tr>
+          <tr>
+            <td class="feature-name">Data encryption at rest</td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">SOC 2 Type II</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">HIPAA BAA</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">ISO 27001</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Audit log retention</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-text">30 days</span></td>
+            <td class="check-col"><span class="check-text">1 year</span></td>
+            <td class="check-col"><span class="check-text">7 years</span></td>
+          </tr>
+
+          <tr class="category-row"><td colspan="5">Team & Administration</td></tr>
+          <tr>
+            <td class="feature-name">RBAC (role-based access)</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">SSO / SAML</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Usage analytics dashboard</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-partial">Basic</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+
+          <tr class="category-row"><td colspan="5">Support</td></tr>
+          <tr>
+            <td class="feature-name">Community / Discord</td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Email support</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-text">48h SLA</span></td>
+            <!-- fib(6)=8h matches stripe-config.js team.support_sla_hours -->
+            <td class="check-col"><span class="check-text">8h SLA · fib(6)</span></td>
+            <td class="check-col"><span class="check-text">4h SLA</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Dedicated CSM</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-yes">✓</span></td>
+          </tr>
+          <tr>
+            <td class="feature-name">Uptime SLA</td>
+            <td class="check-col"><span class="check-no">—</span></td>
+            <td class="check-col"><span class="check-text">99.9%</span></td>
+            <td class="check-col"><span class="check-text">99.9%</span></td>
+            <td class="check-col"><span class="check-text">99.99%</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ENTERPRISE CTA -->
+<div class="container">
+  <div class="enterprise-cta">
+    <div class="section-label">Enterprise Sovereign</div>
+    <h2>Need air-gapped or on-premises deployment?</h2>
+    <p>Custom contracts for defense, healthcare, finance, and critical infrastructure. FedRAMP-ready pathway available.</p>
+    <div class="btn-group">
+      <a href="mailto:enterprise@headysystems.com" class="btn-primary">Schedule Architecture Review</a>
+      <a href="docs-portal.html" class="btn-secondary">View Enterprise Docs</a>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">FAQ</div>
+      <h2>Common questions</h2>
+    </div>
+    <div class="faq-list" id="faq">
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          What is the 13-day free trial?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <div class="faq-answer"><div class="faq-answer-inner">All paid plans include a 13-day free trial (fib(7)=13) with full feature access. No credit card required to start. You can cancel at any time during the trial period and will not be charged. If you don't cancel, billing begins automatically after the trial ends.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          What does "Bring Your Own Model" (BYOM) mean?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <div class="faq-answer"><div class="faq-answer-inner">BYOM allows you to connect any compatible LLM endpoint (Ollama, vLLM, OpenAI-compatible API, Anthropic, or custom models) to the Heady Latent OS runtime. When using BYOM, token consumption is not metered by Heady — you pay your LLM provider directly and Heady charges nothing for inference. Enterprise plans with BYOM have completely unlimited usage with no token caps or overage charges. This is particularly valuable for regulated industries where data must never leave your infrastructure.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          How does the annual discount work?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <!--
+          ANNUAL_DISCOUNT_PERCENT = fib(8) = 21%  (matches stripe-config.js)
+          Developer: $29 × (1 - 0.21) = $29 × 0.79 ≈ $22.91 → $23/mo → $276/yr
+          Team:      $99 × (1 - 0.21) = $99 × 0.79 ≈ $78.21 → $78/mo → $936/seat/yr
+        -->
+        <div class="faq-answer"><div class="faq-answer-inner">Annual billing provides a 21% discount (fib(8)=21) on all base plan prices. Developer drops from $29/mo to $23/mo ($276/year, saving $72). Team drops from $99/seat/mo to $78/seat/mo ($936/seat/year, saving $252/seat). Usage-based overages are still billed monthly regardless of billing cycle. You can switch from monthly to annual at any time; the difference will be prorated on your next invoice.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          What's the difference between HeadyConnection and HeadySystems?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <div class="faq-answer"><div class="faq-answer-inner">HeadyConnection is our nonprofit arm that maintains the open-source Community edition under the MIT license. It runs community programs, developer education, and open governance. HeadySystems is the commercial entity that operates the hosted platform, sells enterprise licenses, and funds ongoing R&D. Revenue from HeadySystems supports HeadyConnection's open-source mission.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          Do usage overages cause service interruption?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <div class="faq-answer"><div class="faq-answer-inner">No. By default, overages are billed at the rates shown in the add-ons section. You can set hard limits per user or organization from the admin dashboard to prevent unexpected charges. When a hard limit is reached, affected operations return a 429 rate-limit error rather than incurring overage. Enterprise plans can configure custom overage behavior including alerts, throttling, or graceful degradation.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          Is there a nonprofit or open-source discount?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes. Verified 501(c)(3) nonprofits, educational institutions, and open-source projects with 100+ GitHub stars receive a 30% discount on Developer and Team plans. Contact hello@headyconnection.org with your organization details to apply. Research institutions and NGOs working on public-interest AI applications may qualify for additional credits.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          What compliance certifications are included with Enterprise?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <div class="faq-answer"><div class="faq-answer-inner">Enterprise contracts include SOC 2 Type II coverage, ISO 27001, and HIPAA BAA availability. FedRAMP Moderate is on our roadmap. On-premises deployments help customers achieve their own compliance requirements since Heady's infrastructure is not in scope for their audits. We provide detailed security documentation, vendor questionnaire responses, and security review sessions for enterprise procurement teams.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          Can I migrate from Community (self-hosted) to a paid cloud plan?
+          <svg class="faq-chevron" viewBox="0 0 20 20" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M5 7.5l5 5 5-5"/></svg>
+        </div>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes. The Latent OS runtime uses a portable state format. You can export your vector memory, agent configurations, and MCP tool definitions from a self-hosted Community deployment and import them directly into a cloud-hosted Developer or Team account. The migration wizard in the admin panel automates this process. Enterprise customers get dedicated migration support including professional services for complex on-premises-to-cloud or cloud-to-on-premises migrations.</div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p style="margin-bottom:var(--fib-6)">
+      © 2026 HeadySystems, Inc. · <a href="mailto:hello@headyconnection.org">hello@headyconnection.org</a> ·
+      <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Security</a>
+    </p>
+    <p>
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  // ── Phi constants (mirrors shared/phi-math.js) ──
+  const PHI = 1.618033988749895;
+  const PSI = 0.618033988749895;
+
+  // ANNUAL_DISCOUNT_PERCENT = fib(8) = 21  (matches stripe-config.js)
+  const ANNUAL_DISCOUNT = 0.21;
+
+  // TRIAL_DAYS = fib(7) = 13  (matches stripe-config.js)
+  const TRIAL_DAYS = 13;
+
+  // ── Billing toggle ──
+  let isAnnual = false;
+
+  function toggleBilling() {
+    isAnnual = !isAnnual;
+    const toggle = document.getElementById('billing-toggle');
+    const monthlyLabel = document.getElementById('monthly-label');
+    const annualLabel = document.getElementById('annual-label');
+    const devNote = document.getElementById('dev-note');
+    const teamNote = document.getElementById('team-note');
+
+    toggle.classList.toggle('on', isAnnual);
+    monthlyLabel.classList.toggle('active', !isAnnual);
+    annualLabel.classList.toggle('active', isAnnual);
+
+    // Update prices — data-annual values pre-computed: $29×0.79≈$23, $99×0.79≈$78
+    document.querySelectorAll('[data-monthly]').forEach(el => {
+      const monthly = parseFloat(el.dataset.monthly);
+      const annual = parseFloat(el.dataset.annual);
+      el.textContent = isAnnual ? annual : monthly;
+    });
+
+    // Update billing notes with phi-correct annual figures
+    if (devNote) {
+      devNote.innerHTML = isAnnual
+        // $23 × 12 = $276/yr; saving = $72 ($6 × 12)
+        ? '<span class="price-annual-note">Billed annually ($276/yr) · Save 21% off · fib(8)</span>'
+        : 'Billed monthly · Cancel anytime';
+    }
+    if (teamNote) {
+      teamNote.innerHTML = isAnnual
+        // $78 × 12 = $936/seat/yr; saving = $252/seat ($21 × 12)
+        ? '<span class="price-annual-note">Billed annually ($936/seat/yr) · Save 21% off · fib(8)</span>'
+        : 'Billed monthly · Min 3 seats';
+    }
+  }
+
+  // ── FAQ accordion ──
+  function toggleFaq(questionEl) {
+    const item = questionEl.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  // ── Trial CTA — fib(7) = 13 days ──
+  function startTrial() {
+    window.location.href = `mailto:hello@headyconnection.org?subject=Start%20${TRIAL_DAYS}-day%20Trial`;
+  }
+
+  // ── Scroll animations ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.pricing-card, .addon-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    // Transition durations derived from phi: PSI ≈ 0.618 → ~0.4s animation
+    el.style.transition = `opacity ${PSI * 0.618:.3}s ease, transform ${PSI * 0.618:.3}s ease, border-color 0.18s ease, box-shadow 0.18s ease`;
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

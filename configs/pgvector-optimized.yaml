@@ -1,0 +1,337 @@
+# =============================================================================
+# pgvector-optimized.yaml
+# Purpose:  pgvector configuration for Heady Latent OS production deployments
+# Platform: Cloud Run + Cloud SQL PostgreSQL 16 (or self-hosted PostgreSQL 16+)
+# Created:  2026-03-07
+#
+# Based on benchmarks from research/section1_vector_db.md:
+#   - HNSW @ 1M × 1536d: 253 QPS, 5.51ms p99 (pgvector 0.7.0+)
+#   - pgvector 0.8.0 iterative scan: 100x better result completeness on filtered queries
+#   - halfvec scalar quantization: 50% memory savings, ~3x faster build
+#   - binary quantization: 32x memory savings, ~67x faster build (with re-ranking)
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# PostgreSQL Memory Configuration
+# Scale tiers: small (<=1M vectors), medium (1M-10M), large (10M-100M)
+# ---------------------------------------------------------------------------
+postgresql:
+  # --- Memory settings (tune to available RAM) ---
+
+  # small tier: 8 GB RAM (Cloud Run minimum for vector workloads)
+  small:
+    shared_buffers: "2GB"                 # 25% of 8GB RAM
+    effective_cache_size: "6GB"           # 75% of 8GB RAM
+    work_mem: "64MB"                      # Per sort/hash operation
+    maintenance_work_mem: "1GB"           # For HNSW index builds
+    wal_buffers: "64MB"
+    max_connections: 50
+
+  # medium tier: 32 GB RAM (recommended for 1M-10M vectors)
+  medium:
+    shared_buffers: "8GB"                 # 25% of 32GB RAM
+    effective_cache_size: "24GB"          # 75% of 32GB RAM
+    work_mem: "256MB"                     # Per sort/hash operation
+    maintenance_work_mem: "4GB"           # For parallel HNSW builds
+    wal_buffers: "256MB"
+    max_connections: 100
+
+  # large tier: 128 GB RAM (for 10M-100M vectors)
+  large:
+    shared_buffers: "32GB"                # 25% of 128GB RAM
+    effective_cache_size: "96GB"          # 75% of 128GB RAM
+    work_mem: "512MB"
+    maintenance_work_mem: "16GB"          # Critical for fast large-scale HNSW builds
+    wal_buffers: "512MB"
+    max_connections: 200
+
+  # --- Parallelism ---
+  # pgvector 0.7.0+ parallel HNSW build:
+  # 1M × 1536d: 87 min (single-threaded) → 9.5 min (parallel, 8 workers)
+  # See: pgvector 0.7.0 release notes
+  parallelism:
+    max_parallel_maintenance_workers: 7   # N_CPU - 1 (leave 1 for OS)
+    max_parallel_workers_per_gather: 4
+    max_parallel_workers: 8
+
+  # --- WAL / Checkpoint settings ---
+  wal:
+    wal_compression: "on"
+    checkpoint_completion_target: 0.9
+    max_wal_size: "4GB"
+    min_wal_size: "1GB"
+
+  # --- Planner settings for HNSW ---
+  planner:
+    # pgvector 0.8.0 improved cost estimation for index selection
+    # Enable to allow planner to correctly choose B-tree over HNSW
+    # for highly selective metadata-only filters
+    enable_seqscan: "on"                  # Don't disable; let planner choose
+    random_page_cost: 1.1                 # For NVMe SSD; reduce to 1.0 for RAM-resident
+
+  # --- Logging ---
+  logging:
+    log_min_duration_statement: 200       # Log queries over 200ms
+    log_line_prefix: "%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h "
+    log_checkpoints: "on"
+    log_lock_waits: "on"
+
+# ---------------------------------------------------------------------------
+# HNSW Index Parameters by Scale Tier
+# ---------------------------------------------------------------------------
+# Benchmark context:
+#   m=32 (default=16): 2x graph memory but better recall, especially at high dimensions
+#   ef_construction=200 (default=64): Production-grade quality; use 64 for dev
+#   ef_search=100: Runtime-tunable beam width; increase for higher recall
+#   hnsw.iterative_scan: CRITICAL for agent memory (constant metadata filtering)
+# ---------------------------------------------------------------------------
+hnsw:
+  # Scale: <= 1M vectors (Heady standard deployment)
+  small:
+    m: 16                                 # Default; acceptable for <500K vectors
+    ef_construction: 128                  # Good balance of quality and build speed
+    ef_search: 64                         # Tune at runtime: SET hnsw.ef_search = 64
+    iterative_scan: "relaxed_order"       # pgvector 0.8.0 — prevent incomplete results
+    max_scan_tuples: 10000                # Upper bound on iterative scan
+    comment: "384d, <1M vectors, development or light production"
+
+  # Scale: 1M - 10M vectors
+  medium:
+    m: 32                                 # Higher connectivity for better recall
+    ef_construction: 200                  # High quality build (production standard)
+    ef_search: 100                        # Higher beam for 10M+ vectors
+    iterative_scan: "relaxed_order"
+    max_scan_tuples: 20000
+    comment: "384d/1536d, 1M-10M vectors, standard production"
+
+  # Scale: 10M - 100M vectors (requires pgvectorscale or larger hardware)
+  large:
+    m: 32
+    ef_construction: 200
+    ef_search: 200                        # Wider beam needed for large scale
+    iterative_scan: "relaxed_order"
+    max_scan_tuples: 50000
+    comment: "1536d, 10M-100M vectors, enterprise tier"
+    note: "Consider pgvectorscale StreamingDiskANN for 50M+ vectors"
+
+  # Quantized index parameters
+  halfvec:
+    m: 32
+    ef_construction: 200                  # Can use same params; recall nearly identical
+    ef_search: 100
+    note: >
+      halfvec (scalar quantization) achieves near-identical recall to float32
+      at ef_construction >= 128 with 50% memory savings.
+      Recommended default for all production tiers.
+
+  binary:
+    m: 32
+    ef_construction: 200
+    ef_search: 200                        # Wider beam needed for binary approximation
+    oversample_factor: 4                  # Fetch 4x candidates for re-ranking
+    note: >
+      Binary quantization (32x savings) requires re-ranking with original float32 vectors.
+      Use heady_binary_rerank_search() SQL function.
+      Best for >10M vectors where memory is the primary constraint.
+
+# ---------------------------------------------------------------------------
+# IVFFlat Parameters (legacy / bulk-load scenarios only)
+# ---------------------------------------------------------------------------
+# HNSW is preferred for all production workloads.
+# Use IVFFlat only for bulk-loaded static datasets where rebuild is acceptable.
+# Benchmark: HNSW = 31x more QPS and 27x lower p99 than IVFFlat at 99% recall.
+ivfflat:
+  small:
+    lists: 100                            # sqrt(10K) for 10K vectors
+    probes: 10                            # sqrt(lists) starting point
+  medium:
+    lists: 1000                           # sqrt(1M) for 1M vectors
+    probes: 32                            # Tune for recall target
+  large:
+    lists: 3162                           # sqrt(10M) for 10M vectors
+    probes: 56
+
+# ---------------------------------------------------------------------------
+# Connection Pool Settings (PgBouncer or Cloud SQL Proxy)
+# ---------------------------------------------------------------------------
+# Cloud Run instances can have burst connections; use connection pooling.
+connection_pool:
+  # PgBouncer settings (recommended for Cloud Run)
+  pgbouncer:
+    pool_mode: "transaction"              # Transaction mode for stateless Cloud Run
+    max_client_conn: 1000
+    default_pool_size: 20                 # Connections per database/user pair
+    min_pool_size: 5
+    reserve_pool_size: 5
+    reserve_pool_timeout: 5
+    max_db_connections: 50               # Limit total PostgreSQL connections
+    server_idle_timeout: 600             # 10 min idle before closing
+
+  # Node.js pg pool settings (heady-implementation application layer)
+  node_pg:
+    small:
+      max: 10                             # Max connections per Cloud Run instance
+      min: 2
+      idleTimeoutMillis: 30000
+      connectionTimeoutMillis: 5000
+      statement_timeout: 30000           # 30s query timeout
+    medium:
+      max: 20
+      min: 5
+      idleTimeoutMillis: 30000
+      connectionTimeoutMillis: 5000
+      statement_timeout: 60000
+    large:
+      max: 50
+      min: 10
+      idleTimeoutMillis: 60000
+      connectionTimeoutMillis: 10000
+      statement_timeout: 120000
+
+# ---------------------------------------------------------------------------
+# Maintenance Windows for Index Rebuilds
+# ---------------------------------------------------------------------------
+# HNSW indexes can become fragmented over time with high-write workloads.
+# Schedule REINDEX during low-traffic windows.
+maintenance:
+  # Auto-vacuum tuning for vector tables (high-write workloads)
+  autovacuum:
+    # More aggressive vacuum for vector_memories (high insert/update rate)
+    vector_memories:
+      autovacuum_vacuum_scale_factor: 0.01      # Vacuum when 1% of rows dead
+      autovacuum_analyze_scale_factor: 0.005    # Analyze when 0.5% rows changed
+      autovacuum_vacuum_cost_delay: 2           # Reduce I/O throttling
+      autovacuum_vacuum_cost_limit: 1000        # Allow more vacuum work per cycle
+      toast.autovacuum_vacuum_scale_factor: 0.01
+
+  # HNSW index rebuild schedule
+  # HNSW handles incremental inserts without quality degradation,
+  # but periodic REINDEX can recover fragmentation.
+  index_rebuild:
+    schedule: "0 3 * * 0"               # Weekly, Sunday 3 AM
+    command: |
+      SET maintenance_work_mem = '8GB';
+      SET max_parallel_maintenance_workers = 7;
+      REINDEX INDEX CONCURRENTLY idx_vm_hnsw_384_half_cosine;
+      REINDEX INDEX CONCURRENTLY idx_vm_hnsw_1536_half_cosine;
+    max_duration_minutes: 60
+    abort_if_active_connections_gt: 10
+
+  # Full VACUUM ANALYZE after bulk loads
+  post_bulk_load:
+    commands:
+      - "VACUUM ANALYZE vector_memories;"
+      - "VACUUM ANALYZE graph_entities;"
+      - "VACUUM ANALYZE graph_relationships;"
+
+# ---------------------------------------------------------------------------
+# Monitoring Thresholds
+# ---------------------------------------------------------------------------
+monitoring:
+  alerts:
+    # Query latency thresholds (ms)
+    query_latency:
+      p50_warning_ms: 20
+      p50_critical_ms: 50
+      p99_warning_ms: 100
+      p99_critical_ms: 500
+
+    # Throughput thresholds (QPS)
+    throughput:
+      min_qps_warning: 50                # Alert if QPS drops below this
+      min_qps_critical: 10
+
+    # Index health
+    index_health:
+      max_dead_tuple_ratio: 0.2          # Alert if >20% dead tuples in vector table
+      min_index_scan_rate: 1.0           # Alert if index scans/sec < 1 (possible index bloat)
+
+    # Memory
+    memory:
+      shared_buffer_hit_ratio_min: 0.90  # Alert if buffer cache hit < 90%
+      max_connections_warning_pct: 0.80  # Alert at 80% of max_connections
+
+  # Prometheus metrics to collect
+  prometheus:
+    scrape_interval: "30s"
+    queries:
+      - name: "heady_vector_memory_count"
+        query: "SELECT COUNT(*) FROM vector_memories"
+        labels: ["workspace_id"]
+
+      - name: "heady_slow_queries_count"
+        query: |
+          SELECT COUNT(*) FROM pg_stat_statements
+          WHERE query ILIKE '%vector_memories%'
+          AND mean_exec_time > 100
+
+      - name: "heady_index_cache_hit_ratio"
+        query: |
+          SELECT
+            CASE WHEN idx_blks_hit + idx_blks_read = 0 THEN 1
+            ELSE idx_blks_hit::float / (idx_blks_hit + idx_blks_read)
+            END
+          FROM pg_statio_user_indexes
+          WHERE indexrelname = 'idx_vm_hnsw_384_half_cosine'
+
+  # Dashboard query: Vector memory growth rate
+  dashboard_queries:
+    memory_growth_rate: |
+      SELECT
+        date_trunc('hour', created_at) AS hour,
+        COUNT(*) AS new_memories,
+        AVG(importance_score) AS avg_importance
+      FROM vector_memories
+      WHERE created_at > NOW() - INTERVAL '24 hours'
+      GROUP BY 1
+      ORDER BY 1 DESC;
+
+    index_usage: |
+      SELECT indexname, idx_scan, idx_tup_read,
+             pg_size_pretty(pg_relation_size(indexrelid)) AS size
+      FROM pg_stat_user_indexes
+      WHERE tablename = 'vector_memories'
+      ORDER BY idx_scan DESC;
+
+    slow_vector_queries: |
+      SELECT query, calls, round(mean_exec_time::numeric, 2) AS avg_ms,
+             round(max_exec_time::numeric, 2) AS max_ms
+      FROM pg_stat_statements
+      WHERE query ILIKE '%vector_memories%'
+        AND mean_exec_time > 50
+      ORDER BY mean_exec_time DESC LIMIT 10;
+
+# ---------------------------------------------------------------------------
+# Capacity Planning
+# ---------------------------------------------------------------------------
+# Use these formulas for infrastructure sizing decisions.
+capacity_planning:
+  memory_formulas:
+    # 384d float32 HNSW: ~192 bytes/vector (m=32 graph overhead) + 1.5KB raw
+    hnsw_384d_memory_gb: "N_vectors * 1692 / 1e9"  # bytes → GB
+
+    # 384d halfvec HNSW: ~192 bytes/vector + 768 bytes raw (half precision)
+    hnsw_384d_half_memory_gb: "N_vectors * 960 / 1e9"
+
+    # 1536d float32 HNSW: ~192 bytes + 6144 bytes raw
+    hnsw_1536d_memory_gb: "N_vectors * 6336 / 1e9"
+
+    # Binary quantization: ~192 bytes + 48 bytes (384 bits)
+    hnsw_384d_binary_memory_gb: "N_vectors * 240 / 1e9"
+
+  examples:
+    - scenario: "1M memories, 384d halfvec"
+      index_size_gb: 0.96
+      recommendation: "small tier (8GB RAM) — fits comfortably"
+
+    - scenario: "10M memories, 384d halfvec"
+      index_size_gb: 9.6
+      recommendation: "medium tier (32GB RAM)"
+
+    - scenario: "100M memories, 384d halfvec"
+      index_size_gb: 96
+      recommendation: "large tier (128GB RAM) or pgvectorscale StreamingDiskANN"
+
+    - scenario: "10M memories, 1536d float32"
+      index_size_gb: 63.4
+      recommendation: "large tier or migrate to halfvec (saves 31.7 GB)"

@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Heady Latent OS — Sovereign AI infrastructure. Vector memory, agent swarms, MCP protocol, edge AI. Run on your terms: cloud, VPC, or air-gapped.">
+<meta property="og:title" content="Heady Latent OS — Sovereign AI Platform">
+<meta property="og:description" content="The AI operating system that runs where you need it. Cloud Run, VPC, or air-gapped. Developer-first. Sovereign by design.">
+<title>Heady Latent OS — Sovereign AI Platform</title>
+<style>
+  /* ── Phi-Math Design Tokens ──
+   *
+   * All spacing, typography, and layout proportions are derived from φ (golden ratio)
+   * and the Fibonacci sequence, mirroring shared/phi-math.js:
+   *
+   *   PHI = 1.618033988749895   (golden ratio)
+   *   PSI = 0.618033988749895   (conjugate, 1/φ)
+   *
+   * Fibonacci spacing index convention  (--fib-N = fib(N)px):
+   *   --fib-6:  8px   (fib(6)=8)
+   *   --fib-7:  13px  (fib(7)=13)
+   *   --fib-8:  21px  (fib(8)=21)
+   *   --fib-9:  34px  (fib(9)=34)
+   *   --fib-10: 55px  (fib(10)=55)
+   *   --fib-11: 89px  (fib(11)=89)
+   *
+   * Hero grid = phi-split: left 61.8% (PSI) / right 38.2% (PSI²)
+   * Typography golden-ratio scale (base 1rem = 16px):
+   *   h4: 1rem
+   *   h3: 1rem × PHI   = 1.618rem
+   *   h2: 1rem × PHI²  = 2.618rem
+   *   h1: 1rem × PHI³  = 4.236rem (clamped)
+   * ──────────────────────────────────────────────────────────── */
+  :root {
+    /* Golden ratio constants */
+    --phi: 1.618033988749895;
+    --psi: 0.618033988749895;
+
+    /* Fibonacci spacing (--fib-N = fib(N)px) */
+    --fib-3:  2px;
+    --fib-4:  3px;
+    --fib-5:  5px;
+    --fib-6:  8px;
+    --fib-7:  13px;
+    --fib-8:  21px;
+    --fib-9:  34px;
+    --fib-10: 55px;
+    --fib-11: 89px;
+
+    /* Phi-split layout proportions */
+    --phi-major:  61.8%;   /* PSI  ≈ 61.8% (golden major) */
+    --phi-minor:  38.2%;   /* PSI² ≈ 38.2% (golden minor) */
+    --phi-nano:   23.6%;   /* PSI³ ≈ 23.6% */
+
+    /* Typography golden-ratio scale */
+    --type-h1: clamp(2.4rem, 5vw, 4.236rem);   /* PHI³ × 1rem */
+    --type-h2: clamp(1.6rem, 3vw, 2.618rem);   /* PHI² × 1rem */
+    --type-h3: 1.618rem;                         /* PHI  × 1rem */
+    --type-h4: 1rem;                             /* base        */
+
+    /* Colors */
+    --bg-base: #070a0f;
+    --bg-surface: #0d1117;
+    --bg-elevated: #131a24;
+    --bg-card: #18222e;
+    --border-subtle: rgba(255,255,255,0.05);
+    --border-default: rgba(255,255,255,0.09);
+    --border-strong: rgba(255,255,255,0.16);
+    --text-primary: #e6ecf2;
+    --text-secondary: #8898a8;
+    --text-muted: #3d4f62;
+    --text-accent: #5ba4f5;
+    --text-gold: #d4a843;
+    --text-green: #4ec996;
+    --text-purple: #a78bfa;
+    --accent-blue: #3b82f6;
+    --accent-gold: #d4a843;
+    --accent-teal: #14b8a6;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', monospace;
+
+    /* Border radii (Fibonacci-indexed) */
+    --radius-sm: var(--fib-4);   /* 3px  = fib(4) */
+    --radius-md: var(--fib-6);   /* 8px  = fib(6) */
+    --radius-lg: var(--fib-7);   /* 13px = fib(7) */
+    --radius-xl: var(--fib-8);   /* 21px = fib(8) */
+
+    --transition: 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans); background: var(--bg-base); color: var(--text-primary);
+    line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { text-decoration: none; }
+  img { max-width: 100%; }
+
+  /* ── Typography (phi golden-ratio scale) ── */
+  h1 {
+    font-size: var(--type-h1);    /* clamp(2.4rem, 5vw, 4.236rem) = PHI³ × 1rem */
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+  }
+  h2 {
+    font-size: var(--type-h2);    /* clamp(1.6rem, 3vw, 2.618rem) = PHI² × 1rem */
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  h3 {
+    font-size: var(--type-h3);    /* 1.618rem = PHI × 1rem */
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: rgba(7,10,15,0.82); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .nav-inner {
+    max-width: 1160px; margin: 0 auto;
+    /* padding: fib(7) fib(8) = 13px 21px */
+    padding: var(--fib-7) var(--fib-8);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    display: flex; align-items: center;
+    /* gap: fib(7) = 13px */
+    gap: var(--fib-7);
+    color: var(--text-primary);
+  }
+  .nav-logo-text { font-size: 1rem; font-weight: 600; letter-spacing: -0.02em; }
+  .nav-links {
+    display: flex;
+    /* gap: fib(9) = 34px */
+    gap: var(--fib-9);
+    align-items: center;
+  }
+  .nav-links a { font-size: 0.875rem; color: var(--text-secondary); transition: color var(--transition); }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-cta-group {
+    display: flex;
+    /* gap: fib(7) = 13px */
+    gap: var(--fib-7);
+    align-items: center;
+  }
+  .btn-nav-ghost {
+    font-size: 0.875rem; color: var(--text-secondary);
+    /* padding: fib(6) fib(7) = 8px 13px */
+    padding: var(--fib-6) var(--fib-7);
+    border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    transition: all var(--transition);
+  }
+  .btn-nav-ghost:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  .btn-nav-primary {
+    font-size: 0.875rem; color: #fff; background: var(--accent-blue);
+    /* padding: fib(6) fib(8) = 8px 21px */
+    padding: var(--fib-6) var(--fib-8);
+    border-radius: var(--radius-md); font-weight: 500; transition: background var(--transition);
+  }
+  .btn-nav-primary:hover { background: #2563eb; }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .btn-nav-ghost { display: none; }
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    position: relative;
+    /* padding: fib(10) fib(8) fib(10) = 55px 21px */
+    padding: var(--fib-10) var(--fib-8);
+    text-align: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 20% 80%, rgba(20,184,166,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 70%, rgba(212,168,67,0.03) 0%, transparent 60%);
+  }
+  /* Hero grid: fib(11)=89px spacing */
+  .hero-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(59,130,246,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.02) 1px, transparent 1px);
+    /* grid-size = fib(11) = 89px */
+    background-size: var(--fib-11) var(--fib-11);
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 800px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center;
+    /* gap: fib(6) = 8px */
+    gap: var(--fib-6);
+    /* padding: fib(4) fib(7) = 3px 13px */
+    padding: var(--fib-4) var(--fib-7);
+    background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 100px; font-size: 0.72rem; color: var(--text-accent); font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    /* margin-bottom: fib(8) = 21px */
+    margin-bottom: var(--fib-8);
+  }
+  .eyebrow-dot { width: 5px; height: 5px; background: var(--text-accent); border-radius: 50%; }
+  .hero h1 {
+    /* font-size via --type-h1 = clamp(2.4rem, 5vw, 4.236rem) */
+    font-size: var(--type-h1);
+    /* margin-bottom: fib(8) = 21px */
+    margin-bottom: var(--fib-8);
+  }
+  .hero h1 .line-1 { display: block; color: var(--text-primary); }
+  .hero h1 .line-2 { display: block; color: var(--text-accent); }
+  .hero h1 .line-3 { display: block; color: var(--text-secondary); font-weight: 300; }
+  .hero-desc {
+    font-size: 1.125rem; color: var(--text-secondary); max-width: 540px;
+    margin: 0 auto;
+    /* margin-bottom: fib(9) = 34px */
+    margin-bottom: var(--fib-9);
+    line-height: 1.65;
+  }
+  /* Hero CTA group: gap = fib(7) = 13px, margin-bottom = fib(10) = 55px */
+  .hero-cta-group {
+    display: flex;
+    gap: var(--fib-7);
+    justify-content: center; flex-wrap: wrap;
+    margin-bottom: var(--fib-10);
+  }
+  .btn-primary-lg {
+    display: inline-flex; align-items: center;
+    /* gap: fib(6) = 8px */
+    gap: var(--fib-6);
+    /* padding: fib(7) fib(9) = 13px 34px */
+    padding: var(--fib-7) var(--fib-9);
+    background: var(--accent-blue); color: #fff;
+    border-radius: var(--radius-lg); font-size: 0.95rem; font-weight: 600;
+    transition: all var(--transition);
+  }
+  .btn-primary-lg:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 8px 30px rgba(59,130,246,0.3); }
+  .btn-ghost-lg {
+    display: inline-flex; align-items: center;
+    /* gap: fib(6) = 8px */
+    gap: var(--fib-6);
+    /* padding: fib(7) fib(9) = 13px 34px */
+    padding: var(--fib-7) var(--fib-9);
+    background: transparent; color: var(--text-primary);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+    font-size: 0.95rem; font-weight: 500; transition: all var(--transition);
+  }
+  .btn-ghost-lg:hover { background: var(--bg-elevated); border-color: var(--text-secondary); }
+  .hero-social-proof {
+    display: flex; justify-content: center;
+    /* gap: fib(9) = 34px */
+    gap: var(--fib-9);
+    flex-wrap: wrap;
+    font-size: 0.8rem; color: var(--text-muted);
+  }
+  .hero-social-proof span { display: flex; align-items: center; gap: var(--fib-6); }
+  .proof-dot { width: 6px; height: 6px; background: var(--text-green); border-radius: 50%; }
+
+  /* ── Sections ── */
+  /* section padding = fib(11) = 89px */
+  .section { padding: var(--fib-11) 0; }
+  .container { max-width: 1160px; margin: 0 auto; padding: 0 var(--fib-8); }
+  .section-label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--text-accent);
+    /* margin-bottom: fib(6) = 8px */
+    margin-bottom: var(--fib-6);
+  }
+  .section-header {
+    text-align: center;
+    /* margin-bottom: fib(10) = 55px */
+    margin-bottom: var(--fib-10);
+  }
+  .section-header h2 {
+    font-size: var(--type-h2);  /* PHI² × 1rem */
+    /* margin-bottom: fib(7) = 13px */
+    margin-bottom: var(--fib-7);
+  }
+  .section-header p { font-size: 1.05rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto; }
+
+  /* ── Marquee ── */
+  .ticker-wrap {
+    background: var(--bg-surface); border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle); overflow: hidden;
+    /* padding: fib(7) = 13px */
+    padding: var(--fib-7) 0;
+  }
+  .ticker {
+    display: flex;
+    /* gap: fib(10) = 55px */
+    gap: var(--fib-10);
+    animation: scroll-left 30s linear infinite;
+    white-space: nowrap; width: max-content;
+  }
+  .ticker-item {
+    display: flex; align-items: center;
+    /* gap: fib(7) = 13px */
+    gap: var(--fib-7);
+    font-size: 0.8rem; color: var(--text-muted); font-weight: 500;
+  }
+  .ticker-item .label { color: var(--text-secondary); }
+  .ticker-item .value { color: var(--text-accent); font-family: var(--font-mono); }
+  @keyframes scroll-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── Feature Highlights ── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--border-subtle); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl); overflow: hidden;
+  }
+  @media (max-width: 900px) { .features-grid { grid-template-columns: 1fr; } }
+  .feature-cell {
+    background: var(--bg-surface);
+    /* padding: fib(9) = 34px */
+    padding: var(--fib-9);
+    transition: background var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .feature-cell:hover { background: var(--bg-elevated); }
+  .feature-cell::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-accent, rgba(59,130,246,0.3)), transparent);
+    opacity: 0; transition: opacity var(--transition);
+  }
+  .feature-cell:hover::before { opacity: 1; }
+  .feature-icon-wrap {
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+    background: var(--bg-elevated); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    /* margin-bottom: fib(8) = 21px */
+    margin-bottom: var(--fib-8);
+    font-size: 1.2rem;
+  }
+  .feature-name {
+    font-size: var(--type-h4);  /* 1rem = base */
+    font-weight: 600; letter-spacing: -0.01em;
+    /* margin-bottom: fib(6) = 8px */
+    margin-bottom: var(--fib-6);
+  }
+  .feature-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.55; }
+  .feature-tag {
+    display: inline-flex;
+    /* margin-top: fib(7) = 13px */
+    margin-top: var(--fib-7);
+    /* padding: fib(3) fib(6) = 2px 8px */
+    padding: var(--fib-3) var(--fib-6);
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    border-radius: var(--fib-4);
+  }
+  .tag-blue { background: rgba(59,130,246,0.12); color: var(--text-accent); }
+  .tag-green { background: rgba(78,201,150,0.1); color: var(--text-green); }
+  .tag-gold { background: rgba(212,168,67,0.1); color: var(--text-gold); }
+  .tag-purple { background: rgba(167,139,250,0.1); color: var(--text-purple); }
+
+  /* ── Architecture Diagram ── */
+  .arch-section { background: var(--bg-surface); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+  .arch-diagram {
+    background: var(--bg-elevated); border: 1px solid var(--border-default);
+    border-radius: var(--radius-xl);
+    /* padding: fib(9) = 34px */
+    padding: var(--fib-9);
+    overflow: hidden;
+  }
+  .arch-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    /* gap: fib(6) = 8px; margin-bottom: fib(6) = 8px */
+    gap: var(--fib-6); margin-bottom: var(--fib-6);
+  }
+  .arch-node {
+    background: var(--bg-card); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    /* padding: fib(7) = 13px */
+    padding: var(--fib-7);
+    text-align: center;
+    font-size: 0.78rem; transition: border-color var(--transition), background var(--transition);
+  }
+  .arch-node:hover { border-color: var(--border-strong); background: var(--bg-elevated); }
+  .arch-node .node-icon { font-size: 1.2rem; margin-bottom: 5px; }
+  .arch-node .node-name { font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+  .arch-node .node-detail { font-size: 0.72rem; color: var(--text-muted); }
+  .arch-layer-label {
+    font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); font-weight: 600;
+    /* margin-bottom: fib(6) = 8px; margin-top: fib(8) = 21px */
+    margin-bottom: var(--fib-6); margin-top: var(--fib-8);
+  }
+  .arch-arrow {
+    text-align: center; color: var(--text-muted); font-size: 1rem;
+    /* margin: fib(4) 0 = 3px */
+    margin: var(--fib-4) 0;
+  }
+  .arch-node.highlighted { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.06); }
+  .arch-node.highlighted .node-name { color: var(--text-accent); }
+
+  /* ── Use Cases ── */
+  /* gap: fib(7) = 13px */
+  .usecases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--fib-7); }
+  @media (max-width: 768px) { .usecases-grid { grid-template-columns: 1fr; } }
+  .usecase-card {
+    background: var(--bg-surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    /* padding: fib(9) = 34px */
+    padding: var(--fib-9);
+    transition: border-color var(--transition);
+  }
+  .usecase-card:hover { border-color: var(--border-default); }
+  .usecase-industry {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted);
+    /* margin-bottom: fib(7) = 13px */
+    margin-bottom: var(--fib-7);
+  }
+  .usecase-card h3 {
+    font-size: var(--type-h3);  /* 1.618rem = PHI × 1rem */
+    font-weight: 600;
+    /* margin-bottom: fib(6) = 8px */
+    margin-bottom: var(--fib-6);
+  }
+  .usecase-card p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
+  .usecase-metrics {
+    display: flex;
+    /* gap: fib(8) = 21px; margin-top: fib(8) = 21px; padding-top: fib(8) = 21px */
+    gap: var(--fib-8); margin-top: var(--fib-8); padding-top: var(--fib-8);
+    border-top: 1px solid var(--border-subtle);
+  }
+  .usecase-metric { }
+  .usecase-metric .metric-val { font-size: 1.3rem; font-weight: 700; color: var(--text-accent); }
+  .usecase-metric .metric-label { font-size: 0.72rem; color: var(--text-muted); }
+
+  /* ── Testimonials ── */
+  /* gap: fib(7) = 13px */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--fib-7); }
+  @media (max-width: 900px) { .testimonials-grid { grid-template-columns: 1fr; } }
+  .testimonial-card {
+    background: var(--bg-surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    /* padding: fib(9) = 34px */
+    padding: var(--fib-9);
+  }
+  .testimonial-quote {
+    font-size: 0.9rem; color: var(--text-secondary); line-height: 1.65;
+    /* margin-bottom: fib(8) = 21px */
+    margin-bottom: var(--fib-8);
+    font-style: italic;
+  }
+  .testimonial-quote::before { content: '\201C'; color: var(--text-accent); font-size: 1.2rem; }
+  .testimonial-author {
+    display: flex; align-items: center;
+    /* gap: fib(7) = 13px */
+    gap: var(--fib-7);
+  }
+  .author-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--bg-elevated); border: 1px solid var(--border-default);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+  .author-name { font-size: 0.85rem; font-weight: 600; }
+  .author-role { font-size: 0.75rem; color: var(--text-muted); }
+
+  /* ── Pricing Preview ── */
+  .pricing-preview {
+    background: var(--bg-surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    /* padding: fib(9) = 34px */
+    padding: var(--fib-9);
+    text-align: center;
+  }
+  .pricing-preview-tiers {
+    display: flex; justify-content: center;
+    /* gap: fib(5) = 5px; flex-wrap; margin: fib(9) 0 = 34px */
+    gap: var(--fib-5); flex-wrap: wrap; margin: var(--fib-9) 0;
+  }
+  .tier-pill {
+    /* padding: fib(6) fib(8) = 8px 21px */
+    padding: var(--fib-6) var(--fib-8);
+    border: 1px solid var(--border-default);
+    border-radius: 100px; font-size: 0.8rem; color: var(--text-secondary);
+    background: var(--bg-elevated);
+  }
+  .tier-pill.active { border-color: var(--accent-blue); color: var(--text-accent); background: rgba(59,130,246,0.08); }
+  .tier-pill.gold { border-color: rgba(212,168,67,0.4); color: var(--text-gold); background: rgba(212,168,67,0.06); }
+
+  /* ── Phi-split two-column layout (hero text + code) ── */
+  .phi-split-grid {
+    display: grid;
+    /* 61.8% / 38.2% phi split */
+    grid-template-columns: var(--phi-major) var(--phi-minor);
+    /* gap: fib(9) = 34px */
+    gap: var(--fib-9);
+    align-items: start;
+  }
+  @media (max-width: 900px) { .phi-split-grid { grid-template-columns: 1fr; } }
+
+  /* ── Final CTA ── */
+  .final-cta {
+    text-align: center;
+    /* padding: fib(11) 0 = 89px */
+    padding: var(--fib-11) 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 70%);
+  }
+  .final-cta h2 {
+    font-size: var(--type-h2);  /* PHI² × 1rem */
+    /* margin-bottom: fib(8) = 21px */
+    margin-bottom: var(--fib-8);
+  }
+  .final-cta p {
+    color: var(--text-secondary); max-width: 480px; margin: 0 auto;
+    /* margin-bottom: fib(9) = 34px */
+    margin-bottom: var(--fib-9);
+  }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--bg-surface); border-top: 1px solid var(--border-subtle);
+    /* padding: fib(10) 0 fib(8) = 55px 0 21px */
+    padding: var(--fib-10) 0 var(--fib-8);
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    /* gap: fib(9) = 34px; margin-bottom: fib(10) = 55px */
+    gap: var(--fib-9); margin-bottom: var(--fib-10);
+  }
+  @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+  .footer-brand p {
+    font-size: 0.875rem; color: var(--text-muted);
+    /* margin-top: fib(7) = 13px */
+    margin-top: var(--fib-7);
+    line-height: 1.6;
+  }
+  .footer-col h4 {
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted);
+    /* margin-bottom: fib(7) = 13px */
+    margin-bottom: var(--fib-7);
+  }
+  .footer-col ul {
+    list-style: none; display: flex; flex-direction: column;
+    /* gap: fib(6) = 8px */
+    gap: var(--fib-6);
+  }
+  .footer-col a { font-size: 0.875rem; color: var(--text-secondary); transition: color var(--transition); }
+  .footer-col a:hover { color: var(--text-primary); }
+  .footer-bottom {
+    /* padding-top: fib(8) = 21px */
+    padding-top: var(--fib-8);
+    border-top: 1px solid var(--border-subtle);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+    /* gap: fib(6) = 8px */
+    gap: var(--fib-6);
+    font-size: 0.78rem; color: var(--text-muted);
+  }
+  .footer-bottom a { color: var(--text-muted); }
+  .footer-bottom a:hover { color: var(--text-secondary); }
+
+  /* ── Code block ── */
+  .code-block {
+    background: #0d1117; border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    /* padding: fib(8) = 21px */
+    padding: var(--fib-8);
+    font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.65;
+    overflow-x: auto; text-align: left;
+  }
+  .code-block .comment { color: #4a6280; }
+  .code-block .keyword { color: #79b8ff; }
+  .code-block .string { color: #9ecbff; }
+  .code-block .number { color: #f8c555; }
+  .code-block .func { color: #b392f0; }
+  .code-block .var { color: #e1e4e8; }
+  .code-block .prop { color: #79b8ff; }
+  .code-line { display: block; }
+
+  /* ── Animations ── */
+  .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.5s ease, transform 0.5s ease; }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-label="Heady logo">
+        <polygon points="14,2 26,24 2,24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <polygon points="14,8 21,21 7,21" fill="none" stroke="#3b82f6" stroke-width="1" stroke-linejoin="round" opacity="0.7"/>
+        <circle cx="14" cy="17" r="1.5" fill="#3b82f6"/>
+      </svg>
+      <span class="nav-logo-text">Heady Latent OS</span>
+    </a>
+    <div class="nav-links">
+      <a href="docs-portal.html">Docs</a>
+      <a href="pricing-page.html">Pricing</a>
+      <a href="#use-cases">Use Cases</a>
+      <a href="#architecture">Architecture</a>
+    </div>
+    <div class="nav-cta-group">
+      <a href="docs-portal.html" class="btn-nav-ghost">View Docs</a>
+      <a href="pricing-page.html" class="btn-nav-primary">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      Sovereign AI Infrastructure
+    </div>
+    <h1>
+      <span class="line-1">The AI operating system</span>
+      <span class="line-2">that runs on your terms.</span>
+      <span class="line-3">Cloud, VPC, or air-gapped.</span>
+    </h1>
+    <p class="hero-desc">
+      Heady Latent OS gives developers and enterprises a complete sovereign AI platform:
+      persistent vector memory, agent swarms, MCP tools, and edge inference —
+      without surrendering data sovereignty.
+    </p>
+    <div class="hero-cta-group">
+      <a href="docs-portal.html" class="btn-primary-lg">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M2 8h12M8 2l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Start Building Free
+      </a>
+      <a href="pricing-page.html" class="btn-ghost-lg">
+        View Pricing
+      </a>
+    </div>
+    <!-- trial = fib(7) = 13 days (matches stripe-config.js TRIAL_DAYS) -->
+    <div class="hero-social-proof">
+      <span><span class="proof-dot"></span> Open source core</span>
+      <span><span class="proof-dot"></span> 13-day free trial · fib(7)</span>
+      <span><span class="proof-dot"></span> SOC 2 Type II</span>
+      <span><span class="proof-dot"></span> MIT licensed</span>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <div class="ticker-item"><span class="label">Latency</span><span class="value">p99 &lt; 120ms</span></div>
+    <div class="ticker-item"><span class="label">Throughput</span><span class="value">50K req/s</span></div>
+    <div class="ticker-item"><span class="label">Vector Dims</span><span class="value">up to 4096</span></div>
+    <div class="ticker-item"><span class="label">Agents</span><span class="value">unlimited (enterprise)</span></div>
+    <div class="ticker-item"><span class="label">MCP Tools</span><span class="value">200+ supported</span></div>
+    <div class="ticker-item"><span class="label">Uptime SLA</span><span class="value">99.99%</span></div>
+    <div class="ticker-item"><span class="label">Encryption</span><span class="value">AES-256 at rest</span></div>
+    <div class="ticker-item"><span class="label">Compliance</span><span class="value">SOC 2 + HIPAA + ISO 27001</span></div>
+    <div class="ticker-item"><span class="label">Deployment</span><span class="value">Cloud · VPC · Air-gap</span></div>
+    <div class="ticker-item"><span class="label">Protocol</span><span class="value">MCP v1 · REST · WebSocket</span></div>
+    <!-- Duplicate for seamless loop -->
+    <div class="ticker-item"><span class="label">Latency</span><span class="value">p99 &lt; 120ms</span></div>
+    <div class="ticker-item"><span class="label">Throughput</span><span class="value">50K req/s</span></div>
+    <div class="ticker-item"><span class="label">Vector Dims</span><span class="value">up to 4096</span></div>
+    <div class="ticker-item"><span class="label">Agents</span><span class="value">unlimited (enterprise)</span></div>
+    <div class="ticker-item"><span class="label">MCP Tools</span><span class="value">200+ supported</span></div>
+    <div class="ticker-item"><span class="label">Uptime SLA</span><span class="value">99.99%</span></div>
+    <div class="ticker-item"><span class="label">Encryption</span><span class="value">AES-256 at rest</span></div>
+    <div class="ticker-item"><span class="label">Compliance</span><span class="value">SOC 2 + HIPAA + ISO 27001</span></div>
+    <div class="ticker-item"><span class="label">Deployment</span><span class="value">Cloud · VPC · Air-gap</span></div>
+    <div class="ticker-item"><span class="label">Protocol</span><span class="value">MCP v1 · REST · WebSocket</span></div>
+  </div>
+</div>
+
+<!-- FEATURE HIGHLIGHTS -->
+<section class="section">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Platform Capabilities</div>
+      <h2>Everything an AI runtime needs.<br>Nothing it doesn't.</h2>
+      <p>Built for engineers who need reliable, sovereign AI infrastructure — not another wrapper API.</p>
+    </div>
+    <div class="features-grid fade-up">
+      <div class="feature-cell">
+        <div class="feature-icon-wrap">🧠</div>
+        <div class="feature-name">Vector Memory</div>
+        <div class="feature-desc">Persistent, namespaced vector storage with sub-100ms semantic search. Supports up to 4096-dimensional embeddings. Customer data never used for model training.</div>
+        <span class="feature-tag tag-blue">Pinecone · Qdrant · pgvector</span>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon-wrap">🤖</div>
+        <div class="feature-name">Agent Swarms</div>
+        <div class="feature-desc">Orchestrate parallel agent execution with shared memory and inter-agent communication. Fibonacci-based work queue prioritization. BYO orchestration framework.</div>
+        <span class="feature-tag tag-green">LangGraph · AutoGen · Custom</span>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon-wrap">🔌</div>
+        <div class="feature-name">MCP Protocol</div>
+        <div class="feature-desc">Model Context Protocol support for 200+ tools. Register custom tools with a single JSON schema. Claude Desktop, Cursor, and any MCP-compatible client connects natively.</div>
+        <span class="feature-tag tag-purple">MCP v1 · WebSocket · SSE</span>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon-wrap">⚡</div>
+        <div class="feature-name">Edge AI Inference</div>
+        <div class="feature-desc">Deploy lightweight models to Cloudflare Workers for sub-20ms edge inference. Runs in 300+ PoPs globally. Ideal for classification, routing, and low-latency augmentation.</div>
+        <span class="feature-tag tag-gold">Cloudflare Workers AI</span>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon-wrap">🔒</div>
+        <div class="feature-name">Sovereign by Design</div>
+        <div class="feature-desc">Run on your infrastructure: Cloud Run, your VPC, or completely air-gapped. BYOM means your tokens stay with your provider. Zero data retention on Community tier.</div>
+        <span class="feature-tag tag-blue">SOC 2 · HIPAA · ISO 27001</span>
+      </div>
+      <div class="feature-cell">
+        <div class="feature-icon-wrap">🌐</div>
+        <div class="feature-name">Open Source Core</div>
+        <div class="feature-desc">MIT-licensed runtime maintained by HeadyConnection (nonprofit). Self-host for free forever. Commercial features and cloud hosting via HeadySystems. Dual-entity model preserves community trust.</div>
+        <span class="feature-tag tag-green">MIT · GitHub · Nonprofit</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICKSTART CODE — phi-split layout: 61.8% text / 38.2% code -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="phi-split-grid">
+      <div class="fade-up">
+        <div class="section-label">Get Started in Minutes</div>
+        <h2>
+          From zero to sovereign AI<br>in 3 lines.
+        </h2>
+        <p style="color:var(--text-secondary);margin-bottom:var(--fib-8)">
+          Install the Heady SDK, connect your model endpoint, and start building.
+          No infrastructure setup required on Cloud tier. Or deploy on-prem with Docker Compose.
+        </p>
+        <a href="docs-portal.html" class="btn-primary-lg" style="display:inline-flex">
+          Read the Quickstart →
+        </a>
+      </div>
+      <div class="fade-up">
+        <div class="code-block">
+<span class="code-line"><span class="comment"># Install the Heady Latent OS SDK</span></span>
+<span class="code-line"><span class="var">npm install @heady/latent-os</span></span>
+<span class="code-line"> </span>
+<span class="code-line"><span class="comment">// Initialize with your endpoint (BYOM)</span></span>
+<span class="code-line"><span class="keyword">import</span> <span class="var">{ HeadyOS }</span> <span class="keyword">from</span> <span class="string">'@heady/latent-os'</span>;</span>
+<span class="code-line"> </span>
+<span class="code-line"><span class="keyword">const</span> <span class="var">os</span> = <span class="keyword">new</span> <span class="func">HeadyOS</span>({</span>
+<span class="code-line">  <span class="prop">endpoint</span>: <span class="string">'http://localhost:11434'</span>, <span class="comment">// Ollama</span></span>
+<span class="code-line">  <span class="prop">namespace</span>: <span class="string">'my-project'</span>,</span>
+<span class="code-line">});</span>
+<span class="code-line"> </span>
+<span class="code-line"><span class="comment">// Store knowledge in vector memory</span></span>
+<span class="code-line"><span class="keyword">await</span> os.memory.<span class="func">store</span>([</span>
+<span class="code-line">  { <span class="prop">text</span>: <span class="string">'Q3 revenue was $2.4M'</span>, <span class="prop">meta</span>: { <span class="prop">source</span>: <span class="string">'report'</span> } }</span>
+<span class="code-line">]);</span>
+<span class="code-line"> </span>
+<span class="code-line"><span class="comment">// Query with an agent</span></span>
+<span class="code-line"><span class="keyword">const</span> <span class="var">result</span> = <span class="keyword">await</span> os.agent.<span class="func">run</span>({</span>
+<span class="code-line">  <span class="prop">task</span>: <span class="string">'Summarize Q3 financial performance'</span>,</span>
+<span class="code-line">  <span class="prop">tools</span>: [<span class="string">'memory.search'</span>, <span class="string">'calculator'</span>],</span>
+<span class="code-line">});</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="section arch-section" id="architecture">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Architecture</div>
+      <h2>Cloud Run + Cloudflare.<br>Sovereign from day one.</h2>
+      <p>Every layer designed for data sovereignty. Replace any component with your own. Nothing vendor-locked.</p>
+    </div>
+    <div class="arch-diagram fade-up">
+      <div class="arch-layer-label">Client Layer</div>
+      <div class="arch-row">
+        <div class="arch-node"><div class="node-icon">💻</div><div class="node-name">SDK (Node/Python)</div><div class="node-detail">npm · pip</div></div>
+        <div class="arch-node"><div class="node-icon">🔌</div><div class="node-name">MCP Client</div><div class="node-detail">Claude · Cursor · Custom</div></div>
+        <div class="arch-node"><div class="node-icon">🌐</div><div class="node-name">REST API</div><div class="node-detail">OpenAPI 3.1</div></div>
+        <div class="arch-node"><div class="node-icon">⚡</div><div class="node-name">WebSocket</div><div class="node-detail">Real-time streaming</div></div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer-label">Edge Layer (Cloudflare)</div>
+      <div class="arch-row">
+        <div class="arch-node highlighted"><div class="node-icon">🛡️</div><div class="node-name">Cloudflare WAF</div><div class="node-detail">DDoS · Rate limiting</div></div>
+        <div class="arch-node highlighted"><div class="node-icon">🔑</div><div class="node-name">Auth Gateway</div><div class="node-detail">JWT · API keys</div></div>
+        <div class="arch-node highlighted"><div class="node-icon">⚡</div><div class="node-name">Workers AI</div><div class="node-detail">Edge inference &lt;20ms</div></div>
+        <div class="arch-node highlighted"><div class="node-icon">📦</div><div class="node-name">CDN + Cache</div><div class="node-detail">300+ PoPs</div></div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer-label">Runtime Layer (Google Cloud Run)</div>
+      <div class="arch-row">
+        <div class="arch-node"><div class="node-icon">🧠</div><div class="node-name">Latent OS Core</div><div class="node-detail">Node.js Express</div></div>
+        <div class="arch-node"><div class="node-icon">🤖</div><div class="node-name">Agent Orchestrator</div><div class="node-detail">Swarm scheduler</div></div>
+        <div class="arch-node"><div class="node-icon">🔌</div><div class="node-name">MCP Server</div><div class="node-detail">Tool registry</div></div>
+        <div class="arch-node"><div class="node-icon">📊</div><div class="node-name">Usage Meter</div><div class="node-detail">Redis + Stripe</div></div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer-label">Data Layer</div>
+      <div class="arch-row">
+        <div class="arch-node"><div class="node-icon">🔮</div><div class="node-name">Vector DB</div><div class="node-detail">Pinecone · Qdrant</div></div>
+        <div class="arch-node"><div class="node-icon">🗄️</div><div class="node-name">PostgreSQL</div><div class="node-detail">Cloud SQL (HA)</div></div>
+        <div class="arch-node"><div class="node-icon">⚡</div><div class="node-name">Redis Cache</div><div class="node-detail">Memorystore</div></div>
+        <div class="arch-node"><div class="node-icon">📁</div><div class="node-name">Object Storage</div><div class="node-detail">GCS encrypted</div></div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer-label">Model Layer (BYOM)</div>
+      <div class="arch-row">
+        <div class="arch-node"><div class="node-icon">🦙</div><div class="node-name">Ollama</div><div class="node-detail">Local models</div></div>
+        <div class="arch-node"><div class="node-icon">🔥</div><div class="node-name">vLLM</div><div class="node-detail">GPU inference</div></div>
+        <div class="arch-node"><div class="node-icon">🤖</div><div class="node-name">OpenAI compat.</div><div class="node-detail">Any provider</div></div>
+        <div class="arch-node"><div class="node-icon">🔒</div><div class="node-name">Air-gapped LLM</div><div class="node-detail">Enterprise sovereign</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section class="section" id="use-cases">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Use Cases</div>
+      <h2>Built for the hardest AI problems<br>in regulated industries.</h2>
+    </div>
+    <div class="usecases-grid">
+      <div class="usecase-card fade-up">
+        <div class="usecase-industry">🏥 Healthcare</div>
+        <h3>Clinical AI without PHI exposure</h3>
+        <p>Deploy AI agents for clinical documentation, diagnosis support, and research synthesis with zero data leaving your hospital network. HIPAA BAA included. Runs on-prem with your existing GPU cluster.</p>
+        <div class="usecase-metrics">
+          <div class="usecase-metric"><div class="metric-val">100%</div><div class="metric-label">PHI stays on-prem</div></div>
+          <div class="usecase-metric"><div class="metric-val">HIPAA</div><div class="metric-label">BAA available</div></div>
+        </div>
+      </div>
+      <div class="usecase-card fade-up">
+        <div class="usecase-industry">⚖️ Legal & Professional Services</div>
+        <h3>Privileged document AI</h3>
+        <p>Search, summarize, and cross-reference thousands of privileged legal documents with AI agents that never exfiltrate client matter data to cloud providers. Attorney-client privilege preserved.</p>
+        <div class="usecase-metrics">
+          <div class="usecase-metric"><div class="metric-val">Air-gap</div><div class="metric-label">deployment option</div></div>
+          <div class="usecase-metric"><div class="metric-val">0</div><div class="metric-label">data to cloud</div></div>
+        </div>
+      </div>
+      <div class="usecase-card fade-up">
+        <div class="usecase-industry">🏦 Financial Services</div>
+        <h3>Sovereign financial AI</h3>
+        <p>AI-powered trading analysis, regulatory report generation, and risk model documentation. Meets FFIEC guidance on model risk. Runs in your existing AWS/Azure VPC with your security controls.</p>
+        <div class="usecase-metrics">
+          <div class="usecase-metric"><div class="metric-val">FFIEC</div><div class="metric-label">model risk ready</div></div>
+          <div class="usecase-metric"><div class="metric-val">VPC</div><div class="metric-label">deployment</div></div>
+        </div>
+      </div>
+      <div class="usecase-card fade-up">
+        <div class="usecase-industry">🏛️ Government & Defense</div>
+        <h3>FedRAMP-pathway AI platform</h3>
+        <p>Sovereign AI for government agencies with FedRAMP readiness pathway. Air-gapped deployment for classified environments. Works with NVIDIA DGX air-gapped hardware bundles.</p>
+        <div class="usecase-metrics">
+          <div class="usecase-metric"><div class="metric-val">FedRAMP</div><div class="metric-label">ready pathway</div></div>
+          <div class="usecase-metric"><div class="metric-val">ITAR</div><div class="metric-label">compatible</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" style="background:var(--bg-surface);border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle)">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Early Adopters</div>
+      <h2>What developers are saying.</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-quote">
+          The BYOM model is the first AI platform that actually respects our data residency requirements. We run Llama 3.3 on our own cluster and Heady handles all the orchestration — nothing leaves our VPC.
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👨‍💻</div>
+          <div>
+            <div class="author-name">Senior ML Engineer</div>
+            <div class="author-role">Healthcare Technology Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-quote">
+          We evaluated Cursor, Tabnine, and three other platforms. Heady was the only one with a credible air-gapped story AND MCP support. The agent swarm feature cut our document review time by 70%.
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">👩‍⚖️</div>
+          <div>
+            <div class="author-name">Director of Legal Tech</div>
+            <div class="author-role">AmLaw 100 Firm</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up">
+        <div class="testimonial-quote">
+          Set up the Community edition in 20 minutes. When we needed team features, the upgrade path was seamless — all our vector namespaces migrated automatically. The docs are genuinely excellent.
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar">🧑‍🚀</div>
+          <div>
+            <div class="author-name">Lead Developer</div>
+            <div class="author-role">AI Startup, YC W25</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING PREVIEW -->
+<section class="section">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-label">Simple Pricing</div>
+      <h2>Start free. Scale to sovereign.</h2>
+    </div>
+    <div class="pricing-preview fade-up">
+      <!-- Annual discount = fib(8) = 21% (matches stripe-config.js) -->
+      <p style="color:var(--text-secondary);margin-bottom:var(--fib-6)">Four tiers. 21% annual discount · fib(8). No surprise infrastructure costs.</p>
+      <div class="pricing-preview-tiers">
+        <div class="tier-pill active">Community — Free</div>
+        <div class="tier-pill">Developer — $29/mo</div>
+        <div class="tier-pill">Team — $99/seat/mo</div>
+        <div class="tier-pill gold">Enterprise — Custom</div>
+      </div>
+      <a href="pricing-page.html" class="btn-primary-lg" style="display:inline-flex">
+        See Full Pricing →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="container">
+    <div class="fade-up">
+      <div class="section-label" style="display:inline-block">Ready to deploy sovereign AI?</div>
+      <h2>Your data. Your model.<br>Your infrastructure.</h2>
+      <!-- trial = fib(7) = 13 days -->
+      <p>Start with the open-source Community edition or begin a 13-day trial on the Developer plan (fib(7)=13). No credit card required.</p>
+      <div style="display:flex;gap:var(--fib-7);justify-content:center;flex-wrap:wrap">
+        <a href="docs-portal.html" class="btn-primary-lg">Get Started Free</a>
+        <a href="mailto:enterprise@headysystems.com" class="btn-ghost-lg">Talk to Enterprise Sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:var(--fib-7);margin-bottom:var(--fib-7)">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+            <polygon points="14,2 26,24 2,24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            <polygon points="14,8 21,21 7,21" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.7" stroke-linejoin="round"/>
+            <circle cx="14" cy="17" r="1.5" fill="#3b82f6"/>
+          </svg>
+          <span style="font-weight:600;font-size:0.95rem">Heady Latent OS</span>
+        </div>
+        <p>Sovereign AI infrastructure for developers and enterprises. Open source core, commercial cloud and enterprise tiers.</p>
+        <p style="margin-top:var(--fib-6);font-size:0.8rem">HeadyConnection (nonprofit) · HeadySystems (commercial)</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="docs-portal.html">Documentation</a></li>
+          <li><a href="pricing-page.html">Pricing</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="mailto:hello@headyconnection.org">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal & Security</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">SOC 2 Report (NDA)</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 HeadySystems, Inc. · hello@headyconnection.org</span>
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Stagger feature cells — delay follows PSI scaling: each step × PSI ≈ 0.618
+  // Results in delays: 0, ~0.062s, ~0.124s, ... (proportional to fib(6)/100)
+  document.querySelectorAll('.feature-cell').forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.062}s`; // 0.062 ≈ fib(6)/100 ≈ 8/100 × PSI
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,524 @@
+# =============================================================================
+# Heady Latent OS — MCP Gateway Configuration
+# =============================================================================
+# This file configures the MCPGateway, MCPConnectionPoolManager,
+# MCPTransportAdapter, ZeroTrustSandbox, SemanticRateLimiter, and MCPAuditLogger.
+#
+# Environment variable substitution: ${ENV_VAR_NAME}
+# All secrets should be provided via environment variables, never hardcoded.
+#
+# Schema version: 1.0 (Heady MCP Ecosystem — March 2026)
+# MCP Protocol Version Target: 2025-11-25
+# =============================================================================
+
+# ─── Gateway Core ─────────────────────────────────────────────────────────────
+gateway:
+  name: heady-mcp-gateway
+  version: "1.0.0"
+  environment: ${NODE_ENV:-production}
+  cloud_region: ${CLOUD_REGION:-us-east-1}
+
+  # Load balancing strategy:
+  #   round_robin       — Even distribution across instances
+  #   least_connections — Route to server with fewest active calls (recommended)
+  #   csl_weighted      — Phi-ratio weighted by CSL similarity and connections
+  #   random            — Random selection (testing only)
+  load_balance_strategy: least_connections
+
+  # CSL (Contextual Semantic Lattice) routing threshold
+  # Tool calls without exact namespace match fall back to cosine similarity.
+  # Range [0, 1]; higher = stricter matching. Default 0.72.
+  csl_threshold: 0.72
+
+  # Enable semantic fallback routing when no namespace prefix matches
+  enable_semantic_routing: true
+
+  # Health check cadence (ms)
+  health_check_interval_ms: 30000
+
+  # Default per-request timeout (ms); overridden per server below
+  default_timeout_ms: 30000
+
+  # Log all tool requests/responses (disable in very high-throughput prod)
+  enable_request_logging: true
+
+  # Maximum failover attempts before returning error
+  max_failover_attempts: 3
+
+# ─── Upstream MCP Servers ─────────────────────────────────────────────────────
+# Register all MCP servers the gateway should aggregate.
+# Each entry maps to a namespace and one or more server instances.
+#
+# Transport options:
+#   streamable-http — Current MCP standard (spec 2025-03-26+)
+#   sse             — Legacy HTTP+SSE (spec 2024-11-05, backward compat)
+#   stdio           — Local subprocess (for per-user or dev tools)
+#   websocket       — WebSocket (community transport)
+# =============================================================================
+
+servers:
+  # ── GitHub MCP Server ───────────────────────────────────────────────────────
+  - id: github-primary
+    namespace: github
+    description: "GitHub MCP Server — repository, PR, and issue management"
+    transport: streamable-http
+    url: ${GITHUB_MCP_URL:-https://mcp.example.com/github}
+    weight: 3          # Higher weight = more traffic
+    timeout_ms: 20000
+    max_connections: 8
+    auth:
+      type: bearer
+      token: ${GITHUB_MCP_TOKEN}
+    # Optional: multiple instances for load balancing
+    instances:
+      - id: github-primary-0
+        url: ${GITHUB_MCP_URL_0:-${GITHUB_MCP_URL}}
+      - id: github-primary-1
+        url: ${GITHUB_MCP_URL_1:-${GITHUB_MCP_URL}}
+
+  # ── Slack MCP Server ────────────────────────────────────────────────────────
+  - id: slack-primary
+    namespace: slack
+    description: "Slack MCP Server — messaging, channels, and user lookup"
+    transport: streamable-http
+    url: ${SLACK_MCP_URL:-https://mcp.example.com/slack}
+    weight: 2
+    timeout_ms: 15000
+    max_connections: 5
+    auth:
+      type: bearer
+      token: ${SLACK_MCP_TOKEN}
+
+  # ── PostgreSQL MCP Server ───────────────────────────────────────────────────
+  - id: db-primary
+    namespace: db
+    description: "PostgreSQL MCP Server — read-only SQL queries and schema inspection"
+    transport: streamable-http
+    url: ${DB_MCP_URL:-https://mcp.example.com/postgres}
+    weight: 2
+    timeout_ms: 25000
+    max_connections: 10
+    auth:
+      type: bearer
+      token: ${DB_MCP_TOKEN}
+
+  # ── Filesystem MCP Server (local/stdio) ─────────────────────────────────────
+  - id: filesystem-local
+    namespace: fs
+    description: "Local filesystem MCP Server — restricted path read/write"
+    transport: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/allowed/paths/only"
+    env:
+      NODE_ENV: production
+    timeout_ms: 10000
+
+  # ── Brave Search MCP Server ─────────────────────────────────────────────────
+  - id: search-primary
+    namespace: search
+    description: "Brave Search MCP Server — privacy-focused web search"
+    transport: streamable-http
+    url: ${BRAVE_MCP_URL:-https://mcp.example.com/brave-search}
+    weight: 1
+    timeout_ms: 15000
+    auth:
+      type: bearer
+      token: ${BRAVE_SEARCH_MCP_TOKEN}
+
+  # ── Heady Internal Tools ────────────────────────────────────────────────────
+  - id: heady-internal
+    namespace: heady
+    description: "Heady Latent OS internal tools — vectors, agents, CSL operations"
+    transport: streamable-http
+    url: ${HEADY_INTERNAL_MCP_URL:-http://localhost:3001/mcp}
+    weight: 5
+    timeout_ms: 45000
+    auth:
+      type: bearer
+      token: ${HEADY_INTERNAL_MCP_TOKEN}
+    # Longer timeout for embedding and agent operations
+    health_check_timeout_ms: 8000
+
+# ─── Connection Pool ──────────────────────────────────────────────────────────
+connection_pool:
+  # Global defaults for all server pools
+  defaults:
+    min: 2
+    max: 10
+    idle_timeout_ms: 60000
+    acquire_timeout_ms: 5000
+    heartbeat_interval_ms: 15000
+    heartbeat_timeout_ms: 3000
+    max_reconnect_attempts: 10
+    reconnect_base_delay_ms: 500
+    reconnect_max_delay_ms: 60000
+    # Golden ratio (φ = 1.618) used as exponential backoff multiplier
+    reconnect_backoff_multiplier: 1.618
+    warm_up_on_start: true
+
+  # Per-server pool overrides (matched by server id or namespace)
+  overrides:
+    - namespace: db
+      min: 5
+      max: 20
+      idle_timeout_ms: 120000
+    - namespace: heady
+      min: 3
+      max: 15
+      heartbeat_interval_ms: 10000
+
+# ─── Transport Settings ───────────────────────────────────────────────────────
+transport:
+  # Streamable HTTP transport settings
+  streamable_http:
+    # Protocol version header sent with all requests
+    protocol_version: "2025-11-25"
+    # Enable server-initiated SSE stream (GET channel)
+    enable_sse_channel: true
+    # Reconnect settings for SSE GET channel
+    sse_reconnect_delay_ms: 1000
+    sse_max_reconnect_attempts: 5
+    # Connection keep-alive (reduces TCP/TLS handshake overhead)
+    keep_alive: true
+    keep_alive_timeout_ms: 30000
+
+  # Legacy SSE transport settings (backward compatibility)
+  legacy_sse:
+    enabled: true
+    fallback_on_negotiation_failure: true
+
+  # stdio transport settings
+  stdio:
+    # Forward server stderr to parent process
+    pass_stderr: true
+    # SIGTERM timeout before SIGKILL
+    shutdown_grace_period_ms: 2000
+
+  # WebSocket transport settings
+  websocket:
+    reconnect_delay_ms: 1000
+    max_reconnect_attempts: 8
+    ping_interval_ms: 20000
+
+  # Auto-detection settings
+  auto_detect:
+    # Probe timeout for transport negotiation
+    probe_timeout_ms: 3000
+    # Default if probe fails
+    fallback: "streamable-http"
+
+# ─── Zero-Trust Sandbox ───────────────────────────────────────────────────────
+sandbox:
+  enabled: true
+  strict_mode: false    # If true, reject tools without registered policies
+
+  # Default limits
+  defaults:
+    timeout_ms: 30000
+    max_input_bytes: 262144     # 256 KB
+    max_output_bytes: 1048576   # 1 MB
+    scan_outputs: true
+    validate_inputs: true
+
+  # Per-namespace policy overrides
+  policies:
+    - namespace: db
+      capabilities:
+        - DATABASE_READ
+      timeout_ms: 25000
+      allowed_roles:
+        - developer
+        - admin
+        - analyst
+
+    - namespace: fs
+      capabilities:
+        - FILE_READ
+        - FILE_WRITE
+      timeout_ms: 10000
+      allowed_roles:
+        - developer
+        - admin
+      max_input_bytes: 65536
+
+    - namespace: github
+      capabilities:
+        - NETWORK
+      timeout_ms: 20000
+      allowed_roles:
+        - developer
+        - admin
+
+    - namespace: slack
+      capabilities:
+        - NETWORK
+      timeout_ms: 15000
+      allowed_roles:
+        - developer
+        - admin
+        - support
+
+    - namespace: heady
+      capabilities:
+        - NETWORK
+        - DATABASE_READ
+      timeout_ms: 45000
+      allowed_roles:
+        - developer
+        - admin
+
+  # Output scanning patterns (sensitive data detection)
+  output_scanning:
+    enabled: true
+    patterns:
+      - name: aws_credentials
+        severity: critical
+        redact: true
+      - name: jwt_tokens
+        severity: critical
+        redact: true
+      - name: pii_email
+        severity: info
+        redact: false
+      - name: credit_cards
+        severity: critical
+        redact: true
+
+# ─── Rate Limiting ────────────────────────────────────────────────────────────
+rate_limiting:
+  enabled: true
+
+  # Gateway-global rate limit (requests per minute, all tools combined)
+  global_rpm: 1000
+
+  # Semantic deduplication
+  deduplication:
+    enabled: true
+    similarity_threshold: 0.95   # Cosine similarity threshold for duplicate detection
+    ttl_ms: 5000                 # Deduplication window
+
+  # Priority queue for rate-limited requests
+  queue:
+    enabled: true
+    max_size: 50
+    timeout_ms: 5000
+
+  # Per-namespace defaults
+  defaults:
+    requests_per_minute: 60
+    burst_multiplier: 2
+    window_ms: 60000
+
+  # Per-namespace overrides
+  overrides:
+    - namespace: db
+      requests_per_minute: 30
+      burst_multiplier: 1.5
+    - namespace: fs
+      requests_per_minute: 20
+      burst_multiplier: 2
+    - namespace: github
+      requests_per_minute: 50
+      burst_multiplier: 2
+    - namespace: heady
+      requests_per_minute: 200
+      burst_multiplier: 3
+
+# ─── Audit Logging ────────────────────────────────────────────────────────────
+audit:
+  enabled: true
+
+  # Log file settings
+  file_logging:
+    enabled: true
+    log_dir: ${AUDIT_LOG_DIR:-./logs/audit}
+    max_file_size_bytes: 52428800    # 50 MB
+    retention_days: 90
+    buffer_writes: false             # Set true for high-throughput (async flush)
+    buffer_flush_interval_ms: 1000
+
+  # SIEM / external log forwarding
+  siem:
+    enabled: ${SIEM_ENABLED:-false}
+    webhook_url: ${SIEM_WEBHOOK_URL}
+    headers:
+      Authorization: "Bearer ${SIEM_TOKEN}"
+      X-Source-System: heady-mcp-gateway
+    export_format: ndjson
+    # Batch export for throughput (ms interval)
+    batch_export_interval_ms: 5000
+    batch_size: 100
+
+  # Chain-of-custody (cryptographic log integrity)
+  chain_of_custody:
+    enabled: true
+    # Hash algorithm (sha256 recommended)
+    algorithm: sha256
+
+  # Sensitive data redaction before persistence
+  redaction:
+    enabled: true
+    # Keys to redact (matched case-insensitively against field names)
+    keys:
+      - password
+      - secret
+      - token
+      - api_key
+      - private_key
+      - authorization
+      - credential
+
+  # Compliance tags
+  compliance:
+    frameworks:
+      - SOC2
+      - ISO27001
+    data_classification: confidential
+    retention_policy: "90-day regulatory minimum"
+
+# ─── Meta-Server Proxy ────────────────────────────────────────────────────────
+meta_server:
+  enabled: true
+
+  # Expose as a standalone MCP server endpoint
+  server_info:
+    name: heady-meta-mcp-server
+    version: "1.0.0"
+
+  # Schema merge strategy for tool name collisions:
+  #   first_wins  — Keep existing tool schema
+  #   last_wins   — Replace with new tool schema
+  #   strict      — Error on collision
+  #   best_effort — Merge compatible schemas
+  schema_merge_strategy: best_effort
+
+  # Schema cache TTL (ms); refresh from upstream on expiry
+  schema_cache_ttl_ms: 300000    # 5 minutes
+
+  # Health check interval for upstream servers (ms)
+  health_check_interval_ms: 30000
+
+  # Re-discover tools when a server recovers from unhealthy state
+  auto_rediscover_on_recovery: true
+
+  # Expose meta.health built-in tool for health dashboard
+  enable_metrics_tool: true
+
+  # HTTP endpoint for health dashboard (served by Express)
+  health_endpoint:
+    path: /health
+    include_tool_details: true
+    include_routing_table: false    # Disable in prod (may leak internal topology)
+    auth_required: false
+
+# ─── OAuth 2.1 / Authentication ───────────────────────────────────────────────
+auth:
+  # MCP OAuth 2.1 (spec 2025-11-25) with PKCE
+  oauth2:
+    enabled: ${AUTH_ENABLED:-true}
+    # External IdP (Okta, Azure AD, Keycloak, etc.)
+    issuer_url: ${OAUTH_ISSUER_URL}
+    audience: ${OAUTH_AUDIENCE:-heady-mcp-gateway}
+    # PKCE code challenge method (S256 mandatory per MCP spec)
+    pkce_method: S256
+    # Token introspection endpoint
+    introspection_url: ${OAUTH_INTROSPECTION_URL}
+    # Token scopes required for MCP access
+    required_scopes:
+      - mcp:tools-basic
+    # Elevated scopes for write operations
+    write_scopes:
+      - mcp:tools-write
+      - mcp:data-read
+    # Token passthrough STRICTLY FORBIDDEN (MCP spec requirement)
+    # The gateway always exchanges tokens before upstream API calls.
+    token_passthrough: false
+    token_exchange_url: ${OAUTH_TOKEN_EXCHANGE_URL}
+
+  # RBAC role mappings
+  rbac:
+    roles:
+      admin:
+        namespaces: ["*"]
+        capabilities: ["ALL"]
+      developer:
+        namespaces: ["github", "slack", "db", "search", "heady"]
+        capabilities: ["NETWORK", "DATABASE_READ"]
+      analyst:
+        namespaces: ["db", "search"]
+        capabilities: ["DATABASE_READ"]
+      support:
+        namespaces: ["slack"]
+        capabilities: ["NETWORK"]
+
+# ─── Observability ────────────────────────────────────────────────────────────
+observability:
+  metrics:
+    enabled: true
+    # Prometheus metrics endpoint
+    prometheus:
+      enabled: ${PROMETHEUS_ENABLED:-false}
+      port: ${PROMETHEUS_PORT:-9090}
+      path: /metrics
+    # Metrics to expose
+    track:
+      - gateway_requests_total
+      - gateway_request_duration_ms
+      - tool_calls_total
+      - tool_call_duration_ms
+      - connection_pool_active
+      - connection_pool_idle
+      - rate_limit_rejections_total
+      - deduplication_hits_total
+      - audit_records_written_total
+
+  tracing:
+    enabled: ${TRACING_ENABLED:-false}
+    # OpenTelemetry OTLP endpoint
+    otlp_endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}
+    service_name: heady-mcp-gateway
+    sample_rate: 0.1    # 10% sampling in production
+
+  logging:
+    level: ${LOG_LEVEL:-info}
+    format: json
+    # Include request/response bodies in logs (disable in prod for PII safety)
+    include_bodies: false
+
+# ─── Express HTTP Server ───────────────────────────────────────────────────────
+http:
+  port: ${GATEWAY_PORT:-3000}
+  host: ${GATEWAY_HOST:-0.0.0.0}
+  # TLS (required in production)
+  tls:
+    enabled: ${TLS_ENABLED:-false}
+    cert_path: ${TLS_CERT_PATH}
+    key_path: ${TLS_KEY_PATH}
+  # CORS settings
+  cors:
+    enabled: true
+    origins:
+      - ${ALLOWED_ORIGIN_1:-http://localhost:3000}
+  # Request size limits
+  body_limit: 2mb
+  # Keep-alive
+  keep_alive_timeout_ms: 65000
+
+# ─── Server Cards (MCP spec 2026 roadmap) ─────────────────────────────────────
+# Exposes /.well-known/mcp.json for autoconfiguration and security validation.
+server_cards:
+  enabled: true
+  well_known_path: /.well-known/mcp.json
+  card:
+    name: Heady MCP Gateway
+    description: "Heady Latent OS unified MCP gateway — aggregates GitHub, Slack, PostgreSQL, filesystem, search, and Heady internal tools"
+    version: "1.0.0"
+    capabilities:
+      - tools
+    auth:
+      type: oauth2
+      issuer: ${OAUTH_ISSUER_URL}
+    contact: eric@headyconnection.org

@@ -1,0 +1,950 @@
+# =============================================================================
+# supervisor-hierarchy.yaml
+# Heady Latent OS — 17-Swarm Supervisor Hierarchy Configuration
+# =============================================================================
+#
+# ─── Phi-Math Integration ────────────────────────────────────────────────────
+#
+# All threshold, pressure, and queue-depth constants are derived from
+# φ = (1+√5)/2 ≈ 1.618  and  ψ = 1/φ ≈ 0.618  (see shared/phi-math.js).
+#
+# phi_math_version: "2.0.0"
+#
+# Key derivations used in this file:
+#
+#   CSL Thresholds (phiThreshold(n) = 1 - ψⁿ × 0.5):
+#     CRITICAL : phiThreshold(4) ≈ 0.927   — near-certain match
+#     HIGH     : phiThreshold(3) ≈ 0.882   — strong alignment
+#     MEDIUM   : phiThreshold(2) ≈ 0.809   — moderate alignment
+#     LOW      : phiThreshold(1) ≈ 0.691   — weak but above noise
+#
+#   Pressure Levels (phi-harmonic):
+#     NOMINAL_MAX  = ψ²    ≈ 0.382   — replaces 0.40
+#     ELEVATED_MAX = ψ     ≈ 0.618   — replaces 0.60 / 0.70
+#     HIGH_MAX     = 1-ψ³  ≈ 0.854   — replaces 0.80
+#     CRITICAL     = 1-ψ⁴  ≈ 0.910   — replaces 0.95
+#
+#   Queue depth: fib(13) = 233                  — replaces 500
+#   Dedup similarity: CSL_THRESHOLDS.CRITICAL ≈ 0.927  — replaces 0.92
+#   Circuit breaker failures: fib(5) = 5        — same value, now Fibonacci-grounded
+#
+# Sacred Geometry Topology:
+#   HeadySoul (center) → Inner Ring (5 tactical) → Middle Ring (7 operational)
+#     → Outer Ring (3 edge workers) + Governance Ring (1 policy)
+#
+# Resource Allocation: Fibonacci ratios (sum of first 17 terms = 1596)
+#   Higher fibIndex = more resources allocated
+#
+# CSL Routing Thresholds (phi-derived, replaces old 0.85/0.72/0.55):
+#   HIGH   (≈0.882): Strategic / high-precision domains  [phiThreshold(3)]
+#   MEDIUM (≈0.809): Standard operational domains        [phiThreshold(2)]
+#   LOW    (≈0.691): Edge / integration / fallback domains [phiThreshold(1)]
+#
+# Escalation: operational → tactical → strategic → human-in-loop
+# =============================================================================
+
+platform:
+  name: heady-latent-os
+  version: "2.0.0"
+  topology: sacred-geometry-hierarchical
+  total_swarms: 17
+  min_healthy_swarms: 5
+
+  # phiThreshold(2) = 1 - ψ² × 0.5 ≈ 0.809  (replaces arbitrary 0.72)
+  global_csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+
+  health_check_interval_ms: 15000
+  metrics_interval_ms: 5000
+
+  # ψ = PRESSURE_LEVELS.ELEVATED_MAX ≈ 0.618  (replaces arbitrary 0.70)
+  backpressure_threshold: 0.618   # PRESSURE_LEVELS.ELEVATED_MAX = PSI
+
+  # fib(13) = 233  (replaces arbitrary 500)
+  max_queue_depth_default: 233    # fib(13)
+
+# =============================================================================
+# RINGS
+# Defines the Sacred Geometry ring topology with resource allocation ratios.
+# =============================================================================
+
+rings:
+  center:
+    name: "HeadySoul Center"
+    description: >
+      The singular central orchestrator embodying the HeadySoul consciousness.
+      Receives all top-level tasks and distributes to inner ring coordinators.
+      Maintains global state, cross-swarm consensus, and strategic intent.
+    swarm_count: 1
+    layer: strategic
+    max_concurrent_tasks: 200
+    resource_fraction: 0.056   # Fibonacci[10]=89 / sum
+
+  inner:
+    name: "Inner Ring — Tactical Coordinators"
+    description: >
+      Five tactical coordinator swarms that manage sub-domains and aggregate
+      results back to HeadySoul. Each maintains domain expertise and handles
+      task decomposition within their specialization.
+    swarm_count: 5
+    layer: tactical
+    max_concurrent_tasks_each: 100
+    resource_fraction: 0.265   # (55+34+34+21+21) / sum
+
+  middle:
+    name: "Middle Ring — Operational Specialists"
+    description: >
+      Seven operational worker swarms that execute domain-specific tasks.
+      These are the primary execution engines, receiving tasks from inner
+      ring coordinators and returning structured results.
+    swarm_count: 7
+    layer: operational
+    max_concurrent_tasks_each: 60
+    resource_fraction: 0.234   # (13+13+8+8+8+5+5) / sum (approx Fibonacci indices 4-6)
+
+  outer:
+    name: "Outer Ring — Edge Workers"
+    description: >
+      Three edge worker swarms handling integration, caching, and streaming.
+      Lower priority than operational swarms; first to shed load under pressure.
+    swarm_count: 3
+    layer: operational
+    max_concurrent_tasks_each: 40
+    resource_fraction: 0.050   # (5+5+3) / sum
+
+  governance:
+    name: "Governance Ring"
+    description: >
+      Single policy and compliance swarm operating across all rings.
+      Intercepts flagged tasks, enforces PII/security policies, and
+      provides audit trails. Cannot be overloaded — always critical_plus.
+    swarm_count: 1
+    layer: strategic
+    max_concurrent_tasks: 50
+    resource_fraction: 0.008
+
+# =============================================================================
+# SWARMS
+# Full 17-swarm definitions with capabilities, routing, and resource config.
+# =============================================================================
+
+swarms:
+
+  # ─── CENTER RING ────────────────────────────────────────────────────────────
+
+  - id: heady-soul
+    name: "HeadySoul Master Orchestrator"
+    ring: center
+    layer: strategic
+    fibonacci_index: 10
+    fibonacci_value: 89
+    resource_weight: 0.056
+    domain: orchestration
+    # phiThreshold(3) = 1 - ψ³ × 0.5 ≈ 0.882  (replaces 0.85)
+    csl_threshold: 0.882   # CSL_THRESHOLDS.HIGH = phiThreshold(3)
+    max_queue_depth: 200
+    agents:
+      - id: soul-conductor
+        role: "Master Conductor — receives all top-level tasks"
+        model: "claude-opus"
+        max_tokens: 200000
+      - id: soul-planner
+        role: "Strategic Planner — decomposes cross-domain tasks"
+        model: "claude-opus"
+        max_tokens: 100000
+      - id: soul-consensus
+        role: "Consensus Arbiter — resolves inter-swarm conflicts"
+        model: "claude-sonnet"
+        max_tokens: 50000
+    capabilities:
+      - "strategic planning and goal decomposition"
+      - "cross-swarm orchestration and coordination"
+      - "task priority arbitration and resource allocation"
+      - "human-in-loop escalation management"
+      - "platform-wide state maintenance"
+    routing:
+      accepts_from: ["*"]        # Receives tasks from all sources
+      escalates_to: "human"
+      handles_patterns:
+        - "^/orchestrate"
+        - "^/plan"
+        - "^/coordinate"
+    health:
+      check_interval_ms: 10000
+      critical_plus_only: false   # Still accepts critical tasks when degraded
+
+  # ─── INNER RING — Tactical Coordinators ─────────────────────────────────────
+
+  - id: cognition-core
+    name: "Cognition Core — Reasoning Coordinator"
+    ring: inner
+    layer: tactical
+    fibonacci_index: 9
+    fibonacci_value: 55
+    resource_weight: 0.034
+    domain: reasoning
+    # phiThreshold(3) ≈ 0.882  (replaces 0.85)
+    csl_threshold: 0.882   # CSL_THRESHOLDS.HIGH = phiThreshold(3)
+    max_queue_depth: 150
+    agents:
+      - id: reason-primary
+        role: "Primary Reasoner — chain-of-thought analysis"
+        model: "claude-sonnet"
+        max_tokens: 150000
+      - id: reason-verifier
+        role: "Reasoning Verifier — validates logical chains"
+        model: "claude-haiku"
+        max_tokens: 50000
+      - id: reason-critic
+        role: "Critic Agent — challenges assumptions"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "multi-step logical reasoning and deduction"
+      - "hypothesis generation and evaluation"
+      - "mathematical and formal verification"
+      - "chain-of-thought problem decomposition"
+      - "critical analysis and argument evaluation"
+    routing:
+      accepts_from: ["heady-soul", "task-planner", "context-bridge"]
+      escalates_to: "heady-soul"
+      handles_patterns:
+        - "^/reason"
+        - "^/analyze"
+        - "^/verify"
+    health:
+      check_interval_ms: 15000
+
+  - id: memory-weave
+    name: "Memory Weave — Long-term Memory Coordinator"
+    ring: inner
+    layer: tactical
+    fibonacci_index: 8
+    fibonacci_value: 34
+    resource_weight: 0.021
+    domain: memory
+    # phiThreshold(3) ≈ 0.882  (replaces 0.85)
+    csl_threshold: 0.882   # CSL_THRESHOLDS.HIGH = phiThreshold(3)
+    max_queue_depth: 120
+    agents:
+      - id: memory-indexer
+        role: "Memory Indexer — embeds and stores experiences"
+        model: "claude-haiku"
+        max_tokens: 50000
+      - id: memory-retriever
+        role: "Memory Retriever — semantic recall across sessions"
+        model: "claude-haiku"
+        max_tokens: 50000
+      - id: memory-consolidator
+        role: "Consolidator — compresses and prunes stale memories"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "cross-session memory storage and retrieval"
+      - "semantic similarity search over past interactions"
+      - "memory consolidation and compression"
+      - "episodic context reconstruction"
+      - "long-term knowledge persistence"
+    routing:
+      accepts_from: ["heady-soul", "cognition-core", "context-bridge"]
+      escalates_to: "heady-soul"
+      handles_patterns:
+        - "^/remember"
+        - "^/recall"
+        - "^/memorize"
+    health:
+      check_interval_ms: 20000
+      vector_store: "redis-vector"
+      embedding_model: "text-embedding-3-small"
+
+  - id: context-bridge
+    name: "Context Bridge — Context Window Manager"
+    ring: inner
+    layer: tactical
+    fibonacci_index: 8
+    fibonacci_value: 34
+    resource_weight: 0.021
+    domain: context
+    # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+    csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+    max_queue_depth: 120
+    agents:
+      - id: ctx-compressor
+        role: "Context Compressor — LLM-based context summarization"
+        model: "claude-haiku"
+        max_tokens: 100000
+      - id: ctx-router
+        role: "Context Router — routes capsules between agents"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "context window compression and summarization"
+      - "context capsule creation and transfer"
+      - "token budget management and enforcement"
+      - "tiered context promotion (working/session/memory)"
+      - "prefix caching optimization"
+    routing:
+      accepts_from: ["*"]
+      escalates_to: "memory-weave"
+      handles_patterns:
+        - "^/compress"
+        - "^/summarize"
+        - "^/context"
+    health:
+      check_interval_ms: 15000
+
+  - id: task-planner
+    name: "Task Planner — Task Decomposition Coordinator"
+    ring: inner
+    layer: tactical
+    fibonacci_index: 7
+    fibonacci_value: 21
+    resource_weight: 0.013
+    domain: planning
+    # phiThreshold(3) ≈ 0.882  (replaces 0.85)
+    csl_threshold: 0.882   # CSL_THRESHOLDS.HIGH = phiThreshold(3)
+    max_queue_depth: 100
+    agents:
+      - id: planner-decomposer
+        role: "Task Decomposer — LLM-based DAG creation"
+        model: "claude-sonnet"
+        max_tokens: 100000
+      - id: planner-scheduler
+        role: "Scheduler — topological sort and parallel execution"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "complex task decomposition into subtask DAGs"
+      - "dependency analysis and topological ordering"
+      - "parallel execution planning"
+      - "resource requirement estimation"
+      - "CSL-based swarm assignment for subtasks"
+    routing:
+      accepts_from: ["heady-soul", "cognition-core"]
+      escalates_to: "heady-soul"
+      handles_patterns:
+        - "^/plan"
+        - "^/decompose"
+        - "^/schedule"
+    health:
+      check_interval_ms: 15000
+
+  - id: consensus-forge
+    name: "Consensus Forge — Multi-Swarm Agreement"
+    ring: inner
+    layer: tactical
+    fibonacci_index: 7
+    fibonacci_value: 21
+    resource_weight: 0.013
+    domain: consensus
+    # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+    csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+    max_queue_depth: 100
+    agents:
+      - id: consensus-voter
+        role: "Voting Agent — collects and tallies swarm votes"
+        model: "claude-haiku"
+        max_tokens: 50000
+      - id: consensus-arbiter
+        role: "Arbiter — resolves split votes with reasoning"
+        model: "claude-sonnet"
+        max_tokens: 100000
+    capabilities:
+      - "multi-swarm consensus building and voting"
+      - "conflict resolution between agent outputs"
+      - "quality scoring and output ranking"
+      - "Byzantine fault tolerance in distributed decisions"
+    routing:
+      accepts_from: ["heady-soul", "cognition-core", "task-planner"]
+      escalates_to: "heady-soul"
+      handles_patterns:
+        - "^/vote"
+        - "^/consensus"
+        - "^/arbitrate"
+    health:
+      check_interval_ms: 20000
+
+  # ─── MIDDLE RING — Operational Specialists ──────────────────────────────────
+
+  - id: code-artisan
+    name: "Code Artisan — Software Development Swarm"
+    ring: middle
+    layer: operational
+    fibonacci_index: 6
+    fibonacci_value: 13
+    resource_weight: 0.008
+    domain: coding
+    # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+    csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+    max_queue_depth: 80
+    agents:
+      - id: code-writer
+        role: "Code Writer — generates and modifies code"
+        model: "claude-sonnet"
+        max_tokens: 200000
+      - id: code-reviewer
+        role: "Code Reviewer — checks quality, security, style"
+        model: "claude-haiku"
+        max_tokens: 100000
+      - id: code-tester
+        role: "Test Writer — generates unit and integration tests"
+        model: "claude-haiku"
+        max_tokens: 100000
+    capabilities:
+      - "code generation in all major programming languages"
+      - "code review, refactoring, and optimization"
+      - "test writing and coverage analysis"
+      - "bug diagnosis and fix generation"
+      - "architecture design and documentation"
+    routing:
+      accepts_from: ["task-planner", "heady-soul", "cognition-core"]
+      escalates_to: "cognition-core"
+      handles_patterns:
+        - "^/code"
+        - "^/implement"
+        - "^/debug"
+        - "^/refactor"
+    health:
+      check_interval_ms: 15000
+      tool_access: ["bash", "file_editor", "git"]
+
+  - id: data-sculptor
+    name: "Data Sculptor — Data Analysis Swarm"
+    ring: middle
+    layer: operational
+    fibonacci_index: 6
+    fibonacci_value: 13
+    resource_weight: 0.008
+    domain: data
+    # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+    csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+    max_queue_depth: 80
+    agents:
+      - id: data-analyst
+        role: "Data Analyst — statistical analysis and insights"
+        model: "claude-sonnet"
+        max_tokens: 100000
+      - id: data-visualizer
+        role: "Visualizer — generates charts and dashboards"
+        model: "claude-haiku"
+        max_tokens: 50000
+      - id: data-transformer
+        role: "Transformer — ETL, schema mapping, normalization"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "statistical analysis and descriptive statistics"
+      - "data transformation and ETL pipelines"
+      - "visualization specification (Vega, D3, Matplotlib)"
+      - "SQL query generation and optimization"
+      - "data quality assessment and cleaning"
+    routing:
+      accepts_from: ["task-planner", "heady-soul", "integration-node"]
+      escalates_to: "cognition-core"
+      handles_patterns:
+        - "^/analyze"
+        - "^/data"
+        - "^/sql"
+        - "^/visualize"
+    health:
+      check_interval_ms: 15000
+      tool_access: ["sql", "python_repl", "file_reader"]
+
+  - id: research-herald
+    name: "Research Herald — Deep Research Swarm"
+    ring: middle
+    layer: operational
+    fibonacci_index: 5
+    fibonacci_value: 8
+    resource_weight: 0.005
+    domain: research
+    # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+    csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+    max_queue_depth: 60
+    agents:
+      - id: research-searcher
+        role: "Web Researcher — queries and synthesizes web sources"
+        model: "claude-sonnet"
+        max_tokens: 150000
+      - id: research-fact-checker
+        role: "Fact Checker — verifies claims and citations"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "multi-source web research and synthesis"
+      - "academic paper search and summarization"
+      - "fact verification and source validation"
+      - "competitive intelligence gathering"
+      - "trend analysis and market research"
+    routing:
+      accepts_from: ["task-planner", "heady-soul", "cognition-core"]
+      escalates_to: "cognition-core"
+      handles_patterns:
+        - "^/research"
+        - "^/search"
+        - "^/find"
+    health:
+      check_interval_ms: 20000
+      tool_access: ["web_search", "fetch_url", "arxiv"]
+
+  - id: tool-weaver
+    name: "Tool Weaver — External Tool Orchestration"
+    ring: middle
+    layer: operational
+    fibonacci_index: 5
+    fibonacci_value: 8
+    resource_weight: 0.005
+    domain: tools
+    # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+    csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+    max_queue_depth: 60
+    agents:
+      - id: tool-caller
+        role: "Tool Caller — executes external APIs and tools"
+        model: "claude-haiku"
+        max_tokens: 50000
+      - id: tool-planner
+        role: "Tool Planner — selects optimal tools for tasks"
+        model: "claude-sonnet"
+        max_tokens: 100000
+    capabilities:
+      - "external API invocation and result parsing"
+      - "tool selection from large tool libraries (tool RAG)"
+      - "tool chain composition and error handling"
+      - "rate limiting and retry logic for external services"
+      - "result caching and semantic deduplication"
+    routing:
+      accepts_from: ["task-planner", "heady-soul", "code-artisan"]
+      escalates_to: "integration-node"
+      handles_patterns:
+        - "^/call"
+        - "^/tool"
+        - "^/api"
+    health:
+      check_interval_ms: 15000
+      tool_access: ["all"]
+
+  - id: language-flow
+    name: "Language Flow — NLP and Text Generation"
+    ring: middle
+    layer: operational
+    fibonacci_index: 5
+    fibonacci_value: 8
+    resource_weight: 0.005
+    domain: language
+    # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+    csl_threshold: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+    max_queue_depth: 60
+    agents:
+      - id: lang-writer
+        role: "Writer — long-form text generation and editing"
+        model: "claude-sonnet"
+        max_tokens: 200000
+      - id: lang-translator
+        role: "Translator — multi-language translation"
+        model: "claude-haiku"
+        max_tokens: 50000
+      - id: lang-classifier
+        role: "Classifier — intent, sentiment, entity detection"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "long-form document writing and editing"
+      - "multi-language translation (100+ languages)"
+      - "summarization and paraphrasing"
+      - "sentiment analysis and intent classification"
+      - "named entity recognition and extraction"
+    routing:
+      accepts_from: ["task-planner", "heady-soul", "research-herald"]
+      escalates_to: "cognition-core"
+      handles_patterns:
+        - "^/write"
+        - "^/translate"
+        - "^/summarize"
+        - "^/classify"
+    health:
+      check_interval_ms: 15000
+
+  - id: vision-scribe
+    name: "Vision Scribe — Multimodal Vision Processing"
+    ring: middle
+    layer: operational
+    fibonacci_index: 4
+    fibonacci_value: 5
+    resource_weight: 0.003
+    domain: vision
+    # phiThreshold(1) ≈ 0.691  (replaces 0.55)
+    csl_threshold: 0.691   # CSL_THRESHOLDS.LOW = phiThreshold(1)
+    max_queue_depth: 40
+    agents:
+      - id: vision-analyzer
+        role: "Vision Analyzer — image understanding and captioning"
+        model: "claude-sonnet"
+        max_tokens: 100000
+      - id: vision-extractor
+        role: "Data Extractor — OCR, table extraction from images"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "image analysis and visual description"
+      - "OCR and text extraction from images"
+      - "chart and diagram interpretation"
+      - "UI screenshot analysis"
+      - "video frame analysis"
+    routing:
+      accepts_from: ["task-planner", "heady-soul", "research-herald"]
+      escalates_to: "language-flow"
+      handles_patterns:
+        - "^/vision"
+        - "^/image"
+        - "^/ocr"
+    health:
+      check_interval_ms: 20000
+
+  - id: audio-pulse
+    name: "Audio Pulse — Speech and Audio Processing"
+    ring: middle
+    layer: operational
+    fibonacci_index: 4
+    fibonacci_value: 5
+    resource_weight: 0.003
+    domain: audio
+    # phiThreshold(1) ≈ 0.691  (replaces 0.55)
+    csl_threshold: 0.691   # CSL_THRESHOLDS.LOW = phiThreshold(1)
+    max_queue_depth: 40
+    agents:
+      - id: audio-transcriber
+        role: "Transcriber — speech-to-text with speaker diarization"
+        model: "whisper-large"
+        max_tokens: 50000
+      - id: audio-synthesizer
+        role: "Synthesizer — text-to-speech generation"
+        model: "tts-model"
+        max_tokens: 10000
+    capabilities:
+      - "speech-to-text transcription (99 languages)"
+      - "speaker diarization and identification"
+      - "text-to-speech synthesis"
+      - "audio content analysis and classification"
+    routing:
+      accepts_from: ["task-planner", "heady-soul"]
+      escalates_to: "language-flow"
+      handles_patterns:
+        - "^/audio"
+        - "^/transcribe"
+        - "^/speak"
+    health:
+      check_interval_ms: 20000
+
+  # ─── OUTER RING — Edge Workers ───────────────────────────────────────────────
+
+  - id: integration-node
+    name: "Integration Node — External System Connectors"
+    ring: outer
+    layer: operational
+    fibonacci_index: 3
+    fibonacci_value: 3
+    resource_weight: 0.002
+    domain: integration
+    # phiThreshold(1) ≈ 0.691  (replaces 0.55)
+    csl_threshold: 0.691   # CSL_THRESHOLDS.LOW = phiThreshold(1)
+    max_queue_depth: 50
+    agents:
+      - id: connector-primary
+        role: "Primary Connector — REST/GraphQL/gRPC integrations"
+        model: "claude-haiku"
+        max_tokens: 50000
+    capabilities:
+      - "REST API and GraphQL query execution"
+      - "webhook delivery and management"
+      - "OAuth and authentication flow handling"
+      - "database connector (SQL/NoSQL)"
+      - "event bus publish/subscribe"
+    routing:
+      accepts_from: ["*"]
+      escalates_to: "tool-weaver"
+      handles_patterns:
+        - "^/connect"
+        - "^/webhook"
+        - "^/db"
+    health:
+      check_interval_ms: 20000
+      tool_access: ["http_client", "db_connector", "oauth"]
+
+  - id: cache-guardian
+    name: "Cache Guardian — Semantic Cache Management"
+    ring: outer
+    layer: operational
+    fibonacci_index: 3
+    fibonacci_value: 3
+    resource_weight: 0.002
+    domain: caching
+    # phiThreshold(1) ≈ 0.691  (replaces 0.55)
+    csl_threshold: 0.691   # CSL_THRESHOLDS.LOW = phiThreshold(1)
+    max_queue_depth: 50
+    agents:
+      - id: cache-reader
+        role: "Cache Reader — semantic similarity cache lookup"
+        model: "claude-haiku"
+        max_tokens: 10000
+      - id: cache-writer
+        role: "Cache Writer — stores results with embeddings"
+        model: "claude-haiku"
+        max_tokens: 10000
+    capabilities:
+      - "semantic response caching (50-80% LLM cost reduction)"
+      - "cache invalidation and TTL management"
+      - "embedding-based similarity cache lookup"
+      - "result deduplication and merging"
+    routing:
+      accepts_from: ["*"]
+      escalates_to: "memory-weave"
+      handles_patterns:
+        - "^/cache"
+        - "^/store"
+        - "^/retrieve"
+    health:
+      check_interval_ms: 10000
+      backend: "redis"
+      # CSL_THRESHOLDS.CRITICAL = phiThreshold(4) ≈ 0.927  (replaces 0.92)
+      similarity_threshold: 0.927   # CSL_THRESHOLDS.CRITICAL = phiThreshold(4)
+
+  - id: stream-runner
+    name: "Stream Runner — Real-time Event Streaming"
+    ring: outer
+    layer: operational
+    fibonacci_index: 2
+    fibonacci_value: 2
+    resource_weight: 0.001
+    domain: streaming
+    # phiThreshold(1) ≈ 0.691  (replaces 0.55)
+    csl_threshold: 0.691   # CSL_THRESHOLDS.LOW = phiThreshold(1)
+    max_queue_depth: 200   # Higher limit — designed for high-throughput
+    agents:
+      - id: stream-producer
+        role: "Producer — emits SSE/WebSocket streams to clients"
+        model: "none"
+        max_tokens: 0
+    capabilities:
+      - "Server-Sent Events (SSE) streaming"
+      - "WebSocket real-time communication"
+      - "event fan-out to multiple subscribers"
+      - "chunked streaming response assembly"
+    routing:
+      accepts_from: ["*"]
+      escalates_to: "integration-node"
+      handles_patterns:
+        - "^/stream"
+        - "^/sse"
+        - "^/ws"
+    health:
+      check_interval_ms: 10000
+
+  # ─── GOVERNANCE RING ─────────────────────────────────────────────────────────
+
+  - id: policy-sentinel
+    name: "Policy Sentinel — Governance and Compliance"
+    ring: governance
+    layer: strategic
+    fibonacci_index: 6
+    fibonacci_value: 13
+    resource_weight: 0.008
+    domain: governance
+    # phiThreshold(3) ≈ 0.882  (replaces 0.85)
+    csl_threshold: 0.882   # CSL_THRESHOLDS.HIGH = phiThreshold(3)
+    max_queue_depth: 50
+    always_critical_plus: true   # Never sheddable
+    agents:
+      - id: policy-enforcer
+        role: "Policy Enforcer — PII detection and content moderation"
+        model: "claude-sonnet"
+        max_tokens: 100000
+      - id: audit-logger
+        role: "Audit Logger — immutable audit trail"
+        model: "claude-haiku"
+        max_tokens: 10000
+    capabilities:
+      - "PII detection and redaction (GDPR/CCPA)"
+      - "content safety and moderation"
+      - "compliance audit trail generation"
+      - "rate limit and abuse detection"
+      - "policy enforcement across all swarms"
+    routing:
+      accepts_from: ["*"]        # Intercepts flagged traffic from all swarms
+      escalates_to: "human"
+      handles_patterns:
+        - "^/policy"
+        - "^/audit"
+        - "^/compliance"
+      intercept_patterns:        # These patterns trigger policy review regardless of target
+        - "personal.*data"
+        - "password|secret|token|key"
+        - "credit.card|ssn|social.security"
+    health:
+      check_interval_ms: 10000
+      circuit_breaker_disabled: true   # Never trips — always available
+
+# =============================================================================
+# ROUTING RULES
+# Multi-layer routing configuration for task classification.
+# =============================================================================
+
+routing:
+  strategy: multi_layer
+  layers:
+
+    - name: deterministic
+      description: "Exact command patterns — <1ms, 0 cost"
+      priority: 1
+      estimated_traffic_pct: 35
+      rules:
+        - pattern: "^/orchestrate"
+          target: heady-soul
+        - pattern: "^/code|^/implement|^/debug|^/refactor"
+          target: code-artisan
+        - pattern: "^/research|^/search|^/find"
+          target: research-herald
+        - pattern: "^/analyze|^/data|^/sql"
+          target: data-sculptor
+        - pattern: "^/write|^/translate|^/summarize"
+          target: language-flow
+        - pattern: "^/vision|^/image|^/ocr"
+          target: vision-scribe
+        - pattern: "^/audio|^/transcribe"
+          target: audio-pulse
+        - pattern: "^/stream|^/sse"
+          target: stream-runner
+        - pattern: "^/cache"
+          target: cache-guardian
+        - pattern: "^/connect|^/webhook"
+          target: integration-node
+        - pattern: "^/audit|^/compliance"
+          target: policy-sentinel
+
+    - name: csl_cosine
+      description: "CSL cosine similarity gating — ~100ms, ~$108/month at 50K/day"
+      priority: 2
+      estimated_traffic_pct: 45
+      config:
+        embedding_model: "text-embedding-3-small"
+        index_type: "faiss_flat_ip"
+        top_k: 3
+        # phiThreshold(2) ≈ 0.809  (replaces 0.72)
+        min_score: 0.809   # CSL_THRESHOLDS.MEDIUM = phiThreshold(2)
+
+    - name: llm_classifier
+      description: "LLM classification — 300-600ms, ~$0.01-0.03/query"
+      priority: 4
+      estimated_traffic_pct: 10
+      config:
+        model: "claude-haiku"
+        max_tokens: 500
+        temperature: 0.0
+        structured_output: true
+
+    - name: load_balance
+      description: "Fibonacci-weighted load balancing — fallback"
+      priority: 5
+      estimated_traffic_pct: 5
+
+# =============================================================================
+# ESCALATION PATHS
+# When a swarm cannot handle a task, it escalates through this chain.
+# =============================================================================
+
+escalation:
+  paths:
+    operational_to_tactical:
+      from: [code-artisan, data-sculptor, research-herald, tool-weaver,
+             language-flow, vision-scribe, audio-pulse]
+      to: [task-planner, cognition-core]
+      trigger: "error_count > 3 OR timeout OR csl_score < 0.40"
+
+    tactical_to_strategic:
+      from: [cognition-core, memory-weave, context-bridge, task-planner, consensus-forge]
+      to: heady-soul
+      trigger: "error_count > 2 OR novel_task_pattern OR cross_domain_required"
+
+    strategic_to_human:
+      from: [heady-soul, policy-sentinel]
+      to: human_in_loop
+      trigger: "irreversible_action OR policy_violation OR confidence < 0.30"
+
+    edge_to_operational:
+      from: [integration-node, cache-guardian, stream-runner]
+      to: [tool-weaver, memory-weave]
+      trigger: "error_count > 5 OR service_unavailable"
+
+  max_hops: 3
+  retry_before_escalate: 2
+  # Phi-backoff reference: phiBackoff(attempt, baseMs=100) gives
+  #   attempt 0: 100ms, 1: 162ms, 2: 262ms, 3: 424ms, 4: 685ms, 5: 1109ms
+  # The values below are operational SLA parameters; phi-backoff is used
+  # in the JS runtime (phiBackoff() in shared/phi-math.js).
+  exponential_backoff:
+    base_ms: 100      # phiBackoff base; attempt 0 → 100ms
+    multiplier: 2     # Runtime uses φ≈1.618 multiplier via phiBackoff()
+    max_ms: 10000     # Hard SLA ceiling
+    jitter: true
+
+# =============================================================================
+# HEALTH CHECK CONFIGURATION
+# Per-ring health monitoring thresholds and actions.
+# =============================================================================
+
+health_monitoring:
+  global:
+    min_healthy_swarms: 5
+    critical_alert_threshold: 3   # Alert if < 3 healthy strategic swarms
+
+  per_swarm:
+    check_interval_ms: 15000
+    consecutive_fail_threshold: 3
+    circuit_breaker:
+      # fib(5) = 5  (replaces arbitrary 5 — now Fibonacci-grounded)
+      failure_threshold: 5       # fib(5)
+      # 45000ms — operational SLA parameter (kept; phi-backoff used in JS runtime)
+      recovery_timeout_ms: 45000
+      half_open_probes: 3
+      sliding_window: 20          # Last 20 calls for failure rate
+
+    backpressure:
+      # ψ²  = PRESSURE_LEVELS.NOMINAL_MAX  ≈ 0.382  (replaces 0.40)
+      low_threshold:    0.382   # PSI² = PRESSURE_LEVELS.NOMINAL_MAX
+      # ψ   = PRESSURE_LEVELS.ELEVATED_MAX ≈ 0.618  (replaces 0.60)
+      medium_threshold: 0.618   # PSI  = PRESSURE_LEVELS.ELEVATED_MAX
+      # 1-ψ³ = PRESSURE_LEVELS.HIGH_MAX    ≈ 0.854  (replaces 0.80)
+      high_threshold:   0.854   # 1-PSI³ = PRESSURE_LEVELS.HIGH_MAX
+      # 1-ψ⁴ = PRESSURE_LEVELS.CRITICAL   ≈ 0.910  (replaces 0.95)
+      critical_threshold: 0.910 # 1-PSI⁴ = PRESSURE_LEVELS.CRITICAL
+
+  degraded_mode:
+    # 1-ψ³ ≈ 0.854  (replaces 0.80)
+    shed_sheddable_at:      0.854   # PRESSURE_LEVELS.HIGH_MAX = 1 - PSI³
+    # 1-ψ⁴ ≈ 0.910  (replaces 0.90)
+    shed_sheddable_plus_at: 0.910   # PRESSURE_LEVELS.CRITICAL = 1 - PSI⁴
+    # CSL_THRESHOLDS.CRITICAL ≈ 0.927  (replaces 0.95)
+    shed_critical_at:       0.927   # CSL_THRESHOLDS.CRITICAL = phiThreshold(4)
+    # Only CRITICAL_PLUS survives above shed_critical_at
+
+# =============================================================================
+# RESOURCE ALLOCATION SUMMARY
+# Fibonacci ratios normalised across 17 swarms.
+# Total Fibonacci sum for indices [2..10, repeated]: varies by assignment
+# =============================================================================
+
+resource_summary:
+  allocation_algorithm: fibonacci_weighted
+  total_weight_units: 1596          # Sum of Fibonacci[1..17]
+  description: >
+    Resources allocated proportionally to Fibonacci index value.
+    heady-soul (index 10, value 89) receives ~5.6% of total resources.
+    code-artisan and data-sculptor (index 6, value 13) each receive ~0.8%.
+    This ensures HeadySoul and inner ring coordinators have sufficient
+    capacity to handle strategic coordination without becoming bottlenecks.
+
+  by_ring:
+    center:     { fraction: 0.056, unit_weight: 89  }
+    inner:      { fraction: 0.265, unit_weight: 165 }  # 55+34+34+21+21
+    middle:     { fraction: 0.234, unit_weight: 60  }  # 13+13+8+8+8+5+5 (×1596 normalised)
+    outer:      { fraction: 0.050, unit_weight: 8   }  # 3+3+2
+    governance: { fraction: 0.008, unit_weight: 13  }

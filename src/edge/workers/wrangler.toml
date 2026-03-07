@@ -1,0 +1,341 @@
+# wrangler.toml
+# Heady Latent OS — Cloudflare Workers Configuration
+#
+# Complete Wrangler configuration for the edge AI stack:
+#   - edge-inference-worker (main Worker)
+#   - DurableAgentState (Durable Object)
+#   - Vectorize indexes
+#   - KV namespaces
+#   - Workers AI binding
+#   - Cron triggers for sync
+#
+# Deploy:  npx wrangler deploy
+# Dev:     npx wrangler dev
+# Tail:    npx wrangler tail
+#
+# Reference: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Main Worker Settings
+# ─────────────────────────────────────────────────────────────────────────────
+
+name = "heady-edge-inference"
+main = "edge-inference-worker.js"
+compatibility_date = "2025-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ES Module format (required for Durable Objects)
+# All Worker files export { fetch, scheduled } default handler
+
+# Account ID — set via CLOUDFLARE_ACCOUNT_ID env var or here
+# account_id = "your-account-id"
+
+# Workers Paid plan required for:
+#   - Durable Objects
+#   - Vectorize (beyond free tier)
+#   - Workers AI (beyond 10k Neurons/day)
+# base_url = "https://api.cloudflare.com/client/v4"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Smart Placement
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Disabled on the edge inference Worker — this Worker should run at the PoP
+# closest to the user. Enable on origin-proxy Workers that call Cloud Run.
+[placement]
+mode = "off"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Workers AI Binding
+# ─────────────────────────────────────────────────────────────────────────────
+
+[ai]
+binding = "AI"
+# Models used:
+#   Chat:       @cf/meta/llama-3.1-8b-instruct-fp8-fast
+#               @cf/meta/llama-3.2-1b-instruct
+#               @cf/ibm-granite/granite-4.0-h-micro
+#   Embed:      @cf/baai/bge-base-en-v1.5
+#               @cf/baai/bge-small-en-v1.5
+#   Classify:   @cf/huggingface/distilbert-sst-2-int8
+#   Rerank:     @cf/baai/bge-reranker-base
+#   Safety:     @cf/meta/llama-guard-3-8b
+# All models billed per-Neuron; 10,000 Neurons/day included on Paid plan
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Vectorize Index Bindings
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "heady-vectors"
+# 768-dimension, cosine metric, matches bge-base-en-v1.5
+# Create: npx wrangler vectorize create heady-vectors --dimensions=768 --metric=cosine
+
+[[vectorize]]
+binding = "VECTORIZE_DOCS"
+index_name = "heady-docs"
+# For document chunks — same 768-dim
+
+[[vectorize]]
+binding = "VECTORIZE_MEMORIES"
+index_name = "heady-memories"
+# For agent memories — 384-dim (bge-small)
+# Create: npx wrangler vectorize create heady-memories --dimensions=384 --metric=cosine
+
+# ─────────────────────────────────────────────────────────────────────────────
+# KV Namespaces
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[kv_namespaces]]
+binding = "EDGE_CACHE_KV"
+id = "placeholder-edge-cache-kv-id"
+preview_id = "placeholder-edge-cache-kv-preview-id"
+# Usage:
+#   - Embedding cache (L2) — TTL 1–6h
+#   - Chat response cache for deterministic requests — TTL 2m
+#   - Rate limit counters — TTL 120s sliding window
+#   - Vectorize sync watermarks — TTL 30d
+#   - Sync health metrics — TTL 7d
+#   - Cache warming entries — TTL configurable
+# Create: npx wrangler kv namespace create EDGE_CACHE_KV
+
+[[kv_namespaces]]
+binding = "SESSION_KV"
+id = "placeholder-session-kv-id"
+preview_id = "placeholder-session-kv-preview-id"
+# Usage:
+#   - Session metadata (non-DO sessions)
+#   - User preference cache
+#   - Auth token cache
+# Create: npx wrangler kv namespace create SESSION_KV
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Durable Objects
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[durable_objects.bindings]]
+name = "AGENT_STATE"
+class_name = "DurableAgentState"
+# DurableAgentState provides:
+#   - Persistent WebSocket sessions (Hibernation API)
+#   - SQLite-backed message history
+#   - Agent lifecycle state machine
+#   - Alarm scheduling for autonomous tasks
+#   - Context window compression at Fibonacci thresholds
+# Each DO instance = one agent session (keyed by sessionId)
+
+# Migrations — must be run sequentially
+[[migrations]]
+tag = "v1"
+new_classes = ["DurableAgentState"]
+
+# [[migrations]]
+# tag = "v2"
+# renamed_classes = []
+# deleted_classes = []
+
+# ─────────────────────────────────────────────────────────────────────────────
+# R2 Bucket Bindings
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[r2_buckets]]
+binding = "DOCS_BUCKET"
+bucket_name = "heady-documents"
+# Usage: raw document storage (PDF, DOCX, etc.) before ingestion
+# Create: npx wrangler r2 bucket create heady-documents
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Queues
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[queues.producers]]
+queue = "heady-ingestion-queue"
+binding = "INGESTION_QUEUE"
+# Usage: async document ingestion — push docs for background embed + vectorize
+
+[[queues.consumers]]
+queue = "heady-ingestion-queue"
+max_batch_size = 10
+max_batch_timeout = 5       # seconds
+max_retries = 3
+dead_letter_queue = "heady-ingestion-dlq"
+
+[[queues.producers]]
+queue = "heady-analytics-queue"
+binding = "ANALYTICS_QUEUE"
+# Usage: request analytics events for downstream logging
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Service Bindings (Worker-to-Worker RPC)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Uncomment if running origin-proxy as a separate Worker
+# [[services]]
+# binding = "ORIGIN_PROXY"
+# service = "heady-origin-proxy"
+# entrypoint = "OriginProxyWorker"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cron Triggers
+# ─────────────────────────────────────────────────────────────────────────────
+
+[triggers]
+crons = [
+  "*/5 * * * *",     # Every 5 min: incremental Vectorize ↔ pgvector sync
+  "0 3 * * 0",       # Sundays 3am UTC: full Vectorize resync
+  "*/30 * * * *",    # Every 30 min: cache warming for common queries
+  "0 */6 * * *",     # Every 6h: sync health check + metrics flush
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Route Patterns
+# ─────────────────────────────────────────────────────────────────────────────
+
+routes = [
+  { pattern = "api.heady.ai/api/*", zone_name = "heady.ai" },
+  { pattern = "app.heady.ai/api/*", zone_name = "heady.ai" },
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Environment Variables (non-secret)
+# ─────────────────────────────────────────────────────────────────────────────
+
+[vars]
+WORKER_VERSION = "1.0.0"
+WORKER_ENV = "production"
+VECTORIZE_INDEX_NAME = "heady-vectors"
+VECTORIZE_DOCS_INDEX_NAME = "heady-docs"
+VECTORIZE_MEMORIES_INDEX_NAME = "heady-memories"
+MAX_EMBED_BATCH = "100"
+MAX_CLASSIFY_BATCH = "50"
+MAX_RERANK_DOCS = "50"
+RATE_LIMIT_CHAT_RPM = "21"
+RATE_LIMIT_EMBED_RPM = "55"
+RATE_LIMIT_CLASSIFY_RPM = "89"
+RATE_LIMIT_RERANK_RPM = "34"
+# Context window (Fibonacci)
+AGENT_CONTEXT_WINDOW = "21"
+# CORS — pipe-separated list of allowed origins
+CORS_ALLOWED_ORIGINS = "https://heady.ai|https://app.heady.ai|https://headyconnection.org"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Secrets (set via: npx wrangler secret put SECRET_NAME)
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# EDGE_API_KEY          — Bearer token for edge inference API authentication
+# PG_HTTP_URL           — Neon/Supabase HTTP API URL for pgvector access
+# PG_API_KEY            — PostgreSQL API key / service role key
+# ORIGIN_URL            — Cloud Run origin base URL
+# ORIGIN_API_KEY        — Cloud Run service authentication token
+# AI_GATEWAY_TOKEN      — Cloudflare AI Gateway token (for logging + routing)
+#
+# Set all secrets before deploying:
+#   npx wrangler secret put EDGE_API_KEY
+#   npx wrangler secret put PG_HTTP_URL
+#   npx wrangler secret put PG_API_KEY
+#   npx wrangler secret put ORIGIN_URL
+#   npx wrangler secret put ORIGIN_API_KEY
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Development Environment Overrides
+# ─────────────────────────────────────────────────────────────────────────────
+
+[env.dev]
+name = "heady-edge-inference-dev"
+vars = { WORKER_ENV = "development", EDGE_API_KEY = "dev-token-insecure" }
+
+[[env.dev.kv_namespaces]]
+binding = "EDGE_CACHE_KV"
+id = "placeholder-edge-cache-kv-id"
+preview_id = "placeholder-edge-cache-kv-preview-id"
+
+[[env.dev.kv_namespaces]]
+binding = "SESSION_KV"
+id = "placeholder-session-kv-id"
+preview_id = "placeholder-session-kv-preview-id"
+
+[[env.dev.vectorize]]
+binding = "VECTORIZE"
+index_name = "heady-vectors-dev"
+
+[[env.dev.vectorize]]
+binding = "VECTORIZE_DOCS"
+index_name = "heady-docs-dev"
+
+[[env.dev.vectorize]]
+binding = "VECTORIZE_MEMORIES"
+index_name = "heady-memories-dev"
+
+[[env.dev.durable_objects.bindings]]
+name = "AGENT_STATE"
+class_name = "DurableAgentState"
+
+[env.dev.ai]
+binding = "AI"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Staging Environment
+# ─────────────────────────────────────────────────────────────────────────────
+
+[env.staging]
+name = "heady-edge-inference-staging"
+vars = { WORKER_ENV = "staging" }
+
+[[env.staging.kv_namespaces]]
+binding = "EDGE_CACHE_KV"
+id = "placeholder-staging-kv-id"
+preview_id = "placeholder-staging-kv-preview-id"
+
+[[env.staging.kv_namespaces]]
+binding = "SESSION_KV"
+id = "placeholder-staging-session-kv-id"
+preview_id = "placeholder-staging-session-kv-preview-id"
+
+[[env.staging.vectorize]]
+binding = "VECTORIZE"
+index_name = "heady-vectors-staging"
+
+[[env.staging.vectorize]]
+binding = "VECTORIZE_DOCS"
+index_name = "heady-docs-staging"
+
+[[env.staging.vectorize]]
+binding = "VECTORIZE_MEMORIES"
+index_name = "heady-memories-staging"
+
+[[env.staging.durable_objects.bindings]]
+name = "AGENT_STATE"
+class_name = "DurableAgentState"
+
+[env.staging.ai]
+binding = "AI"
+
+[env.staging.placement]
+mode = "off"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+[build]
+# No build step required for vanilla JS Workers
+# For TypeScript, uncomment:
+# command = "npm run build"
+# watch_dir = "src"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Observability
+# ─────────────────────────────────────────────────────────────────────────────
+
+[observability]
+enabled = true
+head_sampling_rate = 1   # 100% sampling in production (reduce in high traffic)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Limits
+# ─────────────────────────────────────────────────────────────────────────────
+
+[limits]
+cpu_ms = 30000   # 30s CPU time per request (max for paid plan)
+# memory_mb = 128  # Cloudflare fixed at 128MB per Worker instance

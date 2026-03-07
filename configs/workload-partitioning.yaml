@@ -1,0 +1,480 @@
+# workload-partitioning.yaml
+# Heady Latent OS — Edge ↔ Origin Workload Partitioning Configuration
+#
+# Defines which operations run at edge (Cloudflare Workers AI) vs origin
+# (Cloud Run), latency thresholds, model assignments, fallback chains,
+# cost budgets per tier, and geographic routing rules.
+#
+# Sacred Geometry: Latency thresholds and batch sizes follow Fibonacci ratios.
+# Resource allocation ratios: 55% edge / 34% origin / 8% hybrid / 3% reserved
+#
+# Schema version: 1.0.0
+# Updated: 2026-03
+
+version: "1.0.0"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Routing Tiers
+# ─────────────────────────────────────────────────────────────────────────────
+
+tiers:
+  # Tier 1: Edge-only — fast, cheap, global
+  edge_only:
+    description: "Operations that run exclusively at Cloudflare edge PoPs"
+    target_latency_ms: 300
+    max_latency_ms: 800      # SLO breach threshold
+    cost_preference: edge
+    fallback_enabled: true   # still fall back to origin on edge failure
+
+  # Tier 2: Edge-preferred — try edge, fall back to origin
+  edge_prefer:
+    description: "Try edge first; fall back to origin on failure or timeout"
+    target_latency_ms: 600
+    max_latency_ms: 2000
+    edge_timeout_ms: 1500    # Abort edge attempt after this
+    cost_preference: edge
+    fallback_enabled: true
+
+  # Tier 3: Origin-only — complex, high-quality, origin-bound
+  origin_only:
+    description: "Always runs at Cloud Run origin (complex workflows, long context)"
+    target_latency_ms: 3000
+    max_latency_ms: 30000
+    cost_preference: quality
+    fallback_enabled: false  # no fallback — if origin fails, return error
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Operation → Tier Assignments
+# ─────────────────────────────────────────────────────────────────────────────
+
+operations:
+  # ── Embedding ──────────────────────────────────────────────────────────────
+  embed:
+    tier: edge_only
+    description: "Text embedding generation"
+    edge_models:
+      fast: "@cf/baai/bge-small-en-v1.5"         # 384-dim, cheapest
+      standard: "@cf/baai/bge-base-en-v1.5"       # 768-dim, default
+      quality: "@cf/baai/bge-large-en-v1.5"       # 1024-dim, high quality
+      multilingual: "@cf/baai/bge-m3"             # Variable, multilingual
+    origin_models:
+      quality: "text-embedding-3-large"           # OpenAI via AI Gateway
+    default_model: standard
+    cache_ttl_seconds: 3600
+    max_batch_size: 100
+    rate_limit_rpm: 55       # Fibonacci
+
+  # ── Classification ─────────────────────────────────────────────────────────
+  classify:
+    tier: edge_only
+    description: "Text sentiment / intent classification"
+    edge_models:
+      default: "@cf/huggingface/distilbert-sst-2-int8"
+    cache_ttl_seconds: 300
+    max_batch_size: 50
+    rate_limit_rpm: 89       # Fibonacci
+
+  # ── Reranking ──────────────────────────────────────────────────────────────
+  rerank:
+    tier: edge_only
+    description: "Document reranking for RAG retrieval"
+    edge_models:
+      default: "@cf/baai/bge-reranker-base"
+    cache_ttl_seconds: 600
+    max_batch_size: 50
+    rate_limit_rpm: 34       # Fibonacci
+
+  # ── Chat: Simple ───────────────────────────────────────────────────────────
+  chat_simple:
+    tier: edge_only
+    description: "Short, simple chat completions (< 500 tokens context)"
+    complexity_score_max: 25
+    edge_models:
+      ultra_fast: "@cf/meta/llama-3.2-1b-instruct"
+      fast: "@cf/ibm-granite/granite-4.0-h-micro"
+    default_model: ultra_fast
+    streaming: true
+    cache_ttl_seconds: 120   # Only for temperature=0
+    max_tokens: 512
+    rate_limit_rpm: 21       # Fibonacci
+
+  # ── Chat: Standard ─────────────────────────────────────────────────────────
+  chat_standard:
+    tier: edge_prefer
+    description: "Standard chat completions (500–4000 tokens context)"
+    complexity_score_range: [25, 60]
+    edge_models:
+      default: "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
+      vision: "@cf/meta/llama-3.2-11b-vision-instruct"
+      efficient: "@cf/qwen/qwen3-30b-a3b-fp8"
+    origin_models:
+      default: "claude-3-5-haiku"                # Via AI Gateway → Anthropic
+      fallback: "gpt-4o-mini"
+    default_edge_model: default
+    default_origin_model: default
+    streaming: true
+    max_tokens: 2048
+    rate_limit_rpm: 21       # Fibonacci
+    edge_timeout_ms: 8000
+
+  # ── Chat: Complex ──────────────────────────────────────────────────────────
+  chat_complex:
+    tier: origin_only
+    description: "Complex reasoning, long context, multi-step workflows (> 4000 tokens)"
+    complexity_score_min: 60
+    origin_models:
+      default: "claude-3-5-sonnet"               # 200k context
+      reasoning: "claude-3-7-sonnet"             # Extended thinking
+      cost_optimized: "claude-3-haiku"
+      openai: "gpt-4o"
+    default_model: default
+    streaming: true
+    max_tokens: 8192
+    rate_limit_rpm: 5        # Expensive — strict limit
+
+  # ── Safety / Guard ─────────────────────────────────────────────────────────
+  safety_check:
+    tier: edge_only
+    description: "Content safety classification (pre-filter at edge)"
+    edge_models:
+      default: "@cf/meta/llama-guard-3-8b"
+    cache_ttl_seconds: 3600   # Safety results are stable
+    max_tokens: 10            # Only returns SAFE/UNSAFE
+    rate_limit_rpm: 89        # Fibonacci — run on every request
+
+  # ── RAG Pipeline ───────────────────────────────────────────────────────────
+  rag_simple:
+    tier: edge_only
+    description: "RAG with Vectorize retrieval + edge LLM synthesis"
+    components:
+      embed: embed
+      retrieve: vectorize_query
+      generate: chat_simple
+    max_context_chunks: 5
+    target_latency_ms: 500
+
+  rag_complex:
+    tier: edge_prefer
+    description: "RAG with hybrid search + pgvector fallback"
+    components:
+      embed: embed
+      retrieve: vectorize_query_with_pgfallback
+      rerank: rerank
+      generate: chat_standard
+    max_context_chunks: 13   # Fibonacci
+    target_latency_ms: 1200
+
+  # ── Document Ingestion ─────────────────────────────────────────────────────
+  document_ingest:
+    tier: origin_only
+    description: "Document chunking, embedding, and Vectorize/pgvector upsert"
+    max_document_size_mb: 50
+    chunk_size_tokens: 512
+    chunk_overlap_tokens: 89  # Fibonacci
+    embed_batch_size: 100
+    origin_endpoint: "/api/ingest"
+
+  # ── Agent Sessions ─────────────────────────────────────────────────────────
+  agent_session:
+    tier: edge_only
+    description: "Persistent agent sessions via Durable Objects"
+    do_class: DurableAgentState
+    chat_model: "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
+    context_window_messages: 21   # Fibonacci
+    compression_threshold_messages: [8, 13, 21, 34, 55, 89]   # Fibonacci
+    websocket: true
+    hibernation: true             # Zero cost when idle
+
+  # ── Image Generation ───────────────────────────────────────────────────────
+  image_generate:
+    tier: edge_only
+    description: "AI image generation at edge"
+    edge_models:
+      fast: "@cf/black-forest-labs/flux-1-schnell"
+      quality: "@cf/black-forest-labs/flux-2-dev"
+      ultra_fast: "@cf/black-forest-labs/flux-2-klein-4b"
+    default_model: fast
+    rate_limit_rpm: 8        # Fibonacci
+
+  # ── Audio / STT ────────────────────────────────────────────────────────────
+  transcribe:
+    tier: edge_only
+    description: "Speech-to-text transcription"
+    edge_models:
+      fast: "@cf/openai/whisper-large-v3-turbo"
+      standard: "@cf/openai/whisper"
+      realtime: "@cf/deepgram/nova-3"
+    default_model: fast
+    rate_limit_rpm: 13       # Fibonacci
+
+  # ── Translation ────────────────────────────────────────────────────────────
+  translate:
+    tier: edge_only
+    description: "Text translation"
+    edge_models:
+      default: "@cf/meta/m2m100-1.2b"
+    rate_limit_rpm: 13       # Fibonacci
+
+  # ── Vectorize CRUD ─────────────────────────────────────────────────────────
+  vectorize_query:
+    tier: edge_only
+    description: "Vectorize similarity search (sub-ms via internal RPC)"
+    target_latency_ms: 5
+    max_top_k: 20           # With metadata
+
+  vectorize_upsert:
+    tier: edge_only
+    description: "Vectorize vector upsert (async indexing)"
+    max_batch_size: 1000    # Workers limit
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Model Assignments Summary
+# ─────────────────────────────────────────────────────────────────────────────
+
+models:
+  edge:
+    primary_chat: "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
+    fast_chat: "@cf/meta/llama-3.2-1b-instruct"
+    micro_chat: "@cf/ibm-granite/granite-4.0-h-micro"
+    reasoning: "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b"  # edge reasoning
+    embed_fast: "@cf/baai/bge-small-en-v1.5"
+    embed_standard: "@cf/baai/bge-base-en-v1.5"
+    embed_quality: "@cf/baai/bge-large-en-v1.5"
+    embed_multilingual: "@cf/baai/bge-m3"
+    classify: "@cf/huggingface/distilbert-sst-2-int8"
+    rerank: "@cf/baai/bge-reranker-base"
+    safety: "@cf/meta/llama-guard-3-8b"
+    image_fast: "@cf/black-forest-labs/flux-1-schnell"
+    stt: "@cf/openai/whisper-large-v3-turbo"
+    translate: "@cf/meta/m2m100-1.2b"
+
+  origin:
+    primary_chat: "claude-3-5-sonnet-20241022"
+    reasoning: "claude-3-7-sonnet-20250219"
+    cost_optimized: "claude-3-haiku-20240307"
+    openai_standard: "gpt-4o"
+    openai_fast: "gpt-4o-mini"
+    embed_quality: "text-embedding-3-large"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fallback Chains
+# ─────────────────────────────────────────────────────────────────────────────
+
+fallback_chains:
+  # Edge chat failure: try lighter edge model, then origin
+  chat_edge_failure:
+    - provider: edge
+      model: "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
+    - provider: edge
+      model: "@cf/meta/llama-3.2-1b-instruct"
+    - provider: origin
+      model: "claude-3-haiku-20240307"
+
+  # Embedding failure: try smaller model, then origin
+  embed_failure:
+    - provider: edge
+      model: "@cf/baai/bge-base-en-v1.5"
+    - provider: edge
+      model: "@cf/baai/bge-small-en-v1.5"
+    - provider: origin
+      model: "text-embedding-3-small"
+
+  # Vectorize failure: fall back to pgvector HTTP
+  vectorize_failure:
+    - provider: edge
+      service: vectorize
+    - provider: origin
+      service: pgvector_http
+      endpoint: "${PG_HTTP_URL}/query"
+
+  # Full pipeline failure: cached response or graceful degradation
+  full_failure:
+    - strategy: serve_cached
+      max_staleness_seconds: 3600
+    - strategy: graceful_degradation
+      message: "Service temporarily unavailable"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cost Budgets Per Tier
+# ─────────────────────────────────────────────────────────────────────────────
+
+cost_budgets:
+  # Cost unit: Cloudflare Neurons (edge) or USD/1M tokens (origin)
+  free_tier:
+    max_neurons_per_day: 10000       # CF free allocation
+    max_origin_usd_per_month: 0      # No origin budget
+    max_requests_per_day: 100
+    allowed_operations: [embed, classify, rerank, chat_simple, rag_simple]
+    blocked_operations: [chat_complex, document_ingest, image_generate]
+
+  pro_tier:
+    max_neurons_per_day: 100000
+    max_origin_usd_per_month: 20
+    max_requests_per_day: 2000
+    allowed_operations: "*"          # All operations
+    blocked_operations: []
+    priority: normal
+
+  enterprise_tier:
+    max_neurons_per_day: unlimited
+    max_origin_usd_per_month: unlimited
+    max_requests_per_day: unlimited
+    allowed_operations: "*"
+    blocked_operations: []
+    priority: high
+    dedicated_rate_limits: true      # Separate rate limit buckets
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Latency Thresholds for Routing Decisions
+# ─────────────────────────────────────────────────────────────────────────────
+
+latency_thresholds:
+  # If measured edge P95 exceeds this, prefer origin for that operation
+  edge_degraded_ms: 2000
+
+  # If edge TTFT (time to first token) exceeds this, abort and try origin
+  edge_abort_ms: 5000
+
+  # Minimum latency advantage for edge to be preferred over origin
+  # (only relevant when quality is equivalent)
+  edge_preference_advantage_ms: 100
+
+  # Complexity score bands (tokens ÷ 4 as proxy)
+  complexity_bands:
+    simple:
+      max_tokens: 500
+      max_messages: 8
+      target_model: "@cf/meta/llama-3.2-1b-instruct"
+    standard:
+      max_tokens: 4000
+      max_messages: 21    # Fibonacci
+      target_model: "@cf/meta/llama-3.1-8b-instruct-fp8-fast"
+    complex:
+      min_tokens: 4001
+      target_model: "claude-3-5-sonnet-20241022"    # origin
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Geographic Routing Rules
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Cloudflare edge GPUs are deployed in ~200 cities.
+# Some regions have fewer GPU PoPs — for those, latency advantage is smaller.
+# Origin is Cloud Run in us-central1 (Iowa).
+#
+# CF-IPCountry values used as region identifiers.
+
+geographic_routing:
+  # Regions with high edge GPU density — strong edge preference
+  edge_preferred_regions:
+    - US    # Multiple GPU PoPs
+    - CA
+    - GB
+    - DE
+    - FR
+    - NL
+    - AU
+    - JP
+    - SG
+
+  # Regions with limited edge GPU coverage — route to origin for best quality
+  origin_preferred_regions:
+    - AF    # Africa (limited GPU PoPs)
+    - SA    # South Asia
+    - ME    # Middle East
+
+  # Default for unspecified regions
+  default_routing: edge_prefer
+
+  # Data residency exceptions (GDPR compliance)
+  data_residency:
+    EU:
+      # EU users: prefer EU edge PoPs, avoid US origin for PII requests
+      preferred_edge_regions: [DE, FR, NL, IE]
+      pii_requests: origin_eu_only
+    US:
+      pii_requests: edge_us_or_origin_us
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Smart Placement Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Cloudflare Smart Placement automatically routes Workers to minimize
+# round-trip latency to databases and backends.
+
+smart_placement:
+  # Enable on the origin-proxy Worker (calls Cloud Run + pgvector)
+  origin_proxy_worker:
+    enabled: true
+    mode: smart           # 'smart' = automatic, 'off' = disable
+    # Smart Placement analyzes which Cloudflare PoP minimizes latency
+    # to Cloud Run (us-central1). Will typically choose a US PoP.
+
+  # Edge inference Worker: disable Smart Placement
+  # This should always run at the PoP closest to the user
+  edge_inference_worker:
+    enabled: false
+    mode: "off"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sync Configuration (Vectorize ↔ pgvector)
+# ─────────────────────────────────────────────────────────────────────────────
+
+vectorize_sync:
+  # Cron schedule for incremental sync
+  cron_schedule: "*/5 * * * *"   # Every 5 minutes
+
+  # Full resync schedule (weekly — Sundays at 3am UTC)
+  full_resync_cron: "0 3 * * 0"
+
+  # Sync batch sizes
+  pg_fetch_batch_size: 500
+  vectorize_upsert_batch_size: 1000   # Workers limit
+
+  # Conflict resolution
+  conflict_resolution: pgvector_wins  # pgvector is always source of truth
+
+  # Health monitoring
+  health_check_interval_ms: 60000
+  max_sync_lag_ms: 600000             # Alert if lag > 10 minutes
+
+  # Indexes
+  indexes:
+    - name: heady-vectors
+      pg_table: embeddings
+      dimensions: 768
+      metric: cosine
+    - name: heady-docs
+      pg_table: document_chunks
+      dimensions: 768
+      metric: cosine
+    - name: heady-memories
+      pg_table: agent_memories
+      dimensions: 384
+      metric: cosine
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Sacred Geometry Resource Allocation
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# All resource ratios follow Fibonacci proportions (φ ≈ 1.618):
+#   Edge compute:   55% of total budget
+#   Origin compute: 34% of total budget
+#   Hybrid paths:    8% of total budget
+#   Reserved/buffer: 3% of total budget
+#   Total:         100%
+
+sacred_geometry:
+  resource_ratios:
+    edge: 0.55
+    origin: 0.34
+    hybrid: 0.08
+    reserved: 0.03
+
+  fibonacci_constants:
+    cache_ttl_tiers: [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 3600]
+    rate_limit_tiers: [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+    context_compression_triggers: [8, 13, 21, 34, 55, 89]
+    batch_eviction_size: 8
+    context_window_messages: 21
+    warmup_batch_size: 13
+    latency_window_samples: 55
