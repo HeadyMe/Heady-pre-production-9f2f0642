@@ -1,0 +1,16 @@
+{
+  "primary_truth": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642",
+  "secondary_sources": [
+    "https://github.com/HeadySystems/Heady-pre-production",
+    "https://github.com/HeadyMe/headyme-core",
+    "https://github.com/HeadyMe/headymcp-core",
+    "https://github.com/HeadyMe/headyapi-core",
+    "https://github.com/HeadyMe/headybuddy-core",
+    "https://github.com/HeadyMe/heady-docs"
+  ],
+  "notes": [
+    "The rebuilt monorepo keeps the public architecture intent but replaces broken projection shells with a runnable control plane.",
+    "The gateway exposes JWT, API-key, HTTP, SSE, and WebSocket access so any site or UI can connect after auth.",
+    "The memory system supports file-backed persistence and pgvector-backed persistence behind one interface."
+  ]
+}

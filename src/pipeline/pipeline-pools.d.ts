@@ -1,0 +1,62 @@
+export namespace TASK_POOL_MAP {
+    let resolve_channel_and_identity: string;
+    let route_to_pipeline_branch: string;
+    let route_to_agents: string;
+    let monitor_agent_execution: string;
+    let collect_agent_results: string;
+    let compute_readiness_score: string;
+    let mc_plan_selection: string;
+    let mc_replan_failed_tasks: string;
+    let sync_cross_device_context: string;
+    let determine_launch_mode: string;
+    let generate_task_graph: string;
+    let assign_priorities: string;
+    let validate_governance: string;
+    let evaluate_failures: string;
+    let apply_compensation: string;
+    let persist_results: string;
+    let log_run_config_hash: string;
+    let record_run_critique: string;
+    let diagnose_bottlenecks: string;
+    let check_all_connection_health: string;
+    let identify_improvement_candidates: string;
+    let run_meta_analysis: string;
+    let apply_pattern_improvements: string;
+    let adjust_mc_strategy_weights: string;
+    let adjust_worker_pool_concurrency: string;
+    let update_channel_optimizations: string;
+    let record_pipeline_improvements: string;
+    let feed_stage_timing_to_mc: string;
+    let feed_task_timing_to_patterns: string;
+    let publish_metrics_to_channels: string;
+    let check_cross_channel_seamlessness: string;
+    let propose_micro_upgrades: string;
+    let archive_run_to_history: string;
+    let sync_registry_and_docs: string;
+    let validate_notebook_integrity: string;
+    let check_doc_owner_freshness: string;
+    let ingest_news_feeds: string;
+    let ingest_external_apis: string;
+    let ingest_repo_changes: string;
+    let ingest_health_metrics: string;
+    let ingest_channel_events: string;
+    let ingest_connection_health: string;
+    let ingest_public_domain_patterns: string;
+    let estimate_costs: string;
+    let check_public_domain_inspiration: string;
+    let retry_recoverable: string;
+    let escalate_unrecoverable: string;
+    let update_concept_index: string;
+    let send_checkpoint_email: string;
+    let mine_public_domain_best_practices: string;
+    let invalidate_stale_caches: string;
+}
+export namespace POOL_PRIORITY {
+    let hot: number;
+    let warm: number;
+    let cold: number;
+}
+export function sortTasksByPool(tasks: any): any[];
+export function findBreakerForTask(taskName: any, circuitBreakers: any): any;
+export function recalcMetrics(state: any): void;
+//# sourceMappingURL=pipeline-pools.d.ts.map

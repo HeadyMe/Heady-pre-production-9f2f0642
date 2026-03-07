@@ -1,0 +1,9 @@
+{
+  "name": "@heady/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  }
+}

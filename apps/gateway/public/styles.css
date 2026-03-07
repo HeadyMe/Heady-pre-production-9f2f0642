@@ -1,0 +1,82 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, sans-serif;
+  background: #0b1020;
+  color: #e9eefc;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #18213f, #090d18 55%);
+}
+
+.shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+header {
+  margin-bottom: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.card {
+  background: rgba(14, 21, 42, 0.92);
+  border: 1px solid rgba(135, 155, 255, 0.18);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.24);
+}
+
+label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+input, textarea, button {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid #34446d;
+  background: #0b1224;
+  color: #f3f7ff;
+  padding: 10px 12px;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+button {
+  cursor: pointer;
+  background: linear-gradient(135deg, #4e6bff, #6f8bff);
+  border: none;
+  font-weight: 700;
+}
+
+button + button {
+  margin-top: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+pre {
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 12px;
+  background: #060b16;
+  border-radius: 10px;
+  padding: 12px;
+}

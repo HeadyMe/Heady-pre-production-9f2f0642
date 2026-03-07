@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Heady Console</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <h1>Heady Console</h1>
+        <p>Register, authenticate, store memories, search them, and test MCP from any browser UI.</p>
+      </header>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Auth</h2>
+          <label>Email <input id="email" type="email" /></label>
+          <label>Password <input id="password" type="password" /></label>
+          <label>Name <input id="name" type="text" /></label>
+          <div class="row">
+            <button id="register">Register</button>
+            <button id="login">Login</button>
+          </div>
+          <pre id="session"></pre>
+        </article>
+
+        <article class="card">
+          <h2>Create memory</h2>
+          <label>Namespace <input id="namespace" type="text" value="default" /></label>
+          <label>Content <textarea id="content"></textarea></label>
+          <button id="save-memory">Save memory</button>
+          <pre id="save-result"></pre>
+        </article>
+
+        <article class="card">
+          <h2>Search memory</h2>
+          <label>Query <input id="query" type="text" /></label>
+          <button id="search-memory">Search</button>
+          <pre id="search-result"></pre>
+        </article>
+
+        <article class="card">
+          <h2>MCP</h2>
+          <button id="list-tools">List tools</button>
+          <button id="whoami">Call auth.me</button>
+          <pre id="mcp-result"></pre>
+        </article>
+      </section>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

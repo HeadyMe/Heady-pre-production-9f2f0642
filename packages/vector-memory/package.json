@@ -1,12 +1,55 @@
 {
   "name": "@heady/vector-memory",
   "version": "3.2.0",
+  "description": "3D vector memory store with cosine-similarity search and octree indexing for the Heady AI Platform.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "dependencies": {
-    "@heady/core": "workspace:*"
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "dependencies": {
+    "@heady/core": "^3.2.0"
+  },
+  "license": "UNLICENSED",
+  "author": {
+    "name": "HeadySystems Inc.",
+    "email": "eric@headyconnection.org",
+    "url": "https://headyme.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HeadyMe/heady-production.git",
+    "directory": "packages/vector-memory"
+  },
+  "homepage": "https://headysystems.com",
+  "bugs": {
+    "url": "https://github.com/HeadyMe/heady-production/issues"
+  },
+  "keywords": [
+    "heady",
+    "ai",
+    "vector-memory",
+    "3d-vector",
+    "cosine-similarity",
+    "embedding",
+    "octree"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

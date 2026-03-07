@@ -1,0 +1,27 @@
+{
+  "headyme.com": {
+    "service": "headyme",
+    "role": "personal cloud hub",
+    "source": "https://github.com/HeadyMe/headyme-core"
+  },
+  "headymcp.com": {
+    "service": "headymcp",
+    "role": "master control program",
+    "source": "https://github.com/HeadyMe/headymcp-core"
+  },
+  "headyapi.com": {
+    "service": "headyapi",
+    "role": "unified API gateway",
+    "source": "https://github.com/HeadyMe/headyapi-core"
+  },
+  "headybuddy.org": {
+    "service": "headybuddy",
+    "role": "AI companion",
+    "source": "https://github.com/HeadyMe/headybuddy-core"
+  },
+  "headysystems.com": {
+    "service": "headysystems",
+    "role": "infrastructure engine",
+    "source": "https://github.com/HeadyMe/headysystems-production"
+  }
+}

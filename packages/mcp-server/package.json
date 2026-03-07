@@ -1,13 +1,56 @@
 {
   "name": "@heady/mcp-server",
   "version": "3.2.0",
+  "description": "Model Context Protocol (MCP) server implementation for the Heady AI Platform — tool registration, memory operations, and JSON-RPC handling.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "dependencies": {
-    "@heady/core": "workspace:*",
-    "@heady/vector-memory": "workspace:*"
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "dependencies": {
+    "@heady/core": "^3.2.0",
+    "@heady/vector-memory": "^3.2.0"
+  },
+  "license": "UNLICENSED",
+  "author": {
+    "name": "HeadySystems Inc.",
+    "email": "eric@headyconnection.org",
+    "url": "https://headyme.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HeadyMe/heady-production.git",
+    "directory": "packages/mcp-server"
+  },
+  "homepage": "https://headysystems.com",
+  "bugs": {
+    "url": "https://github.com/HeadyMe/heady-production/issues"
+  },
+  "keywords": [
+    "heady",
+    "ai",
+    "mcp",
+    "model-context-protocol",
+    "json-rpc",
+    "tools",
+    "multi-agent"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
