@@ -1,0 +1,22 @@
+# Heady™ Python SDK — Dependencies
+# © 2024-2026 HeadySystems Inc. All Rights Reserved.
+
+# Core
+numpy>=1.24.0,<2.0.0
+
+# MCP Bridge Service
+fastapi>=0.109.0,<1.0.0
+uvicorn[standard]>=0.27.0,<1.0.0
+pydantic>=2.5.0,<3.0.0
+httpx>=0.26.0,<1.0.0
+
+# Testing
+pytest>=7.4.0,<9.0.0
+pytest-asyncio>=0.23.0,<1.0.0
+pytest-cov>=4.1.0,<6.0.0
+
+# Notebooks (install in Colab if needed)
+# matplotlib>=3.8.0
+# plotly>=5.18.0
+# sentence-transformers>=2.3.0
+# ipywidgets>=8.1.0

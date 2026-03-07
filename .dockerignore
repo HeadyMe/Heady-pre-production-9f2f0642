@@ -1,22 +1,64 @@
-node_modules
+# ═══════════════════════════════════════════════════════════
+# Heady™ .dockerignore — keep images lean
+# ═══════════════════════════════════════════════════════════
+
+# Version control
 .git
-.git/
+.gitignore
+.gitmodules
+
+# Dependencies (rebuilt in container)
+node_modules
+.pnp.*
+
+# Build artifacts
+dist
+coverage
+.nyc_output
+
+# Environment (secrets injected via Secret Manager)
 .env
 .env.*
 !.env.example
-data/
-*.log
-.bfg-report/
-..bfg-report/
-.DS_Store
-coverage/
-.nyc_output/
-*.tgz
-npm-debug.log*
-.vscode/
-.idea/
+
+# IDE / Editor
+.vscode
+.idea
 *.swp
 *.swo
-tmp/
-.agents/
-.gemini/
+*~
+
+# Documentation (keep docs/ for runtime but exclude dev docs)
+*.md
+!README.md
+!docs/**
+
+# Tests
+__tests__
+*.test.js
+*.spec.js
+jest.config.*
+.jest*
+
+# CI/CD
+.github
+.circleci
+.travis.yml
+
+# Infrastructure configs (not needed at runtime)
+infra/
+terraform/
+*.tf
+*.tfstate*
+
+# Archives
+_archive/
+
+# Docker build context exclusions
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# OS junk
+.DS_Store
+Thumbs.db

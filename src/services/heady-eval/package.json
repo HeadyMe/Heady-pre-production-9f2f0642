@@ -1,0 +1,44 @@
+{
+  "name": "heady-eval",
+  "version": "1.0.0",
+  "description": "LLM-as-judge evaluation framework for the Heady AI platform",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "test": "jest --forceExit --testTimeout=60000",
+    "test:coverage": "jest --coverage --forceExit --testTimeout=60000",
+    "test:watch": "jest --watch",
+    "lint": "eslint . --ext .js",
+    "docker:build": "docker build -t heady-eval:latest .",
+    "docker:run": "docker-compose up",
+    "docker:dev": "docker-compose up --build"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "testTimeout": 60000,
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "*.js",
+      "scorers/*.js",
+      "!index.js"
+    ]
+  }
+}

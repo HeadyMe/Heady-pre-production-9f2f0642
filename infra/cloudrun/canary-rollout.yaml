@@ -1,0 +1,102 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Canary Rollout Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+# Progressive delivery for heady-manager on Cloud Run.
+# Uses tagged revisions with incremental traffic shifting.
+#
+# Stages: canary (5%) → burn-in (25%) → promoted (50%) → stable (100%)
+#
+# Usage:
+#   # Start canary
+#   ./canary-rollout.sh deploy
+#
+#   # Check canary health
+#   ./canary-rollout.sh verify
+#
+#   # Promote canary to stable
+#   ./canary-rollout.sh promote
+#
+#   # Emergency rollback
+#   ./canary-rollout.sh rollback
+#
+# © 2026 HeadySystems Inc. — Proprietary
+# ═══════════════════════════════════════════════════════════════════════════════
+
+canary:
+  service: heady-manager
+  project: heady-production
+  region: us-central1
+  image: us-central1-docker.pkg.dev/heady-production/heady-docker-repo/heady-manager
+
+  # ── Rollout Stages ──────────────────────────────────────────────────────────
+  stages:
+    - name: canary
+      percent: 5
+      tag: canary
+      verifyDuration: 300          # 5 minutes observation
+      metrics:
+        errorRateThreshold: 1.0    # Max 1% error rate
+        latencyP99Threshold: 5000  # Max 5s p99 latency
+        minRequests: 50            # Min requests before evaluation
+
+    - name: burn-in
+      percent: 25
+      tag: canary
+      verifyDuration: 600          # 10 minutes observation
+      metrics:
+        errorRateThreshold: 2.0
+        latencyP99Threshold: 4000
+        minRequests: 200
+
+    - name: promoted
+      percent: 50
+      tag: canary
+      verifyDuration: 900          # 15 minutes observation
+      metrics:
+        errorRateThreshold: 2.0
+        latencyP99Threshold: 3000
+        minRequests: 500
+
+    - name: stable
+      percent: 100
+      tag: stable
+      verifyDuration: 0            # No verification needed at 100%
+
+  # ── Health Verification ─────────────────────────────────────────────────────
+  healthChecks:
+    - path: /health/live
+      expectedStatus: 200
+      timeout: 5
+    - path: /health/ready
+      expectedStatus: 200
+      timeout: 10
+    - path: /health/full
+      expectedStatus: 200
+      timeout: 15
+
+  # ── Rollback Triggers (any of these triggers instant rollback) ──────────────
+  rollbackTriggers:
+    - type: errorRate
+      threshold: 5.0               # >5% error rate = instant rollback
+      window: 120                  # 2-minute window
+    - type: latency
+      percentile: 99
+      threshold: 10000             # >10s p99 = instant rollback
+      window: 120
+    - type: healthCheck
+      consecutiveFailures: 3       # 3 consecutive health check failures
+    - type: crashLoop
+      maxRestarts: 5               # >5 container restarts in 5 minutes
+      window: 300
+
+  # ── Notifications ───────────────────────────────────────────────────────────
+  notifications:
+    onCanaryStart: true
+    onStageTransition: true
+    onRollback: true
+    onPromotionComplete: true
+    channels:
+      - type: email
+        address: eric@headysystems.com
+      - type: slack
+        webhook: "${SLACK_WEBHOOK_URL}"

@@ -1,0 +1,241 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Cloud Run Service — Production Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+# Deploy:
+#   gcloud run services replace infra/cloudrun/service.yaml \
+#     --region us-central1 --project heady-production
+#
+# This declarative YAML controls the full Cloud Run service spec including
+# autoscaling, health probes, secrets, VPC connector, and traffic splitting.
+#
+# © 2026 HeadySystems Inc. — Proprietary
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: heady-manager
+  namespace: "default"
+  labels:
+    app: heady-manager
+    team: heady-platform
+    tier: core
+    managed-by: heady-deploy
+  annotations:
+    run.googleapis.com/description: "Heady™ Autonomous Multi-Agent AI Platform — Core Service"
+    run.googleapis.com/launch-stage: GA
+    run.googleapis.com/ingress: all
+    # Custom domain mapping
+    run.googleapis.com/operation-id: ""
+
+spec:
+  template:
+    metadata:
+      labels:
+        app: heady-manager
+        tier: core
+      annotations:
+        # ── Autoscaling ─────────────────────────────────────────────────
+        autoscaling.knative.dev/minScale: "1"          # Always-on (no cold starts)
+        autoscaling.knative.dev/maxScale: "10"         # Max instances during load spikes
+        autoscaling.knative.dev/target: "80"           # Target concurrent requests per instance
+        run.googleapis.com/cpu-throttling: "false"     # CPU always allocated (WebSocket, background jobs)
+        run.googleapis.com/startup-cpu-boost: "true"   # 2x CPU during startup for faster boot
+
+        # ── Execution Environment ───────────────────────────────────────
+        run.googleapis.com/execution-environment: gen2  # Second-gen for full Linux, gVisor, better perf
+
+        # ── VPC Connector (access Neon, Redis, internal services) ───────
+        run.googleapis.com/vpc-access-connector: "projects/heady-production/locations/us-central1/connectors/heady-vpc-connector"
+        run.googleapis.com/vpc-access-egress: private-ranges-only
+
+        # ── Session Affinity (WebSocket voice relay) ────────────────────
+        run.googleapis.com/sessionAffinity: "true"
+
+    spec:
+      containerConcurrency: 100   # Max concurrent requests per container
+      timeoutSeconds: 300         # 5-minute request timeout (long-running agent tasks)
+      serviceAccountName: heady-cloudrun-sa@heady-production.iam.gserviceaccount.com
+
+      containers:
+        - name: heady-manager
+          image: us-central1-docker.pkg.dev/heady-production/heady-docker-repo/heady-manager:latest
+          ports:
+            - name: http1
+              containerPort: 8080
+
+          # ── Resources ─────────────────────────────────────────────────
+          resources:
+            limits:
+              cpu: "2"
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 512Mi
+
+          # ── Startup Probe ─────────────────────────────────────────────
+          # Wait for the 11-phase boot to complete
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 12    # 60s max startup window
+            timeoutSeconds: 5
+
+          # ── Liveness Probe ────────────────────────────────────────────
+          # Is the process alive?
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+
+          # ── Readiness Probe ───────────────────────────────────────────
+          # Can we accept traffic? (checks resilience, memory, filesystem)
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            failureThreshold: 2
+            timeoutSeconds: 10
+
+          # ── Environment Variables ─────────────────────────────────────
+          env:
+            # Runtime
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "8080"
+            - name: HEADY_SERVICE_NAME
+              value: "heady-manager"
+            - name: HEADY_VERSION
+              value: "3.1.0"
+            - name: GCP_PROJECT_ID
+              value: "heady-production"
+            - name: GCP_REGION
+              value: "us-central1"
+            - name: LOG_LEVEL
+              value: "info"
+
+            # Feature flags
+            - name: HEADY_FLAG_OTEL_TRACES
+              value: "true"
+            - name: HEADY_FLAG_AUDIT_LOGGING
+              value: "true"
+            - name: HEADY_FLAG_PROMPT_GUARD
+              value: "true"
+            - name: HEADY_FLAG_CANARY_DEPLOY
+              value: "false"
+            - name: HEADY_FLAG_EVAL_PIPELINE
+              value: "true"
+
+            # MCP
+            - name: MCP_SERVER_ID
+              value: "heady-mcp-production"
+            - name: MCP_RATE_LIMIT
+              value: "100"
+
+            # ── Secrets (injected from GCP Secret Manager) ──────────────
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: DATABASE_URL
+                  key: latest
+            - name: HEADY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: HEADY_API_KEY
+                  key: latest
+            - name: PERPLEXITY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: PERPLEXITY_API_KEY
+                  key: latest
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: GEMINI_API_KEY
+                  key: latest
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: OPENAI_API_KEY
+                  key: latest
+            - name: CLAUDE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: CLAUDE_API_KEY
+                  key: latest
+            - name: GROQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: GROQ_API_KEY
+                  key: latest
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: GITHUB_TOKEN
+                  key: latest
+            - name: CLOUDFLARE_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: CLOUDFLARE_API_TOKEN
+                  key: latest
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: SENTRY_DSN
+                  key: latest
+            - name: UPSTASH_REDIS_REST_URL
+              valueFrom:
+                secretKeyRef:
+                  name: UPSTASH_REDIS_REST_URL
+                  key: latest
+            - name: UPSTASH_REDIS_REST_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: UPSTASH_REDIS_REST_TOKEN
+                  key: latest
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: STRIPE_SECRET_KEY
+                  key: latest
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: JWT_SECRET
+                  key: latest
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: SESSION_SECRET
+                  key: latest
+            - name: ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ADMIN_TOKEN
+                  key: latest
+            - name: OP_SERVICE_ACCOUNT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: OP_SERVICE_ACCOUNT_TOKEN
+                  key: latest
+
+  # ── Traffic Routing ───────────────────────────────────────────────────────
+  # 100% to latest revision (update for canary splits)
+  traffic:
+    - revisionName: heady-manager-stable
+      percent: 100
+      tag: stable
+    # Uncomment for canary deployment:
+    # - latestRevision: true
+    #   percent: 5
+    #   tag: canary

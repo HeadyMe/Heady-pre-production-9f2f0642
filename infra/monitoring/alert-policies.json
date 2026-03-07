@@ -1,0 +1,158 @@
+{
+  "alertPolicies": [
+    {
+      "displayName": "Heady — High Error Rate (5xx > 5%)",
+      "combiner": "OR",
+      "conditions": [
+        {
+          "displayName": "5xx error rate exceeds 5%",
+          "conditionThreshold": {
+            "filter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"heady-manager\" AND metric.type=\"run.googleapis.com/request_count\" AND metric.labels.response_code_class=\"5xx\"",
+            "aggregations": [
+              {
+                "alignmentPeriod": "300s",
+                "perSeriesAligner": "ALIGN_RATE",
+                "crossSeriesReducer": "REDUCE_SUM"
+              }
+            ],
+            "comparison": "COMPARISON_GT",
+            "thresholdValue": 5,
+            "duration": "300s",
+            "trigger": {
+              "count": 1
+            }
+          }
+        }
+      ],
+      "notificationChannels": [],
+      "alertStrategy": {
+        "autoClose": "604800s"
+      },
+      "severity": "CRITICAL",
+      "documentation": {
+        "content": "## Heady Error Rate Alert\n\nThe 5xx error rate for heady-manager has exceeded 5% for 5 minutes.\n\n### Triage Steps\n1. Check Cloud Run logs: `gcloud logs read --service=heady-manager --limit=50`\n2. Check health endpoint: `curl https://heady-manager-xxx-uc.a.run.app/health/ready`\n3. Check recent deployments: `gcloud run revisions list --service=heady-manager`\n4. If caused by a bad deploy, rollback: see canary rollout playbook\n5. Check Sentry for exception details",
+        "mimeType": "text/markdown"
+      }
+    },
+    {
+      "displayName": "Heady — High Latency (p99 > 5s)",
+      "combiner": "OR",
+      "conditions": [
+        {
+          "displayName": "p99 latency exceeds 5 seconds",
+          "conditionThreshold": {
+            "filter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"heady-manager\" AND metric.type=\"run.googleapis.com/request_latencies\"",
+            "aggregations": [
+              {
+                "alignmentPeriod": "300s",
+                "perSeriesAligner": "ALIGN_PERCENTILE_99",
+                "crossSeriesReducer": "REDUCE_MEAN"
+              }
+            ],
+            "comparison": "COMPARISON_GT",
+            "thresholdValue": 5000,
+            "duration": "600s",
+            "trigger": {
+              "count": 1
+            }
+          }
+        }
+      ],
+      "notificationChannels": [],
+      "severity": "WARNING",
+      "documentation": {
+        "content": "## Heady Latency Alert\n\np99 request latency exceeds 5 seconds.\n\n### Common Causes\n1. Database connection pool exhaustion (check PgBouncer)\n2. LLM API provider slowdowns (check circuit breakers)\n3. Memory pressure causing GC pauses\n4. Cold starts from scale-up events"
+      }
+    },
+    {
+      "displayName": "Heady — High Memory Usage (> 80%)",
+      "combiner": "OR",
+      "conditions": [
+        {
+          "displayName": "Memory utilization exceeds 80%",
+          "conditionThreshold": {
+            "filter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"heady-manager\" AND metric.type=\"run.googleapis.com/container/memory/utilizations\"",
+            "aggregations": [
+              {
+                "alignmentPeriod": "300s",
+                "perSeriesAligner": "ALIGN_PERCENTILE_99",
+                "crossSeriesReducer": "REDUCE_MEAN"
+              }
+            ],
+            "comparison": "COMPARISON_GT",
+            "thresholdValue": 0.80,
+            "duration": "600s",
+            "trigger": {
+              "count": 1
+            }
+          }
+        }
+      ],
+      "notificationChannels": [],
+      "severity": "WARNING",
+      "documentation": {
+        "content": "## Heady Memory Alert\n\nMemory utilization exceeds 80% of the 1Gi limit.\n\n### Actions\n1. Check for memory leaks in vector memory cache\n2. Review `/health/ready` for memory status\n3. Consider scaling memory limit to 2Gi if sustained"
+      }
+    },
+    {
+      "displayName": "Heady — Instance Count Maxed (= max scale)",
+      "combiner": "OR",
+      "conditions": [
+        {
+          "displayName": "Running at max instances (10)",
+          "conditionThreshold": {
+            "filter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"heady-manager\" AND metric.type=\"run.googleapis.com/container/instance_count\"",
+            "aggregations": [
+              {
+                "alignmentPeriod": "60s",
+                "perSeriesAligner": "ALIGN_MAX",
+                "crossSeriesReducer": "REDUCE_SUM"
+              }
+            ],
+            "comparison": "COMPARISON_GT",
+            "thresholdValue": 9,
+            "duration": "300s",
+            "trigger": {
+              "count": 1
+            }
+          }
+        }
+      ],
+      "notificationChannels": [],
+      "severity": "WARNING",
+      "documentation": {
+        "content": "## Heady Max Scale Alert\n\nAll 10 instances are active. Traffic may be throttled.\n\n### Actions\n1. Increase maxScale in service.yaml or via gcloud\n2. Review traffic patterns for potential DDoS\n3. Check if edge caching is working correctly"
+      }
+    },
+    {
+      "displayName": "Heady — Container Crash Loop",
+      "combiner": "OR",
+      "conditions": [
+        {
+          "displayName": "Startup failures exceed threshold",
+          "conditionThreshold": {
+            "filter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"heady-manager\" AND metric.type=\"run.googleapis.com/container/startup_latencies\"",
+            "aggregations": [
+              {
+                "alignmentPeriod": "300s",
+                "perSeriesAligner": "ALIGN_COUNT",
+                "crossSeriesReducer": "REDUCE_SUM"
+              }
+            ],
+            "comparison": "COMPARISON_GT",
+            "thresholdValue": 10,
+            "duration": "300s",
+            "trigger": {
+              "count": 1
+            }
+          }
+        }
+      ],
+      "notificationChannels": [],
+      "severity": "CRITICAL",
+      "documentation": {
+        "content": "## Heady Crash Loop Alert\n\nMultiple container restarts detected.\n\n### Immediate Actions\n1. Check container logs: `gcloud logs read --service=heady-manager`\n2. Verify env-schema validation (critical vars: DATABASE_URL, HEADY_API_KEY)\n3. Check Secret Manager access permissions\n4. Rollback to last known good revision"
+      }
+    }
+  ]
+}

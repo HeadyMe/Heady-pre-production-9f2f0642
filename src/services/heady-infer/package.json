@@ -1,0 +1,54 @@
+{
+  "name": "heady-infer",
+  "version": "1.0.0",
+  "description": "Multi-model inference gateway for the Heady AI platform",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "jest __tests__/heady-infer.test.js --testEnvironment=node",
+    "test:coverage": "jest --coverage __tests__/heady-infer.test.js --testEnvironment=node",
+    "lint": "eslint . --ext .js",
+    "health": "curl -s http://localhost:3102/health | node -e \"process.stdin.resume(); let d=''; process.stdin.on('data', c => d+=c); process.stdin.on('end', () => console.log(JSON.stringify(JSON.parse(d), null, 2)));\""
+  },
+  "keywords": [
+    "llm",
+    "inference",
+    "gateway",
+    "anthropic",
+    "openai",
+    "google",
+    "groq",
+    "ollama",
+    "circuit-breaker",
+    "caching",
+    "racing",
+    "heady"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "*.js",
+      "providers/*.js",
+      "!server.js"
+    ]
+  }
+}

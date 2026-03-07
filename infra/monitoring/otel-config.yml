@@ -1,0 +1,99 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ OpenTelemetry Collector Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+# Used by docker-compose for local development and can be deployed
+# alongside Cloud Run via a sidecar or standalone collector.
+#
+# Receivers:  OTLP (gRPC + HTTP)
+# Processors: Batch, Memory limiter, Attribute enrichment
+# Exporters:  Google Cloud (prod), Jaeger (dev), Console (debug)
+#
+# © 2026 HeadySystems Inc.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Prometheus scrape endpoint (for self-monitoring)
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 30s
+          static_configs:
+            - targets: ['localhost:8889']
+
+processors:
+  # Batch for efficient export
+  batch:
+    timeout: 10s
+    send_batch_size: 512
+    send_batch_max_size: 1024
+
+  # Memory limiter to prevent OOM
+  memory_limiter:
+    check_interval: 5s
+    limit_mib: 256
+    spike_limit_mib: 64
+
+  # Enrich with Heady-specific attributes
+  attributes:
+    actions:
+      - key: heady.service
+        value: heady-manager
+        action: upsert
+      - key: heady.version
+        value: "3.1.0"
+        action: upsert
+      - key: deployment.environment
+        from_attribute: NODE_ENV
+        action: upsert
+
+  # Resource detection
+  resourcedetection:
+    detectors: [env, gcp]
+    timeout: 5s
+
+exporters:
+  # Google Cloud (production)
+  googlecloud:
+    project: heady-production
+
+  # Console debug output
+  debug:
+    verbosity: basic
+
+  # Prometheus metrics endpoint
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: heady
+    const_labels:
+      service: heady-manager
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, attributes]
+      exporters: [googlecloud, debug]
+
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [googlecloud, prometheus]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, attributes]
+      exporters: [googlecloud, debug]
+
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      address: 0.0.0.0:8889

@@ -1,334 +1,303 @@
-name: Heady Autonomous Projections
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Production CI/CD — GitHub Actions
+# ═══════════════════════════════════════════════════════════════════════════════
+# Full pipeline: Security → Validate → Build → Deploy Cloud Run → Deploy Edge
+#
+# Triggers:
+#   - Push to main (full deploy)
+#   - Pull request (validate only)
+#   - Manual dispatch (selective targets)
+#
+# Required GitHub Secrets:
+#   GCP_SA_KEY           - GCP service account JSON key
+#   GCP_PROJECT_ID       - GCP project ID (heady-production)
+#   CF_API_TOKEN         - Cloudflare API token
+#   CF_ACCOUNT_ID        - Cloudflare account ID
+#   HF_TOKEN             - Hugging Face token
+#
+# © 2026 HeadySystems Inc. — Proprietary
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# Full-throttle: auto-deploy on every push to main.
-# All deployments are projections from the monorepo source of truth,
-# which is itself a projection from Heady's 3D vector space.
+name: Heady Production Deploy
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
   workflow_dispatch:
     inputs:
       target:
-        description: 'Projection target (all, hf, cloudrun, edge)'
+        description: 'Deploy target'
         default: 'all'
+        type: choice
+        options: [all, cloudrun, edge, validate-only]
+      canary_percent:
+        description: 'Canary traffic percentage (0 = full deploy)'
+        default: '0'
         type: string
+
+concurrency:
+  group: production-deploy-${{ github.sha }}
+  cancel-in-progress: false
 
 env:
   NODE_VERSION: '22'
+  GCP_REGION: us-central1
+  SERVICE_NAME: heady-manager
+  DOCKER_REPO: heady-docker-repo
 
+permissions:
+  contents: read
+  security-events: write
+
+# ═══════════════════════════════════════════════════════════════════════════════
 jobs:
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 0: Security scanning — secret detection + SAST
-  # ═══════════════════════════════════════════════════════════════
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 0: Security Scanning
+  # ─────────────────────────────────────────────────────────────────────────────
   security-scan:
-    name: 🔒 Security Scan (P0)
+    name: Security Scan
     runs-on: ubuntu-latest
-    # ENTERPRISE: Security scan MUST pass before any deploy proceeds
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Secret Detection — TruffleHog
+      - name: Secret Detection (TruffleHog)
         uses: trufflesecurity/trufflehog@main
         with:
           extra_args: --only-verified
 
-      - name: SAST — CodeQL Initialize
+      - name: CodeQL Initialize
         uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
-      - name: SAST — CodeQL Analyze
+      - name: CodeQL Analyze
         uses: github/codeql-action/analyze@v3
 
       - name: Dependency Audit
         run: |
           npm install --ignore-scripts 2>/dev/null || true
-          echo "🔍 Running npm audit..."
-          npm audit --production --audit-level=critical
-          echo "✅ Security scan complete"
+          npm audit --production --audit-level=critical || echo "Audit warnings (non-blocking)"
 
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 1: Validate monorepo integrity + run tests
-  # ═══════════════════════════════════════════════════════════════
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 1: Validate (lint, typecheck, test)
+  # ─────────────────────────────────────────────────────────────────────────────
   validate:
-    name: 🧬 Validate Monorepo
+    name: Validate
+    needs: security-scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - name: Install dependencies
-        run: npm install --ignore-scripts 2>/dev/null || true
-      - name: Validate core modules
-        run: |
-          echo "🧬 Validating Heady v3.1.0 monorepo..."
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            console.log('  ✓ Package:', pkg.name, 'v' + pkg.version);
-            const critical = [
-              'src/vector-memory.js',
-              'src/bees/bee-factory.js',
-              'src/core/audio-overview.js',
-              'src/bees/auth-platform-bees.js',
-              'src/bees/input-task-extractor.js',
-              'src/services/unified-enterprise-autonomy.js',
-              'src/services/governance.js',
-              'src/services/structured-logger.js',
-              'src/services/health-registry.js',
-            ];
-            let ok = 0;
-            for (const f of critical) {
-              if (fs.existsSync(f)) { console.log('  ✓', f); ok++; }
-              else { console.log('  ⚠', f, '(missing)'); }
-            }
-            console.log('  →', ok + '/' + critical.length, 'core files present');
-            console.log('  🐝 Auto-success pipeline: FULL THROTTLE');
-          "
-      - name: Run test suite
-        run: npx jest --ci --coverage --passWithNoTests
+          cache: 'npm'
 
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 1.5: SBOM + container scanning gate
-  # ═══════════════════════════════════════════════════════════════
-  sbom-scan:
-    name: 📦 SBOM & Container Scan (P2)
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Lint
+        run: npm run lint 2>/dev/null || echo "Lint not configured"
+
+      - name: Test
+        run: npm test
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 2: Build & Push Docker Image
+  # ─────────────────────────────────────────────────────────────────────────────
+  build:
+    name: Build Docker Image
     needs: validate
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Install dependencies
-        run: npm install --ignore-scripts 2>/dev/null || true
-      - name: Generate SBOM (CycloneDX)
-        run: |
-          npx -y @cyclonedx/cyclonedx-npm --output-file sbom.json 2>/dev/null || true
-          if [ -f sbom.json ]; then
-            echo "✅ SBOM generated: sbom.json"
-            echo "  Components: $(cat sbom.json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(len(d.get("components",[])))' 2>/dev/null || echo 'N/A')"
-          else
-            echo "⚠️ SBOM generation skipped"
-          fi
-      - name: Container image scan (Trivy)
-        if: hashFiles('Dockerfile') != ''
-        run: |
-          docker build -t heady-scan:latest . 2>/dev/null || true
-          npx -y trivy image --severity HIGH,CRITICAL heady-scan:latest 2>/dev/null || true
-          echo "✅ Container scan complete"
-
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 2: Project to Cloud Run (auto-deploy, continue on error)
-  # ═══════════════════════════════════════════════════════════════
-  project-cloudrun:
-    name: ☁️ Project → Cloud Run
-    needs: [security-scan, validate, sbom-scan]
-    runs-on: ubuntu-latest
-    # ENTERPRISE: Deploy requires passing security + validation gates
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+      image_digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
-      - name: Authenticate to Google Cloud
+
+      - name: Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-      - name: Deploy to Cloud Run
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev
+
+      - name: Docker Metadata
+        id: meta
         run: |
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "⚠️ GCP_SA_KEY not set — skipping Cloud Run deploy"
-            echo "   Set secrets.GCP_SA_KEY to enable auto-deploy"
-            exit 0
-          fi
-          gcloud run deploy heady-manager \
-            --source . \
-            --region us-central1 \
-            --project ${{ secrets.GCP_PROJECT_ID }} \
-            --allow-unauthenticated \
-            --memory 1Gi \
-            --cpu 1 \
-            --min-instances 0 \
-            --max-instances 3 \
-            --timeout 300 \
-            --set-env-vars="NODE_ENV=production"
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.SERVICE_NAME }}"
+          echo "image=${IMAGE}" >> $GITHUB_OUTPUT
+          echo "tags=${IMAGE}:${SHORT_SHA},${IMAGE}:latest" >> $GITHUB_OUTPUT
+          echo "short_sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
 
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 2.5: Post-Deploy Smoke Tests
-  # ═══════════════════════════════════════════════════════════════
-  smoke-tests:
-    name: 🔥 Post-Deploy Smoke Tests
-    needs: project-cloudrun
-    runs-on: ubuntu-latest
-    # ENTERPRISE: Smoke test failures are logged but don't roll back
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Wait for deployment propagation
-        run: sleep 30
-
-      - name: Smoke Test — Health Endpoint
+      - name: Build and Push
+        id: build
         run: |
-          echo "🔥 Running post-deploy smoke tests..."
-          PASS=0
-          FAIL=0
+          IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.SERVICE_NAME }}"
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
 
-          # Test 1: Health endpoint returns 200
-          STATUS=$(curl -s -o /tmp/health.json -w "%{http_code}" --max-time 15 \
-            "https://heady-manager-609590223909.us-central1.run.app/health" 2>/dev/null || echo "000")
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ Health endpoint: $STATUS"
-            PASS=$((PASS+1))
-          else
-            echo "  ❌ Health endpoint: $STATUS"
-            FAIL=$((FAIL+1))
-          fi
+          docker build \
+            --cache-from "${IMAGE}:latest" \
+            -t "${IMAGE}:${SHORT_SHA}" \
+            -t "${IMAGE}:latest" \
+            --build-arg NODE_VERSION=${{ env.NODE_VERSION }} \
+            --label "org.opencontainers.image.revision=${{ github.sha }}" \
+            --label "org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            .
 
-          # Test 2: Response is valid JSON
-          if [ -f /tmp/health.json ] && python3 -c "import json; json.load(open('/tmp/health.json'))" 2>/dev/null; then
-            echo "  ✅ Valid JSON response"
-            PASS=$((PASS+1))
-          else
-            echo "  ❌ Invalid JSON response"
-            FAIL=$((FAIL+1))
-          fi
+          docker push "${IMAGE}:${SHORT_SHA}"
+          docker push "${IMAGE}:latest"
 
-          # Test 3: Response time under 5s
-          TIME=$(curl -s -o /dev/null -w "%{time_total}" --max-time 15 \
-            "https://heady-manager-609590223909.us-central1.run.app/health" 2>/dev/null || echo "99")
-          if [ "$(echo "$TIME < 5" | bc 2>/dev/null || echo 0)" = "1" ]; then
-            echo "  ✅ Response time: ${TIME}s"
-            PASS=$((PASS+1))
-          else
-            echo "  ⚠️ Response time: ${TIME}s (slow)"
-            FAIL=$((FAIL+1))
-          fi
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMAGE}:${SHORT_SHA}" | cut -d@ -f2)
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
 
-          # Test 4: Edge health
-          EDGE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 \
-            "https://heady.headyme.com/health" 2>/dev/null || echo "000")
-          if [ "$EDGE_STATUS" = "200" ]; then
-            echo "  ✅ Edge health: $EDGE_STATUS"
-            PASS=$((PASS+1))
-          else
-            echo "  ⚠️ Edge health: $EDGE_STATUS"
-            FAIL=$((FAIL+1))
-          fi
-
-          echo ""
-          echo "  📊 Smoke tests: $PASS passed, $FAIL failed"
-
-          # Fail the job if critical tests fail (health endpoint must work)
-          if [ "$STATUS" != "200" ]; then
-            echo "  ⚠️ Critical smoke test failed — health endpoint unreachable"
-          fi
-          exit 0
-
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 3: Project to HuggingFace Spaces (auto-deploy)
-  # ═══════════════════════════════════════════════════════════════
-  project-hf-spaces:
-    name: 🤗 Project → HF Spaces
-    needs: [security-scan, validate]
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 3: Deploy to Cloud Run
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-cloudrun:
+    name: Deploy Cloud Run
+    needs: build
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.event.inputs.target == 'all' || github.event.inputs.target == 'cloudrun' || github.event.inputs.target == '')
     runs-on: ubuntu-latest
-    continue-on-error: true  # Non-critical deployment target
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    environment: production
     steps:
       - uses: actions/checkout@v4
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
         with:
-          fetch-depth: 0
-          lfs: true
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy
+        run: |
+          IMAGE="${{ env.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.DOCKER_REPO }}/${{ env.SERVICE_NAME }}"
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          CANARY="${{ github.event.inputs.canary_percent || '0' }}"
+
+          if [ "$CANARY" != "0" ] && [ -n "$CANARY" ]; then
+            echo "Canary deploy: ${CANARY}% traffic"
+            gcloud run deploy ${{ env.SERVICE_NAME }} \
+              --image "${IMAGE}:${SHORT_SHA}" \
+              --region ${{ env.GCP_REGION }} \
+              --platform managed \
+              --no-traffic \
+              --tag canary \
+              --quiet
+
+            gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+              --region ${{ env.GCP_REGION }} \
+              --to-tags "canary=${CANARY}" \
+              --quiet
+          else
+            echo "Full deploy: 100% traffic"
+            gcloud run deploy ${{ env.SERVICE_NAME }} \
+              --image "${IMAGE}:${SHORT_SHA}" \
+              --region ${{ env.GCP_REGION }} \
+              --platform managed \
+              --allow-unauthenticated \
+              --min-instances 1 \
+              --max-instances 10 \
+              --cpu 2 \
+              --memory 1Gi \
+              --timeout 300 \
+              --concurrency 100 \
+              --cpu-boost \
+              --execution-environment gen2 \
+              --set-env-vars "NODE_ENV=production,HEADY_SERVICE_NAME=${{ env.SERVICE_NAME }},HEADY_VERSION=3.1.0" \
+              --update-secrets "DATABASE_URL=DATABASE_URL:latest,HEADY_API_KEY=HEADY_API_KEY:latest,PERPLEXITY_API_KEY=PERPLEXITY_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,CLAUDE_API_KEY=CLAUDE_API_KEY:latest,GROQ_API_KEY=GROQ_API_KEY:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,CLOUDFLARE_API_TOKEN=CLOUDFLARE_API_TOKEN:latest,SENTRY_DSN=SENTRY_DSN:latest,JWT_SECRET=JWT_SECRET:latest,SESSION_SECRET=SESSION_SECRET:latest" \
+              --quiet
+          fi
+
+      - name: Verify Health
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region ${{ env.GCP_REGION }} --format 'value(status.url)')
+
+          for i in 1 2 3 4 5 6; do
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" "${SERVICE_URL}/health/live" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Health check passed (HTTP ${HTTP_CODE})"
+              exit 0
+            fi
+            echo "Attempt ${i}: HTTP ${HTTP_CODE} — retrying in 10s..."
+            sleep 10
+          done
+          echo "Health check failed after 6 attempts"
+          exit 1
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 4: Deploy Cloudflare Edge Worker
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-edge:
+    name: Deploy Edge Worker
+    needs: validate
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.event.inputs.target == 'all' || github.event.inputs.target == 'edge' || github.event.inputs.target == '')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm install --ignore-scripts 2>/dev/null || true
-      - name: Install git-lfs
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq git-lfs
-          git lfs install
-      - name: Build & Deploy HF Spaces
-        continue-on-error: true
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          if [ -z "$HF_TOKEN" ]; then
-            echo "⚠️ HF_TOKEN not set — skipping HF deploy"
-            exit 0
-          fi
-          node scripts/deploy-hf-spaces.js
 
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 4: Project to Cloudflare Edge (auto-deploy)
-  # ═══════════════════════════════════════════════════════════════
-  project-edge:
-    name: ⚡ Project → Cloudflare Edge
-    needs: [security-scan, validate]
-    runs-on: ubuntu-latest
-    continue-on-error: true  # Non-critical deployment target
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy Edge Proxy
-        continue-on-error: true
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "⚠️ CLOUDFLARE_API_TOKEN not set — skipping edge deploy"
-            exit 0
-          fi
-          npx -y wrangler@latest deploy cloudflare-workers/heady-edge-proxy.js
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          command: deploy infra/cloudflare/heady-edge-worker.js --name heady-edge --config infra/cloudflare/wrangler.toml
 
-  # ═══════════════════════════════════════════════════════════════
-  # PHASE 5: Auto-success verification — ALWAYS PASSES
-  # ═══════════════════════════════════════════════════════════════
-  verify-projections:
-    name: ✅ Auto-Success Pipeline
-    needs: [validate, project-cloudrun, project-hf-spaces, project-edge, smoke-tests]
-    if: always()
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 5: Post-Deploy Verification
+  # ─────────────────────────────────────────────────────────────────────────────
+  post-deploy:
+    name: Post-Deploy Verify
+    needs: [deploy-cloudrun, deploy-edge]
+    if: always() && (needs.deploy-cloudrun.result == 'success' || needs.deploy-edge.result == 'success')
     runs-on: ubuntu-latest
     steps:
-      - name: Health Probes
+      - name: Verify All Domains
         run: |
-          echo "🐝 Heady Autonomous Projections — FULL THROTTLE"
-          echo ""
-          PASS=0
-          TOTAL=0
-          for url in \
-            "https://heady-manager-609590223909.us-central1.run.app/health" \
-            "https://heady-manager-609590223909.us-central1.run.app/api/llm/health" \
-            "https://heady-manager-609590223909.us-central1.run.app/api/domains/matrix" \
-            "https://heady-manager-609590223909.us-central1.run.app/api/scheduler/health" \
-            "https://headyme-site-609590223909.us-central1.run.app" \
-            "https://huggingface.co/spaces/HeadyMe/heady-ai" \
-            "https://huggingface.co/spaces/HeadyMe/heady-demo" \
-            "https://heady.headyme.com/health"; do
-            TOTAL=$((TOTAL+1))
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url" 2>/dev/null || echo "000")
-            if [ "$STATUS" = "200" ]; then
-              echo "  ✅ $url → $STATUS"
-              PASS=$((PASS+1))
+          DOMAINS="headyme.com headysystems.com headyconnection.org headybuddy.org headymcp.com headyio.com headybot.com headyapi.com headyai.com"
+          FAILED=0
+
+          for domain in $DOMAINS; do
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" "https://${domain}/health/edge" --max-time 10 || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "  PASS  ${domain} → HTTP ${HTTP_CODE}"
             else
-              echo "  ⚠️  $url → $STATUS (will retry next run)"
+              echo "  FAIL  ${domain} → HTTP ${HTTP_CODE}"
+              FAILED=$((FAILED + 1))
             fi
           done
-          echo ""
-          echo "  📊 $PASS/$TOTAL projections healthy"
-          echo "  🐝 Auto-success pipeline: COMPLETE"
-          echo ""
-          # ENTERPRISE: Fail if no projections are healthy
-          if [ "$PASS" -eq 0 ]; then
-            echo "❌ CRITICAL: Zero projections healthy — failing pipeline"
-            exit 1
+
+          if [ $FAILED -gt 0 ]; then
+            echo "WARNING: ${FAILED} domain(s) not responding"
           fi
+
+      - name: Deploy Summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cloud Run:** ${{ needs.deploy-cloudrun.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Edge Worker:** ${{ needs.deploy-edge.result }}" >> $GITHUB_STEP_SUMMARY

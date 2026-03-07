@@ -1,0 +1,80 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Wrangler Configuration — Cloudflare Workers
+# ═══════════════════════════════════════════════════════════════════════════════
+# Deploy: wrangler deploy
+# Dev:    wrangler dev
+# Tail:   wrangler tail
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name = "heady-edge"
+main = "heady-edge-worker.js"
+compatibility_date = "2026-03-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ── Account & Zone ────────────────────────────────────────────────────────────
+# Set via environment or wrangler secrets:
+#   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID
+# account_id = ""  # Set via CLOUDFLARE_ACCOUNT_ID env var
+
+# ── Routes ────────────────────────────────────────────────────────────────────
+# Each domain routes through this single Worker
+routes = [
+  { pattern = "headyme.com/*", zone_name = "headyme.com" },
+  { pattern = "www.headyme.com/*", zone_name = "headyme.com" },
+  { pattern = "headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "www.headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "headyconnection.org/*", zone_name = "headyconnection.org" },
+  { pattern = "headybuddy.org/*", zone_name = "headybuddy.org" },
+  { pattern = "headymcp.com/*", zone_name = "headymcp.com" },
+  { pattern = "headyio.com/*", zone_name = "headyio.com" },
+  { pattern = "headybot.com/*", zone_name = "headybot.com" },
+  { pattern = "headyapi.com/*", zone_name = "headyapi.com" },
+  { pattern = "headyai.com/*", zone_name = "headyai.com" },
+]
+
+# ── Environment: Production ───────────────────────────────────────────────────
+[env.production]
+name = "heady-edge"
+routes = [
+  { pattern = "headyme.com/*", zone_name = "headyme.com" },
+  { pattern = "www.headyme.com/*", zone_name = "headyme.com" },
+  { pattern = "headysystems.com/*", zone_name = "headysystems.com" },
+  { pattern = "headyconnection.org/*", zone_name = "headyconnection.org" },
+  { pattern = "headybuddy.org/*", zone_name = "headybuddy.org" },
+  { pattern = "headymcp.com/*", zone_name = "headymcp.com" },
+  { pattern = "headyio.com/*", zone_name = "headyio.com" },
+  { pattern = "headybot.com/*", zone_name = "headybot.com" },
+  { pattern = "headyapi.com/*", zone_name = "headyapi.com" },
+  { pattern = "headyai.com/*", zone_name = "headyai.com" },
+]
+
+# ── Environment: Staging ──────────────────────────────────────────────────────
+[env.staging]
+name = "heady-edge-staging"
+routes = [
+  { pattern = "staging.headyme.com/*", zone_name = "headyme.com" },
+]
+
+# ── Vars (non-secret config) ─────────────────────────────────────────────────
+[vars]
+ENVIRONMENT = "production"
+HEADY_VERSION = "3.1.0"
+CLOUD_RUN_ORIGIN = "https://heady-manager-xxxxxxxxxx-uc.a.run.app"
+
+# ── Secrets (set via: wrangler secret put SECRET_NAME) ────────────────────────
+# Required secrets:
+#   wrangler secret put HEADY_EDGE_AUTH_TOKEN
+#   wrangler secret put ORIGIN_AUTH_HEADER
+
+# ── Observability ─────────────────────────────────────────────────────────────
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+head_sampling_rate = 1   # 100% log sampling in production
+
+# ── Limits ────────────────────────────────────────────────────────────────────
+# Workers Paid plan limits
+# CPU time: 50ms (standard), request size: 100MB
