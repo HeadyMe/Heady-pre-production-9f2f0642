@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-heady-ui="dashboard-hub">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Heady Dashboard Hub</title>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --sf: #111827;
+            --bd: #1e293b;
+            --tx: #e2e8f0;
+            --mt: #94a3b8;
+            --ac: #00d4aa
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--tx);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        .hd {
+            padding: 24px 32px;
+            text-align: center
+        }
+
+        .hd h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--ac), #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .hd p {
+            color: var(--mt);
+            margin-top: 6px;
+            font-size: 14px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 0 32px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%
+        }
+
+        .card {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--tx);
+            transition: all .25s;
+            cursor: pointer
+        }
+
+        .card:hover {
+            border-color: var(--ac);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 212, 170, .1)
+        }
+
+        .card .icon {
+            font-size: 36px
+        }
+
+        .card h2 {
+            font-size: 17px;
+            font-weight: 600
+        }
+
+        .card p {
+            font-size: 13px;
+            color: var(--mt);
+            line-height: 1.5
+        }
+
+        .card .tag {
+            display: inline-block;
+            background: rgba(0, 212, 170, .1);
+            color: var(--ac);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: auto
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hd">
+        <h1>Heady Dashboard Hub</h1>
+        <p>All operational dashboards — real-time monitoring, analytics, and control</p>
+    </div>
+    <div class="grid">
+        <a class="card" href="logic-visualizer.html">
+            <div class="icon">🔮</div>
+            <h2>Logic Visualizer</h2>
+            <p>CSL gate monitor, pipeline flow, bee swarm health, vector memory, model council, event stream</p>
+            <span class="tag">LIVE</span>
+        </a>
+        <a class="card" href="pilot-usage.html">
+            <div class="icon">📊</div>
+            <h2>Pilot Usage Dashboard</h2>
+            <p>API invocations, latency, errors, costs, tool distribution, service health matrix</p>
+            <span class="tag">PILOT</span>
+        </a>
+        <a class="card" href="executive-dashboard.html">
+            <div class="icon">⚡</div>
+            <h2>Executive Dashboard</h2>
+            <p>Valuation, growth trajectory, onboarding funnel, activity heatmap, IP portfolio</p>
+            <span class="tag">EXECUTIVE</span>
+        </a>
+        <a class="card" href="admin-portal.html">
+            <div class="icon">🛡</div>
+            <h2>Admin Portal</h2>
+            <p>23-service health grid, 20-agent swarm, audit log, security controls</p>
+            <span class="tag">ADMIN</span>
+        </a>
+        <a class="card" href="../spatial-debugger.html">
+            <div class="icon">🌌</div>
+            <h2>Spatial Debugger</h2>
+            <p>3D vector space visualization, octree inspector, embedding explorer</p>
+            <span class="tag">DEV</span>
+        </a>
+        <a class="card" href="../generative-engine.html">
+            <div class="icon">🎨</div>
+            <h2>Generative UI Engine</h2>
+            <p>AI-powered component generation from natural language descriptions</p>
+            <span class="tag">AI</span>
+        </a>
+    </div>
+</body>
+
+</html>

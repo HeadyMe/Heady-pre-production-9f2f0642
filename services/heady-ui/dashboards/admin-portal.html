@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-heady-ui="admin-portal">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Heady Admin Portal — Service Health + Agent Swarm</title>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --sf: #111827;
+            --bd: #1e293b;
+            --tx: #e2e8f0;
+            --mt: #94a3b8;
+            --ac: #00d4aa;
+            --wr: #f59e0b;
+            --dg: #ef4444
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--tx)
+        }
+
+        .nav {
+            padding: 14px 24px;
+            background: rgba(17, 24, 39, .9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--bd);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100
+        }
+
+        .nav h1 {
+            font-size: 18px;
+            font-weight: 700
+        }
+
+        .nav .tabs {
+            display: flex;
+            gap: 4px
+        }
+
+        .nav .tab {
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--mt);
+            transition: all .2s
+        }
+
+        .nav .tab.active {
+            background: rgba(0, 212, 170, .15);
+            color: var(--ac)
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            padding: 20px
+        }
+
+        .svc {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            padding: 14px;
+            transition: all .2s;
+            cursor: pointer
+        }
+
+        .svc:hover {
+            border-color: var(--ac);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 212, 170, .08)
+        }
+
+        .svc .name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .svc .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--mt)
+        }
+
+        .svc .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%
+        }
+
+        .svc .dot.ok {
+            background: var(--ac)
+        }
+
+        .svc .dot.warn {
+            background: var(--wr)
+        }
+
+        .svc .dot.err {
+            background: var(--dg)
+        }
+
+        .svc .meta {
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--mt)
+        }
+
+        .section {
+            padding: 0 20px 20px
+        }
+
+        .section h2 {
+            font-size: 14px;
+            color: var(--mt);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding-top: 20px
+        }
+
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px
+        }
+
+        .agent {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center
+        }
+
+        .agent .icon {
+            font-size: 24px;
+            margin-bottom: 6px
+        }
+
+        .agent .aname {
+            font-size: 12px;
+            font-weight: 600
+        }
+
+        .agent .arole {
+            font-size: 10px;
+            color: var(--mt);
+            margin-top: 2px
+        }
+
+        .log-strip {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            padding: 14px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px
+        }
+
+        .log-strip div {
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(30, 41, 59, .5)
+        }
+
+        .log-strip .ts {
+            color: var(--mt);
+            margin-right: 8px
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav">
+        <h1>🛡 Admin Portal</h1>
+        <div class="tabs">
+            <span class="tab active" onclick="show('services')">Services</span>
+            <span class="tab" onclick="show('agents')">Agents</span>
+            <span class="tab" onclick="show('logs')">Audit</span>
+            <span class="tab" onclick="show('security')">Security</span>
+        </div>
+    </nav>
+    <div id="services">
+        <div class="section">
+            <h2>Service Health Grid</h2>
+        </div>
+        <div class="grid" id="svcGrid"></div>
+    </div>
+    <div id="agents" style="display:none">
+        <div class="section">
+            <h2>AI Agent Swarm (20 Nodes)</h2>
+            <div class="agent-grid" id="agentGrid"></div>
+        </div>
+    </div>
+    <div id="logs" style="display:none">
+        <div class="section">
+            <h2>Audit Log</h2>
+            <div class="log-strip" id="auditLog"></div>
+        </div>
+    </div>
+    <div id="security" style="display:none">
+        <div class="section">
+            <h2>Security Controls</h2>
+            <div class="grid" id="secGrid"></div>
+        </div>
+    </div>
+    <script>
+        const SVCS = ['heady-api-gateway', 'heady-mcp-server', 'heady-ai-router', 'heady-cloud', 'heady-me-web', 'heady-buddy', 'heady-os-kernel', 'heady-io', 'heady-systems-hub', 'heady-connection', 'heady-conductor', 'heady-onboarding', 'heady-battle', 'heady-infer', 'heady-embed', 'heady-deploy', 'heady-research', 'heady-coder', 'heady-memory', 'heady-soul', 'heady-vinci', 'heady-ui', 'heady-redis-pool'];
+        const AGENTS = ['HeadyBuddy', 'HeadyCoder', 'HeadyCopilot', 'HeadyRefactor', 'HeadyResearch', 'HeadyDeploy', 'HeadyOps', 'HeadyHealth', 'HeadyMaid', 'HeadyAnalyze', 'HeadyRisks', 'HeadyPatterns', 'HeadyMemory', 'HeadyEmbed', 'HeadySoul', 'HeadyVinci', 'HeadyBattle', 'HeadyMC', 'HeadyDecomp', 'HeadySims'];
+        const ICONS = ['🤖', '💻', '🔧', '♻️', '🔍', '🚀', '⚙️', '💊', '🧹', '📊', '⚡', '🔮', '🧠', '📐', '👻', '🎨', '⚔️', '🎲', '🔬', '🎮'];
+        document.getElementById('svcGrid').innerHTML = SVCS.map(s => { const ok = Math.random() > .08; const st = ok ? (Math.random() > .3 ? 'ok' : 'warn') : 'err'; const ms = (Math.random() * 100 + 5).toFixed(0); return `<div class="svc"><div class="name">${s}</div><div class="status"><span class="dot ${st}"></span>${st === 'ok' ? 'Healthy' : st === 'warn' ? 'Degraded' : 'Down'}</div><div class="meta">${ms}ms · ${Math.floor(Math.random() * 5000)} reqs/h</div></div>` }).join('');
+        document.getElementById('agentGrid').innerHTML = AGENTS.map((a, i) => `<div class="agent"><div class="icon">${ICONS[i]}</div><div class="aname">${a}</div><div class="arole">${['idle', 'active', 'busy'][Math.floor(Math.random() * 3)]}</div></div>`).join('');
+        const LOGS = ['Service heady-api-gateway health check OK', 'Agent HeadyCoder completed task #4721', 'Rate limiter adjusted for heady-mcp-server', 'Deployment heady-web v3.2.1 complete', 'Security scan: 0 vulnerabilities found', 'Bee swarm consensus reached φ=1.618', 'Redis pool rebalanced: 12 connections', 'CSL gate evaluation cycle #884 complete'];
+        document.getElementById('auditLog').innerHTML = LOGS.map(l => { const t = new Date(Date.now() - Math.random() * 3600000); return `<div><span class="ts">${t.toLocaleTimeString('en', { hour12: false })}</span>${l}</div>` }).join('');
+        const SEC = ['WAF Rules', 'CORS Policies', 'Rate Limiters', 'JWT Validation', 'API Key Rotation', 'TLS Certificates', 'Secrets Vault', 'Audit Trail'];
+        document.getElementById('secGrid').innerHTML = SEC.map(s => `<div class="svc"><div class="name">${s}</div><div class="status"><span class="dot ok"></span>Active</div></div>`).join('');
+        function show(id) { ['services', 'agents', 'logs', 'security'].forEach(s => { document.getElementById(s).style.display = s === id ? 'block' : 'none'; document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase().startsWith(id.substring(0, 3)))) }) }
+    </script>
+</body>
+
+</html>
