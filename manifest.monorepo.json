@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "drive_id": "ef703b75-265b-4114-8814-85c369634e06",
+  "name": "heady-monorepo",
+  "description": "Heady AI Platform monorepo — complete with all 478+ JS modules, configs, CI/CD",
+  "tags": [
+    "heady",
+    "monorepo",
+    "nodejs",
+    "ai-platform",
+    "bees",
+    "routes",
+    "services",
+    "ci-cd"
+  ],
+  "created_at": "2026-03-07T08:22:42.668758+00:00",
+  "updated_at": "2026-03-07T08:42:01.169246+00:00",
+  "parent_project": null,
+  "sessions": [
+    {
+      "session_id": "3ef4fe35-a272-4beb-ad5d-3eb42b37dd17/subagents/build_heady_core_infrastructure_resilience_memory_20260307_081236",
+      "timestamp": "2026-03-07T08:22:42.668758+00:00",
+      "summary": "Built the Heady monorepo from the fetched source. Created all required layers: root files (package.json with all deps, Dockerfile, docker-compose, .env.example, README), src/core/ (heady-server, heady-yaml, heady-env — all new, fully functional), src/bootstrap/ (all 11 phase modules copied and fixed), src/config/ (5 files), src/resilience/ (8 files — circuit breaker, phi-backoff, pool, rate-limiter, cache, retry, auto-heal, index), src/memory/ (11 files + core/semantic-logic, utils/logger, telemetry shims), src/utils/ (standalone logger, full redis-pool with Upstash/ioredis/null fallback), src/lifecycle/ (graceful-shutdown, error-pipeline-bridge), db/schema.sql (PostgreSQL with pgvector). All 60 files pass syntax checks and functional tests."
+    },
+    {
+      "session_id": "3ef4fe35-a272-4beb-ad5d-3eb42b37dd17/subagents/build_heady_orchestration_mcp_intelligence_providers_20260307_082346",
+      "timestamp": "2026-03-07T08:29:25.773743+00:00",
+      "summary": "Built orchestration (27 files), MCP (11+1 tools file), intelligence (17 files), providers (4 files), auth (11 files), pipeline+hcfp (6 files), plus root-level src files. Fixed all broken require() paths, converted ESM exports to CJS, created missing core modules (heady-jwt, heady-kv, heady-duck, heady-model-bridge, policy-service, colab-runtime), added missing config stubs (headybee-template-scenarios.json, heady-mcp-tools.js). Total: 156 JS files in monorepo. Zero stubs/TODOs in business logic."
+    },
+    {
+      "session_id": "3ef4fe35-a272-4beb-ad5d-3eb42b37dd17/subagents/build_heady_bees_routes_services_remaining_modules_20260307_083026",
+      "timestamp": "2026-03-07T08:42:01.169246+00:00",
+      "summary": "Added all remaining Heady modules: 59 bees, 52 routes, 77 services, 10 middleware, 11 security, 9 observability, plus connectors/context-weaver/governance/projection/protocols/runtime/edge/creative/autonomy/ops/hive/lib/shared/agents/headycoin/onboarding/integrations/api/models/monitoring. Fixed all broken require paths (heady-fetch→node-fetch, heady-hive-sdk try/catch fallbacks, wrong relative paths). Created 7 missing stubs (secret-rotation, heady-scheduler, vector-secrets-vault, hc_secrets_manager, site-renderer, apex-risk-agent, cloud-orchestrator). Added 8 config files (HeadySwarmMatrix.json, heady-registry.json, hcfullpipeline.json, mcp-governance.yml, otel-config.yml, canary.yml, bundles.yml, heady-prompt-library.json). Created 3 GitHub Actions workflows (ci.yml, deploy.yml, security-scan.yml). Fixed socratic-service.js duplicate variable syntax error. Zero syntax errors across all 478 JS files."
+    }
+  ]
+}

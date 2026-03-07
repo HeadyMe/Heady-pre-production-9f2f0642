@@ -1,0 +1,63 @@
+# OpenTelemetry Configuration
+# Heady AI Platform — Distributed tracing, metrics, logs
+
+version: "0.1"
+service:
+  name: "heady-systems"
+  version: "3.1.0"
+  environment: "${NODE_ENV:-production}"
+
+exporters:
+  traces:
+    otlp:
+      endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4318/v1/traces}"
+      headers:
+        authorization: "Bearer ${OTEL_API_KEY}"
+      timeoutMs: 10000
+    console:
+      enabled: "${OTEL_CONSOLE_TRACES:-false}"
+
+  metrics:
+    otlp:
+      endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4318/v1/metrics}"
+      intervalMs: 15000
+    prometheus:
+      enabled: true
+      port: 9090
+      path: "/metrics"
+
+  logs:
+    otlp:
+      endpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4318/v1/logs}"
+    console:
+      enabled: "${OTEL_CONSOLE_LOGS:-true}"
+
+instrumentation:
+  http:
+    enabled: true
+    ignoreRoutes: ["/health/live", "/health/ready", "/metrics"]
+  express:
+    enabled: true
+  pg:
+    enabled: true
+  redis:
+    enabled: true
+  grpc:
+    enabled: false
+
+sampling:
+  type: "parentbased_traceidratio"
+  ratio: "${OTEL_SAMPLE_RATE:-0.1}"
+  alwaysSampleRoutes:
+    - "/api/pipeline"
+    - "/api/brain/chat"
+    - "/api/conductor"
+
+resource:
+  attributes:
+    "service.name": "heady-systems"
+    "service.version": "3.1.0"
+    "deployment.environment": "${NODE_ENV:-production}"
+    "heady.phi": "1.6180339887"
+    "cloud.provider": "google-cloud-run"
+    "cloud.region": "${CLOUD_RUN_REGION:-us-central1}"

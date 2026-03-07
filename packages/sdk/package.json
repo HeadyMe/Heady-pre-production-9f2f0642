@@ -1,5 +1,5 @@
 {
-  "name": "@heady/sdk",
+  "name": "@headyme/sdk",
   "version": "3.2.0",
   "description": "TypeScript client SDK for the Heady AI Platform — MCP tool calls, vector memory operations, and health checks.",
   "main": "dist/index.js",
@@ -20,7 +20,7 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@heady/core": "^3.2.0"
+    "@headyme/core": "^3.2.0"
   },
   "license": "UNLICENSED",
   "author": {

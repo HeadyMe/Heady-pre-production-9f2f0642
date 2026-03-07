@@ -1,0 +1,93 @@
+# MCP Governance Policy Configuration
+# Heady MCP Server — Tool access control and rate limiting
+
+version: "1.0"
+service: "heady-mcp"
+
+policies:
+  global:
+    requireAuth: true
+    rateLimiting:
+      windowMs: 60000
+      maxRequests: 100
+    audit:
+      enabled: true
+      logLevel: "info"
+      retentionDays: 90
+
+  tools:
+    heady_chat:
+      access: ["user", "admin", "service"]
+      rateLimit: { windowMs: 60000, max: 50 }
+      maxTokens: 8192
+      models: ["claude-sonnet", "gpt-4o", "gemini-pro"]
+
+    heady_analyze:
+      access: ["user", "admin", "service"]
+      rateLimit: { windowMs: 60000, max: 20 }
+      maxTokens: 16384
+
+    heady_embed:
+      access: ["user", "admin", "service"]
+      rateLimit: { windowMs: 60000, max: 100 }
+      batchSize: 100
+
+    heady_code:
+      access: ["admin", "service"]
+      rateLimit: { windowMs: 60000, max: 10 }
+      requireApproval: false
+      sandboxed: true
+
+    heady_deploy:
+      access: ["admin"]
+      rateLimit: { windowMs: 3600000, max: 5 }
+      requireApproval: true
+      approvers: ["governance-engine"]
+
+    heady_vector_store:
+      access: ["user", "admin", "service"]
+      rateLimit: { windowMs: 60000, max: 200 }
+
+    heady_research:
+      access: ["user", "admin", "service"]
+      rateLimit: { windowMs: 60000, max: 10 }
+      maxDepth: "deep"
+
+    heady_pipeline:
+      access: ["admin", "service"]
+      rateLimit: { windowMs: 60000, max: 5 }
+      requireApproval: false
+
+  rbac:
+    roles:
+      user:
+        permissions: ["read", "chat", "embed", "search"]
+      admin:
+        permissions: ["read", "write", "chat", "embed", "search", "deploy", "configure"]
+        inherits: ["user"]
+      service:
+        permissions: ["read", "write", "chat", "embed", "search", "pipeline"]
+        inherits: ["user"]
+
+  security:
+    pqc:
+      enabled: true
+      algorithm: "kyber-1024"
+    mtls:
+      enabled: false
+      certPath: "/certs/server.crt"
+      keyPath: "/certs/server.key"
+    ipClassification:
+      enabled: true
+      blockTor: false
+      logSuspicious: true
+
+  compliance:
+    gdpr:
+      enabled: true
+      dataRetentionDays: 365
+      anonymizeOnDelete: true
+    auditLog:
+      enabled: true
+      signReceipts: true
+      storageBackend: "neon-postgres"

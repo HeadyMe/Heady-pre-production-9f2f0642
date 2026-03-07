@@ -44,7 +44,7 @@ export class HeadyOrchestrator {
         for (const pool of RESOURCE_POOLS) scores[pool] = 0;
 
         for (let i = 0; i < SIMS; i++) {
-            let bestPool = RESOURCE_POOLS[0];
+            let bestPool: ResourcePool = RESOURCE_POOLS[0];
             let bestScore = -Infinity;
 
             for (const pool of RESOURCE_POOLS) {

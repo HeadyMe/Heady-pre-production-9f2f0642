@@ -1,0 +1,104 @@
+# Compliance Policy Bundles
+# Heady AI Platform — GDPR, CCPA, SOC2, HIPAA-adjacent policies
+
+version: "1.0"
+service: "heady-systems"
+updated: "2026-03-07"
+
+bundles:
+  gdpr:
+    enabled: true
+    description: "EU General Data Protection Regulation compliance"
+    policies:
+      - id: "gdpr-consent"
+        name: "Explicit Consent Collection"
+        required: true
+        implementation: "src/middleware/auth-rbac.js"
+
+      - id: "gdpr-retention"
+        name: "Data Retention Limits"
+        required: true
+        retentionDays: 365
+        anonymizeOnExpiry: true
+
+      - id: "gdpr-right-to-delete"
+        name: "Right to Erasure"
+        required: true
+        endpoint: "DELETE /api/user/data"
+
+      - id: "gdpr-portability"
+        name: "Data Portability"
+        required: true
+        endpoint: "GET /api/user/export"
+
+      - id: "gdpr-breach-notification"
+        name: "72-Hour Breach Notification"
+        required: true
+        timeoutHours: 72
+
+  ccpa:
+    enabled: true
+    description: "California Consumer Privacy Act compliance"
+    policies:
+      - id: "ccpa-opt-out"
+        name: "Opt-Out of Data Sale"
+        required: true
+        endpoint: "POST /api/user/opt-out"
+
+      - id: "ccpa-disclosure"
+        name: "Data Collection Disclosure"
+        required: true
+        implementation: "src/middleware/security-headers.js"
+
+  soc2:
+    enabled: true
+    description: "SOC 2 Type II readiness"
+    trustServiceCriteria:
+      security: true
+      availability: true
+      processingIntegrity: true
+      confidentiality: true
+      privacy: true
+    controls:
+      - id: "cc6.1"
+        name: "Logical Access Controls"
+        implementation: "src/security/rbac-vendor.js"
+      - id: "cc6.6"
+        name: "Vulnerability Management"
+        implementation: "src/security/code-governance.js"
+      - id: "cc7.2"
+        name: "System Monitoring"
+        implementation: "src/observability/system-monitor.js"
+      - id: "cc9.1"
+        name: "Risk Mitigation"
+        implementation: "src/resilience/circuit-breaker.js"
+
+  pqc:
+    enabled: true
+    description: "Post-Quantum Cryptography readiness"
+    algorithms:
+      keyEncapsulation: "kyber-1024"
+      digitalSignature: "dilithium-3"
+      hash: "sha3-512"
+    timeline:
+      assessment: "2026-Q1"
+      migration: "2026-Q3"
+      fullDeployment: "2027-Q1"
+
+auditLog:
+  enabled: true
+  backend: "neon-postgres"
+  table: "heady_audit_log"
+  signReceipts: true
+  signingAlgorithm: "ed25519"
+  retentionDays: 2555
+  fields:
+    - timestamp
+    - userId
+    - sessionId
+    - action
+    - resource
+    - outcome
+    - ipAddress
+    - userAgent
+    - requestId

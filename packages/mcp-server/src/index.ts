@@ -17,6 +17,7 @@ export interface MCPResponse {
 export class MCPServer {
   private memoryStore = new VectorMemoryStore();
   private tools = new Map<string, Function>();
+  private startTime = Date.now();
 
   constructor() {
     this.registerTools();
@@ -41,12 +42,15 @@ export class MCPServer {
       return this.memoryStore.getStats(userId);
     });
 
-    this.tools.set('server.health', () => ({
-      status: 'healthy',
-      version: '3.2.0',
-      uptime: process.uptime(),
-      timestamp: Date.now()
-    }));
+    this.tools.set('server.health', () => {
+      const uptimeMs = Date.now() - this.startTime;
+      return {
+        status: 'healthy',
+        version: '3.2.0',
+        uptime: uptimeMs / 1000,
+        timestamp: Date.now()
+      };
+    });
   }
 
   async handleRequest(request: MCPRequest): Promise<MCPResponse> {
