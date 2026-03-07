@@ -1,0 +1,7 @@
+{
+  "user_description": "Reading the HeadyMe GitHub organization page",
+  "url": "https://github.com/HeadyMe",
+  "force_fetch": true,
+  "prompt": "Summarize the organization repositories visible on the page, focusing on heady-production and other core repos relevant to QA, orchestration, security, resilience, MCP, memory, and deployment. Include repository URLs.",
+  "max_length": 20000
+}

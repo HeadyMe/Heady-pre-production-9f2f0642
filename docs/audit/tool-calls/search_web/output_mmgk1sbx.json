@@ -1,0 +1,87 @@
+{
+  "images": [],
+  "is_error": false,
+  "is_partial": false,
+  "results": [
+    {
+      "title": "Configure Windsurf to Use 100% Heady Services as Default Model ...",
+      "url": "https://github.com/HeadyMe/Heady-pre-production/issues/43",
+      "domain": "github.com",
+      "snippet": "Configure the .windsurf/ directory to ensure Windsurf IDE uses Heady services exclusively for all AI operations, making Heady the default model and routing all ...",
+      "date": null,
+      "summary": "Configure the .windsurf/ directory to ensure Windsurf IDE uses Heady services exclusively for all AI operations, making Heady the default model and routing all ..."
+    },
+    {
+      "title": "Moment.js - GitHub",
+      "url": "https://github.com/moment/moment",
+      "domain": "GitHub",
+      "snippet": "A JavaScript date library for parsing, validating, manipulating, and formatting dates. Project Status. Moment.js is a legacy project, now in maintenance mode.",
+      "date": "2011-03-01T00:00:00",
+      "summary": "A JavaScript date library for parsing, validating, manipulating, and formatting dates.\n## Project Status\nMoment.js is a legacy project, now in maintenance mode.\nIn most cases, you should choose a different library.\n...\nMoment.js is freely distributable under the terms of the MIT license.\n## About\nParse, validate, manipulate, and display dates in javascript.\nmomentjs.com"
+    },
+    {
+      "title": "Python bindings for the cross-platform MIDI I/O library RtMidi - GitHub",
+      "url": "https://github.com/SpotlightKid/python-rtmidi",
+      "domain": "GitHub",
+      "snippet": "RtMidi is a set of C++ classes which provides a concise and simple, cross-platform API (Application Programming Interface) for realtime MIDI input / output ...",
+      "date": "2015-06-24T00:00:00",
+      "summary": "A Python binding for the RtMidi C++ library implemented using Cython.\n...\npython-rtmidi is a Python binding for RtMidi implemented using Cython and provides a thin wrapper around the RtMidi C++ interface.\n...\nThe source code repository and issue tracker are hosted on GitHub:\nhttps://github.com/SpotlightKid/python-rtmidi.\n## Usage example\n...\nPython bindings for the cross-platform MIDI I/O library RtMidi\nspotlightkid.github.io/python-rtmidi/\n### Topics"
+    },
+    {
+      "title": "mido: MIDI Objects for Python - GitHub",
+      "url": "https://github.com/mido/mido",
+      "domain": "GitHub",
+      "snippet": "includes programs for playing MIDI files, listing ports and serving and forwarding ports over a network. Status. 1.3 is the fourth stable release. This project ...",
+      "date": "2013-06-23T00:00:00",
+      "summary": "Mido is a library for working with MIDI messages and ports:\n```\n>>> import mido\n...\nFull documentation at https://mido.readthedocs.io/\n...\nMido requires Python 3.7 or higher.\n## Installing\n```\npython3 -m pip install mido\n```\nOr, alternatively, if you want to use ports with the default backend:\n```\npython3 -m pip install mido[ports-rtmidi]\n```\nSee\n```\ndocs/backends/\n```\nfor other backends.\n## Source Code\nhttps://github.com/mido/mido/\n## License\nMido is released under the terms of the MIT license.\n## Questions and suggestions"
+    },
+    {
+      "title": "CSS stringifier using the AST from 'css.parse' - GitHub",
+      "url": "https://github.com/reworkcss/css-stringify",
+      "domain": "GitHub",
+      "snippet": "REPOSITORIES. Topics · Trending · Collections. Enterprise. ENTERPRISE SOLUTIONS ... @HeadyMe; @johndohoneyjr; @3Samourai; @Igor3007; @DevCloudNinjas; @sudonym-btc.",
+      "date": "2012-07-19T00:00:00",
+      "summary": "css-stringify JavaScript CSS stringifier for Node.js (exports the stringify method of css) Installation $ npm install css-stringify Usage Please see the css module documentation.\nLicense MIT"
+    },
+    {
+      "title": "malept/cross-spawn-promise - GitHub",
+      "url": "https://github.com/malept/cross-spawn-promise",
+      "domain": "GitHub",
+      "snippet": "A promisified version of cross-spawn with slightly different behavior & extra options. - malept/cross-spawn-promise.",
+      "date": "2020-02-04T00:00:00",
+      "summary": "tidelift.com/funding/github/**npm/@malept/cross-spawn-promise**\n...\nA promisified version of\n```\ncross-spawn\n```\nwith slightly different behavior & extra options.\n## Different Behavior\n...\nExitCodeError\n...\nis thrown with the original\ncommand, code,\n...\nstdout\n...\n, and\n```\nstderr\n...\nIf the spawned process is terminated by a signal on non-Windows platforms, an\n...\nExitSignalError\n...\nThis module is licensed under the Apache 2.0 license.\n## About\nA promisified version of cross-spawn with slightly different behavior & extra options.\nnpm.im/@malept/cross-spawn-promise"
+    },
+    {
+      "title": "GoogleChrome/chrome-launcher: Launch Google Chrome ... - GitHub",
+      "url": "https://github.com/GoogleChrome/chrome-launcher",
+      "domain": "GitHub",
+      "snippet": "Launch Google Chrome with ease from node. Contribute to GoogleChrome/chrome-launcher development by creating an account on GitHub.",
+      "date": "2017-08-29T00:00:00",
+      "summary": "GoogleChrome / **\nchrome-launcher ** Public\n# GoogleChrome/chrome-launcher\n...\nLaunch Google Chrome with ease from node.\nwww.npmjs.com/package/chrome-launcher\n### Resources\n...\nApache-2.0 license"
+    },
+    {
+      "title": "GitHub - mozilla/web-ext: A command line tool to help build, run, and ...",
+      "url": "https://github.com/mozilla/web-ext",
+      "domain": "GitHub",
+      "snippet": "This is a command line tool to help build, run, and test WebExtensions. CircleCI codecov npm version. Ultimately, it aims to support browser extensions in a ...",
+      "date": "2016-02-01T00:00:00",
+      "summary": "This is a command line tool to help build, run, and test\nWebExtensions.\nUltimately, it aims to support browser extensions in a standard, portable,\ncross-platform way.\nInitially, it will provide a streamlined experience for developing\nFirefox Extensions.\n...\nYou can install this command onto your machine globally with:\n```\nnpm install --global web-ext\n...\nnpm install --save-dev web-ext\n...\nweb-ext\n...\nfrom npm,\nyou may need to uninstall it first:\n```\nnpm uninstall --global web-ext\n```\n…\n```\ngit clone https://github.com/mozilla/web-ext.git\ncd web-ext\nnpm ci\n```\n…\n```\nnpm run build\n```\n…\n```\nnpm link\n```\nYou can now run it from any directory:\n```\nweb-ext --help\n```\nTo get updates, just pull changes and rebuild the executable. You don't\nneed to relink it.\n```\ncd /path/to/web-ext\ngit pull\nnpm run build\n```\n…\n## Get Involved\nHi! This tool is under active development. To get involved you can watch the repo,\nfile issues, create pull requests, or\ncontact us to ask a question. Read the contributing section for how to develop new features.\n…\n## About\nA command line tool to help build, run, and test web extensions\n### Topics"
+    },
+    {
+      "title": "malgorithms/toffee: a NodeJS and browser templating ... - GitHub",
+      "url": "https://github.com/malgorithms/toffee",
+      "domain": "GitHub",
+      "snippet": "Toffee is a templating language, based on the simplicity and beauty of CoffeeScript. Newest feature: Toffee has many cool features.",
+      "date": null,
+      "summary": "/ toffee Public\na NodeJS and browser templating language based on coffeescript, with the slickest syntax ever\nLicense\nmalgorithms/toffee\nThis commit does not belong to any branch on this repository, and may belong to a fork outside of the repository."
+    },
+    {
+      "title": "chadxz/imap-simple - GitHub",
+      "url": "https://github.com/chadxz/imap-simple",
+      "domain": "GitHub",
+      "snippet": "This library is no longer maintained and has been archived. A library providing a simpler interface for common use cases of node-imap, ...",
+      "date": "2021-06-01T00:00:00",
+      "summary": "This repository was archived by the owner on Jun 1, 2021.\nIt is now read-only.\nchadxz / **\n...\n**This library is no longer maintained and has been archived.**\nA library providing a simpler interface for common use cases of node-imap, a robust imap client for node.js.\n...\n- **connect**(<*object*> options, [<*function*> callback]) - *Promise* - Main entry point.\nConnect to an Imap server.\nUpon successfully connecting to the Imap server, either calls the provided callback with signature\n…\n, where\n...\nis an instance of *ImapSimple*.\nIf the connection times out, either the callback will be called with the\n...\nSee CONTRIBUTING.md for more details about contributing."
+    }
+  ]
+}

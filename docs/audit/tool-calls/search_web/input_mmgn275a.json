@@ -1,0 +1,11 @@
+{
+  "user_description": "Looking up current HeadyMe organization and production repo pages",
+  "queries": [
+    "HeadyMe GitHub organization heady-production",
+    "site:github.com/HeadyMe heady-production repository",
+    "site:github.com/HeadyMe repositories"
+  ],
+  "allowed_domains": [
+    "github.com"
+  ]
+}

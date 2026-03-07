@@ -1,0 +1,11 @@
+{
+  "user_description": "Searching for repository references tied to Jest configuration in Heady repos",
+  "queries": [
+    "HeadyMe headyos-core jest.config.js",
+    "HeadyMe Heady-pre-production tests jest",
+    "HeadyMe headysystems-core pnpm-workspace"
+  ],
+  "allowed_domains": [
+    "github.com"
+  ]
+}

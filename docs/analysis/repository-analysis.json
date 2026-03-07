@@ -1,0 +1,99 @@
+{
+  "repository": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642",
+  "files": [
+    {
+      "path": "jest.config.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/jest.config.js",
+      "summary": "Jest configuration using phi-based (golden ratio φ=1.618) dynamic coverage thresholds instead of arbitrary fixed values. Implements tiered coverage requirements: Tier 1 (Critical) 100%, Tier 2 (Important) ~89%, Tier 3 (Standard) ~78.6%, Tier 4 (Emerging) ~61.8%. Timeout scales with phi (base 10s * φ ≈ 16.18s). Covers multiple source directories including orchestration, MCP, services, core, routing, resilience, VSA, and intelligence modules. Includes module name mapping for @heady/* packages."
+    },
+    {
+      "path": "package.json",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/package.json",
+      "summary": "Main package manifest for Heady™ AI Platform v3.2.2 - An autonomous multi-agent AI operating system with 20 specialized intelligence nodes, federated liquid routing, and post-quantum security. Extensive npm scripts for MCP server management, testing, deployment, health checks, vector operations, and battle/swarm orchestration. Dependencies include @modelcontextprotocol/sdk and Octokit. HeadyCore section lists 12 custom modules (heady-fetch, heady-env, heady-yaml, heady-jwt, heady-crypt, heady-scheduler, heady-model-bridge, heady-kv, heady-neon, heady-server, heady-duck) replacing 23+ standard npm packages including Express, Redis, PostgreSQL, OpenAI SDK, and more."
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/pnpm-workspace.yaml",
+      "summary": "PNPM workspace configuration defining monorepo structure with three package groups: packages/*, apps/*, and workers/*. Enables shared dependency management across the multi-package architecture."
+    },
+    {
+      "path": "src/resilience/circuit-breaker.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/resilience/circuit-breaker.js",
+      "summary": "Netflix Hystrix-inspired circuit breaker implementation with three states: CLOSED → OPEN → HALF_OPEN. Features configurable failure/success thresholds, timeout-based recovery, and comprehensive metrics tracking (totalCalls, totalFailures, totalSuccesses). Includes Bulkhead pattern for concurrency limiting with configurable max concurrent executions. Provides global registry for circuit breakers and status retrieval. Used for resilient service-to-service communication with fail-fast behavior when services are degraded."
+    },
+    {
+      "path": "src/security/rbac-manager.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/security/rbac-manager.js",
+      "summary": "Role-Based Access Control (RBAC) manager for MCP tool execution with JWT-based authentication. Implements bitmask capability system (FILE_READ/WRITE, NETWORK_READ/WRITE, DATABASE_READ/WRITE, SYSTEM_EXEC, SECRET_ACCESS) and hierarchical role inheritance (admin > operator > developer > viewer). Supports multiple JWT vendors (Auth0, Clerk, Firebase Auth, OIDC, Heady native) with adapter pattern. Features tool-level permission overrides, CSL-gated graceful degradation, and phi-scaled JWT cache (TTL: fib(7)*1000 = 13s, max entries: fib(16) = 987). Includes cache pruning strategy removing fib(8) = 21 oldest entries when full."
+    },
+    {
+      "path": "src/security/zero-trust-sandbox.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/security/zero-trust-sandbox.js",
+      "summary": "Zero-trust MCP execution sandbox with capability-based ACL enforcement. Implements bitmask capability model (8-bit: FILE, NETWORK, DATABASE, SYSTEM, SECRET) and phi-scaled tool profiles with timeouts (fib(6-9) * 1000ms). Resource limits include maxMemoryMB: fib(8)=21MB, maxCpuTimeMs: fib(8)*1000=21s, maxNetworkBytes: fib(16)*1024≈987KB, maxOutputBytes: fib(14)*1024≈377KB. Tracks user violations with automatic lockout after fib(5)=5 violations. Executes tools via JSON-RPC 2.0 to upstream MCP servers with comprehensive resource tracking and execution logging. Includes custom SandboxViolation error type for security events."
+    },
+    {
+      "path": "src/gateway/mcp-gateway.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/gateway/mcp-gateway.js",
+      "summary": "Central MCP gateway orchestrating full security pipeline: Rate Limiter → CSL Router → Connection Pool → Zero-Trust Sandbox → Upstream MCP → Output Scanner → Audit Logger. Implements 3-tier CSL (Continuous Semantic Logic) routing: (1) Namespace prefix match, (2) Cosine similarity with MEDIUM threshold ≈0.809, (3) Phi-weighted round-robin fallback. Features semantic deduplication, phi-scaled parameters (maxConcurrent: fib(7)=13, timeout: fib(7)*1000=13s), comprehensive metrics tracking (blockedByRateLimit, blockedByValidation, blockedByRBAC, sandboxViolations, redactedOutputs, avgLatencyMs), and EventEmitter-based lifecycle management with graceful shutdown. Integrates RBAC, input validation, output scanning, and audit chain verification."
+    },
+    {
+      "path": "src/gateway/connection-pool.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/gateway/connection-pool.js",
+      "summary": "Multi-transport MCP connection pool manager supporting four transport types: Streamable HTTP (2025 spec), Legacy SSE (2024 spec), WebSocket (full-duplex), and stdio (local process). Implements phi-scaled pooling: minConnections: fib(3)=2, maxConnections: fib(7)=13, idleTimeout: fib(11)*1000=89s, maxReconnectAttempts: fib(7)=13, heartbeatInterval: fib(8)*1000=21s. Features adaptive connection management with health scoring, dead connection pruning, phi-backoff retry strategy, and automatic minimum connection maintenance. Each transport adapter implements connect/send/close interface with JSON-RPC 2.0 protocol and per-request timeout handling."
+    },
+    {
+      "path": "src/mcp/tool-registry.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/mcp/tool-registry.js",
+      "summary": "MCP tool registry managing tool registration, validation, and execution. Implements JSON Schema validation for tool arguments with support for type checking, enum validation, string length constraints, number min/max, array item constraints, and nested object property validation. Provides complete CRUD operations (register, list, get, has, validate, execute, attachHandler, unregister) with optional direct execution handlers. Features comprehensive validation error reporting, dynamic handler attachment, registry statistics (total, withHandlers, withoutHandlers), and sorted tool name export. Includes logging integration with configurable Pino/Winston-compatible logger."
+    },
+    {
+      "path": "src/vsa/hypervector.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/vsa/hypervector.js",
+      "summary": "Vector Symbolic Architecture (VSA) implementation using FHRR (Fourier Holographic Reduced Representation) hypervectors with 4096 dimensions (default). Implements core VSA operations: BINDING (element-wise multiplication for compositional representation), UNBINDING (self-inverse via FHRR), BUNDLING/SUPERPOSITION (element-wise average for set representation), PERMUTATION (rotation for sequence encoding), and RESONATOR (nearest neighbor cleanup with threshold matching). Features similarity calculation via FHRR cosine metric normalized to [0,1], phi-scale integration (maps to [0,φ] range), and continuous truth value conversion for Continuous Semantic Logic (CSL) gates. Includes seeded random generation for reproducibility, JSON serialization, and Float32Array optimization. Golden ratio (φ=1.618) used for phi-bounded projections."
+    },
+    {
+      "path": "src/bees/bee-factory.js",
+      "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/blob/main/src/bees/bee-factory.js",
+      "summary": "Dynamic bee factory creating runtime bees with CSL (Continuous Semantic Logic) integration. Features: (1) createBee() for persistent/dynamic domain bees with priority classification via ternary_gate, (2) spawnBee() for ephemeral single-purpose bees, (3) routeBee() using multi_resonance + route_gate + soft_gate for intelligent task routing with 70% semantic + 30% priority composite scoring, (4) createFromTemplate() with 5 templates (health-check, monitor, processor, scanner, alerter), (5) createSwarm() for coordinated multi-bee orchestration (parallel/sequential/pipeline modes) using consensus_superposition for composite capability vectors. Includes orthogonal_gate for domain exclusion, deterministic pseudo-embeddings (64D vectors), CSL gate integration (route_gate, resonance_gate, ternary_gate, soft_gate, superposition_gate, orthogonal_gate), and optional disk persistence. Tracks dynamic + ephemeral registries with CSL metadata (priorityState, priorityActivation, affinityScores)."
+    }
+  ],
+  "tests": {
+    "directory": "tests/",
+    "structure": {
+      "top_level_tests": [
+        "antigravity-heady-runtime.test.js",
+        "antigravity-heady-sync.test.js",
+        "audit-logger.test.js",
+        "bees.test.js",
+        "boot-smoke.test.js",
+        "buddy-chat-contract.test.js",
+        "buddy-core.realtime.test.js",
+        "buddy-core.test.js",
+        "buddy-system.test.js",
+        "circuit-breaker.test.js",
+        "cognitive-runtime-governor.test.js",
+        "continuous-embedder.test.js"
+      ],
+      "subdirectories": [
+        "auto-generated/"
+      ],
+      "total_test_files": "50+ test files (partial list shown)",
+      "note": "Repository contains extensive test coverage across all modules"
+    },
+    "uses_jest_patterns": true,
+    "test_patterns": {
+      "describe": true,
+      "test": true,
+      "expect": true,
+      "beforeEach": true,
+      "example": "Tests use standard Jest patterns: describe('ComponentName', () => { test('behavior', () => { expect(result).toBe(expected); }); });"
+    },
+    "test_match_patterns": [
+      "**/__tests__/**/*.test.{js,ts}",
+      "**/tests/**/*.test.{js,ts}",
+      "**/*.spec.{js,ts}"
+    ]
+  },
+  "notes": "HeadyMe/Heady-pre-production-9f2f0642 is a sophisticated multi-agent AI platform with phi-based (golden ratio) mathematical scaling throughout. Key architectural patterns include: (1) Zero-trust security with capability-based sandboxing, (2) MCP (Model Context Protocol) gateway with multi-transport support, (3) CSL (Continuous Semantic Logic) routing with semantic embeddings, (4) VSA (Vector Symbolic Architecture) for hyperdimensional computing, (5) Dynamic bee swarm orchestration, (6) Circuit breaker resilience patterns, (7) RBAC with JWT multi-vendor support. All thresholds, timeouts, and limits use Fibonacci sequences and golden ratio rather than arbitrary magic numbers. Repository demonstrates production-grade TypeScript/JavaScript patterns with comprehensive Jest test coverage.",
+  "analysis_date": "2026-03-07"
+}
