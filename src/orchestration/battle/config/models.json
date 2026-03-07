@@ -1,0 +1,90 @@
+{
+  "models": {
+    "claude-opus-4-6": {
+      "provider": "anthropic",
+      "contextWindow": 200000,
+      "costPer1kTokens": 0.015,
+      "specializations": ["reasoning", "coding", "security"]
+    },
+    "gpt-5-4-turbo": {
+      "provider": "openai",
+      "contextWindow": 128000,
+      "costPer1kTokens": 0.01,
+      "specializations": ["fast-execution", "general"]
+    },
+    "gemini-3-1-pro": {
+      "provider": "google",
+      "contextWindow": 1000000,
+      "costPer1kTokens": 0.005,
+      "specializations": ["research", "synthesis", "long-context"]
+    },
+    "claude-sonnet-4-5": {
+      "provider": "anthropic",
+      "contextWindow": 200000,
+      "costPer1kTokens": 0.003,
+      "specializations": ["validation", "fast-coding"]
+    },
+    "o1": {
+      "provider": "openai",
+      "contextWindow": 200000,
+      "costPer1kTokens": 0.06,
+      "specializations": ["optimization", "deep-reasoning"]
+    }
+  },
+
+  "phiTemperature": {
+    "enabled": true,
+    "scales": {
+      "deterministic": 0.146,
+      "precision": 0.236,
+      "balanced": 0.382,
+      "creative": 0.618,
+      "exploratory": 1.0,
+      "fractal": 1.618
+    },
+    "smoothing": {
+      "enabled": true,
+      "windowSize": 3,
+      "phiWeight": 0.618
+    }
+  },
+
+  "semanticGates": {
+    "precision": {
+      "keywords": ["exact", "precise", "deterministic", "calculate"],
+      "baseTemperature": 0.236
+    },
+    "validation": {
+      "keywords": ["validate", "check", "verify", "test"],
+      "baseTemperature": 0.146
+    },
+    "optimization": {
+      "keywords": ["optimize", "improve", "refine", "enhance"],
+      "baseTemperature": 0.382
+    },
+    "creativity": {
+      "keywords": ["creative", "novel", "innovative", "brainstorm"],
+      "baseTemperature": 0.618
+    },
+    "exploration": {
+      "keywords": ["explore", "discover", "search", "investigate"],
+      "baseTemperature": 1.0
+    }
+  },
+
+  "qualityGates": {
+    "enabled": true,
+    "strictMode": true,
+    "categories": ["security", "complexity", "architecture", "performance"],
+    "autoRetry": true,
+    "maxRetries": 3
+  },
+
+  "orchestration": {
+    "parallelExecution": true,
+    "modelCouncil": true,
+    "consensusThreshold": 0.7,
+    "maxSubAgents": 10,
+    "taskDecomposition": "automatic"
+  }
+}
