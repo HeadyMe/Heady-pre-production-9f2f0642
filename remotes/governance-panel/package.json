@@ -1,0 +1,10 @@
+{
+  "name": "@heady-ai/governance-panel-mfe",
+  "version": "3.2.0",
+  "private": true,
+  "main": "src/App.js",
+  "scripts": {
+    "build": "cd ../.. && npx webpack --env remote --env appName=governancePanel --env production --output-path remotes/governance-panel/dist",
+    "dev": "cd ../.. && npx webpack serve --env remote --env appName=governancePanel --env port=3005"
+  }
+}

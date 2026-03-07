@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady™ Real-Time Monitoring Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-card: #111128;
+            --bg-card-hover: #1a1a3e;
+            --border: #2a2a5a;
+            --text-primary: #e8e8ff;
+            --text-secondary: #8888cc;
+            --accent-violet: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-pink: #ec4899;
+            --glow-violet: rgba(139, 92, 246, 0.3);
+            --glow-green: rgba(16, 185, 129, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #111128 0%, #0d0d2b 100%);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            font-size: 13px;
+            color: var(--accent-green);
+        }
+
+        .header .status-pill .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 var(--glow-green);
+            }
+
+            50% {
+                opacity: 0.7;
+                box-shadow: 0 0 0 6px transparent;
+            }
+        }
+
+        /* Grid Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 16px;
+            padding: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-violet);
+            background: var(--bg-card-hover);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+        }
+
+        .card-header .badge {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .badge-amber {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+        }
+
+        .badge-red {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        /* Agent Cards — Perplexity-inspired parallel agent display */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .agent-card {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            border-radius: 10px;
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-card.active {
+            border-color: var(--accent-violet);
+        }
+
+        .agent-card.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        .agent-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .agent-task {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .agent-progress {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .agent-progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+            transition: width 0.5s ease;
+        }
+
+        /* Steps — Perplexity-style step-by-step display */
+        .steps-list {
+            list-style: none;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+        }
+
+        .step-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-icon.done {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .step-icon.running {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent-violet);
+            animation: pulse 1.5s infinite;
+        }
+
+        .step-icon.pending {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .step-icon.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .step-label {
+            flex: 1;
+        }
+
+        .step-duration {
+            color: var(--text-secondary);
+            font-size: 11px;
+        }
+
+        /* Circuit Breakers */
+        .cb-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .cb-item {
+            text-align: center;
+            padding: 12px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .cb-item.closed {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .cb-item.open {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .cb-item.half-open {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .cb-state {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Bee Swarm — hex visualization */
+        .swarm-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .bee-hex {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .bee-hex.active {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            animation: beeGlow 3s infinite;
+        }
+
+        .bee-hex.idle {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes beeGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+            }
+        }
+
+        .bee-hex .bee-label {
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        /* Pipeline — horizontal stage display */
+        .pipeline-track {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+
+        .pipeline-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+            position: relative;
+        }
+
+        .pipeline-node {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid;
+        }
+
+        .pipeline-node.done {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .pipeline-node.running {
+            border-color: var(--accent-violet);
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--accent-violet);
+            animation: pulse 1.5s infinite;
+        }
+
+        .pipeline-node.pending {
+            border-color: var(--border);
+            color: var(--text-secondary);
+        }
+
+        .pipeline-node.error {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .pipeline-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        .pipeline-connector {
+            width: 20px;
+            height: 2px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .pipeline-connector.done {
+            background: var(--accent-green);
+        }
+
+        /* Metrics Bar */
+        .metrics-bar {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+
+        .metric-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-value.green {
+            color: var(--accent-green);
+        }
+
+        .metric-value.violet {
+            color: var(--accent-violet);
+        }
+
+        .metric-value.cyan {
+            color: var(--accent-cyan);
+        }
+
+        .metric-value.amber {
+            color: var(--accent-amber);
+        }
+
+        /* Full width cards */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .two-col {
+            grid-column: span 2;
+        }
+
+        /* Connection Status */
+        .ws-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .ws-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .ws-dot.connected {
+            background: var(--accent-green);
+        }
+
+        .ws-dot.disconnected {
+            background: var(--accent-red);
+        }
+
+        /* Log stream */
+        .log-stream {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .log-line {
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-time {
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .log-level-info {
+            color: var(--accent-cyan);
+        }
+
+        .log-level-warn {
+            color: var(--accent-amber);
+        }
+
+        .log-level-error {
+            color: var(--accent-red);
+        }
+
+        .log-msg {
+            color: var(--text-primary);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🧠 Heady™ Real-Time Monitor</h1>
+        <div style="display:flex;gap:16px;align-items:center;">
+            <div class="ws-status">
+                <div class="ws-dot connected" id="wsIndicator"></div>
+                <span id="wsLabel">Connected</span>
+            </div>
+            <div class="status-pill">
+                <div class="pulse"></div>
+                <span id="systemStatus">System Healthy</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Metrics Bar -->
+        <div class="metrics-bar" id="metricsBar">
+            <div class="metric-item">
+                <div class="metric-value green" id="metricAgents">6</div>
+                <div class="metric-label">Active Agents</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value violet" id="metricTasks">14</div>
+                <div class="metric-label">Tasks Running</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value cyan" id="metricBees">24</div>
+                <div class="metric-label">Bee Domains</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value green" id="metricPipeline">12/12</div>
+                <div class="metric-label">Pipeline Stages</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value amber" id="metricMCP">31</div>
+                <div class="metric-label">MCP Tools</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value green" id="metricUptime">99.99%</div>
+                <div class="metric-label">Uptime</div>
+            </div>
+        </div>
+
+        <!-- Parallel Agents Panel (Perplexity-inspired) -->
+        <div class="card two-col">
+            <div class="card-header">
+                <h2>⚡ Parallel Agents</h2>
+                <span class="badge badge-green">6 Active</span>
+            </div>
+            <div class="agents-grid" id="agentsGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Step-by-Step Progress (Perplexity-inspired) -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📋 Task Steps</h2>
+                <span class="badge badge-green">Live</span>
+            </div>
+            <ul class="steps-list" id="stepsList">
+                <!-- Populated by JS -->
+            </ul>
+        </div>
+
+        <!-- 12-Stage Pipeline -->
+        <div class="card full-width">
+            <div class="card-header">
+                <h2>🔄 12-Stage Pipeline</h2>
+                <span class="badge badge-green">Running</span>
+            </div>
+            <div class="pipeline-track" id="pipelineTrack">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Bee Swarm Visualization -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🐝 Bee Swarm (24 domains)</h2>
+                <span class="badge badge-amber" id="beeCount">18 Active</span>
+            </div>
+            <div class="swarm-grid" id="swarmGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Circuit Breakers -->
+        <div class="card">
+            <div class="card-header">
+                <h2>🔌 Circuit Breakers</h2>
+                <span class="badge badge-green">All Closed</span>
+            </div>
+            <div class="cb-grid" id="cbGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Live Log Stream -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📜 Live Logs</h2>
+                <span class="badge badge-green">Streaming</span>
+            </div>
+            <div class="log-stream" id="logStream">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // DEMO DATA — simulates real-time agent activity
+        // Replace with WebSocket connection in production
+        // ============================================================
+
+        const AGENTS = [
+            { name: 'HeadyBuddy', icon: '🤖', status: 'active', task: 'Processing user query', progress: 0.72 },
+            { name: 'ResearchBee', icon: '🔍', status: 'active', task: 'Web search: circuit breakers', progress: 0.45 },
+            { name: 'CodeAgent', icon: '💻', status: 'active', task: 'Generating TypeScript module', progress: 0.88 },
+            { name: 'MemoryBee', icon: '🧠', status: 'active', task: 'Embedding 384-dim vectors', progress: 0.33 },
+            { name: 'PipelineAgent', icon: '⚡', status: 'idle', task: 'Waiting for input', progress: 0 },
+            { name: 'DeployBee', icon: '🚀', status: 'active', task: 'Cloud Run canary deploy', progress: 0.61 },
+        ];
+
+        const STEPS = [
+            { label: 'Received user request', status: 'done', duration: '0.1s' },
+            { label: 'Agent orchestrator routing', status: 'done', duration: '0.3s' },
+            { label: 'Spawned 4 parallel agents', status: 'done', duration: '0.2s' },
+            { label: 'ResearchBee: web search executing', status: 'running', duration: '2.1s' },
+            { label: 'CodeAgent: generating module', status: 'running', duration: '1.8s' },
+            { label: 'MemoryBee: vector embedding', status: 'running', duration: '0.9s' },
+            { label: 'Merge agent results', status: 'pending', duration: '' },
+            { label: 'Quality validation', status: 'pending', duration: '' },
+        ];
+
+        const PIPELINE_STAGES = [
+            'Intake', 'Parse', 'Enrich', 'Route', 'Execute', 'Validate',
+            'Transform', 'Store', 'Index', 'Notify', 'Audit', 'Complete'
+        ];
+
+        const BEE_DOMAINS = [
+            'research', 'coding', 'writing', 'analysis', 'planning', 'memory',
+            'creative', 'security', 'health', 'deploy', 'governance', 'ops',
+            'pipeline', 'telemetry', 'intelligence', 'mcp', 'sync', 'vector',
+            'config', 'orchestration', 'lifecycle', 'connectors', 'credential', 'docs'
+        ];
+
+        const CIRCUIT_BREAKERS = [
+            { name: 'LLM API', state: 'closed' },
+            { name: 'Vector DB', state: 'closed' },
+            { name: 'Redis', state: 'closed' },
+            { name: 'Auth', state: 'closed' },
+            { name: 'MCP', state: 'half-open' },
+            { name: 'Deploy', state: 'closed' },
+        ];
+
+        // Render agents
+        function renderAgents() {
+            const grid = document.getElementById('agentsGrid');
+            grid.innerHTML = AGENTS.map(a => `
+        <div class="agent-card ${a.status === 'active' ? 'active' : ''}">
+          <div class="agent-name">${a.icon} ${a.name}</div>
+          <div class="agent-task">${a.task}</div>
+          <div class="agent-progress">
+            <div class="agent-progress-fill" style="width:${a.progress * 100}%"></div>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        // Render steps
+        function renderSteps() {
+            const list = document.getElementById('stepsList');
+            const icons = { done: '✓', running: '◉', pending: '○', error: '✗' };
+            list.innerHTML = STEPS.map(s => `
+        <li class="step-item">
+          <div class="step-icon ${s.status}">${icons[s.status]}</div>
+          <div class="step-label">${s.label}</div>
+          <div class="step-duration">${s.duration}</div>
+        </li>
+      `).join('');
+        }
+
+        // Render pipeline
+        function renderPipeline() {
+            const track = document.getElementById('pipelineTrack');
+            let html = '';
+            PIPELINE_STAGES.forEach((name, i) => {
+                const status = i < 6 ? 'done' : i === 6 ? 'running' : 'pending';
+                if (i > 0) html += `<div class="pipeline-connector ${i <= 6 ? 'done' : ''}"></div>`;
+                html += `
+          <div class="pipeline-stage">
+            <div class="pipeline-node ${status}">${i + 1}</div>
+            <div class="pipeline-label">${name}</div>
+          </div>
+        `;
+            });
+            track.innerHTML = html;
+        }
+
+        // Render bee swarm
+        function renderBees() {
+            const grid = document.getElementById('swarmGrid');
+            grid.innerHTML = BEE_DOMAINS.map((d, i) => `
+        <div class="bee-hex ${i < 18 ? 'active' : 'idle'}" title="${d}">
+          🐝
+          <span class="bee-label">${d.slice(0, 4)}</span>
+        </div>
+      `).join('');
+        }
+
+        // Render circuit breakers
+        function renderCBs() {
+            const grid = document.getElementById('cbGrid');
+            grid.innerHTML = CIRCUIT_BREAKERS.map(cb => `
+        <div class="cb-item ${cb.state}">
+          <div>${cb.name}</div>
+          <div class="cb-state" style="color:${cb.state === 'closed' ? 'var(--accent-green)' :
+                    cb.state === 'open' ? 'var(--accent-red)' : 'var(--accent-amber)'
+                }">${cb.state}</div>
+        </div>
+      `).join('');
+        }
+
+        // Render log stream
+        function addLog(level, msg) {
+            const stream = document.getElementById('logStream');
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            stream.innerHTML += `<div class="log-line">
+        <span class="log-time">${time}</span>
+        <span class="log-level-${level}">[${level.toUpperCase()}]</span>
+        <span class="log-msg">${msg}</span>
+      </div>`;
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        // Initialize
+        renderAgents();
+        renderSteps();
+        renderPipeline();
+        renderBees();
+        renderCBs();
+
+        // Simulate live activity
+        const logMessages = [
+            ['info', 'Agent HeadyBuddy: processing query chunk 3/4'],
+            ['info', 'ResearchBee: found 12 relevant sources'],
+            ['info', 'CodeAgent: generated 156 lines TypeScript'],
+            ['warn', 'MCP circuit breaker: testing half-open state'],
+            ['info', 'MemoryBee: embedded 384-dim vector, cosine=0.87'],
+            ['info', 'Pipeline stage 7/12: Transform starting'],
+            ['info', 'DeployBee: canary at 25% traffic'],
+            ['info', 'Vector memory: HNSW index updated (2.3ms)'],
+            ['info', 'Swarm consensus: 18/24 bees active'],
+            ['info', 'WebSocket: 3 clients connected'],
+        ];
+
+        let logIdx = 0;
+        setInterval(() => {
+            const [level, msg] = logMessages[logIdx % logMessages.length];
+            addLog(level, msg);
+            logIdx++;
+
+            // Simulate progress updates
+            AGENTS.forEach(a => {
+                if (a.status === 'active') {
+                    a.progress = Math.min(1, a.progress + (Math.random() * 0.05));
+                }
+            });
+            renderAgents();
+        }, 2000);
+
+        // WebSocket connection (production)
+        function connectWebSocket() {
+            try {
+                const ws = new WebSocket(`ws://${location.hostname}:9090`);
+                ws.onopen = () => {
+                    document.getElementById('wsIndicator').className = 'ws-dot connected';
+                    document.getElementById('wsLabel').textContent = 'Connected';
+                };
+                ws.onmessage = (e) => {
+                    const { event, data } = JSON.parse(e.data);
+                    switch (event) {
+                        case 'snapshot': console.log('Received snapshot', data); break;
+                        case 'agent:updated': updateAgentUI(data); break;
+                        case 'agent:step': updateStepUI(data); break;
+                        case 'circuit-breaker:update': updateCBUI(data); break;
+                        case 'pipeline:update': updatePipelineUI(data); break;
+                        case 'swarm:update': updateSwarmUI(data); break;
+                    }
+                };
+                ws.onclose = () => {
+                    document.getElementById('wsIndicator').className = 'ws-dot disconnected';
+                    document.getElementById('wsLabel').textContent = 'Reconnecting...';
+                    setTimeout(connectWebSocket, 3000);
+                };
+            } catch (e) {
+                console.log('WebSocket not available, using demo mode');
+            }
+        }
+        connectWebSocket();
+    </script>
+</body>
+
+</html>

@@ -253,28 +253,33 @@
             },
             {
                 "id": "heady-ide",
-                "status": "planned",
+                "status": "active",
                 "route": "/app/ide"
             },
             {
                 "id": "swarm-dashboard",
-                "status": "planned",
+                "status": "active",
                 "route": "/app/swarm"
             },
             {
                 "id": "governance-panel",
-                "status": "planned",
+                "status": "active",
                 "route": "/app/governance"
             },
             {
                 "id": "projection-monitor",
-                "status": "planned",
+                "status": "active",
                 "route": "/app/projections"
             },
             {
                 "id": "vector-explorer",
-                "status": "planned",
+                "status": "active",
                 "route": "/app/vectors"
+            },
+            {
+                "id": "headyweb-portal",
+                "status": "active",
+                "route": "/portal"
             }
         ],
         "engine": "src/services/ui-registry.js"

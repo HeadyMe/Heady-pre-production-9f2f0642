@@ -1,0 +1,10 @@
+{
+  "name": "@heady-ai/antigravity-mfe",
+  "version": "3.2.0",
+  "private": true,
+  "main": "src/App.js",
+  "scripts": {
+    "build": "cd ../.. && npx webpack --env remote --env appName=antigravity --env production --output-path remotes/antigravity/dist",
+    "dev": "cd ../.. && npx webpack serve --env remote --env appName=antigravity --env port=3001"
+  }
+}

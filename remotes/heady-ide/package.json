@@ -1,0 +1,10 @@
+{
+  "name": "@heady-ai/heady-ide-mfe",
+  "version": "3.2.0",
+  "private": true,
+  "main": "src/App.js",
+  "scripts": {
+    "build": "cd ../.. && npx webpack --env remote --env appName=headyIDE --env production --output-path remotes/heady-ide/dist",
+    "dev": "cd ../.. && npx webpack serve --env remote --env appName=headyIDE --env port=3003"
+  }
+}
