@@ -6,7 +6,7 @@
 # ═══════════════════════════════════════════════════════════════
 
 # ── Stage 1: Builder ──────────────────────────────────────────
-FROM node:20-slim AS builder
+FROM node:25-slim AS builder
 
 WORKDIR /build
 
@@ -24,7 +24,7 @@ COPY docs/ ./docs/
 RUN npm prune --production 2>/dev/null || true
 
 # ── Stage 2: Production ──────────────────────────────────────
-FROM node:20-slim AS production
+FROM node:25-slim AS production
 
 # Security: non-root user
 RUN groupadd -r heady && useradd -r -g heady -m -s /bin/false heady
