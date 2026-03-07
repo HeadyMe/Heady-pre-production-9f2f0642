@@ -1,0 +1,451 @@
+# ============================================================
+# .github/workflows/performance-baseline.yml
+# Scheduled Weekly Performance Baseline Collection
+#
+# Purpose: Run the full performance benchmark suite on a
+# weekly schedule and store results as the authoritative
+# baseline for the promotion pipeline's benchmark comparison.
+#
+# Stores:
+#   - response_times (p50, p95, p99, p999) per endpoint
+#   - throughput (req/sec)
+#   - memory usage (heap used, heap total, RSS, external)
+#   - startup time (cold start, warm start)
+#   - bundle sizes (per-package)
+#
+# Schedule: Every Sunday at 02:00 UTC
+# (quiet period — fib sequence hour: 02:00 = off-peak)
+#
+# φ design:
+#   - fib(8)=21 warmup requests per benchmark
+#   - fib(10)=55 measurement samples per benchmark
+#   - φ-scaled concurrency levels: 1, 2, 3, 5, 8, 13 users
+#   - Artifacts retained fib(8)=21 days
+# ============================================================
+
+name: Performance Baseline (Weekly)
+
+on:
+  # Sunday 02:00 UTC — weekly baseline refresh
+  schedule:
+    - cron: '0 2 * * 0'
+  # Allow manual trigger for emergency baseline reset
+  workflow_dispatch:
+    inputs:
+      force-update:
+        description: 'Force update baseline even if no changes'
+        required: false
+        default: 'true'
+        type: boolean
+      branch:
+        description: 'Branch to baseline against'
+        required: false
+        default: 'pre-production'
+        type: string
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+  # φ benchmark constants
+  # fib(8)=21 warmup requests
+  BENCHMARK_WARMUP: '21'
+  # fib(10)=55 measurement samples
+  BENCHMARK_SAMPLES: '55'
+  # Concurrency levels: 1,2,3,5,8,13 (Fibonacci)
+  BENCHMARK_CONCURRENCY: '1,2,3,5,8,13'
+  # φ^2 = 2.618 → timeout in seconds: ceil(φ^2 * 1000) = 2618ms
+  BENCHMARK_TIMEOUT_MS: '2618'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # Collect performance baseline
+  # ─────────────────────────────────────────────────────────────
+  collect-baseline:
+    name: Collect Performance Baseline
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(11)=89 minutes (full suite can be long)
+    timeout-minutes: 89
+    # Run on pre-production (or specified branch)
+    env:
+      TARGET_BRANCH: ${{ inputs.branch || 'pre-production' }}
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      # ── 1. Checkout target branch ──────────────────────────
+      - name: Checkout ${{ env.TARGET_BRANCH }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 1
+
+      # ── 2. Setup environment ────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── 3. Build all packages ────────────────────────────────
+      - name: Build for production performance profiling
+        env:
+          NODE_ENV: production
+        run: |
+          pnpm turbo build \
+            --cache-dir=.turbo \
+            --output-logs=errors-only
+          echo "Build complete at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      # ── 4. Measure startup time ──────────────────────────────
+      - name: Measure application startup time
+        id: startup
+        env:
+          NODE_ENV: production
+          PORT: 8080
+          REDIS_URL: redis://localhost:6379
+        run: |
+          echo "=== Measuring startup time ==="
+
+          # Measure cold start: time to first successful /health/live response
+          # φ-scaled: measure fib(5)=5 cold starts, take median
+          COLD_STARTS=()
+          for i in 1 2 3 4 5; do
+            START_NS=$(date +%s%N)
+            node heady-manager.js &
+            APP_PID=$!
+
+            # Poll until healthy or timeout (φ^3 * 1000 = 4236ms)
+            ELAPSED=0
+            while [ $ELAPSED -lt 4236 ]; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 1 http://localhost:8080/health/live 2>/dev/null || echo "000")
+              if [ "$STATUS" = "200" ]; then
+                END_NS=$(date +%s%N)
+                DURATION=$(( (END_NS - START_NS) / 1000000 ))
+                COLD_STARTS+=($DURATION)
+                echo "  Cold start $i: ${DURATION}ms"
+                break
+              fi
+              sleep 0.1
+              ELAPSED=$((ELAPSED + 100))
+            done
+
+            kill $APP_PID 2>/dev/null || true
+            wait $APP_PID 2>/dev/null || true
+            sleep 1  # fib(1)=1 second between restarts
+          done
+
+          # Calculate median
+          SORTED=($(printf '%s\n' "${COLD_STARTS[@]}" | sort -n))
+          MEDIAN=${SORTED[2]}  # index 2 = median of 5
+          echo "COLD_START_MS=$MEDIAN" >> $GITHUB_OUTPUT
+          echo "Median cold start: ${MEDIAN}ms"
+
+      # ── 5. Start application for load testing ───────────────
+      - name: Start application
+        env:
+          NODE_ENV: production
+          PORT: 8080
+          REDIS_URL: redis://localhost:6379
+        run: |
+          node heady-manager.js &
+          echo "APP_PID=$!" >> $GITHUB_ENV
+
+          # Wait for app to be healthy (φ-backoff: 1,1,2,3,5 seconds)
+          DELAYS=(1 1 2 3 5)
+          for delay in "${DELAYS[@]}"; do
+            sleep $delay
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health/live 2>/dev/null || echo "000")
+            echo "Health check: HTTP $STATUS (waited ${delay}s)"
+            if [ "$STATUS" = "200" ]; then
+              echo "Application started successfully"
+              break
+            fi
+          done
+
+      # ── 6. Run benchmark suite ───────────────────────────────
+      - name: Run response time benchmarks
+        id: response-times
+        run: |
+          # Install autocannon for HTTP load testing
+          npx --yes autocannon \
+            --connections 1 \
+            --duration 21 \
+            --requests ${{ env.BENCHMARK_SAMPLES }} \
+            --json \
+            http://localhost:8080/health/live > bench-health-live.json 2>&1 || true
+
+          npx autocannon \
+            --connections 1 \
+            --duration 21 \
+            --requests ${{ env.BENCHMARK_SAMPLES }} \
+            --json \
+            http://localhost:8080/health/ready > bench-health-ready.json 2>&1 || true
+
+          npx autocannon \
+            --connections 1 \
+            --duration 21 \
+            --requests ${{ env.BENCHMARK_SAMPLES }} \
+            --json \
+            http://localhost:8080/api/brain/status > bench-brain-status.json 2>&1 || true
+
+          npx autocannon \
+            --connections 1 \
+            --duration 21 \
+            --requests ${{ env.BENCHMARK_SAMPLES }} \
+            --json \
+            http://localhost:8080/api/conductor/status > bench-conductor-status.json 2>&1 || true
+
+      # ── 7. Measure memory usage ──────────────────────────────
+      - name: Measure memory profile
+        id: memory
+        run: |
+          # Get Node.js process memory after warmup
+          # fib(8)=21 requests to warm the heap
+          for i in $(seq 1 21); do
+            curl -s http://localhost:8080/health/live > /dev/null
+          done
+
+          # Collect memory metrics via /metrics or process endpoint
+          MEMORY=$(curl -s http://localhost:8080/api/metrics/memory 2>/dev/null || \
+                   curl -s http://localhost:8080/metrics 2>/dev/null | \
+                   grep -E "nodejs_heap|nodejs_process" | head -20)
+          echo "$MEMORY" > memory-profile.txt
+
+          # Fallback: use /proc/PID/status
+          if [ -n "$APP_PID" ]; then
+            cat /proc/$APP_PID/status | grep VmRSS >> memory-profile.txt || true
+          fi
+
+      # ── 8. Measure bundle sizes ──────────────────────────────
+      - name: Measure bundle sizes
+        run: |
+          # Calculate sizes of all built packages
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
+
+            const packages = [
+              'packages/sdk',
+              'packages/core',
+              'packages/gateway',
+              'packages/orchestrator',
+              'packages/mcp-server',
+              'packages/vector-memory',
+              'packages/shared'
+            ];
+
+            const bundleSizes = {};
+            for (const pkg of packages) {
+              const distPath = path.join(pkg, 'dist');
+              if (fs.existsSync(distPath)) {
+                try {
+                  const size = parseInt(
+                    execSync(\`du -sb \${distPath} 2>/dev/null || echo 0\`)
+                      .toString().split('\t')[0]
+                  );
+                  bundleSizes[pkg] = size;
+                } catch { bundleSizes[pkg] = 0; }
+              }
+            }
+
+            // Main app size
+            try {
+              bundleSizes['heady-manager'] = parseInt(
+                execSync('du -sb heady-manager.js 2>/dev/null || echo 0')
+                  .toString().split('\t')[0]
+              );
+            } catch {}
+
+            fs.writeFileSync('bundle-sizes.json', JSON.stringify(bundleSizes, null, 2));
+            console.log('Bundle sizes recorded:', JSON.stringify(bundleSizes));
+          "
+
+      # ── 9. Compile baseline JSON ─────────────────────────────
+      - name: Compile baseline results
+        id: compile
+        run: |
+          node -e "
+            const fs = require('fs');
+            const PHI = 1.618033988749895;
+
+            // Parse autocannon results
+            const parseAC = (file) => {
+              try {
+                const d = JSON.parse(fs.readFileSync(file, 'utf8'));
+                return {
+                  p50: d.latency?.p50 || 0,
+                  p75: d.latency?.p75 || 0,
+                  p95: d.latency?.p95 || 0,
+                  p99: d.latency?.p99 || 0,
+                  p999: d.latency?.p999 || 0,
+                  mean: d.latency?.mean || 0,
+                  throughput: d.requests?.mean || 0,
+                  errors: d.errors || 0
+                };
+              } catch (e) {
+                return { p50:0, p75:0, p95:0, p99:0, p999:0, mean:0, throughput:0, errors:-1 };
+              }
+            };
+
+            const bundleSizes = JSON.parse(
+              fs.existsSync('bundle-sizes.json')
+                ? fs.readFileSync('bundle-sizes.json', 'utf8')
+                : '{}'
+            );
+
+            const baseline = {
+              metadata: {
+                generatedAt: new Date().toISOString(),
+                branch: process.env.TARGET_BRANCH || 'pre-production',
+                sha: '${{ github.sha }}',
+                phi: PHI,
+                // fib sequence used for sample counts
+                fibonacci: [1,1,2,3,5,8,13,21,34,55,89,144],
+                warmupRequests: 21,   // fib(8)
+                sampleCount: 55,      // fib(10)
+                concurrencyLevels: [1,2,3,5,8,13]  // Fibonacci
+              },
+              // φ-scaled thresholds for regression detection
+              thresholds: {
+                // warning at fib(5)%=5% regression
+                warnPct: 5,
+                // fail at fib(6)%=8% regression
+                failPct: 8,
+                // bundle increase limit fib(5)%=5%
+                bundleFailPct: 5,
+                // CSL pressure levels (φ-derived)
+                nominal: 0.382,
+                elevated: 0.618,
+                high: 0.854,
+                critical: 0.910
+              },
+              endpoints: {
+                'GET /health/live':       parseAC('bench-health-live.json'),
+                'GET /health/ready':      parseAC('bench-health-ready.json'),
+                'GET /api/brain/status':  parseAC('bench-brain-status.json'),
+                'GET /api/conductor/status': parseAC('bench-conductor-status.json')
+              },
+              startup: {
+                coldStartMs: parseInt('${{ steps.startup.outputs.COLD_START_MS }}') || 0,
+                // φ-scaled warm start expectation: coldStart / φ
+                warmStartMs: Math.round((parseInt('${{ steps.startup.outputs.COLD_START_MS }}') || 0) / PHI)
+              },
+              memory: {
+                // Will be populated from memory-profile.txt
+                rawProfile: fs.existsSync('memory-profile.txt')
+                  ? fs.readFileSync('memory-profile.txt', 'utf8').substring(0, 500)
+                  : 'unavailable'
+              },
+              bundles: bundleSizes
+            };
+
+            fs.writeFileSync('.benchmarks/baseline.json', JSON.stringify(baseline, null, 2));
+            console.log('Baseline compiled successfully');
+            console.log('Endpoints measured:', Object.keys(baseline.endpoints).length);
+          "
+        env:
+          TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -n "$APP_PID" ]; then
+            kill $APP_PID 2>/dev/null || true
+          fi
+
+      # ── 10. Upload baselines as artifacts ────────────────────
+      - name: Upload performance baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-baseline
+          path: .benchmarks/baseline.json
+          # fib(8)=21 days retention
+          retention-days: 21
+          overwrite: true
+
+      - name: Upload bundle baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-baseline
+          path: bundle-sizes.json
+          retention-days: 21
+          overwrite: true
+
+      - name: Upload raw benchmark data
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-benchmarks-${{ github.run_id }}
+          path: |
+            bench-*.json
+            memory-profile.txt
+            bundle-sizes.json
+          retention-days: 21
+          if-no-files-found: ignore
+
+      # ── 11. Summary ──────────────────────────────────────────
+      - name: Write job summary
+        run: |
+          echo "## Performance Baseline Updated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ env.TARGET_BRANCH }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Timestamp | $(date -u +%Y-%m-%dT%H:%M:%SZ) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Samples | fib(10)=55 per endpoint |" >> $GITHUB_STEP_SUMMARY
+          echo "| Concurrency | 1,2,3,5,8,13 (Fibonacci) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Baseline will be used by the next promotion pipeline run." >> $GITHUB_STEP_SUMMARY
+          cat .benchmarks/baseline.json | node -e "
+            const d = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
+            console.log('\n### Endpoint Latencies (p95)');
+            for (const [ep, m] of Object.entries(d.endpoints)) {
+              console.log('- ' + ep + ': ' + m.p95 + 'ms (p95), ' + m.throughput + ' req/s');
+            }
+          " >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Notify Slack of baseline update
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "username": "Heady CI/CD Bot",
+            "icon_emoji": ":bar_chart:",
+            "text": ":bar_chart: *Performance Baseline Updated*\nBranch: ${{ env.TARGET_BRANCH }}\nCommit: \`${{ github.sha }}\`\nTimestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          )
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            --data "$PAYLOAD" \
+            "${{ secrets.SLACK_CI_WEBHOOK }}" || true

@@ -1,0 +1,534 @@
+# ============================================================
+# .github/workflows/production-deploy.yml
+# Production Deployment Workflow
+#
+# COMPLEMENTS existing: deploy.yml, deploy-full.yml, liquid-deploy.yml
+# This workflow handles the PROMOTION merge → production path with:
+#   - Docker build + push to Google Artifact Registry
+#   - φ-scaled canary traffic splitting:
+#       fib(5)=5% → fib(7)=13% → fib(10)=55% → 100%
+#   - Post-deploy smoke tests on all critical endpoints
+#   - Automatic rollback on smoke test failure
+#   - GitHub Release creation with semantic version
+#   - Deployment audit trail
+#
+# Trigger: PR merge to main OR manual dispatch
+#
+# φ constants:
+#   Canary traffic: 5% → 13% → 55% → 100% (Fibonacci)
+#   Smoke test timeout: 1000×φ^2 = 2618ms per endpoint
+#   Health check retries: fib(5)=5 attempts
+#   Wait between canary steps: fib(n) seconds
+# ============================================================
+
+name: Production Deployment
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (leave empty to auto-detect)'
+        required: false
+        type: string
+      environment:
+        description: 'Target environment'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+# Prevent concurrent production deployments
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false  # Never cancel an in-progress production deploy
+
+env:
+  # Google Cloud configuration
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: us-central1
+  GAR_LOCATION: us-central1-docker.pkg.dev
+  GAR_REPOSITORY: heady-systems
+  CLOUD_RUN_SERVICE: heady-manager
+  CLOUD_RUN_PORT: 8080
+
+  # φ = 1.618033988749895
+  PHI: '1.618033988749895'
+  # Canary traffic percentages (Fibonacci)
+  CANARY_STEP_1: '5'    # fib(5)=5
+  CANARY_STEP_2: '13'   # fib(7)=13
+  CANARY_STEP_3: '55'   # fib(10)=55
+  # Smoke test timeout: 1000 × φ^2 = 2618ms
+  SMOKE_TEST_TIMEOUT: '2618'
+  # Health check retry count: fib(5)=5
+  HEALTH_RETRIES: '5'
+  # Wait between canary steps: fib(7)=13 seconds
+  CANARY_WAIT_SECONDS: '13'
+
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+jobs:
+  # ─────────────────────────────────────────────────────────────
+  # Gate: Only run if PR was merged (not just closed)
+  # ─────────────────────────────────────────────────────────────
+  check-trigger:
+    name: Verify Merge Trigger
+    runs-on: ubuntu-latest
+    timeout-minutes: 3  # fib(4)=3
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+    steps:
+      - name: Check deployment conditions
+        id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "Manual dispatch: deploying"
+          elif [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            # Only deploy if the PR had the 'promotion' label
+            LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
+            if echo "$LABELS" | grep -q '"promotion"'; then
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+              echo "Promotion PR merged: deploying"
+            else
+              echo "should-deploy=false" >> $GITHUB_OUTPUT
+              echo "Non-promotion PR merged: skipping deployment"
+            fi
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            echo "PR not merged: skipping deployment"
+          fi
+
+  # ─────────────────────────────────────────────────────────────
+  # Build and push Docker image
+  # ─────────────────────────────────────────────────────────────
+  build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(9)=34 minutes
+    timeout-minutes: 34
+    needs: [check-trigger]
+    if: needs.check-trigger.outputs.should-deploy == 'true'
+    outputs:
+      image-uri: ${{ steps.build-push.outputs.image-uri }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          turbo-token: ${{ env.TURBO_TOKEN }}
+          turbo-team: ${{ env.TURBO_TEAM }}
+          fetch-depth: '0'
+
+      # Authenticate with Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      # Configure Docker to use gcloud credentials for GAR
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ env.GAR_LOCATION }} --quiet
+
+      # Determine version
+      - name: Determine deployment version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            # Auto-detect from conventional commits since last tag
+            git fetch --tags
+            VERSION=$(node scripts/ci/semantic-version.js \
+              --from "$(git describe --tags --abbrev=0 2>/dev/null || echo v0.0.0)" \
+              --to HEAD)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Deploying version: $VERSION"
+
+      # Build image metadata (labels, tags)
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.GAR_LOCATION }}/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE }}
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Heady Manager
+            org.opencontainers.image.description=Heady Systems monorepo entry point
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+            heady.phi=1.618033988749895
+
+      # Setup Docker Buildx for multi-platform builds and layer caching
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build and push using production Dockerfile
+      - name: Build and push Docker image
+        id: build-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # Use the production-optimized Dockerfile
+          file: Dockerfile.production
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
+          # Layer cache from GAR for faster rebuilds
+          cache-from: type=registry,ref=${{ env.GAR_LOCATION }}/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE }}:buildcache
+          cache-to: type=registry,ref=${{ env.GAR_LOCATION }}/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE }}:buildcache,mode=max
+          build-args: |
+            NODE_VERSION=${{ env.NODE_VERSION }}
+            HEADY_VERSION=${{ steps.version.outputs.version }}
+            BUILD_SHA=${{ github.sha }}
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+
+      - name: Extract image URI
+        run: |
+          IMAGE_URI="${{ env.GAR_LOCATION }}/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE }}:${{ steps.version.outputs.version }}"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+          echo "Built and pushed: $IMAGE_URI"
+
+  # ─────────────────────────────────────────────────────────────
+  # Deploy to Cloud Run with φ-scaled canary traffic splitting
+  # ─────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to Cloud Run (Canary)
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(9)=34 minutes (canary steps take time)
+    timeout-minutes: 34
+    needs: [build]
+    environment:
+      name: production
+      url: https://headyme.com
+    outputs:
+      revision: ${{ steps.deploy.outputs.revision }}
+      rollback-revision: ${{ steps.get-current.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      # Record current revision for rollback
+      - name: Get current revision (rollback target)
+        id: get-current
+        run: |
+          CURRENT=$(gcloud run revisions list \
+            --service ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --filter "status.conditions.type=Active AND status.conditions.status=True" \
+            --format "value(metadata.name)" \
+            --limit 1)
+          echo "revision=${CURRENT}" >> $GITHUB_OUTPUT
+          echo "Rollback target: $CURRENT"
+
+      # Deploy new revision with NO traffic initially
+      - name: Deploy new revision (0% traffic)
+        id: deploy
+        run: |
+          IMAGE_URI="${{ env.GAR_LOCATION }}/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/${{ env.CLOUD_RUN_SERVICE }}:${{ needs.build.outputs.version }}"
+
+          NEW_REVISION=$(gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image "$IMAGE_URI" \
+            --region ${{ env.GCP_REGION }} \
+            --port ${{ env.CLOUD_RUN_PORT }} \
+            --platform managed \
+            --no-traffic \
+            --tag "canary" \
+            --set-env-vars "HEADY_VERSION=${{ needs.build.outputs.version }},NODE_ENV=production,PORT=${{ env.CLOUD_RUN_PORT }}" \
+            --set-secrets "REDIS_URL=heady-redis-url:latest,POSTGRES_URL=heady-postgres-url:latest" \
+            --min-instances 2 \
+            --max-instances 21 \
+            --concurrency 55 \
+            --cpu 1 \
+            --memory 2Gi \
+            --timeout 300 \
+            --format "value(status.latestCreatedRevisionName)" \
+            --quiet)
+
+          echo "revision=$NEW_REVISION" >> $GITHUB_OUTPUT
+          echo "New revision deployed: $NEW_REVISION (0% traffic)"
+
+      # ── Canary Step 1: fib(5)=5% ─────────────────────────
+      - name: Canary Step 1 — route 5% traffic to new revision
+        id: canary-1
+        run: |
+          OLD_REV="${{ steps.get-current.outputs.revision }}"
+          NEW_REV="${{ steps.deploy.outputs.revision }}"
+
+          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --to-revisions "${OLD_REV}=95,${NEW_REV}=${{ env.CANARY_STEP_1 }}" \
+            --quiet
+
+          echo "Traffic: 95% → old, ${{ env.CANARY_STEP_1 }}% → new"
+
+          # Wait fib(7)=13 seconds for traffic to stabilize
+          sleep ${{ env.CANARY_WAIT_SECONDS }}
+
+      - name: Smoke test at 5% canary
+        run: |
+          node scripts/ci/smoke-test.js \
+            --base-url "https://canary---${{ env.CLOUD_RUN_SERVICE }}-$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} --region ${{ env.GCP_REGION }} --format 'value(status.url)' | sed 's|https://||').a.run.app" \
+            --timeout ${{ env.SMOKE_TEST_TIMEOUT }} \
+            --retries ${{ env.HEALTH_RETRIES }}
+
+      # ── Canary Step 2: fib(7)=13% ─────────────────────────
+      - name: Canary Step 2 — route 13% traffic to new revision
+        id: canary-2
+        run: |
+          OLD_REV="${{ steps.get-current.outputs.revision }}"
+          NEW_REV="${{ steps.deploy.outputs.revision }}"
+
+          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --to-revisions "${OLD_REV}=87,${NEW_REV}=${{ env.CANARY_STEP_2 }}" \
+            --quiet
+
+          echo "Traffic: 87% → old, ${{ env.CANARY_STEP_2 }}% → new"
+          # Wait fib(8)=21 seconds at higher traffic level
+          sleep 21
+
+      - name: Smoke test at 13% canary
+        run: |
+          node scripts/ci/smoke-test.js \
+            --base-url "${{ secrets.CLOUD_RUN_SERVICE_URL }}" \
+            --timeout ${{ env.SMOKE_TEST_TIMEOUT }} \
+            --retries ${{ env.HEALTH_RETRIES }}
+
+      # ── Canary Step 3: fib(10)=55% ────────────────────────
+      - name: Canary Step 3 — route 55% traffic to new revision
+        id: canary-3
+        run: |
+          OLD_REV="${{ steps.get-current.outputs.revision }}"
+          NEW_REV="${{ steps.deploy.outputs.revision }}"
+
+          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --to-revisions "${OLD_REV}=45,${NEW_REV}=${{ env.CANARY_STEP_3 }}" \
+            --quiet
+
+          echo "Traffic: 45% → old, ${{ env.CANARY_STEP_3 }}% → new"
+          # Wait fib(9)=34 seconds at majority traffic level
+          sleep 34
+
+      - name: Smoke test at 55% canary
+        run: |
+          node scripts/ci/smoke-test.js \
+            --base-url "${{ secrets.CLOUD_RUN_SERVICE_URL }}" \
+            --timeout ${{ env.SMOKE_TEST_TIMEOUT }} \
+            --retries ${{ env.HEALTH_RETRIES }}
+
+      # ── Full Cutover: 100% ─────────────────────────────────
+      - name: Full cutover — route 100% traffic to new revision
+        id: cutover
+        run: |
+          NEW_REV="${{ steps.deploy.outputs.revision }}"
+
+          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --to-revisions "${NEW_REV}=100" \
+            --quiet
+
+          echo "Traffic: 100% → $NEW_REV"
+
+      - name: Final smoke test at 100%
+        run: |
+          node scripts/ci/smoke-test.js \
+            --base-url "${{ secrets.CLOUD_RUN_SERVICE_URL }}" \
+            --timeout ${{ env.SMOKE_TEST_TIMEOUT }} \
+            --retries ${{ env.HEALTH_RETRIES }} \
+            --full-suite
+
+  # ─────────────────────────────────────────────────────────────
+  # Post-Deploy: Rollback on failure
+  # ─────────────────────────────────────────────────────────────
+  rollback-on-failure:
+    name: Automatic Rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 13  # fib(7)=13
+    needs: [deploy]
+    if: failure() && needs.deploy.result == 'failure'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Rollback to previous revision
+        run: |
+          ROLLBACK_REV="${{ needs.deploy.outputs.rollback-revision }}"
+
+          if [ -z "$ROLLBACK_REV" ]; then
+            echo "::error::No rollback revision available!"
+            exit 1
+          fi
+
+          echo "Rolling back to: $ROLLBACK_REV"
+          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --to-revisions "${ROLLBACK_REV}=100" \
+            --quiet
+
+          echo "Rollback complete: 100% traffic on $ROLLBACK_REV"
+
+      - name: Verify rollback health
+        run: |
+          # φ-scaled retries: fib(5)=5, with φ-backoff intervals
+          for i in 1 1 2 3 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              --max-time 5 \
+              "${{ secrets.CLOUD_RUN_SERVICE_URL }}/health/live" || echo "000")
+            echo "Health check attempt: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "Rollback verified healthy!"
+              exit 0
+            fi
+            sleep $i
+          done
+          echo "::error::Rollback health check failed! Manual intervention required."
+          exit 1
+
+      - name: Create incident issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[INCIDENT] Production deployment failed — rolled back`,
+              body: [
+                `## :rotating_light: Production Deployment Incident`,
+                ``,
+                `**Severity**: CRITICAL`,
+                `**Status**: Rolled back automatically`,
+                ``,
+                `| Field | Value |`,
+                `|-------|-------|`,
+                `| **Failed Revision** | \`${{ needs.deploy.outputs.revision }}\` |`,
+                `| **Rolled Back To** | \`${{ needs.deploy.outputs.rollback-revision }}\` |`,
+                `| **Run** | [#${{ github.run_number }}](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }}) |`,
+                `| **Timestamp** | \`${new Date().toISOString()}\` |`,
+                ``,
+                `### Immediate Actions Required`,
+                `1. Investigate the failed deployment logs`,
+                `2. Fix the identified issue`,
+                `3. Re-run the promotion pipeline`,
+                `4. Deploy corrected version`,
+                ``,
+                `*Auto-generated by Heady CI/CD Bot*`
+              ].join('\n'),
+              labels: ['incident', 'critical', 'production']
+            });
+
+      - name: Notify Slack of rollback
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Production Deployment'
+          job-name: 'deploy'
+          failure-summary: 'Production deployment failed. Automatic rollback executed. Rolled back to ${{ needs.deploy.outputs.rollback-revision }}.'
+          environment: 'production'
+          severity: 'critical'
+
+  # ─────────────────────────────────────────────────────────────
+  # Post-Deploy: Tag release, create GitHub Release
+  # ─────────────────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 13  # fib(7)=13
+    needs: [deploy, build]
+    if: needs.deploy.result == 'success'
+    permissions:
+      contents: write
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          fetch-depth: '0'
+
+      - name: Generate release changelog
+        run: |
+          git fetch --tags
+          BASE=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "v0.0.0")
+          node scripts/ci/generate-changelog.js \
+            --from "$BASE" \
+            --to HEAD \
+            --output /tmp/release-notes.md \
+            --format markdown
+
+      - name: Tag and create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.build.outputs.version }}
+          name: 'Heady Systems ${{ needs.build.outputs.version }}'
+          body_path: /tmp/release-notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+
+      - name: Log deployment to audit trail
+        run: |
+          START_TIME="${{ github.event.pull_request.merged_at || github.event.created_at }}"
+          node scripts/ci/deployment-audit.js \
+            --version "${{ needs.build.outputs.version }}" \
+            --commit "${{ github.sha }}" \
+            --environment "production" \
+            --deployer "${{ github.actor }}" \
+            --revision "${{ needs.deploy.outputs.revision }}" \
+            --duration "$(( $(date +%s) - $(date -d '${START_TIME}' +%s 2>/dev/null || echo $(date +%s)) ))"
+
+      - name: Notify success to Slack
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "username": "Heady CI/CD Bot",
+            "icon_emoji": ":rocket:",
+            "text": ":white_check_mark: *Production Deployment Successful!*\nVersion: ${{ needs.build.outputs.version }}\nRevision: ${{ needs.deploy.outputs.revision }}\nDeployed by: ${{ github.actor }}\nService: https://headyme.com"
+          }
+          EOF
+          )
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            --data "$PAYLOAD" \
+            "${{ secrets.SLACK_CI_WEBHOOK }}" || true

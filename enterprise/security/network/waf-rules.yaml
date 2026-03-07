@@ -1,0 +1,433 @@
+# HeadySystems v3.2.2 — Cloudflare WAF Rules
+# ===========================================
+# Web Application Firewall rules for all 9 HeadySystems domains.
+# Configured via Cloudflare Terraform provider or API.
+#
+# Rate limits use φ-derived Fibonacci burst rates:
+#   φ=1.618033988749895
+#   fib(5)=5, fib(6)=8, fib(7)=13, fib(8)=21, fib(9)=34, fib(10)=55, fib(11)=89
+#
+# Cloudflare rulesets: Custom Rules, Rate Limiting, Bot Management, DDoS L7
+# Apply via: terraform apply / cloudflare API POST /zones/{zone_id}/rulesets
+
+# Domains covered:
+#   headyme.com, headyconnection.com, headyconnection.org, headyos.com,
+#   heady.exchange, heady.investments, headysystems.com, headyai.com
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RATE LIMITING RULES (φ-scaled)
+# ─────────────────────────────────────────────────────────────────────────────
+rate_limiting:
+
+  # Global API rate limit: fib(10)=55 requests per 10 seconds per IP
+  # = fib(10)=55 × φ = 89 req/min ceiling
+  - id: heady-rate-global-api
+    description: "Global API rate limit — fib(10)=55 req per 10s per IP (φ-Fibonacci)"
+    match:
+      request:
+        methods: [GET, POST, PUT, PATCH, DELETE]
+        url_pattern: "/api/*"
+    threshold:
+      requests_per_period: 55        # fib(10)=55
+      period_seconds: 10
+    action: challenge                # CAPTCHA challenge before block
+    response:
+      status: 429
+      body: '{"error":"rate_limited","fibonacci_limit":55,"phi":1.618033988749895}'
+
+  # Authentication rate limit: fib(6)=8 attempts per 60 seconds per IP
+  # Prevents brute-force on WebAuthn / JWT flows
+  - id: heady-rate-auth
+    description: "Authentication rate limit — fib(6)=8 attempts per 60s (φ-Fibonacci)"
+    match:
+      request:
+        methods: [POST]
+        url_pattern:
+          - "/auth/*"
+          - "/api/auth/*"
+          - "/login"
+    threshold:
+      requests_per_period: 8         # fib(6)=8
+      period_seconds: 60
+    action: block
+    response:
+      status: 429
+      headers:
+        Retry-After: "89"            # fib(11)=89 seconds cooldown
+      body: '{"error":"auth_rate_limited","retry_after_seconds":89}'
+
+  # API key creation rate limit: fib(4)=3 per fib(10)=55 seconds
+  - id: heady-rate-api-key-creation
+    description: "API key creation rate limit — fib(4)=3 per 55s"
+    match:
+      request:
+        methods: [POST]
+        url_pattern: "/api/keys*"
+    threshold:
+      requests_per_period: 3         # fib(4)=3
+      period_seconds: 55             # fib(10)=55
+    action: block
+    response:
+      status: 429
+      body: '{"error":"key_creation_rate_limited"}'
+
+  # MCP tool execution rate limit: fib(9)=34 calls per 10 seconds per user
+  - id: heady-rate-mcp-tools
+    description: "MCP tool execution rate limit — fib(9)=34 per 10s per user"
+    match:
+      request:
+        methods: [POST]
+        url_pattern: "/api/mcp/tools/*"
+    threshold:
+      requests_per_period: 34        # fib(9)=34
+      period_seconds: 10
+      counting_expression: "cf.unique_headers[\"authorization\"]"  # Per user token
+    action: block
+    response:
+      status: 429
+      headers:
+        X-RateLimit-Limit: "34"      # fib(9)=34
+        X-RateLimit-Window: "10"
+      body: '{"error":"mcp_rate_limited","fibonacci_limit":34}'
+
+  # Search/query rate limit: fib(8)=21 per fib(5)=5 seconds per IP
+  - id: heady-rate-search
+    description: "Memory search rate limit — fib(8)=21 per 5s"
+    match:
+      request:
+        methods: [POST]
+        url_pattern: "/api/memory/search"
+    threshold:
+      requests_per_period: 21        # fib(8)=21
+      period_seconds: 5              # fib(5)=5
+    action: challenge
+    response:
+      status: 429
+
+  # WebSocket connection rate: fib(6)=8 new connections per fib(8)=21 seconds per IP
+  - id: heady-rate-websocket
+    description: "WebSocket connection rate — fib(6)=8 per 21s per IP"
+    match:
+      request:
+        methods: [GET]
+        url_pattern: "/ws"
+        headers:
+          Connection: "Upgrade"
+    threshold:
+      requests_per_period: 8         # fib(6)=8
+      period_seconds: 21             # fib(8)=21
+    action: block
+    response:
+      status: 429
+
+  # Admin panel rate limit (strictest): fib(4)=3 requests per fib(7)=13 seconds
+  - id: heady-rate-admin
+    description: "Admin API strict rate limit — fib(4)=3 per 13s"
+    match:
+      request:
+        url_pattern: "/admin/*"
+    threshold:
+      requests_per_period: 3         # fib(4)=3
+      period_seconds: 13             # fib(7)=13
+    action: block
+    response:
+      status: 429
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BOT PROTECTION
+# ─────────────────────────────────────────────────────────────────────────────
+bot_protection:
+  # Cloudflare Bot Management settings
+  mode: "js_challenge"  # JS Challenge for suspicious bot scores
+
+  # Allow verified good bots (Googlebot, Bingbot, etc.)
+  good_bots: allow
+
+  # Bot score threshold: block if score ≤ fib(5)=5 (very likely bot)
+  # Scores: 0 (definite bot) → 100 (definite human)
+  # fib(5)=5 captures automated scripts, fib(9)=34 as challenge threshold
+  challenge_threshold: 34   # fib(9)=34 — challenge uncertain bots
+  block_threshold: 5        # fib(5)=5 — block definite bots
+
+  # Custom rules for HeadySystems-specific bot patterns
+  custom_rules:
+    - id: heady-block-curl-scraping
+      description: "Block bulk curl/wget scraping of domain content"
+      expression: |
+        (http.user_agent contains "curl" or http.user_agent contains "wget" or http.user_agent contains "python-requests")
+        and not http.request.headers["x-synthetic-monitor"] == "true"
+        and rate(1m) > 55
+      action: block
+
+    - id: heady-allow-synthetic-monitor
+      description: "Allow HeadySystems synthetic monitor (identified by header)"
+      expression: 'http.request.headers["x-synthetic-monitor"] == "true"'
+      action: allow
+      priority: 1  # Highest priority — always allow
+
+    - id: heady-allow-k6-load-test
+      description: "Allow k6 load test traffic (identified by user-agent prefix)"
+      expression: 'http.user_agent contains "k6-" and ip.src in {YOUR_LOAD_TEST_IP_RANGE}'
+      action: allow
+      priority: 2
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INJECTION ATTACK RULES (SQL, XSS, Path Traversal, Command)
+# ─────────────────────────────────────────────────────────────────────────────
+custom_waf_rules:
+
+  # SQL Injection detection
+  - id: heady-block-sqli
+    description: "Block SQL injection attempts"
+    expression: |
+      (
+        http.request.uri.query contains "UNION SELECT" or
+        http.request.uri.query contains "OR 1=1" or
+        http.request.uri.query contains "'; DROP" or
+        http.request.body contains "UNION SELECT" or
+        http.request.body contains "'; DROP TABLE" or
+        http.request.body contains "OR '1'='1" or
+        http.request.body contains "/*" and http.request.body contains "*/" and
+          http.request.body contains "SELECT"
+      ) and not http.request.headers["x-heady-internal"] == "true"
+    action: block
+    logging: true
+
+  # XSS detection
+  - id: heady-block-xss
+    description: "Block Cross-Site Scripting (XSS) attempts"
+    expression: |
+      (
+        http.request.uri.query contains "<script" or
+        http.request.uri.query contains "javascript:" or
+        http.request.uri.query contains "onerror=" or
+        http.request.uri.query contains "onload=" or
+        http.request.body contains "<script" or
+        http.request.body contains "javascript:" or
+        http.request.body contains "onerror=" or
+        http.request.body contains "document.cookie" or
+        http.request.body contains "eval(" or
+        http.request.body contains "String.fromCharCode("
+      )
+    action: block
+    logging: true
+
+  # Path traversal
+  - id: heady-block-path-traversal
+    description: "Block path traversal attempts"
+    expression: |
+      (
+        http.request.uri.path contains "../" or
+        http.request.uri.path contains "..\\" or
+        http.request.uri.query contains "../" or
+        http.request.uri.query contains "%2e%2e%2f" or
+        http.request.uri.query contains "%252e%252e%252f"
+      )
+    action: block
+    logging: true
+
+  # Server-Side Request Forgery (SSRF)
+  - id: heady-block-ssrf
+    description: "Block SSRF attempts via URL parameters"
+    expression: |
+      (
+        http.request.uri.query contains "169.254.169.254" or
+        http.request.uri.query contains "metadata.google.internal" or
+        http.request.uri.query contains "metadata.gce.internal" or
+        http.request.body contains "169.254.169.254" or
+        http.request.body contains "metadata.google.internal" or
+        http.request.body contains "file://" or
+        http.request.body contains "gopher://" or
+        http.request.body contains "dict://"
+      )
+    action: block
+    logging: true
+
+  # Command injection
+  - id: heady-block-cmd-injection
+    description: "Block command injection attempts"
+    expression: |
+      (
+        http.request.body contains "; cat /etc/passwd" or
+        http.request.body contains "| wget" or
+        http.request.body contains "| curl" or
+        http.request.body contains "$(curl " or
+        http.request.body contains "`whoami`" or
+        http.request.body contains "&&/bin/bash" or
+        http.request.body contains ";/bin/sh"
+      )
+    action: block
+    logging: true
+
+  # XML External Entity (XXE) injection
+  - id: heady-block-xxe
+    description: "Block XXE injection attempts"
+    expression: |
+      (
+        http.request.body contains "<!ENTITY" or
+        http.request.body contains "SYSTEM \"file://" or
+        http.request.body contains "<!DOCTYPE"
+      ) and (
+        http.request.headers["content-type"] contains "xml" or
+        http.request.body contains "<?xml"
+      )
+    action: block
+    logging: true
+
+  # Prompt injection targeting HeadyBrain API
+  - id: heady-detect-prompt-injection
+    description: "Detect prompt injection attempts via HeadyBrain chat endpoint"
+    expression: |
+      http.request.uri.path contains "/api/brain" and (
+        http.request.body contains "ignore previous instructions" or
+        http.request.body contains "disregard your system prompt" or
+        http.request.body contains "you are now" or
+        http.request.body contains "DAN mode" or
+        http.request.body contains "jailbreak" or
+        http.request.body contains "ignore all prior"
+      )
+    action: log   # Log only — heady-brain input validator provides defense-in-depth
+    logging: true
+
+  # API abuse: oversized payloads
+  # Max body: fib(13)=233 KB (233 × 1024 = 238592 bytes)
+  - id: heady-block-oversized-payload
+    description: "Block requests exceeding fib(13)=233 KB body limit"
+    expression: |
+      http.request.body.size > 238592
+    action: block
+    response:
+      status: 413
+      body: '{"error":"payload_too_large","max_bytes":238592,"fibonacci_ref":"fib(13)=233KB"}'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GEOGRAPHIC RESTRICTIONS
+# ─────────────────────────────────────────────────────────────────────────────
+geo_restrictions:
+
+  # Administrative endpoints: US + EU only
+  - id: heady-geo-admin
+    description: "Admin portal: allow US + EU only"
+    match:
+      url_pattern: "/admin/*"
+    blocked_countries:
+      mode: allowlist
+      countries: [US, CA, GB, DE, FR, NL, SE, NO, CH, AU, NZ]
+    action: block
+    response:
+      status: 403
+      body: '{"error":"geo_restricted","message":"Administrative access is geographically restricted"}'
+
+  # OFAC-sanctioned countries: block all access
+  - id: heady-geo-ofac-block
+    description: "Block access from OFAC-sanctioned countries"
+    blocked_countries:
+      mode: blocklist
+      # Current OFAC sanctioned: Cuba, Iran, North Korea, Syria, Russia (Crimea/certain regions)
+      countries: [CU, IR, KP, SY]
+    match:
+      url_pattern: "/*"
+    action: block
+    response:
+      status: 451   # HTTP 451: Unavailable For Legal Reasons
+      body: '{"error":"access_restricted","legal_reason":"OFAC_sanctions"}'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# API ABUSE DETECTION (Advanced)
+# ─────────────────────────────────────────────────────────────────────────────
+api_abuse_detection:
+
+  # Credential stuffing: fib(4)=3 failed logins from same IP in fib(7)=13 minutes
+  - id: heady-detect-credential-stuffing
+    description: "Block credential stuffing — fib(4)=3 failures in fib(7)=13 min"
+    expression: |
+      http.request.uri.path contains "/auth/" and
+      http.response.code == 401
+    threshold:
+      failures_per_period: 3         # fib(4)=3
+      period_seconds: 780            # fib(7)=13 × 60s
+    action: ban
+    ban_duration_seconds: 3600       # 1 hour ban (φ × fib(11)=89 × 40 ≈ 3600s)
+
+  # Scraping detection: content accessed in non-human patterns
+  - id: heady-detect-scraping
+    description: "Detect and challenge systematic content scraping"
+    expression: |
+      rate(10s) > 89 and         # fib(11)=89 req per 10s is non-human
+      http.user_agent not contains "HeadySystems-SyntheticMonitor" and
+      http.user_agent not contains "k6-"
+    action: js_challenge
+
+  # Enumeration attack: scanning non-existent paths
+  - id: heady-detect-enumeration
+    description: "Block path enumeration attacks"
+    expression: |
+      http.response.code == 404
+    threshold:
+      requests_per_period: 34        # fib(9)=34 404s
+      period_seconds: 60
+    action: challenge
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MANAGED RULES (Cloudflare OWASP Managed Ruleset)
+# ─────────────────────────────────────────────────────────────────────────────
+managed_rulesets:
+  - ruleset_id: efb7b8c949ac4650a09736fc376e9aee  # Cloudflare OWASP Core Ruleset
+    enabled: true
+    # Paranoia level: fib(3)=2 (PL2 — balanced protection, low false positives)
+    paranoia_level: 2
+    # Anomaly score threshold: fib(5)=5 (score 5+ = block)
+    anomaly_score_threshold: 5
+
+  - ruleset_id: 4814384a9e5d4991b9815dcfc25d2f1f  # Cloudflare DDoS L7
+    enabled: true
+    sensitivity: medium
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECURITY HEADERS (via Cloudflare Transform Rules)
+# ─────────────────────────────────────────────────────────────────────────────
+security_headers:
+  # Applied to all responses from all 9 HeadySystems domains
+  response_headers:
+    - name: Strict-Transport-Security
+      value: "max-age=31536000; includeSubDomains; preload"
+      # 31536000s = 365 days ≈ fib(16)=987 × 365s ≈ 1 year
+
+    - name: X-Content-Type-Options
+      value: "nosniff"
+
+    - name: X-Frame-Options
+      value: "DENY"
+
+    - name: X-XSS-Protection
+      value: "1; mode=block"
+
+    - name: Referrer-Policy
+      value: "strict-origin-when-cross-origin"
+
+    - name: Content-Security-Policy
+      value: >
+        default-src 'self';
+        script-src 'self' 'nonce-{NONCE}' https://cdn.headyme.com;
+        style-src 'self' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' data: https:;
+        connect-src 'self' https://api.headyme.com wss://headyme.com;
+        frame-ancestors 'none';
+        base-uri 'self';
+        form-action 'self'
+
+    - name: Permissions-Policy
+      value: "camera=(), microphone=(), geolocation=(), payment=()"
+
+    - name: X-Phi-Constant
+      value: "1.618033988749895"  # HeadySystems golden ratio signature
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NOTES:
+# 1. All rate limits use φ-Fibonacci values:
+#    fib(4)=3, fib(5)=5, fib(6)=8, fib(7)=13, fib(8)=21, fib(9)=34, fib(10)=55, fib(11)=89
+# 2. Apply via Cloudflare Terraform provider:
+#    resource "cloudflare_ruleset" "heady_waf" { ... }
+# 3. Test in log-only mode for fib(8)=21 days before enabling block mode
+# 4. False positive review: Weekly during first fib(10)=55 days of deployment

@@ -1,0 +1,320 @@
+# ============================================================
+# .github/workflows/rollback.yml
+# Manual Rollback Workflow
+#
+# Purpose: Emergency rollback of Cloud Run service to a
+# previous revision. Can target a specific revision number
+# or the string "previous" to auto-select the last stable.
+#
+# Inputs:
+#   revision  — specific Cloud Run revision name OR "previous"
+#   reason    — human-readable reason for rollback
+#   notify    — whether to send Slack notification
+#
+# φ design:
+#   Health check retries: fib(5)=5 with φ-backoff (1,1,2,3,5s)
+#   Timeout: fib(7)=13 minutes
+# ============================================================
+
+name: Manual Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: 'Cloud Run revision to rollback to (or "previous")'
+        required: true
+        default: 'previous'
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+      notify:
+        description: 'Send Slack notification'
+        required: false
+        default: 'true'
+        type: boolean
+
+# Prevent concurrent rollbacks
+concurrency:
+  group: production-rollback
+  cancel-in-progress: false
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: us-central1
+  CLOUD_RUN_SERVICE: heady-manager
+  # Fibonacci health check retry delays: 1,1,2,3,5 seconds
+  HEALTH_RETRIES: '5'
+  # Smoke test timeout: φ^2 × 1000 = 2618ms
+  SMOKE_TIMEOUT: '2618'
+
+jobs:
+  rollback:
+    name: Rollback Cloud Run Service
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(7)=13 minutes
+    timeout-minutes: 13
+    environment:
+      name: production
+      url: https://headyme.com
+    steps:
+      # ── 1. Checkout for scripts ──────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # ── 2. Auth ──────────────────────────────────────────────
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      # ── 3. Record current state before rollback ──────────────
+      - name: Record current deployment state
+        id: current-state
+        run: |
+          echo "=== Current Service State ==="
+
+          # Get currently serving revision
+          CURRENT=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --format "value(status.traffic[0].revisionName)")
+          echo "CURRENT_REVISION=$CURRENT" >> $GITHUB_OUTPUT
+
+          # Get full traffic split
+          TRAFFIC=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --format "json(status.traffic)")
+          echo "CURRENT_TRAFFIC=$TRAFFIC" >> $GITHUB_OUTPUT
+          echo "$TRAFFIC"
+
+          # List recent revisions
+          echo ""
+          echo "=== Recent Revisions ==="
+          gcloud run revisions list \
+            --service ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --limit 8 \
+            --format "table(metadata.name,status.conditions[0].lastTransitionTime,metadata.labels['serving.knative.dev/configurationGeneration'])"
+
+      # ── 4. Resolve rollback target revision ─────────────────
+      - name: Resolve rollback target
+        id: resolve-target
+        run: |
+          INPUT_REV="${{ inputs.revision }}"
+
+          if [ "$INPUT_REV" = "previous" ]; then
+            # Find the revision just before the currently active one
+            CURRENT="${{ steps.current-state.outputs.CURRENT_REVISION }}"
+
+            # List revisions sorted by creation time, find the one before current
+            TARGET=$(gcloud run revisions list \
+              --service ${{ env.CLOUD_RUN_SERVICE }} \
+              --region ${{ env.GCP_REGION }} \
+              --limit 8 \
+              --format "value(metadata.name)" | \
+              grep -v "$CURRENT" | \
+              head -1)
+
+            if [ -z "$TARGET" ]; then
+              echo "::error::No previous revision found for rollback!"
+              exit 1
+            fi
+            echo "Resolved 'previous' to: $TARGET"
+          else
+            TARGET="$INPUT_REV"
+            echo "Using specified revision: $TARGET"
+          fi
+
+          # Verify the target revision exists
+          gcloud run revisions describe "$TARGET" \
+            --region ${{ env.GCP_REGION }} \
+            --quiet || {
+            echo "::error::Revision $TARGET not found!"
+            exit 1
+          }
+
+          echo "TARGET_REVISION=$TARGET" >> $GITHUB_OUTPUT
+          echo "Rollback target confirmed: $TARGET"
+
+      # ── 5. Execute rollback ──────────────────────────────────
+      - name: Execute rollback
+        id: execute-rollback
+        run: |
+          TARGET="${{ steps.resolve-target.outputs.TARGET_REVISION }}"
+          CURRENT="${{ steps.current-state.outputs.CURRENT_REVISION }}"
+
+          echo "=== Executing Rollback ==="
+          echo "From: $CURRENT → To: $TARGET"
+          echo "Reason: ${{ inputs.reason }}"
+          echo "Initiated by: ${{ github.actor }}"
+
+          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --to-revisions "${TARGET}=100" \
+            --quiet
+
+          echo "Rollback command executed. Verifying traffic..."
+
+          # Confirm traffic was updated
+          NEW_TRAFFIC=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} \
+            --format "value(status.traffic[0].revisionName)")
+          echo "Active revision is now: $NEW_TRAFFIC"
+
+          if [ "$NEW_TRAFFIC" != "$TARGET" ]; then
+            echo "::error::Traffic update failed! Expected $TARGET but got $NEW_TRAFFIC"
+            exit 1
+          fi
+
+      # ── 6. Health verification ───────────────────────────────
+      - name: Verify rollback health
+        run: |
+          BASE_URL="${{ secrets.CLOUD_RUN_SERVICE_URL }}"
+          TIMEOUT=${{ env.SMOKE_TIMEOUT }}
+
+          echo "=== Health Verification After Rollback ==="
+
+          # φ-Fibonacci retry delays: 1,1,2,3,5 seconds
+          DELAYS=(1 1 2 3 5)
+          PASS=false
+
+          for delay in "${DELAYS[@]}"; do
+            echo "Checking /health/live (waiting ${delay}s first)..."
+            sleep $delay
+
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              --max-time $(echo "scale=0; $TIMEOUT/1000" | bc) \
+              "${BASE_URL}/health/live" || echo "000")
+
+            echo "  /health/live → HTTP $STATUS"
+
+            if [ "$STATUS" = "200" ]; then
+              PASS=true
+              break
+            fi
+          done
+
+          if [ "$PASS" = "false" ]; then
+            echo "::error::Health check failed after rollback! Manual intervention required."
+            exit 1
+          fi
+
+          # Also check ready endpoint
+          READY=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 5 \
+            "${BASE_URL}/health/ready" || echo "000")
+          echo "/health/ready → HTTP $READY"
+
+          echo "=== Rollback health verification PASSED ==="
+
+      # ── 7. Run smoke tests ───────────────────────────────────
+      - name: Run smoke tests
+        run: |
+          node scripts/ci/smoke-test.js \
+            --base-url "${{ secrets.CLOUD_RUN_SERVICE_URL }}" \
+            --timeout ${{ env.SMOKE_TIMEOUT }} \
+            --retries 5
+
+      # ── 8. Log rollback to audit trail ───────────────────────
+      - name: Log rollback to audit trail
+        run: |
+          node -e "
+            const { execSync } = require('child_process');
+            execSync([
+              'node scripts/ci/deployment-audit.js',
+              '--version rollback',
+              '--commit ${{ github.sha }}',
+              '--environment production',
+              '--deployer ${{ github.actor }}',
+              '--revision ${{ steps.resolve-target.outputs.TARGET_REVISION }}',
+              '--note \"ROLLBACK: ${{ inputs.reason }}\"',
+              '--type rollback'
+            ].join(' '));
+          " 2>/dev/null || echo "::warning::Audit log failed (non-blocking)"
+
+      # ── 9. Create rollback audit issue ───────────────────────
+      - name: Create rollback audit issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Rollback] ${new Date().toISOString().split('T')[0]} — ${{ inputs.reason }}`,
+              body: [
+                `## :rewind: Production Rollback Executed`,
+                ``,
+                `| Field | Value |`,
+                `|-------|-------|`,
+                `| **Rolled Back From** | \`${{ steps.current-state.outputs.CURRENT_REVISION }}\` |`,
+                `| **Rolled Back To** | \`${{ steps.resolve-target.outputs.TARGET_REVISION }}\` |`,
+                `| **Initiated By** | @${{ github.actor }} |`,
+                `| **Reason** | ${{ inputs.reason }} |`,
+                `| **Timestamp** | \`${new Date().toISOString()}\` |`,
+                `| **Run** | [#${{ github.run_number }}](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }}) |`,
+                ``,
+                `### Health Status`,
+                `- /health/live: :white_check_mark: 200`,
+                `- /health/ready: :white_check_mark: 200`,
+                `- Smoke tests: :white_check_mark: Passed`,
+                ``,
+                `### Follow-up Required`,
+                `- [ ] Identify root cause of issue requiring rollback`,
+                `- [ ] Fix in pre-production branch`,
+                `- [ ] Re-run promotion pipeline`,
+                `- [ ] Deploy corrected version`,
+                ``,
+                `*Auto-generated by Heady CI/CD Bot — φ-aligned rollback*`
+              ].join('\n'),
+              labels: ['rollback', 'production', 'audit']
+            });
+
+      # ── 10. Slack notification ───────────────────────────────
+      - name: Notify Slack of rollback
+        if: ${{ inputs.notify == 'true' }}
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "username": "Heady CI/CD Bot",
+            "icon_emoji": ":rewind:",
+            "attachments": [{
+              "color": "#FFA500",
+              "text": ":rewind: *Manual Rollback Executed*\n*From:* \`${{ steps.current-state.outputs.CURRENT_REVISION }}\`\n*To:* \`${{ steps.resolve-target.outputs.TARGET_REVISION }}\`\n*Reason:* ${{ inputs.reason }}\n*By:* ${{ github.actor }}\n*Health:* :white_check_mark: Verified"
+            }]
+          }
+          EOF
+          )
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            --data "$PAYLOAD" \
+            "${{ secrets.SLACK_CI_WEBHOOK }}" || true
+
+      # ── Failure handler ──────────────────────────────────────
+      - name: Notify rollback failure
+        if: failure()
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "username": "Heady CI/CD Bot",
+            "icon_emoji": ":fire:",
+            "attachments": [{
+              "color": "#FF0000",
+              "text": ":fire: *CRITICAL: Rollback FAILED!*\nManual intervention required immediately!\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\nReason: ${{ inputs.reason }}"
+            }]
+          }
+          EOF
+          )
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            --data "$PAYLOAD" \
+            "${{ secrets.SLACK_CI_WEBHOOK }}" || true

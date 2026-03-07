@@ -1,0 +1,259 @@
+# ============================================================
+# .github/actions/notify-failure/action.yml
+# Composite Action: Failure Notification
+#
+# Responsibilities:
+#   - Format a rich failure message from pipeline context
+#   - Send structured alert to Slack webhook
+#   - Create a GitHub Issue with full failure context
+#
+# φ Design:
+#   - Slack message blocks use fib(8)=21 character line limit
+#   - Issue body uses SHA-256 fingerprint for deduplication
+# ============================================================
+
+name: 'Notify Failure'
+description: 'Format failure message, send to Slack, create GitHub issue'
+
+inputs:
+  slack-webhook-url:
+    description: 'Slack incoming webhook URL'
+    required: true
+  github-token:
+    description: 'GitHub token for issue creation'
+    required: true
+  workflow-name:
+    description: 'Name of the failed workflow'
+    required: true
+  job-name:
+    description: 'Name of the failed job'
+    required: false
+    default: 'unknown'
+  failure-summary:
+    description: 'Short human-readable summary of the failure'
+    required: false
+    default: 'A CI/CD job has failed. See the linked run for details.'
+  environment:
+    description: 'Target environment (pre-production, production)'
+    required: false
+    default: 'pre-production'
+  severity:
+    description: 'Severity level: low | medium | high | critical'
+    required: false
+    default: 'high'
+
+outputs:
+  issue-number:
+    description: 'Created GitHub issue number'
+    value: ${{ steps.create-issue.outputs.issue-number }}
+  slack-status:
+    description: 'Slack delivery status (sent | failed)'
+    value: ${{ steps.send-slack.outputs.status }}
+
+runs:
+  using: 'composite'
+  steps:
+    # ── 1. Build failure fingerprint ────────────────────────────
+    #  SHA-256 of (workflow + job + run_id) → prevents duplicate issues
+    - name: Build failure fingerprint
+      id: fingerprint
+      shell: bash
+      run: |
+        RAW="${{ inputs.workflow-name }}:${{ inputs.job-name }}:${{ github.run_id }}"
+        FP=$(echo -n "$RAW" | sha256sum | awk '{print $1}')
+        echo "FINGERPRINT=$FP" >> $GITHUB_OUTPUT
+        echo "::notice::Failure fingerprint: $FP"
+
+    # ── 2. Resolve severity color for Slack ─────────────────────
+    - name: Resolve severity color
+      id: severity
+      shell: bash
+      run: |
+        case "${{ inputs.severity }}" in
+          critical) COLOR="#FF0000" ;;  # red
+          high)     COLOR="#FF6B35" ;;  # orange-red
+          medium)   COLOR="#FFA500" ;;  # orange
+          low)      COLOR="#FFD700" ;;  # yellow
+          *)        COLOR="#808080" ;;  # grey
+        esac
+        echo "COLOR=$COLOR" >> $GITHUB_OUTPUT
+
+    # ── 3. Send Slack notification ───────────────────────────────
+    - name: Send Slack notification
+      id: send-slack
+      shell: bash
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
+        SEVERITY_COLOR: ${{ steps.severity.outputs.COLOR }}
+      run: |
+        # Build Slack Block Kit payload
+        # φ-principle: structured info hierarchy, fib(3)=2 action buttons
+        PAYLOAD=$(cat <<EOF
+        {
+          "username": "Heady CI/CD Bot",
+          "icon_emoji": ":rotating_light:",
+          "attachments": [
+            {
+              "color": "$SEVERITY_COLOR",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": ":x: Pipeline Failure: ${{ inputs.workflow-name }}",
+                    "emoji": true
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Workflow:*\n${{ inputs.workflow-name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Failed Job:*\n${{ inputs.job-name }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Environment:*\n${{ inputs.environment }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Severity:*\n${{ inputs.severity }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch:*\n${GITHUB_REF_NAME:-unknown}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Commit:*\n${GITHUB_SHA:0:8}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Summary:*\n${{ inputs.failure-summary }}"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "View Run", "emoji": true },
+                      "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                      "style": "danger"
+                    },
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "View Commit", "emoji": true },
+                      "url": "https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "Fingerprint: \`${{ steps.fingerprint.outputs.FINGERPRINT }}\` | Run #${{ github.run_number }}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+        )
+
+        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+          -X POST \
+          -H "Content-Type: application/json" \
+          --data "$PAYLOAD" \
+          "$SLACK_WEBHOOK_URL")
+
+        if [ "$HTTP_STATUS" = "200" ]; then
+          echo "status=sent" >> $GITHUB_OUTPUT
+          echo "::notice::Slack notification delivered (HTTP $HTTP_STATUS)"
+        else
+          echo "status=failed" >> $GITHUB_OUTPUT
+          echo "::warning::Slack notification failed (HTTP $HTTP_STATUS)"
+        fi
+
+    # ── 4. Create GitHub Issue ───────────────────────────────────
+    - name: Create GitHub incident issue
+      id: create-issue
+      uses: actions/github-script@v7
+      env:
+        FAILURE_SUMMARY: ${{ inputs.failure-summary }}
+        FINGERPRINT: ${{ steps.fingerprint.outputs.FINGERPRINT }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fingerprint = process.env.FINGERPRINT;
+          const summary = process.env.FAILURE_SUMMARY;
+
+          // Check for duplicate issue (same fingerprint still open)
+          const existing = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            labels: 'ci-failure',
+            per_page: 21  // fib(8)=21
+          });
+
+          const duplicate = existing.data.find(i =>
+            i.body && i.body.includes(fingerprint)
+          );
+
+          if (duplicate) {
+            console.log(`Duplicate issue found: #${duplicate.number} — skipping creation`);
+            core.setOutput('issue-number', duplicate.number.toString());
+            return;
+          }
+
+          const body = [
+            `## :x: CI/CD Pipeline Failure`,
+            ``,
+            `| Field | Value |`,
+            `|-------|-------|`,
+            `| **Workflow** | \`${{ inputs.workflow-name }}\` |`,
+            `| **Failed Job** | \`${{ inputs.job-name }}\` |`,
+            `| **Environment** | \`${{ inputs.environment }}\` |`,
+            `| **Severity** | \`${{ inputs.severity }}\` |`,
+            `| **Branch** | \`${context.ref}\` |`,
+            `| **Commit** | [\`${context.sha.substring(0,8)}\`](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}) |`,
+            `| **Run** | [#${{ github.run_number }}](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }}) |`,
+            `| **Triggered By** | \`${context.actor}\` |`,
+            `| **Timestamp** | \`${new Date().toISOString()}\` |`,
+            ``,
+            `### Summary`,
+            summary,
+            ``,
+            `### Remediation`,
+            `1. Review the [failed run](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${{ github.run_id }}) logs`,
+            `2. Fix the identified issue in \`pre-production\` branch`,
+            `3. Re-trigger the promotion pipeline`,
+            `4. Close this issue when resolved`,
+            ``,
+            `---`,
+            `<!-- fingerprint:${fingerprint} -->`,
+            `*Auto-generated by Heady CI/CD Bot — φ-aligned pipeline*`
+          ].join('\n');
+
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `[CI Failure] ${{ inputs.workflow-name }} — ${{ inputs.job-name }}`,
+            body: body,
+            labels: ['ci-failure', '${{ inputs.severity }}', '${{ inputs.environment }}']
+          });
+
+          console.log(`Created issue #${issue.data.number}`);
+          core.setOutput('issue-number', issue.data.number.toString());

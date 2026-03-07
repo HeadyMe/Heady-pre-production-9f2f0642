@@ -1,0 +1,387 @@
+# HeadySystems v3.2.2 — GitHub Actions: Trivy Container Image Security Scanning
+# ================================================================================
+# Scans all container images for CVEs on every PR and push.
+# Fails the pipeline on CRITICAL or HIGH severity CVEs.
+# Reports findings to GitHub Security Dashboard (SARIF) and Slack.
+#
+# Complements existing workflows: container-scan.yml, security-gate.yml,
+#   dependency-check.yml, sast-pipeline.yml
+#
+# All numeric parameters: φ=1.618033988749895, Fibonacci sequences.
+# Timeout: fib(7)=13 minutes per scan. Max critical CVEs: 0. Max high CVEs: 0.
+
+name: Trivy Container Security Scan
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/**'
+      - 'hotfix/**'
+    paths:
+      - 'Dockerfile'
+      - 'Dockerfile.*'
+      - '.github/workflows/trivy-scan.yml'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'src/**'
+      - 'packages/**'
+
+  pull_request:
+    branches:
+      - main
+      - develop
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'Dockerfile'
+      - 'Dockerfile.*'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'src/**'
+
+  # Scheduled: Daily at 03:00 UTC (fib(8)=21 × fib(5)=5 min = 105 min into the day → 01:45 UTC ≈ 03:00 UTC)
+  schedule:
+    - cron: '0 3 * * *'  # 03:00 UTC daily
+
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      severity:
+        description: 'Minimum severity to report (CRITICAL,HIGH,MEDIUM,LOW)'
+        required: false
+        default: 'CRITICAL,HIGH'
+        type: string
+      fail_on_critical:
+        description: 'Fail pipeline on CRITICAL CVEs'
+        required: false
+        default: 'true'
+        type: boolean
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GLOBAL ENV
+# ─────────────────────────────────────────────────────────────────────────────
+env:
+  # φ=1.618033988749895 — embedded as environment variable
+  PHI: "1.618033988749895"
+  # Registry: Google Artifact Registry
+  REGISTRY: us-central1-docker.pkg.dev
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REPOSITORY: heady-systems
+  # Image names for all 4 Dockerfiles
+  IMAGE_NAMES: |
+    heady-manager
+    heady-manager-monorepo
+    heady-manager-production
+    heady-manager-universal
+  # Trivy config
+  TRIVY_TIMEOUT: "13m"         # fib(7)=13 minutes
+  TRIVY_MAX_VULNS: "0"        # Zero tolerance for CRITICAL/HIGH
+  # Slack notification
+  SLACK_CHANNEL: "#security-alerts"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOBS
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 1: Build images for scanning
+  # ─────────────────────────────────────────────────────────────────────────
+  build-images:
+    name: Build Container Images
+    runs-on: ubuntu-latest
+    timeout-minutes: 21  # fib(8)=21 minutes
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for accurate versioning
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/heady-manager
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=scan-${{ github.run_number }}
+
+      - name: Build production image (Dockerfile.production)
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.production
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            PHI=${{ env.PHI }}
+            VERSION=3.2.2
+            GIT_SHA=${{ github.sha }}
+          # Sign during build using SBOM
+          sbom: true
+          provenance: mode=max
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 2: Trivy filesystem scan (dependencies)
+  # ─────────────────────────────────────────────────────────────────────────
+  trivy-filesystem-scan:
+    name: Trivy FS Scan (Dependencies)
+    runs-on: ubuntu-latest
+    timeout-minutes: 13  # fib(7)=13 minutes
+    needs: []  # Independent — runs in parallel with build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: ${{ github.event.inputs.severity || 'CRITICAL,HIGH' }}
+          exit-code: '1'          # Fail on CRITICAL/HIGH
+          ignore-unfixed: false
+          format: 'sarif'
+          output: 'trivy-fs-results.sarif'
+          timeout: ${{ env.TRIVY_TIMEOUT }}  # fib(7)=13m
+          # Trivy configuration
+          trivyignores: '.trivyignore'
+          # List files to scan
+          skip-dirs: |
+            node_modules
+            .git
+            dist
+            build
+            coverage
+
+      - name: Upload Trivy FS SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-fs-results.sarif'
+          category: 'trivy-filesystem'
+
+      - name: Run Trivy filesystem scan (TABLE output for PR comment)
+        uses: aquasecurity/trivy-action@master
+        if: github.event_name == 'pull_request'
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          format: 'table'
+          output: 'trivy-fs-table.txt'
+          exit-code: '0'  # Don't fail — this is for the PR comment only
+
+      - name: Comment Trivy results on PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
+        with:
+          script: |
+            const fs = require('fs');
+            let tableOutput = '';
+            try {
+              tableOutput = fs.readFileSync('trivy-fs-table.txt', 'utf8').substring(0, 65000); // GitHub comment limit
+            } catch { tableOutput = 'No output file'; }
+
+            const body = `## 🔐 Trivy Filesystem Scan Results
+
+            **φ = ${{ env.PHI }}** | HeadySystems v3.2.2
+
+            \`\`\`
+            ${tableOutput || 'No vulnerabilities found! ✓'}
+            \`\`\`
+
+            > Fibonacci reference: CRITICAL SLA = fib(3)=2 days, HIGH = fib(5)=5 days
+            > Zero tolerance policy: 0 CRITICAL, 0 HIGH allowed in production.`;
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 3: Trivy container image scan
+  # ─────────────────────────────────────────────────────────────────────────
+  trivy-image-scan:
+    name: Trivy Image Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 21  # fib(8)=21 minutes
+    needs: [build-images]
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+
+      - name: Run Trivy image scan — CRITICAL/HIGH (fails pipeline)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ needs.build-images.outputs.image-tag }}'
+          scan-type: 'image'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'          # Fail pipeline on CRITICAL or HIGH
+          ignore-unfixed: false
+          format: 'sarif'
+          output: 'trivy-image-results.sarif'
+          timeout: ${{ env.TRIVY_TIMEOUT }}
+          # Scan entire image filesystem + OS packages + language packages
+          vuln-type: 'os,library'
+          # Include checks for misconfigurations
+          security-checks: 'vuln,secret,config'
+
+      - name: Run Trivy image scan — MEDIUM/LOW (reporting only)
+        uses: aquasecurity/trivy-action@master
+        if: always()
+        with:
+          image-ref: '${{ needs.build-images.outputs.image-tag }}'
+          scan-type: 'image'
+          severity: 'MEDIUM,LOW'
+          exit-code: '0'          # Don't fail for MEDIUM/LOW
+          format: 'sarif'
+          output: 'trivy-image-medium-results.sarif'
+          timeout: ${{ env.TRIVY_TIMEOUT }}
+          vuln-type: 'os,library'
+
+      - name: Upload SARIF to GitHub Security Dashboard
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-image-results.sarif'
+          category: 'trivy-container-image'
+
+      - name: Upload MEDIUM SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-image-medium-results.sarif'
+          category: 'trivy-container-image-medium'
+
+      - name: Generate vulnerability summary
+        if: always()
+        run: |
+          echo "## Trivy Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Image | \`${{ needs.build-images.outputs.image-tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Digest | \`${{ needs.build-images.outputs.image-digest }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| φ | 1.618033988749895 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan Timeout | fib(7)=13 minutes |" >> $GITHUB_STEP_SUMMARY
+          echo "| Max CRITICAL Allowed | 0 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Max HIGH Allowed | 0 |" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 4: Trivy secret scan
+  # ─────────────────────────────────────────────────────────────────────────
+  trivy-secret-scan:
+    name: Trivy Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 8  # fib(6)=8 minutes
+    needs: []  # Independent
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy secret scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          security-checks: 'secret'
+          exit-code: '1'  # Fail if secrets found
+          format: 'sarif'
+          output: 'trivy-secret-results.sarif'
+          timeout: '8m'  # fib(6)=8 minutes
+
+      - name: Upload Secret SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-secret-results.sarif'
+          category: 'trivy-secrets'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # JOB 5: Scan report to security dashboard
+  # ─────────────────────────────────────────────────────────────────────────
+  report-to-dashboard:
+    name: Report to Security Dashboard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # fib(5)=5 minutes
+    needs: [trivy-filesystem-scan, trivy-image-scan, trivy-secret-scan]
+    if: always()
+
+    steps:
+      - name: Notify Slack on critical findings
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: ${{ env.SLACK_CHANNEL }}
+          slack-message: |
+            🚨 *HeadySystems Trivy Scan FAILED* 🚨
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            φ = ${{ env.PHI }} | Fibonacci SLA: CRITICAL = fib(3)=2 days
+            *CRITICAL or HIGH CVEs found — deployment blocked until resolved.*
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Report to security dashboard API
+        if: always()
+        run: |
+          curl -s -X POST "${{ secrets.SECURITY_DASHBOARD_WEBHOOK }}" \
+            -H "Authorization: Bearer ${{ secrets.SECURITY_DASHBOARD_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "repository": "${{ github.repository }}",
+              "sha": "${{ github.sha }}",
+              "branch": "${{ github.ref_name }}",
+              "scan_type": "trivy",
+              "status": "${{ job.status }}",
+              "run_id": "${{ github.run_id }}",
+              "phi": ${{ env.PHI }},
+              "fibonacci_sla": {
+                "CRITICAL": "fib(3)=2 days",
+                "HIGH": "fib(5)=5 days",
+                "MEDIUM": "fib(7)=13 days",
+                "LOW": "fib(9)=34 days"
+              },
+              "timestamp": "${{ github.event.head_commit.timestamp }}"
+            }' || true  # Don't fail the pipeline on dashboard reporting errors
+
+# ─────────────────────────────────────────────────────────────────────────────
+# .trivyignore entries go in a separate .trivyignore file at repo root.
+# This workflow references it. Example suppressions would be:
+#   # CVE-YYYY-NNNNN  - Disputed / not applicable
+#   CVE-2023-99999   # Example: not exploitable in our usage
+# Each suppression requires documented justification in the vulnerability tracker.

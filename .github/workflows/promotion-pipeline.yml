@@ -1,0 +1,851 @@
+# ============================================================
+# .github/workflows/promotion-pipeline.yml
+# Pre-Production → Production Promotion Pipeline
+#
+# COMPLEMENTS existing workflows:
+#   ci.yml, quality-gates.yml, sast-pipeline.yml,
+#   container-scan.yml, dependency-check.yml, etc.
+#
+# This workflow orchestrates the FULL gate sequence that
+# must pass before any code is promoted to main (production).
+#
+# Trigger: push to pre-production branch
+#
+# Gate sequence (all must pass for PR creation):
+#   1. lint              → ESLint via pnpm turbo lint
+#   2. security-scan     → npm audit + Trivy + Snyk
+#   3. test-suite        → Jest 29+ with ≥80% coverage
+#   4. performance-benchmarks → φ-scaled regression thresholds
+#   5. bundle-analysis   → fib(5)%=5% size increase limit
+#   6. dependency-audit  → deprecated/vulnerable/unused deps
+#   7. dead-code-detection → unused exports / unreachable code
+#   8. create-promotion-pr → auto PR with full summary (only if 1-7 pass)
+#
+# φ constants used:
+#   fib(5)=5   → bundle size regression threshold (%)
+#   fib(6)=8   → performance fail threshold (%)
+#   fib(8)=21  → max artifact retention days
+#   φ^2=2.618  → timeout multiplier base
+#   1000×φ^2=2618ms → base per-request timeout
+# ============================================================
+
+name: Promotion Pipeline — Pre-Production → Production
+
+on:
+  push:
+    branches:
+      - pre-production
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force run even if no new commits'
+        required: false
+        default: 'false'
+        type: boolean
+
+# Prevent concurrent runs on the same branch (avoid race conditions)
+concurrency:
+  group: promotion-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # φ = 1.618033988749895
+  PHI: '1.618033988749895'
+  # Fibonacci gate thresholds
+  BUNDLE_FAIL_PCT: '5'     # fib(5)=5 — bundle size increase limit
+  PERF_WARN_PCT: '5'       # fib(5)=5 — performance regression warning
+  PERF_FAIL_PCT: '8'       # fib(6)=8 — performance regression fail
+  COVERAGE_THRESHOLD: '80' # minimum Jest coverage %
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+  # Turborepo remote cache (set in repo secrets)
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+# ─────────────────────────────────────────────────────────────
+# JOB 1: LINT
+# ─────────────────────────────────────────────────────────────
+jobs:
+  lint:
+    name: 'Gate 1 — ESLint'
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(8)=21 minutes
+    timeout-minutes: 21
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          turbo-token: ${{ env.TURBO_TOKEN }}
+          turbo-team: ${{ env.TURBO_TEAM }}
+          fetch-depth: '0'
+
+      - name: Run ESLint via Turborepo
+        run: |
+          # Turborepo lint pipeline — runs all package linters in parallel
+          # Cache-aware: skips unchanged packages
+          pnpm turbo lint --cache-dir=.turbo --output-logs=new-only
+
+      - name: Upload ESLint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results-${{ github.sha }}
+          path: |
+            **/eslint-report.json
+            **/eslint-report.sarif
+          # fib(8)=21 day retention
+          retention-days: 21
+          if-no-files-found: ignore
+
+      - name: Notify failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Promotion Pipeline'
+          job-name: 'lint'
+          failure-summary: 'ESLint found errors in pre-production branch. Run `pnpm turbo lint` locally to identify issues.'
+          severity: 'medium'
+
+# ─────────────────────────────────────────────────────────────
+# JOB 2: SECURITY SCAN
+# ─────────────────────────────────────────────────────────────
+  security-scan:
+    name: 'Gate 2 — Security Scan'
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(10)=55 minutes (Trivy can be slow)
+    timeout-minutes: 55
+    needs: [lint]
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          turbo-token: ${{ env.TURBO_TOKEN }}
+          turbo-team: ${{ env.TURBO_TEAM }}
+
+      # ── npm audit ──────────────────────────────────────────
+      - name: npm audit (high severity)
+        run: |
+          # Fail on high or critical vulnerabilities only
+          # Low/moderate are reported but don't block promotion
+          pnpm audit --audit-level=high --json > audit-results.json || true
+          # Parse and report
+          node -e "
+            const r = require('./audit-results.json');
+            const high = r.metadata?.vulnerabilities?.high || 0;
+            const critical = r.metadata?.vulnerabilities?.critical || 0;
+            console.log('High vulnerabilities:', high);
+            console.log('Critical vulnerabilities:', critical);
+            if (high > 0 || critical > 0) {
+              process.exit(1);
+            }
+          "
+
+      # ── Trivy filesystem scan ──────────────────────────────
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | \
+            sh -s -- -b /usr/local/bin v0.50.0
+
+      - name: Trivy filesystem scan
+        run: |
+          trivy fs \
+            --scanners vuln,secret,misconfig \
+            --severity HIGH,CRITICAL \
+            --format sarif \
+            --output trivy-results.sarif \
+            --exit-code 1 \
+            .
+
+      - name: Upload Trivy SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-filesystem
+
+      # ── Snyk (optional — only if token present) ───────────
+      - name: Snyk security scan
+        if: ${{ secrets.SNYK_TOKEN != '' }}
+        uses: snyk/actions/node@master
+        continue-on-error: true  # Advisory: don't block if Snyk is unavailable
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --json-file-output=snyk-results.json
+
+      - name: Upload security scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-results-${{ github.sha }}
+          path: |
+            audit-results.json
+            trivy-results.sarif
+            snyk-results.json
+          retention-days: 21
+          if-no-files-found: ignore
+
+      - name: Notify failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Promotion Pipeline'
+          job-name: 'security-scan'
+          failure-summary: 'High or critical security vulnerabilities detected. Review audit-results.json and trivy-results.sarif artifacts.'
+          severity: 'critical'
+
+# ─────────────────────────────────────────────────────────────
+# JOB 3: TEST SUITE
+# ─────────────────────────────────────────────────────────────
+  test-suite:
+    name: 'Gate 3 — Jest Test Suite'
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(9)=34 minutes
+    timeout-minutes: 34
+    needs: [lint]
+    # Services for integration tests
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          turbo-token: ${{ env.TURBO_TOKEN }}
+          turbo-team: ${{ env.TURBO_TEAM }}
+
+      - name: Run Jest test suite with coverage
+        env:
+          NODE_ENV: test
+          REDIS_URL: redis://localhost:6379
+          # φ-scaled test timeout: 1000×φ^3 = 4236ms
+          JEST_TIMEOUT: '4236'
+          CI: 'true'
+        run: |
+          pnpm turbo test \
+            --cache-dir=.turbo \
+            --output-logs=new-only \
+            -- \
+            --coverage \
+            --coverageReporters=json \
+            --coverageReporters=lcov \
+            --coverageReporters=text \
+            --coverageReporters=json-summary \
+            --testTimeout=$JEST_TIMEOUT \
+            --forceExit \
+            --ci
+
+      - name: Enforce coverage threshold (≥80%)
+        run: |
+          # Parse coverage summary and enforce 80% minimum
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find all coverage-summary.json files in monorepo packages
+            const glob = require('child_process')
+              .execSync('find . -name coverage-summary.json -not -path \"*/node_modules/*\"')
+              .toString().trim().split('\n').filter(Boolean);
+
+            if (glob.length === 0) {
+              console.error('No coverage-summary.json files found');
+              process.exit(1);
+            }
+
+            const THRESHOLD = parseInt(process.env.COVERAGE_THRESHOLD || '80');
+            let failed = false;
+
+            for (const file of glob) {
+              const summary = JSON.parse(fs.readFileSync(file, 'utf8'));
+              const total = summary.total;
+              const pkg = path.dirname(file).replace('./', '');
+
+              const lines  = total.lines.pct;
+              const stmts  = total.statements.pct;
+              const funcs  = total.functions.pct;
+              const branch = total.branches.pct;
+
+              const min = Math.min(lines, stmts, funcs, branch);
+              const status = min >= THRESHOLD ? '✓' : '✗';
+              console.log(\`\${status} \${pkg}: lines=\${lines}% stmts=\${stmts}% funcs=\${funcs}% branches=\${branch}%\`);
+
+              if (min < THRESHOLD) {
+                console.error(\`  FAIL: \${pkg} coverage \${min}% < threshold \${THRESHOLD}%\`);
+                failed = true;
+              }
+            }
+
+            if (failed) process.exit(1);
+            console.log('All packages meet coverage threshold of', THRESHOLD + '%');
+          "
+        env:
+          COVERAGE_THRESHOLD: ${{ env.COVERAGE_THRESHOLD }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: |
+            **/coverage/
+            **/test-results/
+            **/junit.xml
+          retention-days: 21
+          if-no-files-found: ignore
+
+      - name: Publish test report
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Jest Test Results
+          path: '**/junit.xml'
+          reporter: jest-junit
+          fail-on-error: false
+
+      - name: Notify failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Promotion Pipeline'
+          job-name: 'test-suite'
+          failure-summary: 'Jest test suite failed or coverage fell below 80% threshold. Check test-results artifact.'
+          severity: 'high'
+
+# ─────────────────────────────────────────────────────────────
+# JOB 4: PERFORMANCE BENCHMARKS
+# ─────────────────────────────────────────────────────────────
+  performance-benchmarks:
+    name: 'Gate 4 — Performance Benchmarks'
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(9)=34 minutes
+    timeout-minutes: 34
+    needs: [test-suite, security-scan]
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          turbo-token: ${{ env.TURBO_TOKEN }}
+          turbo-team: ${{ env.TURBO_TEAM }}
+
+      # Download stored baseline from most recent successful run
+      - name: Download performance baseline
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: performance-baseline.yml
+          branch: pre-production
+          name: performance-baseline
+          path: .benchmarks/
+          # If no baseline exists yet, continue (first run creates it)
+          if_no_artifact_found: ignore
+
+      - name: Run performance benchmarks
+        env:
+          NODE_ENV: benchmark
+          # φ^2 = 2.618 → benchmark warmup cycles = fib(5)=5
+          BENCHMARK_WARMUP_CYCLES: '5'
+          # fib(8)=21 statistical samples per benchmark
+          BENCHMARK_SAMPLES: '21'
+        run: |
+          # Build first (required for accurate perf measurements)
+          pnpm turbo build --cache-dir=.turbo --output-logs=errors-only
+
+          # Run benchmark suite
+          node scripts/ci/compare-benchmarks.js \
+            --baseline .benchmarks/baseline.json \
+            --output benchmark-results.json \
+            --warn-pct ${{ env.PERF_WARN_PCT }} \
+            --fail-pct ${{ env.PERF_FAIL_PCT }}
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: |
+            benchmark-results.json
+            .benchmarks/
+          retention-days: 21
+          if-no-files-found: ignore
+
+      - name: Notify failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Promotion Pipeline'
+          job-name: 'performance-benchmarks'
+          failure-summary: 'Performance regression detected exceeding fib(6)=8% threshold. Review benchmark-results.json artifact.'
+          severity: 'high'
+
+# ─────────────────────────────────────────────────────────────
+# JOB 5: BUNDLE ANALYSIS
+# ─────────────────────────────────────────────────────────────
+  bundle-analysis:
+    name: 'Gate 5 — Bundle Analysis'
+    runs-on: ubuntu-latest
+    # φ-scaled timeout: fib(8)=21 minutes
+    timeout-minutes: 21
+    needs: [test-suite, security-scan]
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          turbo-token: ${{ env.TURBO_TOKEN }}
+          turbo-team: ${{ env.TURBO_TEAM }}
+
+      - name: Download bundle baseline
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: performance-baseline.yml
+          branch: pre-production
+          name: bundle-baseline
+          path: .benchmarks/bundles/
+          if_no_artifact_found: ignore
+
+      - name: Build all packages
+        run: |
+          pnpm turbo build --cache-dir=.turbo --output-logs=errors-only
+
+      - name: Analyze bundle sizes
+        run: |
+          # fib(5)=5% increase limit
+          node scripts/ci/analyze-bundle.js \
+            --baseline .benchmarks/bundles/bundle-baseline.json \
+            --output bundle-analysis.json \
+            --fail-pct ${{ env.BUNDLE_FAIL_PCT }}
+
+      - name: Upload bundle analysis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis-${{ github.sha }}
+          path: bundle-analysis.json
+          retention-days: 21
+
+      - name: Notify failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Promotion Pipeline'
+          job-name: 'bundle-analysis'
+          failure-summary: 'Bundle size increased more than fib(5)=5% above baseline. Review bundle-analysis.json artifact.'
+          severity: 'medium'
+
+# ─────────────────────────────────────────────────────────────
+# JOB 6: DEPENDENCY AUDIT
+# ─────────────────────────────────────────────────────────────
+  dependency-audit:
+    name: 'Gate 6 — Dependency Audit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 21
+    needs: [lint]
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+
+      - name: Check for deprecated packages
+        run: |
+          # List all installed packages and check for deprecation notices
+          pnpm ls --json --depth=0 > deps-list.json 2>&1 || true
+
+          node -e "
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+
+            // Check each direct dependency for deprecation
+            const output = execSync('pnpm audit --json 2>/dev/null || echo \"{}\"').toString();
+            let auditData;
+            try { auditData = JSON.parse(output); } catch { auditData = {}; }
+
+            const deprecated = [];
+            const advisories = auditData.advisories || {};
+
+            for (const [id, advisory] of Object.entries(advisories)) {
+              if (advisory.severity === 'info' && advisory.title?.toLowerCase().includes('deprecat')) {
+                deprecated.push({
+                  package: advisory.module_name,
+                  reason: advisory.overview,
+                  recommendation: advisory.recommendation
+                });
+              }
+            }
+
+            if (deprecated.length > 0) {
+              console.warn('Deprecated packages found:');
+              deprecated.forEach(d => {
+                console.warn(\`  - \${d.package}: \${d.reason}\`);
+                if (d.recommendation) console.warn(\`    Recommendation: \${d.recommendation}\`);
+              });
+              // Warn only, don't fail — deprecated doesn't mean broken
+              console.log('::warning::Deprecated packages detected. Review and plan migration.');
+            } else {
+              console.log('No deprecated packages found.');
+            }
+          "
+
+      - name: Check for unused dependencies
+        run: |
+          # Use depcheck to find unused dependencies
+          npx --yes depcheck \
+            --json \
+            --ignores="@types/*,eslint-*,prettier,jest,ts-jest,turbo" \
+            > depcheck-results.json 2>&1 || true
+
+          node -e "
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('depcheck-results.json', 'utf8'));
+            const unused = results.dependencies || [];
+            const missing = results.missing || {};
+
+            console.log(\`Unused dependencies: \${unused.length}\`);
+            if (unused.length > 0) {
+              unused.forEach(d => console.log(\`  - \${d}\`));
+            }
+
+            const missingCount = Object.keys(missing).length;
+            console.log(\`Missing dependencies: \${missingCount}\`);
+            if (missingCount > 0) {
+              Object.entries(missing).forEach(([dep, files]) => {
+                console.error(\`  - \${dep} (used in: \${files.slice(0, 3).join(', ')})\`);
+              });
+              // Missing deps ARE a hard fail
+              process.exit(1);
+            }
+          "
+
+      - name: Upload dependency audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-${{ github.sha }}
+          path: |
+            deps-list.json
+            depcheck-results.json
+          retention-days: 21
+          if-no-files-found: ignore
+
+      - name: Notify failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Promotion Pipeline'
+          job-name: 'dependency-audit'
+          failure-summary: 'Missing dependencies detected. All imports must be explicitly declared in package.json.'
+          severity: 'high'
+
+# ─────────────────────────────────────────────────────────────
+# JOB 7: DEAD CODE DETECTION
+# ─────────────────────────────────────────────────────────────
+  dead-code-detection:
+    name: 'Gate 7 — Dead Code Detection'
+    runs-on: ubuntu-latest
+    timeout-minutes: 21
+    needs: [lint]
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+
+      - name: Run dead code scanner
+        run: |
+          node scripts/ci/dead-code-scanner.js \
+            --output dead-code-report.json \
+            --src src \
+            --src packages
+
+      - name: Upload dead code report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dead-code-report-${{ github.sha }}
+          path: dead-code-report.json
+          retention-days: 21
+
+      - name: Notify failure
+        if: failure()
+        uses: ./.github/actions/notify-failure
+        with:
+          slack-webhook-url: ${{ secrets.SLACK_CI_WEBHOOK }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          workflow-name: 'Promotion Pipeline'
+          job-name: 'dead-code-detection'
+          failure-summary: 'Dead code scanner reported hard failures. Review dead-code-report.json artifact.'
+          severity: 'low'
+
+# ─────────────────────────────────────────────────────────────
+# JOB 8: CREATE PROMOTION PR
+# Only runs if ALL previous gates pass
+# ─────────────────────────────────────────────────────────────
+  create-promotion-pr:
+    name: 'Gate 8 — Create Promotion PR'
+    runs-on: ubuntu-latest
+    timeout-minutes: 13  # fib(7)=13
+    # Hard dependency on ALL gates
+    needs:
+      - lint
+      - security-scan
+      - test-suite
+      - performance-benchmarks
+      - bundle-analysis
+      - dependency-audit
+      - dead-code-detection
+    # Only create PR if every gate passed
+    if: |
+      needs.lint.result == 'success' &&
+      needs.security-scan.result == 'success' &&
+      needs.test-suite.result == 'success' &&
+      needs.performance-benchmarks.result == 'success' &&
+      needs.bundle-analysis.result == 'success' &&
+      needs.dependency-audit.result == 'success' &&
+      needs.dead-code-detection.result == 'success'
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Setup Heady environment
+        uses: ./.github/actions/setup-heady
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          fetch-depth: '0'
+
+      # Download all gate artifacts for PR body
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results-${{ github.sha }}
+          path: /tmp/artifacts/tests/
+        continue-on-error: true
+
+      - name: Download benchmark results
+        uses: actions/download-artifact@v4
+        with:
+          name: benchmark-results-${{ github.sha }}
+          path: /tmp/artifacts/benchmarks/
+        continue-on-error: true
+
+      - name: Download bundle analysis
+        uses: actions/download-artifact@v4
+        with:
+          name: bundle-analysis-${{ github.sha }}
+          path: /tmp/artifacts/bundles/
+        continue-on-error: true
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Find the latest tag on main for the comparison base
+          git fetch origin main --tags
+          BASE_REF=$(git describe --tags --abbrev=0 origin/main 2>/dev/null || \
+                     git rev-parse origin/main)
+          HEAD_REF=${{ github.sha }}
+
+          echo "Generating changelog from $BASE_REF to $HEAD_REF"
+
+          node scripts/ci/generate-changelog.js \
+            --from "$BASE_REF" \
+            --to "$HEAD_REF" \
+            --output /tmp/CHANGELOG.md \
+            --format markdown
+
+          # Store changelog content as output (truncated for env var)
+          CHANGELOG=$(cat /tmp/CHANGELOG.md | head -100)
+          echo "CHANGELOG_FILE=/tmp/CHANGELOG.md" >> $GITHUB_OUTPUT
+
+      - name: Calculate next semantic version
+        id: semver
+        run: |
+          git fetch origin main --tags
+          BASE_REF=$(git describe --tags --abbrev=0 origin/main 2>/dev/null || echo "v0.0.0")
+          HEAD_REF=${{ github.sha }}
+
+          NEXT_VERSION=$(node scripts/ci/semantic-version.js \
+            --from "$BASE_REF" \
+            --to "$HEAD_REF")
+          echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "Next version: $NEXT_VERSION"
+
+      - name: Build PR body
+        id: pr-body
+        run: |
+          node -e "
+            const fs = require('fs');
+
+            const changelog = fs.existsSync('/tmp/CHANGELOG.md')
+              ? fs.readFileSync('/tmp/CHANGELOG.md', 'utf8')
+              : '_No changelog generated_';
+
+            // Parse benchmark results
+            let benchmarkSummary = '_No benchmark comparison available_';
+            try {
+              const br = JSON.parse(fs.readFileSync('/tmp/artifacts/benchmarks/benchmark-results.json', 'utf8'));
+              const rows = br.comparisons?.slice(0, 8).map(c =>
+                \`| \${c.metric} | \${c.baseline}ms | \${c.current}ms | \${c.delta > 0 ? '+' : ''}\${c.delta}% |\`
+              ).join('\n') || '';
+              benchmarkSummary = \`| Metric | Baseline | Current | Delta |\n|--------|----------|---------|-------|\n\${rows}\`;
+            } catch {}
+
+            // Parse bundle analysis
+            let bundleSummary = '_No bundle analysis available_';
+            try {
+              const ba = JSON.parse(fs.readFileSync('/tmp/artifacts/bundles/bundle-analysis.json', 'utf8'));
+              bundleSummary = \`Total size: \${ba.totalSize || 'N/A'} (delta: \${ba.totalDelta || 'N/A'})\`;
+            } catch {}
+
+            const body = [
+              '## :rocket: Automated Promotion: pre-production → main',
+              '',
+              '> This PR was auto-generated by the Heady Promotion Pipeline.',
+              '> **All quality gates passed.** Manual review and 1 approval required.',
+              '',
+              '### Version',
+              \`**Proposed: \${process.env.NEXT_VERSION || 'see changelog'}** \`,
+              '',
+              '### Gate Results',
+              '',
+              '| Gate | Status |',
+              '|------|--------|',
+              '| ESLint | :white_check_mark: Passed |',
+              '| Security Scan | :white_check_mark: Passed |',
+              '| Jest Tests (≥80% coverage) | :white_check_mark: Passed |',
+              '| Performance Benchmarks | :white_check_mark: Passed |',
+              '| Bundle Analysis (≤5% increase) | :white_check_mark: Passed |',
+              '| Dependency Audit | :white_check_mark: Passed |',
+              '| Dead Code Detection | :white_check_mark: Passed |',
+              '',
+              '### Changelog',
+              '',
+              changelog,
+              '',
+              '### Performance Comparison',
+              '',
+              benchmarkSummary,
+              '',
+              '### Bundle Size Report',
+              '',
+              bundleSummary,
+              '',
+              '---',
+              \`_Generated by Heady CI/CD Bot | Run #\${process.env.GITHUB_RUN_NUMBER} | φ-aligned pipeline_\`
+            ].join('\n');
+
+            fs.writeFileSync('/tmp/pr-body.md', body);
+            console.log('PR body generated (' + body.length + ' chars)');
+          "
+        env:
+          NEXT_VERSION: ${{ steps.semver.outputs.NEXT_VERSION }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+
+      - name: Create or update promotion PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('/tmp/pr-body.md', 'utf8');
+            const nextVersion = '${{ steps.semver.outputs.NEXT_VERSION }}';
+
+            // Check for existing open promotion PR
+            const existingPRs = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:pre-production`,
+              base: 'main'
+            });
+
+            if (existingPRs.data.length > 0) {
+              // Update existing PR
+              const pr = existingPRs.data[0];
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                title: `chore: promote pre-production → main (${nextVersion})`,
+                body: body
+              });
+              console.log(`Updated existing PR #${pr.number}`);
+            } else {
+              // Create new promotion PR
+              const pr = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `chore: promote pre-production → main (${nextVersion})`,
+                body: body,
+                head: 'pre-production',
+                base: 'main',
+                draft: false
+              });
+
+              // Add labels
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.data.number,
+                labels: ['promotion', 'automated']
+              });
+
+              // Request review from CODEOWNERS
+              try {
+                await github.rest.pulls.requestReviewers({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.data.number,
+                  team_reviewers: ['heady-core-team']
+                });
+              } catch (e) {
+                console.warn('Could not assign team reviewers:', e.message);
+              }
+
+              console.log(`Created promotion PR #${pr.data.number}: ${pr.data.html_url}`);
+            }
+
+      - name: Notify success to Slack
+        if: success()
+        run: |
+          PAYLOAD=$(cat <<EOF
+          {
+            "username": "Heady CI/CD Bot",
+            "icon_emoji": ":white_check_mark:",
+            "text": ":rocket: *Promotion PR Ready* — All ${{ github.run_number }} gates passed!\nBranch: pre-production → main\nVersion: ${{ steps.semver.outputs.NEXT_VERSION }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }
+          EOF
+          )
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            --data "$PAYLOAD" \
+            "${{ secrets.SLACK_CI_WEBHOOK }}" || true

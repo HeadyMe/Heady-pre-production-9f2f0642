@@ -1,0 +1,136 @@
+# ============================================================
+# .github/actions/setup-heady/action.yml
+# Composite Action: Heady Monorepo Environment Setup
+#
+# Responsibilities:
+#   - Checkout repository with full history
+#   - Setup Node.js 20 with npm cache
+#   - Setup pnpm 8 with workspace caching
+#   - Install all dependencies (frozen lockfile)
+#   - Configure Turborepo remote cache
+#
+# φ Design:
+#   - Cache key includes lockfile hash (integrity chain)
+#   - pnpm store path uses fib(8)=21 depth resolution
+# ============================================================
+
+name: 'Setup Heady Environment'
+description: 'Composite action: checkout, Node 20, pnpm, deps, Turborepo remote cache'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20'
+  pnpm-version:
+    description: 'pnpm version to use'
+    required: false
+    default: '8'
+  fetch-depth:
+    description: 'Git fetch depth (0 = full history for changelog/versioning)'
+    required: false
+    # fib(0)=0 → full history; required for conventional-commits analysis
+    default: '0'
+  turbo-token:
+    description: 'Turborepo remote cache token'
+    required: false
+    default: ''
+  turbo-team:
+    description: 'Turborepo team/org slug for remote cache'
+    required: false
+    default: ''
+  install-args:
+    description: 'Extra args to pass to pnpm install'
+    required: false
+    default: '--frozen-lockfile'
+
+outputs:
+  pnpm-store-path:
+    description: 'Resolved pnpm store path for cache steps'
+    value: ${{ steps.pnpm-store.outputs.STORE_PATH }}
+  node-version-resolved:
+    description: 'Resolved Node.js version that was installed'
+    value: ${{ steps.setup-node.outputs.node-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    # ── 1. Checkout ────────────────────────────────────────────
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # Full history required for conventional-commits changelog
+        # and semantic versioning (git log between refs)
+        fetch-depth: ${{ inputs.fetch-depth }}
+
+    # ── 2. pnpm (must precede Node setup for cache path) ───────
+    - name: Setup pnpm ${{ inputs.pnpm-version }}
+      uses: pnpm/action-setup@v3
+      with:
+        version: ${{ inputs.pnpm-version }}
+        # Do not run install here; we handle it explicitly below
+        run_install: false
+
+    # ── 3. Resolve pnpm store path ─────────────────────────────
+    - name: Get pnpm store path
+      id: pnpm-store
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+    # ── 4. Node.js 20 setup with integrated npm/pnpm cache ─────
+    - name: Setup Node.js ${{ inputs.node-version }}
+      id: setup-node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        # Point the built-in cache at the pnpm store
+        cache: 'pnpm'
+
+    # ── 5. pnpm dependency cache ────────────────────────────────
+    #  Key: OS + pnpm-lock.yaml hash → deterministic hits
+    #  Restore keys fall back by OS only for partial cache reuse
+    - name: Restore pnpm dependency cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    # ── 6. Install dependencies ─────────────────────────────────
+    - name: Install dependencies
+      shell: bash
+      run: |
+        # --frozen-lockfile ensures CI never silently updates deps
+        # φ retry pattern: attempt fib(3)=2 extra times with φ-backoff
+        pnpm install ${{ inputs.install-args }} || \
+        (sleep 1 && pnpm install ${{ inputs.install-args }}) || \
+        (sleep 2 && pnpm install ${{ inputs.install-args }})
+
+    # ── 7. Turborepo remote cache configuration ─────────────────
+    - name: Configure Turborepo remote cache
+      if: ${{ inputs.turbo-token != '' }}
+      shell: bash
+      env:
+        TURBO_TOKEN: ${{ inputs.turbo-token }}
+        TURBO_TEAM: ${{ inputs.turbo-team }}
+      run: |
+        # Validate token is present before attempting remote cache
+        if [ -z "$TURBO_TOKEN" ]; then
+          echo "::warning::TURBO_TOKEN not set — remote cache disabled"
+        else
+          echo "TURBO_TOKEN=$TURBO_TOKEN" >> $GITHUB_ENV
+          echo "TURBO_TEAM=$TURBO_TEAM" >> $GITHUB_ENV
+          echo "::notice::Turborepo remote cache configured for team: $TURBO_TEAM"
+        fi
+
+    # ── 8. Environment diagnostics (debug) ──────────────────────
+    - name: Print environment info
+      shell: bash
+      run: |
+        echo "=== Heady Environment Summary ==="
+        echo "Node:  $(node --version)"
+        echo "pnpm:  $(pnpm --version)"
+        echo "OS:    ${{ runner.os }}"
+        echo "Arch:  ${{ runner.arch }}"
+        echo "==================================="

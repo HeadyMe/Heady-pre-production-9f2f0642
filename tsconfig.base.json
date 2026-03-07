@@ -1,30 +1,28 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "lib": ["ES2022"],
-    "moduleResolution": "node",
+    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "composite": true,
-    "incremental": true,
-    "outDir": "dist",
-    "rootDir": "src",
+    "resolveJsonModule": true,
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@headysystems/core": ["packages/core/src"],
-      "@headysystems/types": ["packages/types/src"],
-      "@headysystems/config": ["packages/config/src"],
-      "@headysystems/redis": ["packages/redis/src"],
-      "@headysystems/mcp": ["packages/mcp/src"],
-      "@headysystems/semantic-logic": ["packages/semantic-logic/src"]
+      "@heady-ai/phi-math": ["packages/phi-math/src/index"],
+      "@heady-ai/csl-router": ["packages/csl-router/src/index"],
+      "@heady-ai/spatial-events": ["packages/spatial-events/src/index"],
+      "@heady-ai/agent-identity": ["packages/agent-identity/src/index"],
+      "@heady-ai/memory-stream": ["packages/memory-stream/src/index"],
+      "@heady-ai/observability-kernel": ["packages/observability-kernel/src/index"],
+      "@heady-ai/latent-boundary": ["packages/latent-boundary/src/index"],
+      "@heady-ai/kernel": ["packages/kernel/src/index"]
     }
-  },
-  "exclude": ["node_modules", "dist", "build", ".turbo"]
+  }
 }
