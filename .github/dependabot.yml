@@ -1,3 +1,4 @@
+# P2-4: Dependabot configuration
 version: 2
 updates:
   - package-ecosystem: "npm"
@@ -8,23 +9,40 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps):"
     groups:
-      production:
+      opentelemetry:
         patterns:
-          - "*"
-        exclude-patterns:
+          - "@opentelemetry/*"
+      lint-format:
+        patterns:
           - "eslint*"
-          - "@typescript-eslint*"
-          - "jest*"
-          - "@types/*"
-      dev:
-        dependency-type: "development"
-    reviewers:
-      - "HeadyMe"
+          - "prettier*"
+      ai-providers:
+        patterns:
+          - "openai"
+          - "@anthropic-ai/*"
+          - "@google/*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
     labels:
       - "ci"
+      - "automated"
+    commit-message:
+      prefix: "chore(ci):"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "docker"
+      - "automated"
+    commit-message:
+      prefix: "chore(docker):"

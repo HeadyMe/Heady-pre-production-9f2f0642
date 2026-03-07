@@ -1,0 +1,82 @@
+# T2: OpenTelemetry Observability Configuration
+# Heady AI-specific metrics and tracing setup
+
+service:
+  name: heady-manager
+  version: "3.1.0"
+
+exporters:
+  otlp:
+    endpoint: ${OTEL_EXPORTER_ENDPOINT:-http://localhost:4318}
+    protocol: http/protobuf
+  console:
+    enabled: ${OTEL_CONSOLE_EXPORT:-false}
+
+metrics:
+  ai_specific:
+    - name: heady.tokens.total
+      type: counter
+      labels: [model, direction, tenant]
+      description: "Total tokens consumed per model/direction/tenant"
+    - name: heady.request.duration_ms
+      type: histogram
+      buckets: [10, 50, 100, 250, 500, 1000, 2500, 5000, 10000]
+      labels: [method, path, status]
+    - name: heady.eval.score
+      type: histogram
+      buckets: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+      labels: [eval]
+    - name: heady.tool_calls.total
+      type: counter
+      labels: [tool, success]
+    - name: heady.circuit_breaker.state
+      type: gauge
+      labels: [service, state]
+    - name: heady.rate_limit.rejections
+      type: counter
+      labels: [key]
+
+tracing:
+  sampling:
+    production: 0.1
+    staging: 1.0
+  propagation: [tracecontext, baggage]
+
+# E15: AI-specific SLOs
+slos:
+  - name: agent_response_latency
+    target: 0.99
+    threshold: 5000 # p99 < 5s
+    window: 30d
+  - name: hallucination_rate
+    target: 0.95
+    threshold: 0.05 # < 5% hallucination
+    window: 7d
+  - name: retrieval_recall
+    target: 0.90
+    threshold: 0.8 # recall > 0.8
+    window: 7d
+  - name: eval_pass_rate
+    target: 0.95
+    threshold: 0.7 # 95% of evals score > 0.7
+    window: 7d
+  - name: uptime
+    target: 0.999
+    threshold: 99.9 # 99.9% uptime
+    window: 30d
+
+alerting:
+  channels: [slack, pagerduty]
+  rules:
+    - name: high_latency
+      condition: "p99_latency > 5000ms for 5m"
+      severity: critical
+    - name: high_error_rate
+      condition: "error_rate > 5% for 3m"
+      severity: critical
+    - name: token_budget_exceeded
+      condition: "daily_tokens > budget_limit"
+      severity: warning
+    - name: low_eval_scores
+      condition: "avg_eval_score < 0.6 for 1h"
+      severity: warning

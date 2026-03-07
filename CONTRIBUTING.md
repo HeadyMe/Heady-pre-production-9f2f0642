@@ -1,85 +1,86 @@
-# Heady™ Contributing Guide
+# Contributing to Heady Sovereign AI Platform
 
-> Enterprise-grade contribution standards for the Heady ecosystem.
+Thank you for your interest in contributing to Heady! This document provides guidelines and information for contributors.
 
-## Branch Strategy
+## Code of Conduct
 
-| Branch | Purpose | Protection |
-|--------|---------|------------|
-| `main` | Production-ready only | PR required, CI must pass |
-| `feature/*` | New features | PR to main |
-| `fix/*` | Bug fixes | PR to main |
-| `hotfix/*` | Emergency production fixes | PR to main, expedited review |
+We are committed to fostering an open and welcoming environment. Please be respectful and constructive in all interactions.
 
-## Commit Messages
+## Getting Started
 
-Use [Conventional Commits](https://www.conventionalcommits.org/):
+### Prerequisites
+
+- **Node.js** v22 LTS
+- **pnpm** v9+ (do NOT use npm)
+- **Docker** and Docker Compose
+- **PostgreSQL** 16 with pgvector extension
+- **Redis** 7+
+
+### Setup
+
+```bash
+git clone git@github.com:HeadyMe/Heady-pre-production-9f2f0642.git
+cd Heady-pre-production-9f2f0642
+cp .env.example .env
+pnpm install
+pnpm dev
+```
+
+### Architecture
+
+Heady uses a **six-layer architecture**: Edge → Gateway → Orchestration → Intelligence → Memory → Persistence.
+
+See `docs/architecture/OVERVIEW.md` for the full architecture guide.
+
+## Development Workflow
+
+1. **Fork** the repo and create a feature branch from `main`
+2. **Write tests** for any new functionality (minimum: health check per service)
+3. **Run the linter**: `pnpm lint`
+4. **Run tests**: `pnpm test`
+5. **Open a PR** against `main` with a clear description
+
+### Branch Naming
+
+- `feat/description` — new features
+- `fix/description` — bug fixes
+- `chore/description` — maintenance
+- `docs/description` — documentation changes
+
+### Commit Messages
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat(orchestration): add retry logic to pipeline stages
-fix(auth): handle expired JWT tokens gracefully
-chore(ci): remove continue-on-error from security gates
-docs(api): add OpenAPI spec for health endpoints
-test(memory): add vector search unit tests
-refactor(src): move loose files into domain modules
+feat(telemetry): add OTel tracing middleware
+fix(auth): correct RBAC permission check for admin
+chore(deps): update opentelemetry packages
+docs(api): add health endpoint documentation
 ```
 
 ## Code Standards
 
-### Naming Rules
+- **ESLint + Prettier**: Configuration in `.eslintrc.js` and `.prettierrc`
+- **JSDoc/TSDoc**: Required on all exported functions
+- **No `any`** types in TypeScript files
+- **Immutability**: Prefer `const` and frozen objects
+- **Error handling**: Always use structured error objects
 
-**Forbidden in active tree:**
+## Pull Request Process
 
-- `backup`, `copy`, `temp`, `old`, `final`, `v1`, `misc`
-- Timestamped variants (`file-2026-03-07.js`)
-- Duplicate suffixes (`file-new.js`, `file-fixed.js`)
+1. PRs require **1 approval** from a maintainer
+2. All CI checks must pass (lint, test, security scan, eval pipeline)
+3. Breaking changes must be documented in the PR description
+4. Update `CHANGELOG.md` for user-facing changes
 
-**Required:**
+## Security
 
-- kebab-case for files: `env-schema.js`
-- PascalCase for classes: `StructuredLogger`
-- camelCase for functions: `validateEnvironment`
+If you discover a security vulnerability, please follow the disclosure process in `SECURITY.md`. Do **not** open a public issue.
 
-### File Decision Rules
+## License
 
-| Keep | Archive | Delete |
-|------|---------|--------|
-| Loaded by running app | Patent-traceable old code | Dead `*-v1.js` files |
-| Imported by current source | Historical architecture docs | Duplicated task JSONs |
-| Used by CI/CD or Dockerfile | Original blueprints | `_archive/` contents |
+By contributing, you agree that your contributions will be licensed under the project's license.
 
-### Domain Module Structure
+---
 
-All source code belongs in a domain module under `src/`:
-
-```
-src/
-├── orchestration/    # Pipeline, conductor, self-optimizer
-├── memory/           # Vector memory, search, federation
-├── agents/           # Bees, buddy, templates
-├── auth/             # Authentication, authorization, tiers
-├── mcp/              # MCP server, connectors
-├── intelligence/     # Research, scanning, ML
-├── runtime/          # Cloud infra, compute, deployment
-├── observability/    # Logging, monitoring, health
-├── integrations/     # Provider connectors, SDKs
-├── shared/           # Utils, registry, policies
-└── types/            # TypeScript definitions
-```
-
-**Never add loose `.js` files to `src/` root.**
-
-## CI/CD
-
-- Security scan (TruffleHog + CodeQL) **must pass** before deploy
-- Test suite **must pass** before deploy
-- No `continue-on-error: true` on security or test gates
-- All deploy jobs require `needs: [security-scan, validate]`
-
-## Secrets
-
-- **Never** commit secrets, keys, or tokens to any file
-- **Never** commit partial key prefixes (e.g., `pplx-FvR1...`)
-- Use GCP Secret Manager for production
-- Use GitHub Secrets for CI/CD
-- Use `.env` for local development (never committed)
+**Maintainer**: <eric@headyconnection.org>

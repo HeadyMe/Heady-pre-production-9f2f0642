@@ -1,58 +1,51 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the Heady Sovereign AI Platform will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.1.0] - 2026-03-07
-
-### Added
-
-- Environment variable validation at boot (`src/config/env-schema.js`)
-- Enterprise structured logger with correlation IDs (`src/observability/enterprise-logger.js`)
-- Kubernetes-style health probes (`src/observability/health-probes.js`)
-- TypeScript configuration and core type definitions (`tsconfig.json`, `src/types/core.d.ts`)
-- OpenAPI 3.1 specification (`docs/openapi.yaml`)
-- Test pyramid: unit, integration, and e2e tests
-- `CONTRIBUTING.md` with branch strategy and code standards
-- `SECURITY.md` with vulnerability reporting policy
-- `docs/LIVE_SURFACES.md` — canonical list of all live deployments
-- `docs/DEPRECATIONS.md` — tracking removed and scheduled items
-
-### Changed
-
-- **[BREAKING]** CI pipeline: `continue-on-error` removed from security and test gates
-- **[BREAKING]** Deploy requires passing `security-scan`, `validate`, and `sbom-scan` jobs
-- Reorganized `src/` from 76 loose files into 10 domain modules
-- README updated: badges → real workflows, pnpm → npm, architecture → domain modules
-- `package.json`: version 3.0.1 → 3.1.0, org URLs → HeadyMe, real build scripts
-- Legal entity corrected: "Heady Systems LLC" → "HeadySystems Inc." across all files
-
-### Removed
-
-- `heady-manager-v1.js` (90KB dead legacy entrypoint)
-- `battle-synthesis-report.json` (one-off artifact)
-- 11 loose JSON task files from `src/` root
-- Duplicate `infrastructure/` directory (merged into `infra/`)
-- `heady-hf-spaces/` (separate HF Space repos exist)
-- Partial API key prefixes from `docs/api-keys-reference.md`
-
-### Security
-
-- Scrubbed 30+ partial API key prefixes from documentation
-- CI security scan (TruffleHog + CodeQL) now blocks deployment on failure
-- Final verification job fails if zero projections are healthy (was `exit 0`)
-
-## [3.0.1] - 2026-03-01
+## [3.1.0] - 2026-03-06
 
 ### Added
 
-- Initial monorepo consolidation
-- 20-node AI system with Sacred Geometry orchestration
-- MCP SSE transport endpoint
-- HCFullPipeline 12-stage orchestration engine
-- HeadyBees agent decomposition (26 domains, 197 workers)
+- **OTel Tracing** (`src/lib/telemetry.js`) — AI-specific metrics: token counters, request latency histograms, eval scores, tool call tracking
+- **Graceful Shutdown** (`src/lib/shutdown.js`) — Ordered hook execution with SIGTERM/SIGINT handling and timeout safety
+- **Feature Flags** (`src/lib/feature-flags.js`) — Deterministic hash-based rollout with env overrides for agent routing
+- **API Key Rotation** (`src/lib/key-rotation.js`) — Automated rotation with dual-key validation and status reporting
+- **Eval Pipeline** (`src/lib/eval-pipeline.js`) — LLM-as-judge framework with relevance, faithfulness, safety, and trajectory judges
+- **Prompt Guard** (`src/lib/prompt-guard.js`) — 5-layer prompt injection defense (validation, isolation, RAG triad, monitoring, HITL)
+- **Circuit Breaker** (`src/lib/circuit-breaker.js`) — 3-state circuit breaker + token bucket rate limiter with Express middleware
+- **Worker Pool** (`src/lib/worker-pool.js`) — Worker thread pool for CPU-bound embedding generation
+- **Graph Orchestrator** (`src/lib/graph-orchestrator.js`) — LangGraph-equivalent agent orchestration with conditional edges
+- **Multi-Cloud Failover** (`src/lib/failover.js`) — GCP→AWS automatic failover with health-check recovery
+- **SSO + RBAC** (`src/middleware/auth-rbac.js`) — Tenant-scoped role-based access control
+- **Audit Logging** (`src/middleware/audit-log.js`) — Immutable SHA-256 hash chain for GDPR Art. 30
+- **MCP Gateway Auth** (`src/middleware/mcp-auth.js`) — SSO-integrated MCP authentication with scope validation
+- **Swarm Dashboard** (`src/services/swarm-dashboard.js`) — Monte Carlo exploration tracking and convergence analysis
+- **HNSW Migration** (`migrations/003-hnsw-index.sql`) — pgvector HNSW index with multi-tenant RLS
+- **OTel Config** (`configs/observability/otel-config.yml`) — AI-specific metrics, SLOs, and alerting rules
+- **Canary Config** (`configs/canary.yml`) — Progressive rollout (1% → 5% → 20% → 100%)
+- **Compliance Bundles** (`configs/compliance/bundles.yml`) — HIPAA, GDPR, SOX, SOC 2 templates
+- **PgBouncer Config** (`configs/infrastructure/pgbouncer.ini`) — Transaction-mode pooling for pgvector
+- **Production Deployment Guide** (`docs/PRODUCTION_DEPLOYMENT_GUIDE.md`) — Complete 1300-line deployment procedures
+- **Production Suite** — Auth modules, monitoring (drift/health), onboarding flows, CI/CD workflows
+- **Cloudflare Worker** (`cloudflare/worker.js`) — Edge routing worker
+- **CI Quality Gates** (`.github/workflows/ci.yml`) — Lint, test, security scan pipeline
+- `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md`
 
----
+### Fixed
 
-© 2026 HeadySystems Inc.
+- Repository URL → `HeadyMe/Heady-pre-production-9f2f0642` (was HeadySystems)
+- Author email → `eric@headyconnection.org`
+- Legal entity → `HeadySystems Inc.` (was LLC)
+- Version sync across README, CI, and package.json
+
+## [3.0.1] - 2026-02-15
+
+### Added
+
+- Initial monorepo structure
+- Basic Express server with health route
+- Docker and Cloud Run deployment
+- GitHub Actions CI/CD pipeline

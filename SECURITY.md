@@ -1,47 +1,69 @@
-# Security Policy — Heady™ Platform
+# Security Policy
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| 3.1.x   | ✅ Current |
-| 3.0.x   | ⚠️ Security fixes only |
-| < 3.0   | ❌ Unsupported |
+| Version | Supported          |
+| ------- | ------------------ |
+| 3.1.x   | ✅ Active support   |
+| 3.0.x   | ⚠️ Critical fixes only |
+| < 3.0   | ❌ No longer supported |
 
 ## Reporting a Vulnerability
 
-**Do NOT open a public GitHub issue for security vulnerabilities.**
+**DO NOT open a public issue for security vulnerabilities.**
 
-To report a vulnerability:
+### Responsible Disclosure
 
-1. **Email:** [eric@headyconnection.org](mailto:eric@headyconnection.org)
-2. **Subject:** `[SECURITY] Brief description`
-3. **Include:** Steps to reproduce, impact assessment, and any suggested fix
+1. **Email**: <security@headyconnection.org>
+2. **Subject**: `[SECURITY] Brief description`
+3. **Include**:
+   - Description of the vulnerability
+   - Steps to reproduce
+   - Potential impact assessment
+   - Suggested remediation (if any)
 
 ### Response Timeline
 
-| Stage | Timeframe |
-|-------|-----------|
-| Acknowledgment | 48 hours |
-| Initial assessment | 5 business days |
-| Fix or mitigation | 30 days (critical: 7 days) |
+| Action | Timeline |
+|--------|----------|
+| Acknowledgment | Within 24 hours |
+| Initial assessment | Within 72 hours |
+| Fix development | Within 7 days (critical), 30 days (high) |
+| Public disclosure | After fix is deployed |
 
-## Security Practices
+### Scope
 
-- **Secrets:** GCP Secret Manager (production), GitHub Secrets (CI), `.env` (local only)
-- **Scanning:** TruffleHog + CodeQL + npm audit run on every PR and push to `main`
-- **Container:** Node.js 22 Alpine, non-root user (`heady:1001`)
-- **Dependencies:** Automated updates via Dependabot
-- **Transport:** All endpoints served over TLS via Cloud Run + Cloudflare
+The following are in scope:
 
-## Scope
+- `heady-manager` Cloud Run service
+- API endpoints at `*.headyme.com`, `*.headyconnection.org`, `*.headysystems.com`
+- MCP gateway authentication
+- OAuth 2.1 flows
+- pgvector data isolation (multi-tenant RLS)
+- Cloudflare edge workers
 
-This policy covers:
+### Out of Scope
 
-- The monorepo (`Heady-pre-production-9f2f0642`)
-- Production repository (`heady-production`)
-- All `*-core` service repositories
-- The Cloud Run deployment at `heady-manager-*.run.app`
-- Cloudflare Pages sites (9 domains)
+- Third-party services (OpenAI, Anthropic, Google APIs)
+- Social engineering attacks
+- Denial of service (volumetric)
+- Issues in dependencies without a working exploit
 
-© 2026 HeadySystems Inc.
+## Security Measures
+
+- **Authentication**: OAuth 2.1 + JWT with short-lived tokens
+- **Authorization**: RBAC with tenant-scoped permissions
+- **Encryption**: TLS 1.3 in transit, AES-256 at rest
+- **Audit**: Immutable SHA-256 hash-chain audit log (GDPR Art. 30)
+- **Prompt Security**: 5-layer prompt injection defense
+- **Rate Limiting**: Token bucket per-tenant rate limiting
+- **Key Management**: Automated rotation with dual-key validation
+
+## Bug Bounty
+
+We do not currently operate a formal bug bounty program, but we acknowledge and credit responsible disclosures.
+
+---
+
+**Security Contact**: <security@headyconnection.org>  
+**Maintainer**: <eric@headyconnection.org>

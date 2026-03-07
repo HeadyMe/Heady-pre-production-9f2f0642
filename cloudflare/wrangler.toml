@@ -1,0 +1,209 @@
+# =============================================================================
+# Heady Edge Router — Wrangler Configuration
+# Worker: heady-edge-router
+# =============================================================================
+# Deploy with:
+#   wrangler deploy                        (production)
+#   wrangler deploy --env staging          (staging)
+#   wrangler dev                           (local dev)
+# =============================================================================
+
+name            = "heady-edge-router"
+main            = "worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Account & zone — fill in from Cloudflare dashboard
+account_id      = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+
+# ---------------------------------------------------------------------------
+# Bundling
+# ---------------------------------------------------------------------------
+[build]
+command = ""             # No build step needed — pure Worker JS
+
+# ---------------------------------------------------------------------------
+# Worker limits
+# ---------------------------------------------------------------------------
+[limits]
+cpu_ms = 50              # 50ms CPU budget per request (free plan: 10ms)
+
+# ---------------------------------------------------------------------------
+# Routes — all 9 Heady domains, www + apex
+# All routes forward to the same Worker (heady-edge-router)
+# ---------------------------------------------------------------------------
+routes = [
+  # headyme.com
+  { pattern = "headyme.com/*",         zone_name = "headyme.com" },
+  { pattern = "www.headyme.com/*",     zone_name = "headyme.com" },
+
+  # headysystems.com
+  { pattern = "headysystems.com/*",    zone_name = "headysystems.com" },
+  { pattern = "www.headysystems.com/*",zone_name = "headysystems.com" },
+
+  # headyconnection.org
+  { pattern = "headyconnection.org/*",     zone_name = "headyconnection.org" },
+  { pattern = "www.headyconnection.org/*", zone_name = "headyconnection.org" },
+
+  # headybuddy.org
+  { pattern = "headybuddy.org/*",      zone_name = "headybuddy.org" },
+  { pattern = "www.headybuddy.org/*",  zone_name = "headybuddy.org" },
+
+  # headymcp.com
+  { pattern = "headymcp.com/*",        zone_name = "headymcp.com" },
+  { pattern = "www.headymcp.com/*",    zone_name = "headymcp.com" },
+
+  # headyio.com
+  { pattern = "headyio.com/*",         zone_name = "headyio.com" },
+  { pattern = "www.headyio.com/*",     zone_name = "headyio.com" },
+
+  # headybot.com
+  { pattern = "headybot.com/*",        zone_name = "headybot.com" },
+  { pattern = "www.headybot.com/*",    zone_name = "headybot.com" },
+
+  # headyapi.com
+  { pattern = "headyapi.com/*",        zone_name = "headyapi.com" },
+  { pattern = "www.headyapi.com/*",    zone_name = "headyapi.com" },
+
+  # headyai.com
+  { pattern = "headyai.com/*",         zone_name = "headyai.com" },
+  { pattern = "www.headyai.com/*",     zone_name = "headyai.com" },
+]
+
+# ---------------------------------------------------------------------------
+# KV Namespaces
+# ---------------------------------------------------------------------------
+# Create with: wrangler kv:namespace create "RATE_LIMIT_KV"
+#              wrangler kv:namespace create "CACHE_KV"
+#              wrangler kv:namespace create "CONFIG_KV"
+
+[[kv_namespaces]]
+binding  = "RATE_LIMIT_KV"
+id       = "REPLACE_WITH_RATE_LIMIT_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_RATE_LIMIT_KV_PREVIEW_NAMESPACE_ID"
+
+[[kv_namespaces]]
+binding  = "CACHE_KV"
+id       = "REPLACE_WITH_CACHE_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_CACHE_KV_PREVIEW_NAMESPACE_ID"
+
+[[kv_namespaces]]
+binding  = "CONFIG_KV"
+id       = "REPLACE_WITH_CONFIG_KV_NAMESPACE_ID"
+preview_id = "REPLACE_WITH_CONFIG_KV_PREVIEW_NAMESPACE_ID"
+
+# ---------------------------------------------------------------------------
+# Durable Objects (optional — for stateful WebSocket coordination)
+# ---------------------------------------------------------------------------
+# Uncomment when needed:
+#
+# [[durable_objects.bindings]]
+# name       = "HEADY_CONNECTIONS"
+# class_name = "HeadyConnectionManager"
+#
+# [[migrations]]
+# tag  = "v1"
+# new_classes = ["HeadyConnectionManager"]
+
+# ---------------------------------------------------------------------------
+# Production environment variables (non-secret)
+# ---------------------------------------------------------------------------
+[vars]
+CLOUD_RUN_ORIGIN   = "https://heady-production-uc.a.run.app"
+RATE_LIMIT_WINDOW  = "60"
+RATE_LIMIT_MAX     = "100"
+MAINTENANCE_MODE   = "0"
+BLOCKED_COUNTRIES  = ""
+HEADY_ENV          = "production"
+
+# ---------------------------------------------------------------------------
+# Secrets (set via: wrangler secret put SECRET_NAME)
+# Never commit secret values here.
+# ---------------------------------------------------------------------------
+# Required secrets:
+#   wrangler secret put CLOUDFLARE_API_TOKEN
+#   wrangler secret put INTERNAL_API_KEY
+#   wrangler secret put SENTRY_DSN
+#
+# These are referenced in worker.js via env.SECRET_NAME
+
+# ---------------------------------------------------------------------------
+# Staging environment
+# ---------------------------------------------------------------------------
+[env.staging]
+name = "heady-edge-router-staging"
+
+routes = [
+  { pattern = "staging.headyme.com/*",        zone_name = "headyme.com" },
+  { pattern = "staging.headysystems.com/*",   zone_name = "headysystems.com" },
+  { pattern = "staging.headyconnection.org/*",zone_name = "headyconnection.org" },
+  { pattern = "staging.headybuddy.org/*",     zone_name = "headybuddy.org" },
+  { pattern = "staging.headymcp.com/*",       zone_name = "headymcp.com" },
+  { pattern = "staging.headyio.com/*",        zone_name = "headyio.com" },
+  { pattern = "staging.headybot.com/*",       zone_name = "headybot.com" },
+  { pattern = "staging.headyapi.com/*",       zone_name = "headyapi.com" },
+  { pattern = "staging.headyai.com/*",        zone_name = "headyai.com" },
+]
+
+[env.staging.vars]
+CLOUD_RUN_ORIGIN   = "https://heady-staging-uc.a.run.app"
+RATE_LIMIT_WINDOW  = "60"
+RATE_LIMIT_MAX     = "200"
+MAINTENANCE_MODE   = "0"
+BLOCKED_COUNTRIES  = ""
+HEADY_ENV          = "staging"
+
+[[env.staging.kv_namespaces]]
+binding    = "RATE_LIMIT_KV"
+id         = "REPLACE_WITH_STAGING_RATE_LIMIT_KV_ID"
+preview_id = "REPLACE_WITH_STAGING_RATE_LIMIT_KV_PREVIEW_ID"
+
+[[env.staging.kv_namespaces]]
+binding    = "CACHE_KV"
+id         = "REPLACE_WITH_STAGING_CACHE_KV_ID"
+preview_id = "REPLACE_WITH_STAGING_CACHE_KV_PREVIEW_ID"
+
+[[env.staging.kv_namespaces]]
+binding    = "CONFIG_KV"
+id         = "REPLACE_WITH_STAGING_CONFIG_KV_ID"
+preview_id = "REPLACE_WITH_STAGING_CONFIG_KV_PREVIEW_ID"
+
+# ---------------------------------------------------------------------------
+# Local development environment
+# ---------------------------------------------------------------------------
+[env.dev]
+name = "heady-edge-router-dev"
+
+[env.dev.vars]
+CLOUD_RUN_ORIGIN   = "http://localhost:8080"
+RATE_LIMIT_WINDOW  = "60"
+RATE_LIMIT_MAX     = "1000"
+MAINTENANCE_MODE   = "0"
+BLOCKED_COUNTRIES  = ""
+HEADY_ENV          = "development"
+
+# ---------------------------------------------------------------------------
+# Analytics Engine (optional — for edge request analytics)
+# ---------------------------------------------------------------------------
+# [[analytics_engine_datasets]]
+# binding = "HEADY_ANALYTICS"
+# dataset = "heady_edge_requests"
+
+# ---------------------------------------------------------------------------
+# Observability
+# ---------------------------------------------------------------------------
+[observability]
+enabled = true
+head_sampling_rate = 0.1   # Sample 10% of requests for tracing
+
+# ---------------------------------------------------------------------------
+# Tail workers (for logging to external sinks)
+# ---------------------------------------------------------------------------
+# [tail_consumers]
+# service = "heady-log-sink"
+
+# ---------------------------------------------------------------------------
+# Placement
+# ---------------------------------------------------------------------------
+[placement]
+mode = "smart"             # Cloudflare Smart Placement — runs Worker near origin

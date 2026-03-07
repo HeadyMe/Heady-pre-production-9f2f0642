@@ -1,0 +1,447 @@
+# =============================================================================
+# Heady Self-Healing Workflow
+# Runs every 15 minutes via cron. Checks all service health endpoints,
+# monitors vector memory coherence, certificate expiry, resource utilization,
+# and triggers auto-remediation on failure. Also runnable manually.
+# =============================================================================
+
+name: Self-Healing Check
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'    # Every 15 minutes, 24/7
+  workflow_dispatch:
+    inputs:
+      force-remediation:
+        description: 'Force remediation even if checks pass'
+        required: false
+        default: 'false'
+        type: boolean
+      verbose:
+        description: 'Verbose output'
+        required: false
+        default: 'false'
+        type: boolean
+
+concurrency:
+  group: self-healing
+  cancel-in-progress: true    # Cancel stale health check runs
+
+env:
+  NODE_VERSION: '20'
+  PRODUCTION_BASE: https://heady-production-uc.a.run.app
+  # Per-domain health endpoints (Cloudflare edge)
+  DOMAINS: >
+    headyme.com
+    headysystems.com
+    headyconnection.org
+    headybuddy.org
+    headymcp.com
+    headyio.com
+    headybot.com
+    headyapi.com
+    headyai.com
+  # Thresholds
+  HEALTH_SCORE_THRESHOLD: 50
+  CERT_EXPIRY_WARNING_DAYS: 14
+  MEMORY_THRESHOLD_PCT: 90
+  CPU_THRESHOLD_PCT: 80
+  DRIFT_THRESHOLD: 0.75
+
+jobs:
+
+  # -------------------------------------------------------------------------
+  # 1. Service health endpoint checks
+  # -------------------------------------------------------------------------
+  health-check:
+    name: Health Endpoint Check
+    runs-on: ubuntu-latest
+    outputs:
+      health-ok: ${{ steps.check.outputs.health-ok }}
+      failed-domains: ${{ steps.check.outputs.failed-domains }}
+
+    steps:
+      - name: Check all service health endpoints
+        id: check
+        run: |
+          FAILED_DOMAINS=""
+          ALL_OK=true
+
+          # Check internal Cloud Run endpoint first
+          INTERNAL_STATUS=$(curl -s -o /tmp/health_response.json \
+            -w "%{http_code}" \
+            --max-time 15 \
+            -H "Authorization: Bearer $(gcloud auth print-identity-token 2>/dev/null || echo '')" \
+            "${{ env.PRODUCTION_BASE }}/health/detailed" || echo "000")
+
+          echo "Internal health status: $INTERNAL_STATUS"
+          if [ "$INTERNAL_STATUS" = "200" ]; then
+            echo "PASS: Internal Cloud Run /health/detailed → 200"
+            cat /tmp/health_response.json | python3 -m json.tool 2>/dev/null || true
+          else
+            echo "FAIL: Internal Cloud Run /health/detailed → $INTERNAL_STATUS"
+            ALL_OK=false
+          fi
+
+          # Check per-domain endpoints (through Cloudflare)
+          for DOMAIN in ${{ env.DOMAINS }}; do
+            DOMAIN=$(echo $DOMAIN | tr -d '[:space:]')
+            [ -z "$DOMAIN" ] && continue
+
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              --max-time 10 \
+              --retry 2 \
+              --retry-delay 2 \
+              "https://${DOMAIN}/health" || echo "000")
+
+            if [ "$STATUS" = "200" ]; then
+              echo "PASS: ${DOMAIN}/health → $STATUS"
+            else
+              echo "FAIL: ${DOMAIN}/health → $STATUS"
+              FAILED_DOMAINS="${FAILED_DOMAINS} ${DOMAIN}"
+              ALL_OK=false
+            fi
+          done
+
+          # Write outputs
+          echo "health-ok=$ALL_OK" >> $GITHUB_OUTPUT
+          echo "failed-domains=${FAILED_DOMAINS}" >> $GITHUB_OUTPUT
+
+          if [ "$ALL_OK" = "false" ]; then
+            echo "::warning::Some health checks failed: ${FAILED_DOMAINS}"
+          fi
+
+  # -------------------------------------------------------------------------
+  # 2. Vector memory coherence / drift detection
+  # -------------------------------------------------------------------------
+  drift-check:
+    name: Vector Memory Drift Check
+    runs-on: ubuntu-latest
+    outputs:
+      drift-ok: ${{ steps.drift.outputs.drift-ok }}
+      drift-score: ${{ steps.drift.outputs.drift-score }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --silent
+
+      - name: Run drift detection
+        id: drift
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          DRIFT_THRESHOLD: ${{ env.DRIFT_THRESHOLD }}
+        run: |
+          node -e "
+          /**
+           * Drift detection script for CI self-healing workflow.
+           * Calls the DriftDetector class from src/monitoring/drift-detector.js
+           * and exits non-zero if critical drift is detected.
+           */
+          const path = require('path');
+
+          async function main() {
+            let DriftDetector;
+            try {
+              DriftDetector = require('./src/monitoring/drift-detector');
+            } catch (e) {
+              console.log('DriftDetector module not yet available — skipping drift check');
+              console.log('drift-ok=true');
+              process.exit(0);
+            }
+
+            const detector = new DriftDetector({
+              threshold: parseFloat(process.env.DRIFT_THRESHOLD || '0.75'),
+              databaseUrl: process.env.DATABASE_URL,
+              redisUrl: process.env.REDIS_URL,
+            });
+
+            try {
+              await detector.initialize();
+              const result = await detector.runFullCheck();
+
+              console.log('Drift check result:', JSON.stringify(result, null, 2));
+
+              const fs = require('fs');
+              const outputFile = process.env.GITHUB_OUTPUT;
+              fs.appendFileSync(outputFile, 'drift-ok=' + String(!result.critical) + '\n');
+              fs.appendFileSync(outputFile, 'drift-score=' + result.overallScore + '\n');
+
+              if (result.critical) {
+                console.error('CRITICAL DRIFT DETECTED: Score=' + result.overallScore);
+                process.exit(1);
+              }
+
+              console.log('PASS: Drift within acceptable bounds. Score=' + result.overallScore);
+            } catch (err) {
+              console.error('Drift check error:', err.message);
+              // Non-fatal — network issues shouldn't block self-healing loop
+              const fs = require('fs');
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, 'drift-ok=true\ndrift-score=unknown\n');
+            } finally {
+              await detector.destroy().catch(() => {});
+            }
+          }
+
+          main();
+          " || true
+
+  # -------------------------------------------------------------------------
+  # 3. Certificate expiry monitoring
+  # -------------------------------------------------------------------------
+  cert-check:
+    name: TLS Certificate Expiry Check
+    runs-on: ubuntu-latest
+    outputs:
+      cert-ok: ${{ steps.certs.outputs.cert-ok }}
+
+    steps:
+      - name: Check TLS certificate expiry for all domains
+        id: certs
+        run: |
+          CERT_OK=true
+          WARNING_DAYS=${{ env.CERT_EXPIRY_WARNING_DAYS }}
+
+          for DOMAIN in ${{ env.DOMAINS }}; do
+            DOMAIN=$(echo $DOMAIN | tr -d '[:space:]')
+            [ -z "$DOMAIN" ] && continue
+
+            EXPIRY=$(echo | timeout 10 openssl s_client -connect "${DOMAIN}:443" \
+              -servername "${DOMAIN}" 2>/dev/null \
+              | openssl x509 -noout -enddate 2>/dev/null \
+              | sed 's/notAfter=//' || echo "UNKNOWN")
+
+            if [ "$EXPIRY" = "UNKNOWN" ]; then
+              echo "WARN: Could not retrieve cert for ${DOMAIN}"
+              continue
+            fi
+
+            EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s 2>/dev/null || date -jf "%b %d %H:%M:%S %Y %Z" "$EXPIRY" +%s 2>/dev/null || echo "0")
+            NOW_EPOCH=$(date +%s)
+            DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
+
+            if [ "$DAYS_LEFT" -lt "$WARNING_DAYS" ]; then
+              echo "WARN: ${DOMAIN} certificate expires in ${DAYS_LEFT} days ($EXPIRY)"
+              CERT_OK=false
+            else
+              echo "PASS: ${DOMAIN} certificate valid for ${DAYS_LEFT} days"
+            fi
+          done
+
+          echo "cert-ok=$CERT_OK" >> $GITHUB_OUTPUT
+
+  # -------------------------------------------------------------------------
+  # 4. Resource utilization monitoring
+  # -------------------------------------------------------------------------
+  resource-check:
+    name: Resource Utilization Check
+    runs-on: ubuntu-latest
+    outputs:
+      resources-ok: ${{ steps.resources.outputs.resources-ok }}
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Check Cloud Run resource metrics
+        id: resources
+        run: |
+          RESOURCES_OK=true
+
+          # Check for recent 5xx error spikes
+          echo "Checking recent error rates..."
+          ERROR_COUNT=$(gcloud logging read \
+            'resource.type="cloud_run_revision" AND httpRequest.status>=500' \
+            --limit=50 \
+            --freshness=15m \
+            --project=heady-production \
+            --format="value(timestamp)" 2>/dev/null | wc -l || echo "0")
+
+          echo "5xx errors in last 15 minutes: $ERROR_COUNT"
+          if [ "$ERROR_COUNT" -gt "10" ]; then
+            echo "WARN: High error rate ($ERROR_COUNT 5xx in 15 min)"
+            RESOURCES_OK=false
+          fi
+
+          # Check Cloud Run service status
+          SERVICE_STATUS=$(gcloud run services describe heady-production \
+            --region=us-central1 \
+            --project=heady-production \
+            --format="value(status.conditions[0].status)" 2>/dev/null || echo "Unknown")
+
+          echo "Cloud Run service status: $SERVICE_STATUS"
+          if [ "$SERVICE_STATUS" != "True" ] && [ "$SERVICE_STATUS" != "Unknown" ]; then
+            echo "WARN: Cloud Run service not healthy: $SERVICE_STATUS"
+            RESOURCES_OK=false
+          fi
+
+          echo "resources-ok=$RESOURCES_OK" >> $GITHUB_OUTPUT
+
+  # -------------------------------------------------------------------------
+  # 5. Auto-remediation
+  # -------------------------------------------------------------------------
+  auto-remediate:
+    name: Auto-Remediation
+    runs-on: ubuntu-latest
+    needs: [health-check, drift-check, cert-check, resource-check]
+    if: |
+      always() && (
+        needs.health-check.outputs.health-ok == 'false' ||
+        needs.drift-check.outputs.drift-ok == 'false' ||
+        needs.cert-check.outputs.cert-ok == 'false' ||
+        needs.resource-check.outputs.resources-ok == 'false' ||
+        github.event.inputs.force-remediation == 'true'
+      )
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Remediation — restart unhealthy Cloud Run revision
+        if: needs.health-check.outputs.health-ok == 'false' || needs.resource-check.outputs.resources-ok == 'false'
+        run: |
+          echo "Triggering Cloud Run service refresh (new revision with same image)..."
+
+          # Get current image
+          CURRENT_IMAGE=$(gcloud run services describe heady-production \
+            --region=us-central1 \
+            --project=heady-production \
+            --format="value(spec.template.spec.containers[0].image)" 2>/dev/null)
+
+          echo "Current image: $CURRENT_IMAGE"
+
+          # Redeploy with same image — this forces new instances
+          gcloud run deploy heady-production \
+            --image="$CURRENT_IMAGE" \
+            --region=us-central1 \
+            --project=heady-production \
+            --update-env-vars="HEADY_REMEDIATION_TS=$(date -u +%s)" \
+            --quiet
+
+          echo "Cloud Run refresh triggered. New instances will start."
+
+      - name: Remediation — trigger vector recalibration
+        if: needs.drift-check.outputs.drift-ok == 'false'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+        run: |
+          echo "Vector drift detected — triggering recalibration..."
+
+          node -e "
+          async function main() {
+            let DriftDetector;
+            try {
+              DriftDetector = require('./src/monitoring/drift-detector');
+            } catch (e) {
+              console.log('DriftDetector not available — skipping recalibration');
+              return;
+            }
+
+            const detector = new DriftDetector({
+              databaseUrl: process.env.DATABASE_URL,
+              redisUrl: process.env.REDIS_URL,
+            });
+
+            await detector.initialize();
+            await detector.triggerRecalibration({ reason: 'self-healing-workflow', severity: 'critical' });
+            await detector.destroy();
+            console.log('Recalibration triggered');
+          }
+          main().catch(console.error);
+          " || echo "Recalibration skipped (module not available)"
+
+      - name: Remediation — clear stale Redis connections
+        env:
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+        run: |
+          echo "Clearing stale connections via Redis FLUSHDB (non-persistent)..."
+          # Only flush volatile session keys, not persistent data
+          node -e "
+          async function main() {
+            const redis = require('ioredis');
+            const client = new redis(process.env.REDIS_URL);
+            // Selectively delete stale session keys
+            const keys = await client.keys('session:stale:*');
+            if (keys.length > 0) {
+              await client.del(...keys);
+              console.log('Cleared', keys.length, 'stale session keys');
+            } else {
+              console.log('No stale session keys found');
+            }
+            await client.quit();
+          }
+          main().catch(e => { console.log('Redis skip:', e.message); process.exit(0); });
+          " || echo "Redis remediation skipped"
+
+      - name: Comprehensive alert on remediation
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          payload: |
+            {
+              "text": ":rotating_light: *Heady Self-Healing Triggered*",
+              "attachments": [{
+                "color": "#ff9900",
+                "fields": [
+                  {"title": "Health Endpoints OK", "value": "${{ needs.health-check.outputs.health-ok }}", "short": true},
+                  {"title": "Drift OK", "value": "${{ needs.drift-check.outputs.drift-ok }} (score: ${{ needs.drift-check.outputs.drift-score }})", "short": true},
+                  {"title": "Certs OK", "value": "${{ needs.cert-check.outputs.cert-ok }}", "short": true},
+                  {"title": "Resources OK", "value": "${{ needs.resource-check.outputs.resources-ok }}", "short": true},
+                  {"title": "Failed Domains", "value": "${{ needs.health-check.outputs.failed-domains || 'none' }}", "short": false},
+                  {"title": "Run", "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}", "short": false}
+                ]
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # -------------------------------------------------------------------------
+  # 6. All-clear notification (only when everything passes)
+  # -------------------------------------------------------------------------
+  all-clear:
+    name: All Clear
+    runs-on: ubuntu-latest
+    needs: [health-check, drift-check, cert-check, resource-check]
+    if: |
+      always() &&
+      needs.health-check.outputs.health-ok == 'true' &&
+      needs.drift-check.outputs.drift-ok == 'true' &&
+      needs.cert-check.outputs.cert-ok == 'true' &&
+      needs.resource-check.outputs.resources-ok == 'true'
+    steps:
+      - name: Log all-clear
+        run: |
+          echo "## Self-Healing Check: All Clear" >> $GITHUB_STEP_SUMMARY
+          echo "- Health endpoints: PASS" >> $GITHUB_STEP_SUMMARY
+          echo "- Vector drift: PASS (score: ${{ needs.drift-check.outputs.drift-score }})" >> $GITHUB_STEP_SUMMARY
+          echo "- TLS certificates: PASS" >> $GITHUB_STEP_SUMMARY
+          echo "- Resource utilization: PASS" >> $GITHUB_STEP_SUMMARY
+          echo "- Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY

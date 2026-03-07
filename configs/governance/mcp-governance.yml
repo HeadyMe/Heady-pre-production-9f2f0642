@@ -1,0 +1,66 @@
+# E16: MCP Enterprise Governance via GitOps
+# Defines allowed tools, resources, and policies per environment
+
+apiVersion: heady.io/v1
+kind: MCPGovernance
+
+metadata:
+  name: heady-mcp-governance
+  version: "1.0"
+
+environments:
+  production:
+    allowed_tools:
+      - name: "heady_search"
+        rate_limit: 100/min
+        requires_auth: true
+      - name: "heady_memory_store"
+        rate_limit: 50/min
+        requires_auth: true
+        requires_approval: false
+      - name: "heady_deploy"
+        rate_limit: 5/hour
+        requires_auth: true
+        requires_approval: true
+        approvers: ["admin", "operator"]
+    blocked_tools:
+      - name: "shell_exec"
+        reason: "Arbitrary shell execution blocked in production"
+      - name: "file_write"
+        reason: "Direct file writes blocked — use structured APIs"
+    resource_limits:
+      max_concurrent_sessions: 1000
+      max_tools_per_request: 10
+      max_response_size_mb: 50
+      token_budget_per_tenant_daily: 1000000
+
+  staging:
+    allowed_tools: ["*"]
+    blocked_tools: []
+    resource_limits:
+      max_concurrent_sessions: 100
+      max_tools_per_request: 20
+      max_response_size_mb: 100
+      token_budget_per_tenant_daily: 5000000
+
+  development:
+    allowed_tools: ["*"]
+    blocked_tools: []
+    resource_limits:
+      max_concurrent_sessions: 10
+      max_tools_per_request: 50
+      max_response_size_mb: 200
+      token_budget_per_tenant_daily: unlimited
+
+audit:
+  log_all_tool_calls: true
+  log_all_resource_access: true
+  retention_days: 365
+  immutable: true
+
+drift_detection:
+  enabled: true
+  check_interval: 5m
+  actions_on_drift:
+    - alert
+    - auto_remediate

@@ -1,0 +1,63 @@
+# T11: Compliance Bundle Templates
+# Pre-built regulatory compliance configs for enterprise tenants
+
+bundles:
+  hipaa:
+    name: HIPAA (Health Insurance Portability and Accountability Act)
+    requirements:
+      - encryption_at_rest: AES-256
+      - encryption_in_transit: TLS 1.3
+      - access_logging: immutable_audit_trail
+      - data_retention: 6_years
+      - role_based_access: required
+      - phi_detection: enabled
+      - breach_notification: 72_hours
+      - baa_required: true
+    restrictions:
+      - no_phi_in_prompts: true
+      - no_phi_in_logs: true
+      - us_data_residency: required
+
+  gdpr:
+    name: GDPR (General Data Protection Regulation)
+    requirements:
+      - lawful_basis: consent_or_legitimate_interest
+      - data_subject_rights: [access, rectification, erasure, portability, restriction, objection]
+      - dpo_designation: required_if_large_scale
+      - dpia: required_for_high_risk
+      - cross_border_transfer: sccs_or_adequacy
+      - breach_notification: 72_hours_supervisory_authority
+      - audit_trail: article_30_records
+    restrictions:
+      - pii_minimization: true
+      - purpose_limitation: true
+      - storage_limitation: true
+
+  sox:
+    name: SOX (Sarbanes-Oxley Act)
+    requirements:
+      - internal_controls: required
+      - audit_trail: immutable
+      - access_controls: role_based
+      - change_management: documented
+      - data_integrity: verified
+      - retention: 7_years
+    restrictions:
+      - financial_data_access: restricted_to_authorized
+      - separation_of_duties: enforced
+
+  soc2:
+    name: SOC 2 Type II
+    trust_services_criteria:
+      - security: required
+      - availability: required
+      - processing_integrity: required
+      - confidentiality: optional
+      - privacy: optional
+    requirements:
+      - access_controls: mfa_required
+      - encryption: at_rest_and_in_transit
+      - monitoring: continuous
+      - incident_response: documented
+      - vendor_management: assessed
+      - change_management: controlled
