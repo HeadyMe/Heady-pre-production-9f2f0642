@@ -9,7 +9,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const yaml = require('js-yaml');
+const yaml = require('../core/heady-yaml');
 const router = express.Router();
 
 const projectRoot = path.resolve(__dirname, '..', '..');

@@ -78,7 +78,7 @@ router.get("/metrics", (req, res) => {
 router.get("/dashboard", (req, res) => {
     const fs = require("fs");
     const path = require("path");
-    const yaml = require("js-yaml");
+    const yaml = require('../core/heady-yaml');
 
     // Load configs
     const configDir = path.join(__dirname, "..", "..", ".heady");

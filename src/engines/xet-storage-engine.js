@@ -29,7 +29,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
+const fetch = require('../core/heady-fetch');
 const logger = require("../utils/logger");
 
 class XetStorageEngine {

@@ -15,7 +15,7 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
+const yaml = require('../core/heady-yaml');
 const { embed, batchEmbed, deterministicReceipt } = require('./spatial-embedder');
 const { OctreeManager } = require('./octree-manager');
 const { RedisSyncBridge } = require('./redis-sync-bridge');

@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const yaml = require('js-yaml');
+const yaml = require('../core/heady-yaml');
 const logger = require('../utils/logger');
 const { HeadybeeTemplateRegistryService } = require('./headybee-template-registry');
 const { UnifiedEnterpriseAutonomyService } = require('./unified-enterprise-autonomy');

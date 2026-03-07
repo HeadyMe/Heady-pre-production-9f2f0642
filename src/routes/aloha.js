@@ -8,7 +8,7 @@
  *          /checklist, /crash-report, /de-opt-check, /web-baseline
  */
 const fs = require("fs");
-const yaml = require("js-yaml");
+const yaml = require('../core/heady-yaml');
 const logger = require("../utils/logger");
 
 module.exports = function mountAlohaRoutes(app, deps = {}) {

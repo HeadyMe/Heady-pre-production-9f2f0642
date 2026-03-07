@@ -57,7 +57,8 @@ function httpPing(url, timeout = 10000) {
 async function benchmarkHF() {
     const start = Date.now();
     try {
-        const { InferenceClient } = require("@huggingface/inference");
+        // HeadyModelBridge replaces HuggingFace SDK — use heady-model-bridge.chat('huggingface', ...)
+        const InferenceClient = null; // Replaced by HeadyModelBridge
 const logger = require("./utils/logger");
         const tokens = [process.env.HF_TOKEN, process.env.HF_TOKEN_2, process.env.HF_TOKEN_3].filter(Boolean);
         if (tokens.length === 0) return { provider: "hf", ok: false, error: "no tokens" };
@@ -90,7 +91,8 @@ const logger = require("./utils/logger");
 async function benchmarkHeadyPythia() {
     const start = Date.now();
     try {
-        const { GoogleGenAI } = require("@google/genai");
+        // HeadyModelBridge replaces Google GenAI SDK — use heady-model-bridge.chat('gemini', ...)
+        const GoogleGenAI = null; // Replaced by HeadyModelBridge
         const keys = [process.env.GOOGLE_API_KEY, process.env.HEADY_PYTHIA_KEY_HEADY, process.env.HEADY_PYTHIA_KEY_GCLOUD].filter(Boolean);
         if (keys.length === 0) return { provider: "headypythia", ok: false, error: "no keys" };
 
@@ -114,7 +116,7 @@ async function benchmarkHeadyPythia() {
 async function benchmarkHeadyJules() {
     const start = Date.now();
     try {
-        const HeadyNexus = require("@anthropic-ai/sdk");
+        const { chat: HeadyNexus } = require('core/heady-model-bridge'); // HeadyModelBridge replaces Anthropic SDK
         const keys = [process.env.HEADY_NEXUS_KEY, process.env.HEADY_NEXUS_KEY_SECONDARY].filter(Boolean);
         if (keys.length === 0) return { provider: "headyjules", ok: false, error: "no keys" };
 

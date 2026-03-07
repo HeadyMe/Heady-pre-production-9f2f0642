@@ -6,7 +6,7 @@
  * ════════════════════════════════════════════════════════════════════
  */
 
-const yaml = require('js-yaml');
+const yaml = require('../core/heady-yaml');
 const fs = require('fs');
 const logger = require('../utils/logger');
 

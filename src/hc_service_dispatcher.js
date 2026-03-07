@@ -178,7 +178,7 @@ class HeadyServiceDispatcher extends EventEmitter {
         };
 
         try {
-            const fetch = globalThis.fetch || require("node-fetch");
+            const fetch = globalThis.fetch || require('core/heady-fetch');
             const url = `${this.managerUrl}${resolved.entry.endpoint}`;
             const opts = { signal: AbortSignal.timeout(25000) };
 

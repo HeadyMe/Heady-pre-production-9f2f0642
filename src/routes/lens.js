@@ -18,7 +18,7 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const https = require("https");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { chat: GoogleGenerativeAI } = require('../core/heady-model-bridge'); // HeadyModelBridge replaces Google Generative AI SDK
 const logger = require("../utils/logger");
 
 // ── Vision Provider Setup (lazy — reads env at request time) ──

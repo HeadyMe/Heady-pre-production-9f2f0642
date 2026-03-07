@@ -10,7 +10,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const HeadyNexus = require("@anthropic-ai/sdk");
+const { chat: HeadyNexus } = require('../core/heady-model-bridge'); // HeadyModelBridge replaces Anthropic SDK
 
 // ── Dual-Org Configuration ──
 const CLAUDE_ORGS = [

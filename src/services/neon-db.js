@@ -75,7 +75,7 @@ async function connect() {
 
     try {
         // Use standard pg driver (works with Neon's Postgres-compatible endpoint)
-        const { Pool } = require("pg");
+        const { Pool } = require('../core/heady-neon');
         _pool = new Pool({
             connectionString,
             ssl: { rejectUnauthorized: false },

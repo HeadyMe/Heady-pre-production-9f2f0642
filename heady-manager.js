@@ -34,9 +34,9 @@ const redisPool = require("./src/utils/redis-pool");
 const https = require('https');
 const fs = require('fs');
 const http = require('http');
-const yaml = require('js-yaml');
+const yaml = require('./src/core/heady-yaml');
 const path = require("path");
-const fetch = require('node-fetch');
+const fetch = require('./src/core/heady-fetch').heady_fetch;
 const { createAppAuth } = require('@octokit/auth-app');
 const swaggerUi = require('swagger-ui-express');
 const WebSocket = require('ws');
@@ -64,7 +64,7 @@ global.midiBus = midiBus;
 // Make available to other modules
 global.eventBus = eventBus;
 
-require("dotenv").config();
+require('./src/core/heady-env').loadEnv();
 
 const express = require("express");
 const cors = require("cors");

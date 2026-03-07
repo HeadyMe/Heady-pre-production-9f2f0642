@@ -266,7 +266,7 @@ class ProjectionDispatcher extends EventEmitter {
 
         // Edge Proxy Status
         const EDGE_PROXY_URL = process.env.HEADY_EDGE_PROXY_URL || 'https://heady-edge-proxy.emailheadyconnection.workers.dev';
-        const fetch = require('node-fetch');
+        const fetch = require('../core/heady-fetch');
         app.get("/api/edge/status", async (req, res) => {
             try {
                 const [healthRes, detRes] = await Promise.allSettled([

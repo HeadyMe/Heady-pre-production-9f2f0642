@@ -11,7 +11,7 @@
 
 const { ethers } = require("ethers");
 const logger = require("../utils/logger");
-require("dotenv").config();
+require('../core/heady-env').config();
 
 // Defaulting to Base Goerli/Sepolia or Arbitrum for low-cost anchoring
 const RPC_URL = process.env.WEB3_RPC_URL || "https://sepolia.base.org";

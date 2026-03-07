@@ -16,7 +16,7 @@
 
 const express = require('express');
 const crypto = require('crypto');
-const fetch = require('node-fetch');
+const fetch = require('../core/heady-fetch');
 const logger = require('../utils/logger');
 
 // ── Tool/Resource/Prompt definitions (imported from the MCP server) ──

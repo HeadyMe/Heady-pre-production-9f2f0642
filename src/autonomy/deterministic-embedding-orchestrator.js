@@ -11,7 +11,7 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
-const yaml = require("js-yaml");
+const yaml = require('../core/heady-yaml');
 const logger = require("../utils/logger");
 
 const PROJECT_ROOT = path.join(__dirname, "..", "..");

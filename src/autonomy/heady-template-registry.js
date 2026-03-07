@@ -8,7 +8,7 @@
 const fs = require("fs");
 const path = require("path");
 const logger = require("../utils/logger");
-const yaml = require("js-yaml");
+const yaml = require('../core/heady-yaml');
 const providerUsageTracker = require("../telemetry/provider-usage-tracker");
 let selfAwareness = null;
 try { selfAwareness = require("../self-awareness"); } catch { /* optional */ }

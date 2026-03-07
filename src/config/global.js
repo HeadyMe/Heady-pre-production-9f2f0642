@@ -10,7 +10,7 @@
  */
 
 const logger = require("../utils/logger");
-require('dotenv').config();
+require('../core/heady-env').config();
 
 // ─── Helper: Required env var (fails loud, never hides) ─────────────
 function requireEnv(key, fallback) {

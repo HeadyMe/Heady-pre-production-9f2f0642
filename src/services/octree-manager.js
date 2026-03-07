@@ -19,7 +19,7 @@
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
-const yaml = require('js-yaml');
+const yaml = require('../core/heady-yaml');
 
 const CONFIG_PATH = path.resolve(__dirname, '../../configs/services/buddy-system-config.yaml');
 

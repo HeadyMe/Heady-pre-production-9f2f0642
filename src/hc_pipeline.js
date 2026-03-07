@@ -27,7 +27,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
-const yaml = require("js-yaml");
+const yaml = require('core/heady-yaml');
 const EventEmitter = require("events");
 
 const CONFIGS_DIR = path.join(__dirname, "..", "configs");

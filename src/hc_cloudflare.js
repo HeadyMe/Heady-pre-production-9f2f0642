@@ -11,7 +11,7 @@
  * Heady AI Nodes: SENTINEL, CONDUCTOR
  */
 
-const fetch = require("node-fetch");
+const fetch = require('core/heady-fetch');
 
 class CloudflareManager {
     constructor(secretsManager) {

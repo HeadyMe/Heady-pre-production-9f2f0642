@@ -705,7 +705,7 @@ async function updateNotionStatus(event = {}) {
 // ─── CLI Entry Point ────────────────────────────────────────────────
 
 if (require.main === module) {
-    require("dotenv").config({ path: path.join(__dirname, "..", "..", ".env") });
+    require('../core/heady-env').config({ path: path.join(__dirname, "..", "..", ".env") });
 
     const cliAction = process.argv[2] || "sync";
 

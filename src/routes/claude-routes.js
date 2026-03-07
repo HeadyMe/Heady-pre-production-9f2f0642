@@ -13,7 +13,7 @@
 
 const express = require("express");
 const router = express.Router();
-const fetch = require("node-fetch");
+const fetch = require('../core/heady-fetch');
 
 const CLAUDE_API = "https://api.anthropic.com/v1/messages";
 const CLAUDE_KEY = process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY;

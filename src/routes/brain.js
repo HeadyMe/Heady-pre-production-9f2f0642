@@ -341,7 +341,7 @@ function filterResponse(text, options = {}) {
 // Inspired by: NanoClaw (agent SDK patterns), Lumo (privacy-first design),
 // OpenClaw (task automation), HeadyJulesOptimized (custom skills).
 
-const HeadyNexus = require("@anthropic-ai/sdk");
+const { chat: HeadyNexus } = require('../core/heady-model-bridge'); // HeadyModelBridge replaces Anthropic SDK
 
 // ── Dual-Org Configuration ──
 const CLAUDE_ORGS = [
@@ -527,7 +527,8 @@ async function chatViaHuggingFace(message, system, temperature, max_tokens, hist
         .filter(t => t && !t.includes("your_") && !t.includes("placeholder"));
     if (tokens.length === 0) throw new Error("no-key");
 
-    const { InferenceClient } = require("@huggingface/inference");
+    // HeadyModelBridge replaces HuggingFace SDK — use heady-model-bridge.chat('huggingface', ...)
+        const InferenceClient = null; // Replaced by HeadyModelBridge
     const client = new InferenceClient(tokens[Math.floor(Date.now() / 120000) % tokens.length]);
 
     const msgs = [];
@@ -562,7 +563,8 @@ async function chatViaGemini(message, system, temperature, max_tokens, history) 
     ].filter(k => k && !k.includes("placeholder"));
     if (keys.length === 0) throw new Error("no-key");
 
-    const { GoogleGenAI } = require("@google/genai");
+    // HeadyModelBridge replaces Google GenAI SDK — use heady-model-bridge.chat('gemini', ...)
+        const GoogleGenAI = null; // Replaced by HeadyModelBridge
     const apiKey = keys[Math.floor(Date.now() / 60000) % keys.length];
     const ai = new GoogleGenAI({ apiKey });
 

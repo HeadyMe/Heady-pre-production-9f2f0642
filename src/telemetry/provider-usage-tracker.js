@@ -21,7 +21,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const yaml = require("js-yaml");
+const yaml = require('../core/heady-yaml');
 const logger = require("../utils/logger");
 
 const DATA_DIR = path.join(__dirname, "..", "..", "data");
