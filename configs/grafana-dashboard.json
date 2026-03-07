@@ -1,0 +1,62 @@
+{
+  "dashboard": {
+    "title": "HeadySystems Infrastructure Health",
+    "panels": [
+      {
+        "title": "Redis Connection Pool",
+        "targets": [
+          {
+            "expr": "redis_connected_clients{instance=~\"heady.*\"}",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "type": "graph"
+      },
+      {
+        "title": "MCP Handoff Latency (p99)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.99, rate(heady_mcp_handoff_duration_seconds_bucket[5m]))",
+            "legendFormat": "p99 latency"
+          }
+        ],
+        "type": "graph",
+        "alert": {
+          "name": "High MCP Latency",
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [0.05],
+                "type": "gt"
+              },
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"type": "avg"}
+            }
+          ]
+        }
+      },
+      {
+        "title": "Orchestration Reliability",
+        "targets": [
+          {
+            "expr": "sum(rate(heady_orchestration_success[1h])) / sum(rate(heady_orchestration_total[1h]))",
+            "legendFormat": "Success Rate"
+          }
+        ],
+        "type": "singlestat",
+        "thresholds": "0.8,0.9"
+      },
+      {
+        "title": "Test Coverage",
+        "targets": [
+          {
+            "expr": "heady_test_coverage_percent{component=\"core_logic\"}",
+            "legendFormat": "Core Logic Coverage"
+          }
+        ],
+        "type": "singlestat",
+        "thresholds": "90,100"
+      }
+    ]
+  }
+}

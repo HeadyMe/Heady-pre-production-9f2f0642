@@ -1,135 +1,213 @@
-# Heady™ Systems
+# HeadySystems Modular Monorepo
 
-[![Deploy](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/deploy.yml/badge.svg)](https://github.com/HeadyMe/Heady-pre-production-9f2f0642/actions/workflows/deploy.yml)
+> **Unified AI orchestration platform** with 30+ microservices, semantic reasoning, and post-quantum cryptography.
 
-> **v3.1.0** · Sacred Geometry Multi-Agent Orchestration · φ-Scaled Resilience · MCP Integration
+## 🏗️ Architecture Overview
 
----
+HeadySystems uses a **modular monolith** architecture combining the best of monorepos and microservices:
 
-## Table of Contents
+- **Monorepo benefits**: Atomic commits, unified versioning, shared tooling, simplified refactoring
+- **Microservices isolation**: Independent deployment, fault isolation, technology flexibility
+- **Build tool**: Turborepo for incremental builds and remote caching
+- **Package manager**: pnpm with workspaces for efficient dependency management
 
-- [Quick Start](#quick-start)
-- [Architecture](#architecture)
-- [Core Systems](#core-systems)
-- [API Endpoints](#api-endpoints)
-- [Health Probes](#health-probes)
-- [Resilience Stack](#resilience-stack)
-- [HeadyBees (Agent Decomposition)](#headybees-agent-decomposition)
-- [Deployment](#deployment)
-- [Security](#security)
-- [License](#license)
+### 📦 Project Structure
 
----
+```
+HeadySystems/
+├── apps/                    # User-facing applications
+│   ├── heady-web/           # Next.js dashboard (Cloudflare Pages)
+│   └── heady-buddy/         # Personal assistant frontend
+│
+├── services/                # Backend microservices
+│   ├── heady-brain/         # Cognitive core (chat, analysis, embeddings)
+│   ├── heady-conductor/     # Task orchestration & agent coordination
+│   ├── heady-mcp/           # Model Context Protocol gateway
+│   ├── heady-coder/         # Code generation orchestrator
+│   ├── heady-lens/          # Vision/GPU image processing
+│   ├── heady-soul/          # Optimization & goal alignment
+│   ├── heady-vinci/         # Pattern learning & prediction
+│   └── heady-manager/       # API gateway & service registry
+│
+├── packages/                # Shared libraries
+│   ├── core/                # Base utilities, logger, errors
+│   ├── types/               # TypeScript type definitions
+│   ├── config/              # Configuration schemas
+│   ├── redis/               # Optimized Redis connection pool
+│   ├── mcp/                 # MCP protocol implementation
+│   └── semantic-logic/      # Continuous fuzzy logic gates
+│
+└── infrastructure/          # Deployment configs
+    ├── cloudflare/          # Workers, Pages, Tunnels
+    ├── google-cloud/        # Cloud Run, Vertex AI
+    └── render/              # Container deployments
+```
 
-## Quick Start
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js** 20+
+- **pnpm** 8+ (install: `npm install -g pnpm`)
+- **Redis** 6+ (local or cloud)
+
+### Installation
 
 ```bash
-npm install
-cp .env.example .env
-npm run dev
+# Clone the repository
+git clone https://github.com/HeadyMe/Heady-8f71ffc8.git
+cd Heady-8f71ffc8
+
+# Install dependencies (all packages)
+pnpm install
+
+# Build all packages
+pnpm build
+
+# Run all services in dev mode
+pnpm dev
 ```
 
-> **Note:** This project uses `npm` as its package manager.
+### Running Individual Services
 
-## Architecture
+```bash
+# Run only HeadyBrain
+pnpm --filter @headysystems/heady-brain dev
 
-```
-heady-manager.js                # Node.js MCP Server & API Gateway
-├── src/
-│   ├── orchestration/          # Pipeline, conductor, self-optimizer (25 files)
-│   ├── memory/                 # Vector memory, search, federation (11 files)
-│   ├── agents/                 # Bees (58 workers), buddy, templates (13 files)
-│   ├── intelligence/           # Research, scanning, ML (14 files)
-│   ├── runtime/                # Cloud infra, compute, deployment (12 files)
-│   ├── auth/                   # Authentication, authorization, tiers (5 files)
-│   ├── mcp/                    # MCP server, connectors (7 files)
-│   ├── observability/          # Structured logger, health probes (7 files)
-│   ├── integrations/           # Provider connectors, SDKs (4 files)
-│   ├── shared/                 # Utils, registry, policies (11 files)
-│   ├── types/                  # TypeScript definitions
-│   ├── routes/                 # HTTP route handlers (52 files)
-│   ├── services/               # Service implementations (75 files)
-│   └── bees/                   # 26 domain-specific HeadyBee workers
-├── tests/                      # Unit, integration, and e2e tests
-├── configs/                    # YAML configuration
-├── docs/                       # Architecture, patents, API specs
-└── .github/workflows/          # Deploy pipeline (security → validate → deploy)
+# Run HeadyConductor with dependencies
+pnpm --filter @headysystems/heady-conductor... dev
+
+# Test specific service
+pnpm --filter @headysystems/heady-brain test
 ```
 
-## Core Systems
+## 📊 Service Catalogue
 
-| System | Description |
-|---|---|
-| **HCFullPipeline** | 12-stage pipeline: INTAKE → TRIAGE → MONTE\_CARLO → ARENA → JUDGE → APPROVE → EXECUTE → VERIFY → RECEIPT |
-| **Sacred Geometry** | Non-linear multi-agent orchestration with φ-based routing |
-| **Buddy Core** | Sovereign orchestrator with MetacognitionEngine + DeterministicErrorInterceptor (5-phase ARCH loop) |
-| **Self-Awareness** | Internal Monologue Loop — telemetry ingestion → ring buffer → vector memory → confidence scoring |
-| **Vector Memory** | 3D spatial sharded store with Graph RAG, I(m) importance scoring, STM→LTM consolidation |
-| **MCP Integration** | Model Context Protocol dual-role (Client + Server) with tool registry |
+| Service | Category | Port | Description |
+|---------|----------|------|-------------|
+| **HeadyBrain** | Cognitive Core | 3001 | Chat, analysis, embeddings, semantic search |
+| **HeadyConductor** | Infrastructure | 3002 | Task orchestration, agent coordination |
+| **HeadyMCP** | MCP | 3003 | Model Context Protocol gateway |
+| **HeadySoul** | Cognitive Core | 3004 | Optimization & goal alignment |
+| **HeadyVinci** | Cognitive Core | 3005 | Pattern learning & prediction |
+| **HeadyCoder** | Software Factory | 3006 | Code generation orchestrator |
+| **HeadyLens** | User-Facing | 3007 | Vision/GPU image processing |
+| **HeadyManager** | Infrastructure | 3000 | API gateway & service registry |
 
-## API Endpoints
+## 🔧 Development Workflow
 
-| Endpoint | Description |
-|---|---|
-| `GET /api/health` | Basic health check |
-| `GET /api/pulse` | System pulse with layer info |
-| `GET /api/system/status` | Full system status |
-| `POST /api/pipeline/run` | Trigger pipeline run |
-| `GET /api/pipeline/state` | Current pipeline state |
-| `GET /api/nodes` | List all AI nodes |
-| `GET /api/resilience/status` | Circuit breaker / pool / cache metrics |
+### Adding a New Service
 
-## Health Probes
+```bash
+# Use Turborepo generator
+pnpm turbo gen
 
-| Endpoint | Purpose | Checks |
-|---|---|---|
-| `GET /health/live` | Liveness (K8s) | Process alive, PID, uptime |
-| `GET /health/ready` | Readiness (K8s) | Resilience, filesystem, memory, event loop, vector memory, self-awareness telemetry |
-| `GET /health/full` | Deep introspection | Full system state including self-awareness introspection |
-
-## Resilience Stack
-
-| Primitive | Implementation |
-|---|---|
-| **Circuit Breakers** | CLOSED→OPEN→HALF\_OPEN, 16 pre-registered services |
-| **φ-Exponential Backoff** | `1s → 1.6s → 2.6s → 4.2s → 6.9s → 11.1s → 17.9s → 29s` (PHI-scaled) |
-| **Connection Pooling** | Pre-authenticated socket pools with timeout management |
-| **Rate Limiting** | Per-client sliding window with configurable quotas |
-| **Caching** | In-memory TTL cache with hit/miss metrics |
-| **Graceful Shutdown** | SIGTERM/SIGINT handlers, LIFO cleanup, 5s timeout per handler |
-
-## HeadyBees (Agent Decomposition)
-
-24 domains · 197 workers · Dynamic factory for runtime bee creation.
-
-```javascript
-const { createBee, spawnBee } = require('./src/bees/bee-factory');
-
-// Create a full domain bee
-const healthBee = createBee('health-monitoring', { interval: 30000 });
-
-// Spawn an ephemeral single-purpose bee
-const scanBee = spawnBee('port-scanner', async () => { /* work */ });
+# Select "service" template
+# Enter service name (e.g., "heady-foo")
 ```
 
-## Deployment
+### Adding a New Package
 
-- **Platform:** Google Cloud Run via multi-stage Dockerfile
-- **Container:** `node:22-alpine` · Non-root user (`heady:1001`)
-- **CI/CD:** 10 GitHub Actions workflows (CodeQL SAST, Gitleaks, SBOM, dependency audit)
-- **Edge:** Cloudflare Workers proxy layer
-- **Lockfile:** `package-lock.json` (npm)
+```bash
+# Create package directory
+mkdir -p packages/my-package/src
 
-## Security
+# Create package.json
+cat > packages/my-package/package.json <<EOF
+{
+  "name": "@headysystems/my-package",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@headysystems/core": "workspace:*"
+  }
+}
+EOF
 
-- All secrets managed via Cloud Run environment variables (never in code)
-- Git history sterilized via `git filter-repo` (no credentials in any commit)
-- Pre-commit hook scans for high-entropy strings
-- CodeQL + Gitleaks + SBOM scanning in CI
-- See [SECURITY.md](SECURITY.md) for vulnerability disclosure
+# Create tsconfig.json
+cat > packages/my-package/tsconfig.json <<EOF
+{
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    { "path": "../core" }
+  ]
+}
+EOF
+```
 
-## License
+### Testing
 
-© 2026 Heady™ — HeadySystems Inc. Proprietary and Confidential.
+```bash
+# Run all tests
+pnpm test
 
-Heady™ is a trademark of HeadyConnection Inc. USPTO Serial No. 99680540.
+# Run tests with coverage
+pnpm test -- --coverage
+
+# Run tests in watch mode
+pnpm test -- --watch
+```
+
+### Deployment
+
+```bash
+# Deploy all services (via GitHub Actions)
+git push origin main
+
+# Manual deploy specific service
+pnpm --filter @headysystems/heady-brain deploy
+```
+
+## 🛠️ Technology Stack
+
+### Core Technologies
+- **Runtime**: Node.js 20 (LTS)
+- **Language**: TypeScript 5.3+
+- **Build Tool**: Turborepo 1.12+
+- **Package Manager**: pnpm 8.15+
+- **Web Framework**: Express.js 4.18
+- **Task Queue**: Bull (Redis-backed)
+
+### Infrastructure
+- **Cloud**: Cloudflare (Workers, Pages, Tunnels), Google Cloud (Cloud Run, Vertex AI), Render.com
+- **Database**: Redis (connection pooling), PostgreSQL (planned)
+- **Secrets**: 1Password Connect
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Grafana + Prometheus
+
+### AI/ML
+- **LLM Providers**: OpenAI (GPT-4), Anthropic (Claude 3), Google (Gemini Pro), Groq
+- **Local Models**: Ollama (Llama 2, Mistral)
+- **Embeddings**: OpenAI Ada-002, local models
+- **Vector DB**: HeadyVector (custom)
+
+## 📈 Performance Targets
+
+| Metric | Current | Target | Status |
+|--------|---------|--------|--------|
+| Orchestration reliability | ~75% | >80% | 🟡 In progress |
+| Redis p99 latency | 143ms | <50ms | 🔴 Needs work |
+| MCP handoff p99 | 143ms | <50ms | 🔴 Needs work |
+| Test coverage (core logic) | ~60% | 100% | 🟡 In progress |
+
+## 📚 Further Reading
+
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [API Reference](docs/API_REFERENCE.md)
+- [Contributing Guide](docs/CONTRIBUTING.md)
+
+## 📝 License
+
+UNLICENSED - Proprietary to HeadySystems Inc.
+
+## 👤 Author
+
+**Eric Haywood**
+- Email: eric@headysystems.com
+- GitHub: [@HeadyMe](https://github.com/HeadyMe)
