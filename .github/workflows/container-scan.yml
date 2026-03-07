@@ -47,7 +47,7 @@ jobs:
       dockerfiles: ${{ steps.find.outputs.dockerfiles }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Find all Dockerfiles
         id: find
@@ -70,7 +70,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
@@ -132,7 +132,7 @@ jobs:
         dockerfile: ${{ fromJson(needs.discover-dockerfiles.outputs.dockerfiles) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -199,7 +199,7 @@ jobs:
     if: needs.discover-dockerfiles.outputs.dockerfiles != '[]'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run hadolint on all Dockerfiles
         uses: hadolint/hadolint-action@v3.1.0
@@ -249,7 +249,7 @@ jobs:
     if: needs.discover-dockerfiles.outputs.dockerfiles != '[]'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Check base image freshness
         run: |
@@ -309,7 +309,7 @@ jobs:
     if: needs.discover-dockerfiles.outputs.dockerfiles != '[]'
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Verify Dockerfiles use non-root user
         id: check
@@ -370,7 +370,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Verify .dockerignore covers sensitive paths
         run: |
