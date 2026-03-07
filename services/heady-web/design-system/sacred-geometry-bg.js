@@ -62,7 +62,7 @@ const SacredGeometryBG = (() => {
   const SITE_SHAPES = {
     headyme: { name: 'Flower of Life', type: 'flower', rings: 4, hueBase: 170 },
     headyos: { name: 'Metatron Cube', type: 'metatron', hueBase: 270 },
-    heady-ai: { name: 'Torus Knot 2,3', type: 'torus', p: 2, q: 3, hueBase: 0 },
+    'heady-ai': { name: 'Torus Knot 2,3', type: 'torus', p: 2, q: 3, hueBase: 0 },
     headysystems: { name: 'Torus Knot 3,5', type: 'torus', p: 3, q: 5, hueBase: 45 },
     headyex: { name: 'Sri Yantra', type: 'sri', hueBase: 320 },
     headyfinance: { name: 'Torus Knot 5,8', type: 'torus', p: 5, q: 8, hueBase: 200 },
@@ -78,8 +78,8 @@ const SacredGeometryBG = (() => {
 
   // ═══ DRAW FUNCTIONS — LARGE, DENSE ═══
   function drawTorus(t, cfg) {
-    const segs = 800;
-    const size = Math.min(W, H) * 0.38;
+    const segs = 900;
+    const size = Math.min(W, H) * 0.45;
     const R = 80, r = 35;
     const pM = cfg.p + pw(t, 0.0002, 0) * 0.5;
     const qM = cfg.q + pw(t, 0.00015, 2) * 0.4;
@@ -117,7 +117,7 @@ const SacredGeometryBG = (() => {
   }
 
   function drawFlower(t, cfg) {
-    const size = Math.min(W, H) * 0.35;
+    const size = Math.min(W, H) * 0.45;
     const rx = t * 0.001 + pw(t, 0.0004, 0) * 0.5;
     const ry = t * 0.0015 + pw(t, 0.0003 * PHI, 1) * 0.4;
     const rz = t * 0.0008 * PHI_INV + pw(t, 0.00035, 2) * 0.3;
@@ -149,7 +149,7 @@ const SacredGeometryBG = (() => {
   }
 
   function drawMetatron(t, cfg) {
-    const size = Math.min(W, H) * 0.35;
+    const size = Math.min(W, H) * 0.45;
     const rx = t * 0.0012 + pw(t, 0.0005, 0) * 0.4;
     const ry = t * 0.0018 + pw(t, 0.0004 * PHI, 1) * 0.5;
     const rz = t * 0.0007 * PHI_INV + pw(t, 0.0003, 2) * 0.3;
@@ -193,7 +193,7 @@ const SacredGeometryBG = (() => {
   }
 
   function drawSri(t, cfg) {
-    const size = Math.min(W, H) * 0.35;
+    const size = Math.min(W, H) * 0.45;
     const rx = t * 0.001 + pw(t, 0.0005, 0) * 0.45;
     const ry = t * 0.0014 + pw(t, 0.0004 * PHI, 1) * 0.4;
     const rz = t * 0.0009 * PHI_INV + pw(t, 0.00035, 2) * 0.35;
@@ -230,7 +230,7 @@ const SacredGeometryBG = (() => {
   }
 
   function drawVesica(t, cfg) {
-    const size = Math.min(W, H) * 0.35;
+    const size = Math.min(W, H) * 0.45;
     const rx = t * 0.0011 + pw(t, 0.00045, 0) * 0.4;
     const ry = t * 0.0016 + pw(t, 0.00035 * PHI, 1) * 0.45;
     const rz = t * 0.00075 * PHI_INV + pw(t, 0.0003, 2) * 0.3;
