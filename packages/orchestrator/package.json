@@ -1,6 +1,6 @@
 {
-  "name": "@headyme/orchestrator",
-  "version": "3.2.0",
+  "name": "@heady-ai/orchestrator",
+  "version": "3.2.1",
   "description": "Service orchestration engine with Monte Carlo scheduling, liquid architecture, and multi-pool resource allocation for the Heady AI Platform.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,8 +22,8 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@headyme/core": "^3.2.0",
-    "@headyme/vector-memory": "^3.2.0"
+    "@heady-ai/core": "^3.2.1",
+    "@heady-ai/vector-memory": "^3.2.1"
   },
   "license": "UNLICENSED",
   "author": {

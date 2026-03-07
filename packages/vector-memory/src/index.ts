@@ -1,4 +1,4 @@
-import { HeadyError, validateUserId } from '@heady/core';
+import { HeadyError, validateUserId } from '@heady-ai/core';
 
 export interface Vector3D {
   x: number;

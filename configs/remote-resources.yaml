@@ -1,0 +1,221 @@
+# ============================================================
+# HeadyStack v3.0.1 "Aether" — Remote Resources Configuration
+# Defines all external service endpoints and connection settings.
+# © 2026 HeadySystems Inc. — Proprietary
+# ============================================================
+
+version: "1.0"
+
+# Only load services marked critical_only: true during minimal boot
+critical_only: false
+
+# ── Core Service Endpoints ────────────────────────────────────
+services:
+  # LLM Provider APIs
+  anthropic:
+    url: "https://api.anthropic.com/v1"
+    timeout_ms: 60000
+    retry_attempts: 3
+    retry_backoff_ms: 1000
+    critical: true
+    tags: [llm, inference]
+
+  openai:
+    url: "https://api.openai.com/v1"
+    timeout_ms: 120000
+    retry_attempts: 3
+    retry_backoff_ms: 1000
+    critical: true
+    tags: [llm, inference, embeddings]
+
+  google_ai:
+    url: "https://generativelanguage.googleapis.com/v1beta"
+    timeout_ms: 60000
+    retry_attempts: 3
+    retry_backoff_ms: 1000
+    critical: false
+    tags: [llm, inference]
+
+  groq:
+    url: "https://api.groq.com/openai/v1"
+    timeout_ms: 30000
+    retry_attempts: 3
+    retry_backoff_ms: 500
+    critical: false
+    tags: [llm, inference, fast]
+
+  perplexity:
+    url: "https://api.perplexity.ai"
+    timeout_ms: 60000
+    retry_attempts: 2
+    retry_backoff_ms: 1000
+    critical: false
+    tags: [llm, search, online]
+
+  huggingface:
+    url: "https://api-inference.huggingface.co"
+    timeout_ms: 30000
+    retry_attempts: 2
+    retry_backoff_ms: 500
+    critical: false
+    tags: [embeddings, inference]
+
+  # Integration Services
+  github:
+    url: "https://api.github.com"
+    timeout_ms: 15000
+    retry_attempts: 3
+    retry_backoff_ms: 500
+    critical: false
+    tags: [vcs, integration]
+
+  notion:
+    url: "https://api.notion.com/v1"
+    timeout_ms: 15000
+    retry_attempts: 3
+    retry_backoff_ms: 500
+    critical: false
+    tags: [knowledge, integration]
+
+  stripe:
+    url: "https://api.stripe.com/v1"
+    timeout_ms: 15000
+    retry_attempts: 3
+    retry_backoff_ms: 1000
+    critical: false
+    tags: [payments, integration]
+
+  cloudflare:
+    url: "https://api.cloudflare.com/client/v4"
+    timeout_ms: 10000
+    retry_attempts: 3
+    retry_backoff_ms: 500
+    critical: false
+    tags: [cdn, dns, integration]
+
+  render:
+    url: "https://api.render.com/v1"
+    timeout_ms: 30000
+    retry_attempts: 2
+    retry_backoff_ms: 2000
+    critical: false
+    tags: [deployment, paas]
+
+  # Heady Internal Services
+  heady_sys:
+    url: "${HEADY_SYS_URL:-https://headysystems.ai/api}"
+    timeout_ms: 10000
+    retry_attempts: 3
+    retry_backoff_ms: 1000
+    critical: false
+    tags: [internal, heady]
+
+  heady_me:
+    url: "${HEADY_ME_URL:-https://heady.me/api}"
+    timeout_ms: 10000
+    retry_attempts: 3
+    retry_backoff_ms: 1000
+    critical: false
+    tags: [internal, heady]
+
+  heady_conn:
+    url: "${HEADY_CONN_URL:-https://headyconnection.org/api}"
+    timeout_ms: 10000
+    retry_attempts: 3
+    retry_backoff_ms: 1000
+    critical: false
+    tags: [internal, heady]
+
+# ── Database Connections ──────────────────────────────────────
+databases:
+  primary:
+    type: postgresql
+    host: "${DB_HOST:-localhost}"
+    port: 5432
+    database: headydb
+    pool:
+      min: 2
+      max: 20
+      acquire_timeout_ms: 30000
+      idle_timeout_ms: 600000
+    ssl:
+      enabled: "${DB_SSL:-false}"
+      reject_unauthorized: true
+    critical: true
+
+  replica:
+    type: postgresql
+    host: "${DB_REPLICA_HOST}"
+    port: 5432
+    database: headydb
+    pool:
+      min: 1
+      max: 10
+    read_only: true
+    critical: false
+
+  cache:
+    type: redis
+    url: "${REDIS_URL:-redis://localhost:6379}"
+    pool:
+      min: 2
+      max: 10
+    ttl_default_seconds: 3600
+    critical: true
+
+# ── Feature Flags (remote overrides) ─────────────────────────
+feature_flags:
+  self_healing_enabled: true
+  bee_swarm_enabled: true
+  voice_relay_enabled: true
+  mcp_server_enabled: true
+  vector_memory_enabled: true
+  streaming_responses_enabled: true
+  oauth_enabled: true
+  stripe_webhooks_enabled: true
+  audit_logging_enabled: true
+  otel_tracing_enabled: true
+  pgbouncer_enabled: true
+
+# ── Rate Limits ───────────────────────────────────────────────
+rate_limits:
+  global:
+    window_ms: 60000
+    max_requests: 1000
+  auth:
+    window_ms: 900000
+    max_requests: 10
+  api:
+    window_ms: 60000
+    max_requests: 300
+  mcp:
+    window_ms: 60000
+    max_requests: 100
+  voice:
+    window_ms: 60000
+    max_requests: 50
+
+# ── Circuit Breaker Defaults ──────────────────────────────────
+circuit_breaker:
+  enabled: true
+  failure_threshold: 5
+  success_threshold: 2
+  timeout_ms: 30000
+  reset_timeout_ms: 60000
+
+# ── Health Check Endpoints ────────────────────────────────────
+health_checks:
+  interval_ms: 30000
+  timeout_ms: 5000
+  endpoints:
+    - name: self
+      url: "http://localhost:${PORT:-8080}/health"
+      method: GET
+      expected_status: 200
+    - name: postgres
+      type: pg_isready
+      host: "${DB_HOST:-localhost}"
+      port: 5432
+    - name: redis
+      type: redis_ping
+      url: "${REDIS_URL:-redis://localhost:6379}"

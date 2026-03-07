@@ -1,4 +1,4 @@
-import { VectorMemoryStore, Vector3D } from '@heady/vector-memory';
+import { VectorMemoryStore, Vector3D } from '@heady-ai/vector-memory';
 
 export interface MCPRequest {
   jsonrpc: '2.0';

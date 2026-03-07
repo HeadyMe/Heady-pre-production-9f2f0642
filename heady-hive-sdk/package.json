@@ -1,0 +1,36 @@
+{
+  "name": "@headysystems/heady-hive-sdk",
+  "version": "3.0.1",
+  "description": "HeadyStack Client SDK — programmatic access to all HeadyStack API endpoints",
+  "main": "lib/gateway.js",
+  "type": "commonjs",
+  "exports": {
+    ".": "./lib/gateway.js",
+    "./gateway": "./lib/gateway.js"
+  },
+  "scripts": {
+    "test": "node --test tests/",
+    "lint": "eslint lib/"
+  },
+  "keywords": ["headystack", "heady", "ai", "mcp", "vector", "agents"],
+  "author": "HeadySystems Inc.",
+  "license": "PROPRIETARY",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HeadyMe/HeadyStack"
+  },
+  "peerDependencies": {},
+  "files": [
+    "lib/",
+    "README.md"
+  ]
+}

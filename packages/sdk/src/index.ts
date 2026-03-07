@@ -1,4 +1,4 @@
-import { HeadyError } from '@heady/core';
+import { HeadyError } from '@heady-ai/core';
 
 export class HeadyClient {
   constructor(private apiKey: string, private baseUrl = 'https://mcp.headymcp.com') {}
