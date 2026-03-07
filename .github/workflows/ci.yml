@@ -44,7 +44,7 @@ jobs:
             src/ services/ packages/ bin/ configs/ \
             --include="*.js" --include="*.ts" --include="*.py" --include="*.json"
       - name: SAST scan
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           languages: javascript
         continue-on-error: true
