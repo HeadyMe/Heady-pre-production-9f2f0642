@@ -1,0 +1,8 @@
+name = "heady-api-gateway"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+[vars]
+UPSTREAM_URL = "https://heady-manager-609590223909.us-central1.run.app"
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "heady-rate-limits"

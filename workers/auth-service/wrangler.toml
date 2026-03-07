@@ -1,0 +1,8 @@
+name = "heady-auth-service"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+[vars]
+ALLOWED_ORIGINS = "headyme.com,headysystems.com,headyconnection.org,headybuddy.org,headymcp.com,headyio.com,headybot.com,headyapi.com,headyai.com"
+[[kv_namespaces]]
+binding = "SESSION_KV"
+id = "heady-sessions"

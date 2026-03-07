@@ -1,0 +1,15 @@
+{
+  "name": "@headyme/worker-auth-service",
+  "version": "3.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0",
+    "@cloudflare/workers-types": "^4.0.0",
+    "typescript": "^5.4.0"
+  }
+}
