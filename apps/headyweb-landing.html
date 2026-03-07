@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>HeadySystems — THE ARCHITECTURE OF INTELLIGENCE</title>
+<meta name="description" content="Heady™ Latent OS v4.0 — Enterprise-grade autonomous multi-agent platform. 17-swarm architecture with Sacred Geometry orchestration, zero-trust security, and edge-deployed intelligence.">
+<meta name="keywords" content="Heady, AI, Multi-Agent, Latent OS, Sacred Geometry, Vector Space, MCP">
+<meta property="og:title" content="HeadySystems — THE ARCHITECTURE OF INTELLIGENCE">
+<meta property="og:description" content="17-Swarm Autonomous Intelligence Platform">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://headysystems.com">
+<link rel="canonical" href="https://headysystems.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;
+  --surface:rgba(255,255,255,0.03);
+  --surface-hover:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.08);
+  --text:#e0e0e8;
+  --text-dim:#8888a0;
+  --accent:#7c5eff;
+  --accent-glow:rgba(124,94,255,0.3);
+  --gold:#f0c040;
+  --green:#00e676;
+  --red:#ff5252;
+  --cyan:#40e0d0;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh}
+#cosmos{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:0.4;pointer-events:none}
+nav{position:fixed;top:0;width:100%;z-index:100;backdrop-filter:blur(20px);background:rgba(10,10,15,0.8);border-bottom:1px solid var(--border);padding:0.8rem 2rem;display:flex;justify-content:space-between;align-items:center}
+.logo{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem;color:var(--accent);letter-spacing:2px}
+.logo span{color:var(--gold)}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-size:0.85rem;font-weight:500;transition:color 0.3s}
+.nav-links a:hover{color:var(--accent)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 4px var(--green)}50%{opacity:0.5;box-shadow:0 0 12px var(--green)}}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6rem 2rem 4rem;position:relative;z-index:1}
+.hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:6px;margin-bottom:1rem;background:linear-gradient(135deg,var(--accent),var(--cyan),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .subtitle{font-size:1.1rem;color:var(--text-dim);max-width:600px;line-height:1.7;margin-bottom:2.5rem}
+.hero .version{font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--accent);border:1px solid var(--border);padding:0.4rem 1.2rem;border-radius:20px;display:inline-block;margin-bottom:1.5rem}
+.stats{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;margin-top:2rem}
+.stat{text-align:center;min-width:100px}
+.stat .num{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:700;color:var(--gold)}
+.stat .label{font-size:0.75rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:0.3rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem;padding:2rem 4rem 4rem;position:relative;z-index:1;max-width:1200px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all 0.4s ease;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.4s}
+.card:hover{transform:translateY(-4px);border-color:var(--accent);background:var(--surface-hover)}
+.card:hover::before{opacity:1}
+.card .icon{font-size:2rem;margin-bottom:1rem}
+.card h3{font-size:1.1rem;font-weight:600;margin-bottom:0.6rem;color:var(--text)}
+.card p{font-size:0.9rem;color:var(--text-dim);line-height:1.6}
+.card .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:8px;background:rgba(124,94,255,0.15);color:var(--accent);margin-top:0.8rem}
+footer{text-align:center;padding:3rem 2rem;color:var(--text-dim);font-size:0.8rem;position:relative;z-index:1;border-top:1px solid var(--border)}
+footer a{color:var(--accent);text-decoration:none}
+@media(max-width:768px){.cards{padding:1.5rem;grid-template-columns:1fr}.stats{gap:1rem}.stat .num{font-size:1.5rem}nav{padding:0.6rem 1rem}.nav-links{gap:0.8rem}}
+</style>
+</head>
+<body>
+<canvas id="cosmos"></canvas>
+<nav>
+  <div class="logo">HEADY<span>SYSTEMS</span></div>
+  <div class="nav-links">
+    <a href="#architecture">Architecture</a>
+    <a href="https://headyme.com" target="_blank">HeadyMe</a>
+    <a href="https://headyconnection.org" target="_blank">Connection</a>
+    <a href="https://headyai.org" target="_blank">HeadyAI</a>
+    <span class="status-dot" title="System Online"></span>
+  </div>
+</nav>
+<section class="hero">
+  <div class="version">Latent OS v4.0.0 — Enterprise Production</div>
+  <h1>THE ARCHITECTURE OF INTELLIGENCE</h1>
+  <p class="subtitle">A 17-swarm autonomous multi-agent platform built on Sacred Geometry orchestration, Continuous Semantic Logic, and 3D vector space cognition. The system doesn't think in text — it calculates in geometry.</p>
+  <div class="stats">
+    <div class="stat"><div class="num">17</div><div class="label">Swarms</div></div>
+    <div class="stat"><div class="num">384D</div><div class="label">Vector Space</div></div>
+    <div class="stat"><div class="num">0</div><div class="label">Vulnerabilities</div></div>
+    <div class="stat"><div class="num">99.9%</div><div class="label">Uptime</div></div>
+  </div>
+</section>
+<section class="cards" id="architecture">
+  <div class="card"><div class="icon">🧠</div><h3>Latent OS</h3><p>Continuous Latent Architecture with pgvector, JSON ASTs, and Liquid Deployment. The entire system exists as living vectors in 384-dimensional space.</p><span class="tag">VECTOR ARITHMETIC LOGIC UNIT</span></div>
+  <div class="card"><div class="icon">🐝</div><h3>17-Swarm Intelligence</h3><p>From Overmind decision-making to Tensor math processing — Fabricator (IoT), Diplomat (B2B), Persona (bio-feedback), and Topology (spatial architecture).</p><span class="tag">CSL-NATIVE PROCESSING</span></div>
+  <div class="card"><div class="icon">⚡</div><h3>Edge Intelligence</h3><p>Cloudflare Workers + KV provide sub-10ms response times globally. The Holographic Projection Layer renders dynamic UIs at the edge with zero origin latency.</p><span class="tag">CLOUDFLARE EDGE</span></div>
+  <div class="card"><div class="icon">🔒</div><h3>Zero Trust Security</h3><p>TruffleHog secret scanning, CodeQL SAST, Trivy container scans, SBOM generation via CycloneDX. Every commit passes through 5 security gates.</p><span class="tag">5-GATE PIPELINE</span></div>
+  <div class="card"><div class="icon">🔌</div><h3>MCP Protocol</h3><p>Model Context Protocol server with OAuth 2.1, SSE transport, and 30+ registered tools. Connect from Claude Desktop, VS Code, or any MCP client.</p><span class="tag">OPEN STANDARD</span></div>
+  <div class="card"><div class="icon">🤖</div><h3>Multi-Model AI</h3><p>Unified routing across Claude, GPT-4o, Gemini, Groq, and Perplexity Sonar. The LLM Router selects the optimal model per-task with automatic failover.</p><span class="tag">5 PROVIDERS</span></div>
+</section>
+<footer>
+  <p>© 2026 Heady Systems LLC — All Rights Reserved</p>
+  <p style="margin-top:0.5rem"><a href="https://github.com/HeadyMe" target="_blank">GitHub</a> · <a href="https://headymcp.com" target="_blank">MCP</a> · <a href="https://headybuddy.com" target="_blank">HeadyBuddy</a></p>
+</footer>
+<script>
+const canvas=document.getElementById('cosmos'),ctx=canvas.getContext('2d');let w,h;function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight}addEventListener('resize',resize);resize();
+const stars=Array.from({length:120},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+.3,speed:Math.random()*.3+.05,alpha:Math.random()*.5+.2}));
+function drawMetatron(cx,cy,radius,rot){ctx.save();ctx.translate(cx,cy);ctx.rotate(rot);ctx.strokeStyle='rgba(124,94,255,0.12)';ctx.lineWidth=.5;const pts=[];for(let i=0;i<6;i++){const a=Math.PI/3*i;pts.push([Math.cos(a)*radius*.5,Math.sin(a)*radius*.5])}for(let i=0;i<6;i++){const a=Math.PI/3*i+Math.PI/6;pts.push([Math.cos(a)*radius,Math.sin(a)*radius])}pts.push([0,0]);for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){ctx.beginPath();ctx.moveTo(pts[i][0],pts[i][1]);ctx.lineTo(pts[j][0],pts[j][1]);ctx.stroke()}ctx.strokeStyle='rgba(64,224,208,0.08)';for(const p of pts){ctx.beginPath();ctx.arc(p[0],p[1],radius*.18,0,Math.PI*2);ctx.stroke()}ctx.restore()}
+let frame=0;function animate(){ctx.clearRect(0,0,w,h);for(const s of stars){s.y-=s.speed;if(s.y<0){s.y=h;s.x=Math.random()*w}ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${s.alpha})`;ctx.fill()}const rot=frame*.0003;drawMetatron(w*.5,h*.45,Math.min(w,h)*.3,rot);drawMetatron(w*.2,h*.7,Math.min(w,h)*.15,-rot*1.5);drawMetatron(w*.8,h*.3,Math.min(w,h)*.12,rot*2);frame++;requestAnimationFrame(animate)}animate();
+</script>
+</body>
+</html>

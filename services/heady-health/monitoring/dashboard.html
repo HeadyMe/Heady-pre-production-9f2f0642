@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady Sovereign AI Platform — Live Observability</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Heady Sovereign AI Platform</h1>
+            <div class="header-subtitle">Live Observability Dashboard</div>
+            <div class="connection-status">
+                <span class="status-dot" id="connectionStatus"></span>
+                <span id="connectionText">Connecting...</span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Panel 1: Golden Signals -->
+            <div class="panel glass-card">
+                <h2>Golden Signals</h2>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <canvas id="latencyChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="throughputChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="errorChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="saturationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: Service Health Matrix -->
+            <div class="panel glass-card">
+                <h2>Service Health Matrix</h2>
+                <div id="serviceMatrix" class="service-matrix"></div>
+            </div>
+
+            <!-- Panel 3: 17-Swarm Topology -->
+            <div class="panel glass-card">
+                <h2>17-Swarm Topology</h2>
+                <div id="swarmTopology" class="topology-container"></div>
+            </div>
+
+            <!-- Panel 4: AI Provider Dashboard -->
+            <div class="panel glass-card">
+                <h2>AI Provider Dashboard</h2>
+                <div id="providerDashboard" class="provider-grid"></div>
+            </div>
+
+            <!-- Panel 5: Phi Scale Monitor -->
+            <div class="panel glass-card">
+                <h2>Phi Scale Monitor</h2>
+                <div id="phiScales" class="phi-scales-container"></div>
+            </div>
+
+            <!-- Panel 6: MCP Tool Routing Heatmap -->
+            <div class="panel glass-card">
+                <h2>MCP Tool Routing Heatmap</h2>
+                <div id="mcpHeatmap" class="heatmap-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PHI = 1.618033988749895;
+        const PHI_INV = 0.618033988749895;
+
+        let eventSource = null;
+        let charts = {};
+        let latencyHistory = [];
+        let throughputHistory = [];
+        let errorHistory = [];
+        let saturationHistory = [];
+
+        const MAX_HISTORY = 60;
+
+        // Initialize connection
+        function initSSE() {
+            eventSource = new EventSource('/stream');
+
+            eventSource.onopen = () => {
+                updateConnectionStatus(true);
+            };
+
+            eventSource.onerror = () => {
+                updateConnectionStatus(false);
+                setTimeout(initSSE, 5000);
+            };
+
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                updateDashboard(data);
+            };
+        }
+
+        function updateConnectionStatus(connected) {
+            const dot = document.getElementById('connectionStatus');
+            const text = document.getElementById('connectionText');
+            if (connected) {
+                dot.className = 'status-dot connected';
+                text.textContent = 'Connected';
+            } else {
+                dot.className = 'status-dot disconnected';
+                text.textContent = 'Disconnected';
+            }
+        }
+
+        // Initialize charts
+        function initCharts() {
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, labels: { color: '#d4a847' } }
+                },
+                scales: {
+                    x: { display: true, grid: { color: 'rgba(212, 168, 71, 0.1)' } },
+                    y: { display: true, grid: { color: 'rgba(212, 168, 71, 0.1)' } }
+                }
+            };
+
+            charts.latency = new Chart(document.getElementById('latencyChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'p50', data: [], borderColor: '#10b981', fill: false },
+                        { label: 'p95', data: [], borderColor: '#3b82f6', fill: false },
+                        { label: 'p99', data: [], borderColor: '#ef4444', fill: false }
+                    ]
+                },
+                options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: 'Latency (ms)', color: '#d4a847' }}}
+            });
+
+            charts.throughput = new Chart(document.getElementById('throughputChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{ label: 'req/s', data: [], borderColor: '#d4a847', fill: true, backgroundColor: 'rgba(212, 168, 71, 0.1)' }]
+                },
+                options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: 'Throughput', color: '#d4a847' }}}
+            });
+
+            charts.error = new Chart(document.getElementById('errorChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{ label: 'Error %', data: [], borderColor: '#ef4444', fill: true, backgroundColor: 'rgba(239, 68, 68, 0.1)' }]
+                },
+                options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: 'Error Rate', color: '#d4a847' }}}
+            });
+
+            charts.saturation = new Chart(document.getElementById('saturationChart'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'CPU %', data: [], borderColor: '#3b82f6', fill: false },
+                        { label: 'Memory %', data: [], borderColor: '#10b981', fill: false }
+                    ]
+                },
+                options: { ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: true, text: 'Saturation', color: '#d4a847' }}}
+            });
+        }
+
+        function updateDashboard(data) {
+            updateGoldenSignals(data.goldenSignals || {});
+            updateServiceMatrix(data.services || {});
+            updateSwarmTopology(data.swarms || []);
+            updateProviderDashboard(data.providers || []);
+            updatePhiScales(data.phiScales || {});
+            updateMCPHeatmap(data.mcpRouting || {});
+        }
+
+        function updateGoldenSignals(signals) {
+            const timestamp = new Date().toLocaleTimeString();
+
+            // Update latency chart
+            if (signals.latency) {
+                latencyHistory.push(signals.latency);
+                if (latencyHistory.length > MAX_HISTORY) latencyHistory.shift();
+
+                charts.latency.data.labels = latencyHistory.map((_, i) => i);
+                charts.latency.data.datasets[0].data = latencyHistory.map(l => l.p50 || 0);
+                charts.latency.data.datasets[1].data = latencyHistory.map(l => l.p95 || 0);
+                charts.latency.data.datasets[2].data = latencyHistory.map(l => l.p99 || 0);
+                charts.latency.update('none');
+            }
+
+            // Update throughput
+            if (signals.throughput !== undefined) {
+                throughputHistory.push(signals.throughput);
+                if (throughputHistory.length > MAX_HISTORY) throughputHistory.shift();
+
+                charts.throughput.data.labels = throughputHistory.map((_, i) => i);
+                charts.throughput.data.datasets[0].data = throughputHistory;
+                charts.throughput.update('none');
+            }
+
+            // Update error rate
+            if (signals.errorRate !== undefined) {
+                errorHistory.push(signals.errorRate * 100);
+                if (errorHistory.length > MAX_HISTORY) errorHistory.shift();
+
+                charts.error.data.labels = errorHistory.map((_, i) => i);
+                charts.error.data.datasets[0].data = errorHistory;
+                charts.error.update('none');
+            }
+
+            // Update saturation
+            if (signals.cpu !== undefined && signals.memory !== undefined) {
+                saturationHistory.push({ cpu: signals.cpu * 100, memory: signals.memory * 100 });
+                if (saturationHistory.length > MAX_HISTORY) saturationHistory.shift();
+
+                charts.saturation.data.labels = saturationHistory.map((_, i) => i);
+                charts.saturation.data.datasets[0].data = saturationHistory.map(s => s.cpu);
+                charts.saturation.data.datasets[1].data = saturationHistory.map(s => s.memory);
+                charts.saturation.update('none');
+            }
+        }
+
+        function updateServiceMatrix(services) {
+            const container = document.getElementById('serviceMatrix');
+            container.innerHTML = '';
+
+            Object.entries(services).forEach(([name, service]) => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+
+                const statusClass = service.status === 'healthy' ? 'status-healthy' : 
+                                  service.status === 'degraded' ? 'status-degraded' : 'status-critical';
+
+                card.innerHTML = `
+                    <div class="service-header">
+                        <span class="status-indicator ${statusClass}"></span>
+                        <span class="service-name">${name}</span>
+                    </div>
+                    <div class="service-metrics">
+                        <div class="metric"><span>Uptime:</span> <span>${formatDuration(service.uptime || 0)}</span></div>
+                        <div class="metric"><span>Latency:</span> <span>${service.latency || 0}ms</span></div>
+                        <div class="metric"><span>Circuit:</span> <span>${service.circuitBreaker || 'CLOSED'}</span></div>
+                    </div>
+                    <div class="sparkline" id="sparkline-${name}"></div>
+                `;
+
+                container.appendChild(card);
+
+                // Create sparkline if history available
+                if (service.latencyHistory && service.latencyHistory.length > 0) {
+                    createSparkline(`sparkline-${name}`, service.latencyHistory);
+                }
+            });
+        }
+
+        function updateSwarmTopology(swarms) {
+            // Simplified D3 force graph
+            const container = d3.select('#swarmTopology');
+            container.html('');
+
+            const width = container.node().clientWidth;
+            const height = 400;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Create simplified visualization
+            swarms.forEach((swarm, i) => {
+                const x = (i % 5) * (width / 5) + 50;
+                const y = Math.floor(i / 5) * 100 + 50;
+
+                svg.append('circle')
+                    .attr('cx', x)
+                    .attr('cy', y)
+                    .attr('r', 20)
+                    .attr('fill', '#d4a847')
+                    .attr('opacity', 0.7);
+
+                svg.append('text')
+                    .attr('x', x)
+                    .attr('y', y + 35)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', '#d4a847')
+                    .attr('font-size', '12px')
+                    .text(swarm.name || `Swarm ${i+1}`);
+            });
+        }
+
+        function updateProviderDashboard(providers) {
+            const container = document.getElementById('providerDashboard');
+            container.innerHTML = '';
+
+            providers.forEach(provider => {
+                const card = document.createElement('div');
+                card.className = 'provider-card';
+                card.innerHTML = `
+                    <h3>${provider.name}</h3>
+                    <div class="provider-metrics">
+                        <div><span>Model:</span> ${provider.model}</div>
+                        <div><span>Latency:</span> ${provider.latency}ms</div>
+                        <div><span>Tokens:</span> ${provider.tokens.toLocaleString()}</div>
+                        <div><span>Cost:</span> $${provider.cost.toFixed(2)}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updatePhiScales(scales) {
+            const container = document.getElementById('phiScales');
+            container.innerHTML = '';
+
+            Object.entries(scales).forEach(([name, value]) => {
+                const normalized = typeof value === 'object' ? value.normalized : (value / PHI);
+                const deviation = Math.abs(normalized - PHI_INV);
+
+                const scaleDiv = document.createElement('div');
+                scaleDiv.className = 'phi-scale-item';
+                scaleDiv.innerHTML = `
+                    <div class="phi-scale-name">${name}</div>
+                    <div class="phi-scale-value">${typeof value === 'object' ? value.current : value}</div>
+                    <div class="gradient-bar">
+                        <div class="gradient-fill" style="width: ${normalized * 100}%"></div>
+                        <div class="phi-marker" style="left: ${PHI_INV * 100}%"></div>
+                    </div>
+                    <div class="phi-deviation">Deviation: ${deviation.toFixed(3)}</div>
+                `;
+                container.appendChild(scaleDiv);
+            });
+        }
+
+        function updateMCPHeatmap(routing) {
+            const container = document.getElementById('mcpHeatmap');
+            container.innerHTML = '<div class="heatmap-placeholder">MCP Routing Visualization</div>';
+        }
+
+        function createSparkline(id, data) {
+            const container = document.getElementById(id);
+            if (!container) return;
+
+            const max = Math.max(...data);
+            const min = Math.min(...data);
+            const range = max - min || 1;
+
+            const width = container.clientWidth;
+            const height = 30;
+            const points = data.map((val, i) => {
+                const x = (i / (data.length - 1)) * width;
+                const y = height - ((val - min) / range) * height;
+                return `${x},${y}`;
+            }).join(' ');
+
+            container.innerHTML = `<svg width="${width}" height="${height}">
+                <polyline points="${points}" fill="none" stroke="#d4a847" stroke-width="1.5"/>
+            </svg>`;
+        }
+
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            initSSE();
+        });
+    </script>
+</body>
+</html>
