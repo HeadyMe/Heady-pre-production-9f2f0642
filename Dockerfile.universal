@@ -1,0 +1,110 @@
+# ═══════════════════════════════════════════════════════════════
+# HIVE-001: Universal Docker Container
+# © 2024-2026 HeadySystems Inc. All Rights Reserved.
+# ═══════════════════════════════════════════════════════════════
+#
+# Single container boots as ANY HeadyOS role: manager, worker, mcp,
+# probe, gateway, buddy. Role determined at runtime via HEADY_ROLE.
+#
+# Build:  docker build -t heady-universal:latest -f Dockerfile.universal .
+# Run:    docker run -e HEADY_ROLE=manager heady-universal:latest
+# ═══════════════════════════════════════════════════════════════
+
+FROM node:20-slim AS base
+
+# Install essential system packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    python3 \
+    python3-pip \
+    python3-numpy \
+    dumb-init \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy package files first for caching
+COPY package.json pnpm-lock.yaml ./
+COPY packages/core/package.json packages/core/
+COPY packages/gateway/package.json packages/gateway/
+COPY packages/orchestrator/package.json packages/orchestrator/
+COPY packages/vector-memory/package.json packages/vector-memory/
+COPY packages/mcp-server/package.json packages/mcp-server/
+
+# Install dependencies
+RUN npm install -g pnpm && pnpm install --frozen-lockfile --prod
+
+# Copy application code
+COPY . .
+
+# ─── Build-time labels ────────────────────────────────────────
+LABEL org.opencontainers.image.title="HeadyOS Universal Container" \
+      org.opencontainers.image.vendor="HeadySystems Inc." \
+      org.opencontainers.image.version="3.2.2" \
+      org.opencontainers.image.description="Universal container: boots as any HeadyOS role"
+
+# ─── Entrypoint script ────────────────────────────────────────
+COPY <<'EOF' /app/docker-entrypoint.sh
+#!/bin/bash
+set -e
+
+ROLE="${HEADY_ROLE:-manager}"
+echo "═══ HeadyOS Universal Container ═══"
+echo "Role: $ROLE"
+echo "Node: $(node --version)"
+echo "Time: $(date -u)"
+echo "═══════════════════════════════════════"
+
+case "$ROLE" in
+  manager)
+    echo "Starting HeadyManager..."
+    exec node heady-manager.js
+    ;;
+  mcp)
+    echo "Starting MCP Server..."
+    exec node heady-manager.js --mcp
+    ;;
+  worker)
+    echo "Starting Worker Node..."
+    exec node services/heady-orchestration/monte-carlo-scheduler.js
+    ;;
+  probe)
+    echo "Starting Health Probe..."
+    exec node services/heady-health/probe-orchestrator.js --full-sweep
+    ;;
+  gateway)
+    echo "Starting API Gateway..."
+    exec node services/api-gateway/index.js
+    ;;
+  buddy)
+    echo "Starting HeadyBuddy..."
+    exec node services/heady-buddy/index.js
+    ;;
+  web)
+    echo "Starting HeadyWeb..."
+    exec node apps/headyweb/server.js
+    ;;
+  *)
+    echo "Unknown role: $ROLE"
+    echo "Available: manager, mcp, worker, probe, gateway, buddy, web"
+    exit 1
+    ;;
+esac
+EOF
+
+RUN chmod +x /app/docker-entrypoint.sh
+
+# ─── Health check ──────────────────────────────────────────────
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-3301}/health/live || exit 1
+
+# ─── Runtime configuration ────────────────────────────────────
+ENV NODE_ENV=production \
+    PORT=3301 \
+    HEADY_ROLE=manager
+
+EXPOSE 3301
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["/app/docker-entrypoint.sh"]
