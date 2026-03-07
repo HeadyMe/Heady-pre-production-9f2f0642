@@ -1,0 +1,154 @@
+apiVersion: heady.systems/v1
+kind: ServiceRegistry
+metadata:
+  name: heady-pilot-services
+  version: 3.2.0-orion
+  updated: 2026-03-07T12:34:00-07:00
+spec:
+  services:
+    # API Gateway - PRIMARY ENTRY POINT
+    - name: heady-api-gateway
+      version: 3.2.0
+      replicas: 3
+      resources:
+        cpu: 2000m
+        memory: 4Gi
+      domains:
+        - headyapi.com
+        - api.headyapi.com
+        - gateway.headyapi.com
+        - pilot.headyapi.com
+      healthCheck:
+        path: /health
+        interval: 30s
+        timeout: 5s
+
+    # Cloud Orchestration
+    - name: heady-cloud-orchestrator
+      version: 3.2.0
+      replicas: 3
+      resources:
+        cpu: 2000m
+        memory: 4Gi
+      domains:
+        - headycloud.com
+        - orchestrator.headycloud.com
+        - deploy.headycloud.com
+        - console.headycloud.com
+
+    # AI Model Router
+    - name: heady-ai-router
+      version: 3.2.0
+      replicas: 2
+      resources:
+        cpu: 4000m
+        memory: 8Gi
+        gpu: 1
+      domains:
+        - headyai.com
+        - router.headyai.com
+        - inference.headyai.com
+        - models.headyai.com
+
+    # OS Runtime Layer
+    - name: heady-os-kernel
+      version: 3.2.0
+      replicas: 2
+      resources:
+        cpu: 2000m
+        memory: 4Gi
+      domains:
+        - headyos.com
+        - kernel.headyos.com
+        - runtime.headyos.com
+        - scheduler.headyos.com
+
+    # MCP Protocol Server
+    - name: heady-mcp-server
+      version: 3.2.0
+      replicas: 2
+      resources:
+        cpu: 1000m
+        memory: 2Gi
+      domains:
+        - headymcp.com
+        - server.headymcp.com
+
+    # Conductor (Auto-Success Engine)
+    - name: heady-conductor
+      version: 3.2.0
+      replicas: 2
+      resources:
+        cpu: 1000m
+        memory: 2Gi
+
+    # HeadyMe User Dashboard
+    - name: heady-me-web
+      version: 3.2.0
+      replicas: 2
+      resources:
+        cpu: 1000m
+        memory: 2Gi
+      domains:
+        - headyme.com
+        - pilot.headyme.com
+        - dashboard.headyme.com
+
+    # HeadyBuddy AI Assistant
+    - name: heady-buddy
+      version: 3.2.0
+      replicas: 2
+      domains:
+        - headybuddy.org
+
+    # Developer Platform
+    - name: heady-io
+      version: 3.2.0
+      replicas: 2
+      domains:
+        - headyio.com
+        - docs.headyio.com
+        - sandbox.headyio.com
+
+    # Systems Hub
+    - name: heady-systems-hub
+      version: 3.2.0
+      replicas: 2
+      domains:
+        - headysystems.com
+        - status.headysystems.com
+
+    # Community Platform
+    - name: heady-connection
+      version: 3.2.0
+      replicas: 2
+      domains:
+        - headyconnection.org
+        - community.headyconnection.org
+
+    # Automation Bot
+    - name: heady-bot
+      version: 3.2.0
+      replicas: 1
+      domains:
+        - headybot.com
+
+  remotes:
+    - name: headyCloudUI
+      url: https://console.headycloud.com/remoteEntry.js
+      version: 3.2.0
+    - name: headyMcpUI
+      url: https://server.headymcp.com/remoteEntry.js
+      version: 3.2.0
+    - name: headyBuddyUI
+      url: https://headybuddy.org/remoteEntry.js
+      version: 3.2.0
+    - name: headyAiUI
+      url: https://headyai.com/remoteEntry.js
+      version: 3.2.0
+    - name: headyOsUI
+      url: https://headyos.com/remoteEntry.js
+      version: 3.2.0
+    - name: headyIoUI
+      url: https://headyio.com/remoteEntry.js
+      version: 3.2.0

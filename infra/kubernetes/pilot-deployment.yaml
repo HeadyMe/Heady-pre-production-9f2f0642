@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: heady-pilot
+  labels:
+    environment: pilot
+    version: 3.2.0-orion
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heady-api-gateway
+  namespace: heady-pilot
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: heady-api-gateway
+  template:
+    metadata:
+      labels:
+        app: heady-api-gateway
+        version: 3.2.0
+    spec:
+      containers:
+      - name: gateway
+        image: headysystems/heady-api-gateway:3.2.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: PILOT_MODE
+          value: "true"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: heady-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: heady-secrets
+              key: redis-url
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 2Gi
+          limits:
+            cpu: 2000m
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: heady-api-gateway
+  namespace: heady-pilot
+spec:
+  selector:
+    app: heady-api-gateway
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: heady-pilot-ingress
+  namespace: heady-pilot
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+spec:
+  tls:
+  - hosts:
+    - pilot.headyme.com
+    - pilot.headyapi.com
+    - console.headycloud.com
+    secretName: heady-pilot-tls
+  rules:
+  - host: pilot.headyme.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: heady-me-web
+            port:
+              number: 80
+  - host: pilot.headyapi.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: heady-api-gateway
+            port:
+              number: 80
+  - host: console.headycloud.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: heady-cloud-orchestrator
+            port:
+              number: 80
