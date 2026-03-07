@@ -1,0 +1,124 @@
+# =============================================================================
+# CODEOWNERS — Heady-pre-production-9f2f0642
+# Auto-requests review from the appropriate team when PRs touch these paths.
+# Syntax: <pattern>  <@org/team or @user>
+# Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# Last updated: 2026-03-07
+# =============================================================================
+
+# ─── DEFAULT: core-team reviews everything ────────────────────────────────
+*                                    @HeadyMe/core-team
+
+# ─── SECURITY — highest sensitivity ──────────────────────────────────────
+src/security/**                      @HeadyMe/security-team
+src/auth/**                          @HeadyMe/security-team
+src/middleware/**                    @HeadyMe/security-team
+src/middleware/audit-log.js          @HeadyMe/security-team @HeadyMe/core-team
+src/middleware/auth-rbac.js          @HeadyMe/security-team @HeadyMe/core-team
+src/policy-engine.js                 @HeadyMe/security-team @HeadyMe/core-team
+src/bees/security-bee.js             @HeadyMe/security-team
+src/bees/credential-bee.js           @HeadyMe/security-team
+src/bees/governance-bee.js           @HeadyMe/security-team @HeadyMe/core-team
+src/orchestration/rulez-gatekeeper.js @HeadyMe/security-team @HeadyMe/core-team
+
+# ─── PLATFORM / RESILIENCE ────────────────────────────────────────────────
+src/resilience/**                    @HeadyMe/platform-team
+src/lib/**                           @HeadyMe/platform-team
+src/lib/circuit-breaker.js           @HeadyMe/platform-team @HeadyMe/core-team
+src/lib/key-rotation.js              @HeadyMe/security-team @HeadyMe/platform-team
+src/lib/telemetry.js                 @HeadyMe/platform-team
+src/lib/worker-pool.js               @HeadyMe/platform-team
+src/lib/failover.js                  @HeadyMe/platform-team @HeadyMe/core-team
+src/lib/shutdown.js                  @HeadyMe/platform-team
+src/monitoring/**                    @HeadyMe/platform-team
+src/observability/**                 @HeadyMe/platform-team
+src/telemetry/**                     @HeadyMe/platform-team
+
+# ─── DEVOPS / CI/CD ───────────────────────────────────────────────────────
+.github/**                           @HeadyMe/devops-team
+.github/workflows/**                 @HeadyMe/devops-team @HeadyMe/security-team
+Dockerfile                           @HeadyMe/devops-team @HeadyMe/security-team
+docker-compose*.yml                  @HeadyMe/devops-team
+.dockerignore                        @HeadyMe/devops-team @HeadyMe/security-team
+terraform/**                         @HeadyMe/devops-team @HeadyMe/security-team
+k8s/**                               @HeadyMe/devops-team @HeadyMe/security-team
+kubernetes/**                        @HeadyMe/devops-team @HeadyMe/security-team
+.github/CODEOWNERS                   @HeadyMe/devops-team @HeadyMe/core-team
+
+# ─── AI / BEES / ORCHESTRATION ────────────────────────────────────────────
+src/bees/**                          @HeadyMe/ai-team
+src/orchestration/**                 @HeadyMe/ai-team
+src/providers/**                     @HeadyMe/ai-team
+src/agents/**                        @HeadyMe/ai-team
+src/intelligence/**                  @HeadyMe/ai-team
+src/models/**                        @HeadyMe/ai-team
+src/autonomy/**                      @HeadyMe/ai-team
+src/pipeline/**                      @HeadyMe/ai-team @HeadyMe/platform-team
+src/context-weaver/**                @HeadyMe/ai-team
+src/hive/**                          @HeadyMe/ai-team @HeadyMe/core-team
+src/mcp/**                           @HeadyMe/ai-team @HeadyMe/platform-team
+src/protocols/**                     @HeadyMe/ai-team @HeadyMe/platform-team
+
+# ─── RUNTIME / CORE ───────────────────────────────────────────────────────
+src/core/**                          @HeadyMe/core-team @HeadyMe/platform-team
+src/kernel/**                        @HeadyMe/core-team @HeadyMe/platform-team
+src/runtime/**                       @HeadyMe/core-team @HeadyMe/platform-team
+src/bootstrap/**                     @HeadyMe/core-team @HeadyMe/platform-team
+src/lifecycle/**                     @HeadyMe/core-team @HeadyMe/platform-team
+heady-manager.js                     @HeadyMe/core-team @HeadyMe/platform-team
+
+# ─── API / ROUTES / INTEGRATIONS ──────────────────────────────────────────
+src/api/**                           @HeadyMe/core-team @HeadyMe/security-team
+src/routes/**                        @HeadyMe/core-team @HeadyMe/security-team
+src/integrations/**                  @HeadyMe/core-team @HeadyMe/ai-team
+src/connectors/**                    @HeadyMe/core-team @HeadyMe/ai-team
+src/edge/**                          @HeadyMe/platform-team @HeadyMe/devops-team
+
+# ─── GOVERNANCE / COMPLIANCE ──────────────────────────────────────────────
+src/governance/**                    @HeadyMe/security-team @HeadyMe/core-team
+src/ops/**                           @HeadyMe/devops-team @HeadyMe/core-team
+src/hcfp/**                          @HeadyMe/core-team
+SECURITY.md                          @HeadyMe/security-team @HeadyMe/core-team
+.github/SECURITY.md                  @HeadyMe/security-team @HeadyMe/core-team
+
+# ─── PACKAGE / DEPENDENCY MANAGEMENT ──────────────────────────────────────
+package.json                         @HeadyMe/core-team @HeadyMe/security-team
+package-lock.json                    @HeadyMe/core-team @HeadyMe/security-team
+yarn.lock                            @HeadyMe/core-team @HeadyMe/security-team
+pnpm-lock.yaml                       @HeadyMe/core-team @HeadyMe/security-team
+.npmrc                               @HeadyMe/core-team @HeadyMe/security-team
+.nvmrc                               @HeadyMe/devops-team
+
+# ─── CONFIGURATION ────────────────────────────────────────────────────────
+src/config/**                        @HeadyMe/core-team @HeadyMe/devops-team
+site-config.json                     @HeadyMe/core-team
+src/shared/**                        @HeadyMe/core-team
+src/utils/**                         @HeadyMe/core-team
+
+# ─── DOCS ─────────────────────────────────────────────────────────────────
+docs/**                              @HeadyMe/core-team
+README.md                            @HeadyMe/core-team
+CHANGELOG.md                         @HeadyMe/core-team
+LICENSE                              @HeadyMe/core-team
+
+# ─── UI / FRONTEND ────────────────────────────────────────────────────────
+src/ui/**                            @HeadyMe/core-team
+src/landing/**                       @HeadyMe/core-team
+src/sites/**                         @HeadyMe/core-team
+src/widgets/**                       @HeadyMe/core-team
+
+# ─── MEMORY / STATE ───────────────────────────────────────────────────────
+src/memory/**                        @HeadyMe/ai-team @HeadyMe/platform-team
+src/projection/**                    @HeadyMe/ai-team
+src/patterns/**                      @HeadyMe/ai-team @HeadyMe/core-team
+
+# ─── SPECIALTY MODULES ────────────────────────────────────────────────────
+src/headycoin/**                     @HeadyMe/core-team @HeadyMe/security-team
+src/trading/**                       @HeadyMe/core-team @HeadyMe/security-team
+src/midi/**                          @HeadyMe/core-team
+src/creative/**                      @HeadyMe/core-team
+src/onboarding/**                    @HeadyMe/core-team
+src/shell/**                         @HeadyMe/core-team @HeadyMe/platform-team
+src/services/**                      @HeadyMe/core-team @HeadyMe/platform-team
+src/vsa/**                           @HeadyMe/ai-team
+src/engines/**                       @HeadyMe/ai-team @HeadyMe/platform-team

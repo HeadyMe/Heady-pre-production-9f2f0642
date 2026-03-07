@@ -1,0 +1,322 @@
+# orchestrate.hdy
+# HeadyConductor — Master Orchestration Script
+#
+# This script drives the top-level Heady workflow from intake to delivery.
+# Rather than procedural steps, each state is a semantic anchor that the
+# conductor continuously evaluates against live signal weights. Execution
+# flows toward whichever cluster of states has the highest combined
+# resonance at any given evaluation tick.
+#
+# CSL gate reference used below:
+#   resonance(a, b)     — harmonic agreement between two signals [0,1]
+#   superposition(a, b) — combined field strength, allows overlap [0,1]
+#   soft_gate(x, t)     — smooth sigmoid activation at threshold t [0,1]
+#   ternary(c, a, b)    — weighted blend: c*a + (1-c)*b [0,1]
+#   risk(p, i)          — probability × impact exposure [0,1]
+#   phi_scale(x)        — golden-ratio-normalized weight [0,1]
+#   min(a, b)           — lower bound of two signals
+#   max(a, b)           — upper bound of two signals
+
+schema: heady_semantic_logic_v1
+
+name: orchestrate
+version: "1.4.0"
+description: >
+  Master orchestration logic for HeadyConductor. Manages the full lifecycle
+  of a Heady request: intake through triage, context assembly, intent
+  classification, node selection, parallel execution, quality and assurance
+  gating, pattern capture, narrative update, and final delivery. Escalation
+  is always a live path with priority proportional to risk exposure.
+target_node: HeadyConductor
+
+# ---------------------------------------------------------------------------
+# SEMANTIC STATES
+# Each state carries a natural-language anchor (the "ground truth" the system
+# continuously matches against) and a priority weight that biases the
+# evaluation field during contention. Categories group states for batch
+# monitoring and dashboard grouping.
+# ---------------------------------------------------------------------------
+semantic_states:
+
+  - id: intake
+    anchor: "a new request has arrived and is awaiting initial registration"
+    priority_weight: 0.95
+    category: ingestion
+
+  - id: triage
+    anchor: "the request is being assessed for urgency, type, and routing"
+    priority_weight: 0.90
+    category: ingestion
+
+  - id: context_assembly
+    anchor: "relevant memory, session history, and knowledge fragments are being gathered"
+    priority_weight: 0.85
+    category: preparation
+
+  - id: intent_classification
+    anchor: "the semantic intent of the request is being resolved and labeled"
+    priority_weight: 0.88
+    category: preparation
+
+  - id: node_selection
+    anchor: "the optimal executor node or agent cluster is being identified"
+    priority_weight: 0.82
+    category: routing
+
+  - id: parallel_execution
+    anchor: "multiple executor nodes are processing assigned work concurrently"
+    priority_weight: 0.80
+    category: execution
+
+  - id: quality_gate
+    anchor: "output is being evaluated for coherence, completeness, and accuracy"
+    priority_weight: 0.92
+    category: validation
+
+  - id: assurance_gate
+    anchor: "output is being reviewed for safety, values alignment, and compliance"
+    priority_weight: 0.95
+    category: validation
+
+  - id: pattern_capture
+    anchor: "successful interaction patterns are being extracted and indexed"
+    priority_weight: 0.60
+    category: learning
+
+  - id: story_update
+    anchor: "the narrative context and user story are being updated with new information"
+    priority_weight: 0.65
+    category: learning
+
+  - id: delivery
+    anchor: "the validated response is being delivered to the requesting party"
+    priority_weight: 0.98
+    category: output
+
+  - id: escalation
+    anchor: "an issue requiring human or elevated-agent intervention has been detected"
+    priority_weight: 1.00
+    category: exception
+
+# ---------------------------------------------------------------------------
+# CONTINUOUS EVALUATION
+# The conductor runs semantic field evaluation on every tick, computing
+# resonance between live telemetry and each state anchor. States whose
+# combined weight clears the threshold become active; the fuzziness
+# parameter controls how sharply the activation boundary is enforced.
+# ---------------------------------------------------------------------------
+continuous_evaluation:
+  method: semantic_field_resonance
+  threshold_activation: 0.72
+  fuzziness: 0.12          # wider band allows graceful overlap between states
+  evaluation_interval_ms: 150
+
+# ---------------------------------------------------------------------------
+# EXECUTION GRAPH
+# Each node maps to a concrete action the conductor dispatches when its
+# weight formula evaluates above the activation threshold. Preconditions
+# are soft semantic guards; postconditions are assertions checked after the
+# action completes. Hard timeouts and retry policies apply per-node.
+# ---------------------------------------------------------------------------
+execution_graph:
+
+  - id: assemble_context
+    action: assemble_context
+    # Activate once triage resonance is strong and intake signal is resolving
+    weight_formula: "resonance(triage, 0.85) * soft_gate(intake, 0.80)"
+    preconditions:
+      - "triage state has reached semantic saturation above 0.80"
+      - "request metadata is available and parseable"
+    postconditions:
+      - "context bundle is non-empty and versioned"
+      - "relevant memory fragments are attached to execution scope"
+    timeout_ms: 4000
+    retry:
+      max_attempts: 2
+      backoff_ms: 800
+
+  - id: classify_intent
+    action: classify_intent
+    # Context quality and intent ambiguity jointly gate this step
+    weight_formula: "superposition(context_assembly, 0.80) * phi_scale(intent_classification)"
+    preconditions:
+      - "context assembly has completed successfully"
+      - "request text is available in normalized form"
+    postconditions:
+      - "intent label and confidence score are attached to request record"
+      - "ambiguity flag is set if confidence is below 0.70"
+    timeout_ms: 3000
+    retry:
+      max_attempts: 3
+      backoff_ms: 500
+
+  - id: select_nodes
+    action: select_nodes
+    # Node selection is weighted by intent clarity and current cluster health
+    weight_formula: "resonance(intent_classification, 0.85) * soft_gate(node_selection, 0.75)"
+    preconditions:
+      - "intent classification is complete with confidence above 0.65"
+      - "at least one executor node is available and healthy"
+    postconditions:
+      - "node assignment list is populated with at least one target"
+      - "load distribution weights are recorded for this execution"
+    timeout_ms: 2000
+    retry:
+      max_attempts: 2
+      backoff_ms: 400
+
+  - id: execute_parallel
+    action: execute_parallel
+    # Execution weight scales with node readiness and drops under high risk
+    weight_formula: "superposition(node_selection, 0.80) * (1.0 - risk(0.25, 0.50))"
+    preconditions:
+      - "node assignments are confirmed and acknowledged"
+      - "resource budget headroom is above 20%"
+    postconditions:
+      - "all assigned nodes have returned results or timed out gracefully"
+      - "partial results are aggregated into unified output draft"
+    timeout_ms: 30000
+    retry:
+      max_attempts: 1
+      backoff_ms: 0
+
+  - id: validate_quality
+    action: validate_quality
+    # Quality gate activates when execution completes; phi_scale biases toward high standards
+    weight_formula: "phi_scale(quality_gate) * soft_gate(parallel_execution, 0.78)"
+    preconditions:
+      - "output draft exists and is non-empty"
+      - "quality scoring model is available"
+    postconditions:
+      - "quality score is recorded on output record"
+      - "output is flagged for assurance review if score is below 0.80"
+    timeout_ms: 5000
+    retry:
+      max_attempts: 2
+      backoff_ms: 600
+
+  - id: assure_output
+    action: assure_output
+    # Assurance combines quality signal with values-alignment resonance
+    weight_formula: "resonance(quality_gate, assurance_gate) * phi_scale(assurance_gate)"
+    preconditions:
+      - "quality validation has completed"
+      - "values alignment model is loaded and responsive"
+    postconditions:
+      - "assurance score and rationale are attached to output record"
+      - "output is approved for delivery or flagged for escalation"
+    timeout_ms: 6000
+    retry:
+      max_attempts: 2
+      backoff_ms: 700
+
+  - id: capture_patterns
+    action: capture_patterns
+    # Pattern capture runs at lower priority; ternary balances learning vs. throughput
+    weight_formula: "ternary(soft_gate(assurance_gate, 0.85), phi_scale(pattern_capture), 0.30)"
+    preconditions:
+      - "assurance gate has passed"
+      - "pattern index service is available"
+    postconditions:
+      - "at least one interaction signature is recorded in pattern store"
+    timeout_ms: 3000
+    retry:
+      max_attempts: 1
+      backoff_ms: 0
+
+  - id: update_narrative
+    action: update_narrative
+    # Story update parallels pattern capture; both feed the learning layer
+    weight_formula: "superposition(pattern_capture, story_update) * soft_gate(assurance_gate, 0.80)"
+    preconditions:
+      - "assurance gate has passed"
+      - "narrative store is writable"
+    postconditions:
+      - "user story record is updated with interaction summary"
+      - "temporal markers are refreshed"
+    timeout_ms: 2500
+    retry:
+      max_attempts: 2
+      backoff_ms: 500
+
+  - id: deliver_result
+    action: deliver_result
+    # Delivery is gated hard on assurance; risk exposure reduces weight if unresolved issues remain
+    weight_formula: "resonance(assurance_gate, delivery) * (1.0 - risk(0.10, 0.90))"
+    preconditions:
+      - "assurance gate has approved output"
+      - "delivery channel is reachable"
+    postconditions:
+      - "response is transmitted and delivery receipt is logged"
+      - "request record is marked complete"
+    timeout_ms: 5000
+    retry:
+      max_attempts: 3
+      backoff_ms: 1000
+
+  - id: escalate_issue
+    action: escalate_issue
+    # Escalation activates whenever risk is elevated regardless of other state weights
+    weight_formula: "max(risk(0.60, 0.80), resonance(escalation, 1.00))"
+    preconditions:
+      - "an anomaly, assurance failure, or hard guardrail breach has been detected"
+    postconditions:
+      - "escalation ticket is created with full context bundle attached"
+      - "on-call handler is notified via configured escalation channel"
+    timeout_ms: 8000
+    retry:
+      max_attempts: 5
+      backoff_ms: 2000
+
+# ---------------------------------------------------------------------------
+# GUARDRAILS
+# Hard guardrails halt execution immediately on breach.
+# Soft guardrails log a warning and apply a weight penalty.
+# Advisory guardrails surface a recommendation without blocking.
+# ---------------------------------------------------------------------------
+guardrails:
+
+  - id: values_alignment
+    constraint: >
+      Output must align with the HeadyConnection mission of equity and
+      community empowerment; content that marginalizes, demeans, or
+      excludes any community member must not be delivered.
+    min_distance: 0.15     # minimum semantic distance from violation boundary
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — values_alignment: output has been blocked pending
+      human review. Escalation ticket created automatically.
+
+  - id: quality_threshold
+    constraint: >
+      Output quality must meet production standards; responses scoring below
+      the quality floor must not be delivered to end users.
+    min_distance: 0.10
+    enforcement: soft
+    message: >
+      GUARDRAIL WARNING — quality_threshold: output quality score is below
+      production floor. Triggering re-execution with elevated quality weight.
+
+  - id: resource_budget
+    constraint: >
+      Execution must stay within the allocated resource budget; operations
+      that would cause the session to exceed compute or memory limits must
+      be deferred or scaled down.
+    min_distance: 0.05
+    enforcement: advisory
+    message: >
+      GUARDRAIL ADVISORY — resource_budget: approaching resource ceiling.
+      Consider deferring non-critical background tasks to next tick.
+
+# ---------------------------------------------------------------------------
+# METADATA
+# ---------------------------------------------------------------------------
+metadata:
+  author: eric@headyconnection.org
+  created: "2026-03-07"
+  tags:
+    - orchestration
+    - conductor
+    - lifecycle
+    - heady-core
+    - phase-7

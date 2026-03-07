@@ -1,0 +1,744 @@
+/**
+ * @fileoverview HeadyMIDI Dashboard Styles — Sacred Geometry Design System
+ * All spacing derived from Fibonacci. All timing from φ (PSI ≈ 0.618).
+ * Glassmorphism + dark theme + organic animations.
+ *
+ * @version 2.0.0
+ * @author HeadySystems™
+ * @license Proprietary — HeadySystems™ & HeadyConnection™
+ *
+ * ⚡ Made with 💜 by HeadySystems™ & HeadyConnection™
+ * Sacred Geometry :: Organic Systems :: Breathing Interfaces
+ */
+
+/* ─── Custom Properties — Sacred Geometry Design Tokens ──────────── */
+:root {
+  /* Colors */
+  --midi-bg: #0a0e14;
+  --midi-surface: rgba(15, 20, 30, 0.85);
+  --midi-glass: rgba(20, 30, 50, 0.6);
+  --midi-glass-hover: rgba(25, 38, 62, 0.7);
+  --midi-border: rgba(100, 200, 255, 0.12);
+  --midi-border-active: rgba(100, 200, 255, 0.3);
+  --midi-accent: hsl(180, 70%, 50%);
+  --midi-accent-dim: hsl(180, 50%, 30%);
+  --midi-text: #e0e8f0;
+  --midi-text-bright: #f0f6fc;
+  --midi-muted: #6b7b8d;
+  --midi-success: hsl(142, 70%, 45%);
+  --midi-danger: hsl(0, 75%, 55%);
+  --midi-warning: hsl(42, 85%, 55%);
+  --midi-purple: hsl(262, 65%, 60%);
+
+  /* Fibonacci Spacing: 1, 2, 3, 5, 8, 13, 21, 34 */
+  --sp-1: 1px;
+  --sp-2: 2px;
+  --sp-3: 3px;
+  --sp-5: 5px;
+  --sp-8: 8px;
+  --sp-13: 13px;
+  --sp-21: 21px;
+  --sp-34: 34px;
+
+  /* Typography */
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-ui: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+
+  /* Transitions — PSI³ ≈ 0.236s */
+  --transition: 0.236s ease;
+  --transition-fast: 0.146s ease;
+  --transition-slow: 0.382s ease;
+
+  /* Border Radius — Fibonacci */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --radius-xl: 13px;
+  --radius-pill: 34px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 3px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 21px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 13px rgba(100, 200, 255, 0.15);
+}
+
+/* ─── Base Resets ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Sacred Geometry Background SVG (base64 hexagonal pattern) ── */
+.midi-sacred-bg {
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTE1LjQ3IiB2aWV3Qm94PSIwIDAgMTAwIDExNS40NyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImgiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSIxMDAiIGhlaWdodD0iMTE1LjQ3Ij48cG9seWdvbiBwb2ludHM9IjUwLDAgMTAwLDI4Ljg3IDEwMCw4Ni42IDUwLDExNS40NyAwLDg2LjYgMCwyOC44NyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDEwMCwyMDAsMjU1LDAuMDgpIiBzdHJva2Utd2lkdGg9IjAuNSIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNTcuNzQiIHI9IjIwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMTAwLDIwMCwyNTUsMC4wNCkiIHN0cm9rZS13aWR0aD0iMC4zIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSI1Ny43NCIgcj0iMzUiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgxMDAsMjAwLDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIwLjMiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjaCkiLz48L3N2Zz4=");
+  background-repeat: repeat;
+}
+
+/* ─── Glass Panel ────────────────────────────────────────────────── */
+.glass {
+  backdrop-filter: blur(13px);
+  -webkit-backdrop-filter: blur(13px);
+  background: var(--midi-glass);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.glass:hover {
+  border-color: var(--midi-border-active);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ─── Dashboard Layout ───────────────────────────────────────────── */
+.midi-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--midi-bg);
+  color: var(--midi-text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+.midi-dashboard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-13) var(--sp-21);
+  border-bottom: 1px solid var(--midi-border);
+  background: var(--midi-surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.midi-dashboard__header h1 {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--midi-text-bright);
+}
+
+.midi-dashboard__body {
+  display: flex;
+  flex: 1;
+  padding: var(--sp-13);
+  gap: var(--sp-13);
+}
+
+.midi-dashboard__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-8) var(--sp-21);
+  border-top: 1px solid var(--midi-border);
+  background: var(--midi-surface);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--midi-muted);
+  letter-spacing: 0.3px;
+}
+
+/* ─── Golden Ratio Grid ──────────────────────────────────────────── */
+.midi-grid {
+  display: grid;
+  grid-template-columns: 61.8fr 38.2fr;
+  gap: var(--sp-13);
+  flex: 1;
+  min-height: 0;
+}
+
+.midi-grid__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-13);
+  min-height: 0;
+}
+
+.midi-grid__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-13);
+  min-height: 0;
+}
+
+/* ─── Panel ──────────────────────────────────────────────────────── */
+.midi-panel {
+  backdrop-filter: blur(13px);
+  -webkit-backdrop-filter: blur(13px);
+  background: var(--midi-glass);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-13);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.midi-panel:hover {
+  border-color: var(--midi-border-active);
+}
+
+.midi-panel__title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--midi-muted);
+  margin-bottom: var(--sp-8);
+}
+
+/* ─── LED Indicator ──────────────────────────────────────────────── */
+.midi-led {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--midi-danger);
+  box-shadow: 0 0 5px var(--midi-danger);
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+.midi-led--connected {
+  background: var(--midi-success);
+  box-shadow: 0 0 8px var(--midi-success);
+  animation: led-pulse 0.618s ease-in-out infinite alternate;
+}
+
+.midi-led--learning {
+  background: var(--midi-warning);
+  box-shadow: 0 0 8px var(--midi-warning);
+  animation: led-pulse 0.382s ease-in-out infinite alternate;
+}
+
+/* ─── Meter Bar ──────────────────────────────────────────────────── */
+.midi-meter {
+  position: relative;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.midi-meter__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: var(--radius-sm);
+  background: var(--midi-accent);
+  transition: width var(--transition);
+  will-change: width;
+}
+
+.midi-meter--warning .midi-meter__fill {
+  background: var(--midi-warning);
+}
+
+.midi-meter--danger .midi-meter__fill {
+  background: var(--midi-danger);
+}
+
+/* ─── Tab Bar ────────────────────────────────────────────────────── */
+.midi-tabs {
+  display: flex;
+  gap: var(--sp-5);
+  padding: var(--sp-3);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-pill);
+  width: fit-content;
+}
+
+.midi-tab {
+  padding: var(--sp-5) var(--sp-13);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--midi-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.midi-tab:hover {
+  color: var(--midi-text);
+  background: rgba(100, 200, 255, 0.06);
+}
+
+.midi-tab--active {
+  color: var(--midi-text-bright);
+  background: var(--midi-glass);
+  border-color: var(--midi-border-active);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────── */
+.midi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-5) var(--sp-13);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--midi-text);
+  background: var(--midi-glass);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.midi-btn:hover {
+  background: var(--midi-glass-hover);
+  border-color: var(--midi-border-active);
+  box-shadow: var(--shadow-glow);
+}
+
+.midi-btn:active {
+  transform: scale(0.97);
+}
+
+.midi-btn--primary {
+  background: hsla(180, 70%, 50%, 0.2);
+  border-color: hsla(180, 70%, 50%, 0.4);
+  color: var(--midi-accent);
+}
+
+.midi-btn--primary:hover {
+  background: hsla(180, 70%, 50%, 0.3);
+  border-color: var(--midi-accent);
+}
+
+.midi-btn--danger {
+  background: hsla(0, 75%, 55%, 0.15);
+  border-color: hsla(0, 75%, 55%, 0.3);
+  color: var(--midi-danger);
+}
+
+.midi-btn--danger:hover {
+  background: hsla(0, 75%, 55%, 0.25);
+  border-color: var(--midi-danger);
+}
+
+.midi-btn--small {
+  padding: var(--sp-3) var(--sp-8);
+  font-size: 11px;
+}
+
+/* ─── Form Inputs ────────────────────────────────────────────────── */
+.midi-input {
+  padding: var(--sp-5) var(--sp-8);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--midi-text);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+
+.midi-input:focus {
+  border-color: var(--midi-accent);
+  box-shadow: 0 0 0 2px hsla(180, 70%, 50%, 0.15);
+}
+
+.midi-select {
+  padding: var(--sp-5) var(--sp-8);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--midi-text);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7b8d'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.midi-select:focus {
+  border-color: var(--midi-accent);
+}
+
+/* ─── Scroll Container ───────────────────────────────────────────── */
+.midi-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--midi-border) transparent;
+}
+
+.midi-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.midi-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.midi-scroll::-webkit-scrollbar-thumb {
+  background: var(--midi-border);
+  border-radius: var(--radius-sm);
+}
+
+.midi-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--midi-border-active);
+}
+
+/* ─── Badges ─────────────────────────────────────────────────────── */
+.midi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-8);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.midi-badge--connected {
+  color: var(--midi-success);
+  background: hsla(142, 70%, 45%, 0.15);
+  border: 1px solid hsla(142, 70%, 45%, 0.3);
+}
+
+.midi-badge--disconnected {
+  color: var(--midi-danger);
+  background: hsla(0, 75%, 55%, 0.15);
+  border: 1px solid hsla(0, 75%, 55%, 0.3);
+}
+
+.midi-badge--learning {
+  color: var(--midi-warning);
+  background: hsla(42, 85%, 55%, 0.15);
+  border: 1px solid hsla(42, 85%, 55%, 0.3);
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* ─── Mapper Table ───────────────────────────────────────────────── */
+.midi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.midi-table th {
+  padding: var(--sp-5) var(--sp-8);
+  text-align: left;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--midi-muted);
+  border-bottom: 1px solid var(--midi-border);
+}
+
+.midi-table td {
+  padding: var(--sp-5) var(--sp-8);
+  border-bottom: 1px solid rgba(100, 200, 255, 0.05);
+  color: var(--midi-text);
+  vertical-align: middle;
+}
+
+.midi-table tr:hover td {
+  background: rgba(100, 200, 255, 0.03);
+}
+
+/* ─── Curve Editor ───────────────────────────────────────────────── */
+.midi-curve-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.midi-curve-preview {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.midi-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.midi-slider-group label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--midi-muted);
+}
+
+.midi-slider-group input[type="range"] {
+  width: 100%;
+  height: 5px;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.midi-slider-group input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--midi-accent);
+  cursor: pointer;
+  box-shadow: 0 0 5px var(--midi-accent-dim);
+}
+
+/* ─── MIDI Learn Overlay ─────────────────────────────────────────── */
+.midi-learn-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 14, 20, 0.9);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  animation: fadeIn var(--transition-slow) ease;
+}
+
+.midi-learn-overlay__ring {
+  width: 144px;
+  height: 144px;
+  border: 2px solid var(--midi-accent);
+  border-radius: 50%;
+  animation: breathe 3s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.midi-learn-overlay__text {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--midi-text-bright);
+  margin-top: var(--sp-21);
+  text-align: center;
+}
+
+.midi-learn-overlay__countdown {
+  font-family: var(--font-mono);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--midi-accent);
+}
+
+/* ─── Visualizer Specifics ───────────────────────────────────────── */
+.midi-viz {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.midi-viz__content {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.midi-cc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: var(--sp-8);
+  height: 100%;
+  padding: var(--sp-8);
+}
+
+.midi-cc-chart {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5);
+  display: flex;
+  flex-direction: column;
+}
+
+.midi-cc-chart__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--midi-muted);
+  margin-bottom: var(--sp-3);
+}
+
+.midi-cc-chart svg {
+  flex: 1;
+  width: 100%;
+}
+
+/* ─── Connection Status Panel ────────────────────────────────────── */
+.midi-conn-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.midi-conn-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid rgba(100, 200, 255, 0.05);
+}
+
+.midi-conn-row:last-child {
+  border-bottom: none;
+}
+
+.midi-conn-row__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--midi-muted);
+}
+
+/* ─── Profile Bar ────────────────────────────────────────────────── */
+.midi-profile-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: var(--sp-8) var(--sp-13);
+  background: var(--midi-surface);
+  border: 1px solid var(--midi-border);
+  border-radius: var(--radius-lg);
+}
+
+.midi-profile-bar__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--midi-muted);
+  white-space: nowrap;
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────── */
+@keyframes breathe {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+@keyframes led-pulse {
+  0%   { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Responsive Breakpoints ─────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .midi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .midi-cc-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .midi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .midi-dashboard__body {
+    padding: var(--sp-8);
+    gap: var(--sp-8);
+  }
+
+  .midi-dashboard__header {
+    padding: var(--sp-8) var(--sp-13);
+  }
+
+  .midi-dashboard__header h1 {
+    font-size: 14px;
+  }
+
+  .midi-tabs {
+    overflow-x: auto;
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .midi-dashboard__body {
+    padding: var(--sp-5);
+    gap: var(--sp-5);
+  }
+
+  .midi-panel {
+    padding: var(--sp-8);
+    border-radius: var(--radius-md);
+  }
+
+  .midi-cc-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .midi-table {
+    font-size: 10px;
+  }
+
+  .midi-table th,
+  .midi-table td {
+    padding: var(--sp-3) var(--sp-5);
+  }
+
+  .midi-profile-bar {
+    flex-wrap: wrap;
+  }
+
+  .midi-btn {
+    font-size: 11px;
+    padding: var(--sp-3) var(--sp-8);
+  }
+}

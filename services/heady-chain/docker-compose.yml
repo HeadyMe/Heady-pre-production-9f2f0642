@@ -1,0 +1,115 @@
+version: '3.9'
+
+# HeadyChain Service — Docker Compose
+# Sacred Geometry: PHI = 1.618 scales resource limits
+
+services:
+  heady-chain:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: heady-chain:1.0.0
+    container_name: heady-chain
+    restart: unless-stopped
+    ports:
+      - "${HEADY_CHAIN_PORT:-3007}:3007"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      HEADY_CHAIN_PORT: 3007
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_PRETTY: ${LOG_PRETTY:-false}
+
+      # HeadyInfer LLM endpoint
+      HEADY_INFER_URL: ${HEADY_INFER_URL:-http://heady-infer:3003}
+      HEADY_INFER_DEFAULT_MODEL: ${HEADY_INFER_DEFAULT_MODEL:-claude-3-5-sonnet-20241022}
+      HEADY_INFER_TIMEOUT_MS: ${HEADY_INFER_TIMEOUT_MS:-60000}
+
+      # HeadyVector endpoint
+      HEADY_VECTOR_URL: ${HEADY_VECTOR_URL:-http://heady-vector:3006}
+
+      # Execution config (PHI-scaled defaults)
+      MAX_PARALLEL_NODES: ${MAX_PARALLEL_NODES:-10}
+      DEFAULT_NODE_TIMEOUT_MS: ${DEFAULT_NODE_TIMEOUT_MS:-30000}
+      DEFAULT_WORKFLOW_TIMEOUT_MS: ${DEFAULT_WORKFLOW_TIMEOUT_MS:-300000}
+      MAX_WORKFLOW_STEPS: ${MAX_WORKFLOW_STEPS:-500}
+      MAX_RETRY_ATTEMPTS: ${MAX_RETRY_ATTEMPTS:-5}
+      RETRY_BASE_MS: ${RETRY_BASE_MS:-1000}
+
+      # Memory config
+      MEMORY_BUFFER_SIZE: ${MEMORY_BUFFER_SIZE:-50}
+      MEMORY_SUMMARY_THRESHOLD: ${MEMORY_SUMMARY_THRESHOLD:-20}
+
+      # Checkpoint config
+      CHECKPOINT_ENABLED: ${CHECKPOINT_ENABLED:-true}
+      CHECKPOINT_DIR: /data/checkpoints
+      CHECKPOINT_TTL_MS: ${CHECKPOINT_TTL_MS:-86400000}
+
+      # Agent config
+      REACT_MAX_ITERATIONS: ${REACT_MAX_ITERATIONS:-10}
+      PLAN_EXECUTE_MAX_STEPS: ${PLAN_EXECUTE_MAX_STEPS:-20}
+
+      # Tool config
+      DEFAULT_TOOL_TIMEOUT_MS: ${DEFAULT_TOOL_TIMEOUT_MS:-15000}
+      ALLOW_DYNAMIC_TOOLS: ${ALLOW_DYNAMIC_TOOLS:-false}
+
+      # Metrics
+      METRICS_ENABLED: ${METRICS_ENABLED:-true}
+
+    volumes:
+      - heady-chain-checkpoints:/data/checkpoints
+    networks:
+      - heady-internal
+
+    deploy:
+      resources:
+        limits:
+          # PHI^3 * 256MB ≈ 1GB
+          memory: 1024M
+          cpus: '2.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3007/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+        labels: "service=heady-chain"
+
+  # Optional: standalone test runner
+  heady-chain-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: heady-chain-test
+    environment:
+      NODE_ENV: test
+      HEADY_INFER_MOCK: "true"
+    networks:
+      - heady-internal
+    profiles:
+      - test
+
+volumes:
+  heady-chain-checkpoints:
+    driver: local
+
+networks:
+  heady-internal:
+    external: true
+    name: heady-internal

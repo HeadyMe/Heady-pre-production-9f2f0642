@@ -1,0 +1,195 @@
+{
+  "$schema": "https://headysystems.com/schemas/registry/v3.1.0",
+  "version": "3.1.0",
+  "generatedAt": "2026-03-07T03:07:00Z",
+  "author": "HeadySystems Inc.",
+  "copyright": "© 2026 HeadySystems Inc. PROPRIETARY AND CONFIDENTIAL.",
+
+  "services": {
+    "heady-api": {
+      "name": "HeadyAPI",
+      "description": "Core REST API for HeadyStack orchestration",
+      "version": "3.1.0",
+      "deployTarget": "cloud-run",
+      "endpoint": "https://heady-api-xyz-uc.a.run.app",
+      "healthPath": "/health",
+      "tech": ["Node.js", "Express", "Firestore"],
+      "stalenessBudget": 0
+    },
+    "heady-vector": {
+      "name": "HeadyVector",
+      "description": "384-dimensional vector embedding service with federation",
+      "version": "2.1.0",
+      "deployTarget": "cloud-run",
+      "endpoint": "https://heady-vector-xyz-uc.a.run.app",
+      "healthPath": "/api/vectors/stats",
+      "tech": ["Node.js", "Three.js", "Sentence-Transformers"],
+      "dimensions": 384,
+      "densityGate": 0.92,
+      "replicationFactor": 2
+    },
+    "heady-mcp": {
+      "name": "HeadyMCP",
+      "description": "Model Context Protocol gateway — 43+ tools",
+      "version": "1.4.0",
+      "deployTarget": "cloud-run",
+      "endpoint": "https://headymcp.com",
+      "healthPath": "/mcp/health",
+      "toolCount": 43,
+      "tech": ["Node.js", "MCP SDK", "Cloudflare Workers"]
+    },
+    "heady-governance": {
+      "name": "HeadyGovernance",
+      "description": "Policy engine, approval gates, audit logging",
+      "version": "1.2.0",
+      "deployTarget": "cloud-run",
+      "endpoint": "https://headymcp.com/governance",
+      "complianceScore": 94.7,
+      "activeRules": 8,
+      "pendingGates": 3
+    }
+  },
+
+  "deployments": {
+    "cloudflare-pages": {
+      "provider": "Cloudflare",
+      "type": "Pages",
+      "projectId": "heady-web-portal",
+      "domains": ["headyme.com", "headysystems.com"],
+      "buildCommand": "npm run build:all",
+      "outputDir": "dist",
+      "syncMode": "event-driven",
+      "stalenessBudget": 300
+    },
+    "cloud-run-prod": {
+      "provider": "Google Cloud",
+      "type": "Cloud Run",
+      "region": "us-central1",
+      "projectId": "heady-production",
+      "services": ["heady-api", "heady-vector", "heady-mcp"],
+      "syncMode": "event-driven",
+      "stalenessBudget": 60
+    },
+    "huggingface-spaces": {
+      "provider": "HuggingFace",
+      "type": "Spaces",
+      "spaceId": "headyme/vector-explorer",
+      "syncMode": "manual",
+      "stalenessBudget": 120
+    }
+  },
+
+  "projections": {
+    "antigravity": {
+      "uiId": "antigravity",
+      "remoteScope": "antigravity",
+      "remoteEntry": "/remotes/antigravity/remoteEntry.js",
+      "deployTarget": "cloudflare-pages",
+      "domains": ["headyme.com", "www.headyme.com"],
+      "theme": "emerald",
+      "threeJs": true
+    },
+    "landing": {
+      "uiId": "landing",
+      "remoteScope": "headyLanding",
+      "remoteEntry": "/remotes/landing/remoteEntry.js",
+      "deployTarget": "cloudflare-pages",
+      "domains": ["headysystems.com", "www.headysystems.com"],
+      "theme": "blue-cyan"
+    },
+    "heady-ide": {
+      "uiId": "heady-ide",
+      "remoteScope": "headyIDE",
+      "remoteEntry": "/remotes/heady-ide/remoteEntry.js",
+      "deployTarget": "cloud-run",
+      "domains": ["ide.headysystems.com"],
+      "theme": "vs-dark"
+    },
+    "swarm-dashboard": {
+      "uiId": "swarm-dashboard",
+      "remoteScope": "swarmDashboard",
+      "remoteEntry": "/remotes/swarm-dashboard/remoteEntry.js",
+      "deployTarget": "cloud-run",
+      "domains": ["app.headyme.com"],
+      "theme": "amber-gold"
+    },
+    "governance-panel": {
+      "uiId": "governance-panel",
+      "remoteScope": "governancePanel",
+      "remoteEntry": "/remotes/governance/remoteEntry.js",
+      "deployTarget": "cloud-run",
+      "domains": ["headymcp.com", "www.headymcp.com"],
+      "theme": "purple"
+    },
+    "projection-monitor": {
+      "uiId": "projection-monitor",
+      "remoteScope": "projectionMonitor",
+      "remoteEntry": "/remotes/projections/remoteEntry.js",
+      "deployTarget": "cloud-run",
+      "domains": ["deploy.headyme.com", "projections.headysystems.com"],
+      "theme": "cyan"
+    },
+    "vector-explorer": {
+      "uiId": "vector-explorer",
+      "remoteScope": "vectorExplorer",
+      "remoteEntry": "/remotes/vectors/remoteEntry.js",
+      "deployTarget": "huggingface-spaces",
+      "domains": ["headyconnection.org", "www.headyconnection.org"],
+      "theme": "teal",
+      "threeJs": true
+    }
+  },
+
+  "uiManifest": {
+    "version": "3.1.0",
+    "shellEntry": "/remotes/antigravity/remoteEntry.js",
+    "sharedDependencies": {
+      "three": "^0.163.0"
+    },
+    "fonts": [
+      "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    ],
+    "remoteCount": 7,
+    "totalDomains": 9
+  },
+
+  "embeddingPipeline": {
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "dimensions": 384,
+    "densityGate": 0.92,
+    "projectionDimensions": 3,
+    "projectionMethod": "UMAP",
+    "replicationFactor": 2,
+    "gossipIntervalMs": 30000,
+    "batchSize": 64,
+    "maxTokens": 512,
+    "normalize": true,
+    "backend": "Google Vertex AI",
+    "endpoint": "https://heady-vector-xyz-uc.a.run.app/api/vectors"
+  },
+
+  "mcpTools": [
+    { "name": "github.search_code",       "version": "1.0", "enabled": true },
+    { "name": "github.create_pr",         "version": "1.0", "enabled": true },
+    { "name": "github.list_commits",      "version": "1.0", "enabled": true },
+    { "name": "cloudflare.kv_get",        "version": "1.0", "enabled": true },
+    { "name": "cloudflare.kv_put",        "version": "1.0", "enabled": true },
+    { "name": "cloudflare.deploy_pages",  "version": "1.0", "enabled": true },
+    { "name": "gcloud.run_job",           "version": "1.0", "enabled": true },
+    { "name": "gcloud.firestore_query",   "version": "1.0", "enabled": true },
+    { "name": "gcloud.vertex_embed",      "version": "1.0", "enabled": true },
+    { "name": "heady.vector_upsert",      "version": "2.1", "enabled": true },
+    { "name": "heady.vector_search",      "version": "2.1", "enabled": true },
+    { "name": "heady.swarm_status",       "version": "1.0", "enabled": true },
+    { "name": "heady.governance_gate",    "version": "1.2", "enabled": true }
+  ],
+
+  "agentFleet": [
+    { "id": "HeadyBuddy",    "model": "gpt-4o",          "domain": "headyme.com",         "status": "active" },
+    { "id": "HeadyBattle",   "model": "claude-3.5-s",    "domain": "headyme.com",         "status": "active" },
+    { "id": "HeadyAnalyze",  "model": "gemini-1.5-pro",  "domain": "headysystems.com",    "status": "idle"   },
+    { "id": "HeadyRisks",    "model": "gpt-4o",          "domain": "headymcp.com",        "status": "active" },
+    { "id": "HeadyPatterns", "model": "gemini-1.5-pro",  "domain": "headyconnection.org", "status": "idle"   },
+    { "id": "HeadyCoder",    "model": "claude-3.5-s",    "domain": "headysystems.com",    "status": "active" }
+  ]
+}

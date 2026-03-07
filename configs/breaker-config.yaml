@@ -1,0 +1,386 @@
+# breaker-config.yaml
+# Circuit breaker configuration for all external services in heady-systems v3.1.0
+#
+# Structure:
+#   defaults              — applied to all breakers unless overridden
+#   services              — per-service settings (merged over defaults)
+#   environments          — environment-specific overrides (dev / staging / production)
+#
+# Override resolution order (highest to lowest priority):
+#   environments.<env>.services.<service>
+#   environments.<env>.defaults
+#   services.<service>
+#   defaults
+#
+# All timeouts are in milliseconds unless a unit suffix is appended (s, m).
+
+# ============================================================================
+# Defaults — applies to every breaker unless overridden
+# ============================================================================
+defaults:
+  failureThreshold: 5          # consecutive failures before transitioning CLOSED → OPEN
+  recoveryTimeout: 30000       # ms in OPEN before probing (transition to HALF_OPEN)
+  halfOpenMaxCalls: 3          # probe calls allowed in HALF_OPEN before re-evaluating
+  timeoutMs: 30000             # per-call hard timeout
+  maxRetries: 2                # retries before counting a failure (phi-backoff between)
+  phiBase: 1.618               # exponential backoff ratio (golden ratio)
+  baseBackoffMs: 200           # initial backoff delay
+  maxBackoffMs: 30000          # cap on backoff delay
+  jitterFactor: 0.2            # ±20 % random jitter added to backoff delays
+  healthCheckIntervalMs: 15000 # passive health ping interval
+  alertOnOpen: true            # emit alert event when circuit transitions to OPEN
+  alertOnClose: true           # emit alert event when circuit transitions to CLOSED
+
+# ============================================================================
+# Per-service settings
+# ============================================================================
+services:
+
+  # --------------------------------------------------------------------------
+  # LLM providers
+  # --------------------------------------------------------------------------
+  openai:
+    failureThreshold: 5
+    recoveryTimeout: 30000
+    halfOpenMaxCalls: 3
+    timeoutMs: 30000
+    baseUrl: "https://api.openai.com/v1"
+    healthPath: "/models"
+    tokenBudgetPerMinute: 100000
+    fallbackChain:
+      - anthropic
+      - google-genai
+
+  anthropic:
+    failureThreshold: 5
+    recoveryTimeout: 30000
+    halfOpenMaxCalls: 3
+    timeoutMs: 30000
+    baseUrl: "https://api.anthropic.com/v1"
+    healthPath: "/models"
+    tokenBudgetPerMinute: 100000
+    fallbackChain:
+      - openai
+      - google-genai
+
+  google-genai:
+    failureThreshold: 5
+    recoveryTimeout: 30000
+    halfOpenMaxCalls: 3
+    timeoutMs: 30000
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta"
+    healthPath: "/models"
+    tokenBudgetPerMinute: 60000
+    fallbackChain:
+      - openai
+      - groq
+
+  groq:
+    failureThreshold: 3          # more aggressive — Groq is fast, failures are signal
+    recoveryTimeout: 15000       # shorter recovery — fast-inference service
+    halfOpenMaxCalls: 2
+    timeoutMs: 20000
+    baseUrl: "https://api.groq.com/openai/v1"
+    healthPath: "/models"
+    tokenBudgetPerMinute: 200000
+    fallbackChain:
+      - openai
+      - google-genai
+
+  huggingface:
+    failureThreshold: 5
+    recoveryTimeout: 45000       # HuggingFace can be slow to recover
+    halfOpenMaxCalls: 3
+    timeoutMs: 60000             # longer timeout for large model inference
+    baseUrl: "https://api-inference.huggingface.co"
+    healthPath: "/status"
+    tokenBudgetPerMinute: 50000
+    fallbackChain:
+      - openai
+
+  # --------------------------------------------------------------------------
+  # Cloudflare
+  # --------------------------------------------------------------------------
+  cloudflare-ai:
+    failureThreshold: 3
+    recoveryTimeout: 20000
+    halfOpenMaxCalls: 2
+    timeoutMs: 15000
+    baseUrl: "https://api.cloudflare.com/client/v4"
+    healthPath: "/user/tokens/verify"
+    edgeFallbackToOrigin: true
+
+  cloudflare-kv:
+    failureThreshold: 3
+    recoveryTimeout: 20000
+    halfOpenMaxCalls: 2
+    timeoutMs: 5000
+
+  cloudflare-d1:
+    failureThreshold: 3
+    recoveryTimeout: 20000
+    halfOpenMaxCalls: 2
+    timeoutMs: 10000
+
+  cloudflare-worker:
+    failureThreshold: 3
+    recoveryTimeout: 20000
+    halfOpenMaxCalls: 2
+    timeoutMs: 10000
+
+  # --------------------------------------------------------------------------
+  # GitHub API
+  # --------------------------------------------------------------------------
+  github-api:
+    failureThreshold: 10          # high threshold — GitHub is reliable
+    recoveryTimeout: 60000
+    halfOpenMaxCalls: 5
+    timeoutMs: 10000
+    baseUrl: "https://api.github.com"
+    healthPath: "/rate_limit"
+    rateLimitBuffer: 100          # pause when remaining < this value
+    rateLimitSafePauseMs: 5000    # pause duration when near limit
+    maxRetries5xx: 3
+    tokenRotationOn403: true
+
+  github-graphql:
+    failureThreshold: 10
+    recoveryTimeout: 60000
+    halfOpenMaxCalls: 5
+    timeoutMs: 15000
+
+  # --------------------------------------------------------------------------
+  # Databases
+  # --------------------------------------------------------------------------
+  postgresql-neon:
+    failureThreshold: 3
+    recoveryTimeout: 10000        # fast recovery — DB connectivity issues are often transient
+    halfOpenMaxCalls: 2
+    timeoutMs: 5000
+    readTimeoutMs: 5000
+    writeTimeoutMs: 30000
+    healthPingIntervalMs: 15000
+    maxReconnectAttempts: 10
+    baseReconnectDelayMs: 500
+
+  redis:
+    failureThreshold: 3
+    recoveryTimeout: 10000
+    halfOpenMaxCalls: 2
+    timeoutMs: 2000               # Redis is very fast; 2 s timeout is generous
+    readTimeoutMs: 2000
+    writeTimeoutMs: 5000
+    healthPingIntervalMs: 15000
+    maxReconnectAttempts: 10
+    baseReconnectDelayMs: 300
+
+  # --------------------------------------------------------------------------
+  # MCP SDK (global breaker)
+  # --------------------------------------------------------------------------
+  mcp-sdk:
+    failureThreshold: 5
+    recoveryTimeout: 30000
+    halfOpenMaxCalls: 3
+    timeoutMs: 10000
+    useFallbacks: true
+
+# ============================================================================
+# MCP tool-level overrides
+# Each tool can override timeoutMs, failureThreshold, recoveryTimeout
+# ============================================================================
+mcp_tools:
+  "heady.ping":
+    timeoutMs: 2000
+    failureThreshold: 10
+
+  "heady.echo":
+    timeoutMs: 2000
+    failureThreshold: 10
+
+  "heady.status":
+    timeoutMs: 5000
+
+  "heady.llm.generate":
+    timeoutMs: 30000
+    failureThreshold: 3
+
+  "heady.llm.stream":
+    timeoutMs: 30000
+    failureThreshold: 3
+
+  "heady.llm.embed":
+    timeoutMs: 15000
+
+  "heady.code.run":
+    timeoutMs: 30000
+    failureThreshold: 3
+
+  "heady.web.screenshot":
+    timeoutMs: 30000
+
+  "heady.workflow.trigger":
+    timeoutMs: 10000
+
+  "heady.agent.spawn":
+    timeoutMs: 15000
+
+# ============================================================================
+# Token budgets (rolling 1-minute windows)
+# ============================================================================
+token_budgets:
+  openai:       100000
+  anthropic:    100000
+  google-genai:  60000
+  groq:         200000
+  huggingface:   50000
+
+# ============================================================================
+# Environment overrides
+# Applied on top of service-level config.
+# ============================================================================
+environments:
+
+  # --------------------------------------------------------------------------
+  # Development — more lenient, faster feedback loops
+  # --------------------------------------------------------------------------
+  dev:
+    defaults:
+      failureThreshold: 10       # don't trip on transient local issues
+      recoveryTimeout: 5000      # recover quickly in dev
+      halfOpenMaxCalls: 5
+      timeoutMs: 60000           # longer timeout for debugging
+      healthCheckIntervalMs: 30000
+      alertOnOpen: false         # suppress alerts in dev
+      alertOnClose: false
+
+    services:
+      postgresql-neon:
+        recoveryTimeout: 3000
+        readTimeoutMs: 10000
+        writeTimeoutMs: 60000
+      redis:
+        recoveryTimeout: 3000
+        timeoutMs: 10000
+      groq:
+        failureThreshold: 10
+        recoveryTimeout: 5000
+      github-api:
+        failureThreshold: 20
+
+  # --------------------------------------------------------------------------
+  # Staging — mirrors production thresholds but with faster recovery
+  # --------------------------------------------------------------------------
+  staging:
+    defaults:
+      failureThreshold: 5
+      recoveryTimeout: 15000     # half of production — faster iteration
+      halfOpenMaxCalls: 3
+      timeoutMs: 30000
+      alertOnOpen: true
+      alertOnClose: true
+
+    services:
+      postgresql-neon:
+        recoveryTimeout: 5000
+      redis:
+        recoveryTimeout: 5000
+      openai:
+        tokenBudgetPerMinute: 50000   # conservative in staging
+      anthropic:
+        tokenBudgetPerMinute: 50000
+      groq:
+        failureThreshold: 5
+        recoveryTimeout: 10000
+
+  # --------------------------------------------------------------------------
+  # Production — strict thresholds, full monitoring
+  # --------------------------------------------------------------------------
+  production:
+    defaults:
+      failureThreshold: 5
+      recoveryTimeout: 30000
+      halfOpenMaxCalls: 3
+      timeoutMs: 30000
+      healthCheckIntervalMs: 15000
+      alertOnOpen: true
+      alertOnClose: true
+      phiBase: 1.618
+      jitterFactor: 0.2
+
+    services:
+      postgresql-neon:
+        failureThreshold: 3
+        recoveryTimeout: 10000
+        readTimeoutMs: 5000
+        writeTimeoutMs: 30000
+        maxReconnectAttempts: 10
+      redis:
+        failureThreshold: 3
+        recoveryTimeout: 10000
+        timeoutMs: 2000
+        maxReconnectAttempts: 10
+      openai:
+        failureThreshold: 5
+        recoveryTimeout: 30000
+        tokenBudgetPerMinute: 100000
+      anthropic:
+        failureThreshold: 5
+        recoveryTimeout: 30000
+        tokenBudgetPerMinute: 100000
+      google-genai:
+        failureThreshold: 5
+        recoveryTimeout: 30000
+      groq:
+        failureThreshold: 3
+        recoveryTimeout: 15000
+      huggingface:
+        failureThreshold: 5
+        recoveryTimeout: 45000
+      cloudflare-ai:
+        failureThreshold: 3
+        recoveryTimeout: 20000
+        edgeFallbackToOrigin: true
+      github-api:
+        failureThreshold: 10
+        recoveryTimeout: 60000
+        rateLimitBuffer: 200      # more conservative in production
+      mcp-sdk:
+        failureThreshold: 5
+        recoveryTimeout: 30000
+        useFallbacks: true
+
+# ============================================================================
+# Alert configuration
+# ============================================================================
+alerts:
+  # Channels to notify when a circuit transitions to OPEN
+  onOpen:
+    - channel: console
+      enabled: true
+    - channel: slack
+      enabled: true
+      webhookEnvVar: SLACK_CIRCUIT_BREAKER_WEBHOOK
+    - channel: pagerduty
+      enabled: false              # enable in production via env override
+      integrationKeyEnvVar: PAGERDUTY_CIRCUIT_BREAKER_KEY
+
+  # Channels to notify when a circuit transitions back to CLOSED
+  onClose:
+    - channel: console
+      enabled: true
+    - channel: slack
+      enabled: true
+      webhookEnvVar: SLACK_CIRCUIT_BREAKER_WEBHOOK
+
+  # Suppress repeated alerts for the same service within this window (ms)
+  deduplicationWindowMs: 60000
+
+# ============================================================================
+# Dashboard & monitoring endpoints
+# ============================================================================
+endpoints:
+  dashboard:    /api/circuit-breakers
+  health:       /api/circuit-breakers/health
+  reset:        /api/circuit-breakers/:service/reset
+  mcpDashboard: /api/mcp/breakers
+  mcpReset:     /api/mcp/breakers/:tool/reset

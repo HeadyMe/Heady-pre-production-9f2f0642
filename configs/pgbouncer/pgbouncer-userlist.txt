@@ -1,0 +1,14 @@
+; ============================================================================
+; PgBouncer User List
+; Format: "username" "password_hash"
+; Generate with: psql -Atq -c "SELECT '\"' || usename || '\" \"' || passwd || '\"' FROM pg_shadow"
+; ============================================================================
+;
+; In production, use SCRAM-SHA-256 hashes from pg_shadow.
+; These are PLACEHOLDER entries — replace with actual hashes from your database.
+;
+"heady_app" "SCRAM-SHA-256$4096:REPLACE_WITH_ACTUAL_HASH"
+"heady_admin" "SCRAM-SHA-256$4096:REPLACE_WITH_ACTUAL_HASH"
+"heady_monitor" "SCRAM-SHA-256$4096:REPLACE_WITH_ACTUAL_HASH"
+"heady_readonly" "SCRAM-SHA-256$4096:REPLACE_WITH_ACTUAL_HASH"
+"heady" "SCRAM-SHA-256$4096:REPLACE_WITH_ACTUAL_HASH"

@@ -1,0 +1,286 @@
+# self-healing.hdy
+# Heady Self-Healing — Autonomous Service Recovery Script
+#
+# This script governs autonomous detection and recovery from service
+# failures, anomalies, and degraded states. The evaluation loop runs
+# continuously even when all systems are healthy — the "detection" state
+# never fully deactivates, only drops below the execution threshold.
+#
+# The "learning" state is a first-class citizen: every completed repair
+# cycle feeds a learning record that adjusts future detection thresholds
+# and repair strategy weights, giving the system an evolving prior over
+# which repair paths succeed for which failure signatures.
+#
+# Monte Carlo confidence is central to the repair activation gate. Before
+# any repair strategy executes, the system samples the strategy's outcome
+# distribution across simulated variants and confirms that the confidence
+# interval clears the phi-equilibrium threshold (~0.618). This prevents
+# low-confidence speculative repairs from running on live services.
+#
+# CSL gates used:
+#   resonance(a, b)     — agreement between two semantic signals
+#   superposition(a, b) — combined field strength
+#   soft_gate(x, t)     — smooth sigmoid activation at threshold t
+#   ternary(c, a, b)    — c*a + (1-c)*b blended weight
+#   risk(p, i)          — probability × impact risk exposure
+#   phi_scale(x)        — golden-ratio normalization (~0.618 equilibrium)
+#   min(a, b) / max(a, b)
+
+schema: heady_semantic_logic_v1
+
+name: self-healing
+version: "1.0.3"
+description: >
+  Autonomous self-healing workflow for Heady services. Drives continuous
+  evaluation through anomaly detection, root cause diagnosis, component
+  quarantine, repair application, verification, service restoration, and
+  learning capture. All repair actions require Monte Carlo confidence above
+  phi-equilibrium before execution. Blast radius and data safety guardrails
+  are hard constraints that cannot be overridden programmatically.
+target_node: HeadyHealingAgent
+
+# ---------------------------------------------------------------------------
+# SEMANTIC STATES
+# ---------------------------------------------------------------------------
+semantic_states:
+
+  - id: detection
+    anchor: "continuous monitoring signals are being evaluated for anomalous patterns"
+    priority_weight: 0.88
+    category: observation
+    # Detection is always partially active — it never fully sleeps.
+    # When all signals are healthy, its weight sits just below threshold.
+
+  - id: diagnosis
+    anchor: "the root cause of a detected anomaly is being identified and characterized"
+    priority_weight: 0.92
+    category: analysis
+
+  - id: quarantine
+    anchor: "the affected component has been isolated to prevent anomaly propagation"
+    priority_weight: 0.95
+    category: containment
+    # Quarantine has high priority to ensure blast radius is bounded
+    # before any repair attempt begins.
+
+  - id: repair
+    anchor: "a validated repair strategy is being applied to the quarantined component"
+    priority_weight: 0.90
+    category: remediation
+
+  - id: verification
+    anchor: "the repaired component is being tested to confirm the anomaly is resolved"
+    priority_weight: 0.93
+    category: remediation
+
+  - id: restoration
+    anchor: "the verified component is being reintegrated into the live service topology"
+    priority_weight: 0.87
+    category: recovery
+
+  - id: learning
+    anchor: "the completed repair cycle is being analyzed to improve future healing strategies"
+    priority_weight: 0.65
+    category: adaptation
+    # Learning has lower priority than active recovery states, but must
+    # not be starved — it accumulates the system's healing knowledge base.
+
+# ---------------------------------------------------------------------------
+# CONTINUOUS EVALUATION
+# Fast tick for detection and containment phases; the evaluation loop
+# must be responsive enough to catch cascading failures before they spread.
+# ---------------------------------------------------------------------------
+continuous_evaluation:
+  method: semantic_field_resonance
+  threshold_activation: 0.73
+  fuzziness: 0.09
+  evaluation_interval_ms: 100   # 100ms — fastest tick in the Heady suite
+
+# ---------------------------------------------------------------------------
+# EXECUTION GRAPH
+# ---------------------------------------------------------------------------
+execution_graph:
+
+  - id: detect_anomaly
+    action: detect_anomaly
+    # Detection weight is a soft-gated phi_scale — always running, never sleeping
+    weight_formula: "phi_scale(detection) * soft_gate(detection, 0.60)"
+    preconditions:
+      - "observability stack is active and emitting metrics, logs, and traces"
+      - "anomaly detection model has a current baseline (max staleness: 1 hour)"
+    postconditions:
+      - "anomaly record is created with signal type, magnitude, affected component, and timestamp"
+      - "severity classification (critical / warning / informational) is attached to anomaly record"
+    timeout_ms: 5000
+    retry:
+      max_attempts: 3
+      backoff_ms: 1000
+
+  - id: diagnose_root_cause
+    action: diagnose_root_cause
+    # Diagnosis activates when anomaly resonance is confirmed; risk term scales with severity
+    weight_formula: "resonance(detection, diagnosis) * (1.0 + risk(0.35, 0.65))"
+    # Note: the risk term here AMPLIFIES weight for high-risk anomalies,
+    # ensuring urgent failures receive faster diagnosis. The formula is
+    # intentionally super-threshold biased for critical events.
+    preconditions:
+      - "an anomaly record with severity warning or critical is active"
+      - "diagnostic tooling (trace analysis, log correlation, dependency graph) is available"
+    postconditions:
+      - "root cause hypothesis is recorded with confidence score and supporting evidence"
+      - "affected service dependency chain is mapped and attached to anomaly record"
+    timeout_ms: 20000
+    retry:
+      max_attempts: 2
+      backoff_ms: 3000
+
+  - id: quarantine_component
+    action: quarantine_component
+    # Quarantine fires early and aggressively — blast radius safety requires fast containment
+    weight_formula: "superposition(diagnosis, 0.80) * phi_scale(quarantine)"
+    preconditions:
+      - "root cause hypothesis identifies a specific component as the failure source"
+      - "quarantine mechanism for the component type is implemented and tested"
+      - "traffic rerouting or load balancer fallback is available for the affected service"
+    postconditions:
+      - "affected component is isolated from live traffic and peer services"
+      - "fallback routing is active and confirmed healthy"
+      - "quarantine start time and isolation boundary are logged for blast radius audit"
+    timeout_ms: 10000
+    retry:
+      max_attempts: 3
+      backoff_ms: 2000
+
+  - id: apply_repair
+    action: apply_repair
+    # CRITICAL GATE: Monte Carlo confidence must clear phi-equilibrium (~0.618)
+    # before repair executes. The soft_gate threshold here IS the phi-equilibrium.
+    # ternary blends MC confidence with quarantine readiness.
+    weight_formula: "ternary(soft_gate(repair, 0.618), resonance(quarantine, repair), risk(0.20, 0.80) * -1.0 + 1.0)"
+    # Decomposed logic:
+    #   - If Monte Carlo confidence (mapped to repair state weight) clears 0.618:
+    #     use resonance(quarantine, repair) as the primary weight
+    #   - Otherwise fall back to (1 - risk) as a conservative floor
+    #   - The result must still clear threshold_activation (0.73) to execute
+    preconditions:
+      - "component is confirmed quarantined with no active connections from peer services"
+      - "repair strategy has been selected from the learning-weighted strategy library"
+      - "Monte Carlo simulation has run >= 500 variants and confidence exceeds 0.618"
+      - "data safety check confirms the repair strategy makes no writes to persistent stores"
+        # (unless the repair IS a data recovery — in which case data_safety guardrail governs)
+    postconditions:
+      - "repair action is logged with strategy ID, parameters, and execution trace"
+      - "component state after repair is captured as a snapshot for verification comparison"
+    timeout_ms: 60000
+    retry:
+      max_attempts: 2      # limited retries — failed repairs should re-diagnose, not retry blindly
+      backoff_ms: 10000
+
+  - id: verify_repair
+    action: verify_repair
+    # Verification requires high resonance between repair completion and healthy signal
+    weight_formula: "resonance(repair, verification) * soft_gate(verification, 0.80)"
+    preconditions:
+      - "repair action has completed without hard errors"
+      - "component health endpoint or functional probe is reachable"
+    postconditions:
+      - "verification result is recorded: healed / partial / failed"
+      - "if partial or failed: diagnosis re-enters evaluation loop with updated priors"
+      - "if healed: restoration gate is unlocked"
+    timeout_ms: 30000
+    retry:
+      max_attempts: 3
+      backoff_ms: 5000
+
+  - id: restore_service
+    action: restore_service
+    # Restoration requires verified healing AND low residual risk
+    weight_formula: "resonance(verification, restoration) * (1.0 - risk(0.10, 0.90))"
+    preconditions:
+      - "verification result is healed"
+      - "restored component passes all integration health checks"
+      - "peer services confirm readiness to accept traffic from restored component"
+    postconditions:
+      - "component is reintegrated into live traffic routing"
+      - "quarantine is lifted and isolation records are closed with resolution timestamp"
+      - "full restoration event is published to the incident management system"
+    timeout_ms: 15000
+    retry:
+      max_attempts: 2
+      backoff_ms: 5000
+
+  - id: record_learning
+    action: record_learning
+    # Learning is a ternary blend: high-confidence heals get more learning weight
+    # so the system extracts more signal from successful repairs than from failures.
+    weight_formula: "ternary(soft_gate(restoration, 0.80), phi_scale(learning), 0.35)"
+    preconditions:
+      - "service restoration has completed (healed path) or a repair has been marked failed"
+        # Learning also captures failed repairs to improve future strategy selection
+      - "learning store is writable and indexed"
+    postconditions:
+      - "healing episode record is written: anomaly signature, strategies tried, outcomes, confidence deltas"
+      - "detection threshold and strategy weights are updated with posterior estimates"
+      - "learning record is available to future diagnosis and repair selection cycles"
+    timeout_ms: 8000
+    retry:
+      max_attempts: 2
+      backoff_ms: 2000
+
+# ---------------------------------------------------------------------------
+# GUARDRAILS
+# ---------------------------------------------------------------------------
+guardrails:
+
+  - id: blast_radius
+    constraint: >
+      Repair actions must not affect more than one service at a time;
+      any repair strategy that would quarantine, modify, or restart multiple
+      services simultaneously must be rejected and decomposed into sequential
+      single-service operations.
+    min_distance: 0.10
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — blast_radius: proposed repair would affect multiple
+      services simultaneously. Repair is rejected. Decompose into single-service
+      operations and re-evaluate. Quarantine boundary is maintained.
+
+  - id: data_safety
+    constraint: >
+      No repair action may cause data loss or corruption; operations that
+      delete, truncate, overwrite, or migrate persistent data must require
+      explicit pre-repair snapshot confirmation and human approval if the
+      affected data store is classified as critical or regulated.
+    min_distance: 0.05     # extremely tight — data loss has no recovery path
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — data_safety: proposed repair action carries data
+      loss or corruption risk. Action is blocked. Human approval and verified
+      snapshot are required before this repair strategy can proceed.
+
+  - id: monte_carlo_confidence
+    constraint: >
+      Any repair strategy must have a Monte Carlo simulation confidence above
+      the phi-equilibrium threshold (~0.618) before it may be executed on a
+      live service; strategies with insufficient confidence must be held in
+      evaluation until confidence is achieved or a safer fallback is selected.
+    min_distance: 0.08
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — monte_carlo_confidence: repair strategy confidence is
+      below phi-equilibrium (0.618). Execution is blocked. Running additional
+      Monte Carlo variants or selecting a higher-confidence fallback strategy.
+
+# ---------------------------------------------------------------------------
+# METADATA
+# ---------------------------------------------------------------------------
+metadata:
+  author: eric@headyconnection.org
+  created: "2026-03-07"
+  tags:
+    - self-healing
+    - autonomous-recovery
+    - monte-carlo
+    - blast-radius
+    - resilience
+    - phase-7

@@ -1,0 +1,12 @@
+{
+  "name": "@heady/governance-panel",
+  "version": "3.1.0",
+  "description": "Heady Governance Panel — Policy engine and audit log",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "src/App.js",
+  "scripts": {
+    "build": "webpack --config ../../webpack.config.js --env remote --env appName=governance-panel",
+    "dev": "webpack serve --config ../../webpack.config.js --env remote --env appName=governance-panel --mode development"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
+      "env": ["NODE_ENV", "HEADY_VERSION"]
+    },
+    "build:shell": {
+      "dependsOn": [],
+      "outputs": ["dist/index.html", "dist/shell.*.js", "dist/vendors.*.js"],
+      "env": ["NODE_ENV"]
+    },
+    "build:remote": {
+      "dependsOn": [],
+      "outputs": ["dist/remotes/**"],
+      "env": ["NODE_ENV", "HEADY_APP_NAME"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "outputs": []
+    },
+    "clean": {
+      "cache": false
+    }
+  },
+  "globalEnv": [
+    "NODE_ENV",
+    "HEADY_VERSION",
+    "HEADY_REGISTRY_URL"
+  ],
+  "globalDependencies": [
+    "webpack.config.js",
+    "package.json",
+    ".babelrc"
+  ]
+}

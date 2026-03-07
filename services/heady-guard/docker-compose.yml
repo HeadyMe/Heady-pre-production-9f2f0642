@@ -1,0 +1,80 @@
+version: '3.9'
+
+# ─── HeadyGuard docker-compose ────────────────────────────────────────────────
+# Development & local integration testing.
+# Production uses Cloud Run — see Dockerfile.
+
+services:
+  heady-guard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: heady-guard
+    image: heady-guard:local
+    restart: unless-stopped
+
+    ports:
+      - "${HEADY_GUARD_PORT:-3106}:3106"
+
+    environment:
+      NODE_ENV:                      ${NODE_ENV:-development}
+      HEADY_GUARD_PORT:              3106
+      HEADY_GUARD_HOST:              0.0.0.0
+      HEADY_GUARD_LOG_LEVEL:         ${HEADY_GUARD_LOG_LEVEL:-info}
+
+      # Pipeline
+      HEADY_GUARD_STAGES:            ${HEADY_GUARD_STAGES:-injection,pii,toxicity,topic,rate_limit}
+      HEADY_GUARD_BLOCK_THRESHOLD:   ${HEADY_GUARD_BLOCK_THRESHOLD:-80}
+      HEADY_GUARD_FLAG_THRESHOLD:    ${HEADY_GUARD_FLAG_THRESHOLD:-50}
+      HEADY_GUARD_PIPELINE_TIMEOUT_MS: ${HEADY_GUARD_PIPELINE_TIMEOUT_MS:-2000}
+      HEADY_GUARD_STAGE_TIMEOUT_MS:  ${HEADY_GUARD_STAGE_TIMEOUT_MS:-500}
+
+      # PII
+      HEADY_GUARD_PII_MODE:          ${HEADY_GUARD_PII_MODE:-detect}
+      HEADY_GUARD_PII_REDACTION_STRATEGY: ${HEADY_GUARD_PII_REDACTION_STRATEGY:-placeholder}
+
+      # Rate limiting
+      HEADY_GUARD_RATE_RPM:          ${HEADY_GUARD_RATE_RPM:-60}
+      HEADY_GUARD_RATE_RPH:          ${HEADY_GUARD_RATE_RPH:-1000}
+      HEADY_GUARD_RATE_TPM:          ${HEADY_GUARD_RATE_TPM:-50000}
+      HEADY_GUARD_RATE_TPH:          ${HEADY_GUARD_RATE_TPH:-500000}
+      HEADY_GUARD_RATE_BURST_WINDOW_MS: ${HEADY_GUARD_RATE_BURST_WINDOW_MS:-5000}
+      HEADY_GUARD_RATE_BURST_LIMIT:  ${HEADY_GUARD_RATE_BURST_LIMIT:-10}
+
+      # Audit log (write to /data volume)
+      HEADY_GUARD_AUDIT_LOG:         /data/audit.ndjson
+
+      # Rules file (optional — mount custom rules)
+      # HEADY_GUARD_RULES_PATH:      /data/rules.json
+
+    volumes:
+      - heady-guard-data:/data
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3106/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    # Sacred Geometry scaling: reserve 1/PHI of 512MB = ~316MB
+    mem_limit: 512m
+    mem_reservation: 256m
+    cpus: '0.5'
+
+    networks:
+      - heady-network
+
+    labels:
+      com.heady.service: "heady-guard"
+      com.heady.phi: "1.618"
+
+volumes:
+  heady-guard-data:
+    driver: local
+
+networks:
+  heady-network:
+    external: true
+    name: ${HEADY_NETWORK:-heady-network}

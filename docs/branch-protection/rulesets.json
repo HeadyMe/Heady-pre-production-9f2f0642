@@ -1,0 +1,389 @@
+{
+  "$schema": "https://json.schemastore.org/github-ruleset",
+  "_comment": "HeadyMe GitHub Repository Rulesets — Organization Level",
+  "_description": "Apply via GitHub API: POST /orgs/{org}/rulesets or via GitHub UI under Org > Settings > Rules > Rulesets",
+  "_last_updated": "2026-03-07",
+  "_docs": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets",
+
+  "rulesets": [
+
+    {
+      "name": "HeadyMe — Default Branch Protection (main)",
+      "target": "branch",
+      "enforcement": "active",
+      "bypass_actors": [
+        {
+          "actor_id": 1,
+          "actor_type": "OrganizationAdmin",
+          "bypass_mode": "pull_request"
+        },
+        {
+          "actor_id": 5,
+          "actor_type": "DeployKey",
+          "bypass_mode": "always"
+        }
+      ],
+      "conditions": {
+        "ref_name": {
+          "include": ["refs/heads/main"],
+          "exclude": []
+        },
+        "repository_name": {
+          "include": [
+            "~ALL"
+          ],
+          "exclude": [],
+          "protected": false
+        }
+      },
+      "rules": [
+        {
+          "type": "deletion",
+          "_comment": "Prevent deletion of main branch"
+        },
+        {
+          "type": "non_fast_forward",
+          "_comment": "Prevent force pushes to main"
+        },
+        {
+          "type": "creation",
+          "_comment": "Prevent recreating main if deleted"
+        },
+        {
+          "type": "update",
+          "_comment": "Restrict who can push directly to main",
+          "parameters": {
+            "update_allows_fetch_and_merge": false
+          }
+        },
+        {
+          "type": "required_linear_history",
+          "_comment": "Enforce linear commit history (no merge commits)"
+        },
+        {
+          "type": "required_signatures",
+          "_comment": "All commits to main must be GPG/SSH signed"
+        },
+        {
+          "type": "pull_request",
+          "parameters": {
+            "required_approving_review_count": 1,
+            "dismiss_stale_reviews_on_push": true,
+            "require_code_owner_review": true,
+            "require_last_push_approval": true,
+            "required_review_thread_resolution": true,
+            "allowed_merge_methods": ["squash", "rebase"],
+            "_comment": "Disallow regular merge commits for clean history"
+          }
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "strict_required_status_checks_policy": true,
+            "do_not_enforce_on_create": false,
+            "required_status_checks": [
+              {
+                "context": "security-scan / sast",
+                "integration_id": null
+              },
+              {
+                "context": "security-scan / dependency-audit",
+                "integration_id": null
+              },
+              {
+                "context": "ci / test",
+                "integration_id": null
+              },
+              {
+                "context": "ci / lint",
+                "integration_id": null
+              },
+              {
+                "context": "ci / build",
+                "integration_id": null
+              }
+            ]
+          }
+        },
+        {
+          "type": "commit_message_pattern",
+          "parameters": {
+            "name": "Conventional Commits",
+            "negate": false,
+            "operator": "regex",
+            "pattern": "^(feat|fix|docs|style|refactor|perf|test|chore|revert|ci|build|sec)(\\(.+\\))?(!)?: .{1,100}(\\n\\n[\\s\\S]*)?$",
+            "_comment": "Conventional Commits format: type(scope)!: description. Types: feat|fix|docs|style|refactor|perf|test|chore|revert|ci|build|sec"
+          }
+        },
+        {
+          "type": "commit_author_email_pattern",
+          "parameters": {
+            "name": "Require org email or noreply",
+            "negate": false,
+            "operator": "regex",
+            "pattern": "^.+@(headyme\\.com|users\\.noreply\\.github\\.com)$",
+            "_comment": "All commits must be from @headyme.com addresses or GitHub noreply for bot commits"
+          }
+        },
+        {
+          "type": "tag_name_pattern",
+          "_comment": "This rule type does not apply to branches — see tag ruleset below"
+        }
+      ]
+    },
+
+    {
+      "name": "HeadyMe — Staging Branch Protection",
+      "target": "branch",
+      "enforcement": "active",
+      "bypass_actors": [
+        {
+          "actor_id": 1,
+          "actor_type": "OrganizationAdmin",
+          "bypass_mode": "always"
+        }
+      ],
+      "conditions": {
+        "ref_name": {
+          "include": ["refs/heads/staging"],
+          "exclude": []
+        },
+        "repository_name": {
+          "include": ["~ALL"],
+          "exclude": [],
+          "protected": false
+        }
+      },
+      "rules": [
+        {
+          "type": "deletion"
+        },
+        {
+          "type": "pull_request",
+          "parameters": {
+            "required_approving_review_count": 1,
+            "dismiss_stale_reviews_on_push": true,
+            "require_code_owner_review": false,
+            "require_last_push_approval": false,
+            "required_review_thread_resolution": false,
+            "allowed_merge_methods": ["squash", "merge", "rebase"]
+          }
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "strict_required_status_checks_policy": true,
+            "required_status_checks": [
+              { "context": "security-scan / sast" },
+              { "context": "ci / test" },
+              { "context": "ci / build" }
+            ]
+          }
+        },
+        {
+          "type": "commit_message_pattern",
+          "parameters": {
+            "name": "Conventional Commits (staging)",
+            "negate": false,
+            "operator": "regex",
+            "pattern": "^(feat|fix|docs|style|refactor|perf|test|chore|revert|ci|build|sec)(\\(.+\\))?(!)?: .{1,100}"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "HeadyMe — Dev Branch Protection",
+      "target": "branch",
+      "enforcement": "active",
+      "bypass_actors": [
+        {
+          "actor_id": 1,
+          "actor_type": "OrganizationAdmin",
+          "bypass_mode": "always"
+        }
+      ],
+      "conditions": {
+        "ref_name": {
+          "include": ["refs/heads/dev"],
+          "exclude": []
+        },
+        "repository_name": {
+          "include": ["~ALL"],
+          "exclude": [],
+          "protected": false
+        }
+      },
+      "rules": [
+        {
+          "type": "deletion"
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "strict_required_status_checks_policy": false,
+            "required_status_checks": [
+              { "context": "ci / test" },
+              { "context": "ci / lint" }
+            ]
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "HeadyMe — Feature Branch Naming Convention",
+      "target": "branch",
+      "enforcement": "active",
+      "bypass_actors": [],
+      "conditions": {
+        "ref_name": {
+          "include": ["refs/heads/**"],
+          "exclude": [
+            "refs/heads/main",
+            "refs/heads/staging",
+            "refs/heads/dev",
+            "refs/heads/release/*",
+            "refs/heads/hotfix/*"
+          ]
+        },
+        "repository_name": {
+          "include": ["~ALL"],
+          "exclude": [],
+          "protected": false
+        }
+      },
+      "rules": [
+        {
+          "type": "branch_name_pattern",
+          "parameters": {
+            "name": "Branch Naming Convention",
+            "negate": false,
+            "operator": "regex",
+            "pattern": "^(feature|feat|fix|bugfix|hotfix|release|chore|docs|refactor|perf|test|sec|ci|build)/(([A-Z]+-[0-9]+|heady-[0-9]+)-)?[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$",
+            "_comment": "Valid examples: feature/heady-123-add-oauth, fix/auth-token-expiry, sec/rotate-api-keys"
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "HeadyMe — Tag Protection",
+      "target": "tag",
+      "enforcement": "active",
+      "bypass_actors": [
+        {
+          "actor_id": 1,
+          "actor_type": "OrganizationAdmin",
+          "bypass_mode": "always"
+        }
+      ],
+      "conditions": {
+        "ref_name": {
+          "include": ["refs/tags/**"],
+          "exclude": []
+        },
+        "repository_name": {
+          "include": ["~ALL"],
+          "exclude": [],
+          "protected": false
+        }
+      },
+      "rules": [
+        {
+          "type": "deletion",
+          "_comment": "Tags are immutable — no deletions"
+        },
+        {
+          "type": "non_fast_forward",
+          "_comment": "No force-updates to tags"
+        },
+        {
+          "type": "tag_name_pattern",
+          "parameters": {
+            "name": "Semantic Versioning Tags",
+            "negate": false,
+            "operator": "regex",
+            "pattern": "^v(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-(alpha|beta|rc|pre)\\.(0|[1-9]\\d*))?$",
+            "_comment": "Valid: v1.0.0, v2.3.1-rc.1, v0.0.1-beta.2. Invalid: v1.0, 1.0.0"
+          }
+        },
+        {
+          "type": "required_signatures",
+          "_comment": "All release tags must be signed"
+        }
+      ]
+    },
+
+    {
+      "name": "HeadyMe — Release Branch Protection",
+      "target": "branch",
+      "enforcement": "active",
+      "bypass_actors": [
+        {
+          "actor_id": 1,
+          "actor_type": "OrganizationAdmin",
+          "bypass_mode": "pull_request"
+        }
+      ],
+      "conditions": {
+        "ref_name": {
+          "include": ["refs/heads/release/**", "refs/heads/hotfix/**"],
+          "exclude": []
+        },
+        "repository_name": {
+          "include": ["~ALL"],
+          "exclude": [],
+          "protected": false
+        }
+      },
+      "rules": [
+        {
+          "type": "deletion"
+        },
+        {
+          "type": "non_fast_forward"
+        },
+        {
+          "type": "required_signatures"
+        },
+        {
+          "type": "pull_request",
+          "parameters": {
+            "required_approving_review_count": 2,
+            "dismiss_stale_reviews_on_push": true,
+            "require_code_owner_review": true,
+            "require_last_push_approval": true,
+            "required_review_thread_resolution": true,
+            "allowed_merge_methods": ["squash"],
+            "_comment": "Release branches require 2 approvals including code owners"
+          }
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "strict_required_status_checks_policy": true,
+            "required_status_checks": [
+              { "context": "security-scan / sast" },
+              { "context": "security-scan / dependency-audit" },
+              { "context": "ci / test" },
+              { "context": "ci / lint" },
+              { "context": "ci / build" }
+            ]
+          }
+        }
+      ]
+    }
+
+  ],
+
+  "_api_instructions": {
+    "create_org_ruleset": "POST https://api.github.com/orgs/HeadyMe/rulesets",
+    "list_org_rulesets":  "GET  https://api.github.com/orgs/HeadyMe/rulesets",
+    "update_org_ruleset": "PUT  https://api.github.com/orgs/HeadyMe/rulesets/{ruleset_id}",
+    "delete_org_ruleset": "DELETE https://api.github.com/orgs/HeadyMe/rulesets/{ruleset_id}",
+    "auth_header": "Authorization: Bearer $GITHUB_TOKEN",
+    "required_scopes": ["admin:org", "repo"],
+    "note": "Rulesets require GitHub Enterprise or GitHub Team plan for org-level application. Repository-level rulesets work on all plans."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@heady/heady-ide",
+  "version": "3.1.0",
+  "description": "Heady IDE — AI-assisted code editor with HeadyBuddy",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "src/App.js",
+  "scripts": {
+    "build": "webpack --config ../../webpack.config.js --env remote --env appName=heady-ide",
+    "dev": "webpack serve --config ../../webpack.config.js --env remote --env appName=heady-ide --mode development"
+  }
+}

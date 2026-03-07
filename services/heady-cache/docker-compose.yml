@@ -1,0 +1,137 @@
+version: "3.9"
+
+# HeadyCache Docker Compose
+# Usage:
+#   Memory backend (default):  docker compose up heady-cache
+#   File backend:               docker compose --profile file up
+#   PostgreSQL backend:         docker compose --profile pg up
+
+services:
+  # ─── HeadyCache (memory backend, default) ──────────────────────────────────
+  heady-cache:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: heady-cache:latest
+    container_name: heady-cache
+    restart: unless-stopped
+    ports:
+      - "3105:3105"
+    environment:
+      NODE_ENV: production
+      HEADY_CACHE_PORT: "3105"
+      HEADY_CACHE_BACKEND: "${HEADY_CACHE_BACKEND:-memory}"
+      HEADY_CACHE_MAX_SIZE: "${HEADY_CACHE_MAX_SIZE:-50000}"
+      HEADY_CACHE_TTL: "${HEADY_CACHE_TTL:-3600000}"
+      HEADY_CACHE_SIMILARITY_THRESHOLD: "${HEADY_CACHE_SIMILARITY_THRESHOLD:-0.95}"
+      HEADY_CACHE_EVICTION_POLICY: "${HEADY_CACHE_EVICTION_POLICY:-lru}"
+      HEADY_EMBED_URL: "${HEADY_EMBED_URL:-http://heady-embed:3103}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3105/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - heady-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2.0"
+        reservations:
+          memory: 256M
+          cpus: "0.5"
+
+  # ─── HeadyCache with file-backed store ─────────────────────────────────────
+  heady-cache-file:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: heady-cache:latest
+    container_name: heady-cache-file
+    profiles:
+      - file
+    restart: unless-stopped
+    ports:
+      - "3105:3105"
+    environment:
+      NODE_ENV: production
+      HEADY_CACHE_PORT: "3105"
+      HEADY_CACHE_BACKEND: "file"
+      HEADY_CACHE_FILE_PATH: "/data/heady-cache.jsonl"
+      HEADY_CACHE_WAL_PATH: "/data/heady-cache.wal"
+      HEADY_EMBED_URL: "${HEADY_EMBED_URL:-http://heady-embed:3103}"
+    volumes:
+      - heady-cache-data:/data
+    networks:
+      - heady-network
+
+  # ─── HeadyCache with PostgreSQL (pgvector) ─────────────────────────────────
+  heady-cache-pg:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: heady-cache:latest
+    container_name: heady-cache-pg
+    profiles:
+      - pg
+    restart: unless-stopped
+    ports:
+      - "3105:3105"
+    environment:
+      NODE_ENV: production
+      HEADY_CACHE_PORT: "3105"
+      HEADY_CACHE_BACKEND: "pg"
+      HEADY_CACHE_PG_URL: "postgresql://heady:heady@postgres:5432/heady_cache"
+      HEADY_EMBED_URL: "${HEADY_EMBED_URL:-http://heady-embed:3103}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - heady-network
+
+  # ─── PostgreSQL + pgvector ──────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: heady-cache-postgres
+    profiles:
+      - pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: heady_cache
+      POSTGRES_USER: heady
+      POSTGRES_PASSWORD: heady
+    volumes:
+      - heady-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heady -d heady_cache"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - heady-network
+
+# ─── Volumes ─────────────────────────────────────────────────────────────────
+volumes:
+  heady-cache-data:
+    name: heady-cache-data
+  heady-pg-data:
+    name: heady-cache-pg-data
+
+# ─── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  heady-network:
+    name: heady-network
+    driver: bridge
+    external: true

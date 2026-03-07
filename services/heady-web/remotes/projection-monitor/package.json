@@ -1,0 +1,12 @@
+{
+  "name": "@heady/projection-monitor",
+  "version": "3.1.0",
+  "description": "Heady Projection Monitor — Deployment target health",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "src/App.js",
+  "scripts": {
+    "build": "webpack --config ../../webpack.config.js --env remote --env appName=projection-monitor",
+    "dev": "webpack serve --config ../../webpack.config.js --env remote --env appName=projection-monitor --mode development"
+  }
+}

@@ -1,0 +1,140 @@
+version: "3.9"
+
+# ─── HeadyEval docker-compose ─────────────────────────────────────────────────
+# Development/local compose for the HeadyEval service and its dependencies.
+# PHI = 1.618 (Sacred Geometry scaling applied to resource limits)
+
+services:
+  heady-eval:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: heady-eval:latest
+    container_name: heady-eval
+    restart: unless-stopped
+    ports:
+      - "3107:3107"
+    environment:
+      NODE_ENV: development
+      HEADY_EVAL_PORT: "3107"
+      HEADY_EVAL_JUDGE_MODEL: "${HEADY_EVAL_JUDGE_MODEL:-claude-3.5-sonnet}"
+      HEADY_EVAL_CONCURRENCY: "${HEADY_EVAL_CONCURRENCY:-5}"
+      HEADY_EVAL_DEFAULT_SCORERS: "${HEADY_EVAL_DEFAULT_SCORERS:-relevance,faithfulness,safety,coherence,helpfulness}"
+      HEADY_INFER_URL: "${HEADY_INFER_URL:-http://heady-infer:3101}"
+      HEADY_EMBED_URL: "${HEADY_EMBED_URL:-http://heady-embed:3102}"
+      HEADY_GUARD_URL: "${HEADY_GUARD_URL:-http://heady-guard:3103}"
+      HEADY_EVAL_JUDGE_RPM: "${HEADY_EVAL_JUDGE_RPM:-60}"
+      HEADY_EVAL_JUDGE_TPM: "${HEADY_EVAL_JUDGE_TPM:-100000}"
+      HEADY_EVAL_STORAGE_DIR: "/data/heady-eval"
+      HEADY_EVAL_DATASETS_DIR: "/data/heady-eval/datasets"
+      HEADY_EVAL_RUNS_DIR: "/data/heady-eval/runs"
+      HEADY_EVAL_CHECKPOINTS_DIR: "/data/heady-eval/checkpoints"
+    volumes:
+      - heady-eval-data:/data/heady-eval
+    networks:
+      - heady-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3107/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          # PHI-scaled: base 512MB * PHI ≈ 828MB → rounded to 1GB
+          memory: 1G
+          cpus: "1.618"
+        reservations:
+          memory: 256M
+          cpus: "0.5"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  # ─── Mock HeadyInfer (for local dev without full stack) ────────────────────
+  # Comment out if running real HeadyInfer
+  heady-infer-mock:
+    image: node:20-alpine
+    container_name: heady-infer-mock
+    command: >
+      sh -c "node -e \"
+        const http = require('http');
+        http.createServer((req, res) => {
+          let body = '';
+          req.on('data', c => body += c);
+          req.on('end', () => {
+            if (req.url === '/health') {
+              res.writeHead(200, {'Content-Type': 'application/json'});
+              return res.end(JSON.stringify({status:'healthy'}));
+            }
+            if (req.url === '/v1/complete') {
+              res.writeHead(200, {'Content-Type': 'application/json'});
+              return res.end(JSON.stringify({
+                text: JSON.stringify({overall_score:4,topic_relevance:4,specificity:4,completeness:4,reasoning:'Mock judge response.',flagged:false,flag_reason:'',toxicity:5,bias:5,misinformation:5,privacy_violation:5,overall_safety:5,logical_consistency:4,grammar_readability:5,structure:4,contradiction_free:5,contradictions_found:[],task_completion:4,actionability:4,depth:4,claims:[],verifications:[]}),
+                usage: {input_tokens: 500, output_tokens: 200}
+              }));
+            }
+            res.writeHead(404); res.end();
+          });
+        }).listen(3101, '0.0.0.0', () => console.log('mock heady-infer on :3101'));
+      \""
+    ports:
+      - "3101:3101"
+    networks:
+      - heady-net
+
+  # ─── Mock HeadyEmbed ────────────────────────────────────────────────────────
+  heady-embed-mock:
+    image: node:20-alpine
+    container_name: heady-embed-mock
+    command: >
+      sh -c "node -e \"
+        const http = require('http');
+        http.createServer((req, res) => {
+          if (req.url === '/health') { res.writeHead(200); return res.end('{\"status\":\"healthy\"}'); }
+          if (req.url === '/v1/embed') {
+            const embedding = Array.from({length: 384}, () => Math.random() - 0.5);
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            return res.end(JSON.stringify({embedding}));
+          }
+          res.writeHead(404); res.end();
+        }).listen(3102, '0.0.0.0', () => console.log('mock heady-embed on :3102'));
+      \""
+    ports:
+      - "3102:3102"
+    networks:
+      - heady-net
+
+  # ─── Mock HeadyGuard ────────────────────────────────────────────────────────
+  heady-guard-mock:
+    image: node:20-alpine
+    container_name: heady-guard-mock
+    command: >
+      sh -c "node -e \"
+        const http = require('http');
+        http.createServer((req, res) => {
+          if (req.url === '/health') { res.writeHead(200); return res.end('{\"status\":\"healthy\"}'); }
+          if (req.url === '/v1/check') {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            return res.end(JSON.stringify({blocked:false, flagged:false, scores:{toxicity:0.02, bias:0.03}}));
+          }
+          res.writeHead(404); res.end();
+        }).listen(3103, '0.0.0.0', () => console.log('mock heady-guard on :3103'));
+      \""
+    ports:
+      - "3103:3103"
+    networks:
+      - heady-net
+
+volumes:
+  heady-eval-data:
+    driver: local
+
+networks:
+  heady-net:
+    driver: bridge
+    name: heady-net

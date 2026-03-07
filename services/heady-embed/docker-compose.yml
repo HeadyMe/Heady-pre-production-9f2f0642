@@ -1,0 +1,123 @@
+version: "3.9"
+
+# ============================================================================
+# HeadyEmbed — Local Development Docker Compose
+# ============================================================================
+# Usage:
+#   docker compose up                  # Start service
+#   docker compose up --build          # Rebuild and start
+#   docker compose logs -f heady-embed # Follow logs
+#   docker compose down -v             # Stop and remove volumes
+# ============================================================================
+
+services:
+  heady-embed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime          # Use the slim runtime stage
+    image: heady-embed:dev
+    container_name: heady-embed-dev
+
+    # Port mapping: host:container
+    ports:
+      - "${HEADY_EMBED_HOST_PORT:-3101}:3101"
+
+    environment:
+      NODE_ENV: development
+      HEADY_EMBED_PORT: 3101
+      HEADY_EMBED_HOST: "0.0.0.0"
+      HEADY_EMBED_MODEL: "${HEADY_EMBED_MODEL:-Xenova/all-MiniLM-L6-v2}"
+      HEADY_EMBED_BATCH_SIZE: "${HEADY_EMBED_BATCH_SIZE:-32}"
+      HEADY_EMBED_CACHE_SIZE: "${HEADY_EMBED_CACHE_SIZE:-10000}"
+      HEADY_EMBED_CACHE_TTL: "${HEADY_EMBED_CACHE_TTL:-86400000}"
+      HEADY_EMBED_DIMENSIONS: "${HEADY_EMBED_DIMENSIONS:-384}"
+      HEADY_EMBED_LOG_LEVEL: "${HEADY_EMBED_LOG_LEVEL:-debug}"
+      HEADY_EMBED_WARMUP: "true"
+      HEADY_EMBED_CACHE_WARM: "true"
+      HEADY_EMBED_MODEL_CACHE_DIR: /app/models
+      TRANSFORMERS_CACHE: /app/models
+      HF_HOME: /app/models
+
+    volumes:
+      # Persist cache between restarts (JSONL embedding cache)
+      - embed-cache:/tmp/heady-embed-cache
+      # Persist downloaded ONNX model weights across rebuilds
+      - model-weights:/app/models
+      # Hot-reload source in development (comment out for prod-like testing)
+      - ./:/app/src:ro
+
+    # Resource limits (tune for your machine)
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: "2G"
+        reservations:
+          cpus: "0.5"
+          memory: "512M"
+
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - |
+          const http = require('http');
+          const req = http.get('http://localhost:3101/health/live', (res) => {
+            process.exit(res.statusCode === 200 ? 0 : 1);
+          });
+          req.on('error', () => process.exit(1));
+          req.setTimeout(5000, () => process.exit(1));
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    restart: unless-stopped
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+    # Connect to shared Heady network if running with other services
+    networks:
+      - heady-net
+
+  # --------------------------------------------------------------------------
+  # Optional: Redis for distributed cache (uncomment if needed)
+  # --------------------------------------------------------------------------
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: heady-embed-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+  #   networks:
+  #     - heady-net
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes
+# ─────────────────────────────────────────────────────────────────────────────
+volumes:
+  embed-cache:
+    name: heady-embed-cache
+  model-weights:
+    name: heady-embed-models
+  # redis-data:
+  #   name: heady-embed-redis
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────────────────────────
+networks:
+  heady-net:
+    name: heady-network
+    driver: bridge
+    # If other Heady services (heady-core, heady-api) are running,
+    # set external: true and they will share the same Docker network.
+    # external: true

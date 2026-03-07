@@ -1,0 +1,239 @@
+# security-audit.hdy
+# Heady Security Audit — Continuous Vulnerability Assessment Script
+#
+# This script models the security audit lifecycle as a semantic evaluation
+# loop rather than a sequential checklist. Severity classification, priority
+# ordering, and remediation progress are continuously re-evaluated as new
+# findings emerge or as fixes land. The "reporting" state is not an end
+# state — it remains live while open findings exist, continuously refreshing
+# its resonance as the remediation pool changes.
+#
+# Key design principle: no_deploy_if_critical is a hard guardrail that sits
+# OUTSIDE the execution graph. It fires independently of state weights,
+# acting as a circuit breaker that the deployment pipeline reads before
+# any promotion step proceeds.
+#
+# CSL gates used:
+#   resonance(a, b)     — agreement between two semantic signals
+#   superposition(a, b) — combined field strength
+#   soft_gate(x, t)     — smooth sigmoid activation at threshold t
+#   ternary(c, a, b)    — c*a + (1-c)*b blended weight
+#   risk(p, i)          — probability × impact risk exposure
+#   phi_scale(x)        — golden-ratio normalization
+#   min(a, b) / max(a, b)
+
+schema: heady_semantic_logic_v1
+
+name: security-audit
+version: "1.2.0"
+description: >
+  Semantic security audit workflow for Heady services. Drives continuous
+  evaluation through vulnerability scanning, severity classification,
+  remediation prioritization, fix application, verification, and report
+  generation. Critical findings block deployment via hard guardrail
+  regardless of other pipeline state. The audit loop re-enters scanning
+  after each remediation batch to confirm fixes did not introduce
+  regression vulnerabilities.
+target_node: HeadySecurityAgent
+
+# ---------------------------------------------------------------------------
+# SEMANTIC STATES
+# ---------------------------------------------------------------------------
+semantic_states:
+
+  - id: scanning
+    anchor: "active vulnerability scanning is in progress across all registered surfaces"
+    priority_weight: 0.92
+    category: discovery
+
+  - id: classifying
+    anchor: "detected findings are being categorized by type, severity, and attack surface"
+    priority_weight: 0.88
+    category: analysis
+
+  - id: prioritizing
+    anchor: "classified findings are being ordered by exploitability and business impact"
+    priority_weight: 0.85
+    category: analysis
+
+  - id: remediating
+    anchor: "active remediation work is applying fixes to prioritized vulnerabilities"
+    priority_weight: 0.90
+    category: remediation
+
+  - id: verifying
+    anchor: "applied fixes are being validated to confirm vulnerabilities are resolved"
+    priority_weight: 0.93
+    category: remediation
+
+  - id: reporting
+    anchor: "a consolidated security posture report is being compiled and distributed"
+    priority_weight: 0.75
+    category: output
+
+# ---------------------------------------------------------------------------
+# CONTINUOUS EVALUATION
+# Security audits use a slightly longer tick to avoid thrashing between
+# scan and classify while a large finding batch is being processed.
+# ---------------------------------------------------------------------------
+continuous_evaluation:
+  method: semantic_field_resonance
+  threshold_activation: 0.70
+  fuzziness: 0.10
+  evaluation_interval_ms: 300
+
+# ---------------------------------------------------------------------------
+# EXECUTION GRAPH
+# ---------------------------------------------------------------------------
+execution_graph:
+
+  - id: scan_vulnerabilities
+    action: scan_vulnerabilities
+    # Scanning is the entry point; phi_scale biases toward thoroughness
+    weight_formula: "phi_scale(scanning) * soft_gate(scanning, 0.75)"
+    preconditions:
+      - "target service manifest or container image digest is registered"
+      - "vulnerability database is up to date (max staleness: 24 hours)"
+      - "scanner credentials and network access to target surfaces are confirmed"
+    postconditions:
+      - "raw findings list is stored with CVE identifiers, CVSS scores, and affected components"
+      - "scan timestamp and scanner version are recorded for audit trail"
+    timeout_ms: 300000     # 5 minutes — full surface scans can be slow
+    retry:
+      max_attempts: 2
+      backoff_ms: 15000
+
+  - id: classify_severity
+    action: classify_severity
+    # Classification activates once raw findings are populated
+    weight_formula: "resonance(scanning, classifying) * soft_gate(scanning, 0.85)"
+    preconditions:
+      - "raw findings list is non-empty and CVSS scores are available"
+      - "classification model or ruleset is loaded"
+    postconditions:
+      - "each finding carries a severity label: critical / high / medium / low / informational"
+      - "critical and high counts are surfaced to guardrail evaluators immediately"
+    timeout_ms: 30000
+    retry:
+      max_attempts: 3
+      backoff_ms: 3000
+
+  - id: prioritize_remediation
+    action: prioritize_remediation
+    # Priority ordering blends classification confidence with risk exposure
+    weight_formula: "superposition(classifying, 0.82) * (1.0 - risk(0.20, 0.50))"
+    preconditions:
+      - "severity classification has completed for all findings in the current batch"
+      - "business impact context (asset criticality, data sensitivity) is available"
+    postconditions:
+      - "ordered remediation queue is produced with assigned owner, due date, and SLA tier"
+      - "zero-day or weaponized findings are escalated to top of queue automatically"
+    timeout_ms: 15000
+    retry:
+      max_attempts: 2
+      backoff_ms: 2000
+
+  - id: apply_fixes
+    action: apply_fixes
+    # Fix application uses ternary to balance urgency (high risk) against stability (low fuzziness)
+    weight_formula: "ternary(risk(0.40, 0.80), phi_scale(remediating), soft_gate(prioritizing, 0.80))"
+    preconditions:
+      - "remediation queue contains at least one actionable item with an assigned owner"
+      - "change management approval is in place for production-affecting fixes"
+      - "rollback plan is documented before any fix is applied to production systems"
+    postconditions:
+      - "fix commits or configuration changes are recorded with finding IDs as references"
+      - "affected components are flagged for verification scan"
+    timeout_ms: 600000     # 10 minutes — patch application plus integration build time
+    retry:
+      max_attempts: 2
+      backoff_ms: 20000
+
+  - id: verify_fixes
+    action: verify_fixes
+    # Verification requires strong remediation resonance; risk term ensures caution
+    weight_formula: "resonance(remediating, verifying) * (1.0 - risk(0.15, 0.85))"
+    preconditions:
+      - "at least one fix batch has been applied and marked ready for verification"
+      - "verification scanner can reach the patched component"
+    postconditions:
+      - "each verified finding is marked resolved with verification timestamp"
+      - "any finding where the fix did not hold is re-opened and re-prioritized"
+      - "regression scan is triggered if new findings are discovered during verification"
+    timeout_ms: 180000
+    retry:
+      max_attempts: 2
+      backoff_ms: 10000
+
+  - id: generate_report
+    action: generate_report
+    # Report generation activates after verification; ternary blends completeness with timeliness
+    weight_formula: "ternary(soft_gate(verifying, 0.80), phi_scale(reporting), 0.45)"
+    preconditions:
+      - "at least one verification cycle has completed"
+      - "report template and distribution list are configured"
+    postconditions:
+      - "security posture report is generated with open/closed finding counts by severity"
+      - "report is distributed to configured stakeholders and stored in audit log"
+      - "SLA compliance status is included for all findings past their due date"
+    timeout_ms: 20000
+    retry:
+      max_attempts: 2
+      backoff_ms: 3000
+
+# ---------------------------------------------------------------------------
+# GUARDRAILS
+# ---------------------------------------------------------------------------
+guardrails:
+
+  - id: no_deploy_if_critical
+    constraint: >
+      Deployment must be blocked if any critical-severity vulnerabilities
+      remain unremediated and unverified; the deployment pipeline may not
+      advance to staging, canary, or production promotion while this
+      condition holds.
+    min_distance: 0.05     # very tight — critical findings leave almost no margin
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — no_deploy_if_critical: one or more critical
+      vulnerabilities are open. All deployment advancement is blocked.
+      Security team notified. Remediation required before pipeline can resume.
+
+  - id: compliance_check
+    constraint: >
+      All remediation changes must comply with the active security compliance
+      framework; fixes that introduce non-compliant configurations or
+      disable required controls must be rejected even if they resolve the
+      original finding.
+    min_distance: 0.12
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — compliance_check: proposed fix violates compliance
+      framework requirements. Fix is rejected; alternative remediation
+      approach required.
+
+  - id: credential_safety
+    constraint: >
+      No secrets, credentials, API keys, tokens, or private certificates
+      may be exposed in any scan output, report, log entry, or notification;
+      all credential-adjacent data must be redacted before storage or transmission.
+    min_distance: 0.08
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — credential_safety: potential credential exposure
+      detected in output. Content has been redacted and incident record
+      created for security review.
+
+# ---------------------------------------------------------------------------
+# METADATA
+# ---------------------------------------------------------------------------
+metadata:
+  author: eric@headyconnection.org
+  created: "2026-03-07"
+  tags:
+    - security
+    - audit
+    - vulnerability
+    - compliance
+    - remediation
+    - phase-7

@@ -1,0 +1,61 @@
+{
+  "name": "@headysystems/semantic-logic",
+  "version": "1.0.0",
+  "description": "Continuous Semantic Logic Gate engine for HeadySystems — transforms boolean if/else logic into differentiable fuzzy gates",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "author": "Eric Haywood <eric@headysystems.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HeadyMe/heady-semantic-logic"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -w -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "transform": "tsx src/cli/heady-semantic.ts",
+    "scan": "tsx src/cli/heady-semantic.ts scan",
+    "project-back": "tsx src/cli/heady-semantic.ts project"
+  },
+  "bin": {
+    "heady-semantic": "./dist/cli/heady-semantic.js"
+  },
+  "dependencies": {
+    "typescript": "^5.4.0",
+    "ts-morph": "^22.0.0",
+    "glob": "^10.3.0",
+    "yaml": "^2.4.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "ora": "^8.0.0",
+    "fast-glob": "^3.3.2",
+    "mathjs": "^12.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "vitest": "^1.4.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0"
+  },
+  "peerDependencies": {
+    "@headysystems/core": "workspace:*"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./gates": {
+      "types": "./dist/core/gates.d.ts",
+      "default": "./dist/core/gates.js"
+    },
+    "./transform": {
+      "types": "./dist/transform/transformer.d.ts",
+      "default": "./dist/transform/transformer.js"
+    }
+  }
+}

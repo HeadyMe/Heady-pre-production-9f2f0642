@@ -1,0 +1,133 @@
+version: '3.9'
+
+# ──────────────────────────────────────────────────────────────────────────────
+# HeadyInfer — Docker Compose
+# Starts the inference gateway with optional Ollama for local models.
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── HeadyInfer Gateway ──────────────────────────────────────────────────────
+  heady-infer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: heady-infer:latest
+    container_name: heady-infer
+    restart: unless-stopped
+    ports:
+      - "${HEADY_INFER_PORT:-3102}:3102"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      HEADY_INFER_PORT: 3102
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      # Provider API keys — set via .env or CI secrets
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY:    ${OPENAI_API_KEY:-}
+      GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY:-}
+      GROQ_API_KEY:      ${GROQ_API_KEY:-}
+
+      # Local Ollama (if heady-ollama service is running)
+      OLLAMA_ENABLED:   ${OLLAMA_ENABLED:-false}
+      OLLAMA_BASE_URL:  http://heady-ollama:11434
+
+      # Budget caps
+      BUDGET_DAILY_CAP:   ${BUDGET_DAILY_CAP:-50}
+      BUDGET_MONTHLY_CAP: ${BUDGET_MONTHLY_CAP:-500}
+      BUDGET_ANTHROPIC:   ${BUDGET_ANTHROPIC:-20}
+      BUDGET_OPENAI:      ${BUDGET_OPENAI:-20}
+      BUDGET_GOOGLE:      ${BUDGET_GOOGLE:-10}
+      BUDGET_GROQ:        ${BUDGET_GROQ:-5}
+
+      # Circuit breaker
+      CB_FAILURE_THRESHOLD: ${CB_FAILURE_THRESHOLD:-5}
+      CB_TIMEOUT:           ${CB_TIMEOUT:-60000}
+
+      # Caching
+      CACHE_ENABLED:    ${CACHE_ENABLED:-true}
+      CACHE_MAX_SIZE:   ${CACHE_MAX_SIZE:-1000}
+      CACHE_DEFAULT_TTL: ${CACHE_DEFAULT_TTL:-3600000}
+
+      # Racing
+      RACING_ENABLED:       ${RACING_ENABLED:-true}
+      RACING_MAX_CONCURRENT: ${RACING_MAX_CONCURRENT:-3}
+      RACING_TIMEOUT:       ${RACING_TIMEOUT:-10000}
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3102/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - heady-net
+    depends_on:
+      heady-ollama:
+        condition: service_healthy
+        required: false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.heady-infer.rule=Host(`infer.heady.local`)"
+      - "traefik.http.services.heady-infer.loadbalancer.server.port=3102"
+
+  # ── Ollama (Local Models) ───────────────────────────────────────────────────
+  heady-ollama:
+    image: ollama/ollama:latest
+    container_name: heady-ollama
+    restart: unless-stopped
+    profiles:
+      - local-models
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    environment:
+      OLLAMA_ORIGINS: "*"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - heady-net
+
+  # ── Redis (optional — for distributed dedup/cache) ──────────────────────────
+  heady-redis:
+    image: redis:7-alpine
+    container_name: heady-redis
+    restart: unless-stopped
+    profiles:
+      - redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - heady-net
+
+volumes:
+  ollama-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  heady-net:
+    name: heady-net
+    driver: bridge

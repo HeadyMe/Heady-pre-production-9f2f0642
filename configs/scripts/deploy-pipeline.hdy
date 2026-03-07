@@ -1,0 +1,262 @@
+# deploy-pipeline.hdy
+# Heady Deployment Pipeline — Semantic Deployment Control Script
+#
+# This script governs the CI/CD deployment lifecycle using continuous
+# semantic evaluation rather than a rigid step-runner. Each deployment
+# phase (test → build → stage → canary → promote → monitor) is a live
+# semantic state; the pipeline advances when signal resonance confirms
+# readiness, and rolls back when health signals fall below the safety floor.
+#
+# Rollback is a first-class state, not an exception handler — the evaluation
+# loop watches for degradation continuously and can activate rollback from
+# any post-deploy state without human intervention.
+#
+# CSL gates used:
+#   resonance(a, b)     — agreement between two semantic signals
+#   superposition(a, b) — combined field strength allowing overlap
+#   soft_gate(x, t)     — smooth sigmoid activation at threshold t
+#   ternary(c, a, b)    — c*a + (1-c)*b blended weight
+#   risk(p, i)          — probability × impact risk exposure
+#   phi_scale(x)        — golden-ratio normalization
+#   min(a, b) / max(a, b)
+
+schema: heady_semantic_logic_v1
+
+name: deploy-pipeline
+version: "2.1.0"
+description: >
+  Semantic deployment pipeline for Heady services. Drives continuous
+  evaluation of deployment readiness through testing, artifact building,
+  staging verification, canary rollout, production promotion, and live
+  monitoring. Rollback activates automatically when health resonance drops
+  below the safety threshold at any post-staging phase.
+target_node: HeadyDeployAgent
+
+# ---------------------------------------------------------------------------
+# SEMANTIC STATES
+# ---------------------------------------------------------------------------
+semantic_states:
+
+  - id: testing
+    anchor: "automated test suites are running against the candidate build"
+    priority_weight: 0.95
+    category: verification
+
+  - id: building
+    anchor: "source artifacts are being compiled, packaged, and signed"
+    priority_weight: 0.90
+    category: build
+
+  - id: staging
+    anchor: "the build artifact is deployed to the staging environment for validation"
+    priority_weight: 0.88
+    category: deployment
+
+  - id: canary_evaluation
+    anchor: "a small traffic slice is receiving the new build and metrics are being observed"
+    priority_weight: 0.85
+    category: deployment
+
+  - id: promotion
+    anchor: "the canary has passed evaluation and production promotion is in progress"
+    priority_weight: 0.92
+    category: deployment
+
+  - id: monitoring
+    anchor: "the newly promoted build is live and all health signals are being tracked"
+    priority_weight: 0.80
+    category: observability
+
+  - id: rollback
+    anchor: "a deployment health failure has been detected and the prior version is being restored"
+    priority_weight: 1.00   # rollback always wins contention
+    category: recovery
+
+# ---------------------------------------------------------------------------
+# CONTINUOUS EVALUATION
+# Faster tick rate than orchestrate.hdy — deployments need tight feedback
+# loops to catch canary degradation before it widens to full traffic.
+# ---------------------------------------------------------------------------
+continuous_evaluation:
+  method: semantic_field_resonance
+  threshold_activation: 0.75
+  fuzziness: 0.08          # tighter band — deployment gates should be crisp
+  evaluation_interval_ms: 200
+
+# ---------------------------------------------------------------------------
+# EXECUTION GRAPH
+# ---------------------------------------------------------------------------
+execution_graph:
+
+  - id: run_tests
+    action: run_tests
+    # Tests activate immediately when a new candidate build signal appears
+    weight_formula: "phi_scale(testing) * soft_gate(testing, 0.80)"
+    preconditions:
+      - "a candidate build ref or commit SHA is registered"
+      - "test runner infrastructure is healthy and responsive"
+    postconditions:
+      - "test results artifact is stored with pass/fail counts and coverage percentage"
+      - "coverage metric is available for downstream guardrail evaluation"
+    timeout_ms: 120000     # 2 minutes — long-running test suites
+    retry:
+      max_attempts: 2
+      backoff_ms: 5000
+
+  - id: build_artifacts
+    action: build_artifacts
+    # Build requires strong test resonance; risk term discounts if flaky tests were seen
+    weight_formula: "resonance(testing, 0.90) * (1.0 - risk(0.15, 0.60))"
+    preconditions:
+      - "all required test suites have passed at or above coverage threshold"
+      - "build toolchain and dependency cache are available"
+    postconditions:
+      - "signed artifact bundle is stored in artifact registry with immutable digest"
+      - "build manifest records compiler version, dependencies, and timestamp"
+    timeout_ms: 180000     # 3 minutes — includes Docker layer builds
+    retry:
+      max_attempts: 2
+      backoff_ms: 10000
+
+  - id: deploy_staging
+    action: deploy_staging
+    # Staging activates on strong build resonance; ternary blends confidence with caution
+    weight_formula: "ternary(resonance(building, 0.88), phi_scale(staging), 0.40)"
+    preconditions:
+      - "build artifact digest is verified and signed"
+      - "staging environment is healthy with no active incidents"
+    postconditions:
+      - "staging deployment is live and smoke tests have passed"
+      - "staging environment metrics baseline is captured for canary comparison"
+    timeout_ms: 60000
+    retry:
+      max_attempts: 2
+      backoff_ms: 8000
+
+  - id: deploy_canary
+    action: deploy_canary
+    # Canary requires both staging success and acceptable risk posture
+    weight_formula: "superposition(staging, 0.85) * (1.0 - risk(0.20, 0.70))"
+    preconditions:
+      - "staging validation has completed without errors"
+      - "canary traffic slice is configured (default: 5% of production traffic)"
+      - "rollback artifact for current production version is pinned and accessible"
+    postconditions:
+      - "canary deployment is live and receiving target traffic percentage"
+      - "canary metric collection has started"
+    timeout_ms: 45000
+    retry:
+      max_attempts: 1      # canary deploy is not retried — evaluate first
+      backoff_ms: 0
+
+  - id: evaluate_canary
+    action: evaluate_canary
+    # Canary evaluation is a sustained observation window, not a single check
+    weight_formula: "resonance(canary_evaluation, 0.85) * soft_gate(canary_evaluation, 0.78)"
+    preconditions:
+      - "canary has been running for the configured soak period (minimum 10 minutes)"
+      - "error rate and latency p99 metrics are available for comparison"
+    postconditions:
+      - "canary evaluation verdict is recorded: pass / hold / fail"
+      - "delta metrics against baseline are attached to deployment record"
+    timeout_ms: 900000     # 15 minutes observation window
+    retry:
+      max_attempts: 1
+      backoff_ms: 0
+
+  - id: promote_production
+    action: promote_production
+    # Promotion requires canary pass verdict AND risk below safety floor
+    weight_formula: "resonance(canary_evaluation, promotion) * (1.0 - risk(0.10, 0.95))"
+    preconditions:
+      - "canary evaluation verdict is pass"
+      - "no active production incidents are open"
+      - "deployment change window is approved (if change management is enabled)"
+    postconditions:
+      - "100% of production traffic is serving the new artifact"
+      - "previous version artifact remains pinned for rollback for 72 hours"
+    timeout_ms: 90000
+    retry:
+      max_attempts: 2
+      backoff_ms: 15000
+
+  - id: monitor_production
+    action: monitor_production
+    # Monitoring is a continuous background process; weight stays elevated post-promotion
+    weight_formula: "superposition(monitoring, 0.80) * phi_scale(promotion)"
+    preconditions:
+      - "production promotion has completed"
+      - "observability stack is collecting metrics, logs, and traces"
+    postconditions:
+      - "health dashboard is updated with new baseline metrics"
+      - "automated alert thresholds are calibrated to new build behavior"
+    timeout_ms: 0          # monitoring is ongoing; no timeout
+    retry:
+      max_attempts: 0      # not a retriable action
+
+  - id: execute_rollback
+    action: execute_rollback
+    # Rollback fires when risk spikes OR monitoring detects health degradation
+    weight_formula: "max(risk(0.70, 0.90), resonance(rollback, 1.00))"
+    preconditions:
+      - "a health degradation signal or guardrail breach has triggered rollback intent"
+      - "previous version artifact is available and verified"
+    postconditions:
+      - "prior production version is fully restored and serving 100% of traffic"
+      - "post-mortem record is created with rollback trigger context attached"
+    timeout_ms: 120000
+    retry:
+      max_attempts: 3
+      backoff_ms: 5000
+
+# ---------------------------------------------------------------------------
+# GUARDRAILS
+# ---------------------------------------------------------------------------
+guardrails:
+
+  - id: test_coverage
+    constraint: >
+      Test coverage must meet the minimum threshold before deployment proceeds;
+      a build with insufficient coverage may not advance to artifact packaging
+      or any downstream deployment phase.
+    min_distance: 0.20     # generous buffer — coverage must be clearly adequate
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — test_coverage: coverage is below the required minimum.
+      Build advancement is blocked until coverage threshold is satisfied.
+
+  - id: security_scan
+    constraint: >
+      No critical security vulnerabilities may exist in deployed code;
+      any artifact containing a CVSS critical-severity finding must be
+      blocked from staging, canary, and production deployment.
+    min_distance: 0.10
+    enforcement: hard
+    message: >
+      GUARDRAIL BREACH — security_scan: critical vulnerability detected in
+      build artifact. Deployment is halted; security team has been notified.
+
+  - id: health_check
+    constraint: >
+      All service health endpoints must report healthy before promotion;
+      degraded or unreachable health endpoints at any phase boundary
+      must trigger evaluation hold or rollback depending on severity.
+    min_distance: 0.12
+    enforcement: soft
+    message: >
+      GUARDRAIL WARNING — health_check: one or more health endpoints are
+      degraded. Promotion is on hold pending recovery or human override.
+
+# ---------------------------------------------------------------------------
+# METADATA
+# ---------------------------------------------------------------------------
+metadata:
+  author: eric@headyconnection.org
+  created: "2026-03-07"
+  tags:
+    - deployment
+    - cicd
+    - canary
+    - rollback
+    - pipeline
+    - phase-7

@@ -1,0 +1,12 @@
+{
+  "name": "@heady/landing",
+  "version": "3.1.0",
+  "description": "HeadySystems Marketing Landing Page",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "src/App.js",
+  "scripts": {
+    "build": "webpack --config ../../webpack.config.js --env remote --env appName=landing",
+    "dev": "webpack serve --config ../../webpack.config.js --env remote --env appName=landing --mode development"
+  }
+}
