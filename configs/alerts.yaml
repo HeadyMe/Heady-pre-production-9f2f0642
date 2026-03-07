@@ -1,0 +1,151 @@
+# ═══════════════════════════════════════════════════════════════════
+# Heady Alert Configuration
+# ═══════════════════════════════════════════════════════════════════
+#
+# Alert rules with phi-scaled thresholds for the observability dashboard.
+# All numeric thresholds use phi-derived values where appropriate.
+#
+# φ = 1.618, 1/φ = 0.618
+# ═══════════════════════════════════════════════════════════════════
+
+groups:
+
+  # ── Service Health ────────────────────────────────────────────
+  service_health:
+    rules:
+      - id: svc-down
+        metric: service.status
+        condition: equals
+        value: "down"
+        severity: 0.9          # Near-critical
+        cooldown_base_ms: 5000
+        hysteresis: 2
+        channels: [console, webhook, sse]
+
+      - id: svc-degraded
+        metric: service.status
+        condition: equals
+        value: "degraded"
+        severity: 0.618        # Phi-inverse: moderate concern
+        cooldown_base_ms: 10000
+        hysteresis: 3
+        channels: [console, sse]
+
+  # ── Latency ───────────────────────────────────────────────────
+  latency:
+    rules:
+      - id: latency-p99-high
+        metric: goldenSignals.latencyP99
+        condition: gt
+        value: 3000            # 3 seconds
+        severity: 0.7
+        cooldown_base_ms: 8000
+        hysteresis: 3
+
+      - id: latency-p99-critical
+        metric: goldenSignals.latencyP99
+        condition: gt
+        value: 8000            # 8 seconds (φ^4 ≈ 6.854 rounded up)
+        severity: 0.95
+        cooldown_base_ms: 3000
+        hysteresis: 2
+
+      - id: latency-p95-warning
+        metric: goldenSignals.latencyP95
+        condition: gt
+        value: 2000            # 2 seconds
+        severity: 0.5
+        cooldown_base_ms: 15000
+        hysteresis: 4
+
+  # ── Errors ────────────────────────────────────────────────────
+  errors:
+    rules:
+      - id: error-rate-warning
+        metric: goldenSignals.errorRate
+        condition: gt
+        value: 5               # 5% error rate
+        severity: 0.618        # Phi-inverse
+        cooldown_base_ms: 10000
+        hysteresis: 3
+
+      - id: error-rate-critical
+        metric: goldenSignals.errorRate
+        condition: gt
+        value: 20              # 20% error rate
+        severity: 0.95
+        cooldown_base_ms: 3000
+        hysteresis: 2
+
+  # ── Capacity ──────────────────────────────────────────────────
+  capacity:
+    rules:
+      - id: memory-high
+        metric: goldenSignals.memorySaturation
+        condition: gt
+        value: 80              # 80% heap usage
+        severity: 0.7
+        cooldown_base_ms: 15000
+        hysteresis: 3
+
+      - id: memory-critical
+        metric: goldenSignals.memorySaturation
+        condition: gt
+        value: 95              # 95% heap usage
+        severity: 0.95
+        cooldown_base_ms: 5000
+        hysteresis: 2
+
+      - id: cpu-high
+        metric: goldenSignals.cpuSaturation
+        condition: gt
+        value: 85
+        severity: 0.7
+        cooldown_base_ms: 15000
+        hysteresis: 3
+
+  # ── CSL Coherence ─────────────────────────────────────────────
+  csl_coherence:
+    rules:
+      - id: csl-low-resonance
+        metric: cslStats.avgResonanceScore
+        condition: lt
+        value: 0.3             # Below phi^-2 ≈ 0.382, rounded down
+        severity: 0.618
+        cooldown_base_ms: 20000
+        hysteresis: 5
+
+      - id: csl-high-gate-errors
+        metric: cslStats.totalCalls
+        condition: lt
+        value: 1               # No CSL calls = something wrong
+        severity: 0.5
+        cooldown_base_ms: 30000
+        hysteresis: 8
+
+  # ── Phi Scale Deviation ───────────────────────────────────────
+  phi_deviation:
+    rules:
+      - id: phi-timeout-drift
+        metric: phiScales.timeout.phiDeviation
+        condition: gt
+        value: 0.5             # More than 0.5 from phi-equilibrium
+        severity: 0.5
+        cooldown_base_ms: 30000
+        hysteresis: 5
+
+      - id: phi-confidence-drift
+        metric: phiScales.confidence.phiDeviation
+        condition: gt
+        value: 0.3             # Tight bound on confidence drift
+        severity: 0.618
+        cooldown_base_ms: 25000
+        hysteresis: 4
+
+      - id: phi-temperature-drift
+        metric: phiScales.temperature.phiDeviation
+        condition: gt
+        value: 0.4
+        severity: 0.5
+        cooldown_base_ms: 30000
+        hysteresis: 5

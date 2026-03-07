@@ -1,0 +1,211 @@
+# =============================================================================
+# self-healing.yaml — Configuration for the Heady Self-Healing Attestation Mesh
+#
+# All numeric thresholds are expressed as phi-scaled values derived from:
+#   PHI         = 1.618033988749895
+#   PHI_INVERSE = 0.618033988749895
+#   PHI²        = 2.618033988749895
+#   PHI³        = 4.236067977499790
+#   PHI⁴        = 6.854101966249685
+#   PHI⁵        = 11.090169943749474
+#
+# Fibonacci intervals (seconds): 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Health Attestation (health-attestor.js)
+# -----------------------------------------------------------------------------
+health_attestation:
+  # How often each service broadcasts an attestation (ms).
+  # PHI × 3000 ≈ 4854ms — rounded to 5000ms for practical scheduling.
+  broadcast_interval_ms: 5000
+
+  # Rolling request window for error-rate calculation.
+  error_window_size: 100
+
+  # DynamicTimeout baseline used to normalise latency scores.
+  # PHI² × 1000 ≈ 2618ms.
+  dynamic_timeout_ms: 2618
+
+  # Ternary gate thresholds.
+  ternary:
+    healthy_threshold: 0.618   # PHI_INVERSE — score ≥ this → +1 (healthy)
+    critical_threshold: 0.3    # score < this → -1 (critical)
+    # Gap between critical and healthy (0.3–0.618) → 0 (degraded)
+
+  # Event-loop lag normalisation cap (ms).
+  # PHI³ × 100 = 423.6ms — cap at 500ms for headroom.
+  lag_cap_ms: 500
+
+# -----------------------------------------------------------------------------
+# Quarantine (quarantine-manager.js)
+# -----------------------------------------------------------------------------
+quarantine:
+  # Number of consecutive below-threshold attestations before quarantine.
+  consecutive_bad_threshold: 3
+
+  # CSL risk_gate score below which an attestation is considered "bad".
+  bad_score_threshold: 0.618  # PHI_INVERSE
+
+  # Stale attestation timeout — if no attestation is received for this many
+  # seconds the service is considered unresponsive.
+  # PHI⁴ × 10 ≈ 68.5s — rounded to 60s.
+  stale_timeout_seconds: 60
+
+  # Minimum score a service must hold after release to remain outside quarantine.
+  # PHI_INVERSE × PHI_INVERSE ≈ 0.382 (golden ratio complement).
+  release_minimum_score: 0.382
+
+# -----------------------------------------------------------------------------
+# Respawn (respawn-controller.js)
+# -----------------------------------------------------------------------------
+respawn:
+  # PhiBackoff base delay (ms).
+  backoff_base_ms: 1000
+
+  # Fibonacci-phi backoff sequence (ms):
+  #   1000, 1618, 2618, 4236, 6854, 11090 …
+  backoff_sequence_ms:
+    - 1000    # 1 × 1000
+    - 1618    # PHI × 1000
+    - 2618    # PHI² × 1000
+    - 4236    # PHI³ × 1000
+    - 6854    # PHI⁴ × 1000
+    - 11090   # PHI⁵ × 1000
+
+  # Maximum backoff cap (ms). PHI⁵ × 10000 = 110901ms ≈ 1.85 minutes.
+  backoff_max_ms: 110901
+
+  # Consecutive healthy attestations required before returning to rotation.
+  healthy_confirmations_required: 3
+
+  # Consecutive total failures before PERMANENT_QUARANTINE.
+  permanent_quarantine_threshold: 5
+
+  # Minimum healthy score (ternary_gate input) for a confirmation to count.
+  healthy_score_minimum: 0.618  # PHI_INVERSE
+
+# -----------------------------------------------------------------------------
+# Drift Detection (drift-detector.js)
+# -----------------------------------------------------------------------------
+drift_detection:
+  # Fibonacci check intervals (ms) cycled across categories.
+  intervals_ms:
+    - 5000    # 5s  → config
+    - 8000    # 8s  → version
+    - 13000   # 13s → schema
+    - 21000   # 21s → dependency
+    - 34000   # 34s → config (second pass)
+
+  # Severity thresholds.
+  # Minor drift (score < 0.382) → auto-correct.
+  # Major drift (score ≥ 0.618) → alert only.
+  severity:
+    minor_threshold: 0.382   # 1 - PHI_INVERSE (golden ratio complement)
+    major_threshold: 0.618   # PHI_INVERSE
+
+  # Categories checked.
+  categories:
+    - config
+    - version
+    - schema
+    - dependency
+
+  # Maximum drift events kept in memory.
+  history_cap: 500
+
+  # Known-acceptable drift patterns (regex strings).
+  acceptable_patterns:
+    - "^config:LOG_LEVEL$"
+    - "^config:DEBUG$"
+    - "^config:NODE_ENV$"
+    - "^dependency:.*-dev$"
+    - "^dependency:.*-optional$"
+
+# -----------------------------------------------------------------------------
+# Circuit Breaker Orchestrator (circuit-breaker-orchestrator.js)
+# -----------------------------------------------------------------------------
+circuit_breaker:
+  # Provider failover priority (index 0 = highest priority).
+  provider_priority:
+    - openai
+    - anthropic
+    - google
+    - groq
+    - local
+
+  # CSL multi_resonance score below which a provider is considered unhealthy.
+  healthy_threshold: 0.618  # PHI_INVERSE
+
+  # Stale report prune interval (ms).
+  # PHI⁴ × 10000 ≈ 68540ms — prune every ~68 seconds.
+  prune_interval_ms: 68541
+
+  # Maximum age of a CB report before it is pruned (ms).
+  # PHI⁵ × 10000 ≈ 110902ms ≈ 1.85 minutes.
+  max_report_age_ms: 110902
+
+  # HALF_OPEN leader: minimum time a service must hold HALF_OPEN before being
+  # eligible for election (ms). PHI × 1000 = 1618ms.
+  half_open_min_age_ms: 1618
+
+# -----------------------------------------------------------------------------
+# Incident Timeline (incident-timeline.js)
+# -----------------------------------------------------------------------------
+incident_timeline:
+  # Maximum events held in memory.
+  # PHI⁵ × 1000 ≈ 11090 — capped at 10000 for memory safety.
+  max_events: 10000
+
+  # Auto-close open incidents after this duration (ms) for postmortem generation.
+  # PHI⁵ × 10000 ≈ 110902ms — use 3600000ms (1 hour) in practice.
+  auto_close_ms: 3600000
+
+# -----------------------------------------------------------------------------
+# Alert Rules
+# -----------------------------------------------------------------------------
+alerts:
+  # Fire an alert when fleet health (consensus_superposition) drops below this.
+  fleet_health_critical: 0.382     # 1 - PHI_INVERSE
+  fleet_health_warning:  0.618     # PHI_INVERSE
+
+  # Fire an alert when > this fraction of services are quarantined.
+  quarantine_fraction_warning:  0.382  # ~38% quarantined
+  quarantine_fraction_critical: 0.618  # ~62% quarantined
+
+  # Respawn failure alert after N attempts without success.
+  respawn_failure_alert_after: 3
+
+  # Drift alert cooldown (seconds) — suppress duplicate drift alerts within window.
+  # PHI³ × 10 ≈ 42.4s.
+  drift_alert_cooldown_seconds: 42
+
+  # Notification channels (configure per deployment).
+  channels:
+    - type: log           # Always log to structured logger.
+    - type: event         # Emit EventEmitter events (ALERT_FIRED).
+    # - type: slack
+    #   webhook_url: ${SLACK_WEBHOOK_URL}
+    # - type: pagerduty
+    #   routing_key: ${PAGERDUTY_ROUTING_KEY}
+
+# -----------------------------------------------------------------------------
+# Self-Healing Swarm Bee (self-healing-swarm-bee.js)
+# -----------------------------------------------------------------------------
+swarm_bee:
+  bee_id: self-healing-swarm-bee
+  swarm_name: Operations
+  version: 1.0.0
+
+  # Watchdog interval (ms) — monitors the bee's own health.
+  # PHI × 5000 ≈ 8090ms.
+  watchdog_interval_ms: 8090
+
+  # CSL domain affinity vectors (used for resonance_gate scoring).
+  domain_vectors:
+    health:     [0.95, 0.90, 0.85, 0.80]
+    resilience: [0.90, 0.95, 0.80, 0.85]
+    monitoring: [0.85, 0.80, 0.95, 0.90]
+
+  # Minimum resonance score to accept swarm assignments in this domain.
+  resonance_minimum: 0.618  # PHI_INVERSE

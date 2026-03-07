@@ -1,0 +1,23 @@
+version: 1
+budgets:
+  tti:
+    target_ms: 3000
+    warning_ms: 2500
+  api_p95:
+    target_ms: 500
+    warning_ms: 350
+  sync_rtt:
+    target_ms: 150
+    warning_ms: 100
+  route_selection_ms:
+    target_ms: 120
+    warning_ms: 80
+  projection_sync_ms:
+    target_ms: 2000
+    warning_ms: 1500
+  vector_query_ms:
+    target_ms: 200
+    warning_ms: 150
+ci_enforcement:
+  fail_on_breach: true
+  warn_on_warning: true

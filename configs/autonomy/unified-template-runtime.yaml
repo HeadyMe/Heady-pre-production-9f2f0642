@@ -1,0 +1,31 @@
+version: 1
+profile: heady-template-runtime
+goal: Run templates as the normalized contract between bees, swarms, projection, and deployment.
+control_plane:
+  selector: registry/scenario-matrix.yaml
+  catalog: registry/heady-template-catalog.json
+  optimizer: adapters/node/autonomous-template-optimizer.js
+runtime_contract:
+  require_schema_validation: true
+  require_receipts: true
+  require_projection_targets: true
+  require_health_endpoints: true
+execution:
+  queue_classes:
+    interactive:
+      maxConcurrency: 8
+    pipeline:
+      maxConcurrency: 6
+    background:
+      maxConcurrency: 4
+projection:
+  freshness_sla_ms: 3000
+  require_manifest_targets: true
+observability:
+  require_metrics: true
+  require_alert_bindings: true
+  require_outcome_feedback: true
+autonomy:
+  enable_outcome_learning: true
+  enable_drift_detection: true
+  enable_projection_reconciliation: true

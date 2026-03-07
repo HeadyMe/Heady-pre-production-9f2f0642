@@ -1,0 +1,46 @@
+version: 1
+owner_model: explicit
+nodes:
+  control-plane-dispatch:
+    owns:
+      - task-classification
+      - template-selection
+      - execution-receipts
+    must_not_own:
+      - projection-schema-validation
+  projection-engine:
+    owns:
+      - target-manifest-generation
+      - sync-receipts
+      - projection-history
+  projection-governance:
+    owns:
+      - allowed-surface-rules
+      - projection-schema-validation
+      - release-gates
+  vector-runtime:
+    owns:
+      - outcome-memory-ingestion
+      - template-performance-history
+  service-registry:
+    owns:
+      - route-mount-catalog
+      - startup-receipts
+workflows:
+  template-selection:
+    owner: control-plane-dispatch
+    output: execution-receipt
+  projection-sync:
+    owner: projection-engine
+    output: projection-receipt
+  release-gate:
+    owner: projection-governance
+    output: release-gate-report
+  critique:
+    owner: control-plane-perspective
+    output: critique-report
+required_receipts:
+  - execution-receipt
+  - projection-receipt
+  - release-gate-report
+  - critique-report

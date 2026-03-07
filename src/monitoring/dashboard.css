@@ -1,0 +1,575 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * Heady Observability Dashboard — Stylesheet
+ * ═══════════════════════════════════════════════════════════════════
+ *
+ * Dark theme with golden ratio (φ = 1.618) spacing system.
+ * Glassmorphism cards, sparklines, heatmaps, force graphs.
+ *
+ * Color Palette:
+ *   --gold:     #d4a847  (primary accent, phi-highlight)
+ *   --emerald:  #10b981  (healthy, +1 ternary state)
+ *   --ruby:     #ef4444  (critical, -1 ternary state)
+ *   --sapphire: #3b82f6  (info, links, cold heatmap)
+ *   --amber:    #f59e0b  (warning, 0 ternary state)
+ *
+ * © 2026 HeadySystems Inc. PROPRIETARY AND CONFIDENTIAL.
+ */
+
+/* ── CSS Custom Properties (Golden Ratio System) ──────────────── */
+:root {
+    --phi: 1.618;
+    --phi-inv: 0.618;
+    --phi-sq: 2.618;
+
+    /* Phi-scaled spacing (base 8px × φ^n) */
+    --phi-spacing-xs: 5px;     /* 8 × φ^-1 */
+    --phi-spacing-sm: 8px;     /* base */
+    --phi-spacing-md: 13px;    /* 8 × φ^0.618 ≈ 13 */
+    --phi-spacing-lg: 21px;    /* 8 × φ^1.618 ≈ 21 */
+    --phi-spacing-xl: 34px;    /* Fibonacci */
+    --phi-spacing-2xl: 55px;   /* Fibonacci */
+
+    /* Color palette */
+    --bg-primary: #0a0a1a;
+    --bg-card: rgba(255, 255, 255, 0.05);
+    --bg-card-hover: rgba(255, 255, 255, 0.08);
+    --bg-header: rgba(10, 10, 26, 0.95);
+    --border-card: rgba(255, 255, 255, 0.08);
+    --border-active: rgba(212, 168, 71, 0.3);
+
+    --gold: #d4a847;
+    --gold-dim: rgba(212, 168, 71, 0.3);
+    --gold-glow: rgba(212, 168, 71, 0.15);
+    --emerald: #10b981;
+    --emerald-dim: rgba(16, 185, 129, 0.2);
+    --ruby: #ef4444;
+    --ruby-dim: rgba(239, 68, 68, 0.2);
+    --sapphire: #3b82f6;
+    --sapphire-dim: rgba(59, 130, 246, 0.2);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245, 158, 11, 0.2);
+
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-bright: #f8fafc;
+
+    /* Typography */
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Base Reset & Global ──────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.618; /* φ line-height */
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Header ───────────────────────────────────────────────────── */
+.dashboard-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border-card);
+    padding: var(--phi-spacing-lg) var(--phi-spacing-xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+}
+
+.dashboard-header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+}
+
+.header-status {
+    display: flex;
+    align-items: center;
+    gap: var(--phi-spacing-md);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.header-status .sse-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ruby);
+    transition: background 0.3s ease;
+}
+
+.header-status .sse-indicator.connected {
+    background: var(--emerald);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ── Grid Layout ──────────────────────────────────────────────── */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--phi-spacing-lg);
+    padding: var(--phi-spacing-xl);
+    max-width: 2560px;
+    margin: 0 auto;
+}
+
+/* ── Glassmorphism Card ───────────────────────────────────────── */
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: var(--phi-spacing-lg);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.glass-card:hover {
+    border-color: var(--border-active);
+    box-shadow: 0 0 30px var(--gold-glow);
+}
+
+.glass-card h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: var(--phi-spacing-md);
+    padding-bottom: var(--phi-spacing-xs);
+    border-bottom: 1px solid var(--border-card);
+}
+
+/* ── Panel 1: Golden Signals ──────────────────────────────────── */
+.golden-signals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--phi-spacing-md);
+}
+
+.chart-container {
+    position: relative;
+    height: 160px;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.chart-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--phi-spacing-xs);
+}
+
+/* ── Panel 2: Service Health Matrix ───────────────────────────── */
+.service-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--phi-spacing-sm);
+}
+
+.service-row {
+    display: flex;
+    align-items: center;
+    gap: var(--phi-spacing-md);
+    padding: var(--phi-spacing-sm) var(--phi-spacing-md);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.service-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.service-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.service-status-dot.healthy {
+    background: var(--emerald);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.service-status-dot.degraded {
+    background: var(--amber);
+    animation: warning-blink 1s ease-in-out infinite;
+}
+
+.service-status-dot.down {
+    background: var(--ruby);
+    animation: warning-blink 0.5s ease-in-out infinite;
+}
+
+.service-name {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-bright);
+    min-width: 110px;
+}
+
+.service-meta {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: var(--phi-spacing-md);
+    flex: 1;
+}
+
+.cb-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.cb-badge.closed { background: var(--emerald-dim); color: var(--emerald); }
+.cb-badge.open { background: var(--ruby-dim); color: var(--ruby); }
+.cb-badge.half-open { background: var(--amber-dim); color: var(--amber); }
+
+/* Sparkline */
+.sparkline {
+    width: 80px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+/* ── Panel 3: Swarm Topology (D3) ─────────────────────────────── */
+.force-graph {
+    width: 100%;
+    height: 350px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.force-graph svg {
+    width: 100%;
+    height: 100%;
+}
+
+.force-graph .node-label {
+    font-size: 9px;
+    fill: var(--text-secondary);
+    font-family: var(--font-mono);
+    pointer-events: none;
+}
+
+.force-graph .tooltip {
+    position: absolute;
+    background: rgba(10, 10, 26, 0.95);
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    padding: var(--phi-spacing-sm);
+    font-size: 0.7rem;
+    color: var(--text-primary);
+    pointer-events: none;
+    z-index: 200;
+}
+
+/* ── Panel 4: AI Provider Dashboard ───────────────────────────── */
+.provider-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--phi-spacing-md);
+}
+
+.provider-card {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    padding: var(--phi-spacing-md);
+}
+
+.provider-card .provider-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-bright);
+    margin-bottom: var(--phi-spacing-xs);
+}
+
+.provider-card .provider-stat {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.provider-card .provider-stat .value {
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+}
+
+.quality-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: var(--phi-spacing-xs);
+}
+
+.quality-bar .fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+/* ── Panel 5: Phi Scale Monitor ───────────────────────────────── */
+.phi-scales-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--phi-spacing-sm);
+}
+
+.phi-scale-row {
+    display: flex;
+    align-items: center;
+    gap: var(--phi-spacing-md);
+    padding: var(--phi-spacing-xs) 0;
+}
+
+.phi-scale-name {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    min-width: 100px;
+}
+
+.phi-scale-value {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-bright);
+    min-width: 70px;
+    text-align: right;
+}
+
+/* Gradient bar: red → gold → green */
+.gradient-bar {
+    flex: 1;
+    height: 12px;
+    background: linear-gradient(to right,
+        var(--ruby) 0%,
+        var(--amber) 30%,
+        var(--gold) 61.8%,
+        var(--emerald) 100%
+    );
+    border-radius: 6px;
+    position: relative;
+    overflow: visible;
+}
+
+.gradient-bar .marker {
+    position: absolute;
+    top: -3px;
+    width: 4px;
+    height: 18px;
+    background: var(--text-bright);
+    border-radius: 2px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+    transition: left 0.5s ease;
+}
+
+.gradient-bar .phi-point {
+    position: absolute;
+    top: -2px;
+    left: 61.8%;
+    width: 2px;
+    height: 16px;
+    background: var(--gold);
+    opacity: 0.6;
+}
+
+.phi-deviation {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    min-width: 50px;
+    text-align: right;
+}
+
+/* ── Panel 6: MCP Heatmap ─────────────────────────────────────── */
+.heatmap-container {
+    overflow-x: auto;
+}
+
+.heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+}
+
+.heatmap-table th {
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--phi-spacing-xs) var(--phi-spacing-sm);
+    text-align: center;
+}
+
+.heatmap-table td {
+    padding: 0;
+    text-align: center;
+}
+
+.heatmap-cell {
+    width: 100%;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    margin: 1px;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 12px var(--gold-glow);
+    z-index: 10;
+}
+
+/* ── Keyframe Animations ──────────────────────────────────────── */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 4px var(--emerald-dim);
+    }
+    50% {
+        box-shadow: 0 0 12px var(--emerald), 0 0 24px var(--emerald-dim);
+    }
+}
+
+@keyframes warning-blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.glass-card {
+    animation: slide-in 0.4s ease-out;
+}
+
+/* ── Responsive Breakpoints ───────────────────────────────────── */
+@media (max-width: 1400px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 1100px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .golden-signals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .provider-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 2000px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--phi-spacing-xl);
+    }
+
+    .chart-container {
+        height: 200px;
+    }
+
+    .force-graph {
+        height: 450px;
+    }
+}
+
+/* ── Alert Banner ─────────────────────────────────────────────── */
+.alert-banner {
+    background: var(--ruby-dim);
+    border: 1px solid var(--ruby);
+    border-radius: 8px;
+    padding: var(--phi-spacing-md);
+    margin-bottom: var(--phi-spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--phi-spacing-md);
+    animation: slide-in 0.3s ease-out;
+}
+
+.alert-banner .alert-icon {
+    font-size: 1.2rem;
+}
+
+.alert-banner .alert-text {
+    font-size: 0.8rem;
+    color: var(--text-bright);
+}
+
+.alert-banner.warning {
+    background: var(--amber-dim);
+    border-color: var(--amber);
+}
+
+/* ── Scrollbar Styling ────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-card);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gold-dim);
+}

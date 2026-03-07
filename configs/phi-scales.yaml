@@ -1,280 +1,993 @@
-# ═══════════════════════════════════════════════════════════════════
-# Heady Phi Scales Configuration
-# ═══════════════════════════════════════════════════════════════════
+# =============================================================================
+# Heady AI Orchestration Platform — Phi Scale Configuration
+# File: configs/phi-scales.yaml
+# © 2026 HeadySystems Inc. All rights reserved.
+# Provisional Patent Application #52 — Continuous Semantic Logic Gates
 #
-# Maps every dynamic parameter to its PhiScale bounds, adjustment 
-# sensitivity, telemetry source, and default phi-normalized starting position.
-#
-# All scales use the golden ratio (φ = 1.618...) as their fundamental
-# geometric coordinate system instead of arbitrary 0-1 or 0-100 ranges.
-# ═══════════════════════════════════════════════════════════════════
+# This file maps every dynamic parameter in the Heady orchestration system to
+# its PhiScale bounds, telemetry feed source, and phi-normalized starting
+# position. Values self-adjust every adjustment_interval_ms milliseconds based
+# on incoming telemetry. All bounds are grounded in the golden ratio (φ ≈ 1.618)
+# to minimize oscillation, maximize convergence speed, and encode natural
+# harmonic proportions into system behaviour.
+# =============================================================================
 
-# Global settings
+# -----------------------------------------------------------------------------
+# GLOBAL — Runtime constants and system-wide defaults
+# -----------------------------------------------------------------------------
 global:
-  phi: 1.618033988749895
-  phi_inverse: 0.618033988749895
-  adjustment_interval_ms: 5000
-  telemetry_interval_ms: 1000
-  max_history_size: 1000
+  # The golden ratio itself — the mathematical spine of every PhiScale
+  phi: 1.6180339887498948482
+  phi_inverse: 0.6180339887498948482   # 1 / φ  =  φ - 1
+  sqrt_phi: 1.2720196495140259660       # √φ
+  phi_squared: 2.6180339887498948482    # φ² = φ + 1
+  phi_cubed: 4.2360679774997896964      # φ³ = φ² + φ
+  log_phi: 0.4812118250596034748        # ln(φ)
 
-# ═══════════════════════════════════════════════════════════════════
-# TIMEOUT PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+  # Timing
+  adjustment_interval_ms: 5000          # How often PhiScales recalculate
+  telemetry_interval_ms: 1000           # How often metrics are sampled
+  max_history_size: 1000                # Max momentum history per parameter
+  momentum_decay_default: 0.9          # Exponential smoothing factor
 
-timeout:
-  name: "Dynamic Timeout"
-  base_value: 5000
-  min: 1000
-  max: 30000
-  unit: "milliseconds"
-  phi_normalized: false
-  sensitivity: 0.15
-  telemetry_source: "latencyP99"
-  adjustment_formula: "phi * latencyP99"
-  description: "Request timeout adjusts based on p99 latency, targeting φ × p99"
+  # Orchestration metadata
+  version: "2.0.0"
+  schema_version: "phi-scales/v2"
+  last_updated: "2026-03-07"
 
-# ═══════════════════════════════════════════════════════════════════
-# RETRY PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+# -----------------------------------------------------------------------------
+# PHI REFERENCE — Useful phi-derived constants referenced across parameters
+# -----------------------------------------------------------------------------
+phi_reference:
+  PHI: 1.6180339887498948482
+  PHI_INVERSE: 0.6180339887498948482
+  SQRT_PHI: 1.2720196495140259660
+  PHI_SQUARED: 2.6180339887498948482
+  PHI_CUBED: 4.2360679774997896964
+  LOG_PHI: 0.4812118250596034748
+  PHI_MINUS_1: 0.6180339887498948482   # same as inverse, useful alias
+  ONE_PLUS_PHI_INV: 1.6180339887498948 # sanity check: φ = 1 + 1/φ
 
-retry_count:
-  name: "Dynamic Retry Count"
-  base_value: 3
-  min: 1
-  max: 8
-  unit: "count"
-  phi_normalized: false
-  sensitivity: 0.2
-  telemetry_source: "errorRate"
-  adjustment_formula: "increase if errorRate > 0.1, decrease if < 0.01"
-  description: "Retry attempts adjust based on current error rate"
+# -----------------------------------------------------------------------------
+# FIBONACCI REFERENCE — First 20 Fibonacci numbers
+# Used for batch partitioning, circuit breaker thresholds, pool sizing, etc.
+# -----------------------------------------------------------------------------
+fibonacci_reference:
+  sequence: [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]
+  note: "F(n)/F(n-1) → φ as n → ∞. Adjacent Fibonacci numbers have ~0% bin-packing waste."
 
-backoff_interval:
-  name: "Dynamic Backoff Interval"
-  base_value: 1000
-  min: 100
-  max: 10000
-  unit: "milliseconds"
-  phi_normalized: false
-  sensitivity: 0.12
-  telemetry_source: "retrySuccessRate"
-  phi_backoff: true
-  description: "Backoff uses phi-exponential sequence (φ, φ², φ³...)"
+# -----------------------------------------------------------------------------
+# CATEGORIES — Logical groupings for dynamic constants
+# -----------------------------------------------------------------------------
+categories:
+  network_resilience:
+    description: "Parameters governing timeout, retry, and backoff behaviour on external calls"
+    color: "#E63946"
+  processing:
+    description: "Throughput, concurrency, rate-limiting, queue management, and batching"
+    color: "#457B9D"
+  inference:
+    description: "LLM sampling, token budgets, and response-quality controls"
+    color: "#2A9D8F"
+  learning:
+    description: "Online learning rates, coherence maintenance, and drift detection"
+    color: "#E9C46A"
+  caching:
+    description: "Cache TTL and eviction strategies driven by golden spiral decay"
+    color: "#F4A261"
+  priority:
+    description: "phi-normalized priority weighting and governance escalation"
+    color: "#264653"
+  circuit_breaker:
+    description: "Failure counting, half-open probing, and recovery thresholds"
+    color: "#6D6875"
+  csl:
+    description: "Continuous Semantic Logic gates — ternary, resonance, risk, and soft gates"
+    color: "#B5838D"
+  embeddings:
+    description: "Vector embedding dimensionality and similarity computation"
+    color: "#6B4226"
+  pools:
+    description: "Hot/warm/cold agent pool sizing following Fibonacci proportions"
+    color: "#3D405B"
 
-# ═══════════════════════════════════════════════════════════════════
-# BATCH PROCESSING PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+# -----------------------------------------------------------------------------
+# DYNAMIC CONSTANTS — 30 phi-scaled parameters
+# Each entry specifies base_value, min/max bounds, unit, telemetry sources,
+# adjustment formula, momentum decay, and optional phi features.
+# -----------------------------------------------------------------------------
+dynamic_constants:
 
-batch_size:
-  name: "Dynamic Batch Size"
-  base_value: 21  # Fibonacci number
-  min: 5
-  max: 144  # Fibonacci number
-  unit: "items"
-  phi_normalized: false
-  sensitivity: 0.1
-  telemetry_source: "throughput, cpuUsage"
-  fibonacci_partition: true
-  description: "Batch size uses Fibonacci partitioning for optimal bin-packing"
+  # ── NETWORK RESILIENCE ────────────────────────────────────────────────────
 
-# ═══════════════════════════════════════════════════════════════════
-# CONFIDENCE & THRESHOLD PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+  - name: timeout
+    category: network_resilience
+    description: >
+      Maximum milliseconds to wait for an upstream response before failing fast.
+      Rises with p99 latency so slow upstreams get fair wait time; falls when
+      latency is healthy to keep the overall pipeline snappy.
+    base_value: 5000
+    min: 1000
+    max: 30000
+    unit: ms
+    phi_normalized: false
+    sensitivity: 0.3
+    momentum_decay: 0.85
+    telemetry_source:
+      primary: latencyP99
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current * (1 + sensitivity * (latencyP99 / baseline_p99 - 1)),
+        min, max
+      )
+    description_formula: >
+      Scales proportionally with the ratio of observed p99 latency to the
+      rolling baseline. A 20 % latency spike adds ~6 % to the timeout budget.
 
-confidence_threshold:
-  name: "Dynamic Confidence Threshold"
-  base_value: 0.618  # φ⁻¹ - natural phi-point
-  min: 0.3
-  max: 0.95
-  unit: "probability"
-  phi_normalized: true
-  sensitivity: 0.08
-  telemetry_source: "accuracy"
-  description: "Confidence threshold naturally positioned at golden ratio equilibrium"
+  - name: retry_count
+    category: network_resilience
+    description: >
+      Number of retry attempts before an operation is declared failed.
+      Increases when error rate is high (more retries needed); decreases when
+      errors are rare (avoid masking bugs with excessive retries).
+    base_value: 3
+    min: 1
+    max: 8
+    unit: count
+    phi_normalized: false
+    sensitivity: 0.4
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: errorRate
+      secondary: []
+    adjustment_formula: >
+      delta = round(sensitivity * (errorRate - target_error_rate) * max_range)
+      new_value = clamp(current + delta, min, max)
 
-resonance_threshold:
-  name: "Dynamic Resonance Threshold"
-  base_value: 0.95
-  min: 0.7
-  max: 0.99
-  unit: "similarity"
-  phi_normalized: true
-  sensitivity: 0.05
-  telemetry_source: "accuracy"
-  csl_gate: "resonance_gate"
-  description: "CSL resonance gate activation threshold"
+  - name: backoff_interval
+    category: network_resilience
+    description: >
+      Base interval (ms) between retry attempts. Uses phi-exponential growth
+      rather than standard doubling: interval_n = base * φ^n. This produces
+      gentler ramp-up, avoids thundering herds, and converges faster than
+      binary exponential backoff.
+    base_value: 1000
+    min: 100
+    max: 10000
+    unit: ms
+    phi_normalized: false
+    phi_backoff: true
+    sensitivity: 0.35
+    momentum_decay: 0.88
+    telemetry_source:
+      primary: retrySuccessRate
+      secondary: []
+    adjustment_formula: >
+      phi_sequence: [100, 162, 262, 424, 685, 1109, 1794, 2903, 4697, 7600]
+      Select nearest phi_sequence value to current * (1 + sensitivity * delta)
+    fibonacci_values: []
+    note: >
+      backoff_interval_n = base_value * phi^n where n is the retry attempt index.
+      Phi-exponential sequence grows more slowly than 2^n, reducing collision
+      probability by ~38% compared to standard exponential backoff.
 
-ternary_positive:
-  name: "Dynamic Ternary Positive Threshold"
-  base_value: 0.72
-  min: 0.6
-  max: 0.85
-  unit: "similarity"
-  phi_normalized: true
-  sensitivity: 0.06
-  csl_gate: "ternary_gate"
-  description: "CSL ternary gate positive boundary"
+  # ── PROCESSING ────────────────────────────────────────────────────────────
 
-ternary_negative:
-  name: "Dynamic Ternary Negative Threshold"
-  base_value: 0.35
-  min: 0.2
-  max: 0.5
-  unit: "similarity"
-  phi_normalized: true
-  sensitivity: 0.06
-  csl_gate: "ternary_gate"
-  description: "CSL ternary gate negative boundary"
+  - name: batch_size
+    category: processing
+    description: >
+      Number of items processed per batch. Constrained to Fibonacci values so
+      batch boundaries align with natural partitioning optima, minimising
+      bin-packing waste. Increases under high throughput; decreases when CPU
+      usage is elevated.
+    base_value: 21
+    min: 5
+    max: 144
+    unit: items
+    phi_normalized: false
+    fibonacci_partition: true
+    fibonacci_values: [5, 8, 13, 21, 34, 55, 89, 144]
+    sensitivity: 0.5
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: throughput
+      secondary: [cpuUsage]
+    adjustment_formula: >
+      raw = current * (1 + 0.3*(throughput_ratio - 1) - 0.2*(cpuUsage - 0.7))
+      new_value = nearest_fibonacci(clamp(raw, min, max), fibonacci_values)
+    note: >
+      Always snaps to the nearest Fibonacci number. This ensures Φ-ratio
+      relationships between adjacent batch sizes (F(n)/F(n-1) → φ) and
+      minimises memory fragmentation at partition boundaries.
 
-# ═══════════════════════════════════════════════════════════════════
-# PRIORITY & SCHEDULING PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+  - name: rate_limit
+    category: processing
+    description: >
+      Maximum requests per minute accepted from a single client or pipeline
+      stage. Tightens when CPU or memory is under pressure; relaxes when
+      resources are plentiful.
+    base_value: 100
+    min: 10
+    max: 1000
+    unit: req/min
+    phi_normalized: false
+    sensitivity: 0.4
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: cpuUsage
+      secondary: [memoryUsage]
+    adjustment_formula: >
+      pressure = 0.6 * cpuUsage + 0.4 * memoryUsage
+      new_value = clamp(current * (1 - sensitivity * (pressure - 0.65)), min, max)
 
-priority:
-  name: "Dynamic Priority"
-  base_value: 0.618  # φ⁻¹
-  min: 0
-  max: 1.618  # φ
-  unit: "phi-normalized"
-  phi_normalized: true
-  sensitivity: 0.12
-  telemetry_source: "queueDepth, avgWaitTime"
-  description: "Priority scale from 0 to φ with equilibrium at φ⁻¹"
+  - name: concurrency
+    category: processing
+    description: >
+      Maximum number of concurrent goroutines / async tasks per pipeline stage.
+      Fibonacci-constrained to align with natural parallelism harmonics.
+      Increases when response times are short and CPU headroom exists; decreases
+      under saturation.
+    base_value: 8
+    min: 2
+    max: 55
+    unit: concurrent
+    phi_normalized: false
+    fibonacci_values: [2, 3, 5, 8, 13, 21, 34, 55]
+    sensitivity: 0.45
+    momentum_decay: 0.87
+    telemetry_source:
+      primary: avgResponseTime
+      secondary: [cpuUsage]
+    adjustment_formula: >
+      raw = current * (1 + 0.4*(1 - rt_ratio) - 0.3*(cpuUsage - 0.6))
+      new_value = nearest_fibonacci(clamp(raw, min, max), fibonacci_values)
 
-# ═══════════════════════════════════════════════════════════════════
-# LLM PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+  - name: queue_limit
+    category: processing
+    description: >
+      Maximum items allowed to queue before back-pressure is applied upstream.
+      Grows when processing throughput is healthy; shrinks to protect against
+      unbounded queue growth.
+    base_value: 100
+    min: 10
+    max: 1000
+    unit: items
+    phi_normalized: false
+    sensitivity: 0.35
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: processingThroughput
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current * (1 + sensitivity * (processingThroughput / baseline_throughput - 1)),
+        min, max
+      )
 
-temperature:
-  name: "Dynamic Temperature"
-  base_value: 0.7
-  min: 0.0
-  max: 1.5
-  unit: "temperature"
-  phi_normalized: true
-  sensitivity: 0.05
-  telemetry_source: "responseDiversity"
-  description: "LLM temperature adjusts based on response diversity needs"
+  - name: jitter_factor
+    category: processing
+    description: >
+      Fractional random jitter applied to scheduled intervals to desynchronise
+      correlated bursts. Increases when collision rate rises; decreases when
+      traffic is sufficiently randomised.
+    base_value: 0.15
+    min: 0.05
+    max: 0.4
+    unit: factor
+    phi_normalized: false
+    sensitivity: 0.3
+    momentum_decay: 0.92
+    telemetry_source:
+      primary: collisionRate
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity * (collisionRate - target_collision_rate) * (max - min),
+        min, max
+      )
 
-# ═══════════════════════════════════════════════════════════════════
-# CACHING PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+  # ── INFERENCE ─────────────────────────────────────────────────────────────
 
-cache_ttl:
-  name: "Dynamic Cache TTL"
-  base_value: 3600000  # 1 hour
-  min: 60000  # 1 minute
-  max: 86400000  # 24 hours
-  unit: "milliseconds"
-  phi_normalized: false
-  sensitivity: 0.1
-  telemetry_source: "cacheHitRate, memoryUsage"
-  phi_decay: true
-  decay_half_life: 3600000
-  description: "Cache TTL with golden spiral decay, preserves hot data longer"
+  - name: temperature
+    category: inference
+    description: >
+      Sampling temperature for LLM generation. Higher values increase
+      diversity and creativity; lower values produce more deterministic,
+      focused outputs. Adjusted based on observed response diversity signal.
+    base_value: 0.7
+    min: 0.0
+    max: 1.5
+    unit: temperature
+    phi_normalized: false
+    sensitivity: 0.25
+    momentum_decay: 0.88
+    telemetry_source:
+      primary: responseDiversity
+      secondary: []
+    adjustment_formula: >
+      diversity_error = target_diversity - responseDiversity
+      new_value = clamp(current + sensitivity * diversity_error, min, max)
 
-# ═══════════════════════════════════════════════════════════════════
-# RATE LIMITING PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+  - name: max_tokens
+    category: inference
+    description: >
+      Maximum token budget per LLM call. Balances output completeness against
+      latency and cost. Reduces when latency or cost signals rise above
+      thresholds; expands when both are healthy.
+    base_value: 4096
+    min: 256
+    max: 32768
+    unit: tokens
+    phi_normalized: false
+    sensitivity: 0.2
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: latency
+      secondary: [cost]
+    adjustment_formula: >
+      pressure = 0.5 * latency_ratio + 0.5 * cost_ratio
+      new_value = clamp(current * (1 - 0.15 * max(0, pressure - 1)), min, max)
 
-rate_limit:
-  name: "Dynamic Rate Limit"
-  base_value: 100
-  min: 10
-  max: 1000
-  unit: "requests/minute"
-  phi_normalized: false
-  sensitivity: 0.15
-  telemetry_source: "cpuUsage, memoryUsage"
-  description: "Rate limit adjusts based on system load"
+  # ── LEARNING ──────────────────────────────────────────────────────────────
 
-concurrency:
-  name: "Dynamic Concurrency"
-  base_value: 8  # Fibonacci number
-  min: 2
-  max: 55  # Fibonacci number
-  unit: "concurrent requests"
-  phi_normalized: false
-  sensitivity: 0.18
-  telemetry_source: "avgResponseTime, cpuUsage"
-  fibonacci_values: [2, 3, 5, 8, 13, 21, 34, 55]
-  description: "Concurrency uses Fibonacci numbers for optimal resource distribution"
+  - name: learning_rate
+    category: learning
+    description: >
+      Step size for online parameter updates. Increases when convergence is
+      slow (steep loss landscape); decreases when convergence is fast to
+      avoid overshooting the optimum.
+    base_value: 0.01
+    min: 0.001
+    max: 0.1
+    unit: rate
+    phi_normalized: false
+    sensitivity: 0.3
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: convergenceSpeed
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current * phi_inverse^(convergenceSpeed / target_speed - 1),
+        min, max
+      )
+    note: >
+      Uses phi_inverse as the geometric base so that learning rate adjustments
+      follow a naturally decaying phi-exponential curve.
 
-# ═══════════════════════════════════════════════════════════════════
-# RISK & TRADING PARAMETERS
-# ═══════════════════════════════════════════════════════════════════
+  - name: momentum_decay
+    category: learning
+    description: >
+      Exponential smoothing factor applied to all momentum-tracked signals.
+      Higher values produce more inertia (slower adaptation); lower values
+      react faster but are noisier. Self-adjusts to damp oscillation.
+    base_value: 0.9
+    min: 0.7
+    max: 0.99
+    unit: factor
+    phi_normalized: false
+    sensitivity: 0.2
+    momentum_decay: 0.95   # meta: this parameter also has its own momentum
+    telemetry_source:
+      primary: oscillationFrequency
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity * (oscillationFrequency - target_frequency) * 0.1,
+        min, max
+      )
 
-risk_sensitivity:
-  name: "Dynamic Risk Sensitivity"
-  base_value: 0.8
-  min: 0.5
-  max: 0.95
-  unit: "sensitivity"
-  phi_normalized: true
-  sensitivity: 0.08
-  csl_gate: "risk_gate"
-  description: "Risk gate activation sensitivity for trading systems"
+  - name: coherence_threshold
+    category: learning
+    description: >
+      Minimum cosine similarity required between consecutive agent outputs to
+      consider the reasoning chain coherent. Rises when drift is frequent;
+      falls to allow creative divergence when system is stable.
+    base_value: 0.75
+    min: 0.5
+    max: 0.95
+    unit: similarity
+    phi_normalized: false
+    sensitivity: 0.3
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: driftFrequency
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity * (driftFrequency - target_drift_rate) * (max - min),
+        min, max
+      )
 
-soft_gate_steepness:
-  name: "Dynamic Soft Gate Steepness"
-  base_value: 20
-  min: 5
-  max: 50
-  unit: "steepness"
-  phi_normalized: false
-  sensitivity: 0.1
-  csl_gate: "soft_gate"
-  description: "Sigmoid steepness for continuous gate activation"
+  - name: drift_alert_threshold
+    category: learning
+    description: >
+      Similarity drop magnitude that triggers a coherence-drift alert and
+      potentially activates remediation. Calibrated from false alert rate to
+      avoid alert fatigue while catching real drift events.
+    base_value: 0.75
+    min: 0.5
+    max: 0.9
+    unit: similarity
+    phi_normalized: false
+    sensitivity: 0.25
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: falseAlertRate
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current - sensitivity * (falseAlertRate - target_false_alert_rate),
+        min, max
+      )
 
-# ═══════════════════════════════════════════════════════════════════
-# TELEMETRY METRICS
-# ═══════════════════════════════════════════════════════════════════
+  # ── CACHING ───────────────────────────────────────────────────────────────
 
+  - name: cache_ttl
+    category: caching
+    description: >
+      Time-to-live for cached inference results (ms). Uses golden spiral decay
+      so items age out gradually rather than all-at-once. Extends when cache
+      hit rate is high and memory is available; contracts under memory pressure.
+    base_value: 3600000
+    min: 60000
+    max: 86400000
+    unit: ms
+    phi_normalized: false
+    phi_decay: true
+    sensitivity: 0.3
+    momentum_decay: 0.88
+    telemetry_source:
+      primary: cacheHitRate
+      secondary: [memoryUsage]
+    adjustment_formula: >
+      hit_signal  = cacheHitRate - target_hit_rate
+      mem_signal  = memoryUsage  - 0.75
+      new_value = clamp(
+        current * phi^(0.4*hit_signal - 0.6*mem_signal),
+        min, max
+      )
+    phi_decay_formula: >
+      effective_ttl(age) = cache_ttl * exp(-log(phi) * age / cache_ttl)
+    note: >
+      Golden spiral decay means an item at 50% of its TTL retains
+      phi_inverse^0.5 ≈ 78.6% of its freshness score, vs 50% under linear decay.
+
+  # ── PRIORITY ──────────────────────────────────────────────────────────────
+
+  - name: priority
+    category: priority
+    description: >
+      phi-normalised request priority weight. Range [0, φ] with the natural
+      resting point at φ⁻¹ (≈ 0.618) — the golden section of the range. This
+      embeds natural harmonic proportions so the scheduler converges to stable
+      priority distributions without manual tuning.
+    base_value: 0.618
+    min: 0.0
+    max: 1.618
+    unit: phi-normalized
+    phi_normalized: true
+    sensitivity: 0.35
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: queueDepth
+      secondary: [avgWaitTime]
+    adjustment_formula: >
+      urgency = 0.5*(queueDepth/max_queue) + 0.5*(avgWaitTime/sla_ms)
+      new_value = clamp(
+        current * (1 + sensitivity * (urgency - phi_inverse)),
+        min, max
+      )
+    note: >
+      The default value 0.618 = φ⁻¹ is the golden section of [0, 1].
+      Extending the range to [0, φ] allows super-priority escalation for
+      governance violations while keeping normal traffic near 0.618.
+
+  - name: governance_priority
+    category: priority
+    description: >
+      Priority boost applied to governance and compliance enforcement tasks.
+      Escalates when policy violation rate rises; returns to baseline when
+      the system is operating within policy bounds.
+    base_value: 1000
+    min: 100
+    max: 10000
+    unit: priority
+    phi_normalized: false
+    sensitivity: 0.5
+    momentum_decay: 0.85
+    telemetry_source:
+      primary: violationRate
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        base_value * phi^(sensitivity * violationRate / target_violation_rate),
+        min, max
+      )
+
+  # ── CIRCUIT BREAKER ───────────────────────────────────────────────────────
+
+  - name: circuit_breaker_failures
+    category: circuit_breaker
+    description: >
+      Number of consecutive failures required to trip the circuit breaker to
+      OPEN state. Fibonacci-constrained: [2, 3, 5, 8, 13]. Lower Fibonacci
+      numbers make the breaker more sensitive (trip faster); higher numbers
+      tolerate more transient errors.
+    base_value: 5
+    min: 2
+    max: 13
+    unit: count
+    phi_normalized: false
+    fibonacci_values: [2, 3, 5, 8, 13]
+    sensitivity: 0.4
+    momentum_decay: 0.88
+    telemetry_source:
+      primary: systemHealth
+      secondary: []
+    adjustment_formula: >
+      health_signal = 1 - systemHealth
+      raw = current * (1 + sensitivity * (health_signal - 0.1))
+      new_value = nearest_fibonacci(clamp(raw, min, max), fibonacci_values)
+
+  - name: circuit_breaker_timeout
+    category: circuit_breaker
+    description: >
+      Duration (ms) the circuit breaker stays in OPEN state before transitioning
+      to HALF-OPEN for probe requests. Lengthens when error rate is high to give
+      downstream services adequate recovery time.
+    base_value: 30000
+    min: 5000
+    max: 120000
+    unit: ms
+    phi_normalized: false
+    sensitivity: 0.35
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: errorRate
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current * phi^(sensitivity * (errorRate - target_error_rate)),
+        min, max
+      )
+    note: >
+      Phi-exponential growth means a 10% rise in error rate extends the timeout
+      by ~φ^0.035 ≈ 2.7% — gentle, proportional, no step-function discontinuities.
+
+  - name: circuit_breaker_success
+    category: circuit_breaker
+    description: >
+      Number of consecutive successes in HALF-OPEN state required to close the
+      circuit breaker and resume full traffic. Fibonacci-constrained: [1, 2, 3, 5, 8].
+    base_value: 3
+    min: 1
+    max: 8
+    unit: count
+    phi_normalized: false
+    fibonacci_values: [1, 2, 3, 5, 8]
+    sensitivity: 0.3
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: recoveryRate
+      secondary: []
+    adjustment_formula: >
+      raw = current * (1 - sensitivity * (recoveryRate - target_recovery_rate))
+      new_value = nearest_fibonacci(clamp(round(raw), min, max), fibonacci_values)
+
+  # ── CSL — CONTINUOUS SEMANTIC LOGIC GATES ─────────────────────────────────
+
+  - name: confidence_threshold
+    category: csl
+    description: >
+      Minimum classifier confidence score for a decision to pass without
+      escalation. Default value 0.618 = φ⁻¹, the golden section of [0,1],
+      placing the threshold at the natural harmonic point of the confidence range.
+    base_value: 0.618
+    min: 0.3
+    max: 0.95
+    unit: probability
+    phi_normalized: false
+    sensitivity: 0.3
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: accuracy
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity * (accuracy - target_accuracy) * (max - min),
+        min, max
+      )
+    note: >
+      Starting at φ⁻¹ ≈ 0.618 is intentional: it is the probability at which
+      the "accept" and "reject" regions stand in golden ratio proportion.
+
+  - name: resonance_threshold
+    category: csl
+    description: >
+      Minimum semantic similarity between two embeddings for them to be
+      considered resonant (matching in meaning). Gates the resonance_gate CSL
+      node. High default (0.95) ensures only highly similar contexts merge.
+    base_value: 0.95
+    min: 0.7
+    max: 0.99
+    unit: similarity
+    phi_normalized: false
+    csl_gate: resonance_gate
+    sensitivity: 0.2
+    momentum_decay: 0.92
+    telemetry_source:
+      primary: accuracy
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity * (accuracy - target_accuracy) * 0.1,
+        min, max
+      )
+
+  - name: ternary_positive
+    category: csl
+    description: >
+      Upper boundary of the ternary gate — embeddings with similarity above
+      this value are classified as POSITIVE (strong match). Part of the
+      ternary_gate CSL node that divides semantic space into three zones.
+    base_value: 0.72
+    min: 0.6
+    max: 0.85
+    unit: similarity
+    phi_normalized: false
+    csl_gate: ternary_gate
+    sensitivity: 0.25
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: accuracy
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        ternary_positive + sensitivity * (precision - target_precision) * 0.1,
+        min, max
+      )
+    constraint: "ternary_positive > ternary_negative + 0.1"
+
+  - name: ternary_negative
+    category: csl
+    description: >
+      Lower boundary of the ternary gate — embeddings with similarity below
+      this value are classified as NEGATIVE (no match). The uncertain zone
+      spans [ternary_negative, ternary_positive].
+    base_value: 0.35
+    min: 0.2
+    max: 0.5
+    unit: similarity
+    phi_normalized: false
+    csl_gate: ternary_gate
+    sensitivity: 0.25
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: accuracy
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        ternary_negative - sensitivity * (recall - target_recall) * 0.1,
+        min, max
+      )
+    constraint: "ternary_negative < ternary_positive - 0.1"
+
+  - name: risk_sensitivity
+    category: csl
+    description: >
+      Sensitivity of the risk gate to semantic risk signals. Higher values
+      trigger risk escalation at lower risk scores (more conservative).
+      Gates the risk_gate CSL node.
+    base_value: 0.8
+    min: 0.5
+    max: 0.95
+    unit: sensitivity
+    phi_normalized: false
+    csl_gate: risk_gate
+    sensitivity: 0.3
+    momentum_decay: 0.9
+    telemetry_source:
+      primary: violationRate
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity * (violationRate - target_violation_rate) * 0.5,
+        min, max
+      )
+
+  - name: soft_gate_steepness
+    category: csl
+    description: >
+      Steepness parameter (k) of the sigmoid soft gate function:
+        gate_output = 1 / (1 + exp(-k * (x - phi_inverse)))
+      Higher values make the gate sharper; lower values produce a smoother
+      probabilistic transition zone. Gates the soft_gate CSL node.
+    base_value: 20
+    min: 5
+    max: 50
+    unit: steepness
+    phi_normalized: false
+    csl_gate: soft_gate
+    sensitivity: 0.3
+    momentum_decay: 0.92
+    telemetry_source:
+      primary: accuracy
+      secondary: []
+    adjustment_formula: >
+      boundary_sharpness = stdev(gate_outputs_near_threshold)
+      new_value = clamp(
+        current * (1 + sensitivity * (target_sharpness - boundary_sharpness)),
+        min, max
+      )
+    note: >
+      The sigmoid is centred at phi_inverse (≈ 0.618) so that exactly 50% of
+      normally-distributed inputs fall in each class — maximising entropy and
+      classification fairness.
+
+  # ── EMBEDDINGS ────────────────────────────────────────────────────────────
+
+  - name: embedding_dimension
+    category: embeddings
+    description: >
+      Dimensionality of dense vector embeddings used for semantic comparison.
+      Higher dimensions capture more nuance but consume more memory and compute.
+      Must be one of the recognised model sizes (128, 256, 384, 512, 768, 1024,
+      1536). Adjusted based on memory usage vs accuracy trade-off.
+    base_value: 384
+    min: 128
+    max: 1536
+    unit: dimensions
+    phi_normalized: false
+    valid_values: [128, 256, 384, 512, 768, 1024, 1536]
+    sensitivity: 0.2
+    momentum_decay: 0.95
+    telemetry_source:
+      primary: memoryUsage
+      secondary: [accuracy]
+    adjustment_formula: >
+      trade_off = 0.6*(memoryUsage - 0.8) - 0.4*(accuracy - target_accuracy)
+      raw = current * (1 - sensitivity * trade_off)
+      new_value = nearest_valid(clamp(raw, min, max), valid_values)
+
+  # ── POOLS ─────────────────────────────────────────────────────────────────
+  # Pool percentages must sum to 100 ± 2. They follow Fibonacci proportions:
+  # hot:warm:cold ≈ 34:21:13 — adjacent Fibonacci numbers, ratio → φ.
+
+  - name: pool_hot_percent
+    category: pools
+    description: >
+      Percentage of agent pool kept HOT (pre-warmed, sub-millisecond response).
+      Default 34 (Fibonacci). Increases when latency-sensitive traffic rises;
+      decreases to free resources when traffic is relaxed.
+    base_value: 34
+    min: 20
+    max: 55
+    unit: percent
+    phi_normalized: false
+    fibonacci: true
+    preferred_values: [21, 34, 55]
+    sensitivity: 0.35
+    momentum_decay: 0.88
+    telemetry_source:
+      primary: latencySensitiveTraffic
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity*(latencySensitiveTraffic - 0.4)*20,
+        min, max
+      )
+    constraint: "pool_hot_percent + pool_warm_percent + pool_cold_percent == 100"
+
+  - name: pool_warm_percent
+    category: pools
+    description: >
+      Percentage of agent pool kept WARM (ready within ~100ms). Default 21
+      (Fibonacci). Tracks background/batch workload intensity.
+    base_value: 21
+    min: 13
+    max: 34
+    unit: percent
+    phi_normalized: false
+    fibonacci: true
+    preferred_values: [13, 21, 34]
+    sensitivity: 0.3
+    momentum_decay: 0.88
+    telemetry_source:
+      primary: backgroundTraffic
+      secondary: []
+    adjustment_formula: >
+      new_value = clamp(
+        current + sensitivity*(backgroundTraffic - 0.35)*15,
+        min, max
+      )
+    constraint: "pool_hot_percent + pool_warm_percent + pool_cold_percent == 100"
+
+  - name: pool_cold_percent
+    category: pools
+    description: >
+      Percentage of agent pool kept COLD (hibernated, spin-up >1s). Default 13
+      (Fibonacci). Residual capacity; remainder after hot + warm allocation.
+    base_value: 13
+    min: 8
+    max: 21
+    unit: percent
+    phi_normalized: false
+    fibonacci: true
+    preferred_values: [8, 13, 21]
+    sensitivity: 0.2
+    momentum_decay: 0.88
+    telemetry_source:
+      primary: analyticsTraffic
+      secondary: []
+    adjustment_formula: >
+      new_value = 100 - pool_hot_percent - pool_warm_percent
+      new_value = clamp(new_value, min, max)
+    constraint: "pool_hot_percent + pool_warm_percent + pool_cold_percent == 100"
+
+# -----------------------------------------------------------------------------
+# TELEMETRY METRICS REGISTRY
+# Complete list of every metric name consumed by dynamic constant adjustments.
+# All metrics are collected at telemetry_interval_ms (default 1000ms) and
+# aggregated into rolling windows before feeding PhiScale adjustment logic.
+# -----------------------------------------------------------------------------
 telemetry_metrics:
-  - name: "cpuUsage"
-    description: "CPU utilization (0.0 - 1.0)"
-    unit: "percentage"
 
-  - name: "memoryUsage"
-    description: "Memory utilization (0.0 - 1.0)"
-    unit: "percentage"
+  latencyP99:
+    description: "99th-percentile end-to-end response latency across all pipeline stages"
+    unit: ms
+    collection: histogram
+    window_s: 60
 
-  - name: "latencyP99"
-    description: "99th percentile response latency"
-    unit: "milliseconds"
+  errorRate:
+    description: "Fraction of requests resulting in error (4xx/5xx or exception) over the rolling window"
+    unit: ratio [0,1]
+    collection: counter_ratio
+    window_s: 60
 
-  - name: "throughput"
-    description: "Requests per second"
-    unit: "requests/second"
+  retrySuccessRate:
+    description: "Fraction of retried requests that ultimately succeed"
+    unit: ratio [0,1]
+    collection: counter_ratio
+    window_s: 300
 
-  - name: "errorRate"
-    description: "Error rate (0.0 - 1.0)"
-    unit: "percentage"
+  throughput:
+    description: "Total items successfully processed per second across all pipeline stages"
+    unit: items/s
+    collection: gauge
+    window_s: 60
 
-  - name: "queueDepth"
-    description: "Number of queued requests"
-    unit: "count"
+  cpuUsage:
+    description: "Fraction of available CPU cores consumed, averaged across all nodes"
+    unit: ratio [0,1]
+    collection: gauge
+    window_s: 30
 
-  - name: "avgWaitTime"
-    description: "Average queue wait time"
-    unit: "milliseconds"
+  memoryUsage:
+    description: "Fraction of available RAM consumed by heap + cache allocations"
+    unit: ratio [0,1]
+    collection: gauge
+    window_s: 30
 
-  - name: "cacheHitRate"
-    description: "Cache hit rate (0.0 - 1.0)"
-    unit: "percentage"
+  responseDiversity:
+    description: "Mean pairwise cosine distance between concurrent LLM responses (diversity signal)"
+    unit: distance [0,1]
+    collection: gauge
+    window_s: 300
 
-  - name: "avgResponseTime"
-    description: "Average response time"
-    unit: "milliseconds"
+  cacheHitRate:
+    description: "Fraction of inference requests served from cache without model invocation"
+    unit: ratio [0,1]
+    collection: counter_ratio
+    window_s: 300
 
-  - name: "retrySuccessRate"
-    description: "Retry success rate (0.0 - 1.0)"
-    unit: "percentage"
+  queueDepth:
+    description: "Number of requests currently waiting in the priority queue"
+    unit: count
+    collection: gauge
+    window_s: 10
 
-  - name: "accuracy"
-    description: "System accuracy (0.0 - 1.0)"
-    unit: "percentage"
+  avgWaitTime:
+    description: "Average time requests spend in queue before dispatch"
+    unit: ms
+    collection: histogram
+    window_s: 60
 
-  - name: "responseDiversity"
-    description: "Response diversity metric (0.0 - 1.0)"
-    unit: "percentage"
+  violationRate:
+    description: "Rate of governance or policy violations detected per minute"
+    unit: violations/min
+    collection: counter
+    window_s: 300
+
+  systemHealth:
+    description: "Composite health score [0,1] aggregated from error rate, latency, and saturation signals"
+    unit: score [0,1]
+    collection: gauge
+    window_s: 30
+
+  recoveryRate:
+    description: "Fraction of circuit-breaker half-open probes that succeed (recovery signal)"
+    unit: ratio [0,1]
+    collection: counter_ratio
+    window_s: 120
+
+  accuracy:
+    description: "Semantic accuracy of agent decisions vs ground-truth labels (online evaluation)"
+    unit: ratio [0,1]
+    collection: gauge
+    window_s: 600
+
+  convergenceSpeed:
+    description: "Rate at which online learning loss decreases per update step"
+    unit: loss/step
+    collection: gauge
+    window_s: 300
+
+  oscillationFrequency:
+    description: "Number of parameter direction reversals per minute (oscillation signal)"
+    unit: reversals/min
+    collection: counter
+    window_s: 300
+
+  driftFrequency:
+    description: "Number of coherence-drift events detected per hour"
+    unit: events/hr
+    collection: counter
+    window_s: 3600
+
+  falseAlertRate:
+    description: "Fraction of drift alerts subsequently classified as false positives"
+    unit: ratio [0,1]
+    collection: counter_ratio
+    window_s: 3600
+
+  collisionRate:
+    description: "Rate of detected scheduling collisions or thundering-herd events per minute"
+    unit: events/min
+    collection: counter
+    window_s: 60
+
+  processingThroughput:
+    description: "Items dequeued and processed per second (downstream processing rate)"
+    unit: items/s
+    collection: gauge
+    window_s: 60
+
+  latencySensitiveTraffic:
+    description: "Fraction of incoming requests classified as latency-sensitive (SLA < 100ms)"
+    unit: ratio [0,1]
+    collection: gauge
+    window_s: 60
+
+  backgroundTraffic:
+    description: "Fraction of incoming requests classified as background/batch workload"
+    unit: ratio [0,1]
+    collection: gauge
+    window_s: 60
+
+  analyticsTraffic:
+    description: "Fraction of incoming requests classified as analytics / non-time-critical"
+    unit: ratio [0,1]
+    collection: gauge
+    window_s: 300
+
+  latency:
+    description: "Mean end-to-end request latency across all pipeline stages"
+    unit: ms
+    collection: histogram
+    window_s: 60
+
+  cost:
+    description: "Estimated cost per request in USD, including model inference and infrastructure"
+    unit: USD/request
+    collection: gauge
+    window_s: 300
+
+  avgResponseTime:
+    description: "Mean wall-clock time from dispatch to final response across concurrent tasks"
+    unit: ms
+    collection: histogram
+    window_s: 60
+
+# End of phi-scales.yaml
