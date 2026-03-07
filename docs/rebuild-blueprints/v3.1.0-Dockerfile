@@ -1,0 +1,98 @@
+# =============================================================================
+# © 2024-2026 HeadySystems Inc. All Rights Reserved.
+# PROPRIETARY AND CONFIDENTIAL.
+#
+# Heady™ AI Platform — Multi-Stage Docker Build
+# Version: 3.1.0
+# =============================================================================
+
+# ─── Stage 1: Builder ─────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+
+LABEL stage="builder"
+
+# Install build essentials for native modules
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    git
+
+WORKDIR /app
+
+# Copy dependency manifests first for layer caching
+COPY package.json package-lock.json* ./
+
+# Install production dependencies only — no devDeps, no audit noise
+RUN npm ci --production --ignore-scripts && \
+    npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Remove dev files and test artifacts from the build
+RUN find . -name "*.test.js" -delete && \
+    find . -name "*.spec.js" -delete && \
+    find . -name ".DS_Store" -delete && \
+    rm -rf .git tests coverage docs
+
+# ─── Stage 2: Runtime ────────────────────────────────────────────────────────
+FROM node:20-alpine AS runtime
+
+# ── Image Metadata ─────────────────────────────────────────────────────────
+LABEL org.opencontainers.image.title="Heady AI Platform Manager" \
+      org.opencontainers.image.description="Heady™ AI Platform v3.1.0 — Orchestration & Intelligence Layer" \
+      org.opencontainers.image.version="3.1.0" \
+      org.opencontainers.image.vendor="HeadySystems Inc." \
+      org.opencontainers.image.maintainer="platform@headysystems.com" \
+      org.opencontainers.image.licenses="PROPRIETARY" \
+      org.opencontainers.image.created="2025-01-01T00:00:00Z" \
+      heady.platform.version="3.1.0" \
+      heady.component="manager"
+
+# Install runtime-only dependencies
+RUN apk add --no-cache \
+    curl \
+    tini \
+    ca-certificates && \
+    update-ca-certificates
+
+# ── Create non-root user ───────────────────────────────────────────────────
+RUN addgroup --system --gid 1001 heady && \
+    adduser  --system --uid 1001 --ingroup heady --no-create-home heady
+
+WORKDIR /app
+
+# Copy only the built artifacts from the builder stage
+COPY --from=builder --chown=heady:heady /app/node_modules ./node_modules
+COPY --from=builder --chown=heady:heady /app/src         ./src
+COPY --from=builder --chown=heady:heady /app/configs     ./configs
+COPY --from=builder --chown=heady:heady /app/package.json ./
+
+# Create runtime directories with correct ownership
+RUN mkdir -p /app/data /app/logs /app/tmp && \
+    chown -R heady:heady /app
+
+# ── Expose & Environment ───────────────────────────────────────────────────
+EXPOSE 3301
+
+ENV NODE_ENV=production \
+    PORT=3301 \
+    LOG_LEVEL=info \
+    LOG_FORMAT=json \
+    HEADY_VERSION=3.1.0
+
+# ── Health Check ───────────────────────────────────────────────────────────
+HEALTHCHECK --interval=30s \
+            --timeout=10s \
+            --start-period=45s \
+            --retries=3 \
+    CMD curl -fsS http://localhost:3301/health/live || exit 1
+
+# ── Run as non-root ────────────────────────────────────────────────────────
+USER heady
+
+# Use tini as PID 1 for proper signal handling and zombie reaping
+ENTRYPOINT ["/sbin/tini", "--"]
+
+CMD ["node", "src/index.js"]

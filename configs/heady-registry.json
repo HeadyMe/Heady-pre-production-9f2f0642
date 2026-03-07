@@ -1,0 +1,361 @@
+{
+  "_meta": {
+    "name": "Heady Service Registry",
+    "version": "3.1.0",
+    "description": "Master registry for all Heady™ AI Platform domains, nodes, and infrastructure layers",
+    "copyright": "© 2024-2026 HeadySystems Inc. All Rights Reserved.",
+    "updatedAt": "2025-01-01T00:00:00Z"
+  },
+
+  "domains": {
+    "headysystems.com": {
+      "role": "primary",
+      "description": "Core platform domain — manager, API, conductor, and web dashboard",
+      "subdomains": {
+        "manager": {
+          "url": "https://manager.headysystems.com",
+          "service": "heady-manager",
+          "port": 3301,
+          "health": "https://manager.headysystems.com/health/live",
+          "ready": "https://manager.headysystems.com/health/ready",
+          "description": "Primary orchestration manager"
+        },
+        "api": {
+          "url": "https://api.headysystems.com",
+          "service": "heady-manager",
+          "port": 3301,
+          "health": "https://api.headysystems.com/health/live",
+          "ready": "https://api.headysystems.com/health/ready",
+          "description": "Public REST API"
+        },
+        "conductor": {
+          "url": "https://conductor.headysystems.com",
+          "service": "heady-manager",
+          "port": 3301,
+          "health": "https://conductor.headysystems.com/health/live",
+          "ready": "https://conductor.headysystems.com/health/ready",
+          "description": "HeadyConductor routing endpoint"
+        },
+        "web": {
+          "url": "https://web.headysystems.com",
+          "service": "heady-manager",
+          "port": 3301,
+          "health": "https://web.headysystems.com/health/live",
+          "description": "Dashboard and web interface"
+        }
+      }
+    },
+    "headymcp.com": {
+      "role": "mcp",
+      "description": "Model Context Protocol server domain",
+      "subdomains": {
+        "mcp": {
+          "url": "https://mcp.headymcp.com",
+          "service": "heady-manager",
+          "port": 3301,
+          "health": "https://mcp.headymcp.com/health/live",
+          "description": "MCP server — 31 registered tools",
+          "protocol": "MCP/stdio+HTTP"
+        }
+      }
+    },
+    "headybuddy.org": {
+      "role": "companion",
+      "description": "HeadyBuddy AI companion interface",
+      "subdomains": {
+        "buddy": {
+          "url": "https://buddy.headybuddy.org",
+          "service": "heady-manager",
+          "port": 3301,
+          "health": "https://buddy.headybuddy.org/health/live",
+          "description": "Always-on companion system"
+        }
+      }
+    },
+    "headyconnection.org": {
+      "role": "community",
+      "description": "Heady Connection community platform",
+      "subdomains": {
+        "root": {
+          "url": "https://headyconnection.org",
+          "description": "Community platform"
+        }
+      }
+    },
+    "headybee.co": {
+      "role": "agents",
+      "description": "Heady Bee agent worker domain",
+      "subdomains": {
+        "root": {
+          "url": "https://headybee.co",
+          "description": "Bee agent colony management"
+        }
+      }
+    },
+    "headylens.ai": {
+      "role": "ar_overlay",
+      "description": "HeadyLens AR overlay intelligence",
+      "subdomains": {
+        "root": {
+          "url": "https://headylens.ai",
+          "description": "AR overlay and object explanation"
+        }
+      }
+    },
+    "headyarena.io": {
+      "role": "evaluation",
+      "description": "HeadyArena battle evaluation platform",
+      "subdomains": {
+        "root": {
+          "url": "https://headyarena.io",
+          "description": "Model and solution battle arena"
+        }
+      }
+    },
+    "headyvinci.com": {
+      "role": "pattern_engine",
+      "description": "HeadyVinci pattern recognition platform",
+      "subdomains": {
+        "root": {
+          "url": "https://headyvinci.com",
+          "description": "Pattern learning and prediction"
+        }
+      }
+    },
+    "headysoul.ai": {
+      "role": "intelligence",
+      "description": "HeadySoul intelligence engine domain",
+      "subdomains": {
+        "root": {
+          "url": "https://headysoul.ai",
+          "description": "Soul intelligence and reasoning"
+        }
+      }
+    }
+  },
+
+  "nodes": {
+    "HeadySoul": {
+      "id": "soul",
+      "version": "3.1.0",
+      "role": "intelligence",
+      "description": "Core soul intelligence — reasoning, analysis, and optimization",
+      "capabilities": ["analyze", "optimize", "learn", "reason", "reflect"],
+      "endpoint": "/api/nodes/soul",
+      "health": "/api/nodes/soul/health",
+      "layer": "hybrid",
+      "priority": 1,
+      "config": {
+        "model": "gpt-4o",
+        "fallbackModel": "claude-3-5-sonnet-20241022",
+        "maxTokens": 16000,
+        "temperature": 0.3
+      }
+    },
+    "HeadyBrains": {
+      "id": "brains",
+      "version": "3.1.0",
+      "role": "reasoning",
+      "description": "Advanced multi-step reasoning and problem decomposition",
+      "capabilities": ["reason", "decompose", "plan", "evaluate", "chain-of-thought"],
+      "endpoint": "/api/nodes/brains",
+      "health": "/api/nodes/brains/health",
+      "layer": "cloud-me",
+      "priority": 2,
+      "config": {
+        "model": "o1",
+        "maxTokens": 32000,
+        "temperature": 0.1
+      }
+    },
+    "HeadyVinci": {
+      "id": "vinci",
+      "version": "3.1.0",
+      "role": "pattern_recognition",
+      "description": "Pattern learning, recognition, and prediction engine",
+      "capabilities": ["learn", "predict", "recognize", "cluster", "classify"],
+      "endpoint": "/api/nodes/vinci",
+      "health": "/api/nodes/vinci/health",
+      "layer": "local",
+      "priority": 3,
+      "config": {
+        "embeddingModel": "text-embedding-3-small",
+        "vectorDims": 1536,
+        "similarityThreshold": 0.75
+      }
+    },
+    "HeadyMemory": {
+      "id": "memory",
+      "version": "3.1.0",
+      "role": "vector_memory",
+      "description": "Vector memory store — semantic search and episodic memory",
+      "capabilities": ["store", "search", "embed", "retrieve", "forget"],
+      "endpoint": "/api/nodes/memory",
+      "health": "/api/nodes/memory/health",
+      "layer": "local",
+      "priority": 2,
+      "config": {
+        "backend": "pgvector",
+        "dimensions": 1536,
+        "indexType": "ivfflat",
+        "maxEntries": 100000
+      }
+    },
+    "HeadyConductor": {
+      "id": "conductor",
+      "version": "3.1.0",
+      "role": "orchestrator",
+      "description": "Central orchestration and task routing engine",
+      "capabilities": ["route", "orchestrate", "prioritize", "balance", "monitor"],
+      "endpoint": "/api/nodes/conductor",
+      "health": "/api/nodes/conductor/health",
+      "layer": "hybrid",
+      "priority": 1,
+      "config": {
+        "maxConcurrent": 20,
+        "timeout": 30000,
+        "retries": 3,
+        "strategy": "best-of-n"
+      }
+    },
+    "HeadyArena": {
+      "id": "arena",
+      "version": "3.1.0",
+      "role": "evaluation",
+      "description": "Battle arena — evaluates and ranks candidate solutions",
+      "capabilities": ["battle", "rank", "score", "compare", "evaluate"],
+      "endpoint": "/api/nodes/arena",
+      "health": "/api/nodes/arena/health",
+      "layer": "cloud-sys",
+      "priority": 4,
+      "config": {
+        "defaultCriteria": ["accuracy", "quality", "efficiency", "safety"],
+        "judgeModel": "gpt-4o",
+        "rounds": 3
+      }
+    },
+    "HeadyGovernance": {
+      "id": "governance",
+      "version": "3.1.0",
+      "role": "policy",
+      "description": "Safety, policy, and ethical governance validation",
+      "capabilities": ["validate", "approve", "deny", "audit", "enforce"],
+      "endpoint": "/api/nodes/governance",
+      "health": "/api/nodes/governance/health",
+      "layer": "local",
+      "priority": 1,
+      "config": {
+        "strictMode": false,
+        "auditAll": true,
+        "blockHighRisk": true
+      }
+    },
+    "HeadyBee": {
+      "id": "bee",
+      "version": "3.1.0",
+      "role": "worker_agent",
+      "description": "Spawnable worker agents for domain-specific tasks",
+      "capabilities": ["spawn", "terminate", "monitor", "assign", "report"],
+      "endpoint": "/api/nodes/bee",
+      "health": "/api/nodes/bee/health",
+      "layer": "cloud-conn",
+      "priority": 5,
+      "config": {
+        "maxBees": 50,
+        "ttl": 3600,
+        "domains": ["research", "coding", "analysis", "creative", "monitoring", "automation"]
+      }
+    },
+    "HeadyAutobiographer": {
+      "id": "autobiographer",
+      "version": "3.1.0",
+      "role": "narrative",
+      "description": "Narrative event logger and system story generator",
+      "capabilities": ["record", "narrate", "retrieve", "summarize", "audit"],
+      "endpoint": "/api/nodes/story",
+      "health": "/api/nodes/story/health",
+      "layer": "local",
+      "priority": 6,
+      "config": {
+        "maxEntries": 10000,
+        "rotation": "10pct",
+        "persist": true
+      }
+    },
+    "HeadyBuddy": {
+      "id": "buddy",
+      "version": "3.1.0",
+      "role": "companion",
+      "description": "Always-on companion and proactive improvement system",
+      "capabilities": ["chat", "suggest", "monitor", "greet", "route"],
+      "endpoint": "/api/nodes/buddy",
+      "health": "/api/nodes/buddy/health",
+      "layer": "hybrid",
+      "priority": 3,
+      "config": {
+        "personality": "helpful-never-average",
+        "proactive": true,
+        "idleThresholdMinutes": 30
+      }
+    },
+    "HeadyLens": {
+      "id": "lens",
+      "version": "3.1.0",
+      "role": "ar_overlay",
+      "description": "AR overlay intelligence — explains objects and contexts",
+      "capabilities": ["explain", "identify", "annotate", "overlay", "enrich"],
+      "endpoint": "/api/nodes/lens",
+      "health": "/api/nodes/lens/health",
+      "layer": "cloud-conn",
+      "priority": 7,
+      "config": {
+        "visionModel": "gpt-4o",
+        "maxTargets": 10
+      }
+    }
+  },
+
+  "layers": {
+    "local": {
+      "id": "local",
+      "description": "On-device / edge compute — zero latency, private data",
+      "location": "local machine or edge node",
+      "latencyTarget": "< 10ms",
+      "privacyLevel": "highest",
+      "costPerToken": 0,
+      "nodes": ["vinci", "memory", "governance", "autobiographer"]
+    },
+    "cloud-me": {
+      "id": "cloud-me",
+      "description": "Personal cloud compute — user-provisioned cloud instance",
+      "location": "VPS or personal cloud account",
+      "latencyTarget": "< 100ms",
+      "privacyLevel": "high",
+      "nodes": ["soul", "brains"]
+    },
+    "cloud-sys": {
+      "id": "cloud-sys",
+      "description": "HeadySystems managed cloud infrastructure",
+      "location": "HeadySystems cloud (multi-region)",
+      "latencyTarget": "< 200ms",
+      "privacyLevel": "medium",
+      "nodes": ["arena", "conductor"]
+    },
+    "cloud-conn": {
+      "id": "cloud-conn",
+      "description": "Connected cloud services — third-party integrations",
+      "location": "External cloud providers",
+      "latencyTarget": "< 500ms",
+      "privacyLevel": "low",
+      "nodes": ["bee", "lens"]
+    },
+    "hybrid": {
+      "id": "hybrid",
+      "description": "Dynamic layer — spans local and cloud based on task requirements",
+      "location": "Adaptive",
+      "latencyTarget": "variable",
+      "privacyLevel": "adaptive",
+      "nodes": ["soul", "conductor", "buddy"]
+    }
+  }
+}
