@@ -1,0 +1,251 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Unified Configuration — Single Source of Truth
+# © 2024-2026 HeadySystems Inc. All Rights Reserved.
+# ═══════════════════════════════════════════════════════════════════════════════
+# This file consolidates the canonical configuration for HeadyOS.
+# Individual config files in subdirectories are domain-specific references.
+# Changes to platform-wide behavior should start HERE.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "3.2.2"
+platform: heady-os
+license: proprietary
+
+# ─── Kernel Configuration ─────────────────────────────────────────────────────
+kernel:
+  entry: heady-manager.js
+  mode: autonomous        # autonomous | supervised | manual
+  scheduler: monte-carlo  # monte-carlo | round-robin | priority
+  max_agents: 20
+  heartbeat_ms: 10000
+  auto_success:
+    enabled: true
+    interval_ms: 30000
+    total_tasks: 135
+    error_as_learning: true
+    categories:
+      - health-monitoring
+      - pattern-recognition
+      - memory-consolidation
+      - security-scanning
+      - performance-optimization
+      - agent-coordination
+      - deployment-verification
+      - data-integrity
+      - learning-synthesis
+
+# ─── Agent Nodes ──────────────────────────────────────────────────────────────
+agents:
+  nodes:
+    - id: heady-brain
+      role: reasoning
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+    - id: heady-soul
+      role: memory-guardian
+      provider: openai
+      model: gpt-4.1
+    - id: heady-vinci
+      role: pattern-recognition
+      provider: google
+      model: gemini-2.5-pro
+    - id: heady-coder
+      role: code-generation
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+    - id: heady-codex
+      role: code-analysis
+      provider: openai
+      model: gpt-4.1
+    - id: heady-copilot
+      role: pair-programming
+      provider: github
+      model: copilot
+    - id: heady-jules
+      role: project-management
+      provider: google
+      model: gemini-2.5-pro
+    - id: heady-perplexity
+      role: research
+      provider: perplexity
+      model: sonar-pro
+    - id: heady-grok
+      role: red-team
+      provider: xai
+      model: grok-3
+    - id: heady-battle
+      role: quality-gate
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+    - id: heady-sims
+      role: simulation
+      provider: google
+      model: gemini-2.5-pro
+    - id: heady-creative
+      role: creative
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+    - id: heady-manager
+      role: orchestration
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+    - id: heady-lens
+      role: change-analysis
+      provider: openai
+      model: gpt-4.1
+    - id: heady-ops
+      role: deployment
+      provider: google
+      model: gemini-2.5-pro
+    - id: heady-maintenance
+      role: system-health
+      provider: openai
+      model: gpt-4.1
+    - id: heady-memory
+      role: embeddings
+      provider: openai
+      model: text-embedding-3-large
+    - id: heady-buddy
+      role: companion
+      provider: anthropic
+      model: claude-sonnet-4-20250514
+    - id: heady-decomp
+      role: task-decomposition
+      provider: google
+      model: gemini-2.5-pro
+    - id: heady-mc
+      role: monte-carlo
+      provider: google
+      model: gemini-2.5-pro
+
+# ─── Swarm Configuration ─────────────────────────────────────────────────────
+swarms:
+  allocation:
+    operations: 0.34
+    intelligence: 0.21
+    creation: 0.21
+    security: 0.13
+    edge_cloud: 0.08
+    companion: 0.08
+    analytics: 0.05
+    sacred_governance: 0.05
+
+# ─── Vector Memory ────────────────────────────────────────────────────────────
+vector_memory:
+  dimension: 1536
+  similarity_threshold: 0.78
+  max_results: 50
+  index_type: hnsw          # hnsw | ivfflat | brute
+  hnsw:
+    m: 32
+    ef_construction: 200
+  persistence:
+    backend: file            # file | postgres | cloudflare-kv
+    file_path: ./memories/vectors.json
+  octree:
+    enabled: true
+    depth: 8
+
+# ─── MCP Server ───────────────────────────────────────────────────────────────
+mcp:
+  server_name: HeadyMCP
+  version: "3.2.0"
+  transport: streamable-http  # streamable-http | sse | stdio
+  auth_enabled: true
+  tools_auto_discovery: true
+  jit_loading: true
+  rate_limit:
+    requests_per_hour: 1000
+    burst_limit: 50
+
+# ─── Services & Domains ──────────────────────────────────────────────────────
+services:
+  domains:
+    headyme: https://headyme.com
+    headyapi: https://headyapi.com
+    headysystems: https://headysystems.com
+    headyconnection: https://headyconnection.org
+    headybuddy: https://headybuddy.org
+    headymcp: https://headymcp.com
+    headyio: https://headyio.com
+    headybot: https://headybot.com
+    headyai: https://headyai.com
+
+# ─── Infrastructure ──────────────────────────────────────────────────────────
+infrastructure:
+  cloud_run:
+    project: heady-production
+    region: us-central1
+    min_instances: 1
+    max_instances: 10
+    cpu: 2
+    memory: 1Gi
+  cloudflare:
+    edge_router: true
+    workers: true
+    kv_namespaces:
+      - RATE_LIMIT_KV
+      - CACHE_KV
+      - CONFIG_KV
+  database:
+    engine: postgresql
+    version: 16
+    extensions:
+      - vector
+      - uuid-ossp
+      - pg_trgm
+      - pgcrypto
+
+# ─── Security ─────────────────────────────────────────────────────────────────
+security:
+  jwt:
+    algorithm: HS256
+    ttl_seconds: 86400
+    issuer: heady
+  session:
+    ttl_seconds: 86400
+    cookie_secure: true
+    cookie_httponly: true
+  encryption:
+    algorithm: aes-256-gcm
+  pqc_enabled: true
+  role_isolation: true
+  secrets_jit: true
+
+# ─── Sacred Geometry ──────────────────────────────────────────────────────────
+sacred_geometry:
+  phi: 1.618033988749895
+  golden_angle: 137.507764
+  fibonacci_sequence: [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144]
+  enabled: true
+
+# ─── Branding ─────────────────────────────────────────────────────────────────
+branding:
+  scope: "@heady-ai"
+  copyright: "© 2024-2026 HeadySystems Inc."
+  tagline: "Sacred Geometry :: Organic Systems :: Breathing Interfaces"
+  entities:
+    c_corp: HeadySystems Inc.
+    nonprofit: HeadyConnection Inc.
+
+# ─── Config File Index ────────────────────────────────────────────────────────
+# Subdirectory configs provide domain-specific settings:
+config_index:
+  agent_profiles: configs/agent-profiles/
+  autonomy: configs/autonomy/
+  battle: configs/battle-blueprint.json
+  branding: configs/branding/
+  cloudflare_workers: configs/cloudflare-workers/
+  compliance: configs/compliance/
+  database: configs/database/
+  domains: configs/domains.json
+  governance: configs/governance/
+  infrastructure: configs/infrastructure/
+  observability: configs/observability/
+  phi_scales: configs/phi-scales.yaml
+  pipeline: configs/pipeline/
+  prompts: configs/prompts/
+  security: configs/security/
+  services: configs/services/
+  sso: configs/sso/
+  templates: configs/templates/
