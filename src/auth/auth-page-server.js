@@ -40,56 +40,149 @@ const server = http.createServer(async (req, res) => {
   };
 
   // ─── Routes ──────────────────────────────────────────
-  if (url.pathname === '/' && req.method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    return res.end(AUTH_PAGE_HTML);
-  }
+  try {
 
-  if (url.pathname === '/api/auth/login' && req.method === 'POST') {
-    const { username, password } = await parseBody(req);
-    const session = auth.loginManual(username, password, {
-      userAgent: req.headers['user-agent'],
-      ip: req.socket.remoteAddress,
-    });
-    if (!session) return json(401, { error: 'Invalid credentials' });
-    return json(200, {
-      success: true,
-      token: session.token,
-      tier: session.tier,
-      userId: session.userId,
-      method: session.method,
-      expiresAt: session.expiresAt,
-    });
-  }
+    if (url.pathname === '/' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      return res.end(AUTH_PAGE_HTML);
+    }
 
-  if (url.pathname === '/api/auth/device' && req.method === 'POST') {
-    const { deviceId } = await parseBody(req);
-    if (!deviceId) return json(400, { error: 'deviceId required' });
-    const session = auth.loginDevice(deviceId, {
-      userAgent: req.headers['user-agent'],
-      ip: req.socket.remoteAddress,
-    });
-    return json(200, {
-      success: true,
-      token: session.token,
-      tier: session.tier,
-      method: 'device',
-      expiresAt: session.expiresAt,
-    });
-  }
+    // ── Login (email/password) ──
+    if (url.pathname === '/api/auth/login' && req.method === 'POST') {
+      const { username, password } = await parseBody(req);
+      if (!username) return json(400, { error: 'Username is required' });
+      const session = auth.loginManual(username, password, {
+        userAgent: req.headers['user-agent'],
+        ip: req.socket.remoteAddress,
+      });
+      if (!session) return json(401, { error: 'Invalid credentials. Please check your username and password.' });
+      return json(200, {
+        success: true,
+        token: session.token,
+        tier: session.tier,
+        userId: session.userId,
+        method: session.method,
+        expiresAt: session.expiresAt,
+        redirectTo: '/onboarding/start',
+      });
+    }
 
-  if (url.pathname === '/api/auth/verify' && req.method === 'POST') {
-    const { token } = await parseBody(req);
-    const verified = auth.verify(token);
-    if (!verified) return json(200, { valid: false });
-    return json(200, verified);
-  }
+    // ── Register (new account) ──
+    if (url.pathname === '/api/auth/register' && req.method === 'POST') {
+      const { username, password, email, displayName } = await parseBody(req);
+      if (!username || username.length < 3) return json(400, { error: 'Username must be at least 3 characters' });
+      if (!password || password.length < 8) return json(400, { error: 'Password must be at least 8 characters' });
+      // Use loginManual with registration flag — HeadyAuth auto-creates on first login
+      const session = auth.loginManual(username, password, {
+        userAgent: req.headers['user-agent'],
+        ip: req.socket.remoteAddress,
+        register: true,
+        email: email || `${username}@headyme.com`,
+        displayName: displayName || username,
+      });
+      if (!session) return json(500, { error: 'Registration failed. Please try again.' });
+      return json(201, {
+        success: true,
+        token: session.token,
+        tier: session.tier,
+        userId: session.userId,
+        method: 'register',
+        expiresAt: session.expiresAt,
+        redirectTo: '/onboarding/start',
+      });
+    }
 
-  if (url.pathname === '/api/auth/status' && req.method === 'GET') {
-    return json(200, auth.getStatus());
-  }
+    // ── Device token auth ──
+    if (url.pathname === '/api/auth/device' && req.method === 'POST') {
+      const { deviceId } = await parseBody(req);
+      if (!deviceId) return json(400, { error: 'deviceId required' });
+      const session = auth.loginDevice(deviceId, {
+        userAgent: req.headers['user-agent'],
+        ip: req.socket.remoteAddress,
+      });
+      return json(200, {
+        success: true,
+        token: session.token,
+        tier: session.tier,
+        method: 'device',
+        expiresAt: session.expiresAt,
+        redirectTo: '/onboarding/start',
+      });
+    }
 
-  json(404, { error: 'Not found' });
+    // ── Google OAuth — initiate redirect ──
+    if (url.pathname === '/api/auth/google/start' && req.method === 'GET') {
+      try {
+        const state = Math.random().toString(36).substring(2, 15);
+        const authUrl = auth.getGoogleAuthUrl(state);
+        if (!authUrl) return json(503, { error: 'Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.' });
+        return json(200, { success: true, authUrl, state });
+      } catch (e) {
+        return json(503, { error: 'Google OAuth not configured: ' + e.message });
+      }
+    }
+
+    // ── Google OAuth — callback handler ──
+    if (url.pathname === '/api/auth/google/callback' && (req.method === 'GET' || req.method === 'POST')) {
+      const code = url.searchParams.get('code') || (await parseBody(req)).code;
+      if (!code) return json(400, { error: 'Authorization code required' });
+      try {
+        const session = await auth.handleGoogleCallback(code, {
+          userAgent: req.headers['user-agent'],
+          ip: req.socket.remoteAddress,
+        });
+        // Redirect to onboarding with token
+        if (req.method === 'GET') {
+          res.writeHead(302, { 'Location': `/?token=${encodeURIComponent(session.token)}&method=google` });
+          return res.end();
+        }
+        return json(200, {
+          success: true,
+          token: session.token,
+          tier: session.tier,
+          userId: session.userId,
+          method: 'google',
+          expiresAt: session.expiresAt,
+          redirectTo: '/onboarding/start',
+        });
+      } catch (e) {
+        return json(401, { error: 'Google authentication failed: ' + e.message });
+      }
+    }
+
+    // ── Verify token ──
+    if (url.pathname === '/api/auth/verify' && req.method === 'POST') {
+      const { token } = await parseBody(req);
+      if (!token) return json(400, { error: 'Token is required' });
+      const verified = auth.verify(token);
+      if (!verified) return json(200, { valid: false });
+      return json(200, { valid: true, ...verified });
+    }
+
+    // ── Refresh token ──
+    if (url.pathname === '/api/auth/refresh' && req.method === 'POST') {
+      const { token } = await parseBody(req);
+      if (!token) return json(400, { error: 'Token is required' });
+      const refreshed = auth.refresh(token);
+      if (!refreshed) return json(401, { error: 'Token expired or invalid. Please re-authenticate.' });
+      return json(200, {
+        success: true,
+        token: refreshed.token,
+        expiresAt: refreshed.expiresAt,
+      });
+    }
+
+    // ── Auth status ──
+    if (url.pathname === '/api/auth/status' && req.method === 'GET') {
+      return json(200, auth.getStatus());
+    }
+
+    json(404, { error: 'Not found' });
+
+  } catch (err) {
+    console.error('[AuthPage] Route error:', err.message);
+    json(500, { error: 'Internal server error', message: err.message });
+  }
 });
 
 server.listen(PORT, () => {
@@ -275,26 +368,42 @@ const AUTH_PAGE_HTML = `<!DOCTYPE html>
 
 <div class="auth-wrapper"><div class="auth-card">
   <div class="logo">
-    <div class="logo-mark">🐝</div>
-    <h1>Heady</h1>
-    <p><span class="status-dot online"></span>Auth Engine Online</p>
+    <div class="logo-mark">
+      <svg viewBox="0 0 32 32" fill="none" style="width:28px;height:28px;">
+        <path d="M10 8L10 24M10 16L22 16M22 8L22 24" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1>HeadyMe</h1>
+    <p><span class="status-dot online"></span>Auth Engine Online · 6 Methods</p>
   </div>
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('login')" id="tab-login">Sign In</button>
+    <button class="tab" onclick="switchTab('register')" id="tab-register">Register</button>
     <button class="tab" onclick="switchTab('device')" id="tab-device">Device</button>
     <button class="tab" onclick="switchTab('verify')" id="tab-verify">Verify</button>
   </div>
 
   <div class="panel active" id="panel-login">
     <form id="loginForm" onsubmit="handleLogin(event)">
-      <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="admin or any username" autocomplete="username" required></div>
+      <div class="form-group"><label>Username</label><input type="text" id="username" placeholder="your username" autocomplete="username" required></div>
       <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"></div>
       <button type="submit" class="btn-primary" id="loginBtn">Sign In →</button>
     </form>
     <div class="divider">or continue with</div>
     <button class="device-btn" onclick="handleDeviceAuth()"><span>📱</span> Auto Device Token</button>
-    <button class="device-btn" onclick="handleGoogleAuth()"><span>🔵</span> Google OAuth</button>
+    <button class="device-btn" onclick="handleGoogleAuth()"><span>🔵</span> Sign in with Google</button>
+  </div>
+
+  <div class="panel" id="panel-register">
+    <form id="registerForm" onsubmit="handleRegister(event)">
+      <div class="form-group"><label>Username</label><input type="text" id="regUsername" placeholder="Choose a username (3+ chars)" autocomplete="username" required minlength="3"></div>
+      <div class="form-group"><label>Email (optional)</label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="regPassword" placeholder="Min 8 characters" autocomplete="new-password" required minlength="8"></div>
+      <div class="form-group"><label>Confirm Password</label><input type="password" id="regConfirm" placeholder="Confirm password" autocomplete="new-password" required></div>
+      <button type="submit" class="btn-primary" id="registerBtn">Create Account →</button>
+    </form>
+    <p style="margin-top:16px;font-size:0.78rem;color:var(--text-dim);text-align:center;">Your @headyme.com account includes AI tools, secure email, and a personalised dashboard.</p>
   </div>
 
   <div class="panel" id="panel-device">
@@ -313,8 +422,9 @@ const AUTH_PAGE_HTML = `<!DOCTYPE html>
   <div class="session-bar" id="sessionBar"></div>
 
   <div class="footer">
-    <p>© 2026 HeadySystems Inc. · <a href="https://headyme.com">headyme.com</a></p>
-    <p style="margin-top:4px;">6 auth methods · JWT tokens · 3D vector prereq scanning</p>
+    <p>© 2026 HeadySystems Inc. · <a href="https://headyme.com">headyme.com</a> · <a href="https://headysystems.com">headysystems.com</a></p>
+    <p style="margin-top:4px;">6 auth methods · JWT + Device + OAuth · Sacred Geometry Architecture</p>
+    <p style="margin-top:2px;font-size:0.65rem;">51+ patents pending · φ-derived design system</p>
   </div>
 </div></div>
 
@@ -351,8 +461,37 @@ async function handleLogin(e) {
     if (!res.ok) throw new Error(data.error || 'Auth failed');
     showResult('success', formatSession(data));
     showSessionBar(data);
+    // Store token and show onboarding link
+    localStorage.setItem('heady_token', data.token);
+    localStorage.setItem('heady_user', JSON.stringify({ userId: data.userId, tier: data.tier, method: data.method }));
+    showOnboardingLink(data);
   } catch (err) { showResult('error', '<h3>⚠️ Error</h3><p>'+err.message+'</p>'); }
   finally { btn.classList.remove('loading'); btn.textContent = 'Sign In →'; }
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  const pw = document.getElementById('regPassword').value;
+  const confirm = document.getElementById('regConfirm').value;
+  if (pw !== confirm) { showResult('error', '<h3>⚠️ Error</h3><p>Passwords do not match.</p>'); return; }
+  const btn = document.getElementById('registerBtn');
+  btn.classList.add('loading'); btn.textContent = 'Creating Account...';
+  try {
+    const res = await fetch('/api/auth/register', { method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        username: document.getElementById('regUsername').value,
+        password: pw,
+        email: document.getElementById('regEmail').value || undefined,
+      }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Registration failed');
+    showResult('success', '<h3>🎉 Account Created!</h3>' + formatSession(data));
+    showSessionBar(data);
+    localStorage.setItem('heady_token', data.token);
+    localStorage.setItem('heady_user', JSON.stringify({ userId: data.userId, tier: data.tier, method: 'register' }));
+    showOnboardingLink(data);
+  } catch (err) { showResult('error', '<h3>⚠️ Error</h3><p>'+err.message+'</p>'); }
+  finally { btn.classList.remove('loading'); btn.textContent = 'Create Account →'; }
 }
 
 async function handleDeviceAuth() {
@@ -363,27 +502,40 @@ async function handleDeviceAuth() {
     if (!res.ok) throw new Error(data.error);
     showResult('success', formatSession(data));
     showSessionBar(data);
+    localStorage.setItem('heady_token', data.token);
+    showOnboardingLink(data);
   } catch (err) { showResult('error', '<h3>⚠️ Error</h3><p>'+err.message+'</p>'); }
 }
 
-function handleGoogleAuth() {
-  showResult('error', '<h3>ℹ️ Google OAuth</h3><p>Requires GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET env vars. In production, this redirects to accounts.google.com.</p>');
+async function handleGoogleAuth() {
+  try {
+    const res = await fetch('/api/auth/google/start');
+    const data = await res.json();
+    if (!res.ok || !data.authUrl) {
+      showResult('error', '<h3>ℹ️ Google OAuth</h3><p>' + (data.error || 'Google OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.') + '</p><p style="margin-top:8px;font-size:0.78rem;">Use Sign In or Register tabs, or connect a Device token instead.</p>');
+      return;
+    }
+    // Redirect to Google OAuth
+    window.location.href = data.authUrl;
+  } catch (err) {
+    showResult('error', '<h3>ℹ️ Google OAuth</h3><p>Could not initiate Google sign-in: '+err.message+'</p><p style="margin-top:8px;font-size:0.78rem;">Use Sign In or Register tabs instead.</p>');
+  }
 }
 
 async function handleVerify() {
   const token = document.getElementById('verifyToken').value;
-  if (!token) return;
+  if (!token) { showResult('error', '<h3>⚠️</h3><p>Paste a token to verify.</p>'); return; }
   try {
     const res = await fetch('/api/auth/verify', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({token}) });
     const data = await res.json();
     if (data.valid) {
       showResult('success', '<h3>✅ Token Valid</h3><div class="result-grid">' +
-        '<span class="label">User</span><span class="value">'+data.userId+'</span>' +
+        '<span class="label">User</span><span class="value">'+(data.userId||'—')+'</span>' +
         '<span class="label">Tier</span><span class="value">'+(data.tier||'').toUpperCase()+'</span>' +
-        '<span class="label">Method</span><span class="value">'+data.method+'</span>' +
-        '<span class="label">Expires</span><span class="value">'+new Date(data.expiresAt).toLocaleDateString()+'</span></div>');
+        '<span class="label">Method</span><span class="value">'+(data.method||'—')+'</span>' +
+        '<span class="label">Expires</span><span class="value">'+(data.expiresAt ? new Date(data.expiresAt).toLocaleDateString() : '—')+'</span></div>');
     } else {
-      showResult('error', '<h3>❌ Invalid Token</h3><p>Token not found or expired.</p>');
+      showResult('error', '<h3>❌ Invalid Token</h3><p>Token not found or expired. Please re-authenticate.</p>');
     }
   } catch (err) { showResult('error', '<h3>⚠️ Error</h3><p>'+err.message+'</p>'); }
 }
@@ -396,6 +548,27 @@ function showSessionBar(data) {
     '<p style="margin-top:10px;font-size:0.72rem;color:var(--text-dim);">Copy this token to test in the Verify tab ↗</p>';
   document.getElementById('verifyToken').value = data.token;
 }
+
+function showOnboardingLink(data) {
+  const bar = document.getElementById('sessionBar');
+  bar.innerHTML += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--glass-border);">' +
+    '<a href="/onboarding/start" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:linear-gradient(135deg,#818cf8,#6366f1);border-radius:12px;color:#fff;font-weight:700;font-size:0.9rem;text-decoration:none;transition:all 0.25s;">' +
+    '🚀 Continue to Setup Wizard →</a></div>';
+}
+
+// Check for Google OAuth callback token in URL
+(function checkOAuthReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const method = params.get('method');
+  if (token && method === 'google') {
+    localStorage.setItem('heady_token', token);
+    showResult('success', '<h3>🎉 Google Sign-In Successful!</h3><p>Redirecting to setup...</p>');
+    showSessionBar({ token });
+    showOnboardingLink({ token });
+    window.history.replaceState({}, '', '/');
+  }
+})();
 
 document.getElementById('deviceId').value = navigator.userAgent.includes('Linux') ? 'linux-workstation' : 'device-'+Math.random().toString(36).substr(2,6);
 </script>

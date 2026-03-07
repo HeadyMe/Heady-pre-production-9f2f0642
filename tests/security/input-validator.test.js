@@ -6,7 +6,7 @@
 
 'use strict';
 
-const { InputValidator } = require('../src/security/input-validator');
+const { InputValidator } = require('../../src/security/input-validator');
 
 describe('InputValidator', () => {
   let validator;

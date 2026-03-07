@@ -13,7 +13,7 @@ const {
   cslGate, cslBlend, sigmoid,
   phiBackoff, phiFusionWeights, cosineSimilarity,
   phiPriorityScore, phiTokenBudgets,
-} = require('../shared/phi-math');
+} = require('../../shared/phi-math');
 
 describe('Core Constants', () => {
   test('PHI ≈ 1.618', () => {

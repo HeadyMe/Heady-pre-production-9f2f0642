@@ -12,7 +12,7 @@ const {
   SlidingWindowCounter,
   SemanticDedupCache,
   PriorityQueue,
-} = require('../src/security/rate-limiter');
+} = require('../../src/security/rate-limiter');
 
 describe('TokenBucket', () => {
   test('allows consumption within limit', () => {

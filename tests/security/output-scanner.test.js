@@ -6,7 +6,7 @@
 
 'use strict';
 
-const { OutputScanner, luhnCheck } = require('../src/security/output-scanner');
+const { OutputScanner, luhnCheck } = require('../../src/security/output-scanner');
 
 describe('OutputScanner', () => {
   let scanner;

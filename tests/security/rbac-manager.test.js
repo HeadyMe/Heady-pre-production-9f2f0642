@@ -6,7 +6,7 @@
 
 'use strict';
 
-const { RBACManager, ROLES, CAPABILITIES } = require('../src/security/rbac-manager');
+const { RBACManager, ROLES, CAPABILITIES } = require('../../src/security/rbac-manager');
 
 // Helper to create a mock JWT
 function createMockJWT(payload) {

@@ -12,12 +12,13 @@ const {
   CAPABILITIES,
   TOOL_PROFILES,
   DEFAULT_RESOURCE_LIMITS,
-} = require('../src/security/zero-trust-sandbox');
+} = require('../../src/security/zero-trust-sandbox');
 
 describe('ZeroTrustSandbox', () => {
   let sandbox;
 
   beforeEach(() => {
+    jest.useFakeTimers();
     sandbox = new ZeroTrustSandbox({
       toolCategories: {
         'file.read': 'file-ops',
@@ -27,6 +28,11 @@ describe('ZeroTrustSandbox', () => {
         'secrets.get': 'secret-mgmt',
       },
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
   });
 
   describe('Capability Bitmask', () => {

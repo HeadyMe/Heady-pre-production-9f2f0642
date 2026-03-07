@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { AuditLogger, SOC2_CRITERIA } = require('../src/security/audit-logger');
+const { AuditLogger, SOC2_CRITERIA } = require('../../src/security/audit-logger');
 
 describe('AuditLogger', () => {
   let logger;

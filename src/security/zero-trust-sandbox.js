@@ -14,47 +14,67 @@
 
 'use strict';
 
-const { fib, CSL_THRESHOLDS, PHI, PSI, phiBackoff } = require('../../shared/phi-math');
+// Resolve phi-math: try project shared, then packages
+let phiMath;
+try {
+  phiMath = require('../shared/phi-math');
+} catch {
+  try {
+    phiMath = require('../../packages/phi-math/src');
+  } catch {
+    // Fallback inline phi-math
+    const PHI = 1.618033988749895;
+    const PSI = 1 / PHI;
+    const _fibs = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597];
+    phiMath = {
+      fib: (n) => _fibs[n] || Math.round(Math.pow(PHI, n) / Math.sqrt(5)),
+      PHI, PSI,
+      CSL_THRESHOLDS: { allow: 0.618, deny: 0.382, neutral: 0.5 },
+      phiBackoff: (attempt) => Math.round(Math.pow(PHI, attempt) * 1000),
+    };
+  }
+}
+const { fib, CSL_THRESHOLDS, PHI, PSI, phiBackoff } = phiMath;
 
 // ── Capability Bitmask Definitions ──────────────────────────────────────────
 const CAPABILITIES = Object.freeze({
-  NONE:            0b00000000,
-  FILE_READ:       0b00000001,
-  FILE_WRITE:      0b00000010,
-  NETWORK_READ:    0b00000100,
-  NETWORK_WRITE:   0b00001000,
-  DATABASE_READ:   0b00010000,
-  DATABASE_WRITE:  0b00100000,
-  SYSTEM_EXEC:     0b01000000,
-  SECRET_ACCESS:   0b10000000,
+  NONE: 0b00000000,
+  FILE_READ: 0b00000001,
+  FILE_WRITE: 0b00000010,
+  NETWORK_READ: 0b00000100,
+  NETWORK_WRITE: 0b00001000,
+  DATABASE_READ: 0b00010000,
+  DATABASE_WRITE: 0b00100000,
+  SYSTEM_EXEC: 0b01000000,
+  SECRET_ACCESS: 0b10000000,
 
   // Compound masks
-  FILE_ALL:     0b00000011,  // READ + WRITE
-  NETWORK_ALL:  0b00001100,  // READ + WRITE
+  FILE_ALL: 0b00000011,  // READ + WRITE
+  NETWORK_ALL: 0b00001100,  // READ + WRITE
   DATABASE_ALL: 0b00110000,  // READ + WRITE
-  READ_ONLY:    0b00010101,  // FILE_READ + NETWORK_READ + DATABASE_READ
-  FULL_ACCESS:  0b11111111,
+  READ_ONLY: 0b00010101,  // FILE_READ + NETWORK_READ + DATABASE_READ
+  FULL_ACCESS: 0b11111111,
 });
 
 // ── Tool Category → Capabilities + Timeouts ─────────────────────────────────
 const TOOL_PROFILES = Object.freeze({
-  'file-ops':    { caps: CAPABILITIES.FILE_ALL,     timeoutMs: fib(7) * 1000 },     // 13s
-  'network':     { caps: CAPABILITIES.NETWORK_ALL,  timeoutMs: fib(8) * 1000 },     // 21s
-  'database':    { caps: CAPABILITIES.DATABASE_ALL, timeoutMs: fib(8) * 1000 },     // 21s
-  'code-exec':   { caps: CAPABILITIES.SYSTEM_EXEC,  timeoutMs: fib(9) * 1000 },     // 34s
-  'read-only':   { caps: CAPABILITIES.READ_ONLY,    timeoutMs: fib(7) * 1000 },     // 13s
+  'file-ops': { caps: CAPABILITIES.FILE_ALL, timeoutMs: fib(7) * 1000 },     // 13s
+  'network': { caps: CAPABILITIES.NETWORK_ALL, timeoutMs: fib(8) * 1000 },     // 21s
+  'database': { caps: CAPABILITIES.DATABASE_ALL, timeoutMs: fib(8) * 1000 },     // 21s
+  'code-exec': { caps: CAPABILITIES.SYSTEM_EXEC, timeoutMs: fib(9) * 1000 },     // 34s
+  'read-only': { caps: CAPABILITIES.READ_ONLY, timeoutMs: fib(7) * 1000 },     // 13s
   'secret-mgmt': { caps: CAPABILITIES.SECRET_ACCESS, timeoutMs: fib(6) * 1000 },    // 8s
-  'default':     { caps: CAPABILITIES.READ_ONLY,    timeoutMs: fib(7) * 1000 },     // 13s
+  'default': { caps: CAPABILITIES.READ_ONLY, timeoutMs: fib(7) * 1000 },     // 13s
 });
 
 // ── Resource Limits ─────────────────────────────────────────────────────────
 const DEFAULT_RESOURCE_LIMITS = Object.freeze({
-  maxMemoryMB:       fib(8),      // 21 MB per execution
-  maxCpuTimeMs:      fib(8) * 1000, // 21s CPU time
-  maxNetworkBytes:   fib(16) * 1024, // 987 KB network I/O
-  maxOutputBytes:    fib(14) * 1024, // 377 KB output size
-  maxFileOps:        fib(7),      // 13 file operations
-  maxDbQueries:      fib(8),      // 21 DB queries
+  maxMemoryMB: fib(8),      // 21 MB per execution
+  maxCpuTimeMs: fib(8) * 1000, // 21s CPU time
+  maxNetworkBytes: fib(16) * 1024, // 987 KB network I/O
+  maxOutputBytes: fib(14) * 1024, // 377 KB output size
+  maxFileOps: fib(7),      // 13 file operations
+  maxDbQueries: fib(8),      // 21 DB queries
 });
 
 // ── Zero-Trust Sandbox ──────────────────────────────────────────────────────
