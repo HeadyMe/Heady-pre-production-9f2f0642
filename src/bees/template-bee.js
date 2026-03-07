@@ -34,7 +34,12 @@ let _registry = null;
 function getRegistry() {
     if (_registry) return _registry;
     try {
-        _registry = require("../sites/site-registry.json");
+        const raw = require("../sites/site-registry.json");
+        // Normalize: support both preconfiguredSites (new) and preconfigured (legacy)
+        _registry = {
+            ...raw,
+            preconfiguredSites: raw.preconfiguredSites || raw.preconfigured || {},
+        };
         return _registry;
     } catch (e) {
         logger.logNodeActivity("TEMPLATE-BEE", `⚠ Registry load failed: ${e.message}`);
