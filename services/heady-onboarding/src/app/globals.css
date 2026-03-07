@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --heady-primary: 99 102 241;
+    --heady-secondary: 139 92 246;
+    --heady-accent: 236 72 153;
+    --heady-background: 15 23 42;
+    --heady-foreground: 248 250 252;
+    --heady-muted: 71 85 105;
+  }
+}
+
+body {
+  @apply bg-heady-background text-heady-foreground;
+}

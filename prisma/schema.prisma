@@ -1,0 +1,121 @@
+// Prisma schema for HeadyMe authentication and onboarding
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  name              String?
+  email             String    @unique
+  emailVerified     DateTime?
+  image             String?
+
+  // HeadyMe specific fields
+  headyUsername     String?   @unique
+  headyEmail        String?   @unique // {username}@headyme.com
+
+  // Onboarding status
+  onboardingComplete Boolean  @default(false)
+  onboardingStep     Int      @default(0) // 0=not started, 1=account, 2=email, 3=perms, 4=buddy, 5=complete
+
+  // Email configuration
+  emailSetup        Json? // {provider: 'client'|'forward', forwardTo: email}
+  hasEmailClient    Boolean  @default(false)
+
+  // Permissions
+  permissionMode    String?  // 'cloud' | 'hybrid'
+  filesystemAccess  Boolean  @default(false)
+
+  // HeadyBuddy configuration
+  buddySetupComplete Boolean @default(false)
+  buddyConfig       Json?   // Custom UI contexts and preferences
+
+  // API credentials
+  apiKey            String?  @unique
+  apiKeyCreatedAt   DateTime?
+
+  // Relationships
+  accounts          Account[]
+  sessions          Session[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([headyUsername])
+  @@index([headyEmail])
+  @@index([apiKey])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// HeadyMe-specific models
+
+model OnboardingLog {
+  id        String   @id @default(cuid())
+  userId    String
+  step      Int
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ApiKeyUsage {
+  id          String   @id @default(cuid())
+  userId      String
+  apiKey      String
+  endpoint    String
+  method      String
+  statusCode  Int
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([apiKey])
+  @@index([createdAt])
+}

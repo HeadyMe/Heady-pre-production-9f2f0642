@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: heady_postgres
+    environment:
+      POSTGRES_USER: heady
+      POSTGRES_PASSWORD: heady_password_change_me
+      POSTGRES_DB: heady_pilot
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heady"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: heady_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://heady:heady_password_change_me@postgres:5432/heady_pilot
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: your-secret-key-here
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./.env:/app/.env
+
+volumes:
+  postgres_data:
