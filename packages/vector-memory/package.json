@@ -1,0 +1,12 @@
+{
+  "name": "@heady/vector-memory",
+  "version": "3.2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@heady/core": "workspace:*"
+  },
+  "scripts": {
+    "build": "tsc"
+  }
+}

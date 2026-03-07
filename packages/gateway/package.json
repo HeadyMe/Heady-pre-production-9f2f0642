@@ -1,0 +1,20 @@
+{
+    "name": "@heady/gateway",
+    "version": "3.2.0",
+    "description": "API gateway with auth, rate limiting, and cross-domain routing",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "test": "jest",
+        "clean": "rm -rf dist"
+    },
+    "dependencies": {
+        "@heady/core": "workspace:*"
+    },
+    "devDependencies": {
+        "typescript": "^5.4.0",
+        "@types/node": "^20.0.0"
+    }
+}

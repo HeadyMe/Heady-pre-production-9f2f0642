@@ -1,0 +1,12 @@
+{
+  "name": "mcp-transport-worker",
+  "version": "3.2.0",
+  "private": true,
+  "dependencies": {
+    "@heady/mcp-server": "workspace:*"
+  },
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  }
+}
