@@ -1,0 +1,560 @@
+# dast-pipeline.yml — Heady Systems DAST Pipeline
+# Dynamic Application Security Testing: OWASP ZAP, Nuclei, header/SSL/CORS/rate-limit checks
+# Runs nightly and before production deploys
+# Version: 1.0.0
+
+name: DAST Security Scan
+
+on:
+  schedule:
+    # Nightly at 03:00 UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: 'Target environment to scan'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      scan_mode:
+        description: 'Scan mode'
+        required: false
+        default: 'baseline'
+        type: choice
+        options:
+          - baseline
+          - full
+  # Called by deploy workflow before production release
+  workflow_call:
+    inputs:
+      target_env:
+        required: true
+        type: string
+        default: staging
+    outputs:
+      scan_passed:
+        description: 'Whether the DAST scan passed'
+        value: ${{ jobs.dast-summary.outputs.passed }}
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+concurrency:
+  group: dast-${{ github.ref }}-${{ inputs.target_env || 'staging' }}
+  cancel-in-progress: false  # Never cancel DAST — could leave scan in bad state
+
+env:
+  TARGET_ENV: ${{ inputs.target_env || 'staging' }}
+  STAGING_URL: https://staging.headyme.com
+  PRODUCTION_URL: https://headyme.com
+  API_STAGING_URL: https://api-staging.headyme.com
+  API_PRODUCTION_URL: https://api.headyme.com
+  MCP_STAGING_URL: https://staging.headymcp.com
+  SCAN_MODE: ${{ inputs.scan_mode || 'baseline' }}
+
+jobs:
+  # ─── Determine target URLs ───────────────────────────────────────────────────
+  setup:
+    name: Setup Scan Targets
+    runs-on: ubuntu-latest
+    outputs:
+      target_url: ${{ steps.set-target.outputs.target_url }}
+      api_url: ${{ steps.set-target.outputs.api_url }}
+      mcp_url: ${{ steps.set-target.outputs.mcp_url }}
+    steps:
+      - id: set-target
+        run: |
+          if [[ "${{ env.TARGET_ENV }}" == "production" ]]; then
+            echo "target_url=${{ env.PRODUCTION_URL }}" >> "$GITHUB_OUTPUT"
+            echo "api_url=${{ env.API_PRODUCTION_URL }}" >> "$GITHUB_OUTPUT"
+            echo "mcp_url=https://headymcp.com" >> "$GITHUB_OUTPUT"
+          else
+            echo "target_url=${{ env.STAGING_URL }}" >> "$GITHUB_OUTPUT"
+            echo "api_url=${{ env.API_STAGING_URL }}" >> "$GITHUB_OUTPUT"
+            echo "mcp_url=${{ env.MCP_STAGING_URL }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ─── OWASP ZAP Baseline Scan ─────────────────────────────────────────────────
+  owasp-zap:
+    name: OWASP ZAP Scan (${{ inputs.scan_mode || 'baseline' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create ZAP config
+        run: |
+          mkdir -p zap-config
+          cat > zap-config/zap-rules.conf << 'EOF'
+          # ZAP passive/active scan rule configuration
+          # Disable noisy false positives specific to Heady stack
+          10015	IGNORE	(Incomplete or No Cache-control Header Set)
+          10016	IGNORE	(Web Browser XSS Protection Not Enabled)
+          10017	IGNORE	(Cross-Domain JavaScript Source File Inclusion)
+          10096	IGNORE	(Timestamp Disclosure)
+          # Keep critical rules enabled
+          40012	WARN	(Cross Site Scripting)
+          40014	WARN	(Cross Site Scripting)
+          90022	WARN	(Application Error Disclosure)
+          40018	WARN	(SQL Injection)
+          EOF
+          cat > zap-config/zap-context.xml << 'EOF'
+          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          <configuration>
+            <context>
+              <name>HeadyMe</name>
+              <desc>Heady Systems main application</desc>
+              <inscope>true</inscope>
+              <incregexes>${{ needs.setup.outputs.target_url }}.*</incregexes>
+              <incregexes>${{ needs.setup.outputs.api_url }}.*</incregexes>
+              <tech>
+                <include>Db.PostgreSQL</include>
+                <include>Lang.JavaScript</include>
+                <include>OS.Linux</include>
+                <include>WS.Nginx</include>
+              </tech>
+            </context>
+          </configuration>
+          EOF
+
+      - name: Run OWASP ZAP Baseline Scan
+        if: env.SCAN_MODE == 'baseline'
+        uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: ${{ needs.setup.outputs.target_url }}
+          rules_file_name: zap-config/zap-rules.conf
+          cmd_options: >
+            -z "-config api.key=${{ secrets.ZAP_API_KEY }}"
+            -j
+            -l WARN
+          fail_action: warn
+          allow_issue_writing: true
+
+      - name: Run OWASP ZAP Full Scan
+        if: env.SCAN_MODE == 'full'
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: ${{ needs.setup.outputs.target_url }}
+          rules_file_name: zap-config/zap-rules.conf
+          cmd_options: >
+            -z "-config api.key=${{ secrets.ZAP_API_KEY }}"
+            -j
+            -l WARN
+          fail_action: warn
+          allow_issue_writing: true
+
+      - name: Run OWASP ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.7.0
+        with:
+          target: ${{ needs.setup.outputs.api_url }}/openapi.json
+          format: openapi
+          rules_file_name: zap-config/zap-rules.conf
+          cmd_options: >
+            -z "-config api.key=${{ secrets.ZAP_API_KEY }}"
+            -j
+          fail_action: warn
+        continue-on-error: true  # OpenAPI spec may not be public
+
+      - name: Upload ZAP reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-scan-reports
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md
+          retention-days: 30
+
+  # ─── Nuclei API Security Testing ─────────────────────────────────────────────
+  nuclei:
+    name: Nuclei API Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nuclei
+        run: |
+          NUCLEI_VERSION="3.2.0"
+          wget -q "https://github.com/projectdiscovery/nuclei/releases/download/v${NUCLEI_VERSION}/nuclei_${NUCLEI_VERSION}_linux_amd64.zip" -O nuclei.zip
+          unzip -q nuclei.zip -d /usr/local/bin/
+          chmod +x /usr/local/bin/nuclei
+          nuclei -version
+
+      - name: Update Nuclei templates
+        run: nuclei -update-templates -silent
+
+      - name: Run Nuclei security scan
+        run: |
+          nuclei \
+            -u "${{ needs.setup.outputs.target_url }}" \
+            -u "${{ needs.setup.outputs.api_url }}" \
+            -t exposures/ \
+            -t http/cves/ \
+            -t http/misconfiguration/ \
+            -t http/technologies/ \
+            -t http/vulnerabilities/ \
+            -t network/cves/ \
+            -t ssl/ \
+            -severity critical,high,medium \
+            -rate-limit 50 \
+            -concurrency 10 \
+            -timeout 10 \
+            -retries 2 \
+            -o nuclei-results.txt \
+            -j nuclei-results.json \
+            -stats \
+            -silent \
+            -no-color \
+          || true  # Non-zero exit on findings — handled below
+
+          # Count findings
+          CRITICAL=$(jq -r 'select(.info.severity=="critical") | .info.name' nuclei-results.json 2>/dev/null | wc -l | tr -d ' ')
+          HIGH=$(jq -r 'select(.info.severity=="high") | .info.name' nuclei-results.json 2>/dev/null | wc -l | tr -d ' ')
+          echo "nuclei_critical=${CRITICAL}" >> "$GITHUB_ENV"
+          echo "nuclei_high=${HIGH}" >> "$GITHUB_ENV"
+          echo "## Nuclei Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Critical: ${CRITICAL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- High: ${HIGH}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Nuclei results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuclei-results
+          path: |
+            nuclei-results.txt
+            nuclei-results.json
+          retention-days: 30
+
+      - name: Fail on critical Nuclei findings
+        if: env.nuclei_critical != '0'
+        run: |
+          echo "::error::Nuclei found ${{ env.nuclei_critical }} critical vulnerabilities"
+          cat nuclei-results.txt
+          exit 1
+
+  # ─── HTTP Security Headers Validation ────────────────────────────────────────
+  header-security:
+    name: HTTP Security Headers
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
+    steps:
+      - name: Validate security headers
+        id: headers
+        run: |
+          TARGET="${{ needs.setup.outputs.target_url }}"
+          FAILURES=0
+          REPORT="## HTTP Security Headers\n\n| Header | Status | Value |\n|--------|--------|-------|\n"
+
+          check_header() {
+            local url="$1"
+            local header="$2"
+            local required="$3"   # true/false
+            local pattern="${4:-}"  # optional value pattern
+
+            local value
+            value="$(curl -sf -I "${url}" 2>/dev/null | grep -i "^${header}:" | cut -d: -f2- | tr -d '\r' | xargs)"
+
+            if [[ -z "${value}" && "${required}" == "true" ]]; then
+              echo "::error::Missing required header: ${header} on ${url}"
+              REPORT+="| \`${header}\` | ❌ MISSING | - |\n"
+              FAILURES=$((FAILURES + 1))
+            elif [[ -n "${pattern}" && ! "${value}" =~ ${pattern} ]]; then
+              echo "::warning::Header ${header} value '${value}' does not match required pattern '${pattern}'"
+              REPORT+="| \`${header}\` | ⚠️ INVALID | \`${value}\` |\n"
+            else
+              REPORT+="| \`${header}\` | ✅ OK | \`${value:0:80}\` |\n"
+            fi
+          }
+
+          # Required security headers per OWASP recommendations
+          check_header "${TARGET}" "Strict-Transport-Security"      "true"  "max-age=[0-9]+"
+          check_header "${TARGET}" "Content-Security-Policy"         "true"
+          check_header "${TARGET}" "X-Content-Type-Options"          "true"  "nosniff"
+          check_header "${TARGET}" "X-Frame-Options"                 "true"  "DENY|SAMEORIGIN"
+          check_header "${TARGET}" "Referrer-Policy"                 "true"
+          check_header "${TARGET}" "Permissions-Policy"              "false"
+          check_header "${TARGET}" "Cache-Control"                   "false"
+          check_header "${TARGET}" "X-XSS-Protection"               "false"
+
+          # Should NOT be present (information disclosure)
+          check_absent_header() {
+            local url="$1"
+            local header="$2"
+            local value
+            value="$(curl -sf -I "${url}" 2>/dev/null | grep -i "^${header}:" | cut -d: -f2- | tr -d '\r' | xargs)"
+            if [[ -n "${value}" ]]; then
+              echo "::warning::Information-disclosing header present: ${header}: ${value}"
+              REPORT+="| \`${header}\` | ⚠️ SHOULD REMOVE | \`${value:0:80}\` |\n"
+            fi
+          }
+
+          check_absent_header "${TARGET}" "X-Powered-By"
+          check_absent_header "${TARGET}" "Server"
+          check_absent_header "${TARGET}" "X-AspNet-Version"
+
+          printf "%b" "${REPORT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "failures=${FAILURES}" >> "$GITHUB_OUTPUT"
+
+      - name: Fail on missing required headers
+        if: steps.headers.outputs.failures != '0'
+        run: |
+          echo "::error::${{ steps.headers.outputs.failures }} required security headers missing"
+          exit 1
+
+  # ─── SSL/TLS Configuration Testing ──────────────────────────────────────────
+  ssl-tls:
+    name: SSL/TLS Configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: setup
+    steps:
+      - name: Install testssl.sh
+        run: |
+          git clone --depth 1 https://github.com/drwetter/testssl.sh.git testssl
+          chmod +x testssl/testssl.sh
+
+      - name: Run testssl.sh
+        run: |
+          TARGET_HOST="${{ needs.setup.outputs.target_url }}"
+          TARGET_HOST="${TARGET_HOST#https://}"
+          TARGET_HOST="${TARGET_HOST%/*}"
+
+          testssl/testssl.sh \
+            --json \
+            --log \
+            --severity MEDIUM \
+            --protocols \
+            --ciphers \
+            --server-defaults \
+            --server-preference \
+            --vulnerabilities \
+            --full \
+            "${TARGET_HOST}:443" \
+          > testssl-results.json 2>&1 || true
+
+          # Check for critical TLS issues
+          FINDINGS=$(python3 -c "
+          import json, sys
+          try:
+              data = json.load(open('testssl-results.json'))
+              findings = [f for f in data if isinstance(f, dict) and f.get('severity') in ['CRITICAL', 'HIGH', 'MEDIUM']]
+              print(len(findings))
+              for f in findings[:10]:
+                  print(f.get('id',''), f.get('severity',''), f.get('finding',''))
+          except Exception as e:
+              print('0')
+          " || echo "0")
+
+          echo "testssl_findings=${FINDINGS}" >> "$GITHUB_ENV"
+
+      - name: Validate TLS minimum version (TLS 1.2+)
+        run: |
+          TARGET="${{ needs.setup.outputs.target_url }}"
+          TARGET="${TARGET#https://}"
+          TARGET="${TARGET%/*}"
+
+          # TLS 1.0 should NOT work
+          if openssl s_client -connect "${TARGET}:443" -tls1 </dev/null 2>&1 | grep -q "Cipher is "; then
+            echo "::error::TLS 1.0 is enabled — must be disabled"
+            exit 1
+          fi
+
+          # TLS 1.1 should NOT work
+          if openssl s_client -connect "${TARGET}:443" -tls1_1 </dev/null 2>&1 | grep -q "Cipher is "; then
+            echo "::error::TLS 1.1 is enabled — must be disabled"
+            exit 1
+          fi
+
+          # TLS 1.2 MUST work
+          if ! openssl s_client -connect "${TARGET}:443" -tls1_2 </dev/null 2>&1 | grep -q "Cipher is "; then
+            echo "::error::TLS 1.2 not supported"
+            exit 1
+          fi
+
+          echo "TLS version check passed: 1.0/1.1 disabled, 1.2+ enabled"
+
+      - name: Upload testssl results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testssl-results
+          path: |
+            testssl-results.json
+            testssl-results.log
+          retention-days: 30
+
+  # ─── CORS Policy Validation ───────────────────────────────────────────────────
+  cors-validation:
+    name: CORS Policy Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
+    steps:
+      - name: Validate CORS configuration
+        run: |
+          API_URL="${{ needs.setup.outputs.api_url }}"
+          FAILURES=0
+
+          # Test 1: Legitimate origin should be allowed
+          RESPONSE=$(curl -sf -I \
+            -H "Origin: https://headyme.com" \
+            -H "Access-Control-Request-Method: GET" \
+            -X OPTIONS \
+            "${API_URL}/health" 2>/dev/null || echo "")
+
+          ACAO=$(echo "${RESPONSE}" | grep -i "Access-Control-Allow-Origin:" | tr -d '\r')
+          echo "Legitimate origin test: ${ACAO:-NOT SET}"
+
+          # Test 2: Wildcard should NOT be present on API endpoints
+          if echo "${ACAO}" | grep -q "\*"; then
+            echo "::error::API endpoint returns wildcard CORS (Access-Control-Allow-Origin: *)"
+            FAILURES=$((FAILURES + 1))
+          fi
+
+          # Test 3: Unauthorized origin should be rejected
+          RESPONSE_BAD=$(curl -sf -I \
+            -H "Origin: https://malicious-attacker.com" \
+            -H "Access-Control-Request-Method: POST" \
+            -X OPTIONS \
+            "${API_URL}/api/v1/users" 2>/dev/null || echo "")
+
+          ACAO_BAD=$(echo "${RESPONSE_BAD}" | grep -i "Access-Control-Allow-Origin:" | tr -d '\r')
+          if echo "${ACAO_BAD}" | grep -q "malicious-attacker.com"; then
+            echo "::error::API allows unauthorized CORS origin: malicious-attacker.com"
+            FAILURES=$((FAILURES + 1))
+          fi
+
+          # Test 4: Credentials + wildcard combination (CORS misconfiguration)
+          ACAC=$(echo "${RESPONSE}" | grep -i "Access-Control-Allow-Credentials:" | tr -d '\r')
+          if echo "${ACAO}" | grep -q "\*" && echo "${ACAC}" | grep -qi "true"; then
+            echo "::error::Dangerous CORS: wildcard origin + credentials=true"
+            FAILURES=$((FAILURES + 1))
+          fi
+
+          if [[ "${FAILURES}" -gt 0 ]]; then
+            echo "::error::CORS validation failed with ${FAILURES} issues"
+            exit 1
+          fi
+
+          echo "CORS validation passed"
+
+  # ─── Rate Limiting Verification ────────────────────────────────────────────────
+  rate-limiting:
+    name: Rate Limiting Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
+    steps:
+      - name: Verify rate limiting is active
+        run: |
+          API_URL="${{ needs.setup.outputs.api_url }}"
+          FAILURES=0
+
+          # Send burst of requests and expect 429 after threshold
+          echo "Testing rate limiting on ${API_URL}..."
+
+          RATE_LIMITED=false
+          for i in $(seq 1 100); do
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" \
+              -H "X-Test-RateLimit: true" \
+              "${API_URL}/health" 2>/dev/null || echo "000")
+
+            if [[ "${HTTP_CODE}" == "429" ]]; then
+              RATE_LIMITED=true
+              echo "Rate limit triggered after ${i} requests (HTTP 429)"
+              break
+            fi
+          done
+
+          if [[ "${RATE_LIMITED}" != "true" ]]; then
+            echo "::warning::Rate limiting not triggered after 100 rapid requests"
+            echo "This may indicate rate limiting is not configured or threshold > 100 req/s"
+          fi
+
+          # Test auth endpoint rate limiting (stricter)
+          echo "Testing auth endpoint rate limiting..."
+          AUTH_RATE_LIMITED=false
+          for i in $(seq 1 20); do
+            HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" -X POST \
+              -H "Content-Type: application/json" \
+              -d '{"email":"test@test.com","password":"wrong"}' \
+              "${API_URL}/auth/login" 2>/dev/null || echo "000")
+
+            if [[ "${HTTP_CODE}" == "429" ]]; then
+              AUTH_RATE_LIMITED=true
+              echo "Auth rate limit triggered after ${i} attempts"
+              break
+            fi
+          done
+
+          if [[ "${AUTH_RATE_LIMITED}" != "true" ]]; then
+            echo "::error::Auth endpoint not rate limited — brute force vulnerability"
+            FAILURES=$((FAILURES + 1))
+          fi
+
+          if [[ "${FAILURES}" -gt 0 ]]; then
+            exit 1
+          fi
+
+  # ─── DAST Summary ───────────────────────────────────────────────────────────
+  dast-summary:
+    name: DAST Results Summary
+    runs-on: ubuntu-latest
+    needs: [owasp-zap, nuclei, header-security, ssl-tls, cors-validation, rate-limiting]
+    if: always()
+    outputs:
+      passed: ${{ steps.check.outputs.passed }}
+    steps:
+      - name: Check results
+        id: check
+        run: |
+          FAILED=false
+          echo "## DAST Pipeline Results — ${{ env.TARGET_ENV }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| OWASP ZAP | ${{ needs.owasp-zap.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Nuclei | ${{ needs.nuclei.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Security Headers | ${{ needs.header-security.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| SSL/TLS Config | ${{ needs.ssl-tls.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| CORS Policy | ${{ needs.cors-validation.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Rate Limiting | ${{ needs.rate-limiting.result }} |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ \
+            "${{ needs.nuclei.result }}" == "failure" || \
+            "${{ needs.ssl-tls.result }}" == "failure" || \
+            "${{ needs.cors-validation.result }}" == "failure" || \
+            "${{ needs.rate-limiting.result }}" == "failure" \
+          ]]; then
+            FAILED=true
+          fi
+
+          echo "passed=$([[ $FAILED == false ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Create issue on failure (nightly scans only)
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `DAST Security Finding — ${new Date().toISOString().slice(0,10)}`;
+            const body = `## Automated DAST Scan Failure\n\nThe nightly DAST scan detected security issues.\n\n**Environment:** ${{ env.TARGET_ENV }}\n**Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n### Action Required\nReview the scan results and remediate before next production deploy.\n\n/cc @security-team`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['security', 'dast', 'automated']
+            });

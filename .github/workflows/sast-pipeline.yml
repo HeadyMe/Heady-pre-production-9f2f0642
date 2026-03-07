@@ -1,0 +1,404 @@
+# sast-pipeline.yml — Heady Systems SAST Pipeline
+# Static Application Security Testing: CodeQL, Semgrep, ESLint, npm audit, Gitleaks, SBOM
+# Triggers: push/PR to main, staging, dev
+# Version: 1.0.0
+
+name: SAST Security Scan
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - dev
+  pull_request:
+    branches:
+      - main
+      - staging
+      - dev
+  schedule:
+    # Nightly full scan at 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      upload_sarif:
+        description: 'Upload SARIF to GitHub Security tab'
+        required: false
+        default: 'true'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  pull-requests: write
+
+concurrency:
+  group: sast-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ─── CodeQL Analysis ────────────────────────────────────────────────────────
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ javascript, typescript ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-extended,security-and-quality
+          config: |
+            name: "Heady CodeQL Config"
+            queries:
+              - uses: security-extended
+              - uses: security-and-quality
+            query-filters:
+              - exclude:
+                  id: js/incomplete-url-scheme-check
+            paths-ignore:
+              - node_modules
+              - dist
+              - build
+              - "**/*.min.js"
+              - "**/*.bundle.js"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
+          upload: ${{ github.event.inputs.upload_sarif != 'false' }}
+          output: codeql-results-${{ matrix.language }}
+
+      - name: Upload CodeQL SARIF
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif-${{ matrix.language }}
+          path: codeql-results-${{ matrix.language }}
+          retention-days: 30
+
+  # ─── Semgrep Analysis ───────────────────────────────────────────────────────
+  semgrep:
+    name: Semgrep Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container:
+      image: returntocorp/semgrep:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep (OSS ruleset + custom rules)
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        run: |
+          semgrep \
+            --config auto \
+            --config p/javascript \
+            --config p/typescript \
+            --config p/nodejs \
+            --config p/owasp-top-ten \
+            --config p/secrets \
+            --config p/supply-chain \
+            --config ci-pipelines/semgrep-rules.yaml \
+            --sarif \
+            --output semgrep.sarif \
+            --error \
+            --severity ERROR \
+            --severity WARNING \
+            --exclude "node_modules/**" \
+            --exclude "dist/**" \
+            --exclude "build/**" \
+            --exclude "**/*.min.js" \
+            --exclude "coverage/**" \
+            --json-output semgrep-results.json \
+            --metrics off \
+            --no-rewrite-rule-ids \
+            .
+
+      - name: Upload Semgrep SARIF to GitHub
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep
+
+      - name: Upload Semgrep results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: |
+            semgrep.sarif
+            semgrep-results.json
+          retention-days: 30
+
+  # ─── ESLint Security Plugin ─────────────────────────────────────────────────
+  eslint-security:
+    name: ESLint Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install security ESLint plugins
+        run: |
+          npm install --no-save \
+            eslint \
+            eslint-plugin-security \
+            eslint-plugin-no-unsanitized \
+            eslint-plugin-xss \
+            @microsoft/eslint-plugin-sdl \
+            eslint-formatter-sarif
+
+      - name: Run ESLint security scan
+        run: |
+          npx eslint \
+            --plugin security \
+            --plugin no-unsanitized \
+            --plugin xss \
+            --plugin "@microsoft/sdl" \
+            --rule 'security/detect-eval-with-expression: error' \
+            --rule 'security/detect-non-literal-require: warn' \
+            --rule 'security/detect-object-injection: warn' \
+            --rule 'security/detect-possible-timing-attacks: warn' \
+            --rule 'security/detect-pseudoRandomBytes: error' \
+            --rule 'security/detect-non-literal-regexp: warn' \
+            --rule 'security/detect-unsafe-regex: error' \
+            --rule 'security/detect-buffer-noassert: error' \
+            --rule 'security/detect-child-process: warn' \
+            --rule 'security/detect-disable-mustache-escape: error' \
+            --rule 'no-unsanitized/method: error' \
+            --rule 'no-unsanitized/property: error' \
+            --rule 'xss/no-mixed-html: warn' \
+            --format @microsoft/eslint-formatter-sarif \
+            --output-file eslint-security.sarif \
+            --ext .js,.ts,.mjs,.cjs \
+            --ignore-pattern 'node_modules/' \
+            --ignore-pattern 'dist/' \
+            --ignore-pattern 'build/' \
+            --ignore-pattern '**/*.min.js' \
+            'src/**/*.{js,ts}' \
+            'index.js' \
+          || true  # Don't fail here — security-gate.yml handles blocking
+
+      - name: Upload ESLint SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: eslint-security.sarif
+          category: eslint-security
+
+      - name: Upload ESLint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-security-results
+          path: eslint-security.sarif
+          retention-days: 30
+
+  # ─── npm audit ──────────────────────────────────────────────────────────────
+  npm-audit:
+    name: npm Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run npm audit (production only)
+        id: npm_audit
+        run: |
+          npm audit --production --json > npm-audit-report.json 2>&1 || true
+          CRITICAL=$(jq '.vulnerabilities | to_entries[] | select(.value.severity == "critical") | .key' npm-audit-report.json | wc -l | tr -d ' ')
+          HIGH=$(jq '.vulnerabilities | to_entries[] | select(.value.severity == "high") | .key' npm-audit-report.json | wc -l | tr -d ' ')
+          echo "critical=${CRITICAL}" >> "$GITHUB_OUTPUT"
+          echo "high=${HIGH}" >> "$GITHUB_OUTPUT"
+          echo "## npm audit summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Critical: ${CRITICAL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- High: ${HIGH}" >> "$GITHUB_STEP_SUMMARY"
+          jq '.vulnerabilities | to_entries[] | {name: .key, severity: .value.severity, via: .value.via[0]}' npm-audit-report.json >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Upload npm audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: npm-audit-report.json
+          retention-days: 30
+
+      - name: Fail on critical vulnerabilities
+        if: steps.npm_audit.outputs.critical != '0'
+        run: |
+          echo "::error::npm audit found ${{ steps.npm_audit.outputs.critical }} critical vulnerabilities"
+          exit 1
+
+  # ─── Gitleaks Secret Scanning ───────────────────────────────────────────────
+  gitleaks:
+    name: Gitleaks Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git log scanning
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_NOTIFY_USER_LIST: '@security-team'
+        with:
+          args: >
+            detect
+            --source=.
+            --log-level=warn
+            --redact
+            --verbose
+            --report-format=sarif
+            --report-path=gitleaks-report.sarif
+            --config=.gitleaks.toml
+            --no-git=false
+
+      - name: Upload Gitleaks SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks-report.sarif
+          category: gitleaks
+
+      - name: Upload Gitleaks report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.sarif
+          retention-days: 30
+
+  # ─── SBOM Generation (CycloneDX) ────────────────────────────────────────────
+  sbom:
+    name: SBOM Generation (CycloneDX)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install CycloneDX generator
+        run: npm install -g @cyclonedx/cyclonedx-npm
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-npm \
+            --output-format JSON \
+            --output-file heady-sbom.cdx.json \
+            --package-lock-only \
+            --spec-version 1.5
+
+      - name: Validate SBOM
+        run: |
+          npm install -g @cyclonedx/cyclonedx-library
+          node -e "
+            const fs = require('fs');
+            const sbom = JSON.parse(fs.readFileSync('heady-sbom.cdx.json'));
+            console.log('SBOM components:', sbom.components?.length || 0);
+            console.log('SBOM format:', sbom.bomFormat);
+            console.log('SBOM version:', sbom.specVersion);
+          "
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: heady-sbom
+          path: heady-sbom.cdx.json
+          retention-days: 90  # Keep for longer — SOC2 evidence
+
+      - name: Attach SBOM to release (if release event)
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: heady-sbom.cdx.json
+
+  # ─── SAST Summary ───────────────────────────────────────────────────────────
+  sast-summary:
+    name: SAST Results Summary
+    runs-on: ubuntu-latest
+    needs: [codeql, semgrep, eslint-security, npm-audit, gitleaks, sbom]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate summary
+        run: |
+          echo "## SAST Pipeline Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| CodeQL (JS) | ${{ needs.codeql.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Semgrep | ${{ needs.semgrep.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ESLint Security | ${{ needs.eslint-security.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| npm audit | ${{ needs.npm-audit.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Gitleaks | ${{ needs.gitleaks.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| SBOM | ${{ needs.sbom.result }} |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if any critical check failed
+        if: |
+          needs.codeql.result == 'failure' ||
+          needs.semgrep.result == 'failure' ||
+          needs.gitleaks.result == 'failure' ||
+          needs.npm-audit.result == 'failure'
+        run: |
+          echo "::error::One or more SAST checks failed"
+          exit 1

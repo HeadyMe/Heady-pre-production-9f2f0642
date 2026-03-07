@@ -1,14 +1,21 @@
-/*
- * © 2026 HeadySystems Inc..
- * PROPRIETARY AND CONFIDENTIAL.
- * Unauthorized copying, modification, or distribution is strictly prohibited.
+/* © 2024-2026 HeadySystems Inc. All Rights Reserved. PROPRIETARY AND CONFIDENTIAL. */
+'use strict';
+
+/**
+ * Swarm Intelligence — Dynamic resource allocation for bee swarms.
+ * Computes target bee counts, concurrency limits, and strategy
+ * based on live system load metrics.
  */
-"use strict";
 
 function clamp(n, min, max) {
     return Math.max(min, Math.min(max, n));
 }
 
+/**
+ * Compute optimal swarm allocation based on current load.
+ * @param {Object} input — { loadScore, pendingTasks, p95LatencyMs, errorRate }
+ * @returns {{ targetBees, targetSwarms, asyncConcurrency, strategy, score }}
+ */
 function computeSwarmAllocation(input = {}) {
     const loadScore = clamp(Number(input.loadScore) || 0, 0, 1);
     const pendingTasks = Math.max(0, Number(input.pendingTasks) || 0);
@@ -25,29 +32,26 @@ function computeSwarmAllocation(input = {}) {
 
     const targetBees = clamp(baseBees + loadBoost + pendingBoost - latencyPenalty - errorPenalty, 6, 64);
     const targetSwarms = clamp(baseSwarms + Math.ceil(targetBees / 12), 2, 12);
-
     const asyncConcurrency = clamp(targetBees * 2 + targetSwarms * 3, 16, 180);
 
     return {
         targetBees,
         targetSwarms,
         asyncConcurrency,
-        strategy: errorRate > 0.08 ? "stability-first" : loadScore > 0.6 ? "throughput-first" : "balanced",
-        score: {
-            loadScore,
-            pendingTasks,
-            p95LatencyMs,
-            errorRate,
-        },
+        strategy: errorRate > 0.08 ? 'stability-first' : loadScore > 0.6 ? 'throughput-first' : 'balanced',
+        score: { loadScore, pendingTasks, p95LatencyMs, errorRate },
     };
 }
 
+/**
+ * Evaluate live cloud status based on heartbeat and service health.
+ */
 function evaluateLiveCloudStatus(input = {}) {
-    const cloudUrl = String(input.cloudUrl || "").trim();
+    const cloudUrl = String(input.cloudUrl || '').trim();
     const heartbeatAgeMs = Math.max(0, Number(input.heartbeatAgeMs) || 0);
     const serviceHealth = clamp(Number(input.serviceHealth) || 0, 0, 1);
 
-    const hasCloudUrl = cloudUrl.startsWith("https://");
+    const hasCloudUrl = cloudUrl.startsWith('https://');
     const heartbeatHealthy = heartbeatAgeMs <= 30_000;
     const servicesHealthy = serviceHealth >= 0.9;
 

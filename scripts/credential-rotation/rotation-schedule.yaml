@@ -1,0 +1,291 @@
+# rotation-schedule.yaml — Heady Systems Credential Rotation Schedule
+# Defines rotation policies, notification thresholds, and automation rules.
+# Consumed by: credential-audit.js, crontab-rotation.txt, CI workflows
+# Version: 1.0.0
+
+metadata:
+  organization: HeadyMe
+  vault: heady-production
+  slack_channel: "#security-alerts"
+  audit_log_path: ./audit/
+  soc2_control: CC6.1
+
+# ─── Global defaults ──────────────────────────────────────────────────────────
+defaults:
+  warn_days_before: 14       # Alert N days before expiry
+  critical_days_before: 3    # Critical alert N days before expiry
+  overlap_period_seconds: 300  # Dual-password overlap (5 minutes)
+  dry_run: false
+  notify_on_success: true
+  notify_on_failure: true
+  max_retries: 3
+  retry_delay_seconds: 60
+
+# ─── API Keys (External Services) ────────────────────────────────────────────
+api_keys:
+  openai:
+    display_name: "OpenAI API Key"
+    op_item: "OpenAI API Key"
+    op_vault: heady-production
+    env_vars:
+      - OPENAI_API_KEY
+    rotation_days: 90
+    validation_endpoint: "https://api.openai.com/v1/models"
+    validation_method: GET
+    validation_auth_header: "Authorization: Bearer {key}"
+    expected_http_status: 200
+    scripts:
+      rotate: ./rotate-all-keys.sh --service openai
+      validate: ./rotate-all-keys.sh --service openai --dry-run
+    last_rotated: null  # Updated by rotation script
+    next_rotation: null
+
+  anthropic:
+    display_name: "Anthropic API Key"
+    op_item: "Anthropic API Key"
+    op_vault: heady-production
+    env_vars:
+      - ANTHROPIC_API_KEY
+    rotation_days: 90
+    validation_endpoint: "https://api.anthropic.com/v1/models"
+    validation_method: GET
+    validation_auth_header: "x-api-key: {key}"
+    extra_headers:
+      - "anthropic-version: 2023-06-01"
+    expected_http_status: 200
+    scripts:
+      rotate: ./rotate-all-keys.sh --service anthropic
+
+  google:
+    display_name: "Google Generative AI Key"
+    op_item: "Google Generative AI Key"
+    op_vault: heady-production
+    env_vars:
+      - GOOGLE_API_KEY
+      - GOOGLE_GENERATIVE_AI_API_KEY
+    rotation_days: 90
+    validation_endpoint: "https://generativelanguage.googleapis.com/v1beta/models?key={key}"
+    validation_method: GET
+    expected_http_status: 200
+    scripts:
+      rotate: ./rotate-all-keys.sh --service google
+
+  groq:
+    display_name: "Groq API Key"
+    op_item: "Groq API Key"
+    op_vault: heady-production
+    env_vars:
+      - GROQ_API_KEY
+    rotation_days: 90
+    validation_endpoint: "https://api.groq.com/openai/v1/models"
+    validation_method: GET
+    validation_auth_header: "Authorization: Bearer {key}"
+    expected_http_status: 200
+    scripts:
+      rotate: ./rotate-all-keys.sh --service groq
+
+  huggingface:
+    display_name: "HuggingFace Inference Token"
+    op_item: "HuggingFace Token"
+    op_vault: heady-production
+    env_vars:
+      - HUGGINGFACE_API_KEY
+      - HF_TOKEN
+    rotation_days: 90
+    validation_endpoint: "https://huggingface.co/api/whoami-v2"
+    validation_method: GET
+    validation_auth_header: "Authorization: Bearer {key}"
+    expected_http_status: 200
+    scripts:
+      rotate: ./rotate-all-keys.sh --service huggingface
+
+  cloudflare:
+    display_name: "Cloudflare API Token"
+    op_item: "Cloudflare API Token"
+    op_vault: heady-production
+    env_vars:
+      - CLOUDFLARE_API_TOKEN
+    rotation_days: 90
+    validation_endpoint: "https://api.cloudflare.com/client/v4/user/tokens/verify"
+    validation_method: GET
+    validation_auth_header: "Authorization: Bearer {key}"
+    expected_http_status: 200
+    scripts:
+      rotate: ./rotate-all-keys.sh --service cloudflare
+
+# ─── Database Credentials ─────────────────────────────────────────────────────
+database:
+  postgres:
+    display_name: "PostgreSQL / Neon Database"
+    op_item: "Neon PostgreSQL"
+    op_vault: heady-production
+    env_vars:
+      - DATABASE_URL
+      - NEON_DATABASE_URL
+      - PGVECTOR_URL
+    rotation_days: 60
+    overlap_period_seconds: 300  # 5 minute dual-password overlap
+    dual_password_support: true
+    connection_test: "SELECT 1"
+    scripts:
+      rotate: ./rotate-db-credentials.sh --service postgres
+      test: ./rotate-db-credentials.sh --service postgres --dry-run
+
+  redis:
+    display_name: "Redis / heady-kv"
+    op_item: "Redis heady-kv"
+    op_vault: heady-production
+    env_vars:
+      - REDIS_URL
+      - HEADY_KV_URL
+      - UPSTASH_REDIS_URL
+    rotation_days: 60
+    overlap_period_seconds: 300
+    dual_password_support: true  # Redis 6+ ACL
+    connection_test: "PING"
+    scripts:
+      rotate: ./rotate-db-credentials.sh --service redis
+
+# ─── TLS Certificates ─────────────────────────────────────────────────────────
+tls_certificates:
+  letsencrypt:
+    display_name: "Let's Encrypt Certificates"
+    provider: letsencrypt
+    cert_dir: /etc/letsencrypt/live
+    renew_days_before_expiry: 30    # Renew when ≤30 days remain
+    warn_days_before_expiry: 45
+    critical_days_before_expiry: 7
+    domains:
+      - headyme.com
+      - www.headyme.com
+      - api.headyme.com
+      - headymcp.com
+      - www.headymcp.com
+      - headysystems.com
+      - www.headysystems.com
+    certbot_email: security@headyme.com
+    certbot_method: webroot
+    webroot_path: /var/www/certbot
+    services_to_reload:
+      - nginx
+      - heady-api
+      - heady-mcp
+    scripts:
+      rotate: ./rotate-tls-certs.sh
+      check: ./rotate-tls-certs.sh --dry-run
+
+  cloudflare_origin:
+    display_name: "Cloudflare Origin Certificates"
+    provider: cloudflare
+    op_prefix: "Cloudflare Origin Cert"
+    cert_dir: /etc/ssl/cloudflare
+    validity_days: 5475  # 15 years (Cloudflare max)
+    renew_days_before_expiry: 30
+    domains:
+      - headyme.com
+      - headymcp.com
+      - headysystems.com
+    scripts:
+      rotate: ./rotate-tls-certs.sh
+
+# ─── GitHub Tokens ────────────────────────────────────────────────────────────
+github:
+  ci_pat:
+    display_name: "GitHub CI PAT"
+    op_item: "GitHub PAT CI"
+    op_vault: heady-production
+    env_vars:
+      - GITHUB_TOKEN
+      - HEADY_CI_TOKEN
+    rotation_days: 30
+    required_scopes:
+      - repo
+      - workflow
+      - admin:org
+      - read:packages
+    actions_secrets_to_update:
+      - HEADY_CI_TOKEN
+    org: HeadyMe
+    scripts:
+      rotate: ./rotate-github-tokens.sh
+
+  app_installation:
+    display_name: "GitHub App Installation Token"
+    op_item: "GitHub App Heady"
+    op_vault: heady-production
+    env_vars:
+      - GITHUB_APP_TOKEN
+    rotation_days: 30
+    # GitHub App installation tokens expire after 1 hour — rotation is ad hoc
+    auto_refresh: true  # Refreshed on each use via the app
+    scripts:
+      rotate: ./rotate-github-tokens.sh
+
+# ─── MCP Session Tokens ───────────────────────────────────────────────────────
+mcp:
+  session_tokens:
+    display_name: "MCP Session Tokens"
+    op_vault: heady-production
+    env_vars:
+      - MCP_SESSION_TOKEN
+      - HEADY_MCP_SESSION
+    rotation_days: 1       # Every 24 hours
+    rotation_hours: 24
+    # MCP tokens are JWT-based, auto-rotated on session expiry
+    auto_rotate: true
+    jwt_expiry_seconds: 86400  # 24 hours
+    scripts:
+      rotate: "node src/mcp/session-manager.js --rotate"
+
+# ─── JWT Secrets ──────────────────────────────────────────────────────────────
+jwt:
+  app_secret:
+    display_name: "Application JWT Secret"
+    op_item: "Heady JWT Secret"
+    op_vault: heady-production
+    env_vars:
+      - JWT_SECRET
+      - HEADY_JWT_SECRET
+    rotation_days: 90
+    # Rotating JWT secret invalidates all active sessions — schedule maintenance window
+    requires_maintenance_window: true
+    maintenance_window: "Sunday 02:00-04:00 UTC"
+    scripts:
+      rotate: ./rotate-all-keys.sh --service jwt_secret
+
+# ─── Webhook Secrets ──────────────────────────────────────────────────────────
+webhooks:
+  slack:
+    display_name: "Slack Webhook"
+    op_item: "Slack Webhook Security"
+    op_vault: heady-production
+    env_vars:
+      - SLACK_WEBHOOK_URL
+      - SLACK_SECURITY_WEBHOOK
+    rotation_days: 180
+    scripts:
+      rotate: ./rotate-all-keys.sh --service webhook_slack
+
+  github_webhook:
+    display_name: "GitHub Webhook Secret"
+    op_item: "GitHub Webhook Secret"
+    op_vault: heady-production
+    env_vars:
+      - GITHUB_WEBHOOK_SECRET
+    rotation_days: 90
+
+# ─── Compliance summary ───────────────────────────────────────────────────────
+compliance:
+  framework: SOC2_TYPE2
+  controls:
+    - CC6.1  # Logical and Physical Access Controls
+    - CC6.2  # Access Control Provisioning
+    - CC6.7  # Data Transmission Security
+  audit_retention_days: 365
+  report_path: ./audit/
+  evidence_format: JSON
+  automated_checks:
+    - scan_hardcoded_secrets
+    - check_key_ages
+    - verify_rotation_log
+    - validate_vault_access

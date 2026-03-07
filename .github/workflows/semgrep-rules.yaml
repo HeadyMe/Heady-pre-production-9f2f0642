@@ -1,0 +1,517 @@
+# semgrep-rules.yaml — Heady Systems Custom Semgrep Rules
+# Detects Heady-specific security patterns across the codebase.
+# Usage: semgrep --config ci-pipelines/semgrep-rules.yaml .
+# Version: 1.0.0
+
+rules:
+  # ─── Hardcoded API Keys with Heady Prefixes ──────────────────────────────────
+
+  - id: heady-hardcoded-api-key-openai
+    message: |
+      Hardcoded OpenAI API key detected. Keys must be loaded from environment
+      variables or 1Password, never committed to source code.
+      Rotate immediately: ./credential-rotation/rotate-all-keys.sh --service openai
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              const $VAR = "sk-..."
+          - pattern: |
+              const $VAR = 'sk-...'
+          - pattern: |
+              "$KEY": "sk-..."
+    metadata:
+      category: security
+      cwe: CWE-798
+      owasp: A07:2021 - Identification and Authentication Failures
+      confidence: HIGH
+      heady-control: SEC-001
+
+  - id: heady-hardcoded-api-key-anthropic
+    message: |
+      Hardcoded Anthropic API key detected. Remove from source and store in 1Password vault.
+    severity: ERROR
+    languages: [javascript, typescript, python]
+    pattern: |
+      "sk-ant-api..."
+    metadata:
+      category: security
+      cwe: CWE-798
+      confidence: HIGH
+      heady-control: SEC-001
+
+  - id: heady-hardcoded-api-key-generic
+    message: |
+      Hardcoded API key or secret detected in assignment. Use process.env or
+      heady-core/env module to load credentials at runtime.
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              const $VAR = "heady_$KEY_$SECRET"
+          - pattern: |
+              const $VAR = 'heady_$KEY_$SECRET'
+          - pattern: |
+              "$FIELD": "heady_$KEY_$SECRET"
+    pattern-where:
+      - metavariable-regex:
+          metavariable: $FIELD
+          regex: (?i)(key|secret|token|password|passwd|credential|api_key)
+    metadata:
+      category: security
+      cwe: CWE-798
+      confidence: MEDIUM
+      heady-control: SEC-001
+
+  - id: heady-hardcoded-env-secret
+    message: |
+      Hard-coded secret assigned to a variable with a sensitive name.
+      Load credentials from environment variables or secrets manager instead.
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern: |
+          const $VAR = $SECRET
+      - pattern-where:
+          - metavariable-regex:
+              metavariable: $VAR
+              regex: (?i)(api_?key|secret|token|password|passwd|credential|auth_?key)
+          - metavariable-pattern:
+              metavariable: $SECRET
+              pattern-either:
+                - pattern: '"...$X..."'
+                - pattern: "'...$X...'"
+              where:
+                - metavariable-regex:
+                    metavariable: $X
+                    regex: .{20,}
+    metadata:
+      category: security
+      cwe: CWE-798
+      confidence: MEDIUM
+
+  # ─── Unprotected Routes Missing Auth Middleware ───────────────────────────────
+
+  - id: heady-unprotected-express-route
+    message: |
+      Express route handler defined without authentication middleware.
+      All API routes in Heady must use requireAuth() or similar from src/middleware/auth-rbac.js.
+      Add: router.$METHOD('$PATH', requireAuth, ...)
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $ROUTER.post($PATH, $HANDLER)
+          - pattern: |
+              $ROUTER.put($PATH, $HANDLER)
+          - pattern: |
+              $ROUTER.delete($PATH, $HANDLER)
+          - pattern: |
+              $ROUTER.patch($PATH, $HANDLER)
+      - pattern-not:
+          pattern: |
+              $ROUTER.$METHOD($PATH, ..., requireAuth, ...)
+      - pattern-not:
+          pattern: |
+              $ROUTER.$METHOD($PATH, ..., authenticateRequest, ...)
+      - pattern-not:
+          pattern: |
+              $ROUTER.$METHOD($PATH, ..., verifyToken, ...)
+      - pattern-not:
+          pattern: |
+              $ROUTER.$METHOD($PATH, ..., authMiddleware, ...)
+      - pattern-not-inside:
+          pattern: |
+              // @public
+              $X
+    metadata:
+      category: security
+      cwe: CWE-306
+      owasp: A01:2021 - Broken Access Control
+      confidence: MEDIUM
+      heady-control: SEC-006
+
+  - id: heady-unprotected-fastify-route
+    message: |
+      Fastify route without authentication preHandler. Add
+      preHandler: [fastify.authenticate] to protected routes.
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern: |
+          fastify.post($PATH, $OPTS, $HANDLER)
+      - pattern-not: |
+          fastify.post($PATH, {..., preHandler: [...]}, $HANDLER)
+    metadata:
+      category: security
+      cwe: CWE-306
+      confidence: MEDIUM
+
+  # ─── SQL Injection in Raw Queries ─────────────────────────────────────────────
+
+  - id: heady-sql-injection-template-literal
+    message: |
+      Potential SQL injection: user-controlled input in template literal SQL query.
+      Use parameterized queries: db.query('SELECT ... WHERE id = $1', [userId])
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $DB.query(`... ${$INPUT} ...`)
+          - pattern: |
+              $DB.execute(`... ${$INPUT} ...`)
+          - pattern: |
+              $PG.query(`... ${$INPUT} ...`)
+          - pattern: |
+              neon`... ${$INPUT} ...`
+    metadata:
+      category: security
+      cwe: CWE-89
+      owasp: A03:2021 - Injection
+      confidence: HIGH
+      heady-control: SEC-007
+
+  - id: heady-sql-injection-string-concat
+    message: |
+      SQL injection risk: string concatenation in query construction.
+      Use parameterized queries with placeholders ($1, $2, ...).
+    severity: ERROR
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $DB.query("SELECT " + $INPUT)
+          - pattern: |
+              $DB.query("INSERT " + $INPUT)
+          - pattern: |
+              $DB.query("UPDATE " + $INPUT)
+          - pattern: |
+              $DB.query("DELETE " + $INPUT)
+          - pattern: |
+              $DB.query("WHERE " + $INPUT)
+    metadata:
+      category: security
+      cwe: CWE-89
+      confidence: HIGH
+
+  # ─── eval() and Function() Usage ──────────────────────────────────────────────
+
+  - id: heady-eval-usage
+    message: |
+      Use of eval() is forbidden. eval() executes arbitrary code and creates
+      serious security vulnerabilities (RCE via prompt injection, XSS, etc.).
+      Use JSON.parse() for data, or refactor to eliminate dynamic evaluation.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: eval($X)
+      - pattern: eval.call($OBJ, $X)
+    metadata:
+      category: security
+      cwe: CWE-95
+      owasp: A03:2021 - Injection
+      confidence: HIGH
+      heady-control: SEC-008
+
+  - id: heady-function-constructor
+    message: |
+      Use of Function() constructor is equivalent to eval() — forbidden.
+      The Function() constructor creates functions from strings at runtime,
+      enabling code injection. Refactor to use named functions.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: new Function($X)
+      - pattern: new Function($X, $Y)
+      - pattern: new Function($X, $Y, $Z)
+    metadata:
+      category: security
+      cwe: CWE-95
+      confidence: HIGH
+      heady-control: SEC-008
+
+  - id: heady-vm-module-runInContext
+    message: |
+      vm.runInContext() / vm.runInNewContext() can execute untrusted code.
+      Ensure input is fully sanitized and consider using a sandbox alternative.
+    severity: WARNING
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: vm.runInContext($CODE, $CTX)
+      - pattern: vm.runInNewContext($CODE)
+      - pattern: vm.runInThisContext($CODE)
+      - pattern: vm.Script($CODE)
+    metadata:
+      category: security
+      cwe: CWE-95
+      confidence: MEDIUM
+
+  # ─── Missing Circuit Breaker on External Calls ────────────────────────────────
+
+  - id: heady-missing-circuit-breaker-fetch
+    message: |
+      External HTTP call without circuit breaker protection.
+      Wrap external calls with CircuitBreaker from src/lib/circuit-breaker.js to
+      prevent cascading failures: cb.fire(() => fetch(url))
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: |
+              fetch($URL, ...)
+          - pattern: |
+              await fetch($URL, ...)
+      - pattern-not-inside:
+          pattern: |
+              $CB.fire(...)
+      - pattern-not-inside:
+          pattern: |
+              $CB.execute(...)
+      - pattern-not-inside:
+          pattern: |
+              circuitBreaker(...)
+      - pattern-not-inside:
+          pattern: |
+              withCircuitBreaker(...)
+      - focus-metavariable: $URL
+      - metavariable-regex:
+          metavariable: $URL
+          regex: (?i)(https?://|process\.env\.|config\.)
+    metadata:
+      category: reliability
+      cwe: CWE-703
+      confidence: MEDIUM
+      heady-control: RES-001
+
+  - id: heady-missing-circuit-breaker-axios
+    message: |
+      axios call without circuit breaker. Use CircuitBreaker from
+      src/lib/circuit-breaker.js to guard all outbound HTTP requests.
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern-either:
+          - pattern: axios.get($URL, ...)
+          - pattern: axios.post($URL, ...)
+          - pattern: axios.put($URL, ...)
+          - pattern: axios.delete($URL, ...)
+      - pattern-not-inside:
+          pattern: |
+              $CB.fire(...)
+    metadata:
+      category: reliability
+      confidence: MEDIUM
+      heady-control: RES-001
+
+  # ─── Missing Telemetry Spans on Public Methods ────────────────────────────────
+
+  - id: heady-missing-telemetry-span-public-method
+    message: |
+      Public async method without OpenTelemetry span instrumentation.
+      Add a span via src/lib/telemetry.js: tracer.startActiveSpan('ClassName.method', span => { ... })
+      This is required for observability on all public API surface.
+    severity: INFO
+    languages: [javascript, typescript]
+    patterns:
+      - pattern: |
+          class $CLASS {
+            ...
+            async $METHOD($ARGS) {
+              $BODY
+            }
+            ...
+          }
+      - pattern-not: |
+          class $CLASS {
+            ...
+            async $METHOD($ARGS) {
+              ...
+              tracer.startActiveSpan(...)
+              ...
+            }
+            ...
+          }
+      - pattern-not: |
+          class $CLASS {
+            ...
+            async $METHOD($ARGS) {
+              ...
+              span.setAttribute(...)
+              ...
+            }
+            ...
+          }
+      - pattern-not: |
+          class $CLASS {
+            ...
+            // @no-telemetry
+            async $METHOD($ARGS) {
+              $BODY
+            }
+            ...
+          }
+    metadata:
+      category: observability
+      confidence: LOW
+      heady-control: OBS-001
+
+  # ─── Additional Heady-Specific Rules ─────────────────────────────────────────
+
+  - id: heady-process-env-direct-access
+    message: |
+      Direct process.env access outside of config/env module.
+      Use the heady-core env loader (src/config/env.js) which validates
+      required variables at startup and provides type coercion.
+    severity: INFO
+    languages: [javascript, typescript]
+    pattern: process.env.$VAR
+    pattern-not-inside:
+      patterns:
+        - pattern-inside: |
+            // src/config/$FILE
+            ...
+        - pattern-inside: |
+            // @allow-env-access
+            ...
+    metadata:
+      category: maintainability
+      confidence: LOW
+
+  - id: heady-jwt-verify-missing-algorithm
+    message: |
+      jwt.verify() called without explicit algorithm option.
+      Always specify algorithms to prevent algorithm confusion attacks:
+      jwt.verify(token, secret, { algorithms: ['HS256'] })
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern: |
+          jwt.verify($TOKEN, $SECRET)
+      - pattern-not: |
+          jwt.verify($TOKEN, $SECRET, {algorithms: [...]})
+      - pattern-not: |
+          jwt.verify($TOKEN, $SECRET, {algorithm: ...})
+    metadata:
+      category: security
+      cwe: CWE-327
+      confidence: HIGH
+
+  - id: heady-weak-crypto-md5-sha1
+    message: |
+      Use of MD5 or SHA-1 for security-sensitive operations is forbidden.
+      Use SHA-256 or SHA-3 for hashing, and bcrypt/argon2 for passwords.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: crypto.createHash('md5')
+      - pattern: crypto.createHash("md5")
+      - pattern: crypto.createHash('sha1')
+      - pattern: crypto.createHash("sha1")
+    metadata:
+      category: security
+      cwe: CWE-327
+      confidence: HIGH
+
+  - id: heady-insecure-random
+    message: |
+      Math.random() is not cryptographically secure.
+      Use crypto.randomBytes() or crypto.getRandomValues() for security-sensitive randomness.
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern: Math.random()
+      - pattern-not-inside:
+          pattern: |
+              // @allow-insecure-random
+              ...
+    metadata:
+      category: security
+      cwe: CWE-338
+      confidence: MEDIUM
+
+  - id: heady-cors-wildcard-api
+    message: |
+      CORS wildcard (*) on API routes allows any origin to make authenticated requests.
+      Restrict CORS to specific trusted origins in src/middleware/ or Cloudflare rules.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: |
+          cors({origin: "*"})
+      - pattern: |
+          cors({origin: '*'})
+      - pattern: |
+          res.setHeader("Access-Control-Allow-Origin", "*")
+      - pattern: |
+          res.setHeader('Access-Control-Allow-Origin', '*')
+    metadata:
+      category: security
+      cwe: CWE-942
+      owasp: A07:2021
+      confidence: HIGH
+
+  - id: heady-missing-input-validation
+    message: |
+      Request body accessed without validation schema.
+      Use Zod, Joi, or the heady-core validator before accessing req.body properties.
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern: |
+          req.body.$FIELD
+      - pattern-not-inside:
+          pattern: |
+              $SCHEMA.parse(req.body)
+      - pattern-not-inside:
+          pattern: |
+              $SCHEMA.validate(req.body)
+      - pattern-not-inside:
+          pattern: |
+              validateBody(...)
+      - pattern-not-inside:
+          pattern: |
+              z.object({...}).parse(...)
+    metadata:
+      category: security
+      cwe: CWE-20
+      confidence: LOW
+
+  - id: heady-path-traversal
+    message: |
+      Potential path traversal: user-controlled input used in file path construction.
+      Sanitize paths with path.resolve() and verify they remain within allowed directories.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: |
+          fs.readFile($BASE + $USER_INPUT, ...)
+      - pattern: |
+          fs.readFileSync($BASE + $USER_INPUT, ...)
+      - pattern: |
+          path.join($BASE, $USER_INPUT)
+    metadata:
+      category: security
+      cwe: CWE-22
+      owasp: A01:2021
+      confidence: MEDIUM
+
+  - id: heady-console-log-secret
+    message: |
+      Potential secret logged to console. Ensure API keys, passwords, and tokens
+      are never logged. Use src/middleware/audit-log.js with redaction for audit events.
+    severity: WARNING
+    languages: [javascript, typescript]
+    patterns:
+      - pattern: |
+          console.log(..., $SECRET, ...)
+      - metavariable-regex:
+          metavariable: $SECRET
+          regex: (?i)(key|token|password|secret|credential|api|auth)
+    metadata:
+      category: security
+      cwe: CWE-532
+      confidence: LOW

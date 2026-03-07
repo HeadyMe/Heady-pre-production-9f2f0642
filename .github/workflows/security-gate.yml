@@ -1,0 +1,513 @@
+# security-gate.yml — Heady Systems Security Gate for PR Merges
+# Blocks merge on critical/high SAST findings, secrets, CVEs (CVSS >= 7.0)
+# Posts summary comment on PR; supports manual override by security team
+# Version: 1.0.0
+
+name: Security Gate
+
+on:
+  pull_request:
+    branches: [main, staging]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  security-events: read
+  pull-requests: write
+  checks: write
+  statuses: write
+
+concurrency:
+  group: security-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # Minimum CVSS score to block merge
+  CVSS_BLOCK_THRESHOLD: '7.0'
+  # GitHub Security Alerts API query severity levels to block on
+  BLOCK_SEVERITIES: 'critical,high'
+  # Label that allows security override (applied by security team)
+  SECURITY_OVERRIDE_LABEL: 'security-override'
+  # GitHub team that can apply overrides
+  SECURITY_TEAM: 'security-team'
+
+jobs:
+  # ─── Check for manual security override ─────────────────────────────────────
+  check-override:
+    name: Check Security Override
+    runs-on: ubuntu-latest
+    outputs:
+      override_active: ${{ steps.check.outputs.override_active }}
+      override_approver: ${{ steps.check.outputs.approver }}
+    steps:
+      - name: Check for override label
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = pr.labels.map(l => l.name);
+            const hasOverride = labels.includes('${{ env.SECURITY_OVERRIDE_LABEL }}');
+
+            if (hasOverride) {
+              // Verify the label was applied by a security team member
+              const { data: events } = await github.rest.issues.listEvents({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+              });
+
+              const labelEvent = events
+                .filter(e => e.event === 'labeled' && e.label?.name === '${{ env.SECURITY_OVERRIDE_LABEL }}')
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+
+              if (!labelEvent) {
+                core.setOutput('override_active', 'false');
+                return;
+              }
+
+              const applier = labelEvent.actor?.login;
+
+              // Check if applier is in security team
+              let isMember = false;
+              try {
+                await github.rest.teams.getMembershipForUserInOrg({
+                  org: context.repo.owner,
+                  team_slug: '${{ env.SECURITY_TEAM }}',
+                  username: applier,
+                });
+                isMember = true;
+              } catch {
+                isMember = false;
+              }
+
+              if (isMember) {
+                console.log(`Security override active — approved by @${applier}`);
+                core.setOutput('override_active', 'true');
+                core.setOutput('approver', applier);
+              } else {
+                console.log(`Override label applied by @${applier} who is NOT in security team — ignoring`);
+                core.setOutput('override_active', 'false');
+                // Post warning comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: `> ⚠️ **Security Gate**: The \`${{ env.SECURITY_OVERRIDE_LABEL }}\` label was applied by @${applier} who is not a member of the @${context.repo.owner}/${{ env.SECURITY_TEAM }} team. The override has been **ignored**. Only members of the security team may approve security overrides.`,
+                });
+              }
+            } else {
+              core.setOutput('override_active', 'false');
+            }
+
+  # ─── Collect SARIF findings from GitHub Code Scanning ───────────────────────
+  collect-sarif-findings:
+    name: Collect SAST Findings
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      critical_count: ${{ steps.count.outputs.critical }}
+      high_count: ${{ steps.count.outputs.high }}
+      findings_json: ${{ steps.count.outputs.findings_json }}
+    steps:
+      - name: Get Code Scanning alerts for this PR
+        id: count
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            // Query code scanning alerts open on the PR's head ref
+            let alerts = [];
+            try {
+              const { data } = await github.rest.codeScanning.listAlertsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.ref,
+                state: 'open',
+                per_page: 100,
+              });
+              alerts = data;
+            } catch (e) {
+              console.log('Could not fetch code scanning alerts:', e.message);
+              // Code scanning may not be enabled yet
+            }
+
+            const critical = alerts.filter(a =>
+              a.rule?.security_severity_level === 'critical' ||
+              a.rule?.severity === 'error' && parseFloat(a.rule?.['security-severity'] || '0') >= 9.0
+            );
+            const high = alerts.filter(a =>
+              a.rule?.security_severity_level === 'high' ||
+              (parseFloat(a.rule?.['security-severity'] || '0') >= 7.0 && parseFloat(a.rule?.['security-severity'] || '0') < 9.0)
+            );
+
+            const findings = {
+              critical: critical.map(a => ({
+                id: a.number,
+                rule: a.rule?.id,
+                tool: a.tool?.name,
+                description: a.rule?.description || a.rule?.name,
+                file: a.most_recent_instance?.location?.path,
+                line: a.most_recent_instance?.location?.start_line,
+                severity: 'critical',
+                url: a.html_url,
+              })),
+              high: high.map(a => ({
+                id: a.number,
+                rule: a.rule?.id,
+                tool: a.tool?.name,
+                description: a.rule?.description || a.rule?.name,
+                file: a.most_recent_instance?.location?.path,
+                line: a.most_recent_instance?.location?.start_line,
+                severity: 'high',
+                url: a.html_url,
+              })),
+            };
+
+            core.setOutput('critical', String(critical.length));
+            core.setOutput('high', String(high.length));
+            core.setOutput('findings_json', JSON.stringify(findings));
+
+            console.log(`Critical: ${critical.length}, High: ${high.length}`);
+
+  # ─── Check for secrets in this PR ────────────────────────────────────────────
+  check-secrets:
+    name: Check for Exposed Secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      secrets_found: ${{ steps.gitleaks.outputs.secrets_found }}
+      secrets_count: ${{ steps.gitleaks.outputs.count }}
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Run Gitleaks on PR diff
+        id: gitleaks
+        run: |
+          # Install Gitleaks
+          GITLEAKS_VERSION="8.18.4"
+          wget -q "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -O gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz gitleaks
+          chmod +x gitleaks
+
+          # Scan only the commits in this PR (not full history)
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          ./gitleaks detect \
+            --source . \
+            --log-opts "${BASE_SHA}..${HEAD_SHA}" \
+            --report-format json \
+            --report-path gitleaks-pr.json \
+            --redact \
+            --config .gitleaks.toml \
+          || true
+
+          COUNT=$(jq '. | length' gitleaks-pr.json 2>/dev/null || echo "0")
+          echo "secrets_found=$([ "${COUNT}" -gt 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Gitleaks PR report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-pr-report
+          path: gitleaks-pr.json
+          retention-days: 30
+
+  # ─── Check for CVE threshold violations ──────────────────────────────────────
+  check-cve-threshold:
+    name: Check CVE Threshold (CVSS >= 7.0)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      violations_found: ${{ steps.check.outputs.violations_found }}
+      violation_count: ${{ steps.check.outputs.count }}
+      violations_json: ${{ steps.check.outputs.violations_json }}
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Check npm audit CVSS scores
+        id: check
+        run: |
+          npm audit --production --json > audit.json 2>&1 || true
+
+          python3 - <<'PYEOF'
+          import json, sys
+
+          THRESHOLD = float("${{ env.CVSS_BLOCK_THRESHOLD }}")
+
+          try:
+              data = json.load(open('audit.json'))
+          except Exception as e:
+              print(f"Could not parse audit.json: {e}")
+              print("violations_found=false")
+              print("count=0")
+              sys.exit(0)
+
+          violations = []
+          for pkg, vuln in data.get('vulnerabilities', {}).items():
+              severity = vuln.get('severity', '')
+              via = vuln.get('via', [])
+
+              # Extract CVEs and CVSS scores from 'via'
+              for source in via:
+                  if isinstance(source, dict):
+                      cvss = source.get('cvss', {})
+                      score = cvss.get('score', 0) if isinstance(cvss, dict) else 0
+                      cve = source.get('cve', '')
+                      if score >= THRESHOLD or severity in ('critical', 'high'):
+                          violations.append({
+                              'package': pkg,
+                              'cve': cve or 'N/A',
+                              'cvss': score,
+                              'severity': severity,
+                              'title': source.get('title', ''),
+                              'url': source.get('url', ''),
+                          })
+
+          with open('violations.json', 'w') as f:
+              json.dump(violations, f, indent=2)
+
+          print(f"Found {len(violations)} CVE violations (CVSS >= {THRESHOLD})")
+          if violations:
+              for v in violations[:5]:
+                  print(f"  [{v['severity'].upper()}] {v['package']}: {v['cve']} (CVSS {v['cvss']})")
+
+          # Write to env file for GitHub Actions
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"violations_found={'true' if violations else 'false'}\n")
+              f.write(f"count={len(violations)}\n")
+              import json as j
+              f.write(f"violations_json={j.dumps(violations[:20])}\n")
+          PYEOF
+        env:
+          GITHUB_OUTPUT: ${{ github.output }}
+
+  # ─── Security Gate decision + PR comment ─────────────────────────────────────
+  security-gate-decision:
+    name: Security Gate Decision
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - check-override
+      - collect-sarif-findings
+      - check-secrets
+      - check-cve-threshold
+    if: always()
+    outputs:
+      gate_passed: ${{ steps.decide.outputs.gate_passed }}
+    steps:
+      - name: Make gate decision
+        id: decide
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const overrideActive = '${{ needs.check-override.outputs.override_active }}' === 'true';
+            const overrideApprover = '${{ needs.check-override.outputs.override_approver }}';
+            const criticalCount = parseInt('${{ needs.collect-sarif-findings.outputs.critical_count }}' || '0');
+            const highCount = parseInt('${{ needs.collect-sarif-findings.outputs.high_count }}' || '0');
+            const secretsFound = '${{ needs.check-secrets.outputs.secrets_found }}' === 'true';
+            const secretsCount = parseInt('${{ needs.check-secrets.outputs.secrets_count }}' || '0');
+            const cveViolations = '${{ needs.check-cve-threshold.outputs.violations_found }}' === 'true';
+            const cveCount = parseInt('${{ needs.check-cve-threshold.outputs.violation_count }}' || '0');
+
+            // Parse findings
+            let findings = { critical: [], high: [] };
+            try { findings = JSON.parse('${{ needs.collect-sarif-findings.outputs.findings_json }}' || '{}'); } catch {}
+
+            let violations = [];
+            try { violations = JSON.parse('${{ needs.check-cve-threshold.outputs.violations_json }}' || '[]'); } catch {}
+
+            // Gate logic
+            const blockReasons = [];
+            if (criticalCount > 0) blockReasons.push(`${criticalCount} critical SAST finding(s)`);
+            if (highCount > 0) blockReasons.push(`${highCount} high SAST finding(s)`);
+            if (secretsFound) blockReasons.push(`${secretsCount} exposed secret(s) detected`);
+            if (cveViolations) blockReasons.push(`${cveCount} CVE(s) with CVSS ≥ ${{ env.CVSS_BLOCK_THRESHOLD }}`);
+
+            const shouldBlock = blockReasons.length > 0;
+            const gatePassed = !shouldBlock || overrideActive;
+
+            // Build PR comment
+            const pr = context.payload.pull_request;
+            const now = new Date().toISOString().slice(0, 19).replace('T', ' ') + ' UTC';
+
+            let statusEmoji = gatePassed ? '✅' : '🚫';
+            let statusText = gatePassed
+              ? (overrideActive ? 'PASSED (Override Active)' : 'PASSED')
+              : 'BLOCKED';
+
+            let commentBody = [
+              `## ${statusEmoji} Security Gate — ${statusText}`,
+              '',
+              `> Evaluated at ${now} | Commit: ${pr.head.sha.slice(0, 7)}`,
+              '',
+              '### Scan Summary',
+              '',
+              '| Check | Result | Count |',
+              '|-------|--------|-------|',
+              `| SAST Critical Findings | ${criticalCount > 0 ? '🔴' : '✅'} | ${criticalCount} |`,
+              `| SAST High Findings | ${highCount > 0 ? '🟠' : '✅'} | ${highCount} |`,
+              `| Exposed Secrets | ${secretsFound ? '🚨' : '✅'} | ${secretsCount} |`,
+              `| CVEs (CVSS ≥ ${{ env.CVSS_BLOCK_THRESHOLD }}) | ${cveViolations ? '🔴' : '✅'} | ${cveCount} |`,
+              '',
+            ].join('\n');
+
+            if (shouldBlock) {
+              commentBody += [
+                '### ⛔ Blocking Reasons',
+                '',
+                blockReasons.map(r => `- ${r}`).join('\n'),
+                '',
+              ].join('\n');
+            }
+
+            if (findings.critical?.length > 0) {
+              commentBody += [
+                '<details>',
+                '<summary>🔴 Critical SAST Findings</summary>',
+                '',
+                '| Tool | Rule | File | Line |',
+                '|------|------|------|------|',
+                ...findings.critical.slice(0, 10).map(f =>
+                  `| ${f.tool || 'unknown'} | [${f.rule || 'unknown'}](${f.url || '#'}) | \`${f.file || 'unknown'}\` | ${f.line || '?'} |`
+                ),
+                '',
+                '</details>',
+                '',
+              ].join('\n');
+            }
+
+            if (findings.high?.length > 0) {
+              commentBody += [
+                '<details>',
+                '<summary>🟠 High SAST Findings</summary>',
+                '',
+                '| Tool | Rule | File | Line |',
+                '|------|------|------|------|',
+                ...findings.high.slice(0, 10).map(f =>
+                  `| ${f.tool || 'unknown'} | [${f.rule || 'unknown'}](${f.url || '#'}) | \`${f.file || 'unknown'}\` | ${f.line || '?'} |`
+                ),
+                '',
+                '</details>',
+                '',
+              ].join('\n');
+            }
+
+            if (violations.length > 0) {
+              commentBody += [
+                '<details>',
+                '<summary>🔴 CVE Violations</summary>',
+                '',
+                '| Package | CVE | CVSS | Severity |',
+                '|---------|-----|------|----------|',
+                ...violations.slice(0, 10).map(v =>
+                  `| \`${v.package}\` | [${v.cve}](${v.url || '#'}) | ${v.cvss || 'N/A'} | ${v.severity?.toUpperCase()} |`
+                ),
+                '',
+                '</details>',
+                '',
+              ].join('\n');
+            }
+
+            if (overrideActive) {
+              commentBody += [
+                '---',
+                `> ⚡ **Security Override Active** — Approved by @${overrideApprover} (${context.repo.owner}/${{ env.SECURITY_TEAM }})`,
+                '> Override expires when the \`${{ env.SECURITY_OVERRIDE_LABEL }}\` label is removed.',
+                '',
+              ].join('\n');
+            } else if (shouldBlock) {
+              commentBody += [
+                '---',
+                '**How to proceed:**',
+                '1. Remediate the findings above',
+                '2. Push a new commit to re-trigger this check',
+                '',
+                `Or request a security exception by asking a member of @${context.repo.owner}/${{ env.SECURITY_TEAM }} to apply the \`${{ env.SECURITY_OVERRIDE_LABEL }}\` label with a justification comment.`,
+                '',
+              ].join('\n');
+            }
+
+            // Find existing security gate comment and update it, or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+            });
+
+            const existingComment = comments.find(c =>
+              c.user?.login === 'github-actions[bot]' &&
+              c.body?.includes('Security Gate')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: commentBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: commentBody,
+              });
+            }
+
+            // Set check status
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: pr.head.sha,
+              state: gatePassed ? 'success' : 'failure',
+              context: 'security-gate',
+              description: gatePassed
+                ? (overrideActive ? 'Security gate passed (override active)' : 'Security gate passed')
+                : `Blocked: ${blockReasons[0]}`,
+              target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            });
+
+            core.setOutput('gate_passed', String(gatePassed));
+
+            if (!gatePassed) {
+              core.setFailed(`Security gate blocked: ${blockReasons.join('; ')}`);
+            }
+
+  # ─── Enforce gate as required check ─────────────────────────────────────────
+  # This job is listed as required in branch protection rules.
+  # It fails if the gate decision blocks, and succeeds otherwise.
+  enforce-gate:
+    name: Enforce Security Gate
+    runs-on: ubuntu-latest
+    needs: security-gate-decision
+    if: always()
+    steps:
+      - name: Check gate result
+        run: |
+          PASSED="${{ needs.security-gate-decision.outputs.gate_passed }}"
+          if [[ "${PASSED}" != "true" ]]; then
+            echo "::error::Security gate blocked this PR. See PR comments for details."
+            exit 1
+          fi
+          echo "✅ Security gate passed"

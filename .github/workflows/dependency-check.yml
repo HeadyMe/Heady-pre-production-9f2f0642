@@ -1,0 +1,392 @@
+# dependency-check.yml — Heady Systems Supply Chain Security
+# Socket.dev, npm audit, license compliance, Snyk/Trivy container scanning
+# Auto-creates GitHub issues for critical CVEs
+# Version: 1.0.0
+
+name: Dependency & Supply Chain Security
+
+on:
+  push:
+    branches: [main, staging, dev]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '**/package.json'
+      - '**/package-lock.json'
+      - 'Dockerfile*'
+      - '.github/workflows/dependency-check.yml'
+  pull_request:
+    branches: [main, staging, dev]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - '**/package.json'
+      - '**/package-lock.json'
+  schedule:
+    # Daily at 04:00 UTC
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: deps-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  # Approved license allowlist (SPDX identifiers)
+  ALLOWED_LICENSES: "MIT,Apache-2.0,ISC,BSD-2-Clause,BSD-3-Clause,0BSD,Unlicense,CC0-1.0,BlueOak-1.0.0"
+  # CVSS threshold for automatic issue creation
+  CVSS_THRESHOLD: '7.0'
+
+jobs:
+  # ─── Socket.dev Supply Chain Analysis ───────────────────────────────────────
+  socket-security:
+    name: Socket.dev Supply Chain
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Run Socket Security scan
+        uses: nicolo-ribaudo/socket-security-scan@v1
+        with:
+          api-key: ${{ secrets.SOCKET_API_KEY }}
+          allow-new: false
+          warn-on-timeout: true
+        continue-on-error: true
+
+      - name: Socket.dev CLI scan (fallback)
+        if: ${{ !secrets.SOCKET_API_KEY }}
+        run: |
+          npm install -g @socketsecurity/cli
+          socket scan create --defaultBranch --org HeadyMe . || true
+          echo "::warning::Socket.dev API key not configured — running without authentication"
+
+  # ─── npm audit (production dependencies) ────────────────────────────────────
+  npm-audit-production:
+    name: npm Audit (Production)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      critical_count: ${{ steps.audit.outputs.critical }}
+      high_count: ${{ steps.audit.outputs.high }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run npm audit
+        id: audit
+        run: |
+          npm audit --production --json > audit-report.json 2>&1 || true
+
+          CRITICAL=$(jq '[.vulnerabilities | to_entries[] | select(.value.severity == "critical")] | length' audit-report.json 2>/dev/null || echo "0")
+          HIGH=$(jq '[.vulnerabilities | to_entries[] | select(.value.severity == "high")] | length' audit-report.json 2>/dev/null || echo "0")
+          MODERATE=$(jq '[.vulnerabilities | to_entries[] | select(.value.severity == "moderate")] | length' audit-report.json 2>/dev/null || echo "0")
+
+          echo "critical=${CRITICAL}" >> "$GITHUB_OUTPUT"
+          echo "high=${HIGH}" >> "$GITHUB_OUTPUT"
+          echo "moderate=${MODERATE}" >> "$GITHUB_OUTPUT"
+
+          echo "## npm Audit Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Severity | Count |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|----------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Critical | ${CRITICAL} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| High     | ${HIGH} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Moderate | ${MODERATE} |" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "${CRITICAL}" -gt 0 ]]; then
+            echo "::error::npm audit found ${CRITICAL} critical vulnerabilities in production dependencies"
+          fi
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-production
+          path: audit-report.json
+          retention-days: 30
+
+      - name: Fail on critical vulnerabilities
+        if: steps.audit.outputs.critical != '0'
+        run: exit 1
+
+  # ─── License Compliance Check ────────────────────────────────────────────────
+  license-compliance:
+    name: License Compliance
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      violations: ${{ steps.check.outputs.violations }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install license checker
+        run: npm install -g license-checker-rseidelsohn
+
+      - name: Run license check
+        id: check
+        run: |
+          license-checker \
+            --production \
+            --onlyAllow "${{ env.ALLOWED_LICENSES }}" \
+            --json \
+            --out license-report.json \
+          || VIOLATIONS=$?
+
+          # Generate summary
+          TOTAL=$(jq 'keys | length' license-report.json)
+          echo "Total production packages: ${TOTAL}"
+
+          # Find any violations (packages not in allowlist)
+          VIOLATIONS_COUNT=0
+          license-checker \
+            --production \
+            --excludePackages "" \
+            --json 2>/dev/null \
+          | jq -r 'to_entries[] | "\(.key): \(.value.licenses)"' \
+          | while IFS= read -r line; do
+              ALLOWED="${{ env.ALLOWED_LICENSES }}"
+              LICENSE=$(echo "$line" | grep -oP '(?<=: ).*')
+              if ! echo "${ALLOWED}" | grep -q "${LICENSE}"; then
+                echo "::warning::Non-approved license: ${line}"
+              fi
+            done
+
+          echo "violations=${VIOLATIONS_COUNT}" >> "$GITHUB_OUTPUT"
+
+          # Print report summary
+          echo "## License Compliance" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Allowlist:** ${ALLOWED_LICENSES}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          jq -r 'to_entries | group_by(.value.licenses) | .[] | "- **\(.[0].value.licenses)**: \(length) packages"' license-report.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: license-report.json
+          retention-days: 30
+
+  # ─── Trivy Container Scanning ─────────────────────────────────────────────────
+  trivy-container:
+    name: Trivy Container Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        image:
+          - name: heady-api
+            dockerfile: Dockerfile
+          - name: heady-mcp
+            dockerfile: Dockerfile.mcp
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if Dockerfile exists
+        id: check_dockerfile
+        run: |
+          if [[ -f "${{ matrix.image.dockerfile }}" ]]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::${{ matrix.image.dockerfile }} not found — skipping container scan"
+          fi
+
+      - name: Build Docker image for scanning
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          docker build \
+            -f ${{ matrix.image.dockerfile }} \
+            -t heady/${{ matrix.image.name }}:scan \
+            --no-cache \
+            .
+
+      - name: Run Trivy image scan
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: heady/${{ matrix.image.name }}:scan
+          format: sarif
+          output: trivy-${{ matrix.image.name }}.sarif
+          severity: CRITICAL,HIGH,MEDIUM
+          vuln-type: os,library
+          scanners: vuln,secret,config
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: Upload Trivy SARIF
+        if: always() && steps.check_dockerfile.outputs.exists == 'true'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-${{ matrix.image.name }}.sarif
+          category: trivy-${{ matrix.image.name }}
+
+      - name: Upload Trivy report artifact
+        if: always() && steps.check_dockerfile.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-${{ matrix.image.name }}-report
+          path: trivy-${{ matrix.image.name }}.sarif
+          retention-days: 30
+
+  # ─── Auto-create GitHub Issues for Critical CVEs ──────────────────────────────
+  auto-issue-cve:
+    name: Auto-create CVE Issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [npm-audit-production, trivy-container]
+    if: |
+      always() &&
+      (needs.npm-audit-production.outputs.critical_count != '0' ||
+       needs.trivy-container.result == 'failure') &&
+      github.event_name == 'schedule'
+    steps:
+      - name: Download audit reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*-report'
+          merge-multiple: true
+
+      - name: Create issues for critical vulnerabilities
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Parse npm audit report
+            let npmFindings = [];
+            try {
+              const audit = JSON.parse(fs.readFileSync('audit-report.json', 'utf8'));
+              for (const [pkg, vuln] of Object.entries(audit.vulnerabilities || {})) {
+                if (vuln.severity === 'critical' || vuln.severity === 'high') {
+                  npmFindings.push({
+                    package: pkg,
+                    severity: vuln.severity,
+                    via: Array.isArray(vuln.via) ? vuln.via.map(v => typeof v === 'string' ? v : v.name).join(', ') : vuln.via,
+                    fixAvailable: vuln.fixAvailable,
+                  });
+                }
+              }
+            } catch (e) {
+              console.log('Could not parse npm audit report:', e.message);
+            }
+
+            if (npmFindings.length === 0) {
+              console.log('No critical/high npm findings to report');
+              return;
+            }
+
+            const critical = npmFindings.filter(f => f.severity === 'critical');
+            const high = npmFindings.filter(f => f.severity === 'high');
+
+            const table = npmFindings.map(f =>
+              `| \`${f.package}\` | ${f.severity.toUpperCase()} | ${f.via} | ${f.fixAvailable ? '✅ Yes' : '❌ No'} |`
+            ).join('\n');
+
+            const body = [
+              '## 🔴 Critical/High CVE Report',
+              '',
+              `**Scan Date:** ${new Date().toISOString().slice(0,10)}`,
+              `**Critical findings:** ${critical.length}`,
+              `**High findings:** ${high.length}`,
+              `**Workflow:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`,
+              '',
+              '### Vulnerable Packages',
+              '',
+              '| Package | Severity | Via | Fix Available |',
+              '|---------|----------|-----|---------------|',
+              table,
+              '',
+              '### Remediation',
+              '',
+              '```bash',
+              '# Auto-fix what npm can resolve:',
+              'npm audit fix --production',
+              '',
+              '# Force-fix with breaking changes (review first):',
+              '# npm audit fix --force --production',
+              '```',
+              '',
+              '/cc @security-team',
+            ].join('\n');
+
+            // Check for existing open issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'security,cve,automated',
+              state: 'open',
+            });
+
+            const existingIssue = issues.find(i => i.title.includes('CVE Report'));
+
+            if (existingIssue) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body,
+              });
+              console.log(`Updated existing issue #${existingIssue.number}`);
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔴 CVE Report — ${new Date().toISOString().slice(0,10)} (${critical.length} critical, ${high.length} high)`,
+                body,
+                labels: ['security', 'cve', 'automated'],
+                assignees: [],
+              });
+              console.log('Created new CVE issue');
+            }
+
+  # ─── Dependency Summary ───────────────────────────────────────────────────────
+  dependency-summary:
+    name: Supply Chain Summary
+    runs-on: ubuntu-latest
+    needs: [socket-security, npm-audit-production, license-compliance, trivy-container]
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Supply Chain Security Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Socket.dev | ${{ needs.socket-security.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| npm Audit | ${{ needs.npm-audit-production.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| License Compliance | ${{ needs.license-compliance.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Container Scan | ${{ needs.trivy-container.result }} |" >> "$GITHUB_STEP_SUMMARY"

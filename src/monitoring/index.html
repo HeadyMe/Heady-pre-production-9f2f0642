@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Heady™ Projection Dashboard</title>
+
+  <style>
+    /* © 2024-2026 HeadySystems Inc. All Rights Reserved. PROPRIETARY AND CONFIDENTIAL. */
+
+    /* ── Design tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --phi: 1.6180339887;
+
+      /* Surfaces */
+      --bg-base:    #0a0e1a;
+      --bg-surface: #0f1525;
+      --bg-card:    #131929;
+      --bg-input:   #1a2035;
+      --border:     #1e2a40;
+      --border-hi:  #263349;
+
+      /* Brand */
+      --gold:       #c9a227;
+      --gold-dim:   #8c7118;
+      --gold-glow:  rgba(201,162,39,.18);
+
+      /* Status */
+      --green:      #00ff88;
+      --green-dim:  #00b360;
+      --green-bg:   rgba(0,255,136,.08);
+      --yellow:     #ffcc44;
+      --yellow-bg:  rgba(255,204,68,.08);
+      --red:        #ff3366;
+      --red-dim:    #cc1a44;
+      --red-bg:     rgba(255,51,102,.08);
+      --blue:       #4488ff;
+      --blue-bg:    rgba(68,136,255,.08);
+
+      /* Text */
+      --text-primary:   #e8ecf4;
+      --text-secondary: #8b9ab5;
+      --text-muted:     #4a5568;
+      --text-gold:      #c9a227;
+
+      /* Typography */
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+      /* Spacing (4px base) */
+      --sp-1:  4px;   --sp-2:  8px;  --sp-3:  12px; --sp-4:  16px;
+      --sp-5:  20px;  --sp-6:  24px; --sp-8:  32px; --sp-10: 40px;
+
+      /* Radii */
+      --radius-sm:  6px;
+      --radius:     10px;
+      --radius-lg:  16px;
+
+      /* Transitions */
+      --t-fast:   0.12s ease;
+      --t-mid:    0.22s ease;
+      --t-slow:   0.4s  ease;
+
+      /* Scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-hi) transparent;
+    }
+
+    /* ── Reset ─────────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Import fonts ──────────────────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    /* ── Layout ────────────────────────────────────────────────────────────── */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Header ────────────────────────────────────────────────────────────── */
+    .header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: var(--sp-4) var(--sp-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-4);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+
+    .logo-svg {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .header-title span {
+      color: var(--gold);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-5);
+    }
+
+    .live-clock {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.04em;
+    }
+
+    .sse-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: var(--sp-1) var(--sp-3);
+      border-radius: 999px;
+      border: 1px solid transparent;
+      transition: all var(--t-mid);
+    }
+
+    .sse-badge.connected {
+      background: var(--green-bg);
+      border-color: var(--green-dim);
+      color: var(--green);
+    }
+
+    .sse-badge.disconnected {
+      background: var(--red-bg);
+      border-color: var(--red-dim);
+      color: var(--red);
+    }
+
+    .sse-badge.connecting {
+      background: var(--yellow-bg);
+      border-color: #996600;
+      color: var(--yellow);
+    }
+
+    .sse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .sse-badge.connected .sse-dot {
+      animation: pulse-green 2s ease infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.75); }
+    }
+
+    /* ── Main content ──────────────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      padding: var(--sp-8);
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Card grid ─────────────────────────────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-5);
+    }
+
+    @media (max-width: 1100px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 680px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .main { padding: var(--sp-4); }
+    }
+
+    /* ── Projection card ───────────────────────────────────────────────────── */
+    .p-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--t-mid), box-shadow var(--t-mid);
+    }
+
+    .p-card:hover {
+      border-color: var(--border-hi);
+      box-shadow: 0 4px 32px rgba(0,0,0,.4);
+    }
+
+    .p-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity var(--t-mid);
+    }
+
+    .p-card.updating::before {
+      opacity: 1;
+    }
+
+    .p-card.updating {
+      border-color: var(--gold-dim);
+      animation: card-pulse 0.6s ease;
+    }
+
+    @keyframes card-pulse {
+      0%   { box-shadow: 0 0 0   0   var(--gold-glow); }
+      50%  { box-shadow: 0 0 24px 4px var(--gold-glow); }
+      100% { box-shadow: 0 0 0   0   var(--gold-glow); }
+    }
+
+    .p-card.stale  { opacity: 0.7; }
+    .p-card.error  { border-color: var(--red-dim); }
+
+    /* ── Card header ───────────────────────────────────────────────────────── */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--sp-3);
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .card-status-pill {
+      font-size: 0.6875rem;
+      font-weight: 500;
+      padding: 2px var(--sp-2);
+      border-radius: 999px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .card-status-pill.live    { background: var(--green-bg);  color: var(--green);  border: 1px solid var(--green-dim);  }
+    .card-status-pill.stale   { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #996600; }
+    .card-status-pill.error   { background: var(--red-bg);    color: var(--red);    border: 1px solid var(--red-dim);   }
+    .card-status-pill.pending { background: var(--blue-bg);   color: var(--blue);   border: 1px solid #2255cc; }
+
+    .card-updated {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+    }
+
+    .card-version {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Card data area ────────────────────────────────────────────────────── */
+    .card-data {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-3);
+      flex: 1;
+    }
+
+    .metric-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--sp-2);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-align: right;
+    }
+
+    .metric-value.large {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+    }
+
+    .metric-value.green  { color: var(--green); }
+    .metric-value.yellow { color: var(--yellow); }
+    .metric-value.red    { color: var(--red); }
+    .metric-value.gold   { color: var(--gold); }
+    .metric-value.muted  { color: var(--text-muted); }
+
+    /* ── Status dots ───────────────────────────────────────────────────────── */
+    .status-dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-2);
+      margin-top: var(--sp-1);
+    }
+
+    .status-dot-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.6875rem;
+      color: var(--text-secondary);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.green  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot.yellow { background: var(--yellow); }
+    .dot.red    { background: var(--red); box-shadow: 0 0 6px var(--red); }
+    .dot.gray   { background: var(--text-muted); }
+
+    /* ── Divider ───────────────────────────────────────────────────────────── */
+    .card-divider {
+      height: 1px;
+      background: var(--border);
+      margin: var(--sp-1) 0;
+    }
+
+    /* ── Sparkline ─────────────────────────────────────────────────────────── */
+    .sparkline-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sparkline-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .sparkline-canvas {
+      width: 100%;
+      height: 36px;
+      display: block;
+    }
+
+    /* ── SVG topology ──────────────────────────────────────────────────────── */
+    .topology-svg {
+      width: 100%;
+      height: 80px;
+      display: block;
+    }
+
+    /* ── Big stat ──────────────────────────────────────────────────────────── */
+    .big-stat-row {
+      display: flex;
+      align-items: baseline;
+      gap: var(--sp-2);
+    }
+
+    .big-stat-unit {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    /* ── Footer ────────────────────────────────────────────────────────────── */
+    .footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      padding: var(--sp-3) var(--sp-8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+    }
+
+    .footer-info {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-6);
+      flex-wrap: wrap;
+    }
+
+    .footer-stat {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      font-size: 0.75rem;
+    }
+
+    .footer-stat-label { color: var(--text-muted); }
+    .footer-stat-value {
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .footer-link {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color var(--t-fast);
+    }
+    .footer-link:hover { color: var(--text-secondary); }
+
+    /* ── Swarm health bar ──────────────────────────────────────────────────── */
+    .swarm-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+
+    .swarm-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      width: 80px;
+      height: 4px;
+      background: var(--bg-input);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+
+    /* ── Skeleton loader ───────────────────────────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-input) 25%, var(--border) 50%, var(--bg-input) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease infinite;
+      border-radius: 4px;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-line {
+      height: 12px;
+      margin-bottom: 8px;
+    }
+    .skeleton-line.w75 { width: 75%; }
+    .skeleton-line.w50 { width: 50%; }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ── Header ──────────────────────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-brand">
+      <!-- HeadyBee SVG Logo -->
+      <svg class="logo-svg" viewBox="0 0 36 36" fill="none" aria-label="Heady logo" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="17" stroke="#c9a227" stroke-width="1.5"/>
+        <ellipse cx="18" cy="20" rx="8" ry="7" fill="#c9a22720"/>
+        <ellipse cx="18" cy="20" rx="8" ry="7" stroke="#c9a227" stroke-width="1.2"/>
+        <!-- Wings -->
+        <ellipse cx="9"  cy="16" rx="5" ry="3" fill="#c9a22715" stroke="#c9a22760" stroke-width="0.8" transform="rotate(-20 9 16)"/>
+        <ellipse cx="27" cy="16" rx="5" ry="3" fill="#c9a22715" stroke="#c9a22760" stroke-width="0.8" transform="rotate(20 27 16)"/>
+        <!-- Stripes -->
+        <line x1="10" y1="20" x2="26" y2="20" stroke="#c9a227" stroke-width="1" opacity="0.5"/>
+        <line x1="11" y1="23" x2="25" y2="23" stroke="#c9a227" stroke-width="1" opacity="0.3"/>
+        <!-- Antennae -->
+        <line x1="16" y1="13" x2="14" y2="8" stroke="#c9a227" stroke-width="1"/>
+        <circle cx="14" cy="8" r="1.5" fill="#c9a227"/>
+        <line x1="20" y1="13" x2="22" y2="8" stroke="#c9a227" stroke-width="1"/>
+        <circle cx="22" cy="8" r="1.5" fill="#c9a227"/>
+      </svg>
+      <h1 class="header-title"><span>Heady™</span> Projection Dashboard</h1>
+    </div>
+
+    <div class="header-right">
+      <div class="live-clock" id="clock">--:--:--</div>
+      <div class="sse-badge connecting" id="sse-badge">
+        <span class="sse-dot"></span>
+        <span id="sse-label">Connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main ────────────────────────────────────────────────────────────── -->
+  <main class="main">
+    <div class="cards-grid" id="cards-grid">
+
+      <!-- Vector Memory Card -->
+      <div class="p-card pending" id="card-vector-memory">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon" style="background:rgba(68,136,255,.1);color:#4488ff">⬡</div>
+            <span class="card-title">Vector Memory</span>
+          </div>
+          <div class="card-meta">
+            <span class="card-status-pill pending" id="status-vector-memory">Pending</span>
+            <span class="card-updated" id="updated-vector-memory">—</span>
+            <span class="card-version" id="version-vector-memory">v—</span>
+          </div>
+        </div>
+        <div class="card-data" id="data-vector-memory">
+          <div class="skeleton skeleton-line w75"></div>
+          <div class="skeleton skeleton-line w50"></div>
+          <div class="skeleton skeleton-line w75"></div>
+        </div>
+      </div>
+
+      <!-- Config Card -->
+      <div class="p-card pending" id="card-config">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon" style="background:rgba(201,162,39,.1);color:#c9a227">⚙</div>
+            <span class="card-title">Config</span>
+          </div>
+          <div class="card-meta">
+            <span class="card-status-pill pending" id="status-config">Pending</span>
+            <span class="card-updated" id="updated-config">—</span>
+            <span class="card-version" id="version-config">v—</span>
+          </div>
+        </div>
+        <div class="card-data" id="data-config">
+          <div class="skeleton skeleton-line w75"></div>
+          <div class="skeleton skeleton-line w50"></div>
+        </div>
+      </div>
+
+      <!-- Health Card -->
+      <div class="p-card pending" id="card-health">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon" style="background:rgba(0,255,136,.1);color:#00ff88">♥</div>
+            <span class="card-title">Health</span>
+          </div>
+          <div class="card-meta">
+            <span class="card-status-pill pending" id="status-health">Pending</span>
+            <span class="card-updated" id="updated-health">—</span>
+            <span class="card-version" id="version-health">v—</span>
+          </div>
+        </div>
+        <div class="card-data" id="data-health">
+          <div class="skeleton skeleton-line w75"></div>
+          <div class="skeleton skeleton-line w50"></div>
+        </div>
+      </div>
+
+      <!-- Telemetry Card -->
+      <div class="p-card pending" id="card-telemetry">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon" style="background:rgba(255,204,68,.1);color:#ffcc44">◈</div>
+            <span class="card-title">Telemetry</span>
+          </div>
+          <div class="card-meta">
+            <span class="card-status-pill pending" id="status-telemetry">Pending</span>
+            <span class="card-updated" id="updated-telemetry">—</span>
+            <span class="card-version" id="version-telemetry">v—</span>
+          </div>
+        </div>
+        <div class="card-data" id="data-telemetry">
+          <div class="skeleton skeleton-line w75"></div>
+          <div class="skeleton skeleton-line w50"></div>
+          <div class="skeleton skeleton-line w75"></div>
+        </div>
+      </div>
+
+      <!-- Topology Card -->
+      <div class="p-card pending" id="card-topology">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon" style="background:rgba(165,100,255,.1);color:#a564ff">◎</div>
+            <span class="card-title">Topology</span>
+          </div>
+          <div class="card-meta">
+            <span class="card-status-pill pending" id="status-topology">Pending</span>
+            <span class="card-updated" id="updated-topology">—</span>
+            <span class="card-version" id="version-topology">v—</span>
+          </div>
+        </div>
+        <div class="card-data" id="data-topology">
+          <div class="skeleton skeleton-line w75"></div>
+          <div class="skeleton skeleton-line w50"></div>
+        </div>
+      </div>
+
+      <!-- Task Queue Card -->
+      <div class="p-card pending" id="card-task-queue">
+        <div class="card-header">
+          <div class="card-title-row">
+            <div class="card-icon" style="background:rgba(255,51,102,.1);color:#ff3366">⊞</div>
+            <span class="card-title">Task Queue</span>
+          </div>
+          <div class="card-meta">
+            <span class="card-status-pill pending" id="status-task-queue">Pending</span>
+            <span class="card-updated" id="updated-task-queue">—</span>
+            <span class="card-version" id="version-task-queue">v—</span>
+          </div>
+        </div>
+        <div class="card-data" id="data-task-queue">
+          <div class="skeleton skeleton-line w75"></div>
+          <div class="skeleton skeleton-line w50"></div>
+          <div class="skeleton skeleton-line w75"></div>
+        </div>
+      </div>
+
+    </div><!-- /cards-grid -->
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="footer-info">
+      <div class="footer-stat">
+        <span class="footer-stat-label">Uptime</span>
+        <span class="footer-stat-value" id="footer-uptime">—</span>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-stat-label">Updates</span>
+        <span class="footer-stat-value" id="footer-updates">0</span>
+      </div>
+      <div class="footer-stat">
+        <span class="footer-stat-label">Events</span>
+        <span class="footer-stat-value" id="footer-events">0</span>
+      </div>
+      <div class="swarm-bar">
+        <span class="swarm-label">Swarm</span>
+        <div class="bar-track">
+          <div class="bar-fill" id="swarm-bar-fill" style="width:0%"></div>
+        </div>
+        <span class="footer-stat-value" id="swarm-health-label">—</span>
+      </div>
+    </div>
+    <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" class="footer-link">
+      Created with Perplexity Computer
+    </a>
+  </footer>
+
+</div><!-- /app-shell -->
+
+<script>
+/* © 2024-2026 HeadySystems Inc. All Rights Reserved. PROPRIETARY AND CONFIDENTIAL. */
+'use strict';
+
+// ── Constants ──────────────────────────────────────────────────────────────────
+const PHI           = 1.6180339887;
+const STALE_TIMEOUT = 30_000; // ms until card goes stale
+const DOMAIN_MAP = {
+  'vector-memory': {
+    cardId: 'card-vector-memory',
+    dataId: 'data-vector-memory',
+    render: renderVectorMemory,
+  },
+  config: {
+    cardId: 'card-config',
+    dataId: 'data-config',
+    render: renderConfig,
+  },
+  health: {
+    cardId: 'card-health',
+    dataId: 'data-health',
+    render: renderHealth,
+  },
+  telemetry: {
+    cardId: 'card-telemetry',
+    dataId: 'data-telemetry',
+    render: renderTelemetry,
+  },
+  topology: {
+    cardId: 'card-topology',
+    dataId: 'data-topology',
+    render: renderTopology,
+  },
+  'task-queue': {
+    cardId: 'card-task-queue',
+    dataId: 'data-task-queue',
+    render: renderTaskQueue,
+  },
+};
+
+// ── State ──────────────────────────────────────────────────────────────────────
+const state = {
+  connected:    false,
+  eventCount:   0,
+  updateCount:  0,
+  startTime:    Date.now(),
+  sseRetry:     0,
+  staleTimers:  {},
+  sparklineData: {
+    cpu:    Array(30).fill(0),
+    mem:    Array(30).fill(0),
+    evloop: Array(30).fill(0),
+  },
+};
+
+// ── Clock ──────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now   = new Date();
+  const hh    = String(now.getHours()).padStart(2, '0');
+  const mm    = String(now.getMinutes()).padStart(2, '0');
+  const ss    = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── Uptime tracker ─────────────────────────────────────────────────────────────
+function formatUptime(ms) {
+  const s  = Math.floor(ms / 1000);
+  const m  = Math.floor(s / 60);
+  const h  = Math.floor(m / 60);
+  const d  = Math.floor(h / 24);
+  if (d > 0) return `${d}d ${h % 24}h`;
+  if (h > 0) return `${h}h ${m % 60}m`;
+  if (m > 0) return `${m}m ${s % 60}s`;
+  return `${s}s`;
+}
+setInterval(() => {
+  const el = document.getElementById('footer-uptime');
+  if (el) el.textContent = formatUptime(Date.now() - state.startTime);
+}, 1000);
+
+// ── SSE connection with PHI backoff ────────────────────────────────────────────
+function setSseStatus(status, label) {
+  const badge = document.getElementById('sse-badge');
+  const lbl   = document.getElementById('sse-label');
+  badge.className = `sse-badge ${status}`;
+  lbl.textContent  = label;
+  state.connected  = status === 'connected';
+}
+
+function connectSSE() {
+  setSseStatus('connecting', 'Connecting…');
+
+  let es;
+  try {
+    es = new EventSource('/api/projections/sse');
+  } catch (e) {
+    scheduleReconnect();
+    return;
+  }
+
+  es.onopen = () => {
+    setSseStatus('connected', 'Live');
+    state.sseRetry = 0;
+  };
+
+  es.onmessage = (event) => {
+    handleSseMessage(event);
+  };
+
+  // Domain-specific events
+  Object.keys(DOMAIN_MAP).forEach(domain => {
+    es.addEventListener(domain, (event) => {
+      handleProjectionEvent(domain, event.data);
+    });
+  });
+
+  es.addEventListener('heartbeat', () => {
+    state.eventCount++;
+    updateFooterCounters();
+  });
+
+  es.onerror = () => {
+    es.close();
+    setSseStatus('disconnected', 'Disconnected');
+    scheduleReconnect();
+  };
+
+  return es;
+}
+
+function scheduleReconnect() {
+  const delay = Math.min(
+    Math.pow(PHI, state.sseRetry) * 1000,
+    30_000
+  );
+  state.sseRetry++;
+  console.log(`[SSE] Reconnecting in ${Math.round(delay)}ms (attempt ${state.sseRetry})`);
+  setTimeout(connectSSE, delay);
+}
+
+function handleSseMessage(event) {
+  state.eventCount++;
+  try {
+    const data = JSON.parse(event.data);
+    if (data.domain) {
+      handleProjectionEvent(data.domain, data);
+    }
+  } catch (_) { /* ignore non-JSON heartbeats */ }
+  updateFooterCounters();
+}
+
+function handleProjectionEvent(domain, rawData) {
+  const entry = DOMAIN_MAP[domain];
+  if (!entry) return;
+
+  let data = rawData;
+  if (typeof rawData === 'string') {
+    try { data = JSON.parse(rawData); } catch { return; }
+  }
+
+  const card = document.getElementById(entry.cardId);
+  if (!card) return;
+
+  // Update meta
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+  const updatedEl = document.getElementById(`updated-${domain}`);
+  const versionEl = document.getElementById(`version-${domain}`);
+  const statusEl  = document.getElementById(`status-${domain}`);
+
+  if (updatedEl) updatedEl.textContent = timeStr;
+  if (versionEl) versionEl.textContent = `v${data.version || Date.now()}`;
+  if (statusEl) {
+    statusEl.textContent = 'Live';
+    statusEl.className = 'card-status-pill live';
+  }
+
+  // Render domain data
+  const dataEl = document.getElementById(entry.dataId);
+  if (dataEl) entry.render(dataEl, data);
+
+  // Card flash animation
+  card.classList.remove('pending', 'stale', 'error');
+  card.classList.add('updating');
+  setTimeout(() => card.classList.remove('updating'), 700);
+
+  // Reset stale timer
+  clearTimeout(state.staleTimers[domain]);
+  state.staleTimers[domain] = setTimeout(() => markStale(domain), STALE_TIMEOUT);
+
+  state.updateCount++;
+  updateFooterCounters();
+}
+
+function markStale(domain) {
+  const entry  = DOMAIN_MAP[domain];
+  const card   = document.getElementById(entry?.cardId);
+  const status = document.getElementById(`status-${domain}`);
+  if (card)   { card.classList.add('stale'); }
+  if (status) { status.textContent = 'Stale'; status.className = 'card-status-pill stale'; }
+}
+
+// ── Footer counters ────────────────────────────────────────────────────────────
+function updateFooterCounters() {
+  const updEl = document.getElementById('footer-updates');
+  const evtEl = document.getElementById('footer-events');
+  if (updEl) updEl.textContent = state.updateCount;
+  if (evtEl) evtEl.textContent = state.eventCount;
+}
+
+// ── Rendering helpers ──────────────────────────────────────────────────────────
+function metricRow(label, value, cls = '') {
+  return `<div class="metric-row">
+    <span class="metric-label">${label}</span>
+    <span class="metric-value ${cls}">${value}</span>
+  </div>`;
+}
+
+function statusDot(color) {
+  return `<span class="dot ${color}"></span>`;
+}
+
+// ── Domain renderers ──────────────────────────────────────────────────────────
+function renderVectorMemory(el, data) {
+  const s = data.state || {};
+  const driftColor = (s.driftScore || 0) > 0.5 ? 'red' : (s.driftScore || 0) > 0.2 ? 'yellow' : 'green';
+  el.innerHTML = `
+    ${metricRow('Total Vectors',   (s.totalVectors   ?? '—').toLocaleString())}
+    ${metricRow('Namespaces',      s.namespaces      ?? '—')}
+    ${metricRow('Drift Score',     typeof s.driftScore === 'number' ? s.driftScore.toFixed(4) : '—', driftColor)}
+    ${metricRow('Cluster Count',   s.clusterCount    ?? '—')}
+  `;
+}
+
+function renderConfig(el, data) {
+  const s = data.state || {};
+  const driftColor = s.driftDetected ? 'red' : 'green';
+  const driftLabel = s.driftDetected ? 'YES' : 'No';
+  const lastChanged = s.lastChanged ? new Date(s.lastChanged).toLocaleTimeString() : '—';
+  el.innerHTML = `
+    ${metricRow('Config Hash',    s.configHash ? s.configHash.slice(0, 12) + '…' : '—', 'muted')}
+    ${metricRow('Last Changed',   lastChanged)}
+    ${metricRow('Drift Detected', driftLabel, driftColor)}
+    ${metricRow('Watchers',       s.watcherCount ?? '—')}
+  `;
+}
+
+function renderHealth(el, data) {
+  const s = data.state || {};
+  const score = typeof s.overallScore === 'number' ? Math.round(s.overallScore * 100) : null;
+  const scoreColor = score === null ? '' : score >= 90 ? 'green' : score >= 70 ? 'yellow' : 'red';
+  const services = s.services || {};
+
+  let serviceDotsHtml = '';
+  for (const [name, status] of Object.entries(services)) {
+    const col = status === 'healthy' ? 'green' : status === 'degraded' ? 'yellow' : 'red';
+    serviceDotsHtml += `<div class="status-dot-item">${statusDot(col)} ${name}</div>`;
+  }
+
+  el.innerHTML = `
+    <div class="big-stat-row">
+      <span class="metric-value large ${scoreColor}">${score !== null ? score : '—'}</span>
+      <span class="big-stat-unit">/ 100</span>
+    </div>
+    <div class="card-divider"></div>
+    <div class="status-dots">${serviceDotsHtml || '<span style="color:var(--text-muted);font-size:.75rem">No services</span>'}</div>
+  `;
+}
+
+function renderTelemetry(el, data) {
+  const s = data.state || {};
+  const cpu    = typeof s.cpuPercent   === 'number' ? s.cpuPercent   : null;
+  const mem    = typeof s.memPercent   === 'number' ? s.memPercent   : null;
+  const evloop = typeof s.eventLoopLag === 'number' ? s.eventLoopLag : null;
+
+  if (cpu    !== null) state.sparklineData.cpu.push(cpu);
+  if (mem    !== null) state.sparklineData.mem.push(mem);
+  if (evloop !== null) state.sparklineData.evloop.push(evloop);
+
+  // Trim to 30 samples
+  ['cpu','mem','evloop'].forEach(k => {
+    if (state.sparklineData[k].length > 30) state.sparklineData[k].shift();
+  });
+
+  const cpuColor  = cpu    === null ? '' : cpu    > 80 ? 'red' : cpu    > 60 ? 'yellow' : 'green';
+  const memColor  = mem    === null ? '' : mem    > 85 ? 'red' : mem    > 70 ? 'yellow' : 'green';
+  const lagColor  = evloop === null ? '' : evloop > 100 ? 'red' : evloop > 30 ? 'yellow' : 'green';
+
+  el.innerHTML = `
+    <div class="sparkline-wrap">
+      <div class="sparkline-label-row">
+        <span class="metric-label">CPU %</span>
+        <span class="metric-value ${cpuColor}">${cpu !== null ? cpu.toFixed(1) + '%' : '—'}</span>
+      </div>
+      <canvas class="sparkline-canvas" id="spark-cpu"></canvas>
+    </div>
+    <div class="sparkline-wrap">
+      <div class="sparkline-label-row">
+        <span class="metric-label">Memory %</span>
+        <span class="metric-value ${memColor}">${mem !== null ? mem.toFixed(1) + '%' : '—'}</span>
+      </div>
+      <canvas class="sparkline-canvas" id="spark-mem"></canvas>
+    </div>
+    <div class="sparkline-wrap">
+      <div class="sparkline-label-row">
+        <span class="metric-label">Event Loop Lag</span>
+        <span class="metric-value ${lagColor}">${evloop !== null ? evloop.toFixed(1) + 'ms' : '—'}</span>
+      </div>
+      <canvas class="sparkline-canvas" id="spark-evloop"></canvas>
+    </div>
+  `;
+
+  // Draw sparklines after DOM paint
+  requestAnimationFrame(() => {
+    drawSparkline('spark-cpu',    state.sparklineData.cpu,    '#4488ff');
+    drawSparkline('spark-mem',    state.sparklineData.mem,    '#ffcc44');
+    drawSparkline('spark-evloop', state.sparklineData.evloop, '#00ff88');
+  });
+}
+
+function drawSparkline(canvasId, data, color) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth;
+  const H = canvas.offsetHeight;
+  canvas.width  = W;
+  canvas.height = H;
+  if (!data.length) return;
+
+  const max = Math.max(...data, 1);
+  const step = W / (data.length - 1);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Fill gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0,   color + '44');
+  grad.addColorStop(1,   color + '00');
+
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = i * step;
+    const y = H - (v / max) * (H - 4) - 2;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo((data.length - 1) * step, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  data.forEach((v, i) => {
+    const x = i * step;
+    const y = H - (v / max) * (H - 4) - 2;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth   = 1.5;
+  ctx.stroke();
+}
+
+function renderTopology(el, data) {
+  const s = data.state || {};
+  const agents  = s.agentCount  ?? 0;
+  const orphans = s.orphanCount ?? 0;
+  const connections = s.connections || [];
+
+  // Simple SVG topology visualization
+  const svgNodes = buildTopologySvg(agents, connections);
+
+  el.innerHTML = `
+    ${metricRow('Agents',      agents)}
+    ${metricRow('Orphans',     orphans, orphans > 0 ? 'red' : 'green')}
+    ${metricRow('Connections', connections.length || s.connectionCount || '—')}
+    <div class="card-divider"></div>
+    <svg class="topology-svg" viewBox="0 0 200 70" xmlns="http://www.w3.org/2000/svg">
+      ${svgNodes}
+    </svg>
+  `;
+
+  // Update swarm health bar from topology
+  const healthPct = agents > 0 ? Math.round(((agents - orphans) / agents) * 100) : 0;
+  const fillEl = document.getElementById('swarm-bar-fill');
+  const labelEl = document.getElementById('swarm-health-label');
+  if (fillEl)  fillEl.style.width = healthPct + '%';
+  if (labelEl) labelEl.textContent = healthPct + '%';
+}
+
+function buildTopologySvg(agentCount, connections) {
+  const n = Math.min(agentCount, 12);
+  if (n === 0) return '<text x="100" y="38" text-anchor="middle" fill="#4a5568" font-size="10">No agents</text>';
+
+  const cx = 100, cy = 35, r = 28;
+  const nodes = [];
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+    nodes.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+  }
+
+  let lines = '';
+  if (connections.length > 0) {
+    connections.slice(0, 20).forEach(([a, b]) => {
+      if (nodes[a] && nodes[b]) {
+        lines += `<line x1="${nodes[a].x.toFixed(1)}" y1="${nodes[a].y.toFixed(1)}" x2="${nodes[b].x.toFixed(1)}" y2="${nodes[b].y.toFixed(1)}" stroke="#263349" stroke-width="0.8"/>`;
+      }
+    });
+  } else {
+    // Default mesh
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (Math.random() > 0.6) {
+          lines += `<line x1="${nodes[i].x.toFixed(1)}" y1="${nodes[i].y.toFixed(1)}" x2="${nodes[j].x.toFixed(1)}" y2="${nodes[j].y.toFixed(1)}" stroke="#263349" stroke-width="0.8"/>`;
+        }
+      }
+    }
+  }
+
+  // Central hub
+  lines += `<circle cx="${cx}" cy="${cy}" r="3" fill="#c9a22760"/>`;
+
+  const circles = nodes.map((nd, i) =>
+    `<circle cx="${nd.x.toFixed(1)}" cy="${nd.y.toFixed(1)}" r="3.5" fill="#0f1525" stroke="#4488ff" stroke-width="1"/>`
+  ).join('');
+
+  return lines + circles;
+}
+
+function renderTaskQueue(el, data) {
+  const s = data.state || {};
+  const depth      = s.queueDepth   ?? 0;
+  const throughput = s.throughput   ?? 0;
+  const stalled    = s.stalledTasks ?? 0;
+  const backlog    = s.backlog      ?? 0;
+
+  const stalledColor = stalled > 0 ? 'red' : 'green';
+  const depthColor   = depth > 100 ? 'red' : depth > 50 ? 'yellow' : '';
+
+  el.innerHTML = `
+    ${metricRow('Queue Depth',  depth.toLocaleString(), depthColor)}
+    ${metricRow('Throughput',   throughput.toFixed(2) + ' /s')}
+    ${metricRow('Stalled',      stalled.toLocaleString(), stalledColor)}
+    ${metricRow('Backlog',      backlog.toLocaleString())}
+  `;
+}
+
+// ── Simulate mock data for offline preview ─────────────────────────────────────
+function simulateMockData() {
+  const t = Date.now();
+
+  const mocks = {
+    'vector-memory': {
+      domain: 'vector-memory',
+      version: t,
+      state: {
+        totalVectors:  Math.floor(128000 + Math.random() * 5000),
+        namespaces:    8,
+        driftScore:    Math.random() * 0.3,
+        clusterCount:  Math.floor(32 + Math.random() * 8),
+      },
+    },
+    config: {
+      domain: 'config',
+      version: t,
+      state: {
+        configHash:    'sha256:' + Math.random().toString(36).slice(2).padEnd(16, '0'),
+        lastChanged:   t - Math.floor(Math.random() * 3600_000),
+        driftDetected: Math.random() < 0.1,
+        watcherCount:  4,
+      },
+    },
+    health: {
+      domain: 'health',
+      version: t,
+      state: {
+        overallScore: 0.88 + Math.random() * 0.12,
+        services: {
+          api:        'healthy',
+          database:   Math.random() > 0.95 ? 'degraded' : 'healthy',
+          cache:      'healthy',
+          'pubsub':   'healthy',
+          'vector-db': Math.random() > 0.98 ? 'down' : 'healthy',
+        },
+      },
+    },
+    telemetry: {
+      domain: 'telemetry',
+      version: t,
+      state: {
+        cpuPercent:   20 + Math.random() * 40,
+        memPercent:   45 + Math.random() * 30,
+        eventLoopLag: 2 + Math.random() * 25,
+      },
+    },
+    topology: {
+      domain: 'topology',
+      version: t,
+      state: {
+        agentCount:      Math.floor(8 + Math.random() * 4),
+        orphanCount:     Math.floor(Math.random() * 2),
+        connectionCount: Math.floor(12 + Math.random() * 8),
+        connections: [],
+      },
+    },
+    'task-queue': {
+      domain: 'task-queue',
+      version: t,
+      state: {
+        queueDepth:   Math.floor(Math.random() * 80),
+        throughput:   10 + Math.random() * 40,
+        stalledTasks: Math.floor(Math.random() * 3),
+        backlog:      Math.floor(Math.random() * 20),
+      },
+    },
+  };
+
+  Object.entries(mocks).forEach(([domain, data]) => {
+    handleProjectionEvent(domain, data);
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init() {
+  // Try live SSE
+  connectSSE();
+
+  // Simulate mock data in dev (when SSE is unavailable, inject demo after 1.2s)
+  setTimeout(() => {
+    if (!state.connected) {
+      console.info('[Dashboard] SSE not connected — injecting mock data for preview');
+      simulateMockData();
+      // Keep refreshing mock data periodically
+      setInterval(simulateMockData, Math.round(PHI * 3000));
+    }
+  }, 1200);
+})();
+</script>
+
+</body>
+</html>

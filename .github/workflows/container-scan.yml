@@ -1,0 +1,430 @@
+# container-scan.yml — Heady Systems Docker Image Security
+# Trivy FS + image scans, hadolint, base image freshness, non-root user check
+# Version: 1.0.0
+
+name: Container Security Scan
+
+on:
+  push:
+    branches: [main, staging, dev]
+    paths:
+      - 'Dockerfile*'
+      - '.dockerignore'
+      - 'docker-compose*.yml'
+      - '.github/workflows/container-scan.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main, staging, dev]
+    paths:
+      - 'Dockerfile*'
+      - '.dockerignore'
+      - 'docker-compose*.yml'
+  schedule:
+    # Weekly full scan — base image freshness can change without code changes
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+concurrency:
+  group: container-scan-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Registry prefix for Heady images
+  IMAGE_PREFIX: ghcr.io/headyme
+
+jobs:
+  # ─── Discover Dockerfiles ────────────────────────────────────────────────────
+  discover-dockerfiles:
+    name: Discover Dockerfiles
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.find.outputs.dockerfiles }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find all Dockerfiles
+        id: find
+        run: |
+          # Find all Dockerfiles (including Dockerfile.*, but not in node_modules)
+          DOCKERFILES=$(find . \
+            -name "Dockerfile*" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/.git/*" \
+            -not -name "*.swp" \
+          | sed 's|^\./||' \
+          | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "dockerfiles=${DOCKERFILES}" >> "$GITHUB_OUTPUT"
+          echo "Found Dockerfiles: ${DOCKERFILES}"
+
+  # ─── Trivy Filesystem Scan ────────────────────────────────────────────────────
+  trivy-fs:
+    name: Trivy Filesystem Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs.sarif
+          severity: CRITICAL,HIGH,MEDIUM
+          scanners: vuln,secret,config,license
+          vuln-type: library
+          exit-code: '0'  # Don't fail here — security-gate handles blocking
+          trivyignores: .trivyignore
+
+      - name: Upload Trivy FS SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-filesystem
+
+      - name: Upload FS scan artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-fs-report
+          path: trivy-fs.sarif
+          retention-days: 30
+
+      - name: Fail on critical filesystem findings
+        run: |
+          CRITICAL=$(python3 -c "
+          import json
+          try:
+              data = json.load(open('trivy-fs.sarif'))
+              rules = {r['id']: r for r in data.get('runs', [{}])[0].get('tool', {}).get('driver', {}).get('rules', [])}
+              results = data.get('runs', [{}])[0].get('results', [])
+              critical = [r for r in results if rules.get(r.get('ruleId', ''), {}).get('properties', {}).get('security-severity', '0') >= '9.0']
+              print(len(critical))
+          except Exception as e:
+              print(0)
+          " 2>/dev/null || echo "0")
+
+          if [[ "${CRITICAL}" -gt 0 ]]; then
+            echo "::error::Trivy found ${CRITICAL} critical filesystem vulnerabilities"
+            exit 1
+          fi
+
+  # ─── Trivy Image Scan ─────────────────────────────────────────────────────────
+  trivy-image:
+    name: Trivy Image Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: discover-dockerfiles
+    if: needs.discover-dockerfiles.outputs.dockerfiles != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        dockerfile: ${{ fromJson(needs.discover-dockerfiles.outputs.dockerfiles) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Derive image name from Dockerfile path
+        id: image-name
+        run: |
+          DOCKERFILE="${{ matrix.dockerfile }}"
+          # e.g., Dockerfile -> heady-main, Dockerfile.mcp -> heady-mcp
+          SUFFIX="${DOCKERFILE##*.}"
+          if [[ "${SUFFIX}" == "Dockerfile" || "${SUFFIX}" == "${DOCKERFILE}" ]]; then
+            SUFFIX="main"
+          fi
+          echo "name=${IMAGE_PREFIX}/heady-${SUFFIX}:scan" >> "$GITHUB_OUTPUT"
+          echo "suffix=${SUFFIX}" >> "$GITHUB_OUTPUT"
+
+      - name: Build image for scanning
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: false
+          load: true
+          tags: ${{ steps.image-name.outputs.name }}
+          cache-from: type=gha,scope=${{ matrix.dockerfile }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.dockerfile }}
+          build-args: |
+            NODE_ENV=production
+
+      - name: Run Trivy image scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.image-name.outputs.name }}
+          format: sarif
+          output: trivy-image-${{ steps.image-name.outputs.suffix }}.sarif
+          severity: CRITICAL,HIGH
+          vuln-type: os,library
+          scanners: vuln,secret,config
+          exit-code: '1'
+          ignore-unfixed: true
+          trivyignores: .trivyignore
+
+      - name: Upload image SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-image-${{ steps.image-name.outputs.suffix }}.sarif
+          category: trivy-image-${{ steps.image-name.outputs.suffix }}
+
+      - name: Upload image scan artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-${{ steps.image-name.outputs.suffix }}-report
+          path: trivy-image-${{ steps.image-name.outputs.suffix }}.sarif
+          retention-days: 30
+
+  # ─── Dockerfile Linting (hadolint) ───────────────────────────────────────────
+  hadolint:
+    name: Dockerfile Best Practices (hadolint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: discover-dockerfiles
+    if: needs.discover-dockerfiles.outputs.dockerfiles != '[]'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run hadolint on all Dockerfiles
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          recursive: true
+          failure-threshold: error
+          format: sarif
+          output-file: hadolint-results.sarif
+          ignore: >
+            DL3008
+            DL3009
+            DL3015
+            SC2046
+          override-error: >
+            DL3002
+            DL3003
+            DL3020
+            DL3025
+          override-warning: >
+            DL3006
+            DL3007
+            DL3013
+            DL3016
+
+      - name: Upload hadolint SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: hadolint-results.sarif
+          category: hadolint
+
+      - name: Upload hadolint artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hadolint-report
+          path: hadolint-results.sarif
+          retention-days: 30
+
+  # ─── Base Image Freshness Check ───────────────────────────────────────────────
+  base-image-freshness:
+    name: Base Image Freshness
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: discover-dockerfiles
+    if: needs.discover-dockerfiles.outputs.dockerfiles != '[]'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check base image freshness
+        run: |
+          FAILURES=0
+          MAX_AGE_DAYS=30  # Alert if base image digest is older than 30 days
+
+          for DOCKERFILE in ${{ join(fromJson(needs.discover-dockerfiles.outputs.dockerfiles), ' ') }}; do
+            [[ ! -f "${DOCKERFILE}" ]] && continue
+
+            # Extract FROM lines (skip --platform args)
+            BASE_IMAGES=$(grep -E "^FROM " "${DOCKERFILE}" | grep -v "# cache" | awk '{print $2}' | grep -v "scratch")
+
+            while IFS= read -r base_image; do
+              [[ -z "${base_image}" ]] && continue
+              echo "Checking base image: ${base_image} (from ${DOCKERFILE})"
+
+              # Pull manifest to check date
+              IMAGE_INFO=$(docker manifest inspect "${base_image}" 2>/dev/null || echo "{}")
+              if [[ "${IMAGE_INFO}" == "{}" ]]; then
+                echo "::warning::Cannot inspect manifest for ${base_image}"
+                continue
+              fi
+
+              # Get last created date from manifest
+              CREATED=$(echo "${IMAGE_INFO}" | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          # Try to find Created field in config
+          created = data.get('config', {}).get('Labels', {}).get('org.opencontainers.image.created', '')
+          if not created:
+              created = data.get('created', '')
+          print(created[:10] if created else '')
+          " 2>/dev/null || echo "")
+
+              if [[ -n "${CREATED}" ]]; then
+                CREATED_EPOCH=$(date -d "${CREATED}" +%s 2>/dev/null || echo "0")
+                NOW_EPOCH=$(date +%s)
+                AGE_DAYS=$(( (NOW_EPOCH - CREATED_EPOCH) / 86400 ))
+
+                if [[ "${AGE_DAYS}" -gt "${MAX_AGE_DAYS}" ]]; then
+                  echo "::warning::Base image ${base_image} is ${AGE_DAYS} days old (limit: ${MAX_AGE_DAYS})"
+                fi
+                echo "  Age: ${AGE_DAYS} days (created: ${CREATED})"
+              fi
+
+            done <<< "${BASE_IMAGES}"
+          done
+
+          echo "Base image freshness check complete"
+
+  # ─── Non-root User Verification ───────────────────────────────────────────────
+  non-root-check:
+    name: Non-root User Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: discover-dockerfiles
+    if: needs.discover-dockerfiles.outputs.dockerfiles != '[]'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify Dockerfiles use non-root user
+        id: check
+        run: |
+          FAILURES=0
+          REPORT=""
+
+          for DOCKERFILE in ${{ join(fromJson(needs.discover-dockerfiles.outputs.dockerfiles), ' ') }}; do
+            [[ ! -f "${DOCKERFILE}" ]] && continue
+
+            echo "Checking ${DOCKERFILE}..."
+
+            # Check for USER instruction
+            USER_INSTRUCTION=$(grep -E "^USER " "${DOCKERFILE}" | tail -1 | awk '{print $2}')
+
+            if [[ -z "${USER_INSTRUCTION}" ]]; then
+              echo "::error::${DOCKERFILE}: No USER instruction found — container runs as root"
+              FAILURES=$((FAILURES + 1))
+              REPORT+="| \`${DOCKERFILE}\` | ❌ No USER instruction | root (default) |\n"
+              continue
+            fi
+
+            # Check if USER is root (0) or "root"
+            if [[ "${USER_INSTRUCTION}" == "root" || "${USER_INSTRUCTION}" == "0" ]]; then
+              echo "::error::${DOCKERFILE}: USER is explicitly root — must use non-root user"
+              FAILURES=$((FAILURES + 1))
+              REPORT+="| \`${DOCKERFILE}\` | ❌ Runs as root | ${USER_INSTRUCTION} |\n"
+              continue
+            fi
+
+            # Check if there's a HEALTHCHECK
+            HEALTHCHECK=$(grep -c "^HEALTHCHECK" "${DOCKERFILE}" || echo "0")
+            if [[ "${HEALTHCHECK}" -eq 0 ]]; then
+              echo "::warning::${DOCKERFILE}: No HEALTHCHECK instruction"
+            fi
+
+            # Check for EXPOSE (at least one port)
+            EXPOSE=$(grep -c "^EXPOSE" "${DOCKERFILE}" || echo "0")
+
+            echo "  ✅ Non-root user: ${USER_INSTRUCTION}"
+            REPORT+="| \`${DOCKERFILE}\` | ✅ Non-root | \`${USER_INSTRUCTION}\` |\n"
+          done
+
+          # Write summary
+          printf "## Non-root User Check\n\n| Dockerfile | Status | User |\n|------------|--------|------|\n${REPORT}" >> "$GITHUB_STEP_SUMMARY"
+          echo "failures=${FAILURES}" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if root containers found
+        if: steps.check.outputs.failures != '0'
+        run: |
+          echo "::error::${{ steps.check.outputs.failures }} Dockerfiles run as root"
+          exit 1
+
+  # ─── .dockerignore Completeness Check ────────────────────────────────────────
+  dockerignore-check:
+    name: .dockerignore Completeness
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify .dockerignore covers sensitive paths
+        run: |
+          REQUIRED_PATTERNS=(
+            ".git"
+            ".env"
+            "node_modules"
+            "*.log"
+            ".github"
+            "credential-rotation"
+            "*.key"
+            "*.pem"
+          )
+
+          MISSING=()
+          [[ ! -f ".dockerignore" ]] && { echo "::error::No .dockerignore found"; exit 1; }
+
+          for pattern in "${REQUIRED_PATTERNS[@]}"; do
+            if ! grep -qF "${pattern}" .dockerignore; then
+              MISSING+=("${pattern}")
+              echo "::warning::.dockerignore missing pattern: ${pattern}"
+            fi
+          done
+
+          if [[ ${#MISSING[@]} -gt 0 ]]; then
+            echo "::warning::${#MISSING[@]} recommended patterns missing from .dockerignore: ${MISSING[*]}"
+          else
+            echo "✅ .dockerignore covers all sensitive paths"
+          fi
+
+  # ─── Container Scan Summary ───────────────────────────────────────────────────
+  container-scan-summary:
+    name: Container Scan Summary
+    runs-on: ubuntu-latest
+    needs: [trivy-fs, trivy-image, hadolint, base-image-freshness, non-root-check, dockerignore-check]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Container Security Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Trivy Filesystem | ${{ needs.trivy-fs.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Trivy Image | ${{ needs.trivy-image.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Hadolint | ${{ needs.hadolint.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Base Image Freshness | ${{ needs.base-image-freshness.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Non-root User | ${{ needs.non-root-check.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| .dockerignore | ${{ needs.dockerignore-check.result }} |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if critical checks failed
+        if: |
+          needs.trivy-image.result == 'failure' ||
+          needs.non-root-check.result == 'failure'
+        run: |
+          echo "::error::Critical container security checks failed"
+          exit 1

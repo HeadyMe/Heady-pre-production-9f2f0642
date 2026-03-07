@@ -1,0 +1,482 @@
+# =============================================================================
+# HeadyMe — Core Repos Shared .gitignore
+# Applies to: headyio-core, headybot-core, headybuddy-core, headyapi-core,
+#             headyos-core, headymcp-core, headyconnection-core,
+#             headysystems-core, headyme-core
+# Last updated: 2026-03-07
+# =============================================================================
+
+# =============================================================================
+# SECTION 1: CREDENTIALS & SECRETS (CRITICAL — NEVER COMMIT)
+# =============================================================================
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.schema
+*.env
+*.env.*
+
+# Secrets directories
+secrets/
+.secrets/
+**/*.secret
+**/*.secrets
+
+# Credential files
+credentials.json
+service-account*.json
+*-service-account.json
+*-credentials.json
+*-secrets.json
+secret.json
+secrets.json
+
+# API Keys — all common formats
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.keystore
+*.jks
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+id_ecdsa
+id_ecdsa.pub
+*.ppk
+authorized_keys
+known_hosts
+
+# JWT tokens
+*.jwt
+jwt_secret*
+jwt-secret*
+token.txt
+tokens.txt
+auth_token*
+access_token*
+refresh_token*
+
+# Cloud credentials
+.aws/
+.gcp/
+.azure/
+gcp-key*.json
+gcp_key*.json
+aws-credentials*
+azure-credentials*
+cloudflare-credentials*
+
+# Vault
+vault-token*
+.vault-token
+vault.json
+
+# Database connection strings
+database.yml
+database.json
+db-config*
+*-db-config*
+.pgpass
+pgpass
+
+# TLS/SSL private keys (keep public certs if needed)
+*.crt
+*.cer
+*.ca-bundle
+!certs/public/
+*.p7b
+*.p7s
+
+# GPG private keys
+*.gpg
+*.asc
+secring.gpg
+private-keys-v1.d/
+
+# SSH configs
+.ssh/
+ssh_config.local
+
+# =============================================================================
+# SECTION 2: NODE.JS
+# =============================================================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.pnp.cjs
+
+# Yarn v2+
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+!.yarn/releases
+!.yarn/plugins
+
+# npm debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Optional npm cache
+.npm/
+.npm_cache/
+
+# =============================================================================
+# SECTION 3: BUILD ARTIFACTS
+# =============================================================================
+
+# Build output
+dist/
+build/
+out/
+lib/
+!src/lib/
+
+# Framework caches
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+.swc/
+.rollup.cache/
+.esbuild/
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Compiled output
+*.js.map
+*.d.ts.map
+
+# =============================================================================
+# SECTION 4: DOCKER ARTIFACTS
+# =============================================================================
+
+# Docker Compose overrides with secrets
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.secrets.yml
+docker-compose.prod.yml
+!docker-compose.example.yml
+
+# Docker build cache
+.dockercache/
+docker-cache/
+.docker-cache/
+.docker/
+
+# Container image tarballs
+*.tar
+docker-image*.tar
+container-*.tar
+
+# =============================================================================
+# SECTION 5: ENVIRONMENT FILES (REINFORCED)
+# =============================================================================
+
+# All local config overrides
+*.local
+*.local.*
+config.local.js
+config.local.ts
+config.local.json
+settings.local.js
+settings.local.json
+local.json
+local.js
+
+# =============================================================================
+# SECTION 6: IDE FILES
+# =============================================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Cursor
+.cursor/
+!.cursor/rules/
+
+# =============================================================================
+# SECTION 7: OS-SPECIFIC FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+Icon\r
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptableStore
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.url
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# SECTION 8: TEST COVERAGE
+# =============================================================================
+
+# Coverage output
+coverage/
+.coverage
+coverage.xml
+coverage.json
+lcov.info
+*.lcov
+*.coverage
+.nyc_output/
+jest-coverage/
+vitest-coverage/
+c8-coverage/
+.v8-coverage/
+.istanbul/
+
+# Test results
+test-results/
+test-output/
+*.test-results.xml
+junit.xml
+junit-results/
+
+# =============================================================================
+# SECTION 9: LOG FILES
+# =============================================================================
+
+# Application logs
+logs/
+*.log
+*.log.*
+*.log-*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# SECTION 10: PRIVATE KEYS AND CERTIFICATES
+# =============================================================================
+
+# Already covered in Section 1, reinforced here for clarity
+# Private key files — NEVER commit regardless of extension
+*private_key*
+*private-key*
+*_private*
+*-private*
+*.private.*
+
+# Self-signed certs
+localhost.crt
+localhost.key
+dev.crt
+dev.key
+local.crt
+local.key
+selfsigned.crt
+selfsigned.key
+
+# Certificate signing requests
+*.csr
+
+# PKCS
+*.pkcs12
+*.pkcs8
+
+# =============================================================================
+# SECTION 11: DATABASE FILES
+# =============================================================================
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.s3db
+*.sl3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Dumps
+*.dump
+*.pgdump
+*.pgsql
+pg_dump*/
+db-backup*/
+database-backup*/
+
+# Redis
+dump.rdb
+redis-data/
+*.rdb
+
+# LevelDB / RocksDB
+*.ldb
+*.sst
+.leveldb/
+.rocksdb/
+
+# =============================================================================
+# SECTION 12: TERRAFORM STATE
+# =============================================================================
+
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+*.tfplan
+*.plan
+terraform.plan
+.terragrunt-cache/
+
+# =============================================================================
+# SECTION 13: RUNTIME DATA
+# =============================================================================
+
+# Runtime directories
+runtime/
+.runtime/
+tmp/
+temp/
+.tmp/
+.temp/
+
+# Process files
+*.pid
+*.lock
+!package-lock.json
+
+# Socket files
+*.sock
+*.socket
+
+# Heap / core dumps
+*.heapsnapshot
+heapdump-*.bin
+*.heapdump
+core
+core.*
+*.core
+*.hprof
+crash-dump*/
+*.dmp
+
+# =============================================================================
+# SECTION 14: BACKUP FILES
+# =============================================================================
+
+# Editor backups
+*~
+*.bak
+*.bak.*
+*.backup
+*.backup.*
+*.orig
+*.original
+*.save
+*.sav
+*.old
+*.tmp
+
+# Archive backups
+*.zip.bak
+*.tar.bak
+*.tar.gz.bak
+
+# Timestamped backups
+*_backup_*
+*-backup-*
+*_bak_*
+*-bak-*
+*.20[0-9][0-9][0-9][0-9][0-9][0-9]*
+
+# =============================================================================
+# SECTION 15: KUBERNETES (shared infra)
+# =============================================================================
+
+*-secret.yaml
+*-secret.yml
+*-secrets.yaml
+*-secrets.yml
+*.secret.yaml
+*.secret.yml
+kubeconfig
+kubeconfig.*
+.kube/
+!kubeconfig.example
+
+# =============================================================================
+# SECTION 16: MISC
+# =============================================================================
+
+# SAST / DAST outputs
+*.sarif
+sast-results/
+dast-results/
+snyk-report*
+
+# Compiled Python (for Python utility scripts)
+__pycache__/
+*.py[cod]
+*.pyo
+
+# =============================================================================
+# END OF .gitignore
+# =============================================================================

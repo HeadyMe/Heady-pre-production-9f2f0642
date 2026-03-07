@@ -1,0 +1,421 @@
+# =============================================================================
+# HeadyMe — Documentation Repo .gitignore
+# Applies to: heady-docs
+# Last updated: 2026-03-07
+# =============================================================================
+
+# =============================================================================
+# SECTION 1: CREDENTIALS & SECRETS (CRITICAL)
+# =============================================================================
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.template
+*.env
+
+# Secrets
+secrets/
+.secrets/
+**/*.secret
+**/*.secrets
+credentials.json
+service-account*.json
+*-credentials.json
+*-secrets.json
+secret.json
+secrets.json
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+id_ecdsa
+*.ppk
+authorized_keys
+*.crt
+*.cer
+!certs/public/
+
+# JWT / tokens
+*.jwt
+jwt_secret*
+token.txt
+auth_token*
+access_token*
+
+# Cloud credentials
+.aws/
+.gcp/
+.azure/
+gcp-key*.json
+aws-credentials*
+
+# Vault
+vault-token*
+.vault-token
+
+# =============================================================================
+# SECTION 2: GENERATED API DOCUMENTATION
+# =============================================================================
+
+# OpenAPI / Swagger generated output
+docs/generated/
+generated-docs/
+api-docs/generated/
+openapi-generated/
+swagger-generated/
+*.generated.md
+*.generated.html
+*.generated.json
+
+# TypeDoc output (JS/TS auto-docs)
+typedoc/
+typedoc-out/
+docs/api/
+docs/typedoc/
+api-reference/generated/
+
+# JSDoc generated output
+jsdoc/
+jsdoc-out/
+docs/jsdoc/
+
+# Compodoc (Angular)
+documentation/
+compodoc/
+
+# Storybook generated
+storybook-static/
+
+# GraphQL generated schema docs
+schema-generated.md
+introspection.json
+schema.json
+!schema.graphql
+
+# Postman / Insomnia exported collections (may contain auth tokens)
+*.postman_collection.json
+*.postman_environment.json
+insomnia-export*.json
+
+# =============================================================================
+# SECTION 3: BUILD CACHE
+# =============================================================================
+
+# Static site generators
+.docusaurus/
+build/
+out/
+dist/
+_site/
+.vuepress/dist/
+.vitepress/dist/
+.vitepress/cache/
+
+# MkDocs
+site/
+mkdocs-site/
+
+# Sphinx
+_build/
+docs/_build/
+
+# Jekyll
+_site/
+.jekyll-cache/
+.jekyll-metadata
+
+# Hugo
+public/
+resources/
+.hugo_build.lock
+
+# GitBook
+_book/
+node_modules/
+
+# Gatsby
+.cache/
+public/
+.gatsby-config.js.cache
+
+# Next.js docs site
+.next/
+.cache/
+
+# Generic build cache
+.cache/
+.parcel-cache/
+.turbo/
+.esbuild/
+.rollup.cache/
+
+# =============================================================================
+# SECTION 4: DRAFT / UNRELEASED CONTENT
+# =============================================================================
+
+# Draft documents (not ready for publication)
+drafts/
+_drafts/
+draft-*/
+*-draft.*
+*.draft.*
+*.draft/
+*_draft_*
+*-draft-*
+
+# Work in progress
+wip/
+_wip/
+wip-*/
+*-wip.*
+*.wip.*
+*_wip_*
+*-wip-*
+
+# Unreleased feature docs (tied to unreleased features)
+unreleased/
+_unreleased/
+unreleased-*/
+pre-release-docs/
+staging-docs/
+
+# Private notes and internal memos
+internal/
+_internal/
+private/
+_private/
+confidential/
+_confidential/
+notes/
+_notes/
+
+# Embargoed content
+embargoed/
+_embargoed/
+under-embargo/
+nda-content/
+
+# Review copies with tracked changes
+*-review.*
+*-redline.*
+*-markup.*
+*-annotated.*
+*-commented.*
+*.review.md
+*.review.docx
+
+# =============================================================================
+# SECTION 5: REVIEW ARTIFACTS
+# =============================================================================
+
+# Editorial review artifacts
+reviews/
+_reviews/
+editorial-feedback/
+peer-review/
+qa-feedback/
+
+# Comment exports from Google Docs, Confluence, etc.
+comments-export*
+review-comments*
+feedback-export*
+
+# Screen recordings / annotated screenshots for review
+review-screenshots/
+review-recordings/
+annotation-exports/
+
+# Translation / localization review files
+translations/review/
+l10n/review/
+i18n/review/
+*.xlf.review
+*.po.review
+*.xliff.review
+
+# Markdown linting reports
+.markdownlint-report*
+markdownlint-results*
+vale-results*
+vale-report*
+.vale/styles/
+.vale.ini.local
+
+# Link checker reports
+link-check-results*
+*.link-report.*
+broken-links*
+
+# Spelling check artifacts
+.aspell.en.pws
+.aspell.en.prepl
+*.spelling-report
+
+# Doc site search index (generated)
+search-index.json
+lunr-index.json
+pagefind/
+algolia-index*
+
+# Performance/audit reports for docs site
+lighthouse-report*
+pagespeed-results*
+
+# =============================================================================
+# SECTION 6: NODE.JS (for doc site tooling)
+# =============================================================================
+
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+!.yarn/releases
+!.yarn/plugins
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# =============================================================================
+# SECTION 7: PYTHON (for Sphinx / MkDocs tooling)
+# =============================================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.python-version
+
+# =============================================================================
+# SECTION 8: MEDIA ASSETS (large binaries — use Git LFS or CDN)
+# =============================================================================
+
+# Large image files (commit small images; reference large ones from CDN)
+*.psd
+*.psb
+*.ai
+*.sketch
+*.fig
+*.xd
+*.afdesign
+*.afpub
+*.affinity
+
+# Video files (too large for git)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.flv
+*.wmv
+
+# Audio files
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.aac
+
+# Large data files
+*.csv
+!examples/**/*.csv
+*.xlsx
+!examples/**/*.xlsx
+*.parquet
+*.feather
+
+# =============================================================================
+# SECTION 9: IDE FILES
+# =============================================================================
+
+.vscode/
+*.code-workspace
+!.vscode/extensions.json
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.cursor/
+!.cursor/rules/
+
+# =============================================================================
+# SECTION 10: OS-SPECIFIC FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon\r
+
+# Windows
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# SECTION 11: LOGS AND RUNTIME
+# =============================================================================
+
+logs/
+*.log
+*.log.*
+pids/
+*.pid
+*.pid.lock
+runtime/
+.runtime/
+tmp/
+temp/
+.tmp/
+.temp/
+
+# =============================================================================
+# SECTION 12: BACKUP FILES
+# =============================================================================
+
+*~
+*.bak
+*.bak.*
+*.backup
+*.backup.*
+*.orig
+*.original
+*.old
+*.tmp
+*_backup_*
+*-backup-*
+
+# =============================================================================
+# END OF .gitignore
+# =============================================================================

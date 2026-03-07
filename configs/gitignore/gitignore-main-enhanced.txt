@@ -1,0 +1,631 @@
+# =============================================================================
+# HeadyMe — Heady-pre-production-9f2f0642 Enhanced .gitignore
+# SEC-004 / SEC-005 compliant — Enhanced with enterprise-grade additions
+# Last updated: 2026-03-07
+# =============================================================================
+
+# =============================================================================
+# SECTION 1: CREDENTIALS & SECRETS (SEC-004)
+# =============================================================================
+
+# Environment files — ALL variants
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.schema
+*.env
+*.env.*
+
+# Secret management
+secrets/
+.secrets/
+**/*.secret
+**/*.secrets
+secret.json
+secrets.json
+credentials.json
+service-account*.json
+*-service-account.json
+*-credentials.json
+*-secrets.json
+
+# API Keys and tokens
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.keystore
+*.jks
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+id_ecdsa
+id_ecdsa.pub
+*.ppk
+authorized_keys
+known_hosts
+
+# JWT / Auth tokens
+*.jwt
+jwt_secret*
+jwt-secret*
+token.txt
+tokens.txt
+auth_token*
+access_token*
+refresh_token*
+
+# Cloud provider credentials
+.aws/
+.gcp/
+.azure/
+gcp-key*.json
+gcp_key*.json
+aws-credentials*
+azure-credentials*
+cloudflare-credentials*
+
+# Vault / secrets managers
+vault-token*
+.vault-token
+vault.json
+hashicorp.json
+
+# Database connection strings
+database.yml
+database.json
+db-config*
+*-db-config*
+pg_hba.conf
+pgpass
+.pgpass
+
+# =============================================================================
+# SECTION 2: OPENTELEMETRY COLLECTOR CONFIG WITH SECRETS
+# =============================================================================
+
+# OTel collector configs that may contain endpoints/tokens
+otel-collector-config.yaml
+otel-collector-config.yml
+otelcol-config.yaml
+otelcol-config.yml
+otel/*.secret.*
+otel/*.credentials.*
+otel/config.local.*
+telemetry/collector*.local.*
+telemetry/**/*.secrets.*
+observability/collector-config.yaml
+observability/collector-config.yml
+observability/**/*.local.*
+# OTel state and cache
+.otelcol/
+otelcol-contrib/
+
+# =============================================================================
+# SECTION 3: COMPLIANCE EVIDENCE ARCHIVES (SEC-005)
+# =============================================================================
+
+# SOC 2, HIPAA, GDPR evidence packages
+compliance-evidence/
+compliance/evidence/
+compliance/archives/
+compliance/*.zip
+compliance/*.tar.gz
+compliance/*.tar
+audit-evidence/
+audit/evidence/
+audit/archives/
+*.evidence.zip
+*.evidence.tar.gz
+soc2-evidence*/
+hipaa-evidence*/
+gdpr-evidence*/
+pentest-reports/
+pentest-results/
+assessment-reports/
+risk-assessment-reports/
+# Trust portal uploads staging
+trust-portal/
+trust-portal-staging/
+
+# =============================================================================
+# SECTION 4: DAST SCAN RESULTS
+# =============================================================================
+
+# OWASP ZAP
+zap-report*
+zap_report*
+*.zap
+.zap/
+zap-results/
+zap-scans/
+zap-alerts*
+
+# Burp Suite
+burp*.xml
+burp-scan*
+burpsuite*
+
+# Nuclei
+nuclei-output/
+nuclei-results/
+nuclei-scan*
+
+# Generic DAST outputs
+dast-results/
+dast-reports/
+dast-scans/
+dast-output/
+*.dast.json
+*.dast.xml
+*.dast.html
+dynamic-scan*/
+web-scan-results/
+
+# SAST outputs (already hardened, reinforced)
+sast-results/
+sast-reports/
+sast-output/
+*.sarif
+*.sast.json
+snyk-report*
+sonar-report*
+sonarqube-results/
+semgrep-results/
+trivy-results/
+grype-results/
+
+# =============================================================================
+# SECTION 5: TERRAFORM STATE AND PLANS
+# =============================================================================
+
+# Terraform state — NEVER commit (contains secrets)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# Terraform plan files (contain resolved secrets)
+*.tfplan
+*.plan
+terraform.plan
+tf.plan
+tfplan
+
+# Terraform overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terragrunt
+.terragrunt-cache/
+terragrunt.hcl.local
+
+# Pulumi state
+.pulumi/
+Pulumi.*.yaml
+!Pulumi.yaml
+
+# =============================================================================
+# SECTION 6: KUBERNETES SECRETS AND CONFIG MAPS
+# =============================================================================
+
+# Kubernetes secrets (NEVER commit)
+**/k8s/secrets/**
+**/kubernetes/secrets/**
+k8s-secrets/
+k8s/secrets/
+kubernetes/secrets/
+*-secret.yaml
+*-secret.yml
+*-secrets.yaml
+*-secrets.yml
+*.secret.yaml
+*.secret.yml
+
+# Kubeconfig (contains cluster credentials)
+kubeconfig
+kubeconfig.*
+.kube/
+kube.config
+*.kubeconfig
+!kubeconfig.example
+!kubeconfig.template
+
+# Helm secrets
+**/helm/secrets/**
+helm-secrets/
+*.helm-secrets*
+helmfile.*.yaml
+!helmfile.yaml
+!helmfile.example.yaml
+
+# K8s config maps with sensitive data
+*-configmap-local*
+*-configmap-dev-secrets*
+
+# =============================================================================
+# SECTION 7: DOCKER BUILD CACHE AND ARTIFACTS
+# =============================================================================
+
+# Docker build cache
+.dockercache/
+docker-cache/
+.docker-cache/
+
+# Docker-related files with secrets
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.secrets.yml
+docker-compose.prod.yml
+!docker-compose.example.yml
+
+# Docker build context exclusions (already in .dockerignore ideally, but belt+suspenders)
+docker-build-output/
+.docker/
+
+# Container image tarballs
+*.tar
+!fixtures/**/*.tar
+docker-image*.tar
+container-*.tar
+
+# =============================================================================
+# SECTION 8: COVERAGE REPORTS WITH SOURCE MAPS
+# =============================================================================
+
+# Coverage output
+coverage/
+.coverage
+coverage.xml
+coverage.json
+lcov.info
+*.lcov
+*.coverage
+.nyc_output/
+jest-coverage/
+vitest-coverage/
+c8-coverage/
+
+# Source maps (can expose minified source)
+*.map
+!*.css.map
+dist/**/*.map
+build/**/*.map
+.next/**/*.map
+out/**/*.map
+
+# Istanbul / V8 coverage
+.v8-coverage/
+.istanbul/
+
+# =============================================================================
+# SECTION 9: IDE WORKSPACE SETTINGS
+# =============================================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# JetBrains (IntelliJ, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# Vim / Neovim
+*.swp
+*.swo
+*~
+.netrwhist
+Session.vim
+.vim/
+.nvim/
+
+# Emacs
+\#*\#
+.\#*
+*.elc
+auto-save-list
+tramp
+.org-id-locations
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+
+# Cursor
+.cursor/
+!.cursor/rules/
+
+# =============================================================================
+# SECTION 10: HEAP DUMPS AND CORE DUMPS
+# =============================================================================
+
+# Node.js heap dumps
+*.heapsnapshot
+heapdump-*.bin
+*.heapdump
+heap-dump*/
+
+# Core dumps
+core
+core.*
+core-dump*
+*.core
+vgcore.*
+
+# JVM heap dumps
+*.hprof
+heap*.dump
+
+# Application crash dumps
+crash-dump*/
+minidump*/
+*.dmp
+*.mdmp
+Watson/
+CrashDumps/
+
+# =============================================================================
+# SECTION 11: PYTHON
+# =============================================================================
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+.eggs/
+wheels/
+*.whl
+MANIFEST
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# =============================================================================
+# SECTION 12: JUPYTER NOTEBOOK CHECKPOINTS
+# =============================================================================
+
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+*.ipynb_checkpoint
+profile_default/
+ipython_config.py
+*.nbconvert.ipynb
+
+# =============================================================================
+# SECTION 13: LOCAL DATABASE FILES
+# =============================================================================
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.s3db
+*.sl3
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# PostgreSQL local dump files
+*.dump
+*.pgdump
+*.pgsql
+pg_dump*/
+db-backup*/
+database-backup*/
+
+# Redis
+dump.rdb
+redis-data/
+*.rdb
+
+# MongoDB
+*.bson
+mongodump/
+mongodata/
+mongo-data/
+
+# LevelDB / RocksDB
+*.ldb
+*.sst
+.leveldb/
+.rocksdb/
+
+# =============================================================================
+# SECTION 14: PACKAGE LOCK CONFLICTS AND ARTIFACTS
+# =============================================================================
+
+# Dependency directories
+node_modules/
+.pnp
+.pnp.js
+.pnp.cjs
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+!.yarn/releases
+!.yarn/plugins
+
+# Lock file conflicts (keep ONE lock file, not all)
+# Uncomment based on your package manager:
+# yarn.lock     ← keep if using yarn
+# package-lock.json ← keep if using npm
+# pnpm-lock.yaml ← keep if using pnpm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Build artifacts
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+.swc/
+.rollup.cache/
+.esbuild/
+*.tsbuildinfo
+
+# =============================================================================
+# SECTION 15: OS-SPECIFIC FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.icloud
+Icon\r
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptableStore
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+*.url
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# SECTION 16: LOGS AND RUNTIME (REINFORCED)
+# =============================================================================
+
+# All log files
+logs/
+*.log
+*.log.*
+*.log-*
+npm-debug.log*
+yarn-debug.log*
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Runtime data
+runtime/
+.runtime/
+
+# =============================================================================
+# SECTION 17: MONITORING AND APM ARTIFACTS
+# =============================================================================
+
+# Prometheus / Grafana local data
+prometheus-data/
+grafana-data/
+alertmanager-data/
+
+# Datadog
+.datadog/
+datadog-agent.yaml.local
+
+# New Relic
+newrelic_agent.log
+newrelic.js.local
+
+# =============================================================================
+# SECTION 18: MISC SECURITY ARTIFACTS
+# =============================================================================
+
+# TLS/SSL certificates with private keys
+*.crt
+*.cer
+*.ca-bundle
+*.p7b
+*.p7c
+*.p7s
+!certs/public/
+!certs/ca-bundle.public.crt
+
+# SSH
+.ssh/
+ssh_config.local
+ssh_known_hosts.local
+
+# GPG
+*.gpg
+*.asc
+*.sig
+secring.gpg
+trustdb.gpg
+private-keys-v1.d/
+
+# Password files
+*.passwd
+shadow
+passwd.local
+htpasswd.local
+
+# =============================================================================
+# END OF .gitignore
+# =============================================================================

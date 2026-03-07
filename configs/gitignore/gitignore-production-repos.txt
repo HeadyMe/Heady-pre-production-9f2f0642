@@ -1,0 +1,472 @@
+# =============================================================================
+# HeadyMe — Production Repos .gitignore
+# Applies to: headysystems-production, headymcp-production
+# Last updated: 2026-03-07
+# =============================================================================
+
+# =============================================================================
+# SECTION 1: CREDENTIALS & SECRETS (CRITICAL — NEVER COMMIT)
+# =============================================================================
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.schema
+*.env
+*.env.*
+
+# Secrets directories
+secrets/
+.secrets/
+**/*.secret
+**/*.secrets
+
+# Credential files
+credentials.json
+service-account*.json
+*-service-account.json
+*-credentials.json
+*-secrets.json
+secret.json
+secrets.json
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.keystore
+*.jks
+id_rsa
+id_ed25519
+id_ecdsa
+*.ppk
+authorized_keys
+*.crt
+*.cer
+!certs/public/
+*.csr
+*.pkcs12
+*.pkcs8
+
+# JWT / Auth tokens
+*.jwt
+jwt_secret*
+jwt-secret*
+token.txt
+tokens.txt
+auth_token*
+access_token*
+refresh_token*
+
+# Cloud credentials
+.aws/
+.gcp/
+.azure/
+gcp-key*.json
+aws-credentials*
+azure-credentials*
+cloudflare-credentials*
+
+# Vault
+vault-token*
+.vault-token
+vault.json
+
+# Database connection strings
+database.yml
+database.json
+db-config*
+.pgpass
+
+# GPG private keys
+*.gpg
+secring.gpg
+private-keys-v1.d/
+
+# =============================================================================
+# SECTION 2: BUILT ASSETS (PRODUCTION — DO NOT COMMIT GENERATED FILES)
+# =============================================================================
+
+# Compiled / bundled JavaScript
+dist/
+build/
+out/
+*.bundle.js
+*.bundle.js.map
+*.chunk.js
+*.chunk.js.map
+*.min.js
+*.min.js.map
+
+# Compiled CSS
+*.min.css
+*.min.css.map
+
+# Framework build output
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+.swc/
+.esbuild/
+.rollup.cache/
+
+# Static site generators
+_site/
+public/build/
+public/dist/
+site/build/
+site/dist/
+
+# Source maps (expose source)
+*.map
+dist/**/*.map
+build/**/*.map
+
+# TypeScript compiled
+*.tsbuildinfo
+*.d.ts
+!src/**/*.d.ts
+!types/**/*.d.ts
+
+# =============================================================================
+# SECTION 3: DEPLOYMENT ARTIFACTS
+# =============================================================================
+
+# Deployment packages
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.war
+*.jar
+*.ear
+!fixtures/**
+
+# Deployment configs with secrets
+deploy-config.json
+deploy-config.yml
+deploy-config.yaml
+deploy-secrets*
+deployment-secrets*
+.deployment
+*.deploy.json
+
+# Cloudflare Pages / Workers
+.cloudflare/
+wrangler.toml.local
+wrangler.local.toml
+
+# Netlify / Vercel / Railway
+.netlify/
+.vercel/
+.railway/
+vercel.json.local
+netlify.toml.local
+
+# CI/CD pipeline artifacts
+pipeline-artifacts/
+ci-artifacts/
+artifact-staging/
+
+# IaC state (production infra — critical)
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+*.tfplan
+*.plan
+terraform.plan
+.terragrunt-cache/
+.pulumi/
+
+# Kubernetes production secrets
+*-secret.yaml
+*-secret.yml
+*-secrets.yaml
+*-secrets.yml
+*.secret.yaml
+kubeconfig
+kubeconfig.*
+.kube/
+
+# =============================================================================
+# SECTION 4: CDN CACHE FILES
+# =============================================================================
+
+# Generic CDN cache
+cdn-cache/
+.cdn-cache/
+cache/
+.cache/
+cdn-assets/local/
+cdn-staging/
+
+# CDN invalidation artifacts
+invalidation-batch*
+cdn-invalidation*
+purge-cache*
+
+# CloudFront
+cloudfront-cache/
+.cloudfront/
+
+# Fastly
+fastly-cache/
+.fastly/
+
+# Akamai
+akamai-staging/
+akamai-cache/
+
+# Asset hashes / manifests (generated, not source)
+asset-manifest.json
+assets.json
+rev-manifest.json
+precache-manifest.*.js
+
+# =============================================================================
+# SECTION 5: SERVER LOGS
+# =============================================================================
+
+# Web server logs
+logs/
+*.log
+*.log.*
+*.log-*
+access.log*
+error.log*
+combined.log*
+nginx/logs/
+apache/logs/
+httpd/logs/
+
+# Application server logs
+server-logs/
+application-logs/
+app-logs/
+
+# Process / system logs
+pids/
+*.pid
+*.pid.lock
+syslog.local
+kern.log.local
+
+# Node.js / PM2 logs
+.pm2/
+pm2-logs/
+pm2.log*
+ecosystem.config.js.local
+
+# Container logs
+docker-logs/
+container-logs/
+
+# =============================================================================
+# SECTION 6: ANALYTICS DATA
+# =============================================================================
+
+# Raw analytics exports
+analytics/
+analytics-data/
+analytics-export*
+analytics-raw/
+metrics-export/
+events-export/
+
+# Google Analytics
+ga-data/
+ga-export*
+
+# Mixpanel / Amplitude / Posthog
+mixpanel-export*
+amplitude-export*
+posthog-export*
+
+# A/B test results
+ab-test-results/
+experiment-results/
+feature-flag-results/
+
+# User behavior recordings (privacy-sensitive)
+session-recordings/
+heatmaps/
+replay-data/
+
+# Business metrics (sensitive)
+revenue-data/
+conversion-data/
+funnel-data/
+
+# =============================================================================
+# SECTION 7: NODE.JS
+# =============================================================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+!.yarn/releases
+!.yarn/plugins
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# =============================================================================
+# SECTION 8: DOCKER ARTIFACTS
+# =============================================================================
+
+docker-compose.override.yml
+docker-compose.local.yml
+docker-compose.secrets.yml
+docker-compose.prod.yml
+!docker-compose.example.yml
+.dockercache/
+docker-cache/
+.docker-cache/
+.docker/
+docker-image*.tar
+container-*.tar
+
+# =============================================================================
+# SECTION 9: IDE FILES
+# =============================================================================
+
+.vscode/
+*.code-workspace
+!.vscode/extensions.json
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.cursor/
+!.cursor/rules/
+
+# =============================================================================
+# SECTION 10: OS-SPECIFIC FILES
+# =============================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon\r
+
+# Windows
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# SECTION 11: TEST & COVERAGE
+# =============================================================================
+
+coverage/
+.coverage
+coverage.xml
+coverage.json
+lcov.info
+*.lcov
+.nyc_output/
+jest-coverage/
+vitest-coverage/
+c8-coverage/
+.v8-coverage/
+test-results/
+junit.xml
+
+# =============================================================================
+# SECTION 12: DATABASE & RUNTIME
+# =============================================================================
+
+*.sqlite
+*.sqlite3
+*.db
+*.db3
+*.dump
+*.pgdump
+dump.rdb
+redis-data/
+*.rdb
+runtime/
+.runtime/
+tmp/
+temp/
+.tmp/
+.temp/
+*.heapsnapshot
+heapdump-*.bin
+core
+core.*
+*.core
+*.dmp
+*.hprof
+
+# =============================================================================
+# SECTION 13: BACKUP FILES
+# =============================================================================
+
+*~
+*.bak
+*.bak.*
+*.backup
+*.backup.*
+*.orig
+*.original
+*.old
+*.tmp
+*_backup_*
+*-backup-*
+
+# =============================================================================
+# SECTION 14: SECURITY SCAN ARTIFACTS
+# =============================================================================
+
+*.sarif
+sast-results/
+dast-results/
+dast-reports/
+snyk-report*
+trivy-results/
+grype-results/
+pentest-reports/
+compliance-evidence/
+audit-evidence/
+
+# =============================================================================
+# END OF .gitignore
+# =============================================================================

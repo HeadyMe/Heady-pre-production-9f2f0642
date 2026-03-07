@@ -1,0 +1,147 @@
+# © 2024-2026 HeadySystems Inc. All Rights Reserved. PROPRIETARY AND CONFIDENTIAL.
+#
+# Heady™ Projection Service Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+# All intervals are in milliseconds unless otherwise noted.
+# PHI = 1.6180339887 — used to derive golden-ratio-scaled intervals.
+#
+# φ-scaled defaults:
+#   base_interval * φ¹ = ~1.618s, * φ² = ~2.618s, * φ³ = ~4.236s
+#   base_interval * φ⁴ = ~6.854s, * φ⁵ = ~11.09s, * φ⁶ = ~17.944s
+
+phi: 1.6180339887
+
+# ── Projection Types ────────────────────────────────────────────────────────────
+projection_types:
+
+  vector-memory:
+    description: "Tracks embedding vector counts, namespaces, drift scores, and cluster topology"
+    interval_ms: 8090            # φ⁵ × 5000 ≈ 8090ms
+    priority: 0.85
+    debounce_ms: 500
+    stale_after_ms: 30000
+    alert_on:
+      drift_score_gt: 0.5
+      cluster_count_lt: 4
+
+  config:
+    description: "Monitors live configuration state, hash drift, and watcher registration"
+    interval_ms: 10000
+    priority: 0.9
+    debounce_ms: 200
+    stale_after_ms: 60000
+    alert_on:
+      drift_detected: true
+      watcher_count_lt: 1
+
+  health:
+    description: "Aggregates health scores from all downstream services"
+    interval_ms: 6180            # φ⁶ × 1000 ≈ 6180ms (based on 3 decimal places of PHI)
+    priority: 1.0                # highest priority
+    debounce_ms: 100
+    stale_after_ms: 15000
+    alert_on:
+      overall_score_lt: 0.7
+      any_service_status: "down"
+
+  telemetry:
+    description: "Real-time CPU, memory, GC, and event loop lag metrics"
+    interval_ms: 4000
+    priority: 0.8
+    debounce_ms: 0               # no debounce — telemetry is time-sensitive
+    stale_after_ms: 10000
+    alert_on:
+      cpu_percent_gt: 85
+      mem_percent_gt: 90
+      event_loop_lag_ms_gt: 100
+
+  topology:
+    description: "Discovers agent graph, orphan nodes, and connection health"
+    interval_ms: 15000
+    priority: 0.6
+    debounce_ms: 1000
+    stale_after_ms: 120000
+    alert_on:
+      orphan_count_gt: 0
+      agent_count_lt: 1
+
+  task-queue:
+    description: "Monitors task queue depth, throughput, stalled jobs, and backlog"
+    interval_ms: 5000
+    priority: 0.75
+    debounce_ms: 250
+    stale_after_ms: 20000
+    alert_on:
+      queue_depth_gt: 500
+      stalled_tasks_gt: 10
+      throughput_lt: 1
+
+# ── Swarm Settings ──────────────────────────────────────────────────────────────
+swarm:
+  max_concurrent: 6              # max bees running simultaneously
+  scaling_strategy: "phi-weighted"  # weighted by bee priority * PHI
+  error_threshold: 0.3           # ratio of errors before circuit breaker trips
+  circuit_breaker:
+    enabled: true
+    window_ms: 60000             # 1-minute error window
+    trip_after_errors: 5         # trip after N consecutive errors
+    recovery_ms: 16180           # φ⁵ × 10000 ≈ 16180ms recovery timeout
+  retry:
+    max_attempts: 3
+    backoff_base_ms: 500
+    backoff_strategy: "phi-exponential"  # delay = base * PHI^attempt
+
+# ── SSE Settings ────────────────────────────────────────────────────────────────
+sse:
+  heartbeat_interval_ms: 10000   # ping clients every ~10s
+  max_clients: 100               # hard cap on concurrent SSE connections
+  buffer_size: 64                # number of events to buffer per client
+  timeout_ms: 300000             # disconnect idle clients after 5 min
+  cors_origins:
+    - "http://localhost:3850"
+    - "http://localhost:3000"
+    - "https://*.heady.ai"
+
+# ── Cloud Settings ───────────────────────────────────────────────────────────────
+cloud:
+  project_id: "heady-production"
+  region:     "us-central1"
+
+  pubsub:
+    enabled: false               # set to true in production
+    topics:
+      projection_updates:  "heady-projection-updates"
+      health_alerts:       "heady-health-alerts"
+      telemetry_stream:    "heady-telemetry-stream"
+    subscription_prefix:   "heady-sub"
+    ack_deadline_seconds:  30
+
+  cloud_run:
+    service_name:    "heady-projection-service"
+    min_instances:   1
+    max_instances:   10
+    cpu:             "1"
+    memory:          "512Mi"
+    timeout_seconds: 300
+    concurrency:     80
+    env_vars:
+      NODE_ENV: "production"
+      LOG_LEVEL: "info"
+
+  artifact_registry:
+    repository: "heady-docker"
+    image:      "projection-service"
+
+# ── Logging ────────────────────────────────────────────────────────────────────
+logging:
+  level:    "info"               # debug | info | warn | error
+  format:   "json"               # json | pretty
+  include_phi_metadata: true     # attach phi constant to structured log entries
+
+# ── Feature flags ──────────────────────────────────────────────────────────────
+features:
+  conductor_integration: true
+  pubsub_broadcast:      false
+  persistence_enabled:   false
+  metrics_endpoint:      true
+  drift_detection:       true

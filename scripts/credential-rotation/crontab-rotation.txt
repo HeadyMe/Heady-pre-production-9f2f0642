@@ -1,0 +1,82 @@
+# crontab-rotation.txt — Heady Systems Credential Rotation Cron Schedule
+# Install with: crontab -u heady-rotation crontab-rotation.txt
+# Or append to existing: crontab -l | cat - crontab-rotation.txt | crontab -
+#
+# All times are UTC. Runs as dedicated service account with limited sudo access.
+# Logs are written to /var/log/heady/credential-rotation/ and audit trail.
+#
+# Prerequisites:
+#   - 1Password CLI (op) authenticated via service account token
+#   - GitHub CLI (gh) authenticated
+#   - certbot installed with appropriate permissions
+#   - ROTATION_DIR env var set to script directory
+#   - OP_SERVICE_ACCOUNT_TOKEN set in environment
+#
+# Environment file: /etc/heady/rotation.env
+# Load with: BASH_ENV=/etc/heady/rotation.env
+
+SHELL=/bin/bash
+BASH_ENV=/etc/heady/rotation.env
+ROTATION_DIR=/opt/heady/credential-rotation
+LOG_DIR=/var/log/heady/credential-rotation
+MAILTO=security@headyme.com
+
+# ─── Helper macro ─────────────────────────────────────────────────────────────
+# Each job: create log dir, run script, capture exit code for alerting
+
+# ─── MCP Session Tokens — Every 24 hours at 00:05 UTC ────────────────────────
+# MCP session tokens expire every 24 hours; rotate just after midnight
+5 0 * * * root node ${ROTATION_DIR}/../src/mcp/session-manager.js --rotate >> ${LOG_DIR}/mcp-session.log 2>&1
+
+# ─── GitHub Tokens — Every 30 days (1st of month, 01:00 UTC) ─────────────────
+0 1 1 * * root ${ROTATION_DIR}/rotate-github-tokens.sh >> ${LOG_DIR}/github-rotation.log 2>&1
+
+# ─── TLS Certificate Check — Daily at 03:00 UTC ──────────────────────────────
+# certbot renews when ≤30 days remain; daily check is safe (no-op if not needed)
+0 3 * * * root ${ROTATION_DIR}/rotate-tls-certs.sh >> ${LOG_DIR}/tls-rotation.log 2>&1
+
+# ─── Database Credentials — Every 60 days (1st and 15th of alternating months) ─
+# Day 1 of months: Jan(1), Mar(3), May(5), Jul(7), Sep(9), Nov(11)
+0 2 1 1,3,5,7,9,11 * root ${ROTATION_DIR}/rotate-db-credentials.sh --service all >> ${LOG_DIR}/db-rotation.log 2>&1
+
+# ─── API Keys — Every 90 days (quarterly, 1st of Jan/Apr/Jul/Oct, 02:30 UTC) ──
+30 2 1 1,4,7,10 * root ${ROTATION_DIR}/rotate-all-keys.sh >> ${LOG_DIR}/api-key-rotation.log 2>&1
+
+# ─── Credential Audit — Weekly on Monday 04:00 UTC ───────────────────────────
+# Scans source for hardcoded secrets and checks compliance
+0 4 * * 1 root node ${ROTATION_DIR}/credential-audit.js --output ${LOG_DIR}/audit-report-$(date +\%Y\%m\%d).json >> ${LOG_DIR}/credential-audit.log 2>&1
+
+# ─── Compliance Audit — Monthly on the 15th at 05:00 UTC ─────────────────────
+# Full report generation for SOC2 evidence collection
+0 5 15 * * root node ${ROTATION_DIR}/credential-audit.js --output ${LOG_DIR}/soc2-evidence-$(date +\%Y\%m).json --verbose >> ${LOG_DIR}/soc2-audit.log 2>&1
+
+# ─── Log rotation — Daily cleanup of logs older than 365 days ────────────────
+0 6 * * * root find ${LOG_DIR} -name "*.log" -mtime +365 -delete
+
+# ─── Dry-run smoke test — Sunday 06:00 UTC (verify scripts still work) ────────
+0 6 * * 0 root ${ROTATION_DIR}/rotate-all-keys.sh --dry-run >> ${LOG_DIR}/smoke-test.log 2>&1 && \
+         ${ROTATION_DIR}/rotate-db-credentials.sh --dry-run >> ${LOG_DIR}/smoke-test.log 2>&1 && \
+         ${ROTATION_DIR}/rotate-github-tokens.sh --dry-run >> ${LOG_DIR}/smoke-test.log 2>&1 && \
+         ${ROTATION_DIR}/rotate-tls-certs.sh --dry-run >> ${LOG_DIR}/smoke-test.log 2>&1
+
+# ─── Certificate expiry alert — Every 12 hours ────────────────────────────────
+# Sends Slack alert if any cert expires within RENEW_DAYS_BEFORE threshold
+0 */12 * * * root ${ROTATION_DIR}/rotate-tls-certs.sh --dry-run 2>&1 | grep -E "(RENEWAL_NEEDED|MISSING_OR_EXPIRED)" | \
+  xargs -I{} curl -sf -X POST -H 'Content-type: application/json' \
+  --data '{"text":"⚠️ Heady TLS Alert: {}","channel":"#security-alerts"}' \
+  "$(op read op://heady-production/Slack\ Webhook\ Security/credential 2>/dev/null)" || true
+
+# ─── Notes ────────────────────────────────────────────────────────────────────
+# To run a specific rotation manually:
+#   sudo -u heady-rotation /opt/heady/credential-rotation/rotate-all-keys.sh --service openai
+#   sudo -u heady-rotation /opt/heady/credential-rotation/rotate-db-credentials.sh --service postgres
+#   sudo -u heady-rotation /opt/heady/credential-rotation/rotate-github-tokens.sh
+#   sudo -u heady-rotation /opt/heady/credential-rotation/rotate-tls-certs.sh --force
+#
+# To run a dry-run of all rotations:
+#   for script in rotate-all-keys.sh rotate-db-credentials.sh rotate-github-tokens.sh rotate-tls-certs.sh; do
+#     echo "=== $script ===" && /opt/heady/credential-rotation/$script --dry-run
+#   done
+#
+# Audit logs retention: 365 days (SOC2 CC6.1 requirement)
+# Alert escalation: Slack #security-alerts → email security@headyme.com → PagerDuty
