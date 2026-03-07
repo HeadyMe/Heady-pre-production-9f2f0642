@@ -1,0 +1,484 @@
+# HeadySystems v3.2.2 — Prometheus Alert Rules
+# ALL thresholds derive from φ=1.618033988749895 and Fibonacci sequences.
+# CSL gate levels: DORMANT(0-0.236), LOW(0.236-0.382), MODERATE(0.382-0.618),
+#                  HIGH(0.618-0.854), CRITICAL(0.854-1.0)
+# Fibonacci reference: fib(3)=2, fib(4)=3, fib(5)=5, fib(6)=8, fib(7)=13,
+#                      fib(8)=21, fib(9)=34, fib(10)=55, fib(11)=89
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: heady-alert-rules
+  namespace: monitoring
+  labels:
+    app: heady-systems
+    version: 3.2.2
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 1: Latency Alerts
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.latency
+      interval: 30s
+      rules:
+
+        - alert: HighP99Latency
+          # Fires when p99 request latency exceeds 1000ms for more than fib(5)=5 minutes.
+          # Threshold 1000ms is chosen as φ^2 × 382ms ≈ 999ms ≈ 1000ms (rounded to integer).
+          expr: |
+            histogram_quantile(
+              0.99,
+              sum(rate(http_request_duration_ms_bucket[5m])) by (le, job, namespace)
+            ) > 1000
+          for: 5m  # fib(5)=5 minutes
+          labels:
+            severity: warning
+            team: platform
+            csl_gate: HIGH
+          annotations:
+            summary: "High p99 latency on {{ $labels.job }}"
+            description: |
+              p99 latency for {{ $labels.job }} in {{ $labels.namespace }} is
+              {{ $value | humanizeDuration }} (threshold: 1000ms, sustained for fib(5)=5m).
+            runbook_url: "https://runbooks.headysystems.com/alerts/high-p99-latency"
+            dashboard_url: "https://grafana.headysystems.com/d/heady-system-overview?var-namespace={{ $labels.namespace }}"
+
+        - alert: HighP95Latency
+          # Warning-level: p95 > φ×fib(9)=34×10ms = 550ms
+          expr: |
+            histogram_quantile(
+              0.95,
+              sum(rate(http_request_duration_ms_bucket[5m])) by (le, job, namespace)
+            ) > 550
+          for: 5m  # fib(5)=5 minutes
+          labels:
+            severity: info
+            team: platform
+            csl_gate: MODERATE
+          annotations:
+            summary: "Elevated p95 latency on {{ $labels.job }}"
+            description: "p95 latency is {{ $value }}ms (threshold: 550ms ≈ φ×340ms)."
+            runbook_url: "https://runbooks.headysystems.com/alerts/high-p95-latency"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 2: Error Rate Alerts
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.errors
+      interval: 15s
+      rules:
+
+        - alert: HighErrorRate
+          # Fires when error rate exceeds 1% for more than fib(4)=3 minutes.
+          # 1% error budget aligns with 99% availability floor.
+          expr: |
+            (
+              sum(rate(http_requests_total{status=~"5.."}[1m])) by (job, namespace)
+              /
+              sum(rate(http_requests_total[1m])) by (job, namespace)
+            ) > 0.01
+          for: 3m  # fib(4)=3 minutes
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: HIGH
+            page: "true"
+          annotations:
+            summary: "High error rate on {{ $labels.job }}"
+            description: |
+              Error rate for {{ $labels.job }} in {{ $labels.namespace }} is
+              {{ $value | humanizePercentage }} (threshold: 1%, sustained for fib(4)=3m).
+            runbook_url: "https://runbooks.headysystems.com/alerts/high-error-rate"
+
+        - alert: SLOBurnRateHigh
+          # Fires when the 1-hour SLO burn rate exceeds fib(7)=13x the normal rate.
+          # At 13x burn, a 30-day error budget (99.9% SLO) is exhausted in ~2.3 days.
+          expr: |
+            (
+              sum(rate(http_requests_total{status=~"5.."}[1h])) by (namespace)
+              /
+              sum(rate(http_requests_total[1h])) by (namespace)
+            ) / (1 - 0.999) > 13
+          for: 2m
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: CRITICAL
+            page: "true"
+          annotations:
+            summary: "SLO burn rate exceeds fib(7)=13x in namespace {{ $labels.namespace }}"
+            description: |
+              1h burn rate is {{ $value }}x (threshold: fib(7)=13x).
+              At this rate, the monthly error budget will be exhausted in
+              {{ printf "%.1f" (div 720 $value) }} hours.
+            runbook_url: "https://runbooks.headysystems.com/alerts/slo-burn-rate"
+            dashboard_url: "https://grafana.headysystems.com/d/heady-slo-burn-rate"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 3: Circuit Breaker & Bulkhead
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.resilience
+      interval: 15s
+      rules:
+
+        - alert: CircuitBreakerOpen
+          # Fires when any circuit breaker remains open for > fib(6)=8 minutes.
+          # Open CB means a downstream dependency is failing; prolonged open
+          # indicates the dependency has not recovered automatically.
+          expr: |
+            heady_circuit_breaker_state{state="open"} == 1
+          for: 8m  # fib(6)=8 minutes
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: HIGH
+            page: "true"
+          annotations:
+            summary: "Circuit breaker OPEN: {{ $labels.service }} → {{ $labels.dependency }}"
+            description: |
+              Circuit breaker from {{ $labels.service }} to {{ $labels.dependency }}
+              has been OPEN for more than fib(6)=8 minutes in {{ $labels.namespace }}.
+              Upstream calls are failing fast. Investigate {{ $labels.dependency }} health.
+            runbook_url: "https://runbooks.headysystems.com/alerts/circuit-breaker-open"
+
+        - alert: BulkheadSaturation
+          # Fires when bulkhead utilization exceeds 0.854 (CSL CRITICAL threshold).
+          # 0.854 = upper bound of CSL HIGH gate (0.618-0.854).
+          expr: |
+            heady_bulkhead_utilization > 0.854
+          for: 2m
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: CRITICAL
+            page: "true"
+          annotations:
+            summary: "Bulkhead saturation: {{ $labels.service }} {{ $labels.bulkhead }}"
+            description: |
+              Bulkhead {{ $labels.bulkhead }} on {{ $labels.service }} utilization is
+              {{ $value | humanizePercentage }} (CSL CRITICAL threshold: 0.854 = 85.4%).
+              This indicates thread/connection pool near exhaustion.
+            runbook_url: "https://runbooks.headysystems.com/alerts/bulkhead-saturation"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 4: Memory & Resource Pressure
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.resources
+      interval: 30s
+      rules:
+
+        - alert: MemoryPressure
+          # Fires when process memory exceeds 0.854 (CSL CRITICAL) of container limit.
+          expr: |
+            (
+              process_resident_memory_bytes
+              /
+              container_spec_memory_limit_bytes
+            ) > 0.854
+          for: 5m  # fib(5)=5 minutes
+          labels:
+            severity: warning
+            team: platform
+            csl_gate: CRITICAL
+          annotations:
+            summary: "Memory pressure on {{ $labels.job }} ({{ $labels.pod }})"
+            description: |
+              Memory usage for {{ $labels.pod }} is {{ $value | humanizePercentage }}
+              of container limit (CSL CRITICAL threshold: 0.854 = 85.4%).
+            runbook_url: "https://runbooks.headysystems.com/alerts/memory-pressure"
+
+        - alert: MemoryCritical
+          # Fires when heap memory exceeds 0.910 (CSL exceeded) — OOM risk imminent.
+          expr: |
+            nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes > 0.910
+          for: 2m
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: CRITICAL
+            page: "true"
+          annotations:
+            summary: "Node.js heap critical on {{ $labels.job }}"
+            description: |
+              Heap utilization is {{ $value | humanizePercentage }}
+              (CSL exceeded threshold: 0.910). OOM imminent. Pod: {{ $labels.pod }}.
+            runbook_url: "https://runbooks.headysystems.com/alerts/memory-critical"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 5: Redis Connection Pool
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.redis
+      interval: 15s
+      rules:
+
+        - alert: RedisConnectionPoolExhausted
+          # Fires when Redis connection pool reaches fib(7)=13 (the pool maximum).
+          # Pool sizing: min=fib(3)=2, max=fib(7)=13. Exhaustion means new requests queue.
+          expr: |
+            heady_redis_pool_active_connections >= 13
+          for: 1m
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: CRITICAL
+            page: "true"
+          annotations:
+            summary: "Redis connection pool exhausted (fib(7)=13 max)"
+            description: |
+              Redis pool has {{ $value }} active connections at max capacity fib(7)=13.
+              New requests are queuing. Immediate scale-out or connection leak investigation required.
+              Namespace: {{ $labels.namespace }}.
+            runbook_url: "https://runbooks.headysystems.com/alerts/redis-pool-exhausted"
+
+        - alert: RedisHighLatency
+          # Fires when p99 Redis command latency > fib(4)=3ms (Redis should be sub-millisecond).
+          expr: |
+            histogram_quantile(
+              0.99,
+              sum(rate(heady_redis_command_duration_ms_bucket[5m])) by (le, namespace)
+            ) > 3
+          for: 5m  # fib(5)=5 minutes
+          labels:
+            severity: warning
+            team: platform
+            csl_gate: MODERATE
+          annotations:
+            summary: "Redis p99 latency elevated in {{ $labels.namespace }}"
+            description: |
+              Redis command p99 latency is {{ $value }}ms (threshold: fib(4)=3ms).
+              Possible causes: memory pressure, key expiry storm, network congestion.
+            runbook_url: "https://runbooks.headysystems.com/alerts/redis-latency"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 6: Agent Health
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.agents
+      interval: 15s
+      rules:
+
+        - alert: AgentDeadlock
+          # Fires when any bee agent is stuck (no state transitions) for > fib(8)=21 seconds.
+          # φ^4 × base_tick ≈ 21s. Deadlock indicates orchestration failure.
+          expr: |
+            (time() - heady_agent_last_transition_timestamp_seconds) > 21
+          for: 0m  # Immediate — fib(8)=21s is already the threshold, not a for: window
+          labels:
+            severity: critical
+            team: ai-platform
+            csl_gate: CRITICAL
+            page: "true"
+          annotations:
+            summary: "Agent deadlock detected: {{ $labels.agent_id }}"
+            description: |
+              Agent {{ $labels.agent_id }} (type: {{ $labels.agent_type }}) has had no
+              state transition for {{ $value | humanizeDuration }} > fib(8)=21s.
+              Swarm: {{ $labels.swarm_id }}. Namespace: {{ $labels.namespace }}.
+            runbook_url: "https://runbooks.headysystems.com/alerts/agent-deadlock"
+
+        - alert: SwarmCapacityLow
+          # Fires when active agents < fib(4)=3, indicating swarm shrinkage.
+          expr: |
+            sum(heady_active_agents) by (namespace) < 3
+          for: 3m  # fib(4)=3 minutes
+          labels:
+            severity: warning
+            team: ai-platform
+            csl_gate: HIGH
+          annotations:
+            summary: "Swarm capacity critically low: {{ $value }} agents"
+            description: |
+              Only {{ $value }} bee agents active (minimum: fib(4)=3).
+              Swarm self-healing may have failed. Check heady-hive pod logs.
+            runbook_url: "https://runbooks.headysystems.com/alerts/swarm-capacity"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 7: MCP Gateway Health
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.mcp
+      interval: 15s
+      rules:
+
+        - alert: MCPGatewayUnhealthy
+          # Fires when MCP health check fails for > fib(5)=5 minutes.
+          expr: |
+            up{job="heady-mcp"} == 0
+          for: 5m  # fib(5)=5 minutes
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: CRITICAL
+            page: "true"
+          annotations:
+            summary: "MCP Gateway unhealthy in {{ $labels.namespace }}"
+            description: |
+              heady-mcp health check has been failing for more than fib(5)=5 minutes.
+              All tool calls are failing. Investigate pod: {{ $labels.pod }}.
+              Instance: {{ $labels.instance }}.
+            runbook_url: "https://runbooks.headysystems.com/alerts/mcp-gateway-unhealthy"
+
+        - alert: MCPHighToolErrorRate
+          # Fires when MCP tool error rate > 5% for fib(4)=3 minutes.
+          expr: |
+            (
+              sum(rate(heady_mcp_tool_calls_total{status="error"}[1m])) by (namespace, tool_name)
+              /
+              sum(rate(heady_mcp_tool_calls_total[1m])) by (namespace, tool_name)
+            ) > 0.05
+          for: 3m  # fib(4)=3 minutes
+          labels:
+            severity: warning
+            team: platform
+            csl_gate: HIGH
+          annotations:
+            summary: "MCP tool {{ $labels.tool_name }} error rate elevated"
+            description: |
+              Tool {{ $labels.tool_name }} error rate: {{ $value | humanizePercentage }}
+              (threshold: 5%). Namespace: {{ $labels.namespace }}.
+            runbook_url: "https://runbooks.headysystems.com/alerts/mcp-tool-error-rate"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 8: Vector Space & Sacred Geometry
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.vector
+      interval: 60s
+      rules:
+
+        - alert: VectorSpaceDriftHigh
+          # Fires when φ-ratio drift > 0.618 (CSL HIGH threshold).
+          # φ-drift measures deviation of measured system ratios from expected golden ratio.
+          # 0.618 = 1/φ — the reciprocal of the golden ratio, CSL HIGH lower bound.
+          expr: |
+            heady_phi_drift > 0.618
+          for: 5m  # fib(5)=5 minutes
+          labels:
+            severity: warning
+            team: ai-platform
+            csl_gate: HIGH
+          annotations:
+            summary: "φ-ratio drift elevated in {{ $labels.namespace }}"
+            description: |
+              φ-drift is {{ $value }} (CSL HIGH threshold: 0.618 = 1/φ).
+              Vector space geometry is deviating from golden ratio alignment.
+              This may indicate embedding model drift or octree rebalancing needed.
+            runbook_url: "https://runbooks.headysystems.com/alerts/vector-space-drift"
+            dashboard_url: "https://grafana.headysystems.com/d/heady-vector-space"
+
+        - alert: VectorOctreeDepthCritical
+          # Fires when octree depth exceeds fib(8)=21, indicating space fragmentation.
+          expr: |
+            heady_vector_octree_depth > 21
+          for: 5m  # fib(5)=5 minutes
+          labels:
+            severity: warning
+            team: ai-platform
+            csl_gate: CRITICAL
+          annotations:
+            summary: "Octree depth critical: {{ $value }} > fib(8)=21"
+            description: |
+              Vector space octree depth {{ $value }} exceeds fib(8)=21.
+              Nearest-neighbor queries will degrade. Consider rebalancing.
+            runbook_url: "https://runbooks.headysystems.com/alerts/octree-depth"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 9: TLS Certificate Expiry
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.certificates
+      interval: 3600s  # Check hourly — fib(6)=8 × 450s ≈ 1h
+      rules:
+
+        - alert: CertificateExpiringSoon
+          # Fires when any TLS certificate expires within fib(8)=21 days.
+          # 21 days = φ^4 × ~5 days. Renewal should be triggered at fib(9)=34 days.
+          expr: |
+            (ssl_cert_not_after - time()) / 86400 < 21
+          for: 1h
+          labels:
+            severity: warning
+            team: platform
+            csl_gate: HIGH
+          annotations:
+            summary: "TLS certificate expiring in < fib(8)=21 days: {{ $labels.common_name }}"
+            description: |
+              Certificate for {{ $labels.common_name }} ({{ $labels.issuer }})
+              expires in {{ $value | printf "%.1f" }} days.
+              Renewal threshold: fib(8)=21 days. Auto-renewal should have triggered
+              at fib(9)=34 days. Investigate cert-manager / Let's Encrypt.
+            runbook_url: "https://runbooks.headysystems.com/alerts/cert-expiry"
+
+        - alert: CertificateExpiringCritical
+          # Fires when any TLS certificate expires within fib(5)=5 days.
+          expr: |
+            (ssl_cert_not_after - time()) / 86400 < 5
+          for: 0m  # Immediate
+          labels:
+            severity: critical
+            team: platform
+            csl_gate: CRITICAL
+            page: "true"
+          annotations:
+            summary: "TLS certificate CRITICAL expiry: {{ $labels.common_name }} in {{ $value | printf \"%.0f\" }} days"
+            description: |
+              Certificate {{ $labels.common_name }} expires in {{ $value | printf "%.0f" }} days.
+              IMMEDIATE action required. Service will break at expiry.
+            runbook_url: "https://runbooks.headysystems.com/alerts/cert-expiry-critical"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # GROUP 10: Security & Audit
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: heady.security
+      interval: 15s
+      rules:
+
+        - alert: AuditChainIntegrityFailure
+          # Fires immediately if SHA-256 audit chain breaks.
+          # Any non-zero value is a security incident.
+          expr: |
+            increase(heady_audit_chain_broken_total[5m]) > 0
+          for: 0m
+          labels:
+            severity: critical
+            team: security
+            csl_gate: CRITICAL
+            page: "true"
+            incident_type: SECURITY
+          annotations:
+            summary: "SECURITY: Audit chain integrity failure in {{ $labels.namespace }}"
+            description: |
+              SHA-256 audit chain has been broken {{ $value }} time(s) in the last 5 minutes.
+              This indicates log tampering or data corruption. Escalate to Security IC immediately.
+              Service: {{ $labels.service }}.
+            runbook_url: "https://runbooks.headysystems.com/security/audit-chain-failure"
+
+        - alert: RateLimiterAbuseDetected
+          # Fires when rate limiter rejection rate exceeds φ×fib(9)=34 = 55 req/s per source.
+          expr: |
+            sum(rate(heady_rate_limiter_rejected_total[1m])) by (source_ip, namespace) > 55
+          for: 1m
+          labels:
+            severity: warning
+            team: security
+            csl_gate: HIGH
+          annotations:
+            summary: "Rate limit abuse from {{ $labels.source_ip }}"
+            description: |
+              Source {{ $labels.source_ip }} is being rate-limited at {{ $value | humanize }} req/s
+              (threshold: fib(10)=55 rejections/s). Possible attack or runaway client.
+            runbook_url: "https://runbooks.headysystems.com/security/rate-limiter-abuse"
+
+        - alert: InputValidationSpike
+          # Fires when input validation failures spike — possible injection attack.
+          expr: |
+            sum(rate(heady_input_validation_failures_total[1m])) by (threat_type, namespace) > 8
+          for: 2m
+          labels:
+            severity: warning
+            team: security
+            csl_gate: HIGH
+          annotations:
+            summary: "Input validation spike: {{ $labels.threat_type }}"
+            description: |
+              Threat type {{ $labels.threat_type }} validation failures at {{ $value | humanize }}/s
+              (threshold: fib(6)=8/s). Possible active attack. Namespace: {{ $labels.namespace }}.
+            runbook_url: "https://runbooks.headysystems.com/security/input-validation-spike"

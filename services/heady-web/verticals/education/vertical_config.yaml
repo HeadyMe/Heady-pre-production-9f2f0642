@@ -1,0 +1,159 @@
+# =============================================================================
+# HeadySystems Vertical Config — Education
+# Domain: education.headyme.com
+# =============================================================================
+
+vertical_id: education
+domain: education.headyme.com
+fallback_path: /education
+routing:
+  type: subdomain
+  aliases:
+    - learn.headyme.com
+    - edu.headyme.com
+
+brand:
+  name: "Heady Education"
+  tagline: "Adaptive AI Orchestration for Education"
+  accent_color: "#f59e0b"
+  logo_variant: education
+  font_family: "Inter, sans-serif"
+  icon: "◎"
+
+content:
+  hero:
+    title: "Adaptive Learning Orchestration"
+    subtitle: "FERPA-compliant AI agents for curriculum generation, student assessment, and personalized learning"
+    cta_primary: "Start Free Pilot"
+    cta_secondary: "View Curriculum Demo"
+
+  features:
+    - name: "Adaptive Tutoring"
+      description: "Personalized learning paths that adapt in real-time based on student performance and learning style."
+      icon: "tutor"
+    - name: "Curriculum Generation"
+      description: "AI-authored lesson plans, assessments, and rubrics aligned to Common Core, NGSS, or custom standards."
+      icon: "curriculum"
+    - name: "Student Assessment"
+      description: "Automated formative and summative assessments with immediate, personalized feedback."
+      icon: "assessment"
+    - name: "Progress Tracking"
+      description: "Longitudinal learning analytics with early intervention alerts and parent/guardian reporting."
+      icon: "progress"
+    - name: "Accessibility Support"
+      description: "WCAG 2.1 AA compliant interfaces with multi-language support and IEP accommodations."
+      icon: "accessibility"
+    - name: "LMS Integration"
+      description: "Native connectors for Canvas, Schoology, Blackboard, Google Classroom, and Moodle."
+      icon: "lms"
+
+  agent_templates:
+    - name: "Adaptive Tutor"
+      description: "Delivers personalized explanations, hints, and follow-up questions based on student responses"
+      latency: "<300ms"
+      integrations: ["Canvas", "Google Classroom", "Khan Academy", "Duolingo"]
+    - name: "Curriculum Generator"
+      description: "Generates standards-aligned lesson plans, activities, and assessments for any grade/subject"
+      latency: "<5s"
+      integrations: ["Common Core API", "NGSS", "State DOE standards feeds"]
+    - name: "Assessment Creator"
+      description: "Builds bloom's taxonomy-aligned quizzes, rubrics, and project prompts"
+      latency: "<3s"
+      integrations: ["Canvas Quizzes", "Schoology", "Formative", "Edulastic"]
+    - name: "Progress Tracker"
+      description: "Aggregates multi-source learning data into actionable insights for educators"
+      latency: "<1s"
+      integrations: ["PowerSchool", "Illuminate", "Renaissance", "FastBridge"]
+
+  compliance_badges:
+    - name: FERPA
+      status: certified
+      description: "Family Educational Rights and Privacy Act compliant"
+    - name: COPPA
+      status: certified
+      description: "Children's Online Privacy Protection Act compliant"
+    - name: SOC 2 Type II
+      status: certified
+      description: "Annual third-party security audit"
+    - name: WCAG 2.1 AA
+      status: certified
+      description: "Web Content Accessibility Guidelines compliant"
+    - name: CIPA
+      status: certified
+      description: "Children's Internet Protection Act compliant"
+
+  pricing:
+    tiers:
+      - name: Classroom
+        price: "Free"
+        billing: forever
+        features:
+          - "1 educator account"
+          - "Up to 35 students"
+          - "Adaptive Tutor agent"
+          - "Basic assessments"
+          - "Google Classroom sync"
+      - name: School
+        price: "$8/student/yr"
+        billing: annual
+        highlighted: true
+        features:
+          - "All educators + admin"
+          - "Unlimited students"
+          - "All 4 agent templates"
+          - "Progress analytics"
+          - "All LMS integrations"
+          - "FERPA BAA included"
+          - "Priority support"
+      - name: District
+        price: "Custom"
+        billing: annual
+        features:
+          - "District-wide deployment"
+          - "Custom curriculum standards"
+          - "SIS integration"
+          - "District analytics dashboard"
+          - "Dedicated success manager"
+          - "Professional development"
+
+  case_study:
+    client: "K-12 School District, 12,000 students (placeholder)"
+    challenge: "Teachers spending 35% of prep time generating differentiated materials"
+    solution: "Deployed Curriculum Generator + Adaptive Tutor across all grade levels"
+    result: "Teacher prep time reduced by 4 hours/week. Reading proficiency up 18% in pilot cohort."
+    metrics:
+      - label: "Teacher prep time saved/week"
+        value: "4 hrs"
+      - label: "Reading proficiency gain"
+        value: "+18%"
+      - label: "Student engagement increase"
+        value: "31%"
+
+  testimonial:
+    quote: "Our teachers went from spending Sunday nights writing differentiated materials to spending that time with family. Heady Education changed our district."
+    author: "Superintendent, K-12 District (placeholder)"
+
+meta:
+  title: "Heady Education — FERPA-Compliant Adaptive Learning AI"
+  description: "FERPA-compliant AI orchestration for education. Adaptive tutoring, curriculum generation, student assessment, and LMS integration."
+  keywords:
+    - "education AI platform"
+    - "adaptive learning AI"
+    - "curriculum generation AI"
+    - "FERPA compliant AI"
+    - "student assessment automation"
+    - "LMS integration"
+  og_image: "/assets/education-og.png"
+  analytics_id: "G-EDUCATION"
+  canonical_url: "https://education.headyme.com"
+
+server:
+  cache_ttl: 3600
+  rate_limit: 150
+  cors_origins:
+    - "https://headyme.com"
+    - "https://education.headyme.com"
+  health_check: "/_health"
+
+created_at: "2026-03-07T00:00:00Z"
+updated_at: "2026-03-07T00:00:00Z"

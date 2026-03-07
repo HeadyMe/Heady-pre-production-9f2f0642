@@ -1,0 +1,105 @@
+# =============================================================================
+# HeadySystems Inc. — HPA: heady-web
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# minReplicas: fib(5) = 5
+# maxReplicas: fib(8) = 21
+# Serves 9 domains — needs higher base capacity
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-web-hpa
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-web
+    app.kubernetes.io/component: hpa
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    headysystems.com/description: "HPA for heady-web — fib(5)=5 min, fib(8)=21 max"
+    headysystems.com/min-replicas-derivation: "fib(5)=5 — fifth Fibonacci number"
+    headysystems.com/max-replicas-derivation: "fib(8)=21 — eighth Fibonacci number"
+    headysystems.com/cpu-target-derivation: "61.8% from φ-1=0.618"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-web
+
+  # minReplicas: fib(5) = 5 (web needs more base capacity for 9 domains)
+  minReplicas: 5
+  # maxReplicas: fib(8) = 21
+  maxReplicas: 21
+
+  metrics:
+    # CPU: 61.8% target (φ-1=0.618)
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+
+    # Memory: 76.4% target (caution threshold)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+
+    # HTTP requests per second — higher for web layer
+    # fib(13)=233 req/s per pod for web
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          # fib(13) = 233 requests/second per pod (web can handle more)
+          averageValue: "233"
+
+    # Active connections per pod
+    # fib(10)=55 concurrent connections per pod
+    - type: Pods
+      pods:
+        metric:
+          name: nginx_active_connections
+        target:
+          type: AverageValue
+          # fib(10) = 55 concurrent connections per pod
+          averageValue: "55"
+
+  behavior:
+    scaleUp:
+      # Stabilization: fib(8)=21 × 1.618 ≈ 34s
+      stabilizationWindowSeconds: 21
+      policies:
+        # Scale up by fib(5)=5 pods at a time (aggressive — web layer)
+        - type: Pods
+          value: 5
+          # Every fib(7)=13s
+          periodSeconds: 13
+        # Or 61.8% at a time
+        - type: Percent
+          value: 62
+          periodSeconds: 13
+      selectPolicy: Max
+
+    scaleDown:
+      # Stabilization: fib(13)=233 seconds (very conservative for web)
+      # Prevents taking down capacity while traffic is still high
+      stabilizationWindowSeconds: 233
+      policies:
+        # Scale down by fib(4)=3 pods at a time
+        - type: Pods
+          value: 3
+          # Every fib(9)=34 × 3s = 102s ≈ fib(11)=89s
+          periodSeconds: 89
+        - type: Percent
+          value: 23    # 23.6% threshold
+          periodSeconds: 89
+      selectPolicy: Min

@@ -1,0 +1,96 @@
+# =============================================================================
+# HeadySystems Inc. — Helm Chart Metadata
+# heady-platform v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# Chart version follows SemVer; appVersion mirrors monorepo version
+# =============================================================================
+apiVersion: v2
+name: heady-platform
+description: |
+  HeadySystems Inc. production platform chart.
+  Deploys all heady-* microservices with φ-governed autoscaling and
+  zero-trust networking. Serves 9 domains from a unified platform.
+
+  φ = 1.618033988749895 (Golden Ratio)
+  All numeric parameters derive from φ or Fibonacci sequences.
+
+type: application
+
+# Chart version (SemVer): follows heady-systems monorepo releases
+# Major.Minor.Patch where Patch tracks deployment iterations
+version: 3.2.2
+
+# Application version — matches heady-systems monorepo tag
+appVersion: "3.2.2"
+
+# Minimum Kubernetes version
+kubeVersion: ">=1.27.0-0"
+
+keywords:
+  - heady
+  - ai-platform
+  - multi-agent
+  - mcp
+  - orchestration
+  - golden-ratio
+  - phi
+  - fibonacci
+
+home: https://headyme.com
+sources:
+  - https://github.com/headysystems/heady-systems
+
+maintainers:
+  - name: Eric Headington
+    email: eric@headyconnection.org
+    url: https://headyme.com
+
+icon: https://headyme.com/logo.png
+
+# Helm annotations
+annotations:
+  # Artifact Hub annotations
+  artifacthub.io/license: "Proprietary"
+  artifacthub.io/operator: "false"
+  artifacthub.io/prerelease: "false"
+  # Change log
+  artifacthub.io/changes: |
+    - kind: added
+      description: "φ-scaled HPA for heady-brain and heady-web"
+    - kind: added
+      description: "Zero-trust NetworkPolicies"
+    - kind: added
+      description: "PodDisruptionBudgets for all services"
+    - kind: changed
+      description: "All numeric parameters now derive from φ/Fibonacci"
+  headysystems.com/phi: "1.618033988749895"
+  headysystems.com/fibonacci: "1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597"
+
+# Chart dependencies
+dependencies:
+  # PostgreSQL (Bitnami) — optional, for dev/staging
+  # Disabled in production (use Cloud SQL via Terraform)
+  - name: postgresql
+    version: "14.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+    alias: postgres
+
+  # Redis (Bitnami) — optional, for dev/staging
+  - name: redis
+    version: "19.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+
+  # cert-manager — optional, can use existing installation
+  - name: cert-manager
+    version: "1.x.x"
+    repository: "https://charts.jetstack.io"
+    condition: certManager.enabled
+
+  # NGINX Ingress Controller
+  - name: ingress-nginx
+    version: "4.x.x"
+    repository: "https://kubernetes.github.io/ingress-nginx"
+    condition: ingressNginx.enabled

@@ -1,0 +1,51 @@
+# =============================================================================
+# HeadySystems Inc. — NetworkPolicy: Default Deny All Ingress
+# heady-systems v3.2.2
+# =============================================================================
+# Zero-trust network model: deny all ingress by default.
+# Explicit NetworkPolicies then allow specific traffic paths.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all-ingress
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: default-deny
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/security-model: zero-trust
+  annotations:
+    headysystems.com/description: "Default deny all ingress — zero-trust baseline"
+    headysystems.com/reference: "docs/threat-model.md"
+spec:
+  # Apply to all pods in namespace
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# Also deny all egress by default (except DNS)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all-egress
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: default-deny-egress
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: heady-platform
+    headysystems.com/security-model: zero-trust
+  annotations:
+    headysystems.com/description: "Default deny all egress — allows only DNS (port 53)"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS resolution (required for all pods)
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

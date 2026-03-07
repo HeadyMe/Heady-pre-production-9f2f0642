@@ -1,0 +1,177 @@
+openapi: 3.1.0
+info:
+  title: Heady Latent Boundary API
+  version: 0.1.0
+  description: External trust-boundary contract for ingress, workflows, tools, and streaming.
+servers:
+  - url: https://api.headyme.com
+paths:
+  /v1/boundary/sessions:
+    post:
+      summary: Create or refresh a boundary session
+      operationId: createBoundarySession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BoundarySessionRequest'
+      responses:
+        '200':
+          description: Session accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoundarySessionResponse'
+  /v1/boundary/intents:
+    post:
+      summary: Submit an external intent for latent execution
+      operationId: submitIntent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntentRequest'
+      responses:
+        '202':
+          description: Intent accepted into workflow execution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntentResponse'
+  /v1/boundary/tools/invoke:
+    post:
+      summary: Invoke a registered boundary tool
+      operationId: invokeTool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToolInvocation'
+      responses:
+        '200':
+          description: Tool result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResult'
+  /v1/boundary/workflows/{workflowId}:
+    get:
+      summary: Get workflow status
+      operationId: getWorkflowStatus
+      parameters:
+        - in: path
+          name: workflowId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowStatus'
+  /v1/boundary/events/stream:
+    get:
+      summary: Server-sent event stream for workflow updates
+      operationId: streamWorkflowEvents
+      parameters:
+        - in: query
+          name: workflowId
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+components:
+  schemas:
+    BoundarySessionRequest:
+      type: object
+      required: [subjectId, authStrength, trustInputs]
+      properties:
+        subjectId:
+          type: string
+        authStrength:
+          type: number
+          minimum: 0
+          maximum: 1
+        trustInputs:
+          type: object
+          additionalProperties:
+            type: number
+    BoundarySessionResponse:
+      type: object
+      required: [sessionId, trustScore, accepted]
+      properties:
+        sessionId:
+          type: string
+        trustScore:
+          type: number
+        accepted:
+          type: boolean
+    IntentRequest:
+      type: object
+      required: [subjectId, intentType, payload, queryVector]
+      properties:
+        subjectId:
+          type: string
+        intentType:
+          type: string
+        payload:
+          type: object
+          additionalProperties: true
+        queryVector:
+          type: array
+          items:
+            type: number
+    IntentResponse:
+      type: object
+      required: [workflowId, status, trustScore]
+      properties:
+        workflowId:
+          type: string
+        status:
+          type: string
+          enum: [accepted, sandboxed, rejected]
+        trustScore:
+          type: number
+    ToolInvocation:
+      type: object
+      required: [toolName, input]
+      properties:
+        toolName:
+          type: string
+        input:
+          type: object
+          additionalProperties: true
+        workflowId:
+          type: string
+    ToolResult:
+      type: object
+      required: [ok, output]
+      properties:
+        ok:
+          type: boolean
+        output:
+          type: object
+          additionalProperties: true
+    WorkflowStatus:
+      type: object
+      required: [workflowId, state, activeAgents, lastUpdatedAt]
+      properties:
+        workflowId:
+          type: string
+        state:
+          type: string
+        activeAgents:
+          type: integer
+        lastUpdatedAt:
+          type: integer

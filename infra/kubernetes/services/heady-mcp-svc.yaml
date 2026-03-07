@@ -1,0 +1,42 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Service: heady-mcp
+# heady-systems v3.2.2 — ClusterIP service
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: heady-mcp
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-mcp
+    app.kubernetes.io/component: mcp
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: protocol
+  annotations:
+    headysystems.com/description: "ClusterIP service for heady-mcp — MCP protocol"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      # fib(11)=89 × 10s = 890s — MCP tool sessions
+      timeoutSeconds: 890
+  selector:
+    app.kubernetes.io/name: heady-mcp
+    app.kubernetes.io/instance: heady-mcp-production
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http
+    - name: metrics
+      protocol: TCP
+      port: 9090
+      targetPort: metrics
+    - name: mcp-sse
+      protocol: TCP
+      port: 3000
+      targetPort: mcp-sse

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeadyAI — The Science Behind HeadyOS | HeadySystems Inc.</title>
+<meta name="description" content="Pioneering Continuous Semantic Logic, Vector Symbolic Architecture, and Sacred Geometry Topology. 51+ provisional patents by HeadySystems Inc. founder Eric Haywood.">
+<meta name="keywords" content="HeadyOS, Continuous Semantic Logic, Vector Symbolic Architecture, Sacred Geometry, AI patents, HeadySystems">
+<link rel="canonical" href="https://headyai.com/">
+
+<!-- OpenGraph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://headyai.com/">
+<meta property="og:title" content="HeadyAI — The Science Behind HeadyOS">
+<meta property="og:description" content="Pioneering Continuous Semantic Logic, Vector Symbolic Architecture, and Sacred Geometry Topology.">
+<meta property="og:image" content="https://headyai.com/og-image.jpg">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@headysystems">
+<meta name="twitter:title" content="HeadyAI — The Science Behind HeadyOS">
+<meta name="twitter:description" content="Pioneering Continuous Semantic Logic, Vector Symbolic Architecture, and Sacred Geometry Topology.">
+<meta name="twitter:image" content="https://headyai.com/og-image.jpg">
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "HeadySystems Inc.",
+  "url": "https://headyai.com",
+  "founder": {"@type": "Person", "name": "Eric Haywood"},
+  "description": "AI Research & Innovation — Continuous Semantic Logic, Vector Symbolic Architecture, Sacred Geometry Topology",
+  "numberOfEmployees": {"@type": "QuantitativeValue"},
+  "knowsAbout": ["Continuous Semantic Logic", "Vector Symbolic Architecture", "Sacred Geometry", "AI Orchestration"],
+  "creator": {"@type": "SoftwareApplication", "name": "Perplexity Computer", "url": "https://www.perplexity.ai/computer"}
+}
+</script>
+
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg2: #0d1220;
+    --bg3: #111827;
+    --surface: rgba(255,255,255,0.04);
+    --surface-hover: rgba(255,255,255,0.08);
+    --border: rgba(139,92,246,0.2);
+    --border-subtle: rgba(255,255,255,0.06);
+    --accent: #8b5cf6;
+    --accent-light: #a78bfa;
+    --accent-dim: rgba(139,92,246,0.15);
+    --accent-glow: rgba(139,92,246,0.3);
+    --text-primary: #f0f0f8;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --phi: 1.618;
+    --r: 0.618;
+    /* Golden ratio spacing */
+    --sp1: 4px;
+    --sp2: 6px;
+    --sp3: 10px;
+    --sp4: 16px;
+    --sp5: 26px;
+    --sp6: 42px;
+    --sp7: 68px;
+    --sp8: 110px;
+    --sp9: 178px;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Typography */
+  h1 { font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+  h3 { font-size: clamp(1.1rem, 2vw, 1.4rem); font-weight: 600; letter-spacing: -0.01em; }
+  h4 { font-size: 1rem; font-weight: 600; }
+  p { font-size: 1rem; line-height: 1.7; color: var(--text-secondary); }
+
+  a { color: var(--accent-light); text-decoration: none; transition: color var(--transition); }
+  a:hover { color: #fff; }
+
+  /* Skip link */
+  .skip-link {
+    position: absolute; top: -40px; left: 0; background: var(--accent);
+    color: #fff; padding: 8px 16px; z-index: 9999; border-radius: 0 0 8px 0;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 0; }
+
+  /* Container */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--sp5); }
+  .container-sm { max-width: 800px; margin: 0 auto; padding: 0 var(--sp5); }
+
+  /* ===== NAVIGATION ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: var(--sp4) var(--sp5);
+    background: rgba(10,14,23,0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background var(--transition);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: var(--sp3);
+    font-weight: 700; font-size: 1.1rem; color: var(--text-primary);
+    text-decoration: none;
+  }
+  .nav-logo svg { width: 32px; height: 32px; }
+  .nav-links { display: flex; align-items: center; gap: var(--sp5); list-style: none; }
+  .nav-links a {
+    font-size: 0.9rem; font-weight: 500; color: var(--text-secondary);
+    transition: color var(--transition); text-decoration: none;
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-cta {
+    background: var(--accent); color: #fff !important; padding: 8px 20px;
+    border-radius: 8px; font-weight: 600; font-size: 0.875rem;
+  }
+  .nav-cta:hover { background: var(--accent-light); color: #fff !important; }
+
+  .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+  .hamburger span {
+    display: block; width: 22px; height: 2px; background: var(--text-primary);
+    margin: 5px 0; border-radius: 2px; transition: all 0.3s;
+  }
+
+  /* ===== HERO ===== */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; padding-top: 80px;
+  }
+  #heroCanvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+  .hero-content {
+    position: relative; z-index: 1;
+    text-align: center; max-width: 900px; padding: 0 var(--sp5);
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: var(--sp2);
+    background: var(--accent-dim); border: 1px solid var(--border);
+    color: var(--accent-light); padding: 6px 16px; border-radius: 100px;
+    font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
+    text-transform: uppercase; margin-bottom: var(--sp5);
+  }
+  .hero-badge::before {
+    content: ''; width: 6px; height: 6px; background: var(--accent);
+    border-radius: 50%; animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.5); }
+  }
+  .hero-title {
+    background: linear-gradient(135deg, #fff 0%, var(--accent-light) 50%, #c4b5fd 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: var(--sp4);
+  }
+  .hero-subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-secondary);
+    max-width: 680px; margin: 0 auto var(--sp6);
+    line-height: 1.6;
+  }
+  .hero-actions { display: flex; gap: var(--sp4); justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: #fff; padding: 14px 32px;
+    border-radius: 10px; font-weight: 700; font-size: 1rem;
+    border: none; cursor: pointer; transition: all var(--transition);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--accent-light); transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); color: #fff; }
+  .btn-outline {
+    background: transparent; color: var(--text-primary); padding: 14px 32px;
+    border-radius: 10px; font-weight: 600; font-size: 1rem;
+    border: 1px solid var(--border); cursor: pointer; transition: all var(--transition);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-outline:hover { background: var(--surface-hover); border-color: var(--accent); color: var(--accent-light); }
+
+  .hero-stats {
+    display: flex; gap: var(--sp6); justify-content: center;
+    margin-top: var(--sp7); padding-top: var(--sp5);
+    border-top: 1px solid var(--border-subtle); flex-wrap: wrap;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat .num { font-size: 1.8rem; font-weight: 800; color: var(--accent-light); letter-spacing: -0.02em; }
+  .hero-stat .lbl { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ===== SECTIONS ===== */
+  section { padding: var(--sp8) 0; }
+  .section-header { text-align: center; margin-bottom: var(--sp7); }
+  .section-label {
+    display: inline-block; font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--accent); margin-bottom: var(--sp3);
+  }
+  .section-title { margin-bottom: var(--sp4); }
+  .section-desc { font-size: 1.05rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+  /* ===== RESEARCH CARDS ===== */
+  #research { background: var(--bg2); }
+  .research-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp5);
+  }
+  .research-card {
+    background: var(--surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); padding: var(--sp6);
+    transition: all var(--transition); position: relative; overflow: hidden;
+    cursor: pointer;
+  }
+  .research-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), #c4b5fd);
+    opacity: 0; transition: opacity var(--transition);
+  }
+  .research-card:hover { border-color: var(--border); background: var(--surface-hover); transform: translateY(-4px); }
+  .research-card:hover::before { opacity: 1; }
+  .research-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--accent-dim); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: var(--sp4); font-size: 1.4rem;
+  }
+  .research-card h3 { margin-bottom: var(--sp3); color: var(--text-primary); }
+  .research-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+  .research-tag {
+    display: inline-block; margin-top: var(--sp4);
+    background: var(--accent-dim); color: var(--accent-light);
+    padding: 3px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
+  }
+
+  /* ===== PATENT TIMELINE ===== */
+  #patents { background: var(--bg); }
+  .patent-stats {
+    display: flex; gap: var(--sp5); justify-content: center;
+    flex-wrap: wrap; margin-bottom: var(--sp7);
+  }
+  .patent-stat-card {
+    background: var(--surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius); padding: var(--sp5) var(--sp6);
+    text-align: center; min-width: 160px;
+  }
+  .patent-stat-card .num { font-size: 2rem; font-weight: 800; color: var(--accent-light); }
+  .patent-stat-card .lbl { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+  .timeline-legend {
+    display: flex; gap: var(--sp5); justify-content: center;
+    flex-wrap: wrap; margin-bottom: var(--sp5);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .timeline-container {
+    background: var(--surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); padding: var(--sp6); overflow-x: auto;
+  }
+  .timeline-scroll { min-width: 900px; }
+  .timeline-track {
+    position: relative; padding: var(--sp6) 0;
+  }
+  .timeline-line {
+    position: absolute; top: 50%; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-dim) 10%, var(--accent-dim) 90%, transparent);
+    transform: translateY(-50%);
+  }
+  .timeline-nodes {
+    position: relative; display: flex;
+    justify-content: space-between; align-items: flex-start;
+    flex-wrap: nowrap; padding: 0 10px;
+  }
+  .t-node {
+    display: flex; flex-direction: column; align-items: center;
+    position: relative; cursor: pointer; flex: 1; min-width: 70px;
+  }
+  .t-node-label {
+    font-size: 0.65rem; font-weight: 700; margin-bottom: 8px;
+    text-align: center; color: var(--text-muted); white-space: nowrap;
+  }
+  .t-node-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: all var(--transition); position: relative; z-index: 1;
+    flex-shrink: 0;
+  }
+  .t-node:hover .t-node-dot { transform: scale(1.4); }
+  .t-node-sub {
+    font-size: 0.6rem; color: var(--text-muted); text-align: center;
+    margin-top: 8px; max-width: 60px; line-height: 1.3;
+  }
+  .t-node-tooltip {
+    position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px; font-size: 0.75rem;
+    white-space: nowrap; opacity: 0; pointer-events: none;
+    transition: opacity 0.2s; z-index: 10; margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  .t-node:hover .t-node-tooltip { opacity: 1; }
+
+  /* ===== AI NODES ===== */
+  #nodes { background: var(--bg2); }
+  .nodes-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--sp4);
+  }
+  .node-card {
+    background: var(--surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius); padding: var(--sp5);
+    transition: all var(--transition); display: flex; align-items: flex-start; gap: var(--sp3);
+  }
+  .node-card:hover { border-color: var(--border); background: var(--surface-hover); transform: translateY(-2px); }
+  .node-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--accent-dim); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+  }
+  .node-info h4 { color: var(--text-primary); margin-bottom: 4px; font-size: 0.95rem; }
+  .node-info p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+  /* ===== BLOG ===== */
+  #blog { background: var(--bg); }
+  .blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp5); }
+  .blog-card {
+    background: var(--surface); border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg); overflow: hidden; transition: all var(--transition);
+    cursor: pointer;
+  }
+  .blog-card:hover { border-color: var(--border); transform: translateY(-4px); }
+  .blog-card-top {
+    height: 160px; background: var(--accent-dim);
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid var(--border-subtle); position: relative; overflow: hidden;
+  }
+  .blog-card-body { padding: var(--sp5); }
+  .blog-meta { display: flex; gap: var(--sp3); margin-bottom: var(--sp3); }
+  .blog-tag {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--accent-light);
+  }
+  .blog-date { font-size: 0.75rem; color: var(--text-muted); }
+  .blog-card h3 { font-size: 1.05rem; margin-bottom: var(--sp3); color: var(--text-primary); line-height: 1.4; }
+  .blog-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+  .blog-read { display: inline-flex; align-items: center; gap: 6px; margin-top: var(--sp4); font-size: 0.85rem; font-weight: 600; color: var(--accent-light); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: var(--bg2); border-top: 1px solid var(--border-subtle);
+    padding: var(--sp7) 0 var(--sp5);
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: var(--sp6);
+    margin-bottom: var(--sp7);
+  }
+  .footer-brand p { font-size: 0.9rem; color: var(--text-muted); margin-top: var(--sp3); max-width: 280px; }
+  .footer-col h5 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: var(--sp4); }
+  .footer-col ul { list-style: none; }
+  .footer-col ul li { margin-bottom: var(--sp2); }
+  .footer-col ul li a { font-size: 0.9rem; color: var(--text-secondary); }
+  .footer-col ul li a:hover { color: var(--accent-light); }
+  .footer-bottom {
+    border-top: 1px solid var(--border-subtle); padding-top: var(--sp5);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--sp4);
+  }
+  .footer-bottom p { font-size: 0.8rem; color: var(--text-muted); }
+  .footer-bottom a { color: var(--accent-light); font-size: 0.8rem; }
+
+  /* ===== ANIMATIONS ===== */
+  .fade-up {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-links.open {
+      display: flex; flex-direction: column; position: absolute;
+      top: 100%; left: 0; right: 0; background: var(--bg2);
+      padding: var(--sp4); border-bottom: 1px solid var(--border-subtle);
+      gap: var(--sp4);
+    }
+    .hamburger { display: block; }
+    .research-grid { grid-template-columns: 1fr; }
+    .blog-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .hero-stats { gap: var(--sp4); }
+  }
+  @media (max-width: 480px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .nodes-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- NAVIGATION -->
+<nav role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="HeadyAI Home">
+      <!-- Sacred Geometry Logo -->
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <polygon points="16,2 30,26 2,26" stroke="#8b5cf6" stroke-width="1.5" fill="rgba(139,92,246,0.08)"/>
+        <polygon points="16,8 25,23 7,23" stroke="#a78bfa" stroke-width="1" fill="rgba(167,139,250,0.06)"/>
+        <circle cx="16" cy="17" r="3" fill="#8b5cf6" opacity="0.8"/>
+        <line x1="16" y1="2" x2="16" y2="30" stroke="#8b5cf6" stroke-width="0.5" opacity="0.3"/>
+      </svg>
+      <span>HeadyAI</span>
+    </a>
+    <ul class="nav-links" id="navLinks" role="list">
+      <li><a href="#research">Research</a></li>
+      <li><a href="#patents">Patents</a></li>
+      <li><a href="#nodes">AI Nodes</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="https://headysystems.com" class="nav-cta">HeadySystems</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" aria-label="Hero">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">HeadySystems Inc. — AI Research Division</div>
+    <h1 class="hero-title">The Science Behind HeadyOS</h1>
+    <p class="hero-subtitle">Pioneering Continuous Semantic Logic, Vector Symbolic Architecture, and Sacred Geometry Topology — redefining the mathematics of intelligent systems.</p>
+    <div class="hero-actions">
+      <a href="#research" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Read Our Research
+      </a>
+      <a href="#patents" class="btn-outline">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 8h6M5 5h6M5 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Explore Patents
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">51+</div><div class="lbl">Provisional Patents</div></div>
+      <div class="hero-stat"><div class="num">59</div><div class="lbl">Claims Filed</div></div>
+      <div class="hero-stat"><div class="num">20</div><div class="lbl">AI Nodes</div></div>
+      <div class="hero-stat"><div class="num">5,381</div><div class="lbl">Codebase Files</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section id="research" aria-labelledby="research-heading">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-label">Research Papers</span>
+      <h2 id="research-heading" class="section-title">Foundational Science</h2>
+      <p class="section-desc">Core technical papers describing the mathematical and architectural foundations of HeadyOS.</p>
+    </div>
+    <div class="research-grid">
+      <article class="research-card fade-up" aria-label="Research paper: Continuous Semantic Logic">
+        <div class="research-icon" aria-hidden="true">∿</div>
+        <h3>Continuous Semantic Logic: Beyond Boolean</h3>
+        <p>Traditional Boolean logic fails to capture the gradient nature of meaning. CSL introduces multi-valued gate operations with soft thresholds, enabling probabilistic semantic reasoning. Mathematical foundation: ƒ(x) ∈ [0,1] with φ-weighted activation and continuous truth values over semantic manifolds.</p>
+        <span class="research-tag">CSL · Mathematical Logic</span>
+      </article>
+      <article class="research-card fade-up" aria-label="Research paper: Vector Symbolic Architecture">
+        <div class="research-icon" aria-hidden="true">⊕</div>
+        <h3>Vector Symbolic Architecture for Agent State</h3>
+        <p>Hyperdimensional computing leverages high-dimensional vector spaces (d ≥ 10,000) where binding (⊗) and bundling (⊕) operations preserve semantic structure. VSA enables compositional representation of complex agent states, supporting simultaneous multi-context processing without interference.</p>
+        <span class="research-tag">VSA · Hyperdimensional Computing</span>
+      </article>
+      <article class="research-card fade-up" aria-label="Research paper: Sacred Geometry in System Design">
+        <div class="research-icon" aria-hidden="true">φ</div>
+        <h3>Sacred Geometry in System Design</h3>
+        <p>The golden ratio φ ≈ 1.618 and Fibonacci scaling encode natural optimization principles directly into system architecture. φ-derived parameters govern node distribution, memory allocation thresholds, and processing tier boundaries — aligning computational topology with mathematical harmony.</p>
+        <span class="research-tag">Sacred Geometry · φ-Topology</span>
+      </article>
+      <article class="research-card fade-up" aria-label="Research paper: 3D Spatial Memory">
+        <div class="research-icon" aria-hidden="true">⬡</div>
+        <h3>3D Spatial Memory for AI Agents</h3>
+        <p>Agent memory organized as navigable 3D vector spaces enables O(log n) retrieval via octree partitioning. Spatial telemetry tracks memory access patterns, enabling adaptive reorganization. Vector proximity determines semantic relatedness, creating emergent knowledge topology that mirrors cognitive architecture.</p>
+        <span class="research-tag">Memory Architecture · Octree</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PATENTS -->
+<section id="patents" aria-labelledby="patents-heading">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-label">Patent Portfolio</span>
+      <h2 id="patents-heading" class="section-title">51+ Provisional Patents</h2>
+      <p class="section-desc">A comprehensive portfolio covering CSL, Security, Orchestration, and Memory systems.</p>
+    </div>
+
+    <div class="patent-stats fade-up">
+      <div class="patent-stat-card"><div class="num">51+</div><div class="lbl">Provisional Patents</div></div>
+      <div class="patent-stat-card"><div class="num">59</div><div class="lbl">Total Claims</div></div>
+      <div class="patent-stat-card"><div class="num" style="color:#2dd4bf">1</div><div class="lbl">Trademark</div></div>
+      <div class="patent-stat-card"><div class="num" style="color:#f59e0b">4</div><div class="lbl">Categories</div></div>
+    </div>
+
+    <div class="timeline-legend fade-up">
+      <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div> CSL Logic</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> Security</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2dd4bf"></div> Orchestration</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Memory</div>
+    </div>
+
+    <div class="timeline-container fade-up">
+      <div class="timeline-scroll">
+        <div class="timeline-track">
+          <div class="timeline-line"></div>
+          <div class="timeline-nodes" id="timelineNodes" role="list" aria-label="Patent timeline"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI NODES -->
+<section id="nodes" aria-labelledby="nodes-heading">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-label">AI Node Ecosystem</span>
+      <h2 id="nodes-heading" class="section-title">20 Specialized Intelligence Nodes</h2>
+      <p class="section-desc">Each node is a purpose-built AI module with distinct capabilities, composable into sophisticated agent orchestrations.</p>
+    </div>
+    <div class="nodes-grid" id="nodesGrid" aria-label="AI Nodes grid"></div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog" aria-labelledby="blog-heading">
+  <div class="container">
+    <div class="section-header fade-up">
+      <span class="section-label">Technical Blog</span>
+      <h2 id="blog-heading" class="section-title">From the Lab</h2>
+      <p class="section-desc">Deep technical writing on the science and engineering of autonomous AI systems.</p>
+    </div>
+    <div class="blog-grid">
+      <article class="blog-card fade-up" aria-label="Blog: Why We Replaced Boolean Logic">
+        <div class="blog-card-top" aria-hidden="true">
+          <svg viewBox="0 0 120 80" width="120" height="80" fill="none">
+            <circle cx="40" cy="40" r="25" stroke="#8b5cf6" stroke-width="1" opacity="0.6"/>
+            <circle cx="80" cy="40" r="25" stroke="#8b5cf6" stroke-width="1" opacity="0.6"/>
+            <ellipse cx="60" cy="40" rx="12" ry="18" fill="rgba(139,92,246,0.3)"/>
+            <text x="30" y="44" fill="#a78bfa" font-size="12" font-weight="bold">0</text>
+            <text x="75" y="44" fill="#a78bfa" font-size="12" font-weight="bold">1</text>
+            <text x="54" y="44" fill="#c4b5fd" font-size="10">∿</text>
+          </svg>
+        </div>
+        <div class="blog-card-body">
+          <div class="blog-meta">
+            <span class="blog-tag">CSL</span>
+            <span class="blog-date">Feb 14, 2026</span>
+          </div>
+          <h3>Why We Replaced Boolean Logic with Continuous Semantic Logic</h3>
+          <p>Binary true/false is a profound limitation for AI reasoning. Discover how CSL's continuous value space unlocks gradient semantic processing.</p>
+          <span class="blog-read">Read more →</span>
+        </div>
+      </article>
+
+      <article class="blog-card fade-up" aria-label="Blog: Sacred Geometry Mathematical Foundation">
+        <div class="blog-card-top" aria-hidden="true">
+          <svg viewBox="0 0 120 80" width="120" height="80" fill="none">
+            <polygon points="60,8 108,72 12,72" stroke="#8b5cf6" stroke-width="1.5" fill="rgba(139,92,246,0.05)"/>
+            <polygon points="60,22 94,66 26,66" stroke="#a78bfa" stroke-width="1" fill="rgba(167,139,250,0.08)"/>
+            <circle cx="60" cy="52" r="8" stroke="#c4b5fd" stroke-width="1" fill="rgba(196,181,253,0.1)"/>
+            <text x="56" y="56" fill="#c4b5fd" font-size="10">φ</text>
+          </svg>
+        </div>
+        <div class="blog-card-body">
+          <div class="blog-meta">
+            <span class="blog-tag">Geometry</span>
+            <span class="blog-date">Jan 28, 2026</span>
+          </div>
+          <h3>Sacred Geometry: The Mathematical Foundation of Autonomous Systems</h3>
+          <p>How φ, the golden ratio, and Fibonacci sequences encode universal optimization principles into HeadyOS architecture.</p>
+          <span class="blog-read">Read more →</span>
+        </div>
+      </article>
+
+      <article class="blog-card fade-up" aria-label="Blog: Self-Healing Agent Mesh">
+        <div class="blog-card-top" aria-hidden="true">
+          <svg viewBox="0 0 120 80" width="120" height="80" fill="none">
+            <circle cx="30" cy="40" r="8" stroke="#8b5cf6" stroke-width="1.5" fill="rgba(139,92,246,0.15)"/>
+            <circle cx="60" cy="20" r="8" stroke="#8b5cf6" stroke-width="1.5" fill="rgba(139,92,246,0.15)"/>
+            <circle cx="90" cy="40" r="8" stroke="#8b5cf6" stroke-width="1.5" fill="rgba(139,92,246,0.15)"/>
+            <circle cx="60" cy="60" r="8" stroke="#8b5cf6" stroke-width="1.5" fill="rgba(139,92,246,0.15)"/>
+            <line x1="30" y1="40" x2="60" y2="20" stroke="#a78bfa" stroke-width="1" opacity="0.5"/>
+            <line x1="60" y1="20" x2="90" y2="40" stroke="#a78bfa" stroke-width="1" opacity="0.5"/>
+            <line x1="90" y1="40" x2="60" y2="60" stroke="#a78bfa" stroke-width="1" opacity="0.5"/>
+            <line x1="60" y1="60" x2="30" y2="40" stroke="#a78bfa" stroke-width="1" opacity="0.5"/>
+            <line x1="30" y1="40" x2="90" y2="40" stroke="#a78bfa" stroke-width="0.5" opacity="0.3" stroke-dasharray="3,3"/>
+            <line x1="60" y1="20" x2="60" y2="60" stroke="#a78bfa" stroke-width="0.5" opacity="0.3" stroke-dasharray="3,3"/>
+          </svg>
+        </div>
+        <div class="blog-card-body">
+          <div class="blog-meta">
+            <span class="blog-tag">Architecture</span>
+            <span class="blog-date">Jan 10, 2026</span>
+          </div>
+          <h3>Building a Self-Healing Agent Mesh with 51 Patents</h3>
+          <p>A deep dive into HeadyHealth's resilience architecture: circuit breaking, graceful degradation, and autonomous recovery in production.</p>
+          <span class="blog-read">Read more →</span>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo" style="margin-bottom: 12px; display: inline-flex;" aria-label="HeadyAI">
+          <svg viewBox="0 0 32 32" fill="none" width="28" height="28" aria-hidden="true">
+            <polygon points="16,2 30,26 2,26" stroke="#8b5cf6" stroke-width="1.5" fill="rgba(139,92,246,0.08)"/>
+            <circle cx="16" cy="17" r="3" fill="#8b5cf6"/>
+          </svg>
+          <span style="margin-left:8px">HeadyAI</span>
+        </a>
+        <p>Research & innovation division of HeadySystems Inc. Advancing the science of autonomous intelligent systems.</p>
+        <p style="margin-top:12px; font-size:0.8rem; color:var(--text-muted);">Founder: Eric Haywood | 51+ Patents</p>
+      </div>
+      <div class="footer-col">
+        <h5>Research</h5>
+        <ul>
+          <li><a href="#research">CSL Papers</a></li>
+          <li><a href="#research">VSA Research</a></li>
+          <li><a href="#research">Sacred Geometry</a></li>
+          <li><a href="#research">Memory Systems</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Patents</h5>
+        <ul>
+          <li><a href="#patents">Portfolio</a></li>
+          <li><a href="#patents">CSL Series</a></li>
+          <li><a href="#patents">Security</a></li>
+          <li><a href="#patents">Orchestration</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="https://headysystems.com">HeadySystems</a></li>
+          <li><a href="https://headyconnection.com">Community</a></li>
+          <li><a href="https://headyconnection.org">Non-Profit</a></li>
+          <li><a href="mailto:eric@headyconnection.org">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 HeadySystems Inc. All rights reserved.</p>
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ===== SACRED GEOMETRY CANVAS =====
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], frame = 0;
+  const PHI = 1.618033988749895;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+
+  // Sacred geometry nodes
+  class SacredNode {
+    constructor() { this.reset(); }
+    reset() {
+      this.angle = Math.random() * Math.PI * 2;
+      this.radius = 60 + Math.random() * Math.min(W, H) * 0.38;
+      this.cx = W / 2;
+      this.cy = H / 2;
+      this.speed = (0.0003 + Math.random() * 0.0005) * (Math.random() > 0.5 ? 1 : -1);
+      this.size = 1.5 + Math.random() * 3;
+      this.opacity = 0.3 + Math.random() * 0.5;
+      this.hue = 260 + Math.random() * 60; // violet range
+      this.phi_orbit = Math.random() > 0.5;
+    }
+    update() {
+      this.angle += this.speed;
+      if (this.phi_orbit) {
+        this.x = this.cx + Math.cos(this.angle) * this.radius;
+        this.y = this.cy + Math.sin(this.angle) * this.radius * (1 / PHI);
+      } else {
+        this.x = this.cx + Math.cos(this.angle) * this.radius * (1 / PHI);
+        this.y = this.cy + Math.sin(this.angle) * this.radius;
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${this.hue}, 80%, 70%, ${this.opacity})`;
+      ctx.fill();
+    }
+  }
+
+  function init() {
+    particles = [];
+    for (let i = 0; i < 80; i++) particles.push(new SacredNode());
+  }
+
+  function drawFibSpiral() {
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    let a = 0, b = 1;
+    for (let i = 0; i < 18; i++) {
+      const r = b * 8;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(139,92,246,${0.03 + i * 0.008})`;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+      [a, b] = [b, a + b];
+    }
+    ctx.restore();
+  }
+
+  function drawGeomLines() {
+    const n = 6;
+    const r = Math.min(W, H) * 0.3;
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    for (let i = 0; i < n; i++) {
+      const a1 = (i / n) * Math.PI * 2 + frame * 0.0002;
+      const a2 = ((i + 1) / n) * Math.PI * 2 + frame * 0.0002;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a1) * r, Math.sin(a1) * r);
+      ctx.lineTo(Math.cos(a2) * r, Math.sin(a2) * r);
+      ctx.strokeStyle = 'rgba(139,92,246,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    // Inner hexagon
+    const r2 = r / PHI;
+    for (let i = 0; i < n; i++) {
+      const a1 = (i / n) * Math.PI * 2 - frame * 0.0003;
+      const a2 = ((i + 1) / n) * Math.PI * 2 - frame * 0.0003;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a1) * r2, Math.sin(a1) * r2);
+      ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2);
+      ctx.strokeStyle = 'rgba(167,139,250,0.06)';
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(139,92,246,${0.15 * (1 - dist / 120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function animate() {
+    frame++;
+    ctx.clearRect(0, 0, W, H);
+    drawFibSpiral();
+    drawGeomLines();
+    drawConnections();
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', () => { resize(); particles.forEach(p => { p.cx = W/2; p.cy = H/2; }); });
+  resize();
+  init();
+  animate();
+})();
+
+// ===== PATENT TIMELINE =====
+(function() {
+  const patents = [
+    { id: 'HS-051', date: '2024-Q1', label: 'HS-051', desc: 'CSL Gate Architecture', cat: 'csl' },
+    { id: 'HS-052', date: '2024-Q2', label: 'HS-052', desc: 'Semantic Threshold Engine', cat: 'csl' },
+    { id: 'HS-053', date: '2024-Q2', label: 'HS-053', desc: 'Multi-Agent Orchestration', cat: 'orch' },
+    { id: 'HS-054', date: '2024-Q3', label: 'HS-054', desc: 'Zero-Trust AI Security', cat: 'sec' },
+    { id: 'HS-055', date: '2024-Q3', label: 'HS-055', desc: 'Vector Memory Store', cat: 'mem' },
+    { id: 'HS-056', date: '2024-Q4', label: 'HS-056', desc: 'φ-Topology Distribution', cat: 'csl' },
+    { id: 'HS-057', date: '2024-Q4', label: 'HS-057', desc: 'Attestation Chain', cat: 'sec' },
+    { id: 'HS-058', date: '2025-Q1', label: 'HS-058', desc: 'Swarm Coordination', cat: 'orch' },
+    { id: 'HS-059', date: '2025-Q2', label: 'HS-059', desc: 'Spatial Telemetry', cat: 'mem' },
+    { id: 'HS-060', date: '2025-Q3', label: 'HS-060', desc: 'VSA Binding Engine', cat: 'csl' },
+    { id: 'HS-061', date: '2025-Q4', label: 'HS-061', desc: 'Agent Self-Healing', cat: 'orch' },
+    { id: 'HS-062', date: '2026-Q1', label: 'HS-062', desc: 'Competitive Eval Arena', cat: 'mem' },
+  ];
+
+  const colors = { csl: '#8b5cf6', sec: '#ef4444', orch: '#2dd4bf', mem: '#f59e0b' };
+  const container = document.getElementById('timelineNodes');
+
+  patents.forEach(p => {
+    const node = document.createElement('div');
+    node.className = 't-node';
+    node.setAttribute('role', 'listitem');
+    node.setAttribute('tabindex', '0');
+    node.setAttribute('aria-label', `Patent ${p.id}: ${p.desc}, filed ${p.date}`);
+    node.innerHTML = `
+      <div class="t-node-label">${p.date}</div>
+      <div class="t-node-dot" style="background:${colors[p.cat]};border-color:${colors[p.cat]}40"></div>
+      <div class="t-node-sub">${p.label}</div>
+      <div class="t-node-tooltip">${p.id}: ${p.desc}</div>
+    `;
+    container.appendChild(node);
+  });
+})();
+
+// ===== AI NODES =====
+(function() {
+  const nodes = [
+    { name: 'HeadyBrain', icon: '🧠', desc: 'AI reasoning and analysis' },
+    { name: 'HeadyBuddy', icon: '🤝', desc: 'Companion intelligence' },
+    { name: 'HeadyConductor', icon: '🎼', desc: 'Task orchestration' },
+    { name: 'HeadyGuard', icon: '🛡️', desc: 'Security and threat detection' },
+    { name: 'HeadyEmbed', icon: '⬡', desc: 'Embedding generation' },
+    { name: 'HeadyEval', icon: '⚖️', desc: 'Response evaluation' },
+    { name: 'HeadyVinci', icon: '🎨', desc: 'Creative intelligence' },
+    { name: 'HeadyLens', icon: '👁️', desc: 'Visual analysis' },
+    { name: 'HeadySoul', icon: '✨', desc: 'Personality and memory' },
+    { name: 'HeadyMidi', icon: '⚡', desc: 'Sub-ms agent control' },
+    { name: 'HeadyHive', icon: '🐝', desc: 'Swarm coordination' },
+    { name: 'HeadyChain', icon: '🔗', desc: 'Attestation and verification' },
+    { name: 'HeadyInfer', icon: '💡', desc: 'Multi-model inference' },
+    { name: 'HeadyFederation', icon: '🌐', desc: 'Provider federation' },
+    { name: 'HeadyProjection', icon: '📐', desc: 'State projection' },
+    { name: 'HeadyCache', icon: '⚡', desc: 'Intelligent caching' },
+    { name: 'HeadyVector', icon: '↗', desc: 'Vector space operations' },
+    { name: 'HeadyMCP', icon: '📡', desc: 'Protocol handler' },
+    { name: 'HeadyHealth', icon: '❤️', desc: 'System resilience' },
+    { name: 'HeadyArena', icon: '🏟️', desc: 'Competitive evaluation' },
+  ];
+
+  const grid = document.getElementById('nodesGrid');
+  nodes.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'node-card fade-up';
+    card.setAttribute('role', 'article');
+    card.setAttribute('aria-label', `${n.name}: ${n.desc}`);
+    card.innerHTML = `
+      <div class="node-icon" aria-hidden="true">${n.icon}</div>
+      <div class="node-info">
+        <h4>${n.name}</h4>
+        <p>${n.desc}</p>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+})();
+
+// ===== NAV HAMBURGER =====
+(function() {
+  const btn = document.getElementById('hamburger');
+  const links = document.getElementById('navLinks');
+  btn.addEventListener('click', () => {
+    const open = links.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+  });
+  document.querySelectorAll('#navLinks a').forEach(a => {
+    a.addEventListener('click', () => { links.classList.remove('open'); btn.setAttribute('aria-expanded', false); });
+  });
+})();
+
+// ===== SCROLL ANIMATIONS =====
+(function() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+})();
+</script>
+</body>
+</html>

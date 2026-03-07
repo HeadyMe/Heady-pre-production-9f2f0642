@@ -1,0 +1,101 @@
+# =============================================================================
+# Heady™ SLO (Service Level Objectives) Definitions
+# Drop into: configs/slo-definitions.yaml
+# =============================================================================
+
+service: heady-platform
+version: "3.1"
+phi: 1.6180339887
+
+slos:
+  # --- Availability ---
+  - name: api-availability
+    description: "Overall API availability"
+    target: 99.9%
+    window: 30d
+    metric: successful_requests / total_requests
+    alert_burn_rate: 14.4  # 1h window alerting
+
+  # --- Latency ---
+  - name: api-latency-p99
+    description: "API response latency (p99)"
+    target: 2000ms
+    window: 30d
+    metric: http_request_duration_milliseconds_p99
+
+  - name: orchestration-latency-p95
+    description: "HeadyConductor task routing latency"
+    target: 5000ms
+    window: 30d
+    metric: conductor_task_duration_milliseconds_p95
+
+  - name: memory-query-latency-p95
+    description: "Vector memory query latency"
+    target: 100ms
+    window: 30d
+    metric: vector_query_duration_milliseconds_p95
+
+  - name: agent-handoff-latency-p95
+    description: "Multi-agent handoff via Redis"
+    target: 50ms
+    window: 30d
+    metric: redis_handoff_duration_milliseconds_p95
+
+  - name: swarm-consensus-time-p95
+    description: "Time for swarm to reach consensus"
+    target: 3000ms
+    window: 30d
+    metric: swarm_consensus_duration_milliseconds_p95
+
+  # --- Reliability ---
+  - name: circuit-breaker-trip-rate
+    description: "Circuit breaker trip rate (should be rare)"
+    target: "<5%"
+    window: 7d
+    metric: circuit_breaker_trips / total_calls
+
+  - name: self-healing-success-rate
+    description: "Auto-heal success rate"
+    target: ">95%"
+    window: 30d
+    metric: auto_heal_success / auto_heal_attempts
+
+  # --- Pipeline ---
+  - name: pipeline-success-rate
+    description: "HCFullPipeline completion rate"
+    target: ">98%"
+    window: 7d
+    metric: pipeline_completed / pipeline_started
+
+  - name: pipeline-duration-p95
+    description: "Full pipeline execution time"
+    target: 30000ms
+    window: 30d
+    metric: pipeline_duration_milliseconds_p95
+
+# --- Alert Rules ---
+alerts:
+  - name: high-error-rate
+    condition: "error_rate > 5% for 5m"
+    severity: critical
+    channel: pagerduty
+
+  - name: high-latency
+    condition: "p99_latency > 5000ms for 10m"
+    severity: warning
+    channel: slack
+
+  - name: circuit-breaker-open
+    condition: "circuit_state == OPEN"
+    severity: critical
+    channel: pagerduty
+
+  - name: memory-pressure
+    condition: "memory_usage > 85% for 5m"
+    severity: warning
+    channel: slack
+
+  - name: drift-detected
+    condition: "coherence_score < 0.75"
+    severity: warning
+    channel: slack

@@ -1,0 +1,417 @@
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HeadyOS Pricing — Pilot, Pro, Enterprise, Custom</title>
+  <meta name="description" content="HeadyOS pricing: Free 89-day Founder Pilot, Pro at $89/seat/mo, Enterprise at $233/seat/mo, Custom. φ-native AI orchestration for enterprise teams." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --phi: 1.618033988749895;
+      --sp-1: 0.618rem; --sp-2: 1rem; --sp-3: 1.618rem; --sp-4: 2.618rem; --sp-5: 4.236rem; --sp-6: 6.854rem;
+      --bg:      #080b10; --bg-deep: #0d1117; --bg-surface: #131924;
+      --bg-card: #1a2233; --bg-elevated: #212d42;
+      --border:  rgba(99,148,255,0.12); --border-gold: rgba(201,168,76,0.3);
+      --gold:    #c9a84c; --gold-bright: #e4c068; --gold-glow: rgba(201,168,76,0.12);
+      --blue:    #3d7bd4; --blue-bright: #6394ff;
+      --emerald: #2ea87e; --emerald-bright: #4ecba0;
+      --red:     #e05a5a;
+      --text-primary: #f0f4ff; --text-secondary: #8b9cc8; --text-muted: #4a5a7a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; line-height: 1.618; }
+
+    /* ── Nav ── */
+    nav { position: sticky; top: 0; z-index: 50; background: rgba(8,11,16,0.9); backdrop-filter: blur(21px); border-bottom: 1px solid var(--border); padding: 1rem 2.618rem; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-cta { padding: 6px 18px; background: linear-gradient(135deg, var(--gold), #8a6f30); color: #0d0e0a; border-radius: 6px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 200ms ease; }
+    .nav-cta:hover { background: linear-gradient(135deg, var(--gold-bright), var(--gold)); }
+
+    /* ── Header ── */
+    .header { text-align: center; padding: var(--sp-6) var(--sp-3) var(--sp-5); }
+    .header-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: var(--gold-glow); border: 1px solid var(--border-gold); border-radius: 99px; font-size: 0.618rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-bright); margin-bottom: var(--sp-3); }
+    h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: var(--sp-2); }
+    h1 .gold { color: var(--gold-bright); }
+    .header-sub { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto var(--sp-4); }
+
+    /* ── Toggle ── */
+    .billing-toggle { display: inline-flex; align-items: center; gap: var(--sp-2); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 99px; padding: 4px; margin: 0 auto; }
+    .toggle-btn { padding: 6px 20px; border-radius: 99px; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--text-secondary); transition: all 200ms ease; }
+    .toggle-btn.active { background: linear-gradient(135deg, var(--gold), #8a6f30); color: #0d0e0a; }
+    .discount-badge { background: rgba(46,168,126,0.12); border: 1px solid rgba(46,168,126,0.3); color: var(--emerald-bright); font-size: 0.618rem; padding: 2px 8px; border-radius: 99px; font-weight: 700; }
+
+    /* ── Pricing Grid ── */
+    .pricing-section { padding: var(--sp-4) var(--sp-3) var(--sp-5); max-width: 1200px; margin: 0 auto; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-3); margin-bottom: var(--sp-5); }
+
+    .tier-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 13px; padding: var(--sp-4); position: relative; overflow: hidden; transition: transform 200ms ease, box-shadow 200ms ease; display: flex; flex-direction: column; }
+    .tier-card:hover { transform: translateY(-4px); box-shadow: 0 13px 55px rgba(0,0,0,0.5); }
+    .tier-card.featured { border-color: var(--border-gold); box-shadow: 0 0 55px rgba(201,168,76,0.1); }
+    .tier-card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+    .featured-label { position: absolute; top: -1px; right: var(--sp-3); background: linear-gradient(135deg, var(--gold), #8a6f30); color: #0d0e0a; font-size: 0.618rem; font-weight: 800; padding: 4px 12px; border-radius: 0 0 8px 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .tier-icon { font-size: 1.618rem; margin-bottom: var(--sp-2); }
+    .tier-name { font-family: 'Space Grotesk', sans-serif; font-size: 1.272rem; font-weight: 700; margin-bottom: 4px; }
+    .tier-tagline { font-size: 0.764rem; color: var(--text-muted); margin-bottom: var(--sp-3); }
+
+    .tier-price { margin-bottom: var(--sp-3); padding-bottom: var(--sp-3); border-bottom: 1px solid var(--border); }
+    .price-main { font-family: 'Space Grotesk', sans-serif; font-size: 2.618rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+    .price-main .price-currency { font-size: 1.272rem; vertical-align: top; margin-top: 8px; display: inline-block; color: var(--text-secondary); }
+    .price-main .price-period { font-size: 1rem; font-weight: 400; color: var(--text-secondary); }
+    .price-sub { font-size: 0.764rem; color: var(--text-muted); margin-top: 4px; }
+    .price-orig { text-decoration: line-through; color: var(--text-muted); font-size: 0.875rem; }
+
+    .tier-features { flex: 1; list-style: none; margin-bottom: var(--sp-4); }
+    .tier-features li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.875rem; color: var(--text-secondary); padding: 5px 0; }
+    .tier-features .chk { color: var(--emerald-bright); flex-shrink: 0; font-size: 11px; font-weight: 700; margin-top: 2px; }
+    .tier-features .cross { color: var(--text-muted); flex-shrink: 0; font-size: 11px; }
+    .feat-bold { color: var(--text-primary); font-weight: 600; }
+
+    .tier-cta { display: block; text-align: center; padding: var(--sp-2); border-radius: 8px; font-size: 0.875rem; font-weight: 700; text-decoration: none; transition: all 200ms ease; cursor: pointer; border: none; font-family: 'Inter', sans-serif; }
+    .cta-gold { background: linear-gradient(135deg, var(--gold), #8a6f30); color: #0d0e0a; }
+    .cta-gold:hover { background: linear-gradient(135deg, var(--gold-bright), var(--gold)); transform: translateY(-1px); }
+    .cta-blue { background: rgba(61,123,212,0.15); border: 1px solid rgba(61,123,212,0.3); color: var(--blue-bright); }
+    .cta-blue:hover { background: rgba(61,123,212,0.25); }
+    .cta-outline { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+    .cta-outline:hover { border-color: rgba(99,148,255,0.3); color: var(--text-primary); }
+    .cta-dark { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary); }
+    .cta-dark:hover { color: var(--text-primary); }
+
+    /* ── Comparison Table ── */
+    .comparison { max-width: 1000px; margin: 0 auto var(--sp-5); }
+    .comparison h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.618rem; font-weight: 700; text-align: center; margin-bottom: var(--sp-4); }
+    .comp-table { width: 100%; border-collapse: collapse; }
+    .comp-table thead th { font-size: 0.764rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: var(--sp-2); text-align: center; border-bottom: 1px solid var(--border); }
+    .comp-table thead th:first-child { text-align: left; }
+    .comp-table th.featured-col { color: var(--gold-bright); }
+    .comp-table td { padding: var(--sp-2); text-align: center; font-size: 0.875rem; color: var(--text-secondary); border-bottom: 1px solid rgba(99,148,255,0.05); }
+    .comp-table td:first-child { text-align: left; font-weight: 500; color: var(--text-primary); }
+    .comp-table .section-head td { background: var(--bg-elevated); font-size: 0.618rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); padding: 8px var(--sp-2); }
+    .comp-table .chk-green { color: var(--emerald-bright); font-weight: 700; }
+    .comp-table .cross-muted { color: var(--text-muted); }
+    .comp-table .highlight { background: rgba(201,168,76,0.03); }
+
+    /* ── FAQ ── */
+    .faq { max-width: 760px; margin: 0 auto var(--sp-5); }
+    .faq h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.618rem; font-weight: 700; text-align: center; margin-bottom: var(--sp-4); }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q { width: 100%; background: none; border: none; color: var(--text-primary); font-size: 1rem; font-weight: 600; padding: var(--sp-3) 0; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; }
+    .faq-q:hover { color: var(--gold-bright); }
+    .faq-icon { color: var(--text-muted); transition: transform 200ms ease; font-size: 1.272rem; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--gold); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 300ms ease; }
+    .faq-item.open .faq-a { max-height: 500px; }
+    .faq-a p { color: var(--text-secondary); padding-bottom: var(--sp-3); font-size: 0.875rem; line-height: 1.764; }
+
+    /* ── Footer ── */
+    footer { background: var(--bg-deep); border-top: 1px solid var(--border); padding: var(--sp-4) var(--sp-3); text-align: center; }
+    footer p { font-size: 0.618rem; color: var(--text-muted); margin-bottom: 4px; }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text-secondary); }
+
+    @media (max-width: 1024px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px)  { .pricing-grid { grid-template-columns: 1fr; } nav { padding: 1rem; } }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="nav-logo">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="11" stroke="#c9a84c" stroke-width="1.2" opacity="0.7"/>
+      <circle cx="12" cy="12" r="6.854" stroke="#3d7bd4" stroke-width="0.8" opacity="0.5"/>
+      <circle cx="12" cy="12" r="2" fill="#c9a84c"/>
+    </svg>
+    HeadyOS
+  </a>
+  <a href="#apply" class="nav-cta">Start Free Pilot</a>
+</nav>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-badge">◈ Transparent Pricing · φ-Native</div>
+  <h1>Simple, <span class="gold">φ-Derived</span> Pricing</h1>
+  <p class="header-sub">Start free with our 89-day Founder Pilot [fib(11)]. Upgrade when you're ready.</p>
+
+  <div style="display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;">
+    <div class="billing-toggle" role="group" aria-label="Billing period">
+      <button class="toggle-btn active" id="monthly-btn" onclick="setBilling('monthly')">Monthly</button>
+      <button class="toggle-btn" id="annual-btn" onclick="setBilling('annual')">
+        Annual <span class="discount-badge">−21% [fib(8)]</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Pricing Grid -->
+<section class="pricing-section">
+  <div class="pricing-grid">
+
+    <!-- Pilot Tier -->
+    <div class="tier-card">
+      <div class="tier-icon">◇</div>
+      <div class="tier-name">Pilot</div>
+      <div class="tier-tagline">Founder's 89-day trial</div>
+      <div class="tier-price">
+        <div class="price-main">FREE</div>
+        <div class="price-sub">fib(11)=89 days · No credit card</div>
+      </div>
+      <ul class="tier-features">
+        <li><span class="chk">✓</span><span>Up to <span class="feat-bold">fib(7)=13</span> concurrent agents</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">fib(12)=144</span> API calls/minute</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">fib(16)=987 MB</span> storage</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">987 vector</span> memory slots</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">fib(5)=5</span> team seats</span></li>
+        <li><span class="chk">✓</span><span>All MCP tools</span></li>
+        <li><span class="chk">✓</span><span>8-hour support SLA</span></li>
+        <li><span class="chk">✓</span><span>Direct founder access</span></li>
+        <li><span class="chk">✓</span><span>Weekly office hours</span></li>
+        <li><span class="cross">·</span><span style="color:var(--text-muted)">No SLA credits</span></li>
+        <li><span class="cross">·</span><span style="color:var(--text-muted)">Pilot-grade uptime</span></li>
+      </ul>
+      <a href="#apply" class="tier-cta cta-outline">Apply for Pilot →</a>
+    </div>
+
+    <!-- Pro Tier (Featured) -->
+    <div class="tier-card featured">
+      <div class="featured-label">Most Popular</div>
+      <div class="tier-icon">◈</div>
+      <div class="tier-name">Pro</div>
+      <div class="tier-tagline">For growing AI teams</div>
+      <div class="tier-price">
+        <div class="price-main">
+          <span class="price-currency">$</span><span id="pro-price">89</span><span class="price-period">/seat/mo</span>
+        </div>
+        <div class="price-sub" id="pro-sub">Founder rate: $44.50/seat/mo (50% off for 12 months)</div>
+      </div>
+      <ul class="tier-features">
+        <li><span class="chk">✓</span><span>Up to <span class="feat-bold">fib(9)=34</span> concurrent agents</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">fib(13)=233</span> API calls/minute</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">fib(17)=1,597 MB</span> storage</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">1,597 vector</span> memory slots</span></li>
+        <li><span class="chk">✓</span><span>Unlimited team seats</span></li>
+        <li><span class="chk">✓</span><span>All MCP tools + custom tools</span></li>
+        <li><span class="chk">✓</span><span>4-hour support SLA</span></li>
+        <li><span class="chk">✓</span><span>Monthly office hours</span></li>
+        <li><span class="chk">✓</span><span>99.5% uptime SLA</span></li>
+        <li><span class="chk">✓</span><span>SOC 2 report access</span></li>
+        <li><span class="chk">✓</span><span>Priority feature requests</span></li>
+      </ul>
+      <a href="https://headyme.com/signup?tier=pro" class="tier-cta cta-gold">Get Started →</a>
+    </div>
+
+    <!-- Enterprise Tier -->
+    <div class="tier-card">
+      <div class="tier-icon">⬡</div>
+      <div class="tier-name">Enterprise</div>
+      <div class="tier-tagline">For regulated industries</div>
+      <div class="tier-price">
+        <div class="price-main">
+          <span class="price-currency">$</span><span id="ent-price">233</span><span class="price-period">/seat/mo</span>
+        </div>
+        <div class="price-sub" id="ent-sub">fib(13)=233 · Billed annually recommended</div>
+      </div>
+      <ul class="tier-features">
+        <li><span class="chk">✓</span><span><span class="feat-bold">Unlimited</span> concurrent agents</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">Custom</span> API rate limits</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">Unlimited</span> storage</span></li>
+        <li><span class="chk">✓</span><span><span class="feat-bold">Unlimited</span> vector memory</span></li>
+        <li><span class="chk">✓</span><span>Unlimited seats + orgs</span></li>
+        <li><span class="chk">✓</span><span>SAML SSO / SCIM provisioning</span></li>
+        <li><span class="chk">✓</span><span>1-hour P0 support SLA</span></li>
+        <li><span class="chk">✓</span><span>Dedicated Customer Success</span></li>
+        <li><span class="chk">✓</span><span>99.9% uptime SLA + credits</span></li>
+        <li><span class="chk">✓</span><span>Custom DPA + BAA</span></li>
+        <li><span class="chk">✓</span><span>Pen test report on request</span></li>
+      </ul>
+      <a href="mailto:eric@headyconnection.org?subject=Enterprise%20Inquiry" class="tier-cta cta-blue">Contact Sales →</a>
+    </div>
+
+    <!-- Custom Tier -->
+    <div class="tier-card">
+      <div class="tier-icon">⟁</div>
+      <div class="tier-name">Custom</div>
+      <div class="tier-tagline">Air-gapped, on-prem, custom models</div>
+      <div class="tier-price">
+        <div class="price-main" style="font-size: 2rem;">Let's talk</div>
+        <div class="price-sub">Priced by deployment scope</div>
+      </div>
+      <ul class="tier-features">
+        <li><span class="chk">✓</span><span>Everything in Enterprise</span></li>
+        <li><span class="chk">✓</span><span>Air-gapped / on-prem deployment</span></li>
+        <li><span class="chk">✓</span><span>Custom fine-tuned models</span></li>
+        <li><span class="chk">✓</span><span>Custom CSL gate configuration</span></li>
+        <li><span class="chk">✓</span><span>Joint IP development options</span></li>
+        <li><span class="chk">✓</span><span>Sovereign data residency</span></li>
+        <li><span class="chk">✓</span><span>Custom SLA (down to 15 min)</span></li>
+        <li><span class="chk">✓</span><span>Dedicated engineering pod</span></li>
+        <li><span class="chk">✓</span><span>Custom patent licensing</span></li>
+        <li><span class="chk">✓</span><span>Government / FedRAMP roadmap</span></li>
+      </ul>
+      <a href="mailto:eric@headyconnection.org?subject=Custom%20Deployment%20Inquiry" class="tier-cta cta-dark">Talk to Eric →</a>
+    </div>
+
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="comparison">
+    <h2>Full Feature Comparison</h2>
+    <div style="overflow-x: auto;">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th style="width:35%">Feature</th>
+            <th>Pilot</th>
+            <th class="featured-col">Pro ★</th>
+            <th>Enterprise</th>
+            <th>Custom</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="section-head"><td colspan="5">Compute & Capacity</td></tr>
+          <tr><td>Concurrent agents</td><td>13 [fib(7)]</td><td class="highlight">34 [fib(9)]</td><td>Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>API calls/minute</td><td>144 [fib(12)]</td><td class="highlight">233 [fib(13)]</td><td>Custom</td><td>Custom</td></tr>
+          <tr><td>Storage</td><td>987 MB</td><td class="highlight">1,597 MB</td><td>Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>Vector memory slots</td><td>987 [fib(16)]</td><td class="highlight">1,597 [fib(17)]</td><td>Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>Team seats</td><td>5 [fib(5)]</td><td class="highlight">Unlimited</td><td>Unlimited</td><td>Unlimited</td></tr>
+
+          <tr class="section-head"><td colspan="5">Platform</td></tr>
+          <tr><td>heady-conductor (multi-agent)</td><td><span class="chk-green">✓</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+          <tr><td>MCP tool gateway</td><td><span class="chk-green">✓</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+          <tr><td>CSL gate routing (5 levels)</td><td><span class="chk-green">✓</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td>Custom gates</td></tr>
+          <tr><td>SHA-256 audit chain</td><td><span class="chk-green">✓</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+          <tr><td>Sacred Geometry topology</td><td><span class="chk-green">✓</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td>Custom</td></tr>
+          <tr><td>Custom MCP tools</td><td><span class="cross-muted">·</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+
+          <tr class="section-head"><td colspan="5">Security & Compliance</td></tr>
+          <tr><td>RBAC + JWT bitmask</td><td><span class="chk-green">✓</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+          <tr><td>mTLS service mesh</td><td><span class="chk-green">✓</span></td><td class="highlight"><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+          <tr><td>SAML/SSO</td><td><span class="cross-muted">·</span></td><td class="highlight"><span class="cross-muted">·</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+          <tr><td>SOC 2 Type II</td><td>In progress</td><td class="highlight">Report access</td><td>Full report</td><td>Full report</td></tr>
+          <tr><td>Custom DPA / BAA</td><td><span class="cross-muted">·</span></td><td class="highlight"><span class="cross-muted">·</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+
+          <tr class="section-head"><td colspan="5">Support</td></tr>
+          <tr><td>Support SLA</td><td>8 hours</td><td class="highlight">4 hours</td><td>1 hour P0</td><td>15 min P0</td></tr>
+          <tr><td>Uptime SLA</td><td>Best effort</td><td class="highlight">99.5%</td><td>99.9%</td><td>Custom</td></tr>
+          <tr><td>Dedicated CSM</td><td><span class="cross-muted">·</span></td><td class="highlight"><span class="cross-muted">·</span></td><td><span class="chk-green">✓</span></td><td><span class="chk-green">✓</span></td></tr>
+          <tr><td>Office hours with founder</td><td>Weekly</td><td class="highlight">Monthly</td><td>Quarterly</td><td>Dedicated</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        What is the Founder Pilot? <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>The Founder Pilot is a free, fib(11)=89-day access program for qualified non-profits, startups, and research teams. You get full Founder Tier access — 13 agents, 144 API calls/min, 987 MB storage, 5 seats — with direct access to the HeadyOS founding team. No credit card required. Limited to fib(7)=13 organizations per cohort.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        What happens after the 89-day pilot? <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>You have a fib(7)=13-day grace period with read-only access to export your data. Pilot graduates who convert to Pro within the grace period receive the <strong>Founder discount: 50% off for 12 months</strong> — $44.50/seat/mo instead of $89. After 12 months, you move to standard Pro pricing.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Why is the Enterprise tier priced at $233/seat/mo? <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>$233 = fib(13) — the 13th Fibonacci number. Every numeric parameter in HeadyOS derives from φ = 1.618033988749895 and the Fibonacci sequence, including our pricing. It's not marketing; it's architectural consistency.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        What is the fib(8)=21% annual discount? <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>Customers who commit to annual billing receive fib(8)=21% off their monthly rate. Pro annual: $89 × (1 − 0.21) = ~$70.31/seat/mo. Enterprise annual: $233 × 0.79 = ~$184/seat/mo. Charged annually upfront.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Does HeadyOS use my data to train models? <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>No. Your User Data is yours. HeadyOS will not use your prompts, outputs, or documents to train or fine-tune AI models without your explicit written consent. This is contractual, not just a policy. See the Pilot Agreement Section 7.5.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        What compliance certifications does HeadyOS have? <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>HeadyOS is GDPR and CCPA compliant today. SOC 2 Type II audit is in progress (initiated Q1 2026). HIPAA and ISO 27001 are on the roadmap. Enterprise customers receive the full security questionnaire and architecture deck under NDA.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Can I self-host HeadyOS? <span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><p>Yes, with the Custom tier. Self-hosted and air-gapped deployments are available, including on-prem, AWS, Azure, and GCP. Docker Compose and Kubernetes manifests provided. Contact eric@headyconnection.org for Custom pricing.</p></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>HeadySystems Inc. · HeadyOS™ · φ = 1.618033988749895 · 51+ USPTO provisional patents</p>
+  <p><a href="mailto:eric@headyconnection.org">eric@headyconnection.org</a> · <a href="https://headyme.com">headyme.com</a></p>
+  <p style="margin-top: 8px;"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a></p>
+</footer>
+
+<script>
+const PHI = 1.618033988749895;
+const ANNUAL_DISCOUNT = 0.21; // fib(8)=21%
+
+let billingMode = 'monthly';
+
+function setBilling(mode) {
+  billingMode = mode;
+  document.getElementById('monthly-btn').classList.toggle('active', mode === 'monthly');
+  document.getElementById('annual-btn').classList.toggle('active', mode === 'annual');
+
+  const proPrice  = mode === 'annual' ? Math.round(89 * (1 - ANNUAL_DISCOUNT)) : 89;
+  const entPrice  = mode === 'annual' ? Math.round(233 * (1 - ANNUAL_DISCOUNT)) : 233;
+
+  document.getElementById('pro-price').textContent  = proPrice;
+  document.getElementById('ent-price').textContent  = entPrice;
+  document.getElementById('pro-sub').textContent    = mode === 'annual'
+    ? `Billed annually · Save ${Math.round(89 * ANNUAL_DISCOUNT * 12)}/seat/year`
+    : 'Founder rate: $44.50/seat/mo (50% off for 12 months)';
+  document.getElementById('ent-sub').textContent    = mode === 'annual'
+    ? `fib(13)=233 base · Annual billing saves ${Math.round(233 * ANNUAL_DISCOUNT * 12)}/seat/year`
+    : 'fib(13)=233 · Billed monthly';
+}
+
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  item.classList.toggle('open');
+}
+</script>
+</body>
+</html>

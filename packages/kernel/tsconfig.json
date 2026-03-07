@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "composite": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../phi-math" },
+    { "path": "../csl-router" },
+    { "path": "../agent-identity" },
+    { "path": "../memory-stream" },
+    { "path": "../spatial-events" },
+    { "path": "../observability-kernel" },
+    { "path": "../latent-boundary" }
+  ]
+}

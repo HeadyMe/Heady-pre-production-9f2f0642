@@ -1,0 +1,109 @@
+{
+  "name": "@heady-ai/sdk",
+  "version": "1.0.0",
+  "description": "Official JavaScript/TypeScript SDK for the HeadyOS Platform and HeadyMe AI",
+  "author": "HeadySystems Inc. <sdk@headyme.com>",
+  "license": "MIT",
+  "homepage": "https://docs.headyme.com/sdk/javascript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heady-ai/sdk-javascript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/heady-ai/sdk-javascript/issues"
+  },
+  "keywords": [
+    "heady",
+    "headyos",
+    "headyme",
+    "ai",
+    "agents",
+    "multi-agent",
+    "orchestration",
+    "mcp",
+    "vector-memory",
+    "sdk"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./browser": {
+      "import": "./dist/browser.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --sourcemap",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "jest --coverage --passWithNoTests",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build && pnpm run typecheck"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "ws": "^8.16.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.16",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.ts",
+      "!src/**/*.d.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 89,
+        "lines": 89,
+        "statements": 89
+      }
+    }
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "format": ["cjs", "esm"],
+    "dts": true,
+    "splitting": false,
+    "sourcemap": true,
+    "clean": true,
+    "target": "node20"
+  }
+}

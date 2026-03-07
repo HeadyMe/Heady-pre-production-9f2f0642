@@ -1,0 +1,731 @@
+/**
+ * HeadySystems Sacred Geometry Design System
+ * A4 Design Tokens — v1.0.0
+ *
+ * Built on the Golden Ratio φ = 1.618033988749895
+ * and the Fibonacci sequence: 1,1,2,3,5,8,13,21,34,55,89,144,233
+ *
+ * Architecture:
+ *   - φ-derived spacing scale (Fibonacci × 1px)
+ *   - Golden ratio typography scale
+ *   - Dark premium color system
+ *   - Per-vertical accent overrides
+ *   - Glassmorphism shadow/blur tokens
+ *   - Fibonacci breakpoints
+ *
+ * Usage:
+ *   <link rel="stylesheet" href="design-tokens.css">
+ *   Override per vertical by setting CSS custom properties on :root
+ *   or a scoped selector (e.g., [data-vertical="health"])
+ */
+
+/* ─────────────────────────────────────────────────────────────
+   1. SACRED GEOMETRY CONSTANTS
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Golden Ratio */
+  --phi: 1.618033988749895;
+  --phi-inv: 0.6180339887498949;       /* 1 / φ */
+  --phi-sq: 2.6180339887498953;        /* φ² */
+  --phi-cu: 4.23606797749979;          /* φ³ */
+
+  /* Fibonacci raw values (unitless) */
+  --fib-1:  1;
+  --fib-2:  1;
+  --fib-3:  2;
+  --fib-4:  3;
+  --fib-5:  5;
+  --fib-6:  8;
+  --fib-7:  13;
+  --fib-8:  21;
+  --fib-9:  34;
+  --fib-10: 55;
+  --fib-11: 89;
+  --fib-12: 144;
+  --fib-13: 233;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   2. φ-DERIVED SPACING SCALE
+   Fibonacci sequence × 1px → 13 spacing steps
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --space-1:  1px;
+  --space-2:  1px;   /* fib(1) and fib(2) both = 1; alias as hair / border */
+  --space-3:  2px;
+  --space-4:  3px;
+  --space-5:  5px;
+  --space-6:  8px;
+  --space-7:  13px;
+  --space-8:  21px;
+  --space-9:  34px;
+  --space-10: 55px;
+  --space-11: 89px;
+  --space-12: 144px;
+  --space-13: 233px;
+
+  /* Semantic aliases */
+  --space-xs:  var(--space-5);    /* 5px  */
+  --space-sm:  var(--space-6);    /* 8px  */
+  --space-md:  var(--space-7);    /* 13px */
+  --space-lg:  var(--space-8);    /* 21px */
+  --space-xl:  var(--space-9);    /* 34px */
+  --space-2xl: var(--space-10);   /* 55px */
+  --space-3xl: var(--space-11);   /* 89px */
+  --space-4xl: var(--space-12);   /* 144px */
+  --space-5xl: var(--space-13);   /* 233px */
+
+  /* Section / page rhythm */
+  --section-padding-y:     var(--space-11);   /* 89px vertical padding */
+  --section-padding-x:     var(--space-8);    /* 21px horizontal padding */
+  --container-max-width:   1597px;             /* fib(17) — largest breakpoint */
+  --container-padding:     var(--space-8);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   3. GOLDEN RATIO GRID SYSTEM
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Column count options — Fibonacci-friendly */
+  --grid-cols-2:  2;
+  --grid-cols-3:  3;
+  --grid-cols-5:  5;
+  --grid-cols-8:  8;
+  --grid-cols-13: 13;
+
+  /* Golden ratio split ratios for two-column layouts */
+  --grid-golden-major: 61.8%;     /* φ/(φ+1) = 1/φ² ≈ 0.618 */
+  --grid-golden-minor: 38.2%;     /* 1 - 61.8% */
+
+  /* Gap scale (uses Fibonacci spacing) */
+  --grid-gap-sm: var(--space-7);  /* 13px */
+  --grid-gap-md: var(--space-8);  /* 21px */
+  --grid-gap-lg: var(--space-9);  /* 34px */
+  --grid-gap-xl: var(--space-10); /* 55px */
+
+  /* Card / feature grid — default 3-col @ desktop */
+  --feature-grid-cols: 3;
+  --feature-grid-gap:  var(--space-8);
+
+  /* Pricing grid — always 3 tiers */
+  --pricing-grid-cols: 3;
+  --pricing-grid-gap:  var(--space-8);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   4. COLOR SYSTEM — DARK PREMIUM PALETTE
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* ── Surface scale (dark backgrounds) ── */
+  --color-surface-0:   #080c14;    /* deepest background */
+  --color-surface-1:   #0a0e17;    /* primary background */
+  --color-surface-2:   #0d1321;    /* card / panel background */
+  --color-surface-3:   #131a2e;    /* elevated card */
+  --color-surface-4:   #1a2340;    /* highest elevation surface */
+  --color-surface-5:   #202c50;    /* nav / modal overlay */
+
+  /* ── Borders ── */
+  --color-border-subtle:   rgba(255,255,255,0.04);
+  --color-border-default:  rgba(255,255,255,0.08);
+  --color-border-strong:   rgba(255,255,255,0.14);
+  --color-border-accent:   rgba(32,128,141,0.35);
+
+  /* ── Text ── */
+  --color-text-primary:    rgba(255,255,255,0.95);
+  --color-text-secondary:  rgba(255,255,255,0.65);
+  --color-text-muted:      rgba(255,255,255,0.38);
+  --color-text-disabled:   rgba(255,255,255,0.22);
+  --color-text-inverse:    #080c14;
+
+  /* ── Accent: Teal (default brand) ── */
+  --color-accent-teal-dark:    #196870;
+  --color-accent-teal:         #20808d;
+  --color-accent-teal-mid:     #29a0af;
+  --color-accent-teal-light:   #2dd4bf;
+  --color-accent-teal-glow:    rgba(45,212,191,0.18);
+  --color-accent-teal-glass:   rgba(45,212,191,0.08);
+
+  /* ── Accent: Gold ── */
+  --color-accent-gold-dark:    #a07c28;
+  --color-accent-gold:         #d4a843;
+  --color-accent-gold-light:   #fbbf24;
+  --color-accent-gold-glow:    rgba(251,191,36,0.18);
+  --color-accent-gold-glass:   rgba(251,191,36,0.08);
+
+  /* ── Accent: Violet ── */
+  --color-accent-violet-dark:  #6d3ae2;
+  --color-accent-violet:       #8b5cf6;
+  --color-accent-violet-light: #a78bfa;
+  --color-accent-violet-glow:  rgba(139,92,246,0.18);
+  --color-accent-violet-glass: rgba(139,92,246,0.08);
+
+  /* ── Semantic status colors ── */
+  --color-success:  #22c55e;
+  --color-warning:  #f59e0b;
+  --color-error:    #ef4444;
+  --color-info:     #3b82f6;
+
+  /* ── Default active accent (teal) — override per vertical ── */
+  --color-accent:           var(--color-accent-teal);
+  --color-accent-light:     var(--color-accent-teal-light);
+  --color-accent-glow:      var(--color-accent-teal-glow);
+  --color-accent-glass:     var(--color-accent-teal-glass);
+  --color-accent-border:    var(--color-border-accent);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   5. PER-VERTICAL ACCENT OVERRIDES
+   Apply by adding data-vertical attribute to <html> or <body>
+   ───────────────────────────────────────────────────────────── */
+
+/* HeadyMe — Personal productivity, health, wellness → Teal (default) */
+[data-vertical="headyme"],
+[data-vertical="health"],
+[data-vertical="wellness"] {
+  --color-accent:        var(--color-accent-teal);
+  --color-accent-light:  var(--color-accent-teal-light);
+  --color-accent-glow:   var(--color-accent-teal-glow);
+  --color-accent-glass:  var(--color-accent-teal-glass);
+  --color-accent-border: rgba(32,128,141,0.35);
+}
+
+/* HeadyOS — AI operating system → Violet */
+[data-vertical="headyos"],
+[data-vertical="os"],
+[data-vertical="platform"] {
+  --color-accent:        var(--color-accent-violet);
+  --color-accent-light:  var(--color-accent-violet-light);
+  --color-accent-glow:   var(--color-accent-violet-glow);
+  --color-accent-glass:  var(--color-accent-violet-glass);
+  --color-accent-border: rgba(139,92,246,0.35);
+}
+
+/* HeadySystems — Enterprise / infrastructure → Gold */
+[data-vertical="headysystems"],
+[data-vertical="enterprise"],
+[data-vertical="infrastructure"] {
+  --color-accent:        var(--color-accent-gold);
+  --color-accent-light:  var(--color-accent-gold-light);
+  --color-accent-glow:   var(--color-accent-gold-glow);
+  --color-accent-glass:  var(--color-accent-gold-glass);
+  --color-accent-border: rgba(212,168,67,0.35);
+}
+
+/* HeadyAI — AI/ML products → Violet + teal */
+[data-vertical="headyai"],
+[data-vertical="ai"],
+[data-vertical="ml"] {
+  --color-accent:        var(--color-accent-violet);
+  --color-accent-light:  #c4b5fd;
+  --color-accent-glow:   rgba(139,92,246,0.22);
+  --color-accent-glass:  rgba(139,92,246,0.1);
+  --color-accent-border: rgba(139,92,246,0.4);
+  --color-surface-3:     #16123a;
+  --color-surface-4:     #1e1852;
+}
+
+/* HeadyConnection — Community / network → Teal warm */
+[data-vertical="headyconnection"],
+[data-vertical="community"],
+[data-vertical="network"] {
+  --color-accent:        #2dd4bf;
+  --color-accent-light:  #5eead4;
+  --color-accent-glow:   rgba(45,212,191,0.2);
+  --color-accent-glass:  rgba(45,212,191,0.09);
+  --color-accent-border: rgba(45,212,191,0.32);
+}
+
+/* Heady.Exchange — Finance/trading → Gold */
+[data-vertical="exchange"],
+[data-vertical="trading"],
+[data-vertical="finance"] {
+  --color-accent:        var(--color-accent-gold);
+  --color-accent-light:  var(--color-accent-gold-light);
+  --color-accent-glow:   rgba(212,168,67,0.22);
+  --color-accent-glass:  rgba(212,168,67,0.1);
+  --color-accent-border: rgba(212,168,67,0.4);
+  --color-surface-1:     #0c0e08;
+  --color-surface-2:     #100e0a;
+  --color-surface-3:     #181408;
+}
+
+/* Heady.Investments — Investment / wealth → Gold premium */
+[data-vertical="investments"],
+[data-vertical="wealth"] {
+  --color-accent:        #e6c060;
+  --color-accent-light:  #fcd65a;
+  --color-accent-glow:   rgba(230,192,96,0.2);
+  --color-accent-glass:  rgba(230,192,96,0.09);
+  --color-accent-border: rgba(230,192,96,0.38);
+  --color-surface-1:     #0d0b06;
+  --color-surface-2:     #110f07;
+  --color-surface-3:     #191508;
+}
+
+/* Legal vertical */
+[data-vertical="legal"] {
+  --color-accent:        #94a3b8;
+  --color-accent-light:  #cbd5e1;
+  --color-accent-glow:   rgba(148,163,184,0.18);
+  --color-accent-glass:  rgba(148,163,184,0.08);
+  --color-accent-border: rgba(148,163,184,0.28);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   6. TYPOGRAPHY
+   Inter (body), Outfit (headings), Berkeley Mono (code)
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Font family stack */
+  --font-body:     'Inter', 'Inter Fallback', system-ui, -apple-system, sans-serif;
+  --font-heading:  'Outfit', 'Outfit Fallback', 'Inter', system-ui, sans-serif;
+  --font-code:     'Berkeley Mono', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  --font-display:  'Outfit', var(--font-heading);
+
+  /* Type scale — Golden Ratio × 16px base
+     Each step = prev × φ (≈1.618)
+     Base: 16px
+     Step -2: 16 / φ² = 6.1px → 6px   (micro)
+     Step -1: 16 / φ  = 9.9px → 10px  (caption)
+     Step  0: 16px               16px  (body base)
+     Step +1: 16 × φ  = 25.9px → 26px (body-lg / h6)
+     Step +2: 16 × φ² = 41.9px → 42px (h5)
+     Step +3: 16 × φ³ = 67.8px → 68px (h4)
+     Step +4: 16 × φ⁴ = 109.7px → 110px (h3)
+     ...tamed for UI:
+  */
+
+  /* Practical UI scale (φ-derived but capped for readability) */
+  --text-xs:    0.625rem;    /* 10px  — labels, captions */
+  --text-sm:    0.8125rem;   /* 13px  — secondary text (fib-7) */
+  --text-base:  1rem;        /* 16px  — body */
+  --text-md:    1.0625rem;   /* 17px  — body alternate */
+  --text-lg:    1.3125rem;   /* 21px  — large body (fib-8) */
+  --text-xl:    1.375rem;    /* 22px  — subheadings */
+  --text-2xl:   1.75rem;     /* 28px  — h5 / card heading */
+  --text-3xl:   2.125rem;    /* 34px  — h4 (fib-9) */
+  --text-4xl:   2.75rem;     /* 44px  — h3 */
+  --text-5xl:   3.4375rem;   /* 55px  — h2 (fib-10) */
+  --text-6xl:   4.5rem;      /* 72px  — h1 */
+  --text-7xl:   5.5625rem;   /* 89px  — hero display (fib-11) */
+  --text-8xl:   9rem;        /* 144px — super display (fib-12) */
+
+  /* Line heights */
+  --leading-none:   1;
+  --leading-tight:  1.2;
+  --leading-snug:   1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.618;   /* = φ — perfect for body text */
+  --leading-loose:  1.9;
+
+  /* Letter spacing */
+  --tracking-tighter: -0.04em;
+  --tracking-tight:   -0.02em;
+  --tracking-normal:   0em;
+  --tracking-wide:     0.04em;
+  --tracking-wider:    0.08em;
+  --tracking-widest:   0.16em;
+
+  /* Font weights */
+  --weight-light:    300;
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-extrabold:800;
+  --weight-black:    900;
+}
+
+/* Google Fonts import — must be first CSS import or in <head> link */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Berkeley Mono — commercial font; fallback stack provided above */
+/* To use Berkeley Mono, host the font files and @font-face here:  */
+/*
+@font-face {
+  font-family: 'Berkeley Mono';
+  src: url('/fonts/BerkeleyMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Berkeley Mono';
+  src: url('/fonts/BerkeleyMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+*/
+
+/* ─────────────────────────────────────────────────────────────
+   7. BORDER RADIUS
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --radius-none:   0px;
+  --radius-sm:     3px;      /* fib-4: subtle rounding */
+  --radius-md:     5px;      /* fib-5 */
+  --radius-lg:     8px;      /* fib-6 */
+  --radius-xl:     13px;     /* fib-7 */
+  --radius-2xl:    21px;     /* fib-8 */
+  --radius-3xl:    34px;     /* fib-9 */
+  --radius-full:   9999px;   /* pill / circle */
+
+  /* Component defaults */
+  --radius-card:   var(--radius-xl);    /* 13px */
+  --radius-button: var(--radius-lg);    /* 8px  */
+  --radius-input:  var(--radius-lg);    /* 8px  */
+  --radius-badge:  var(--radius-full);
+  --radius-modal:  var(--radius-2xl);   /* 21px */
+  --radius-nav:    var(--radius-lg);    /* 8px  */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   8. SHADOWS & GLASSMORPHISM
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Standard elevation shadows */
+  --shadow-xs:   0 1px 2px rgba(0,0,0,0.4);
+  --shadow-sm:   0 2px 5px rgba(0,0,0,0.45);
+  --shadow-md:   0 5px 13px rgba(0,0,0,0.5), 0 2px 5px rgba(0,0,0,0.35);
+  --shadow-lg:   0 8px 21px rgba(0,0,0,0.55), 0 3px 8px rgba(0,0,0,0.4);
+  --shadow-xl:   0 13px 34px rgba(0,0,0,0.6), 0 5px 13px rgba(0,0,0,0.45);
+  --shadow-2xl:  0 21px 55px rgba(0,0,0,0.65), 0 8px 21px rgba(0,0,0,0.5);
+  --shadow-3xl:  0 34px 89px rgba(0,0,0,0.7), 0 13px 34px rgba(0,0,0,0.55);
+
+  /* Glow shadows — colored by current accent */
+  --shadow-glow-sm:  0 0 13px var(--color-accent-glow);
+  --shadow-glow-md:  0 0 21px var(--color-accent-glow), 0 0 8px var(--color-accent-glow);
+  --shadow-glow-lg:  0 0 34px var(--color-accent-glow), 0 0 13px var(--color-accent-glow);
+  --shadow-glow-xl:  0 0 55px var(--color-accent-glow), 0 0 21px var(--color-accent-glow), 0 0 8px var(--color-accent-glass);
+
+  /* Glassmorphism presets */
+  --glass-bg-light:   rgba(255,255,255,0.04);
+  --glass-bg-medium:  rgba(255,255,255,0.06);
+  --glass-bg-strong:  rgba(255,255,255,0.09);
+  --glass-blur-sm:    blur(8px);
+  --glass-blur-md:    blur(13px);
+  --glass-blur-lg:    blur(21px);
+  --glass-blur-xl:    blur(34px);
+  --glass-border:     1px solid rgba(255,255,255,0.08);
+  --glass-border-accent: 1px solid var(--color-accent-border);
+
+  /* Complete glass card preset */
+  --glass-card:
+    background: var(--glass-bg-medium),
+    backdrop-filter: var(--glass-blur-md),
+    border: var(--glass-border);
+
+  /* Inner highlight (top edge shine) */
+  --glass-inset-highlight: inset 0 1px 0 rgba(255,255,255,0.08);
+
+  /* Noise texture overlay (apply as pseudo-element background) */
+  --noise-opacity: 0.03;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   9. TRANSITIONS & EASING
+   φ-based durations: 144ms, 233ms, 377ms, 610ms (Fibonacci × 1ms)
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Duration scale */
+  --duration-instant:    55ms;
+  --duration-fast:       89ms;
+  --duration-normal:     144ms;
+  --duration-moderate:   233ms;
+  --duration-slow:       377ms;
+  --duration-deliberate: 610ms;
+  --duration-dramatic:   987ms;
+
+  /* φ-inspired cubic-bezier easing functions */
+  /* "Golden ease out" — starts fast, slows to golden deceleration */
+  --ease-golden-out:   cubic-bezier(0.236, 0.618, 0.382, 1.0);
+  /* "Golden ease in" */
+  --ease-golden-in:    cubic-bezier(0.618, 0.0, 0.764, 0.382);
+  /* "Golden ease in-out" — symmetric φ curve */
+  --ease-golden:       cubic-bezier(0.382, 0.0, 0.618, 1.0);
+  /* "Spring" — slight overshoot */
+  --ease-spring:       cubic-bezier(0.34, 1.56, 0.64, 1.0);
+  /* "Crisp" — for micro interactions */
+  --ease-crisp:        cubic-bezier(0.2, 0.0, 0.0, 1.0);
+
+  /* Shorthand transition presets */
+  --transition-fast:     all var(--duration-fast) var(--ease-golden-out);
+  --transition-default:  all var(--duration-normal) var(--ease-golden-out);
+  --transition-moderate: all var(--duration-moderate) var(--ease-golden);
+  --transition-slow:     all var(--duration-slow) var(--ease-golden);
+
+  /* Component-specific transitions */
+  --transition-color:    color var(--duration-normal) var(--ease-golden-out),
+                         background-color var(--duration-normal) var(--ease-golden-out),
+                         border-color var(--duration-normal) var(--ease-golden-out);
+  --transition-transform: transform var(--duration-normal) var(--ease-golden-out);
+  --transition-opacity:  opacity var(--duration-normal) var(--ease-golden-out);
+  --transition-shadow:   box-shadow var(--duration-normal) var(--ease-golden-out);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   10. FIBONACCI BREAKPOINTS
+   Values: 233, 377, 610, 987, 1597 (Fibonacci sequence)
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Breakpoint reference values (use in @media queries) */
+  --bp-xs:  233px;    /* fib(13) — extra small / watch */
+  --bp-sm:  377px;    /* fib(14) — small / mobile portrait */
+  --bp-md:  610px;    /* fib(15) — medium / mobile landscape */
+  --bp-lg:  987px;    /* fib(16) — large / tablet landscape */
+  --bp-xl: 1597px;    /* fib(17) — extra large / wide desktop */
+}
+
+/*
+  Breakpoint media query reference:
+  @media (min-width: 233px)  { ... }  // fib-13: extra small
+  @media (min-width: 377px)  { ... }  // fib-14: small / mobile
+  @media (min-width: 610px)  { ... }  // fib-15: medium / tablet portrait
+  @media (min-width: 987px)  { ... }  // fib-16: large / desktop
+  @media (min-width: 1597px) { ... }  // fib-17: extra large / wide
+*/
+
+/* ─────────────────────────────────────────────────────────────
+   11. Z-INDEX SCALE
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --z-below:    -1;
+  --z-base:      0;
+  --z-raised:    1;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-fixed:    300;
+  --z-overlay:  400;
+  --z-modal:    500;
+  --z-toast:    600;
+  --z-tooltip:  700;
+  --z-max:      999;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   12. COMPONENT SIZE TOKENS
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Button heights */
+  --btn-height-sm:  var(--space-10);   /* 34px */
+  --btn-height-md:  var(--space-11);   /* 55px — φ × 34 */
+  --btn-height-lg:  var(--space-12);   /* 89px — but usually cap at 55 for normal buttons */
+  --btn-height-default: 44px;          /* accessible touch target */
+
+  /* Input heights */
+  --input-height-sm:  34px;
+  --input-height-md:  44px;
+  --input-height-lg:  55px;
+
+  /* Nav height */
+  --nav-height:  var(--space-11);      /* 89px — φ × 55 */
+  --nav-height-mobile: 55px;
+
+  /* Icon sizes */
+  --icon-xs:  13px;
+  --icon-sm:  21px;
+  --icon-md:  34px;
+  --icon-lg:  55px;
+  --icon-xl:  89px;
+
+  /* Avatar sizes */
+  --avatar-sm:  var(--space-10);       /* 34px */
+  --avatar-md:  var(--space-11);       /* 55px */
+  --avatar-lg:  var(--space-12);       /* 89px */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   13. GRADIENT TOKENS
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Primary dark gradients */
+  --gradient-surface:
+    linear-gradient(
+      135deg,
+      var(--color-surface-1) 0%,
+      var(--color-surface-3) 61.8%,
+      var(--color-surface-2) 100%
+    );
+
+  /* Accent radial glow (used for hero backgrounds) */
+  --gradient-accent-radial:
+    radial-gradient(
+      ellipse 80% 50% at 50% 0%,
+      var(--color-accent-glow) 0%,
+      transparent 60%
+    );
+
+  /* Hero overlay gradient */
+  --gradient-hero-overlay:
+    linear-gradient(
+      180deg,
+      rgba(8,12,20,0.0) 0%,
+      rgba(8,12,20,0.6) 61.8%,
+      rgba(8,12,20,0.95) 100%
+    );
+
+  /* Card shimmer animation gradient */
+  --gradient-shimmer:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,0.04) 50%,
+      transparent 100%
+    );
+
+  /* Sacred geometry subtle pattern overlay */
+  --gradient-sacred:
+    conic-gradient(
+      from 0deg at 50% 50%,
+      rgba(255,255,255,0.02) 0deg,
+      transparent 60deg,
+      rgba(255,255,255,0.015) 120deg,
+      transparent 180deg,
+      rgba(255,255,255,0.02) 240deg,
+      transparent 300deg,
+      rgba(255,255,255,0.02) 360deg
+    );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   14. BASE RESET & GLOBAL DEFAULTS
+   ───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-1);
+  background-image: var(--gradient-surface);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Headings — Outfit font */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+h1 { font-size: var(--text-6xl); letter-spacing: var(--tracking-tighter); }
+h2 { font-size: var(--text-5xl); }
+h3 { font-size: var(--text-4xl); }
+h4 { font-size: var(--text-3xl); }
+h5 { font-size: var(--text-2xl); }
+h6 { font-size: var(--text-xl);  }
+
+/* Code — Berkeley Mono */
+code, pre, kbd, samp {
+  font-family: var(--font-code);
+  font-size: 0.9em;
+}
+
+/* Links */
+a {
+  color: var(--color-accent-light);
+  text-decoration: none;
+  transition: var(--transition-color);
+}
+a:hover {
+  color: var(--color-text-primary);
+}
+
+/* Responsive typography adjustments */
+@media (max-width: 987px) {
+  h1 { font-size: var(--text-5xl); }
+  h2 { font-size: var(--text-4xl); }
+  h3 { font-size: var(--text-3xl); }
+}
+
+@media (max-width: 610px) {
+  h1 { font-size: var(--text-4xl); }
+  h2 { font-size: var(--text-3xl); }
+  h3 { font-size: var(--text-2xl); }
+  h4 { font-size: var(--text-xl); }
+  :root {
+    --section-padding-y: var(--space-10);   /* 55px on mobile */
+    --section-padding-x: var(--space-7);    /* 13px on mobile */
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   15. UTILITY CLASSES
+   ───────────────────────────────────────────────────────────── */
+
+/* Container */
+.heady-container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+/* Section wrapper */
+.heady-section {
+  padding-block: var(--section-padding-y);
+}
+
+/* Accent text */
+.text-accent   { color: var(--color-accent); }
+.text-accent-light { color: var(--color-accent-light); }
+.text-gold     { color: var(--color-accent-gold); }
+.text-violet   { color: var(--color-accent-violet); }
+.text-muted    { color: var(--color-text-secondary); }
+
+/* Gradient text */
+.text-gradient-teal {
+  background: linear-gradient(135deg, var(--color-accent-teal) 0%, var(--color-accent-teal-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-gold {
+  background: linear-gradient(135deg, var(--color-accent-gold) 0%, var(--color-accent-gold-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-violet {
+  background: linear-gradient(135deg, var(--color-accent-violet) 0%, var(--color-accent-violet-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass surface utility */
+.glass {
+  background: var(--glass-bg-medium);
+  backdrop-filter: var(--glass-blur-md);
+  -webkit-backdrop-filter: var(--glass-blur-md);
+  border: var(--glass-border);
+  box-shadow: var(--glass-inset-highlight);
+}
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+  border: var(--glass-border);
+  box-shadow: var(--glass-inset-highlight);
+}
+
+/* Glow utility */
+.glow-accent { box-shadow: var(--shadow-glow-md); }
+.glow-accent-lg { box-shadow: var(--shadow-glow-lg); }

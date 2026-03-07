@@ -1,0 +1,115 @@
+# =============================================================================
+# HeadySystems Inc. — HPA: heady-brain
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# minReplicas: fib(4) = 3
+# maxReplicas: fib(7) = 13
+# scaleUp stabilization:  fib(7)=13 × φ^2 ≈ 34s (fib(9)=34)
+# scaleDown stabilization: fib(10)=55 × φ^2 ≈ 144s (fib(12)=144)
+# CPU target: 61.8% (φ-1 = 0.618 → 61.8%)
+# Memory target: 76.4% (φ^2-φ-0.118 → ~0.764)
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-brain-hpa
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-brain
+    app.kubernetes.io/component: hpa
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    headysystems.com/description: "HPA for heady-brain — φ-governed autoscaling"
+    headysystems.com/min-replicas-derivation: "fib(4)=3"
+    headysystems.com/max-replicas-derivation: "fib(7)=13"
+    headysystems.com/cpu-target-derivation: "φ-1=0.618 → 61.8% CPU target"
+    headysystems.com/memory-target-derivation: "0.764 from alert threshold caution level"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-brain
+
+  # minReplicas: fib(4) = 3
+  minReplicas: 3
+  # maxReplicas: fib(7) = 13
+  maxReplicas: 13
+
+  metrics:
+    # CPU target: φ-1 = 0.618 → 61.8% utilization
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          # 61.8% = (φ-1) × 100 — golden ratio minus 1
+          averageUtilization: 62
+
+    # Memory target: 76.4% utilization (caution threshold from context brief)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          # 76.4% = φ²/φ ratio derived threshold (caution alert level)
+          averageUtilization: 76
+
+    # Custom metric: requests per second (Prometheus)
+    # Target: fib(12)=144 req/s per pod
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          # fib(12) = 144 requests/second per pod
+          averageValue: "144"
+
+    # Queue depth metric
+    # Target: fib(9)=34 pending items per pod
+    - type: Pods
+      pods:
+        metric:
+          name: agent_queue_depth
+        target:
+          type: AverageValue
+          # fib(9) = 34 queue items per pod
+          averageValue: "34"
+
+  behavior:
+    scaleUp:
+      # Stabilization window: fib(9)=34 seconds
+      # (φ^2=2.618, base=13s → 13×2.618≈34s)
+      stabilizationWindowSeconds: 34
+      policies:
+        # Scale up by fib(4)=3 pods at a time
+        - type: Pods
+          value: 3
+          # Every fib(5)=5 × 3s = 15s
+          periodSeconds: 15
+        # Or scale up 38.2% at a time (1-φ+1=0.382 of current)
+        - type: Percent
+          value: 38
+          periodSeconds: 15
+      # selectPolicy: Max — use the policy that scales up faster
+      selectPolicy: Max
+
+    scaleDown:
+      # Stabilization window: fib(12)=144 seconds (conservative scale-down)
+      # (prevents thrashing — 2.4 minutes of stability before scaling down)
+      stabilizationWindowSeconds: 144
+      policies:
+        # Scale down by fib(3)=2 pods at a time (conservative)
+        - type: Pods
+          value: 2
+          # Every fib(8)=21 × 3s = 63s (fib(8)=21)
+          periodSeconds: 63
+        # Or 23.6% at a time (1-φ+0.236 threshold)
+        - type: Percent
+          value: 23
+          periodSeconds: 63
+      # selectPolicy: Min — use the policy that scales down slower
+      selectPolicy: Min

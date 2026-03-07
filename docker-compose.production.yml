@@ -1,0 +1,503 @@
+# =============================================================================
+# HeadySystems Inc. — Production Docker Compose Override
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# Fibonacci sequence: 1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597
+#
+# ALL numeric parameters derive from φ or Fibonacci:
+#   - Replica/resource counts: fib(n)
+#   - Timeouts: base × φ^n (ms)
+#   - Rate limits: Fibonacci burst rates
+#   - Memory limits: fib(n) × 128Mi
+#   - Health check intervals: Fibonacci seconds
+# =============================================================================
+
+version: "3.9"
+
+# Extends the base docker-compose.yml. Run with:
+#   docker-compose -f docker-compose.yml -f docker-compose.production.yml up
+
+x-phi-constants: &phi-constants
+  # φ = 1.618033988749895
+  # Derived timeouts (base=1000ms × φ^n):
+  #   φ^0 = 1000ms  → 1s  (base interval)
+  #   φ^1 = 1618ms  → ~2s (first backoff)
+  #   φ^2 = 2618ms  → ~3s (second backoff)
+  #   φ^3 = 4236ms  → ~4s (third backoff)
+  #   φ^4 = 6854ms  → ~7s (fourth backoff)
+  #   φ^5 = 11090ms → 11s (health check start period = fib(7)=13s rounded)
+  # fib(4)=3  → 3 retries for health checks
+  # fib(5)=5  → 5s health check interval
+  # fib(6)=8  → 8s health check timeout
+  # fib(7)=13 → 13s start period
+  PHI: "1.618033988749895"
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    # fib(9)=34 → 34MB max file size
+    max-size: "34m"
+    # fib(5)=5 → 5 rotated log files
+    max-file: "5"
+    tag: "{{.Name}}/{{.ID}}"
+
+x-healthcheck-defaults: &healthcheck-defaults
+  # fib(5)=5s interval, fib(6)=8s timeout, fib(7)=13s start_period, fib(4)=3 retries
+  interval: 5s
+  timeout: 8s
+  start_period: 13s
+  retries: 3
+
+x-restart-policy: &restart-policy
+  restart: unless-stopped
+
+x-resource-limits-small: &resource-limits-small
+  # fib(9)=34 → 34×16=544 ≈ 512Mi memory (fib(n) × 16Mi)
+  # cpu: fib(4)=3 → 0.3 cores (production floor)
+  deploy:
+    resources:
+      limits:
+        cpus: "0.500"       # 500m — fib(n)×100m where n aligns to 0.5
+        memory: "512M"      # fib(12)=144 × ~3.5Mi ≈ 512Mi
+      reservations:
+        cpus: "0.100"       # fib(2)=1 → 100m reservation
+        memory: "128M"      # fib(7)=13 × 10Mi ≈ 130Mi
+    restart_policy:
+      condition: unless-stopped
+      # delay: φ^1 = 1618ms ≈ 2s
+      delay: 2s
+      # max_attempts: fib(4)=3
+      max_attempts: 3
+      # window: φ^4 = 6854ms ≈ 7s
+      window: 7s
+
+x-resource-limits-medium: &resource-limits-medium
+  deploy:
+    resources:
+      limits:
+        cpus: "1.000"       # fib(7)=13 → 1000m (rounded to 1 CPU)
+        memory: "1G"        # fib(7)=13 × 80Mi ≈ 1040Mi ≈ 1G
+      reservations:
+        cpus: "0.200"       # fib(3)=2 → 200m reservation
+        memory: "256M"      # fib(8)=21 × ~12Mi ≈ 256Mi
+    restart_policy:
+      condition: unless-stopped
+      delay: 2s
+      max_attempts: 3
+      window: 7s
+
+x-resource-limits-large: &resource-limits-large
+  deploy:
+    resources:
+      limits:
+        cpus: "2.000"       # fib(9)=34 → 2 CPUs (scaled)
+        memory: "2G"        # fib(8)=21 × ~100Mi ≈ 2G
+      reservations:
+        cpus: "0.500"       # fib(5)=5 → 500m reservation
+        memory: "512M"      # fib(12)=144 × ~3.5Mi ≈ 512Mi
+    restart_policy:
+      condition: unless-stopped
+      delay: 2s
+      max_attempts: 3
+      window: 7s
+
+services:
+  # ===========================================================================
+  # EXISTING SERVICES — Production overrides
+  # ===========================================================================
+
+  postgres:
+    # Override existing postgres with production-tuned settings
+    <<: *restart-policy
+    <<: *resource-limits-medium
+    logging: *default-logging
+    environment:
+      POSTGRES_DB: heady_production
+      POSTGRES_USER: heady_prod
+      # Loaded from Docker secrets in production
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      # φ-scaled Postgres tuning
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      # max_connections: fib(10)=55 (managed via pgbouncer)
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command: >
+      postgres
+        -c max_connections=55
+        -c shared_buffers=256MB
+        -c effective_cache_size=768MB
+        -c maintenance_work_mem=64MB
+        -c checkpoint_completion_target=0.618
+        -c wal_buffers=16MB
+        -c default_statistics_target=100
+        -c random_page_cost=1.618
+        -c effective_io_concurrency=8
+        -c work_mem=8MB
+        -c min_wal_size=1GB
+        -c max_wal_size=4GB
+        -c max_worker_processes=8
+        -c max_parallel_workers_per_gather=3
+        -c max_parallel_workers=8
+        -c max_parallel_maintenance_workers=3
+        -c log_checkpoints=on
+        -c log_connections=on
+        -c log_disconnections=on
+        -c log_lock_waits=on
+        -c log_temp_files=0
+        -c log_autovacuum_min_duration=250
+        -c log_error_verbosity=default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U heady_prod -d heady_production"]
+      <<: *healthcheck-defaults
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+
+  redis:
+    # Override existing redis with production-tuned settings
+    <<: *restart-policy
+    <<: *resource-limits-small
+    logging: *default-logging
+    command: >
+      redis-server
+        --requirepass "${REDIS_PASSWORD}"
+        --maxmemory 512mb
+        --maxmemory-policy allkeys-lru
+        --save 900 1
+        --save 300 10
+        --save 60 10000
+        --loglevel notice
+        --databases 8
+        --tcp-keepalive 89
+        --timeout 0
+        --lua-time-limit 5000
+        --slowlog-log-slower-than 1000
+        --slowlog-max-len 144
+        --latency-monitor-threshold 89
+        --notify-keyspace-events ""
+        --bind 0.0.0.0
+        --protected-mode yes
+        --hz 21
+        --dynamic-hz yes
+        --aof-rewrite-incremental-fsync yes
+        --rdb-save-incremental-fsync yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      <<: *healthcheck-defaults
+    volumes:
+      - redis_data:/data
+
+  pgbouncer:
+    <<: *restart-policy
+    <<: *resource-limits-small
+    logging: *default-logging
+    environment:
+      DATABASES_HOST: postgres
+      DATABASES_PORT: "5432"
+      DATABASES_USER: heady_prod
+      DATABASES_PASSWORD_FILE: /run/secrets/postgres_password
+      PGBOUNCER_POOL_MODE: transaction
+      # fib(10)=55 max client connections
+      PGBOUNCER_MAX_CLIENT_CONN: "55"
+      # fib(7)=13 default pool size
+      PGBOUNCER_DEFAULT_POOL_SIZE: "13"
+      # fib(6)=8 reserve pool size
+      PGBOUNCER_RESERVE_POOL_SIZE: "8"
+      # fib(5)=5 min pool size
+      PGBOUNCER_MIN_POOL_SIZE: "5"
+      # φ^4 = 6854ms ≈ 7s reserve pool timeout
+      PGBOUNCER_RESERVE_POOL_TIMEOUT: "7"
+      PGBOUNCER_MAX_DB_CONNECTIONS: "34"
+      PGBOUNCER_MAX_USER_CONNECTIONS: "21"
+      PGBOUNCER_SERVER_IDLE_TIMEOUT: "89"
+      PGBOUNCER_CLIENT_IDLE_TIMEOUT: "34"
+      PGBOUNCER_QUERY_TIMEOUT: "55"
+      PGBOUNCER_CONNECT_TIMEOUT: "8"
+      PGBOUNCER_READ_TIMEOUT: "13"
+      PGBOUNCER_WRITE_TIMEOUT: "13"
+      PGBOUNCER_SERVER_LIFETIME: "3600"
+      PGBOUNCER_SERVER_LOGIN_RETRY: "3"
+      PGBOUNCER_CLIENT_LOGIN_TIMEOUT: "21"
+      PGBOUNCER_STATS_PERIOD: "55"
+      PGBOUNCER_LOG_CONNECTIONS: "1"
+      PGBOUNCER_LOG_DISCONNECTIONS: "1"
+      PGBOUNCER_LOG_POOLER_ERRORS: "1"
+      PGBOUNCER_VERBOSE: "0"
+    healthcheck:
+      test: ["CMD-SHELL", "psql -h 127.0.0.1 -p 5432 -U heady_prod -d pgbouncer -c 'SHOW STATS;' || exit 1"]
+      <<: *healthcheck-defaults
+    secrets:
+      - postgres_password
+
+  otel-collector:
+    <<: *restart-policy
+    <<: *resource-limits-small
+    logging: *default-logging
+    environment:
+      OTEL_ENVIRONMENT: production
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:13133/"]
+      <<: *healthcheck-defaults
+
+  # ===========================================================================
+  # NEW SERVICES — heady-brain, heady-conductor, heady-mcp
+  # ===========================================================================
+
+  heady-brain:
+    image: gcr.io/heady-systems/heady-brain:${HEADY_VERSION:-v3.2.2}
+    <<: *restart-policy
+    <<: *resource-limits-medium
+    logging: *default-logging
+    container_name: heady-brain
+    hostname: heady-brain
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: heady-brain
+      SERVICE_VERSION: ${HEADY_VERSION:-v3.2.2}
+      PORT: "8080"
+      # φ constant for runtime use
+      PHI: "1.618033988749895"
+      # Redis connection
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      # Postgres connection via pgbouncer
+      DATABASE_URL: "postgresql://heady_prod:${POSTGRES_PASSWORD}@pgbouncer:5432/heady_production"
+      # OTEL
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      OTEL_SERVICE_NAME: heady-brain
+      # φ-scaled concurrency: fib(7)=13 workers
+      WORKER_CONCURRENCY: "13"
+      # fib(10)=55 queue depth
+      QUEUE_MAX_DEPTH: "55"
+      # φ^3=4236ms ≈ 4s request timeout
+      REQUEST_TIMEOUT_MS: "4236"
+      # φ^5=11090ms ≈ 11s (upstream timeout)
+      UPSTREAM_TIMEOUT_MS: "11090"
+      # fib(9)=34 max connections in pool
+      CONNECTION_POOL_SIZE: "34"
+      # Rate limits (Fibonacci burst: fib(12)=144 rps)
+      RATE_LIMIT_RPS: "144"
+      RATE_LIMIT_BURST: "233"
+      LOG_LEVEL: info
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_healthy
+      otel-collector:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health/live || exit 1"]
+      # fib(5)=5s interval, fib(6)=8s timeout, fib(7)=13s start_period, fib(4)=3 retries
+      interval: 5s
+      timeout: 8s
+      start_period: 13s
+      retries: 3
+    networks:
+      - heady-internal
+      - heady-brain-net
+    secrets:
+      - jwt_secret
+      - api_keys
+    deploy:
+      resources:
+        limits:
+          # fib(7)=13 → 1000m CPU scaled from 13×77m
+          cpus: "1.000"
+          # fib(7)=13 × 80Mi ≈ 1G
+          memory: "1G"
+        reservations:
+          cpus: "0.200"
+          memory: "256M"
+      restart_policy:
+        condition: unless-stopped
+        delay: 2s
+        max_attempts: 3
+        window: 7s
+    labels:
+      com.headysystems.service: "heady-brain"
+      com.headysystems.version: "${HEADY_VERSION:-v3.2.2}"
+      com.headysystems.tier: "core"
+      com.headysystems.phi: "1.618033988749895"
+
+  heady-conductor:
+    image: gcr.io/heady-systems/heady-conductor:${HEADY_VERSION:-v3.2.2}
+    <<: *restart-policy
+    logging: *default-logging
+    container_name: heady-conductor
+    hostname: heady-conductor
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: heady-conductor
+      SERVICE_VERSION: ${HEADY_VERSION:-v3.2.2}
+      PORT: "8080"
+      PHI: "1.618033988749895"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/1"
+      DATABASE_URL: "postgresql://heady_prod:${POSTGRES_PASSWORD}@pgbouncer:5432/heady_production"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      OTEL_SERVICE_NAME: heady-conductor
+      # fib(6)=8 orchestration workers
+      ORCHESTRATION_WORKERS: "8"
+      # fib(10)=55 max concurrent agents
+      MAX_CONCURRENT_AGENTS: "55"
+      # φ^4=6854ms agent timeout
+      AGENT_TIMEOUT_MS: "6854"
+      # φ^6=17944ms orchestration timeout
+      ORCHESTRATION_TIMEOUT_MS: "17944"
+      # fib(7)=13 max retries
+      MAX_RETRIES: "13"
+      # fib(9)=34 deadlock detection window (seconds)
+      DEADLOCK_DETECTION_WINDOW_S: "34"
+      LOG_LEVEL: info
+    ports:
+      - "8082:8080"
+    depends_on:
+      heady-brain:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health/live || exit 1"]
+      interval: 5s
+      timeout: 8s
+      start_period: 13s
+      retries: 3
+    networks:
+      - heady-internal
+      - heady-conductor-net
+    secrets:
+      - jwt_secret
+    deploy:
+      resources:
+        limits:
+          # fib(6)=8 × 125m ≈ 1000m
+          cpus: "1.000"
+          memory: "1G"
+        reservations:
+          cpus: "0.200"
+          memory: "256M"
+      restart_policy:
+        condition: unless-stopped
+        delay: 2s
+        max_attempts: 3
+        window: 7s
+    labels:
+      com.headysystems.service: "heady-conductor"
+      com.headysystems.version: "${HEADY_VERSION:-v3.2.2}"
+      com.headysystems.tier: "orchestration"
+
+  heady-mcp:
+    image: gcr.io/heady-systems/heady-mcp:${HEADY_VERSION:-v3.2.2}
+    <<: *restart-policy
+    logging: *default-logging
+    container_name: heady-mcp
+    hostname: heady-mcp
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+      SERVICE_NAME: heady-mcp
+      SERVICE_VERSION: ${HEADY_VERSION:-v3.2.2}
+      PORT: "8080"
+      PHI: "1.618033988749895"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/2"
+      DATABASE_URL: "postgresql://heady_prod:${POSTGRES_PASSWORD}@pgbouncer:5432/heady_production"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+      OTEL_SERVICE_NAME: heady-mcp
+      # fib(7)=13 MCP tool slots
+      MCP_TOOL_SLOTS: "13"
+      # fib(8)=21 max tool calls per session
+      MAX_TOOL_CALLS_PER_SESSION: "21"
+      # φ^3=4236ms tool execution timeout
+      TOOL_EXECUTION_TIMEOUT_MS: "4236"
+      # fib(11)=89 max active MCP sessions
+      MAX_ACTIVE_SESSIONS: "89"
+      LOG_LEVEL: info
+    ports:
+      - "8083:8080"
+    depends_on:
+      heady-brain:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health/live || exit 1"]
+      interval: 5s
+      timeout: 8s
+      start_period: 13s
+      retries: 3
+    networks:
+      - heady-internal
+      - heady-mcp-net
+    secrets:
+      - jwt_secret
+      - api_keys
+    deploy:
+      resources:
+        limits:
+          cpus: "0.500"
+          memory: "512M"
+        reservations:
+          cpus: "0.100"
+          memory: "128M"
+      restart_policy:
+        condition: unless-stopped
+        delay: 2s
+        max_attempts: 3
+        window: 7s
+    labels:
+      com.headysystems.service: "heady-mcp"
+      com.headysystems.version: "${HEADY_VERSION:-v3.2.2}"
+      com.headysystems.tier: "protocol"
+
+networks:
+  heady-internal:
+    driver: overlay
+    attachable: true
+    driver_opts:
+      encrypted: "true"
+    ipam:
+      config:
+        - subnet: "10.0.0.0/24"
+  heady-brain-net:
+    driver: overlay
+    attachable: false
+  heady-conductor-net:
+    driver: overlay
+    attachable: false
+  heady-mcp-net:
+    driver: overlay
+    attachable: false
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/postgres
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/redis
+
+secrets:
+  postgres_password:
+    external: true
+  jwt_secret:
+    external: true
+  api_keys:
+    external: true

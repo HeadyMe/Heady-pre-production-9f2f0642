@@ -1,0 +1,114 @@
+# =============================================================================
+# HeadySystems Inc. — NetworkPolicy: Redis
+# heady-systems v3.2.2
+# =============================================================================
+# Allow ingress to Redis ONLY from heady-* services
+# This policy enforces that Redis is never directly accessible from outside
+# the heady service mesh.
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-netpol
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/security-model: zero-trust
+  annotations:
+    headysystems.com/description: "Restrict Redis access to heady-* services only"
+    headysystems.com/reference: "docs/SOC2-COMPLIANCE-MATRIX.md"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Allow from heady-brain (DB 0 — primary cache)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-brain
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow from heady-conductor (DB 1 — orchestration state)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-conductor
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow from heady-mcp (DB 2 — MCP session state)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-mcp
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow from heady-web (DB 3 — session / rate limiting)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-web
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow from heady-cache service
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-cache
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow from heady-guard (rate limiter)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-guard
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow from heady-health (health check reads)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-health
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow Prometheus scrape of Redis exporter metrics
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 9121  # Redis exporter metrics port
+
+  egress:
+    # Redis only needs DNS (no outbound connections in normal operation)
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP

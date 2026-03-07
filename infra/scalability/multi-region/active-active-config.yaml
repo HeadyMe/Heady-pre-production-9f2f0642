@@ -1,0 +1,503 @@
+# =============================================================================
+# HeadySystems — Multi-Region Active-Active Deployment Configuration
+# Regions: us-central1 (primary), europe-west1, asia-east1
+# All numeric constants derived from φ=1.618033988749895 or Fibonacci
+# =============================================================================
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Global Constants
+# φ = 1.618033988749895
+# fib(5)=5, fib(6)=8, fib(7)=13, fib(8)=21, fib(9)=34, fib(10)=55
+# ─────────────────────────────────────────────────────────────────────────────
+global:
+  phi:            1.618033988749895
+  topology:       active-active
+  replication:    async          # sync within region, async cross-region
+  consistency:    eventual       # CAP: AP system; vectors converge
+  conflictPolicy: last-write-wins-vector-clock
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Regions
+# ─────────────────────────────────────────────────────────────────────────────
+regions:
+  - id:       us-central1
+    provider: gcp
+    label:    Primary — Americas
+    primary:  true
+    priority: 1                  # Highest priority for tie-breaking
+    gcp:
+      project: heady-production
+      region:  us-central1
+      zones:
+        - us-central1-a
+        - us-central1-b
+        - us-central1-c
+    loadBalancer:
+      type:    global-https
+      backend: heady-us-backend
+    failoverTarget: europe-west1
+
+  - id:       europe-west1
+    provider: gcp
+    label:    Secondary — EMEA
+    primary:  false
+    priority: 2
+    gcp:
+      project: heady-production
+      region:  europe-west1
+      zones:
+        - europe-west1-b
+        - europe-west1-c
+        - europe-west1-d
+    loadBalancer:
+      type:    global-https
+      backend: heady-eu-backend
+    failoverTarget: asia-east1
+
+  - id:       asia-east1
+    provider: gcp
+    label:    Tertiary — APAC
+    primary:  false
+    priority: 3
+    gcp:
+      project: heady-production
+      region:  asia-east1
+      zones:
+        - asia-east1-a
+        - asia-east1-b
+        - asia-east1-c
+    loadBalancer:
+      type:    global-https
+      backend: heady-ap-backend
+    failoverTarget: us-central1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cloud Run Services (per region)
+# ─────────────────────────────────────────────────────────────────────────────
+cloudRun:
+  # Global settings applied to all services in all regions
+  defaults:
+    platform:      managed
+    port:          8080
+    concurrency:   89            # fib(11)=89 concurrent requests per instance
+    cpu:           "2"
+    memory:        "2Gi"
+    minInstances:  2             # fib(3)=2 — always-warm
+    maxInstances:  21            # fib(8)=21
+    timeout:       55s           # fib(10)=55s request timeout
+    executionEnv:  gen2
+    trafficSplit:
+      type:        latest        # traffic to latest revision by default
+
+  services:
+    - name:         heady-brain
+      image:        gcr.io/heady-production/heady-brain:latest
+      concurrency:  34           # fib(9)=34 — CPU-heavy
+      cpu:          "4"
+      memory:       "4Gi"
+      minInstances: 2
+      maxInstances: 13           # fib(7)=13
+      env:
+        - name: SERVICE_NAME
+          value: heady-brain
+        - name: REGION_AWARE
+          value: "true"
+
+    - name:         heady-conductor
+      image:        gcr.io/heady-production/heady-conductor:latest
+      concurrency:  55           # fib(10)=55
+      cpu:          "2"
+      memory:       "2Gi"
+      minInstances: 2
+      maxInstances: 21           # fib(8)=21
+
+    - name:         heady-gateway
+      image:        gcr.io/heady-production/heady-gateway:latest
+      concurrency:  144          # fib(12)=144 — high throughput gateway
+      cpu:          "2"
+      memory:       "1Gi"
+      minInstances: 3            # fib(4)=3 — always 3 gateway instances
+      maxInstances: 34           # fib(9)=34
+
+    - name:         heady-vector
+      image:        gcr.io/heady-production/heady-vector:latest
+      concurrency:  21           # fib(8)=21
+      cpu:          "4"
+      memory:       "8Gi"        # vector operations are memory-intensive
+      minInstances: 2
+      maxInstances: 8            # fib(6)=8
+
+    - name:         heady-mcp
+      image:        gcr.io/heady-production/heady-mcp:latest
+      concurrency:  55
+      cpu:          "2"
+      memory:       "2Gi"
+      minInstances: 2
+      maxInstances: 13           # fib(7)=13
+
+    - name:         heady-web
+      image:        gcr.io/heady-production/heady-web:latest
+      concurrency:  233          # fib(13)=233 — static serving
+      cpu:          "1"
+      memory:       "512Mi"
+      minInstances: 2
+      maxInstances: 34           # fib(9)=34
+
+    - name:         heady-security
+      image:        gcr.io/heady-production/heady-security:latest
+      concurrency:  89           # fib(11)=89
+      cpu:          "2"
+      memory:       "1Gi"
+      minInstances: 3            # security: minimum 3
+      maxInstances: 13
+
+    - name:         heady-embed
+      image:        gcr.io/heady-production/heady-embed:latest
+      concurrency:  13           # fib(7)=13 — GPU-bound embedding
+      cpu:          "4"
+      memory:       "4Gi"
+      minInstances: 1
+      maxInstances: 8            # fib(6)=8
+
+    - name:         heady-orchestration
+      image:        gcr.io/heady-production/heady-orchestration:latest
+      concurrency:  34
+      cpu:          "2"
+      memory:       "2Gi"
+      minInstances: 2
+      maxInstances: 21
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cloud SQL — PostgreSQL with Cross-Region Read Replicas
+# ─────────────────────────────────────────────────────────────────────────────
+database:
+  engine:   postgres
+  version:  POSTGRES_16
+  pgvector: true              # pgvector extension enabled
+
+  instances:
+    - name:   heady-primary
+      region: us-central1
+      role:   primary
+      tier:   db-custom-8-32768  # 8 vCPU, 32GB RAM
+      storage:
+        type:     PD_SSD
+        sizeGb:   610           # fib(15)=610 GB
+        autoGrow: true
+        maxGb:    987           # fib(16)=987 GB
+      backups:
+        enabled:       true
+        retainedCount: 8        # fib(6)=8 backup copies
+        pointInTime:   true
+        retentionDays: 34       # fib(9)=34 days PITR
+      flags:
+        max_connections:    "233"        # fib(13)=233
+        shared_buffers:     "8GB"
+        effective_cache_size: "24GB"
+        work_mem:           "64MB"
+        maintenance_work_mem: "1GB"
+        checkpoint_completion_target: "0.618"  # 1/φ
+        wal_buffers:        "64MB"
+        default_statistics_target: "144"       # fib(12)
+
+    - name:   heady-replica-eu
+      region: europe-west1
+      role:   read-replica
+      masterInstance: heady-primary
+      tier:   db-custom-4-16384
+      storage:
+        type:   PD_SSD
+        sizeGb: 610
+
+    - name:   heady-replica-ap
+      region: asia-east1
+      role:   read-replica
+      masterInstance: heady-primary
+      tier:   db-custom-4-16384
+      storage:
+        type:   PD_SSD
+        sizeGb: 610
+
+  connectionPool:
+    tool:       pgbouncer
+    mode:       transaction
+    poolSize:   89            # fib(11)=89 connections per PgBouncer instance
+    minPoolSize: 5            # fib(5)=5
+    maxClientConn: 377        # fib(14)=377
+    serverIdleTimeout: 34     # fib(9)=34s
+    clientIdleTimeout: 55     # fib(10)=55s
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Redis — Primary + Read Replicas
+# ─────────────────────────────────────────────────────────────────────────────
+redis:
+  instances:
+    - name:     heady-redis-primary
+      region:   us-central1
+      role:     primary
+      tier:     STANDARD_HA
+      memorySizeGb: 8        # fib(6)=8 GB
+      redisVersion: REDIS_7_0
+      authEnabled: true
+      persistenceMode: RDB
+      rdbSnapshotPeriod: TWENTY_FOUR_HOURS
+      maintenancePolicy:
+        weeklyMaintenanceWindow:
+          day: SUNDAY
+          startTime: "03:00"
+      connectMode: PRIVATE_SERVICE_ACCESS
+      maxmemoryPolicy: allkeys-lru
+
+    - name:     heady-redis-replica-eu
+      region:   europe-west1
+      role:     read-replica
+      masterInstance: heady-redis-primary
+      memorySizeGb: 5        # fib(5)=5 GB
+
+    - name:     heady-redis-replica-ap
+      region:   asia-east1
+      role:     read-replica
+      masterInstance: heady-redis-primary
+      memorySizeGb: 5
+
+  pubsub:
+    # Dedicated pub/sub channels
+    channels:
+      - heady:cache:invalidation
+      - heady:agent:events
+      - heady:session:sync
+      - heady:task:queue:high
+      - heady:task:queue:normal
+      - heady:task:queue:low
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DNS Failover Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+dns:
+  provider: cloudflare
+  ttl:      5              # fib(5)=5s — fast failover TTL
+  healthCheck:
+    interval:   8          # fib(6)=8s health check interval
+    timeout:    5          # fib(5)=5s timeout
+    retries:    3          # fib(4)=3 retries before failover
+    path:       /healthz
+    expectedStatus: 200
+
+  records:
+    - name:     "@"
+      type:     A
+      proxied:  true
+      policy:   geo
+      pools:
+        - pool:     us-central1-pool
+          regions:  [WNAM, ENAM]
+          weight:   1.0
+        - pool:     europe-west1-pool
+          regions:  [WEU, EEU]
+          weight:   1.0
+        - pool:     asia-east1-pool
+          regions:  [SEAS, NEAS, OC]
+          weight:   1.0
+
+    - name:     api
+      type:     CNAME
+      target:   headyme.com
+      proxied:  true
+
+  loadBalancerPools:
+    - name:   us-central1-pool
+      origins:
+        - address: us-central1.heady.run.app
+          weight:  1.0
+          enabled: true
+      checkRegions: [WNAM, ENAM]
+      notificationEmail: ops@headyme.com
+
+    - name:   europe-west1-pool
+      origins:
+        - address: europe-west1.heady.run.app
+          weight:  1.0
+          enabled: true
+      checkRegions: [WEU, EEU]
+
+    - name:   asia-east1-pool
+      origins:
+        - address: asia-east1.heady.run.app
+          weight:  1.0
+          enabled: true
+      checkRegions: [SEAS, NEAS]
+
+  failoverPolicy:
+    # Priority failover order
+    primaryFailoverTo:   europe-west1
+    secondaryFailoverTo: asia-east1
+    # Restore primary after fib(9)=34 successful health checks
+    restoreAfterChecks:  34
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Replication Strategy
+# ─────────────────────────────────────────────────────────────────────────────
+replication:
+  strategy: event-sourcing-with-cdc
+
+  # Change Data Capture from primary PostgreSQL → replicas
+  cdc:
+    tool:       debezium
+    connector:  postgres
+    slotName:   heady_cdc_slot
+    publication: heady_cdc_pub
+    tables:
+      - public.users
+      - public.agents
+      - public.tasks
+      - public.memories
+      - public.billing
+    kafkaTopic: heady.cdc.events
+    snapshotMode: initial
+
+  # Cross-region event streaming via GCP Pub/Sub
+  eventStreaming:
+    provider: gcp-pubsub
+    topics:
+      - heady.user.events
+      - heady.agent.events
+      - heady.task.events
+      - heady.billing.events
+    subscriptions:
+      europe-west1:
+        pushEndpoint: https://europe-west1.heady.run.app/internal/events
+        ackDeadline:  34        # fib(9)=34s
+        retryPolicy:
+          minimumBackoff: 5s    # fib(5)=5s
+          maximumBackoff: 89s   # fib(11)=89s
+      asia-east1:
+        pushEndpoint: https://asia-east1.heady.run.app/internal/events
+        ackDeadline:  34
+        retryPolicy:
+          minimumBackoff: 5s
+          maximumBackoff: 89s
+
+  # Vector memory replication (Postgres/pgvector)
+  vectorMemory:
+    replicationMode: async
+    conflictResolution: last-write-wins-vector-clock
+    syncIntervalMs: 5000        # fib(5)×1000 = 5000ms
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Conflict Resolution — Last-Write-Wins with Vector Clock
+# ─────────────────────────────────────────────────────────────────────────────
+conflictResolution:
+  algorithm: lww-vector-clock
+
+  vectorClock:
+    # Each write includes: { timestamp, region, sequence }
+    schema:
+      timestamp:   unix_ms      # millisecond precision
+      region:      string       # us-central1 | europe-west1 | asia-east1
+      sequence:    integer      # monotonically increasing per region
+      nodeId:      uuid         # Cloud Run instance ID
+
+    # LWW: higher timestamp wins; on tie, primary region wins
+    tieBreaking:
+      byTimestamp: true
+      onTie:
+        preferRegion: us-central1   # primary region wins ties
+
+    # Tombstone TTL for deleted records
+    tombstoneTtlDays: 34            # fib(9)=34 days
+
+  # CRDT approach for counters and sets
+  crdtTypes:
+    - type:   GCounter
+      fields: [agent.invocations, task.completions, billing.usage]
+    - type:   ORSet
+      fields: [agent.capabilities, org.members]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Health Monitoring
+# ─────────────────────────────────────────────────────────────────────────────
+healthMonitoring:
+  endpoints:
+    liveness:   /healthz
+    readiness:  /readyz
+    startup:    /startupz
+    metrics:    /metrics
+
+  checks:
+    # CSL health thresholds
+    responseTimeMs:
+      warning:  610       # fib(15)=610ms → CSL HIGH
+      critical: 987       # fib(16)=987ms → CSL CRITICAL
+
+    errorRate:
+      warning:  0.618     # 61.8% = 1/φ error rate → ELEVATED
+      critical: 0.854     # CSL CRITICAL threshold
+
+    availability:
+      target:   0.9999    # 99.99% uptime target
+      warning:  0.999     # 99.9%
+      critical: 0.99      # 99%
+
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 5     # fib(5)=5s
+      periodSeconds:        8     # fib(6)=8s
+      timeoutSeconds:       3
+      failureThreshold:     3     # fib(4)=3
+
+    readinessProbe:
+      httpGet:
+        path: /readyz
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds:        5     # fib(5)=5s
+      timeoutSeconds:       2
+      successThreshold:     1
+      failureThreshold:     5     # fib(5)=5
+
+    startupProbe:
+      httpGet:
+        path: /startupz
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds:        5
+      failureThreshold:     13   # fib(7)=13 — allow 65s total startup
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Observability
+# ─────────────────────────────────────────────────────────────────────────────
+observability:
+  tracing:
+    provider: opentelemetry
+    samplingRate: 0.382          # fib(1)/φ² ≈ 38.2% (1-1/φ)
+    exporters:
+      - type: otlp
+        endpoint: https://otel.heady.internal:4317
+      - type: cloudtrace
+        project: heady-production
+
+  metrics:
+    provider: opentelemetry
+    scrapeInterval: 5s           # fib(5)=5s
+    exporters:
+      - type: prometheus
+        endpoint: :9090/metrics
+      - type: cloudmonitoring
+        project: heady-production
+
+  logging:
+    provider: structured-json
+    level: info
+    exporter: cloudlogging
+    fields:
+      - timestamp
+      - severity
+      - region
+      - service
+      - traceId
+      - spanId
+      - userId
+      - tenantId

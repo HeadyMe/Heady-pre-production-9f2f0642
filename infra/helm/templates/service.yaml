@@ -1,0 +1,76 @@
+{{/*
+=============================================================================
+HeadySystems Inc. — Helm Template: Service
+heady-platform v3.2.2
+=============================================================================
+Generates ClusterIP Services for all heady-* services
+=============================================================================
+*/}}
+
+{{- $services := list
+  (dict "key" "headyBrain"      "name" "heady-brain"      "component" "brain"      "tier" "core"          "values" .Values.headyBrain)
+  (dict "key" "headyConductor"  "name" "heady-conductor"  "component" "conductor"  "tier" "orchestration" "values" .Values.headyConductor)
+  (dict "key" "headyMcp"        "name" "heady-mcp"        "component" "mcp"        "tier" "protocol"      "values" .Values.headyMcp)
+  (dict "key" "headyWeb"        "name" "heady-web"        "component" "web"        "tier" "frontend"      "values" .Values.headyWeb)
+-}}
+
+{{- range $svc := $services }}
+{{- if $svc.values.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $svc.name }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/component: {{ $svc.component }}
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    headysystems.com/tier: {{ $svc.tier }}
+    headysystems.com/phi: "1.618033988749895"
+    helm.sh/chart: {{ include "heady-platform.chart" $ }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: {{ $svc.values.service.metricsPort | default 9090 | quote }}
+    headysystems.com/phi: "1.618033988749895"
+    {{- with $.Values.global.commonAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ $svc.values.service.type | default "ClusterIP" }}
+  {{- if ne ($svc.values.service.sessionAffinity | default "ClientIP") "None" }}
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      # φ-scaled session timeout from values
+      timeoutSeconds: {{ $svc.values.service.sessionAffinityTimeout | default 890 }}
+  {{- else }}
+  sessionAffinity: None
+  {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/instance: {{ printf "%s-production" $svc.name }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ $svc.values.service.port | default 8080 }}
+      targetPort: http
+    - name: metrics
+      protocol: TCP
+      port: {{ $svc.values.service.metricsPort | default 9090 }}
+      targetPort: metrics
+  {{- if $svc.values.service.grpcPort }}
+    - name: grpc
+      protocol: TCP
+      port: {{ $svc.values.service.grpcPort }}
+      targetPort: grpc
+  {{- end }}
+  {{- if $svc.values.service.mcpSsePort }}
+    - name: mcp-sse
+      protocol: TCP
+      port: {{ $svc.values.service.mcpSsePort }}
+      targetPort: mcp-sse
+  {{- end }}
+{{- end }}
+{{- end }}

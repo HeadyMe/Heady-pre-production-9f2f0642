@@ -1,0 +1,220 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Deployment: heady-mcp
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# replicas: fib(4) = 3
+# memory limit: 512Mi, cpu limit: 500m
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heady-mcp
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-mcp
+    app.kubernetes.io/instance: heady-mcp-production
+    app.kubernetes.io/version: "3.2.2"
+    app.kubernetes.io/component: mcp
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: protocol
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    headysystems.com/description: "MCP (Model Context Protocol) server — fib(4)=3 replicas"
+    headysystems.com/replicas-derivation: "fib(4)=3 — fourth Fibonacci number"
+spec:
+  # replicas: fib(4) = 3
+  replicas: 3
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 890
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: heady-mcp
+      app.kubernetes.io/instance: heady-mcp-production
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2      # fib(3)=2
+      maxUnavailable: 1 # fib(2)=1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: heady-mcp
+        app.kubernetes.io/instance: heady-mcp-production
+        app.kubernetes.io/version: "3.2.2"
+        app.kubernetes.io/component: mcp
+        headysystems.com/tier: protocol
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-mcp
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-mcp
+
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - heady-mcp
+              topologyKey: kubernetes.io/hostname
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 89
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - heady-mcp
+                topologyKey: topology.kubernetes.io/zone
+
+      serviceAccountName: heady-mcp
+      automountServiceAccountToken: false
+      # terminationGracePeriodSeconds: fib(8)=21 × 2 = 42s
+      terminationGracePeriodSeconds: 42
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: heady-mcp
+          image: gcr.io/heady-systems/heady-mcp:3.2.2
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+            - name: mcp-sse
+              containerPort: 3000
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: heady-config
+            - secretRef:
+                name: heady-secrets
+          env:
+            - name: SERVICE_NAME
+              value: "heady-mcp"
+            - name: SERVICE_VERSION
+              value: "3.2.2"
+            - name: PORT
+              value: "8080"
+            - name: MCP_SSE_PORT
+              value: "3000"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            # fib(7)=13 MCP tool slots
+            - name: MCP_TOOL_SLOTS
+              value: "13"
+            # fib(8)=21 max tool calls per session
+            - name: MAX_TOOL_CALLS_PER_SESSION
+              value: "21"
+            # φ^3=4236ms tool execution timeout
+            - name: TOOL_EXECUTION_TIMEOUT_MS
+              value: "4236"
+            # fib(11)=89 max active sessions
+            - name: MAX_ACTIVE_SESSIONS
+              value: "89"
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 13   # fib(7)=13
+            periodSeconds: 8          # fib(6)=8
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1
+
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5    # fib(5)=5
+            periodSeconds: 3
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 8
+            periodSeconds: 3
+            failureThreshold: 21      # fib(8)=21
+            timeoutSeconds: 5
+
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 8"]  # fib(6)=8s drain
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: mcp-workspace
+              mountPath: /app/workspace
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: "100Mi"
+        - name: mcp-workspace
+          emptyDir:
+            sizeLimit: "512Mi"
+
+      imagePullSecrets:
+        - name: gcr-credentials

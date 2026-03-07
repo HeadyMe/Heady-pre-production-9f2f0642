@@ -1,0 +1,181 @@
+# =============================================================================
+# HeadySystems Vertical Config — Creative
+# Domain: creative.headyme.com
+# Key highlight: heady-midi service for sub-ms agent control
+# =============================================================================
+
+vertical_id: creative
+domain: creative.headyme.com
+fallback_path: /creative
+routing:
+  type: subdomain
+  aliases:
+    - midi.headyme.com
+    - studio.headyme.com
+
+brand:
+  name: "Heady Creative"
+  tagline: "MIDI Agent Control & Creative AI Orchestration"
+  accent_color: "#ec4899"
+  logo_variant: creative
+  font_family: "Inter, sans-serif"
+  icon: "♪"
+  midi_service: true
+
+content:
+  hero:
+    title: "AI Orchestration for Creative Workflows"
+    subtitle: "Sub-millisecond MIDI agent control, generative content pipelines, and creative automation for artists, studios, and agencies"
+    cta_primary: "Try MIDI Agent Free"
+    cta_secondary: "View Creative Studio"
+
+  features:
+    - name: "MIDI Agent Control"
+      description: "heady-midi delivers sub-millisecond agent control over hardware and software instruments via MIDI 2.0."
+      icon: "midi"
+      badge: "heady-midi Service"
+    - name: "Content Generation"
+      description: "Multi-modal content pipelines: text, image, audio, and video generation orchestrated through agent workflows."
+      icon: "content"
+    - name: "Creative Direction"
+      description: "AI Creative Director agents that maintain brand consistency, style guidelines, and content calendars."
+      icon: "director"
+    - name: "Asset Management"
+      description: "Intelligent DAM with auto-tagging, version control, rights tracking, and format conversion pipelines."
+      icon: "assets"
+    - name: "DAW Integration"
+      description: "Native VST3/AU plugin for Ableton, Logic Pro, Pro Tools, Cubase, and FL Studio."
+      icon: "daw"
+    - name: "Design Tool Integration"
+      description: "Figma, Adobe Creative Suite, and Canva integrations for automated asset generation and variant creation."
+      icon: "design"
+
+  agent_templates:
+    - name: "MIDI Controller"
+      description: "Maps natural-language prompts to MIDI 2.0 messages with sub-millisecond latency via heady-midi"
+      latency: "<1ms"
+      integrations: ["Ableton Live", "Logic Pro", "Pro Tools", "Eurorack (via MIDI-CV)", "Modular synths"]
+    - name: "Content Generator"
+      description: "Orchestrates multi-modal content creation across text, image, audio, and video"
+      latency: "<2s"
+      integrations: ["Adobe Firefly", "Midjourney", "ElevenLabs", "Suno", "Runway ML"]
+    - name: "Creative Director"
+      description: "Maintains brand voice, visual identity, and style guidelines across all generated content"
+      latency: "<1s"
+      integrations: ["Figma", "Adobe CC", "Canva", "Notion", "Contentful"]
+    - name: "Asset Manager"
+      description: "Auto-tags, versions, formats, and distributes creative assets across channels"
+      latency: "<500ms"
+      integrations: ["Bynder", "Canto", "Brandfolder", "Cloudinary", "Widen"]
+
+  midi_service:
+    name: "heady-midi"
+    description: "Dedicated microservice for sub-millisecond MIDI agent control"
+    latency: "<1ms"
+    protocol: "MIDI 2.0 / Universal MIDI Packet"
+    daw_support:
+      - Ableton Live 11/12
+      - Logic Pro X/11
+      - Pro Tools 2024
+      - Cubase 13
+      - FL Studio 21
+      - Bitwig Studio 5
+    hardware_support:
+      - "USB MIDI devices"
+      - "Eurorack (MIDI-CV)"
+      - "MIDI hardware controllers (Ableton Push, Akai MPC, Roland)"
+      - "Hardware synths with MIDI"
+    features:
+      - "Zero-latency message routing"
+      - "Agent-controlled parameter automation"
+      - "Multi-port fan-out"
+      - "MIDI clock sync (<0.1ms jitter)"
+      - "Note/CC/SysEx/MIDI 2.0 UMP support"
+
+  compliance_badges:
+    - name: SOC 2 Type II
+      status: certified
+      description: "Annual third-party security audit"
+    - name: GDPR
+      status: certified
+      description: "EU GDPR compliant"
+    - name: Content Licensing
+      status: certified
+      description: "All generated content licensed for commercial use"
+
+  pricing:
+    tiers:
+      - name: Artist
+        price: "Free"
+        billing: forever
+        features:
+          - "MIDI Controller agent"
+          - "2 DAW integrations"
+          - "1K content generations/mo"
+          - "Community support"
+      - name: Studio
+        price: "$59/mo"
+        billing: monthly
+        highlighted: true
+        features:
+          - "All 4 agent templates"
+          - "heady-midi Pro (all DAWs)"
+          - "50K content generations/mo"
+          - "All design tool integrations"
+          - "Asset manager"
+          - "Priority support"
+          - "Commercial license"
+      - name: Agency
+        price: "Custom"
+        billing: annual
+        features:
+          - "Unlimited generations"
+          - "Multi-seat licensing"
+          - "Custom agent workflows"
+          - "White-label option"
+          - "Dedicated success manager"
+          - "SLA guarantee"
+
+  case_study:
+    client: "Electronic Music Producer / Label (placeholder)"
+    challenge: "Manual MIDI sequencing limiting generative composition experiments"
+    solution: "Deployed heady-midi with natural language prompt-to-MIDI pipeline"
+    result: "Produced and released EP using agent-generated MIDI arrangements. 4 tracks completed in 2 days."
+    metrics:
+      - label: "Production time reduction"
+        value: "75%"
+      - label: "MIDI latency"
+        value: "<1ms"
+      - label: "Unique patterns generated"
+        value: "2,400+"
+
+  testimonial:
+    quote: "heady-midi is the most exciting thing to happen to electronic music production since VST plugins. I'm composing things I couldn't imagine doing manually."
+    author: "Electronic Music Producer (placeholder)"
+
+meta:
+  title: "Heady Creative — MIDI Agent Control & Creative AI"
+  description: "Sub-millisecond MIDI agent control via heady-midi. AI orchestration for creative workflows: content generation, DAW integration, design tools, and asset management."
+  keywords:
+    - "MIDI AI agents"
+    - "creative AI platform"
+    - "heady-midi"
+    - "DAW AI integration"
+    - "content generation AI"
+    - "creative workflow automation"
+    - "Adobe AI agents"
+  og_image: "/assets/creative-og.png"
+  analytics_id: "G-CREATIVE"
+  canonical_url: "https://creative.headyme.com"
+
+server:
+  cache_ttl: 1800
+  rate_limit: 200
+  cors_origins:
+    - "https://headyme.com"
+    - "https://creative.headyme.com"
+    - "https://midi.headyme.com"
+  health_check: "/_health"
+
+created_at: "2026-03-07T00:00:00Z"
+updated_at: "2026-03-07T00:00:00Z"

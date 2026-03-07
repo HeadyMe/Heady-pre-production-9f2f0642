@@ -1,479 +1,121 @@
-# =============================================================================
-# Heady CI/CD Pipeline
-# Repo: github.com/HeadyMe/Heady-pre-production-9f2f0642
-# Platform: Cloud Run (us-central1) behind Cloudflare
-# Registry: us-docker.pkg.dev/heady-production/heady/heady-manager
-# =============================================================================
-
-name: CI/CD Pipeline
-
+name: Heady CI/CD Pipeline
 on:
   push:
-    branches: [main]
+    branches: [main, production, develop]
   pull_request:
-    branches: [main]
-
-# Cancel in-flight runs for the same ref when a newer run is queued
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main, production]
 
 env:
   NODE_VERSION: '20'
-  REGISTRY: us-docker.pkg.dev
-  PROJECT_ID: heady-production
-  REPO: heady
-  IMAGE: heady-manager
-  REGION: us-central1
-  CLOUD_RUN_SERVICE_STAGING: heady-staging
-  CLOUD_RUN_SERVICE_PRODUCTION: heady-production
+  PYTHON_VERSION: '3.12'
 
-# ---------------------------------------------------------------------------
-# Jobs
-# ---------------------------------------------------------------------------
 jobs:
-
-  # -------------------------------------------------------------------------
-  # 1. LINT
-  # -------------------------------------------------------------------------
+  # ─── Code Quality ────────────────────────────────────────────
   lint:
-    name: Lint
+    name: Code Quality
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
-      - name: ESLint
-        run: npm run lint -- --max-warnings=0
-
-      - name: Prettier check
-        run: npm run prettier:check
-
-  # -------------------------------------------------------------------------
-  # 2. TEST
-  # -------------------------------------------------------------------------
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_USER: heady
-          POSTGRES_PASSWORD: heady_test_pw
-          POSTGRES_DB: heady_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U heady"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      DATABASE_URL: postgresql://heady:heady_test_pw@localhost:5432/heady_test
-      REDIS_URL: redis://localhost:6379
-      NODE_ENV: test
-      JWT_SECRET: ci-test-jwt-secret-not-for-production
-      HEADY_ENV: ci
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
-      - name: Run database migrations
-        run: npm run db:migrate
-
-      - name: Run test suite
-        run: npm test -- --coverage --forceExit
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 14
-
-  # -------------------------------------------------------------------------
-  # 3. SECURITY SCAN
-  # -------------------------------------------------------------------------
-  security-scan:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci --prefer-offline
-
-      - name: npm audit (high severity)
-        run: npm audit --audit-level=high
-        continue-on-error: false
-
-      - name: Snyk security scan
-        uses: snyk/actions/node@master
-        continue-on-error: true           # advisory — does not block deploy
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high --sarif-file-output=snyk.sarif
-
-      - name: Upload Snyk SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: snyk.sarif
+          cache: npm
+      - run: npm ci
+      - run: npx eslint src/ services/ packages/ bin/ --ext .js,.ts --max-warnings 0
+      - run: npx tsc --noEmit --project tsconfig.json
         continue-on-error: true
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+  # ─── Security ────────────────────────────────────────────────
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          languages: javascript, typescript
-          config-file: ./.github/codeql/codeql-config.yml
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Perform CodeQL Analysis
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: npm audit
+        run: npm audit --production --audit-level=high
+      - name: Credential scan
+        run: |
+          ! grep -rn "AKID\|sk-[a-zA-Z0-9]\{20\}\|-----BEGIN PRIVATE" \
+            src/ services/ packages/ bin/ configs/ \
+            --include="*.js" --include="*.ts" --include="*.py" --include="*.json"
+      - name: SAST scan
         uses: github/codeql-action/analyze@v3
         with:
-          category: '/language:javascript'
+          languages: javascript
+        continue-on-error: true
 
-  # -------------------------------------------------------------------------
-  # 4. BUILD — Docker multi-stage, push to Artifact Registry
-  # -------------------------------------------------------------------------
-  build:
-    name: Build & Push
+  # ─── Tests ───────────────────────────────────────────────────
+  test:
+    name: Test Suite
     runs-on: ubuntu-latest
-    needs: [lint, test, security-scan]
-    # Only build on push to main or when a PR is merged
-    if: github.event_name == 'push' || github.event.pull_request.merged == true
-    outputs:
-      image-tag: ${{ steps.meta.outputs.tags }}
-      image-digest: ${{ steps.build-push.outputs.digest }}
-
+    needs: [lint]
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx jest --coverage --ci --reporters=default --reporters=jest-junit
+        env:
+          JEST_JUNIT_OUTPUT_DIR: ./test-results
+      - uses: actions/upload-artifact@v4
         with:
-          install: true
-
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
+          name: coverage
+          path: coverage/
+      - uses: actions/upload-artifact@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}
-          tags: |
-            type=sha,prefix=sha-,format=short
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
+          name: test-results
+          path: test-results/
 
-      - name: Build and push image
-        id: build-push
-        uses: docker/build-push-action@v5
+  # ─── Python Tests ───────────────────────────────────────────
+  test-python:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          target: production
-          cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:cache
-            type=gha
-          cache-to: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:cache,mode=max
-            type=gha,mode=max
-          build-args: |
-            GIT_SHA=${{ github.sha }}
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
-            VERSION=${{ github.ref_name }}
-
-      - name: Sign the image with Cosign
-        uses: sigstore/cosign-installer@v3
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: cd python && pip install -e ".[dev]" && pytest tests/ -v --cov=core
         continue-on-error: true
 
-      - name: Sign
-        run: |
-          cosign sign --yes \
-            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}@${{ steps.build-push.outputs.digest }}
-        continue-on-error: true
+  # ─── Build ──────────────────────────────────────────────────
+  build:
+    name: Build Packages
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: node bin/heady-cli.js build
 
-  # -------------------------------------------------------------------------
-  # 5. DEPLOY STAGING — auto on push to main
-  # -------------------------------------------------------------------------
-  deploy-staging:
-    name: Deploy → Staging
+  # ─── Deploy (production only) ───────────────────────────────
+  deploy:
+    name: Deploy to Cloud Run
     runs-on: ubuntu-latest
     needs: [build]
-    environment:
-      name: staging
-      url: https://heady-staging-uc.a.run.app
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
+    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
+    environment: production
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Deploy to Cloud Run (staging)
+      - uses: google-github-actions/setup-gcloud@v2
+      - run: |
+          gcloud run services replace infra/cloudrun/service.yaml \
+            --region=us-central1 --quiet
+      - name: Post-deploy health check
         run: |
-          IMAGE_TAG="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:sha-$(echo ${{ github.sha }} | cut -c1-7)"
-          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_STAGING }} \
-            --image="${IMAGE_TAG}" \
-            --region="${{ env.REGION }}" \
-            --platform=managed \
-            --allow-unauthenticated \
-            --set-env-vars="NODE_ENV=staging,HEADY_ENV=staging,GIT_SHA=${{ github.sha }}" \
-            --set-secrets="DATABASE_URL=heady-database-url:latest,REDIS_URL=heady-redis-url:latest,JWT_SECRET=heady-jwt-secret:latest,OPENAI_API_KEY=heady-openai-key:latest,ANTHROPIC_API_KEY=heady-anthropic-key:latest" \
-            --min-instances=1 \
-            --max-instances=10 \
-            --memory=2Gi \
-            --cpu=2 \
-            --timeout=300 \
-            --port=8080 \
-            --concurrency=80 \
-            --quiet
-
-      - name: Run staging smoke tests
-        run: |
-          STAGING_URL="https://heady-staging-uc.a.run.app"
-          echo "Running smoke tests against ${STAGING_URL}"
-          
-          # Health check
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${STAGING_URL}/health")
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: /health returned $STATUS"
-            exit 1
-          fi
-          
-          # Readiness check
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${STAGING_URL}/health/ready")
-          if [ "$STATUS" != "200" ]; then
-            echo "FAIL: /health/ready returned $STATUS"
-            exit 1
-          fi
-          
-          echo "All smoke tests passed"
-
-      - name: Notify Slack on staging success
-        if: success()
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "text": ":rocket: *Staging deploy succeeded*",
-              "attachments": [{
-                "color": "#36a64f",
-                "fields": [
-                  {"title": "Repo", "value": "${{ github.repository }}", "short": true},
-                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
-                  {"title": "Commit", "value": "${{ github.sha }}", "short": true},
-                  {"title": "Author", "value": "${{ github.actor }}", "short": true}
-                ]
-              }]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  # -------------------------------------------------------------------------
-  # 6. DEPLOY PRODUCTION — manual approval gate
-  # -------------------------------------------------------------------------
-  deploy-production:
-    name: Deploy → Production
-    runs-on: ubuntu-latest
-    needs: [deploy-staging]
-    environment:
-      name: production
-      url: https://headyme.com
-    # Requires manual approval via GitHub Environments protection rules
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Setup gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Deploy to Cloud Run (production)
-        run: |
-          IMAGE_TAG="${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:sha-$(echo ${{ github.sha }} | cut -c1-7)"
-          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_PRODUCTION }} \
-            --image="${IMAGE_TAG}" \
-            --region="${{ env.REGION }}" \
-            --platform=managed \
-            --allow-unauthenticated \
-            --set-env-vars="NODE_ENV=production,HEADY_ENV=production,GIT_SHA=${{ github.sha }}" \
-            --set-secrets="DATABASE_URL=heady-database-url:latest,REDIS_URL=heady-redis-url:latest,JWT_SECRET=heady-jwt-secret:latest,OPENAI_API_KEY=heady-openai-key:latest,ANTHROPIC_API_KEY=heady-anthropic-key:latest,SENTRY_DSN=heady-sentry-dsn:latest" \
-            --min-instances=2 \
-            --max-instances=50 \
-            --memory=4Gi \
-            --cpu=4 \
-            --timeout=300 \
-            --port=8080 \
-            --concurrency=100 \
-            --no-traffic \
-            --tag=canary \
-            --quiet
-
-      - name: Canary validation (10% traffic)
-        run: |
-          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE_PRODUCTION }} \
-            --region="${{ env.REGION }}" \
-            --to-tags canary=10
-
-          echo "Canary running at 10% — waiting 60s for metrics..."
-          sleep 60
-
-          # Check error rate via Cloud Run metrics (simplified)
-          ERROR_COUNT=$(gcloud logging read \
-            'resource.type="cloud_run_revision" AND httpRequest.status>=500' \
-            --limit=10 \
-            --freshness=2m \
-            --format="value(timestamp)" | wc -l)
-
-          if [ "$ERROR_COUNT" -gt "5" ]; then
-            echo "FAIL: Too many 5xx errors during canary ($ERROR_COUNT in last 2m). Rolling back."
-            gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE_PRODUCTION }} \
-              --region="${{ env.REGION }}" \
-              --to-latest
-            exit 1
-          fi
-
-          echo "Canary healthy. Promoting to 100%."
-
-      - name: Promote canary to 100%
-        run: |
-          gcloud run services update-traffic ${{ env.CLOUD_RUN_SERVICE_PRODUCTION }} \
-            --region="${{ env.REGION }}" \
-            --to-tags canary=100
-
-      - name: Production smoke tests
-        run: |
-          for DOMAIN in headyme.com headysystems.com headyconnection.org headybuddy.org headymcp.com headyio.com headybot.com headyapi.com headyai.com; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "https://${DOMAIN}/health" || echo "000")
-            if [ "$STATUS" = "200" ]; then
-              echo "PASS: ${DOMAIN}/health → $STATUS"
-            else
-              echo "WARN: ${DOMAIN}/health → $STATUS (may be propagating)"
-            fi
-          done
-
-      - name: Create Sentry release
-        run: |
-          curl -sS https://sentry.io/api/0/organizations/heady/releases/ \
-            -X POST \
-            -H "Authorization: Bearer ${{ secrets.SENTRY_AUTH_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"version\":\"${{ github.sha }}\",\"ref\":\"${{ github.sha }}\",\"projects\":[\"heady-production\"]}"
-
-      - name: Notify Slack on production success
-        if: success()
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "text": ":ship: *Production deploy succeeded*",
-              "attachments": [{
-                "color": "#36a64f",
-                "fields": [
-                  {"title": "Version", "value": "${{ github.sha }}", "short": true},
-                  {"title": "Author", "value": "${{ github.actor }}", "short": true},
-                  {"title": "Domains", "value": "9 domains live", "short": true}
-                ]
-              }]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-  # -------------------------------------------------------------------------
-  # GLOBAL — Notify Slack on any pipeline failure
-  # -------------------------------------------------------------------------
-  notify-failure:
-    name: Notify on Failure
-    runs-on: ubuntu-latest
-    needs: [lint, test, security-scan, build, deploy-staging, deploy-production]
-    if: failure()
-    steps:
-      - name: Slack failure notification
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "text": ":x: *CI/CD pipeline failed*",
-              "attachments": [{
-                "color": "#d00000",
-                "fields": [
-                  {"title": "Repo", "value": "${{ github.repository }}", "short": true},
-                  {"title": "Branch", "value": "${{ github.ref_name }}", "short": true},
-                  {"title": "Run", "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}", "short": false}
-                ]
-              }]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          sleep 30
+          curl -sf https://api.headysystems.com/health || exit 1

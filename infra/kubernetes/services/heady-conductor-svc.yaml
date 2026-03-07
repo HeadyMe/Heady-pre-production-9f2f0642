@@ -1,0 +1,41 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Service: heady-conductor
+# heady-systems v3.2.2 — ClusterIP service
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: heady-conductor
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-conductor
+    app.kubernetes.io/component: conductor
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: orchestration
+  annotations:
+    headysystems.com/description: "ClusterIP service for heady-conductor — orchestration bus"
+    # Long timeout for multi-agent orchestration sessions
+    # fib(12)=144 × 10s = 1440s = 24 minutes
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "1440"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      # fib(12)=144 × 10s = 1440s — orchestration sessions can be long
+      timeoutSeconds: 1440
+  selector:
+    app.kubernetes.io/name: heady-conductor
+    app.kubernetes.io/instance: heady-conductor-production
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http
+    - name: metrics
+      protocol: TCP
+      port: 9090
+      targetPort: metrics

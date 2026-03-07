@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heady Education — FERPA-Compliant Adaptive Learning AI</title>
+<meta name="description" content="FERPA-compliant AI orchestration for education. Adaptive tutoring, curriculum generation, student assessment, and LMS integration.">
+<meta name="keywords" content="education AI platform, adaptive learning AI, curriculum generation AI, FERPA compliant AI, student assessment automation">
+<meta property="og:title" content="Heady Education — FERPA-Compliant Adaptive Learning AI">
+<meta property="og:description" content="Adaptive learning orchestration for classrooms, schools, and districts.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://education.headyme.com">
+<link rel="canonical" href="https://education.headyme.com">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Heady Education",
+  "description": "FERPA-compliant AI orchestration for education",
+  "url": "https://education.headyme.com",
+  "applicationCategory": "EducationalApplication",
+  "creator": {"@type": "SoftwareApplication", "name": "Perplexity Computer", "url": "https://www.perplexity.ai/computer"}
+}
+</script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --accent: #f59e0b;
+    --accent-dim: rgba(245,158,11,0.12);
+    --accent-border: rgba(245,158,11,0.28);
+    --bg: #0a0e17;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-card-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-xs: #64748b;
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  #sacred-bg { position: fixed; inset: 0; z-index: 0; opacity: 0.15; pointer-events: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,14,23,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 1.5rem; }
+  .nav-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; }
+  .nav-logo-mark { width: 32px; height: 32px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta { background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: opacity 0.2s; }
+  .nav-cta:hover { opacity: 0.85; }
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 1.5rem 4rem; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid var(--accent-border); color: var(--accent); padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; color: #fff; }
+  h1 span { color: var(--accent); }
+  .hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-muted); max-width: 620px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--accent); color: #000; border: none; padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; backdrop-filter: blur(8px); }
+  .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--accent-border); }
+  section { padding: 5rem 0; position: relative; z-index: 1; }
+  .section-label { color: var(--accent); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .section-title { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; color: #fff; margin-bottom: 1rem; }
+  .section-sub { color: var(--text-muted); font-size: 1.1rem; max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; backdrop-filter: blur(12px); transition: all 0.3s; }
+  .card:hover { background: var(--bg-card-hover); border-color: var(--accent-border); transform: translateY(-2px); }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+  .feature-icon { width: 44px; height: 44px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
+  .feature-name { font-size: 1.05rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+  .feature-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+  .compliance-section { background: rgba(245,158,11,0.03); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .badges-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .badge-item { display: flex; align-items: center; gap: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1.25rem; transition: border-color 0.2s; }
+  .badge-item:hover { border-color: var(--accent-border); }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+  .badge-name { font-weight: 600; font-size: 0.875rem; color: #fff; }
+  .badge-desc { font-size: 0.75rem; color: var(--text-muted); }
+  .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .agent-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; transition: all 0.3s; }
+  .agent-card:hover { border-color: var(--accent-border); background: var(--bg-card-hover); }
+  .agent-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .agent-name { font-weight: 600; font-size: 1rem; color: #fff; }
+  .agent-latency { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; color: #000; background: var(--accent); border: 1px solid var(--accent); padding: 0.2rem 0.5rem; border-radius: 6px; }
+  .agent-desc { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+  .agent-integrations { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .integration-tag { font-size: 0.7rem; color: var(--text-xs); background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.5rem; }
+  /* LMS pills */
+  .lms-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+  .lms-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.875rem; color: var(--text-muted); transition: all 0.2s; }
+  .lms-pill:hover { border-color: var(--accent-border); color: var(--accent); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+  .pricing-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; transition: all 0.3s; }
+  .pricing-card.highlighted { border-color: var(--accent); background: rgba(245,158,11,0.05); }
+  .pricing-card:hover { transform: translateY(-2px); }
+  .pricing-tier { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .pricing-price { font-size: 2.25rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+  .pricing-billing { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .pricing-features { list-style: none; }
+  .pricing-features li { font-size: 0.875rem; color: var(--text-muted); padding: 0.4rem 0; display: flex; align-items: center; gap: 0.6rem; }
+  .pricing-features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .pricing-cta { margin-top: 1.75rem; width: 100%; padding: 0.875rem; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .pricing-card.highlighted .pricing-cta { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+  .pricing-cta:hover { border-color: var(--accent); color: var(--accent); }
+  .pricing-card.highlighted .pricing-cta:hover { opacity: 0.85; }
+  .case-study { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 720px) { .case-study { grid-template-columns: 1fr; } }
+  .cs-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .cs-value { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+  .metrics-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .metric { text-align: center; }
+  .metric-value { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .metric-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+  .testimonial { background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; margin-top: 1.5rem; }
+  .testimonial-quote { font-size: 1.1rem; color: var(--text); line-height: 1.7; margin-bottom: 1rem; font-style: italic; }
+  .testimonial-author { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+  .cta-section { text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 4rem 2rem; margin: 2rem 0; }
+  .cta-title { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; color: #fff; margin-bottom: 0.75rem; }
+  .cta-sub { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; }
+  footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; position: relative; z-index: 1; }
+  .footer-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-brand { font-weight: 600; color: var(--text-muted); font-size: 0.875rem; }
+  .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+  .footer-links a { color: var(--text-xs); text-decoration: none; font-size: 0.8rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-pplx a { color: var(--accent); text-decoration: none; font-size: 0.75rem; }
+  @media (max-width: 640px) { .nav-links { display: none; } h1 { font-size: 2.25rem; } }
+</style>
+</head>
+<body>
+<canvas id="sacred-bg"></canvas>
+<nav>
+  <div class="nav-inner">
+    <a href="https://headyme.com" class="nav-logo">
+      <div class="nav-logo-mark">◎</div>
+      <span>Heady <strong>Education</strong></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#compliance">Compliance</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">Start Free Pilot</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap" style="max-width:800px">
+    <div class="hero-badge">◎ FERPA · COPPA · WCAG 2.1 AA</div>
+    <h1>Adaptive Learning<br><span>Orchestration</span></h1>
+    <p class="hero-sub">FERPA-compliant AI agents for curriculum generation, student assessment, and personalized learning. Used in classrooms, schools, and districts.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">Start Free Pilot</a>
+      <a href="#agents" class="btn-secondary">View Curriculum Demo</a>
+    </div>
+    <!-- Progress bar visual -->
+    <div style="margin-top:3rem;max-width:480px;margin-left:auto;margin-right:auto;">
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;"><span>Student Progress</span><span style="color:var(--accent);">82% mastery</span></div>
+      <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:9999px;overflow:hidden;">
+        <div style="height:100%;width:82%;background:var(--accent);border-radius:9999px;transition:width 1.5s ease;" id="progress-bar"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-xs);margin-top:0.4rem;"><span>Algebra I · Unit 4</span><span>18 lessons completed</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-label">Platform</div>
+    <h2 class="section-title">Built for Every Learning Environment</h2>
+    <p class="section-sub">Six capabilities for K-12, higher ed, and corporate learning — all FERPA-compliant.</p>
+    <div class="features-grid">
+      <div class="card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-name">Adaptive Tutoring</div>
+        <div class="feature-desc">Personalized learning paths that adapt in real-time based on student performance, pace, and learning style.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📚</div>
+        <div class="feature-name">Curriculum Generation</div>
+        <div class="feature-desc">AI-authored lesson plans, assessments, and rubrics aligned to Common Core, NGSS, or custom standards.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">✏️</div>
+        <div class="feature-name">Student Assessment</div>
+        <div class="feature-desc">Automated formative and summative assessments with immediate, personalized feedback and bloom's taxonomy alignment.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-name">Progress Tracking</div>
+        <div class="feature-desc">Longitudinal learning analytics with early intervention alerts, parent reporting, and educator dashboards.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">♿</div>
+        <div class="feature-name">Accessibility Support</div>
+        <div class="feature-desc">WCAG 2.1 AA compliant with multi-language support, screen reader optimization, and IEP accommodations.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-name">LMS Integration</div>
+        <div class="feature-desc">Native connectors for Canvas, Schoology, Blackboard, Google Classroom, and Moodle with bi-directional grade sync.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compliance" class="compliance-section">
+  <div class="wrap">
+    <div class="section-label">Privacy & Compliance</div>
+    <h2 class="section-title">Student Privacy First</h2>
+    <p class="section-sub">Designed from the ground up to protect student data. FERPA BAA included on School and District plans.</p>
+    <div class="badges-row">
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">FERPA</div><div class="badge-desc">Full compliance + BAA included</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">COPPA</div><div class="badge-desc">Children's online privacy compliant</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">SOC 2 Type II</div><div class="badge-desc">Annual third-party audit</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">WCAG 2.1 AA</div><div class="badge-desc">Full accessibility compliance</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">CIPA</div><div class="badge-desc">Children's Internet Protection Act</div></div></div>
+    </div>
+    <div style="margin-top:2rem;padding:1.5rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:var(--radius);max-width:680px;">
+      <div style="font-weight:600;color:#fff;margin-bottom:0.5rem;">Student Data Promise</div>
+      <div style="font-size:0.875rem;color:var(--text-muted);">We never sell or share student data with third parties for advertising. Student data is used only to improve learning outcomes. All data is encrypted at rest and in transit. You can request deletion at any time.</div>
+    </div>
+  </div>
+</section>
+
+<section id="agents">
+  <div class="wrap">
+    <div class="section-label">Agent Templates</div>
+    <h2 class="section-title">Educational Agent Library</h2>
+    <p class="section-sub">Pre-built agent templates for educators, curriculum designers, and learning ops teams.</p>
+    <div class="agents-grid">
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Adaptive Tutor</div><div class="agent-latency">&lt;300ms</div></div>
+        <div class="agent-desc">Delivers personalized explanations, hints, and follow-up questions based on student responses and mastery level.</div>
+        <div class="agent-integrations"><span class="integration-tag">Canvas</span><span class="integration-tag">Google Classroom</span><span class="integration-tag">Khan Academy</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Curriculum Generator</div><div class="agent-latency">&lt;5s</div></div>
+        <div class="agent-desc">Generates standards-aligned lesson plans, activities, and assessments for any grade level and subject.</div>
+        <div class="agent-integrations"><span class="integration-tag">Common Core API</span><span class="integration-tag">NGSS</span><span class="integration-tag">State DOE feeds</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Assessment Creator</div><div class="agent-latency">&lt;3s</div></div>
+        <div class="agent-desc">Builds bloom's taxonomy-aligned quizzes, rubrics, and project prompts with auto-grading support.</div>
+        <div class="agent-integrations"><span class="integration-tag">Canvas Quizzes</span><span class="integration-tag">Schoology</span><span class="integration-tag">Formative</span><span class="integration-tag">Edulastic</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Progress Tracker</div><div class="agent-latency">&lt;1s</div></div>
+        <div class="agent-desc">Aggregates multi-source learning data into actionable insights with early intervention alerts for educators.</div>
+        <div class="agent-integrations"><span class="integration-tag">PowerSchool</span><span class="integration-tag">Illuminate</span><span class="integration-tag">Renaissance</span></div>
+      </div>
+    </div>
+    <!-- LMS integrations -->
+    <div>
+      <div class="section-label" style="margin-top:2.5rem;">LMS Integrations</div>
+      <div class="lms-grid">
+        <div class="lms-pill">Canvas</div>
+        <div class="lms-pill">Schoology</div>
+        <div class="lms-pill">Blackboard</div>
+        <div class="lms-pill">Google Classroom</div>
+        <div class="lms-pill">Moodle</div>
+        <div class="lms-pill">PowerSchool</div>
+        <div class="lms-pill">Brightspace</div>
+        <div class="lms-pill">Clever SSO</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="case-study">
+  <div class="wrap">
+    <div class="section-label">Case Study</div>
+    <h2 class="section-title">K-12 School District, 12,000 Students</h2>
+    <div class="case-study">
+      <div>
+        <div class="cs-label">Challenge</div>
+        <div class="cs-value" style="margin-bottom:1.25rem;">Teachers spending 35% of prep time generating differentiated materials for diverse learners across 52 schools.</div>
+        <div class="cs-label">Solution</div>
+        <div class="cs-value">Deployed Curriculum Generator + Adaptive Tutor across all grade levels with Canvas LMS integration. FERPA BAA signed in week 1.</div>
+        <div class="metrics-row">
+          <div class="metric"><div class="metric-value">4 hrs</div><div class="metric-label">Teacher prep saved/week</div></div>
+          <div class="metric"><div class="metric-value">+18%</div><div class="metric-label">Reading proficiency gain</div></div>
+          <div class="metric"><div class="metric-value">31%</div><div class="metric-label">Student engagement increase</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="testimonial">
+          <div class="testimonial-quote">"Our teachers went from spending Sunday nights writing differentiated materials to spending that time with their families. Heady Education changed our district."</div>
+          <div class="testimonial-author">— Superintendent, K-12 District (placeholder)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">From Classroom to District</h2>
+    <p class="section-sub">Free for individual educators. Volume pricing for schools and districts.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Classroom</div>
+        <div class="pricing-price">Free</div>
+        <div class="pricing-billing">Forever · No credit card required</div>
+        <ul class="pricing-features">
+          <li>1 educator account</li>
+          <li>Up to 35 students</li>
+          <li>Adaptive Tutor agent</li>
+          <li>Basic assessments</li>
+          <li>Google Classroom sync</li>
+        </ul>
+        <button class="pricing-cta">Start Free</button>
+      </div>
+      <div class="pricing-card highlighted">
+        <div class="pricing-tier">School</div>
+        <div class="pricing-price">$8<span style="font-size:1rem;font-weight:400;color:var(--text-muted)">/student/yr</span></div>
+        <div class="pricing-billing">Annual · FERPA BAA included</div>
+        <ul class="pricing-features">
+          <li>All educators + admin</li>
+          <li>Unlimited students</li>
+          <li>All 4 agent templates</li>
+          <li>Progress analytics</li>
+          <li>All LMS integrations</li>
+          <li>FERPA BAA included</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="pricing-cta">Start School Pilot</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">District</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-billing">Annual · Volume pricing</div>
+        <ul class="pricing-features">
+          <li>District-wide deployment</li>
+          <li>Custom curriculum standards</li>
+          <li>SIS integration</li>
+          <li>District analytics dashboard</li>
+          <li>Dedicated success manager</li>
+          <li>Professional development</li>
+        </ul>
+        <button class="pricing-cta">Contact District Team</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="wrap">
+    <div class="cta-section">
+      <div class="section-label">Get Started</div>
+      <div class="cta-title">Start Your Free Classroom Pilot</div>
+      <div class="cta-sub">Free for individual educators. No credit card. 35 students. Full Adaptive Tutor access from day one.</div>
+      <div class="hero-actions" style="justify-content:center;">
+        <a href="mailto:education@headyme.com?subject=Education Pilot Request" class="btn-primary">Start Free Pilot</a>
+        <a href="https://headyme.com" class="btn-secondary">← Back to HeadySystems</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">© 2026 HeadySystems Inc. · Heady Education</div>
+    <ul class="footer-links">
+      <li><a href="https://headyme.com/privacy">Privacy</a></li>
+      <li><a href="https://headyme.com/terms">Terms</a></li>
+      <li><a href="https://headyme.com/ferpa">FERPA</a></li>
+      <li><a href="https://headyme.com/security">Security</a></li>
+    </ul>
+    <div class="footer-pplx"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a></div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const canvas = document.getElementById('sacred-bg');
+  const ctx = canvas.getContext('2d');
+  const ACCENT = '#f59e0b';
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; draw(); }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width/2, cy = canvas.height/2;
+    const r = Math.min(canvas.width, canvas.height)*0.38;
+    ctx.strokeStyle = ACCENT; ctx.lineWidth = 0.45;
+    // Lotus pattern
+    for (let ring = 1; ring <= 3; ring++) {
+      for (let i = 0; i < 12; i++) {
+        const a = (i * Math.PI * 2) / 12;
+        const pr = r * ring / 3;
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(a) * pr * 0.5, cy + Math.sin(a) * pr * 0.5, pr * 0.45, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    // Central circle
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.15, 0, Math.PI * 2);
+    ctx.stroke();
+    // Outer boundary
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Animate progress bar on load
+  setTimeout(() => {
+    const bar = document.getElementById('progress-bar');
+    if (bar) { bar.style.width = '82%'; }
+  }, 500);
+})();
+const observer = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
+document.querySelectorAll('.card,.agent-card,.pricing-card,.badge-item').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(16px)';el.style.transition='opacity 0.5s ease, transform 0.5s ease';observer.observe(el);});
+</script>
+</body>
+</html>

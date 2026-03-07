@@ -1,69 +1,77 @@
-# Security Policy
+# Security Policy — HeadySystems™
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 3.1.x   | ✅ Active support   |
-| 3.0.x   | ⚠️ Critical fixes only |
-| < 3.0   | ❌ No longer supported |
+| Version | Supported |
+|---------|-----------|
+| 3.x     | ✅ Active  |
+| 2.x     | ⚠️ Critical fixes only |
+| < 2.0   | ❌ End of life |
 
 ## Reporting a Vulnerability
 
-**DO NOT open a public issue for security vulnerabilities.**
+**DO NOT** open a public issue for security vulnerabilities.
 
-### Responsible Disclosure
+### Responsible Disclosure Process
 
-1. **Email**: <security@headyconnection.org>
-2. **Subject**: `[SECURITY] Brief description`
-3. **Include**:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact assessment
-   - Suggested remediation (if any)
+1. **Email**: <security@headysystems.com>
+2. **PGP Key**: Available at <https://headysystems.com/.well-known/pgp-key.txt>
+3. **Response Time**: We will acknowledge within **24 hours** and provide a fix timeline within **72 hours**
 
-### Response Timeline
+### What to Include
 
-| Action | Timeline |
-|--------|----------|
-| Acknowledgment | Within 24 hours |
-| Initial assessment | Within 72 hours |
-| Fix development | Within 7 days (critical), 30 days (high) |
-| Public disclosure | After fix is deployed |
+- Description of the vulnerability
+- Steps to reproduce
+- Impact assessment
+- Suggested fix (if applicable)
 
 ### Scope
 
-The following are in scope:
+In scope:
 
-- `heady-manager` Cloud Run service
-- API endpoints at `*.headyme.com`, `*.headyconnection.org`, `*.headysystems.com`
-- MCP gateway authentication
-- OAuth 2.1 flows
-- pgvector data isolation (multi-tenant RLS)
-- Cloudflare edge workers
-
-### Out of Scope
-
-- Third-party services (OpenAI, Anthropic, Google APIs)
-- Social engineering attacks
-- Denial of service (volumetric)
-- Issues in dependencies without a working exploit
+- Authentication/authorization bypasses
+- API key or credential exposure
+- Injection vulnerabilities (SQL, NoSQL, command, XSS)
+- Insecure deserialization
+- SSRF, MCP protocol vulnerabilities
+- Sacred Geometry kernel logic exploits
+- Privilege escalation in multi-tenant isolation
 
 ## Security Measures
 
-- **Authentication**: OAuth 2.1 + JWT with short-lived tokens
-- **Authorization**: RBAC with tenant-scoped permissions
-- **Encryption**: TLS 1.3 in transit, AES-256 at rest
-- **Audit**: Immutable SHA-256 hash-chain audit log (GDPR Art. 30)
-- **Prompt Security**: 5-layer prompt injection defense
-- **Rate Limiting**: Token bucket per-tenant rate limiting
-- **Key Management**: Automated rotation with dual-key validation
+### Credential Management
 
-## Bug Bounty
+- All secrets via environment variables (never committed)
+- API keys rotated on schedule via `scripts/credential-rotation/`
+- `.env.hybrid` purged from git history
+- Pre-commit hooks prevent accidental credential commits
 
-We do not currently operate a formal bug bounty program, but we acknowledge and credit responsible disclosures.
+### Infrastructure
+
+- CIS benchmark compliance via `scripts/infrastructure-audit.sh`
+- OAuth 2.0 + PKCE for all authentication flows
+- CSP headers + CORS restricted to known origins
+- TLS 1.3 enforced, Redis ACL-based authentication
+- Chaos engineering resilience drills via `scripts/chaos-engine.py`
+
+### Code Security
+
+- ESLint `no-eval` / `no-implied-eval` / `no-new-func` enforced
+- `npm audit` on every CI run + SAST scanning
+- Post-quantum cryptography (Kyber + Dilithium) available
+
+### Monitoring
+
+- OTel real-time security event logging
+- API key usage anomaly detection
+- Automatic lockout after 5 failed auth attempts
+
+## Compliance
+
+- SOC 2 Type I preparation in progress
+- GDPR data handling documented
+- Multi-tenant data isolation at database, Redis, and vector store levels
 
 ---
 
-**Security Contact**: <security@headyconnection.org>  
-**Maintainer**: <eric@headyconnection.org>
+*HeadySystems™ & HeadyConnection™*

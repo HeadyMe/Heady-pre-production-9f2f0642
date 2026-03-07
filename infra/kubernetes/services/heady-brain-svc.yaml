@@ -1,0 +1,46 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Service: heady-brain
+# heady-systems v3.2.2 — ClusterIP service
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: heady-brain
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-brain
+    app.kubernetes.io/component: brain
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: core
+  annotations:
+    headysystems.com/description: "ClusterIP service for heady-brain — internal only"
+    # Session affinity timeout: φ^5 = 11090ms ≈ 11s (rounded to seconds)
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "89"
+    # Prometheus scrape
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  type: ClusterIP
+  # sessionAffinity: ClientIP for AI session continuity
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      # fib(11)=89 × 10s = 890s timeout (14.8 minutes — for long agent sessions)
+      timeoutSeconds: 890
+  selector:
+    app.kubernetes.io/name: heady-brain
+    app.kubernetes.io/instance: heady-brain-production
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http
+    - name: metrics
+      protocol: TCP
+      port: 9090
+      targetPort: metrics
+    - name: grpc
+      protocol: TCP
+      port: 9000
+      targetPort: grpc

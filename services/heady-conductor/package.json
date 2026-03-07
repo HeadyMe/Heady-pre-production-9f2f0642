@@ -1,0 +1,28 @@
+{
+  "name": "@headysystems/heady-conductor",
+  "version": "2.0.0",
+  "description": "HeadyConductor - Task orchestration and agent coordination",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@headysystems/core": "workspace:*",
+    "@headysystems/types": "workspace:*",
+    "@headysystems/redis": "workspace:*",
+    "express": "^4.18.2",
+    "bull": "^4.12.0",
+    "ioredis": "^5.3.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/bull": "^4.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

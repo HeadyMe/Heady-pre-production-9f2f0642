@@ -1,0 +1,168 @@
+# =============================================================================
+# HeadySystems Vertical Config — Finance
+# Domain: finance.headyme.com
+# Apex module: Trading intelligence
+# =============================================================================
+
+vertical_id: finance
+domain: finance.headyme.com
+fallback_path: /finance
+routing:
+  type: subdomain
+  aliases:
+    - apex.headyme.com
+    - trading.headyme.com
+
+brand:
+  name: "Heady Finance"
+  tagline: "AI Orchestration for Financial Services — Powered by Apex"
+  accent_color: "#10b981"
+  logo_variant: finance
+  font_family: "Inter, sans-serif"
+  icon: "◈"
+  apex_module: true
+
+content:
+  hero:
+    title: "Trading Intelligence & Risk AI"
+    subtitle: "Apex-powered agent orchestration for financial services — sub-millisecond signal processing, regulatory compliance, portfolio optimization"
+    cta_primary: "Access Apex Demo"
+    cta_secondary: "Compliance Briefing"
+
+  features:
+    - name: "Apex Trading Intelligence"
+      description: "Sub-millisecond signal processing with configurable risk constraints and multi-asset support."
+      icon: "apex"
+      badge: "Apex Module"
+    - name: "Risk Analysis"
+      description: "Real-time portfolio risk scoring, VaR calculation, and stress testing across market scenarios."
+      icon: "risk"
+    - name: "Regulatory Compliance"
+      description: "Automated SEC/FINRA reporting, trade surveillance, and best execution documentation."
+      icon: "compliance"
+    - name: "Portfolio Optimization"
+      description: "Factor-based portfolio construction with rebalancing agents and tax-loss harvesting automation."
+      icon: "portfolio"
+    - name: "Market Data Orchestration"
+      description: "Normalized feeds from Bloomberg, Refinitiv, and alternative data sources into agent pipelines."
+      icon: "data"
+    - name: "AML / KYC Automation"
+      description: "Continuous transaction monitoring, SAR generation, and client risk profile updates."
+      icon: "aml"
+
+  agent_templates:
+    - name: "Risk Analyzer"
+      description: "Computes real-time VaR, CVaR, factor exposures, and concentration limits across positions"
+      latency: "<50ms"
+      integrations: ["Bloomberg B-PIPE", "Refinitiv Eikon", "ICE Data Services", "FactSet"]
+    - name: "Trading Signal Processor"
+      description: "Ingests alpha signals, applies risk filters, and generates order instructions for execution"
+      latency: "<1ms"
+      integrations: ["FIX Protocol", "Bloomberg EMSX", "Interactive Brokers TWS", "Fidessa"]
+    - name: "Compliance Reporter"
+      description: "Generates SEC 13F, 13H, FINRA CAT, and MiFID II reporting automatically"
+      latency: "<500ms"
+      integrations: ["DTCC", "FINRA CAT", "SEC EDGAR", "Bloomberg Regulatory"]
+    - name: "Portfolio Optimizer"
+      description: "Runs mean-variance optimization with custom constraints and ESG factor overlays"
+      latency: "<200ms"
+      integrations: ["Bloomberg PORT", "FactSet Analytics", "Axioma", "Barra"]
+
+  compliance_badges:
+    - name: SOC 2 Type II
+      status: certified
+      description: "Annual third-party security audit"
+    - name: SEC
+      status: certified
+      description: "SEC-compliant trade record keeping and reporting"
+    - name: FINRA
+      status: certified
+      description: "FINRA Rule 3110 supervisory system compliance"
+    - name: PCI-DSS
+      status: certified
+      description: "PCI-DSS Level 1 for payment data"
+    - name: MiFID II
+      status: certified
+      description: "EU MiFID II best execution and reporting"
+    - name: GDPR
+      status: certified
+      description: "EU GDPR data processing compliance"
+
+  pricing:
+    tiers:
+      - name: Analyst
+        price: "$99/mo"
+        billing: monthly
+        features:
+          - "10 agent workflows"
+          - "100K market data events/mo"
+          - "Risk analytics dashboard"
+          - "Basic compliance reports"
+          - "Email support"
+      - name: Apex Pro
+        price: "$399/mo"
+        billing: monthly
+        highlighted: true
+        badge: "Most Popular"
+        features:
+          - "Unlimited workflows"
+          - "10M market data events/mo"
+          - "Full Apex trading intelligence"
+          - "All compliance modules"
+          - "Real-time risk monitoring"
+          - "Priority support + SLA"
+          - "Custom signal integrations"
+      - name: Institutional
+        price: "Custom"
+        billing: annual
+        features:
+          - "Dedicated infrastructure"
+          - "Unlimited data events"
+          - "Co-location options"
+          - "Custom regulatory modules"
+          - "White-label available"
+          - "24/7 trading desk support"
+
+  case_study:
+    client: "Quantitative Hedge Fund (placeholder)"
+    challenge: "Alpha signal processing latency causing slippage on 200+ daily signals"
+    solution: "Deployed Apex Trading Signal Processor with FIX Protocol integration"
+    result: "Signal-to-order latency reduced from 45ms to sub-1ms. Annual alpha capture improved by estimated 180bps."
+    metrics:
+      - label: "Latency reduction"
+        value: "98%"
+      - label: "Annual alpha improvement"
+        value: "~180bps"
+      - label: "Compliance reports automated"
+        value: "100%"
+
+  testimonial:
+    quote: "Apex processes our entire signal stack in under a millisecond. The compliance automation alone saved us two full-time headcount."
+    author: "Head of Technology, Quantitative Hedge Fund (placeholder)"
+
+meta:
+  title: "Heady Finance — AI Trading Intelligence & Risk Platform"
+  description: "Apex-powered AI orchestration for financial services. Sub-millisecond trading signal processing, risk analysis, SEC/FINRA compliance, and portfolio optimization."
+  keywords:
+    - "financial AI platform"
+    - "trading AI agents"
+    - "risk analysis automation"
+    - "FINRA compliance AI"
+    - "portfolio optimization"
+    - "Apex trading intelligence"
+    - "quantitative finance AI"
+  og_image: "/assets/finance-og.png"
+  analytics_id: "G-FINANCE"
+  canonical_url: "https://finance.headyme.com"
+
+server:
+  cache_ttl: 60
+  rate_limit: 200
+  cors_origins:
+    - "https://headyme.com"
+    - "https://finance.headyme.com"
+    - "https://apex.headyme.com"
+  health_check: "/_health"
+
+created_at: "2026-03-07T00:00:00Z"
+updated_at: "2026-03-07T00:00:00Z"

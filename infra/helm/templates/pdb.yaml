@@ -1,0 +1,44 @@
+{{/*
+=============================================================================
+HeadySystems Inc. — Helm Template: PodDisruptionBudget
+heady-platform v3.2.2
+=============================================================================
+maxUnavailable: fib(2)=1 for all services
+=============================================================================
+*/}}
+
+{{- $services := list
+  (dict "name" "heady-brain"     "values" .Values.headyBrain)
+  (dict "name" "heady-conductor" "values" .Values.headyConductor)
+  (dict "name" "heady-mcp"       "values" .Values.headyMcp)
+  (dict "name" "heady-web"       "values" .Values.headyWeb)
+-}}
+
+{{- range $svc := $services }}
+{{- if and $svc.values.enabled $svc.values.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ printf "%s-pdb" $svc.name }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/component: pdb
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    headysystems.com/phi: "1.618033988749895"
+    helm.sh/chart: {{ include "heady-platform.chart" $ }}
+  annotations:
+    headysystems.com/phi: "1.618033988749895"
+    headysystems.com/max-unavailable: {{ $svc.values.podDisruptionBudget.maxUnavailable | default 1 | quote }}
+    headysystems.com/derivation: "maxUnavailable=fib(2)=1"
+spec:
+  # maxUnavailable: fib(2)=1 — the second Fibonacci number
+  maxUnavailable: {{ $svc.values.podDisruptionBudget.maxUnavailable | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $svc.name }}
+      app.kubernetes.io/instance: {{ printf "%s-production" $svc.name }}
+{{- end }}
+{{- end }}

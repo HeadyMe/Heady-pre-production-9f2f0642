@@ -1,0 +1,1518 @@
+openapi: 3.1.0
+
+info:
+  title: HeadyOS Platform API
+  description: |
+    Official API for HeadyOS Platform and HeadyMe AI (headyme.com).
+    
+    HeadySystems Inc. (DBA Heady™) — https://headyme.com
+    
+    All numeric parameters derive from φ = 1.618033988749895 and Fibonacci sequences:
+    - Rate limits: Fibonacci burst rates (fib(12)=144 Pilot, fib(14)=377 Pro, fib(16)=987 Enterprise req/min)
+    - Timeout defaults: 1000ms × φ^n
+    - Retry backoff: 1000ms × φ^n
+    
+    ## Authentication
+    Use Bearer JWT or API Key authentication via `Authorization: Bearer <token>` header.
+    
+    ## Rate Limits
+    Rate limit headers returned on every response:
+    - `X-RateLimit-Limit`: Request limit per window
+    - `X-RateLimit-Remaining`: Requests remaining
+    - `X-RateLimit-Reset`: Reset timestamp (Unix)
+    - `X-RateLimit-Window`: Window duration in seconds
+  version: 1.0.0
+  contact:
+    name: HeadySystems SDK Support
+    email: sdk@headyme.com
+    url: https://docs.headyme.com
+  license:
+    name: MIT
+    url: https://github.com/heady-ai/sdk-javascript/blob/main/LICENSE
+  x-logo:
+    url: https://headyme.com/logo.png
+    altText: HeadyOS
+
+servers:
+  - url: https://api.headyme.com/v1
+    description: Production
+  - url: https://api-staging.headyme.com/v1
+    description: Staging
+  - url: http://localhost:8080/v1
+    description: Local development
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+# ---------------------------------------------------------------------------
+# Tags
+# ---------------------------------------------------------------------------
+tags:
+  - name: Auth
+    description: Authentication and API key management
+  - name: Brain
+    description: AI inference — chat, analyze, stream
+  - name: Agents
+    description: AI agent lifecycle management
+  - name: Memory
+    description: Vector memory — store, search, retrieve
+  - name: MCP
+    description: Model Context Protocol tool management and execution
+  - name: Conductor
+    description: Multi-agent orchestration task management
+  - name: Health
+    description: Service health and status
+  - name: DSAR
+    description: GDPR Data Subject Access Requests
+  - name: Consent
+    description: Consent management
+  - name: Privacy
+    description: CCPA privacy rights
+  - name: Compliance
+    description: Compliance and audit exports
+  - name: Webhooks
+    description: Webhook management
+  - name: Tenants
+    description: Multi-tenant management (Enterprise)
+  - name: Events
+    description: Real-time event subscriptions (WebSocket)
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+paths:
+  # Health
+  /health:
+    get:
+      tags: [Health]
+      operationId: healthCheck
+      summary: Health check
+      description: Verify API connectivity and authentication. Returns service status and version.
+      security: []
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /health/detailed:
+    get:
+      tags: [Health]
+      operationId: healthCheckDetailed
+      summary: Detailed health check
+      description: Returns health status for all 21 microservices.
+      responses:
+        "200":
+          description: Detailed service health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DetailedHealthResponse"
+
+  # Auth
+  /auth/token:
+    post:
+      tags: [Auth]
+      operationId: createToken
+      summary: Create access token
+      description: Exchange API key for JWT access/refresh token pair.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenRequest"
+      responses:
+        "200":
+          description: Token created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/token/refresh:
+    post:
+      tags: [Auth]
+      operationId: refreshToken
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+
+  /auth/keys:
+    get:
+      tags: [Auth]
+      operationId: listApiKeys
+      summary: List API keys
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: API key list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeyListResponse"
+    post:
+      tags: [Auth]
+      operationId: createApiKey
+      summary: Create API key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApiKeyRequest"
+      responses:
+        "201":
+          description: API key created (raw key shown only once)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeyCreatedResponse"
+
+  /auth/keys/{keyId}:
+    delete:
+      tags: [Auth]
+      operationId: revokeApiKey
+      summary: Revoke API key
+      parameters:
+        - $ref: "#/components/parameters/KeyId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Deleted"
+
+  # Brain
+  /brain/chat:
+    post:
+      tags: [Brain]
+      operationId: brainChat
+      summary: Chat with AI brain
+      description: |
+        Send messages to the HeadyOS AI brain (GPT-4o, Claude, Llama, etc.)
+        with optional MCP tool access and vector memory context.
+        
+        Default temperature: 1/φ ≈ 0.618 (HIGH CSL threshold)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatRequest"
+            example:
+              messages:
+                - role: "user"
+                  content: "What is multi-agent orchestration?"
+              temperature: 0.618
+      responses:
+        "200":
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /brain/analyze:
+    post:
+      tags: [Brain]
+      operationId: brainAnalyze
+      summary: Analyze text with AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeRequest"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyzeResponse"
+
+  # Agents
+  /agents:
+    get:
+      tags: [Agents]
+      operationId: listAgents
+      summary: List agents
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, deploying, error]
+        - name: capability
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Agent list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentListResponse"
+    post:
+      tags: [Agents]
+      operationId: createAgent
+      summary: Create agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentConfig"
+      responses:
+        "201":
+          description: Agent created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+
+  /agents/{agentId}:
+    get:
+      tags: [Agents]
+      operationId: getAgent
+      summary: Get agent
+      parameters:
+        - $ref: "#/components/parameters/AgentId"
+      responses:
+        "200":
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Agents]
+      operationId: updateAgent
+      summary: Update agent
+      parameters:
+        - $ref: "#/components/parameters/AgentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentUpdateRequest"
+      responses:
+        "200":
+          description: Updated agent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Agent"
+    delete:
+      tags: [Agents]
+      operationId: deleteAgent
+      summary: Delete agent
+      parameters:
+        - $ref: "#/components/parameters/AgentId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Deleted"
+
+  # Memory
+  /memory:
+    get:
+      tags: [Memory]
+      operationId: listMemoryEntries
+      summary: List memory entries
+      parameters:
+        - name: namespace
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Memory entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemoryListResponse"
+    post:
+      tags: [Memory]
+      operationId: storeMemory
+      summary: Store to vector memory
+      description: Store a key-value pair with automatic vector embedding generation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemoryStoreRequest"
+      responses:
+        "201":
+          description: Memory stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemoryEntry"
+
+  /memory/search:
+    post:
+      tags: [Memory]
+      operationId: searchMemory
+      summary: Semantic search
+      description: |
+        Semantic similarity search using cosine distance.
+        Default minScore: 1/φ² ≈ 0.382 (MODERATE CSL threshold)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemorySearchRequest"
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemorySearchResponse"
+
+  /memory/get:
+    get:
+      tags: [Memory]
+      operationId: getMemoryByKey
+      summary: Get memory by key
+      parameters:
+        - name: key
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: namespace
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Memory entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemoryEntry"
+
+  /memory/{key}:
+    delete:
+      tags: [Memory]
+      operationId: deleteMemory
+      summary: Delete memory entry
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: namespace
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Deleted"
+
+  # MCP
+  /mcp/tools:
+    get:
+      tags: [MCP]
+      operationId: listMCPTools
+      summary: List MCP tools
+      description: List all available Model Context Protocol tools registered in HeadyOS.
+      responses:
+        "200":
+          description: Tool list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MCPTool"
+
+  /mcp/tools/execute:
+    post:
+      tags: [MCP]
+      operationId: executeMCPTool
+      summary: Execute MCP tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MCPExecuteRequest"
+      responses:
+        "200":
+          description: Tool execution result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPExecuteResponse"
+
+  /mcp/tools/{toolName}:
+    get:
+      tags: [MCP]
+      operationId: getMCPTool
+      summary: Get MCP tool details
+      parameters:
+        - name: toolName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Tool details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPTool"
+
+  # Conductor
+  /conductor/tasks:
+    get:
+      tags: [Conductor]
+      operationId: listTasks
+      summary: List Conductor tasks
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: agentId
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          description: Task list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskListResponse"
+    post:
+      tags: [Conductor]
+      operationId: submitTask
+      summary: Submit orchestration task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConductorTaskRequest"
+      responses:
+        "201":
+          description: Task submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConductorTaskStatus"
+
+  /conductor/tasks/{taskId}:
+    get:
+      tags: [Conductor]
+      operationId: getTaskStatus
+      summary: Get task status
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "200":
+          description: Task status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConductorTaskStatus"
+
+  /conductor/tasks/{taskId}/cancel:
+    post:
+      tags: [Conductor]
+      operationId: cancelTask
+      summary: Cancel task
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "200":
+          description: Task cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConductorTaskStatus"
+
+  # DSAR
+  /dsar:
+    post:
+      tags: [DSAR]
+      operationId: submitDSAR
+      summary: Submit GDPR DSAR request
+      description: Submit a Data Subject Access Request. 30-day compliance window per GDPR Art. 12.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DSARRequest"
+      responses:
+        "201":
+          description: DSAR submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DSARResponse"
+
+  /dsar/{requestId}:
+    get:
+      tags: [DSAR]
+      operationId: getDSARStatus
+      summary: Get DSAR status
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: DSAR status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DSARStatusResponse"
+
+  # Consent
+  /consent/{userId}:
+    get:
+      tags: [Consent]
+      operationId: getConsentStatus
+      summary: Get consent status
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Consent status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentStatusResponse"
+
+  /consent:
+    post:
+      tags: [Consent]
+      operationId: recordConsent
+      summary: Record consent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecordConsentRequest"
+      responses:
+        "201":
+          description: Consent recorded
+    delete:
+      tags: [Consent]
+      operationId: withdrawConsent
+      summary: Withdraw consent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawConsentRequest"
+      responses:
+        "200":
+          description: Consent withdrawn
+
+  # Webhooks
+  /webhooks:
+    get:
+      tags: [Webhooks]
+      operationId: listWebhooks
+      summary: List webhooks
+      responses:
+        "200":
+          description: Webhook list
+    post:
+      tags: [Webhooks]
+      operationId: createWebhook
+      summary: Create webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookCreateRequest"
+      responses:
+        "201":
+          description: Webhook created
+
+  /webhooks/{webhookId}:
+    delete:
+      tags: [Webhooks]
+      operationId: deleteWebhook
+      summary: Delete webhook
+      parameters:
+        - name: webhookId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Deleted"
+
+# ---------------------------------------------------------------------------
+# Components
+# ---------------------------------------------------------------------------
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT Bearer token from /auth/token or /auth/token/refresh"
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "API Key: 'Bearer hdy_your_api_key'"
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 89  # fib(11)=89
+        default: 13  # fib(7)=13
+    AgentId:
+      name: agentId
+      in: path
+      required: true
+      schema:
+        type: string
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema:
+        type: string
+    KeyId:
+      name: keyId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    Unauthorized:
+      description: Unauthorized — invalid or missing API key/JWT
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ValidationError:
+      description: Input validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationErrorResponse"
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying
+        X-RateLimit-Reset:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RateLimitErrorResponse"
+    Deleted:
+      description: Resource deleted
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              deletedId:
+                type: string
+
+  schemas:
+    # Common
+    ErrorResponse:
+      type: object
+      required: [error, code]
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        requestId:
+          type: string
+        retryable:
+          type: boolean
+
+    ValidationErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/ErrorResponse"
+        - type: object
+          properties:
+            issues:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+                  code:
+                    type: string
+
+    RateLimitErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/ErrorResponse"
+        - type: object
+          properties:
+            retryAfterMs:
+              type: integer
+            limit:
+              type: integer
+            remaining:
+              type: integer
+            resetAt:
+              type: string
+              format: date-time
+
+    PaginatedMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    # Health
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    DetailedHealthResponse:
+      allOf:
+        - $ref: "#/components/schemas/HealthResponse"
+        - type: object
+          properties:
+            services:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  latencyMs:
+                    type: integer
+
+    # Auth
+    TokenRequest:
+      type: object
+      required: [apiKey]
+      properties:
+        apiKey:
+          type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        tokenType:
+          type: string
+          enum: [Bearer]
+
+    CreateApiKeyRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        expiresAt:
+          type: string
+          format: date-time
+
+    ApiKeyCreatedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        key:
+          type: string
+          description: Raw API key — shown only once
+        prefix:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ApiKeyListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ApiKeyMeta"
+
+    ApiKeyMeta:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        prefix:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        lastUsedAt:
+          type: string
+          format: date-time
+
+    # Brain
+    Message:
+      type: object
+      required: [role, content]
+      properties:
+        role:
+          type: string
+          enum: [user, assistant, system, function]
+        content:
+          type: string
+        name:
+          type: string
+        functionCall:
+          type: object
+          properties:
+            name:
+              type: string
+            arguments:
+              type: string
+
+    ChatRequest:
+      type: object
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+        model:
+          type: string
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.618
+          description: "Default: 1/φ ≈ 0.618 (HIGH CSL threshold)"
+        maxTokens:
+          type: integer
+        stream:
+          type: boolean
+          default: false
+        systemPrompt:
+          type: string
+        agentId:
+          type: string
+        memoryNamespace:
+          type: string
+
+    ChatResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        model:
+          type: string
+        message:
+          $ref: "#/components/schemas/Message"
+        usage:
+          type: object
+          properties:
+            promptTokens:
+              type: integer
+            completionTokens:
+              type: integer
+            totalTokens:
+              type: integer
+        finishReason:
+          type: string
+        latencyMs:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    AnalyzeRequest:
+      type: object
+      required: [input]
+      properties:
+        input:
+          type: string
+        analysisType:
+          type: string
+          default: reasoning
+        outputFormat:
+          type: string
+          enum: [json, text, markdown]
+        confidence:
+          type: boolean
+        model:
+          type: string
+
+    AnalyzeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        analysisType:
+          type: string
+        result:
+          description: Analysis result (format depends on outputFormat)
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        model:
+          type: string
+        latencyMs:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    # Agents
+    AgentConfig:
+      type: object
+      required: [name, systemPrompt, capabilities]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        systemPrompt:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+            enum: [mcp_tools, web_search, code_execution, memory_read, memory_write, conductor_submit]
+        model:
+          type: string
+        tools:
+          type: array
+          items:
+            type: string
+        memoryNamespace:
+          type: string
+        maxIterations:
+          type: integer
+          default: 13
+          description: "Default: fib(7)=13"
+        temperature:
+          type: number
+          default: 0.618
+
+    AgentUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        systemPrompt:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, inactive]
+
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        systemPrompt:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        model:
+          type: string
+        tools:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, inactive, deploying, error]
+        memoryNamespace:
+          type: string
+        maxIterations:
+          type: integer
+        ownerId:
+          type: string
+        tenantId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AgentListResponse:
+      allOf:
+        - $ref: "#/components/schemas/PaginatedMeta"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/Agent"
+
+    # Memory
+    MemoryStoreRequest:
+      type: object
+      required: [key, value]
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        namespace:
+          type: string
+        metadata:
+          type: object
+        ttlDays:
+          type: integer
+          default: 233
+          description: "Default: fib(13)=233 days"
+
+    MemorySearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+        namespace:
+          type: string
+        topK:
+          type: integer
+          default: 5
+          description: "Default: fib(5)=5"
+        minScore:
+          type: number
+          default: 0.382
+          description: "Default: 1/φ² ≈ 0.382 (MODERATE CSL threshold)"
+        filter:
+          type: object
+        includeMetadata:
+          type: boolean
+          default: true
+
+    MemoryEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          type: string
+        value:
+          type: string
+        namespace:
+          type: string
+        metadata:
+          type: object
+        score:
+          type: number
+          description: Cosine similarity score (0.0–1.0)
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    MemorySearchResponse:
+      type: object
+      properties:
+        query:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/MemoryEntry"
+        totalFound:
+          type: integer
+        searchLatencyMs:
+          type: integer
+
+    MemoryListResponse:
+      allOf:
+        - $ref: "#/components/schemas/PaginatedMeta"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/MemoryEntry"
+
+    # MCP
+    MCPTool:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        inputSchema:
+          type: object
+        outputSchema:
+          type: object
+        serverName:
+          type: string
+        version:
+          type: string
+        requiresAuth:
+          type: boolean
+
+    MCPExecuteRequest:
+      type: object
+      required: [name, arguments]
+      properties:
+        name:
+          type: string
+        arguments:
+          type: object
+        timeout:
+          type: number
+          default: 6.854
+          description: "Default: 1000ms × φ^4 / 1000 ≈ 6.854s"
+        retries:
+          type: integer
+          default: 3
+          description: "Default: fib(4)=3"
+        context:
+          type: object
+
+    MCPExecuteResponse:
+      type: object
+      properties:
+        toolName:
+          type: string
+        result:
+          description: Tool execution result
+        isError:
+          type: boolean
+        errorMessage:
+          type: string
+        executionMs:
+          type: integer
+        executedAt:
+          type: string
+          format: date-time
+
+    # Conductor
+    ConductorTaskRequest:
+      type: object
+      required: [type, input]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        input:
+          type: object
+        agentId:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high, critical]
+          default: normal
+        maxSteps:
+          type: integer
+          default: 21
+          description: "Default: fib(8)=21"
+        timeout:
+          type: number
+          default: 46.37
+          description: "Default: 1000ms × φ^8 / 1000 ≈ 46.37s"
+        webhookUrl:
+          type: string
+          format: uri
+
+    ConductorTaskStatus:
+      type: object
+      properties:
+        taskId:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled, awaiting_review]
+        priority:
+          type: string
+        currentStep:
+          type: integer
+        maxSteps:
+          type: integer
+        progress:
+          type: number
+          minimum: 0
+          maximum: 1
+        result:
+          description: Task result (present when completed)
+        error:
+          type: string
+        agentId:
+          type: string
+        submittedBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+
+    TaskListResponse:
+      allOf:
+        - $ref: "#/components/schemas/PaginatedMeta"
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: "#/components/schemas/ConductorTaskStatus"
+
+    # DSAR
+    DSARRequest:
+      type: object
+      required: [subjectId, requestType, email, name]
+      properties:
+        subjectId:
+          type: string
+        requestType:
+          type: string
+          enum: [access, rectification, erasure, restriction, portability, objection]
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        exportFormat:
+          type: string
+          enum: [json, csv, pdf]
+          default: json
+
+    DSARResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        status:
+          type: string
+        deadline:
+          type: string
+          format: date-time
+        message:
+          type: string
+
+    DSARStatusResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        status:
+          type: string
+        requestType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        deadline:
+          type: string
+          format: date-time
+
+    # Consent
+    RecordConsentRequest:
+      type: object
+      required: [userId, purposes, source]
+      properties:
+        userId:
+          type: string
+        purposes:
+          type: array
+          items:
+            type: string
+            enum: [analytics, ai_training, marketing, third_party, personalization, research]
+        source:
+          type: string
+          enum: [web_banner, settings_page, api, onboarding, email_link, gpc_signal]
+
+    WithdrawConsentRequest:
+      type: object
+      required: [userId, purposes]
+      properties:
+        userId:
+          type: string
+        purposes:
+          type: array
+          items:
+            type: string
+        reason:
+          type: string
+
+    ConsentStatusResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        purposes:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+              grantedAt:
+                type: string
+                format: date-time
+              withdrawnAt:
+                type: string
+                format: date-time
+
+    # Webhooks
+    WebhookCreateRequest:
+      type: object
+      required: [url, events]
+      properties:
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        secret:
+          type: string
+          description: Optional HMAC secret for payload signing
+        description:
+          type: string

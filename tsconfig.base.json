@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@headysystems/core": ["packages/core/src"],
+      "@headysystems/types": ["packages/types/src"],
+      "@headysystems/config": ["packages/config/src"],
+      "@headysystems/redis": ["packages/redis/src"],
+      "@headysystems/mcp": ["packages/mcp/src"],
+      "@headysystems/semantic-logic": ["packages/semantic-logic/src"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build", ".turbo"]
+}

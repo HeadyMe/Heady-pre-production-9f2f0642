@@ -1,0 +1,105 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Namespace Definition
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# Namespace: heady-system
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: heady-system
+  labels:
+    app.kubernetes.io/name: heady-system
+    app.kubernetes.io/managed-by: helm
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/version: "3.2.2"
+    headysystems.com/phi: "1.618033988749895"
+    headysystems.com/environment: production
+    # Pod Security Standards
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+  annotations:
+    headysystems.com/description: "HeadySystems production namespace — φ-governed microservices"
+    headysystems.com/version: "3.2.2"
+    headysystems.com/contact: "eric@headyconnection.org"
+    # fib(8)=21 → resource quota reference
+    headysystems.com/resource-quota-tier: "fib-8-21"
+    scheduler.alpha.kubernetes.io/preferred-zone: "us-central1-a"
+---
+# ResourceQuota — φ-scaled limits for the namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: heady-system-quota
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/part-of: heady-platform
+spec:
+  hard:
+    # fib(10)=55 pods maximum in namespace
+    pods: "55"
+    # fib(9)=34 services
+    services: "34"
+    # fib(7)=13 deployments (approximate via count)
+    replicationcontrollers: "13"
+    # CPU: fib(8)=21 cores total
+    requests.cpu: "21"
+    limits.cpu: "34"
+    # Memory: fib(8)=21 × 512Mi
+    requests.memory: "10752Mi"    # 21 × 512Mi = 10752Mi
+    limits.memory: "17408Mi"      # 34 × 512Mi = 17408Mi
+    # Storage: fib(9)=34 × 10Gi
+    requests.storage: "340Gi"
+    # PVCs: fib(7)=13
+    persistentvolumeclaims: "13"
+    # ConfigMaps: fib(8)=21
+    configmaps: "21"
+    # Secrets: fib(7)=13
+    secrets: "13"
+    # Services LoadBalancer: fib(4)=3
+    services.loadbalancers: "3"
+    # Services NodePort: fib(5)=5
+    services.nodeports: "5"
+---
+# LimitRange — default resource constraints per pod
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: heady-system-limitrange
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/part-of: heady-platform
+spec:
+  limits:
+    - type: Container
+      default:
+        # fib(5)=5 → 500m CPU default limit
+        cpu: "500m"
+        # fib(12)=144 × ~3.5Mi ≈ 512Mi default memory limit
+        memory: "512Mi"
+      defaultRequest:
+        # fib(3)=2 → 200m CPU default request
+        cpu: "200m"
+        # fib(7)=13 × ~10Mi ≈ 128Mi default memory request
+        memory: "128Mi"
+      max:
+        # fib(9)=34 × 125m ≈ 4 CPU max per container
+        cpu: "4"
+        # fib(8)=21 × ~100Mi ≈ 2Gi max per container
+        memory: "2Gi"
+      min:
+        # fib(2)=1 → 50m CPU minimum
+        cpu: "50m"
+        memory: "64Mi"
+    - type: Pod
+      max:
+        cpu: "8"
+        memory: "4Gi"
+    - type: PersistentVolumeClaim
+      max:
+        storage: "100Gi"
+      min:
+        storage: "1Gi"

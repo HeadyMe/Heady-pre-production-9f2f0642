@@ -1,0 +1,117 @@
+{{/*
+=============================================================================
+HeadySystems Inc. — Helm Template: Ingress
+heady-platform v3.2.2
+=============================================================================
+Generates Ingress with TLS for all 9 domains
+=============================================================================
+*/}}
+{{- if .Values.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "heady-platform.fullname" . }}-ingress
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "heady-platform.name" . }}-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    headysystems.com/phi: "1.618033988749895"
+    helm.sh/chart: {{ include "heady-platform.chart" . }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+    {{- if .Values.ingress.tls }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.certIssuer | quote }}
+    {{- end }}
+    # φ-scaled timeout annotations
+    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ .Values.ingress.proxyReadTimeout | default 89 | quote }}
+    nginx.ingress.kubernetes.io/proxy-send-timeout: {{ .Values.ingress.proxySendTimeout | default 21 | quote }}
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: {{ .Values.ingress.proxyConnectTimeout | default 8 | quote }}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.proxyBodySize | default "34m" | quote }}
+    # φ-scaled rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: {{ .Values.ingress.rateLimitRps | default 89 | quote }}
+    nginx.ingress.kubernetes.io/limit-connections: {{ .Values.ingress.rateLimitConnections | default 13 | quote }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+      more_set_headers "X-Heady-Version: {{ .Chart.AppVersion }}";
+      more_set_headers "X-Heady-Phi: 1.618033988749895";
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-max-age: "8900"
+    headysystems.com/phi: "1.618033988749895"
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range $domain := .Values.global.domains.all }}
+    - hosts:
+        - {{ $domain }}
+        - {{ printf "www.%s" $domain }}
+      secretName: {{ printf "tls-%s" ($domain | replace "." "-") }}
+    {{- end }}
+  {{- end }}
+  rules:
+    # Primary domain with full API routing
+    - host: {{ .Values.global.domains.primary }}
+      http:
+        paths:
+          - path: /api/v1/brain
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-brain
+                port:
+                  name: http
+          - path: /api/v1/mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-mcp
+                port:
+                  name: http
+          - path: /api/v1/conductor
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-conductor
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    # All other domains: route to heady-web
+    {{- range $domain := .Values.global.domains.all }}
+    {{- if ne $domain $.Values.global.domains.primary }}
+    - host: {{ $domain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: {{ printf "www.%s" $domain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    {{- end }}
+    {{- end }}
+{{- end }}

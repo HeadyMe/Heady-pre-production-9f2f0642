@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heady Finance — AI Trading Intelligence & Risk Platform</title>
+<meta name="description" content="Apex-powered AI orchestration for financial services. Sub-millisecond trading signal processing, risk analysis, SEC/FINRA compliance, and portfolio optimization.">
+<meta name="keywords" content="financial AI platform, trading AI agents, risk analysis automation, FINRA compliance AI, Apex trading intelligence">
+<meta property="og:title" content="Heady Finance — AI Trading Intelligence & Risk Platform">
+<meta property="og:description" content="Apex-powered agent orchestration for financial services — sub-millisecond signal processing.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://finance.headyme.com">
+<link rel="canonical" href="https://finance.headyme.com">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Heady Finance",
+  "description": "Apex-powered AI orchestration platform for financial services",
+  "url": "https://finance.headyme.com",
+  "applicationCategory": "FinanceApplication",
+  "creator": {"@type": "SoftwareApplication", "name": "Perplexity Computer", "url": "https://www.perplexity.ai/computer"}
+}
+</script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --accent: #10b981;
+    --accent-dim: rgba(16,185,129,0.12);
+    --accent-border: rgba(16,185,129,0.28);
+    --bg: #0a0e17;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-card-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-xs: #64748b;
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  #sacred-bg { position: fixed; inset: 0; z-index: 0; opacity: 0.14; pointer-events: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,14,23,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 1.5rem; }
+  .nav-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; }
+  .nav-logo-mark { width: 32px; height: 32px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: opacity 0.2s; }
+  .nav-cta:hover { opacity: 0.85; }
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 1.5rem 4rem; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid var(--accent-border); color: var(--accent); padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .apex-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: var(--accent); padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-left: 0.5rem; }
+  h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; color: #fff; }
+  h1 span { color: var(--accent); }
+  .hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-muted); max-width: 620px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--accent); color: #fff; border: none; padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; backdrop-filter: blur(8px); }
+  .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--accent-border); }
+  section { padding: 5rem 0; position: relative; z-index: 1; }
+  .section-label { color: var(--accent); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .section-title { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; color: #fff; margin-bottom: 1rem; }
+  .section-sub { color: var(--text-muted); font-size: 1.1rem; max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; backdrop-filter: blur(12px); transition: all 0.3s; }
+  .card:hover { background: var(--bg-card-hover); border-color: var(--accent-border); transform: translateY(-2px); }
+  .card.apex-card { border-color: rgba(16,185,129,0.2); }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+  .feature-icon { width: 44px; height: 44px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
+  .feature-name { font-size: 1.05rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+  .feature-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+  /* Ticker tape */
+  .ticker-wrap { overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.75rem 0; background: rgba(16,185,129,0.03); }
+  .ticker { display: flex; gap: 3rem; animation: ticker-scroll 30s linear infinite; white-space: nowrap; }
+  @keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .ticker-item { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; }
+  .ticker-item .up { color: var(--accent); }
+  .ticker-item .down { color: #ef4444; }
+  .compliance-section { background: rgba(16,185,129,0.03); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .badges-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .badge-item { display: flex; align-items: center; gap: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1.25rem; transition: border-color 0.2s; }
+  .badge-item:hover { border-color: var(--accent-border); }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .badge-name { font-weight: 600; font-size: 0.875rem; color: #fff; }
+  .badge-desc { font-size: 0.75rem; color: var(--text-muted); }
+  .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .agent-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; transition: all 0.3s; }
+  .agent-card:hover { border-color: var(--accent-border); background: var(--bg-card-hover); }
+  .agent-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .agent-name { font-weight: 600; font-size: 1rem; color: #fff; }
+  .agent-latency { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; color: var(--accent); background: var(--accent-dim); border: 1px solid var(--accent-border); padding: 0.2rem 0.5rem; border-radius: 6px; }
+  .agent-latency.ultra { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .agent-desc { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+  .agent-integrations { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .integration-tag { font-size: 0.7rem; color: var(--text-xs); background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.5rem; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+  .pricing-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; transition: all 0.3s; }
+  .pricing-card.highlighted { border-color: var(--accent); background: rgba(16,185,129,0.05); }
+  .pricing-card:hover { transform: translateY(-2px); }
+  .pricing-tier { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .pricing-price { font-size: 2.25rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+  .pricing-billing { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .pricing-features { list-style: none; }
+  .pricing-features li { font-size: 0.875rem; color: var(--text-muted); padding: 0.4rem 0; display: flex; align-items: center; gap: 0.6rem; }
+  .pricing-features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .pricing-cta { margin-top: 1.75rem; width: 100%; padding: 0.875rem; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .pricing-card.highlighted .pricing-cta { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pricing-cta:hover { border-color: var(--accent); color: var(--accent); }
+  .pricing-card.highlighted .pricing-cta:hover { opacity: 0.85; }
+  .case-study { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 720px) { .case-study { grid-template-columns: 1fr; } }
+  .cs-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .cs-value { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+  .metrics-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .metric { text-align: center; }
+  .metric-value { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .metric-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+  .testimonial { background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; margin-top: 1.5rem; }
+  .testimonial-quote { font-size: 1.1rem; color: var(--text); line-height: 1.7; margin-bottom: 1rem; font-style: italic; }
+  .testimonial-author { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+  .cta-section { text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 4rem 2rem; margin: 2rem 0; }
+  .cta-title { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; color: #fff; margin-bottom: 0.75rem; }
+  .cta-sub { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; }
+  footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; position: relative; z-index: 1; }
+  .footer-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-brand { font-weight: 600; color: var(--text-muted); font-size: 0.875rem; }
+  .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+  .footer-links a { color: var(--text-xs); text-decoration: none; font-size: 0.8rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-pplx a { color: var(--accent); text-decoration: none; font-size: 0.75rem; }
+  @media (max-width: 640px) { .nav-links { display: none; } h1 { font-size: 2.25rem; } }
+</style>
+</head>
+<body>
+<canvas id="sacred-bg"></canvas>
+<nav>
+  <div class="nav-inner">
+    <a href="https://headyme.com" class="nav-logo">
+      <div class="nav-logo-mark">◈</div>
+      <span>Heady <strong>Finance</strong></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#apex">Apex</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#compliance">Compliance</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">Access Apex Demo</a>
+  </div>
+</nav>
+
+<!-- Ticker tape -->
+<div class="ticker-wrap" style="position:fixed;top:64px;left:0;right:0;z-index:99;">
+  <div class="ticker">
+    <div class="ticker-item">AAPL <span class="up">+1.24%</span></div>
+    <div class="ticker-item">MSFT <span class="up">+0.87%</span></div>
+    <div class="ticker-item">NVDA <span class="up">+2.34%</span></div>
+    <div class="ticker-item">TSLA <span class="down">−0.56%</span></div>
+    <div class="ticker-item">SPY <span class="up">+0.43%</span></div>
+    <div class="ticker-item">QQQ <span class="up">+0.71%</span></div>
+    <div class="ticker-item">BTC <span class="up">+3.12%</span></div>
+    <div class="ticker-item">ETH <span class="up">+2.08%</span></div>
+    <div class="ticker-item">GOLD <span class="down">−0.22%</span></div>
+    <div class="ticker-item">Signal Latency <span class="up">&lt;1ms</span></div>
+    <!-- Duplicate for infinite scroll -->
+    <div class="ticker-item">AAPL <span class="up">+1.24%</span></div>
+    <div class="ticker-item">MSFT <span class="up">+0.87%</span></div>
+    <div class="ticker-item">NVDA <span class="up">+2.34%</span></div>
+    <div class="ticker-item">TSLA <span class="down">−0.56%</span></div>
+    <div class="ticker-item">SPY <span class="up">+0.43%</span></div>
+    <div class="ticker-item">QQQ <span class="up">+0.71%</span></div>
+    <div class="ticker-item">BTC <span class="up">+3.12%</span></div>
+    <div class="ticker-item">ETH <span class="up">+2.08%</span></div>
+    <div class="ticker-item">GOLD <span class="down">−0.22%</span></div>
+    <div class="ticker-item">Signal Latency <span class="up">&lt;1ms</span></div>
+  </div>
+</div>
+
+<section class="hero" style="padding-top:8rem;">
+  <div class="wrap" style="max-width:800px">
+    <div class="hero-badge">◈ Apex Module · SEC · FINRA · PCI-DSS</div>
+    <h1>Trading Intelligence<br>& <span>Risk AI</span></h1>
+    <p class="hero-sub">Apex-powered agent orchestration for financial services — sub-millisecond signal processing, real-time risk analytics, and automated regulatory compliance across all asset classes.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">Access Apex Demo</a>
+      <a href="#compliance" class="btn-secondary">Compliance Briefing</a>
+    </div>
+  </div>
+</section>
+
+<!-- Apex feature highlight -->
+<section id="apex" style="padding-top:2rem;">
+  <div class="wrap">
+    <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.25);border-radius:var(--radius-lg);padding:2.5rem;display:flex;align-items:flex-start;gap:2rem;flex-wrap:wrap;">
+      <div style="flex:0 0 auto;width:64px;height:64px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">◈</div>
+      <div style="flex:1;min-width:240px;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+          <span style="font-size:1.25rem;font-weight:700;color:#fff;">Apex Module</span>
+          <span class="apex-badge">Exclusive</span>
+        </div>
+        <div style="color:var(--text-muted);font-size:0.95rem;line-height:1.7;margin-bottom:1rem;">The Apex module delivers sub-millisecond trading intelligence — ingesting alpha signals, applying configurable risk constraints, and generating order instructions for execution via FIX Protocol. Supports equities, futures, options, forex, and crypto.</div>
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+          <div><div style="font-size:1.5rem;font-weight:700;color:var(--accent);">&lt;1ms</div><div style="font-size:0.75rem;color:var(--text-muted);">Signal-to-order latency</div></div>
+          <div><div style="font-size:1.5rem;font-weight:700;color:var(--accent);">200+</div><div style="font-size:0.75rem;color:var(--text-muted);">Signals/day supported</div></div>
+          <div><div style="font-size:1.5rem;font-weight:700;color:var(--accent);">FIX 4.4</div><div style="font-size:0.75rem;color:var(--text-muted);">Protocol support</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-label">Platform</div>
+    <h2 class="section-title">Financial Services AI Stack</h2>
+    <p class="section-sub">Six capabilities for the full financial services workflow — from signal to settlement, risk to reporting.</p>
+    <div class="features-grid">
+      <div class="card apex-card">
+        <div class="feature-icon">◈</div>
+        <div class="feature-name">Apex Trading Intelligence <span class="apex-badge">Module</span></div>
+        <div class="feature-desc">Sub-millisecond signal processing with configurable risk constraints and multi-asset support via FIX Protocol.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📉</div>
+        <div class="feature-name">Risk Analysis</div>
+        <div class="feature-desc">Real-time portfolio risk scoring, VaR/CVaR calculation, and stress testing across market scenarios.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📋</div>
+        <div class="feature-name">Regulatory Compliance</div>
+        <div class="feature-desc">Automated SEC 13F/13H, FINRA CAT, and MiFID II reporting. Trade surveillance and best execution documentation.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📈</div>
+        <div class="feature-name">Portfolio Optimization</div>
+        <div class="feature-desc">Factor-based portfolio construction with rebalancing agents, tax-loss harvesting, and ESG overlay support.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📡</div>
+        <div class="feature-name">Market Data Orchestration</div>
+        <div class="feature-desc">Normalized feeds from Bloomberg, Refinitiv, and alternative data sources routed into agent pipelines.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🔎</div>
+        <div class="feature-name">AML / KYC Automation</div>
+        <div class="feature-desc">Continuous transaction monitoring, automated SAR generation, and client risk profile updates.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compliance" class="compliance-section">
+  <div class="wrap">
+    <div class="section-label">Regulatory Compliance</div>
+    <h2 class="section-title">Compliant Across Every Jurisdiction</h2>
+    <p class="section-sub">Certified or actively compliant with all major financial regulatory frameworks.</p>
+    <div class="badges-row">
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">SOC 2 Type II</div><div class="badge-desc">Annual third-party audit</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">SEC</div><div class="badge-desc">SEC-compliant recordkeeping</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">FINRA</div><div class="badge-desc">Rule 3110 supervisory system</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">PCI-DSS Level 1</div><div class="badge-desc">Payment data security</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">MiFID II</div><div class="badge-desc">EU best execution & reporting</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">GDPR</div><div class="badge-desc">EU data processing compliance</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="agents">
+  <div class="wrap">
+    <div class="section-label">Agent Templates</div>
+    <h2 class="section-title">Financial Agent Library</h2>
+    <p class="section-sub">Pre-built agent templates for quant, risk, and compliance workflows.</p>
+    <div class="agents-grid">
+      <div class="agent-card" style="border-color:rgba(16,185,129,0.2);">
+        <div class="agent-header"><div class="agent-name">Risk Analyzer</div><div class="agent-latency">&lt;50ms</div></div>
+        <div class="agent-desc">Computes real-time VaR, CVaR, factor exposures, and concentration limits across positions.</div>
+        <div class="agent-integrations"><span class="integration-tag">Bloomberg B-PIPE</span><span class="integration-tag">Refinitiv Eikon</span><span class="integration-tag">FactSet</span></div>
+      </div>
+      <div class="agent-card" style="border-color:rgba(16,185,129,0.3);">
+        <div class="agent-header"><div class="agent-name">Trading Signal Processor</div><div class="agent-latency ultra">&lt;1ms</div></div>
+        <div class="agent-desc">Ingests alpha signals, applies risk filters, and generates order instructions for execution via FIX.</div>
+        <div class="agent-integrations"><span class="integration-tag">FIX Protocol</span><span class="integration-tag">Bloomberg EMSX</span><span class="integration-tag">IB TWS</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Compliance Reporter</div><div class="agent-latency">&lt;500ms</div></div>
+        <div class="agent-desc">Generates SEC 13F, 13H, FINRA CAT, and MiFID II regulatory reports automatically on schedule.</div>
+        <div class="agent-integrations"><span class="integration-tag">DTCC</span><span class="integration-tag">FINRA CAT</span><span class="integration-tag">SEC EDGAR</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Portfolio Optimizer</div><div class="agent-latency">&lt;200ms</div></div>
+        <div class="agent-desc">Runs mean-variance optimization with custom constraints, ESG overlays, and tax-loss harvesting.</div>
+        <div class="agent-integrations"><span class="integration-tag">Bloomberg PORT</span><span class="integration-tag">Axioma</span><span class="integration-tag">Barra</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="case-study">
+  <div class="wrap">
+    <div class="section-label">Case Study</div>
+    <h2 class="section-title">Quantitative Hedge Fund</h2>
+    <div class="case-study">
+      <div>
+        <div class="cs-label">Challenge</div>
+        <div class="cs-value" style="margin-bottom:1.25rem;">Alpha signal processing latency of 45ms causing slippage on 200+ daily signals across equity and futures strategies.</div>
+        <div class="cs-label">Solution</div>
+        <div class="cs-value">Deployed Apex Trading Signal Processor with FIX 4.4 integration and co-located risk checks. Compliance Reporter automated all regulatory submissions.</div>
+        <div class="metrics-row">
+          <div class="metric"><div class="metric-value">98%</div><div class="metric-label">Latency reduction</div></div>
+          <div class="metric"><div class="metric-value">~180bps</div><div class="metric-label">Annual alpha improvement</div></div>
+          <div class="metric"><div class="metric-value">100%</div><div class="metric-label">Compliance automated</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="testimonial">
+          <div class="testimonial-quote">"Apex processes our entire signal stack in under a millisecond. The compliance automation alone saved us two full-time headcount."</div>
+          <div class="testimonial-author">— Head of Technology, Quantitative Hedge Fund (placeholder)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Plans for Every Fund Size</h2>
+    <p class="section-sub">From individual analysts to institutional trading desks.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Analyst</div>
+        <div class="pricing-price">$99<span style="font-size:1rem;font-weight:400;color:var(--text-muted)">/mo</span></div>
+        <div class="pricing-billing">Per workspace · Month-to-month</div>
+        <ul class="pricing-features">
+          <li>10 agent workflows</li>
+          <li>100K market data events/mo</li>
+          <li>Risk analytics dashboard</li>
+          <li>Basic compliance reports</li>
+          <li>Email support</li>
+        </ul>
+        <button class="pricing-cta">Start Analyst Trial</button>
+      </div>
+      <div class="pricing-card highlighted">
+        <div class="pricing-tier">Apex Pro</div>
+        <div class="pricing-price">$399<span style="font-size:1rem;font-weight:400;color:var(--text-muted)">/mo</span></div>
+        <div class="pricing-billing">Per workspace · Most Popular</div>
+        <ul class="pricing-features">
+          <li>Unlimited workflows</li>
+          <li>10M market data events/mo</li>
+          <li>Full Apex trading intelligence</li>
+          <li>All compliance modules</li>
+          <li>Real-time risk monitoring</li>
+          <li>Priority support + SLA</li>
+          <li>Custom signal integrations</li>
+        </ul>
+        <button class="pricing-cta">Start Apex Pro Trial</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Institutional</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-billing">Annual · Co-location available</div>
+        <ul class="pricing-features">
+          <li>Dedicated infrastructure</li>
+          <li>Unlimited data events</li>
+          <li>Co-location options</li>
+          <li>Custom regulatory modules</li>
+          <li>White-label available</li>
+          <li>24/7 trading desk support</li>
+        </ul>
+        <button class="pricing-cta">Contact Institutional</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="wrap">
+    <div class="cta-section">
+      <div class="section-label">Get Started</div>
+      <div class="cta-title">Access the Apex Demo</div>
+      <div class="cta-sub">Live demonstration of sub-millisecond signal processing, real-time risk analysis, and automated compliance reporting.</div>
+      <div class="hero-actions" style="justify-content:center;">
+        <a href="mailto:finance@headyme.com?subject=Apex Demo Request" class="btn-primary">Request Apex Demo</a>
+        <a href="https://headyme.com" class="btn-secondary">← Back to HeadySystems</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">© 2026 HeadySystems Inc. · Heady Finance · Apex Module</div>
+    <ul class="footer-links">
+      <li><a href="https://headyme.com/privacy">Privacy</a></li>
+      <li><a href="https://headyme.com/terms">Terms</a></li>
+      <li><a href="https://headyme.com/security">Security</a></li>
+    </ul>
+    <div class="footer-pplx"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a></div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const canvas = document.getElementById('sacred-bg');
+  const ctx = canvas.getContext('2d');
+  const ACCENT = '#10b981';
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; draw(); }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width/2, cy = canvas.height/2;
+    const r = Math.min(canvas.width, canvas.height)*0.38;
+    ctx.strokeStyle = ACCENT; ctx.lineWidth = 0.4;
+    // Fibonacci spiral approximation with concentric squares
+    for (let i = 1; i <= 8; i++) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * (i/8), 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Grid lines
+    ctx.lineWidth = 0.3;
+    const cols = 12, rows = 8;
+    for (let i = 0; i <= cols; i++) {
+      const x = (canvas.width / cols) * i;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let i = 0; i <= rows; i++) {
+      const y = (canvas.height / rows) * i;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+    // Sacred hexagon
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      const a = (i * Math.PI) / 3 - Math.PI / 6;
+      pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+    }
+    ctx.lineWidth = 0.6;
+    ctx.beginPath(); ctx.moveTo(...pts[0]);
+    pts.slice(1).forEach(p => ctx.lineTo(...p));
+    ctx.closePath(); ctx.stroke();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+})();
+const observer = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
+document.querySelectorAll('.card,.agent-card,.pricing-card,.badge-item').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(16px)';el.style.transition='opacity 0.5s ease, transform 0.5s ease';observer.observe(el);});
+</script>
+</body>
+</html>

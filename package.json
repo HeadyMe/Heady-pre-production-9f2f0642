@@ -1,7 +1,7 @@
 {
   "name": "heady-systems",
   "version": "3.2.2",
-  "description": "Heady\u2122 AI Platform \u2014 Autonomous multi-agent AI operating system with 20 specialized intelligence nodes, federated liquid routing, and post-quantum security.",
+  "description": "Heady™ AI Platform — Autonomous multi-agent AI operating system with 20 specialized intelligence nodes, federated liquid routing, and post-quantum security.",
   "main": "heady-manager.js",
   "license": "UNLICENSED",
   "author": {
@@ -40,7 +40,7 @@
     "lint:fix": "eslint . --fix",
     "pipeline": "node -e \"const {pipeline}=require('./src/hc_pipeline');pipeline.run().then(s=>console.log(JSON.stringify({runId:s.runId,status:s.status},null,2))).catch(e=>console.error(e.message))\"",
     "pipeline:config": "node -e \"const {pipeline}=require('./src/hc_pipeline');console.log(JSON.stringify(pipeline.getConfigSummary(),null,2))\"",
-    "sync": "echo 'Sync migrated to Linux \u2014 use npm run system:sync'",
+    "sync": "echo 'Sync migrated to Linux — use npm run system:sync'",
     "brand:check": "node scripts/brand_headers.js --check",
     "brand:fix": "node scripts/brand_headers.js --fix",
     "test:domains": "node scripts/domain-connectivity-test.js",
@@ -172,5 +172,9 @@
       "tinyliquid",
       "electron"
     ]
+  },
+  "bin": {
+    "heady": "./bin/heady-cli.js",
+    "create-heady-agent": "./bin/create-heady-agent.js"
   }
 }

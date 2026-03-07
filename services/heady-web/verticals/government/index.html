@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heady Government — FedRAMP-Ready AI for Public Sector</title>
+<meta name="description" content="FedRAMP-pathway AI agent orchestration for government. Grant management, FOIA response, compliance auditing, and public records automation.">
+<meta name="keywords" content="government AI platform, FedRAMP AI, FISMA compliance AI, FOIA automation, grant management AI, public sector AI">
+<meta property="og:title" content="Heady Government — FedRAMP-Ready AI for Public Sector">
+<meta property="og:description" content="FedRAMP-pathway AI orchestration for federal, state, and local government.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gov.headyme.com">
+<link rel="canonical" href="https://gov.headyme.com">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Heady Government",
+  "description": "FedRAMP-pathway AI orchestration for public sector",
+  "url": "https://gov.headyme.com",
+  "applicationCategory": "GovernmentApplication",
+  "creator": {"@type": "SoftwareApplication", "name": "Perplexity Computer", "url": "https://www.perplexity.ai/computer"}
+}
+</script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --accent: #3b82f6;
+    --accent-dim: rgba(59,130,246,0.12);
+    --accent-border: rgba(59,130,246,0.28);
+    --bg: #0a0e17;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-card-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-xs: #64748b;
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  #sacred-bg { position: fixed; inset: 0; z-index: 0; opacity: 0.13; pointer-events: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,14,23,0.9); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 1.5rem; }
+  .nav-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; }
+  .nav-logo-mark { width: 32px; height: 32px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: opacity 0.2s; }
+  .nav-cta:hover { opacity: 0.85; }
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 1.5rem 4rem; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid var(--accent-border); color: var(--accent); padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; color: #fff; }
+  h1 span { color: var(--accent); }
+  .hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-muted); max-width: 620px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--accent); color: #fff; border: none; padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; backdrop-filter: blur(8px); }
+  .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--accent-border); }
+  section { padding: 5rem 0; position: relative; z-index: 1; }
+  .section-label { color: var(--accent); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .section-title { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; color: #fff; margin-bottom: 1rem; }
+  .section-sub { color: var(--text-muted); font-size: 1.1rem; max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; backdrop-filter: blur(12px); transition: all 0.3s; }
+  .card:hover { background: var(--bg-card-hover); border-color: var(--accent-border); transform: translateY(-2px); }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+  .feature-icon { width: 44px; height: 44px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
+  .feature-name { font-size: 1.05rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+  .feature-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+  .compliance-section { background: rgba(59,130,246,0.03); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .badges-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .badge-item { display: flex; align-items: center; gap: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1.25rem; transition: border-color 0.2s; }
+  .badge-item:hover { border-color: var(--accent-border); }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+  .badge-dot.in-progress { background: var(--accent); }
+  .badge-dot.planned { background: #f59e0b; }
+  .badge-name { font-weight: 600; font-size: 0.875rem; color: #fff; }
+  .badge-desc { font-size: 0.75rem; color: var(--text-muted); }
+  .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .agent-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; transition: all 0.3s; }
+  .agent-card:hover { border-color: var(--accent-border); background: var(--bg-card-hover); }
+  .agent-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .agent-name { font-weight: 600; font-size: 1rem; color: #fff; }
+  .agent-latency { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; color: var(--accent); background: var(--accent-dim); border: 1px solid var(--accent-border); padding: 0.2rem 0.5rem; border-radius: 6px; }
+  .agent-desc { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+  .agent-integrations { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .integration-tag { font-size: 0.7rem; color: var(--text-xs); background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.5rem; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+  .pricing-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; transition: all 0.3s; }
+  .pricing-card.highlighted { border-color: var(--accent); background: rgba(59,130,246,0.05); }
+  .pricing-card:hover { transform: translateY(-2px); }
+  .pricing-tier { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .pricing-price { font-size: 2.25rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+  .pricing-billing { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .pricing-features { list-style: none; }
+  .pricing-features li { font-size: 0.875rem; color: var(--text-muted); padding: 0.4rem 0; display: flex; align-items: center; gap: 0.6rem; }
+  .pricing-features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .pricing-cta { margin-top: 1.75rem; width: 100%; padding: 0.875rem; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .pricing-card.highlighted .pricing-cta { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pricing-cta:hover { border-color: var(--accent); color: var(--accent); }
+  .pricing-card.highlighted .pricing-cta:hover { opacity: 0.85; }
+  .case-study { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 720px) { .case-study { grid-template-columns: 1fr; } }
+  .cs-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .cs-value { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+  .metrics-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .metric { text-align: center; }
+  .metric-value { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .metric-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+  .testimonial { background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; margin-top: 1.5rem; }
+  .testimonial-quote { font-size: 1.1rem; color: var(--text); line-height: 1.7; margin-bottom: 1rem; font-style: italic; }
+  .testimonial-author { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+  .cta-section { text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 4rem 2rem; margin: 2rem 0; }
+  .cta-title { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; color: #fff; margin-bottom: 0.75rem; }
+  .cta-sub { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; }
+  footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; position: relative; z-index: 1; }
+  .footer-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-brand { font-weight: 600; color: var(--text-muted); font-size: 0.875rem; }
+  .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+  .footer-links a { color: var(--text-xs); text-decoration: none; font-size: 0.8rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-pplx a { color: var(--accent); text-decoration: none; font-size: 0.75rem; }
+  @media (max-width: 640px) { .nav-links { display: none; } h1 { font-size: 2.25rem; } }
+</style>
+</head>
+<body>
+<canvas id="sacred-bg"></canvas>
+<nav>
+  <div class="nav-inner">
+    <a href="https://headyme.com" class="nav-logo">
+      <div class="nav-logo-mark">◉</div>
+      <span>Heady <strong>Government</strong></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#compliance">Compliance</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">FedRAMP Briefing</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap" style="max-width:820px">
+    <div class="hero-badge">◉ FedRAMP Pathway · FISMA · NIST 800-53</div>
+    <h1>AI Orchestration for<br><span>Government</span></h1>
+    <p class="hero-sub">FedRAMP-pathway, FISMA-compliant agent workflows for federal, state, and local government. Grant management, FOIA response, and compliance auditing — automated and auditable.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">Request FedRAMP Briefing</a>
+      <a href="#agents" class="btn-secondary">View Grant Management Demo</a>
+    </div>
+    <!-- FedRAMP pathway status -->
+    <div style="margin-top:2.5rem;display:inline-flex;align-items:center;gap:0.75rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:10px;padding:0.875rem 1.5rem;">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);animation:pulse-blue 2s infinite;"></div>
+      <span style="font-size:0.875rem;color:var(--text-muted);">FedRAMP Moderate authorization in progress — <strong style="color:var(--accent)">targeting Q4 2026</strong></span>
+    </div>
+  </div>
+</section>
+<style>@keyframes pulse-blue{0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,0.4);}50%{box-shadow:0 0 0 8px rgba(59,130,246,0);}}</style>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-label">Platform</div>
+    <h2 class="section-title">Built for Public Sector Operations</h2>
+    <p class="section-sub">Six mission-critical capabilities for government agencies at every level.</p>
+    <div class="features-grid">
+      <div class="card">
+        <div class="feature-icon">📜</div>
+        <div class="feature-name">Grant Management</div>
+        <div class="feature-desc">End-to-end grant lifecycle automation from application intake through compliance reporting and closeout.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🗂️</div>
+        <div class="feature-name">Public Records Management</div>
+        <div class="feature-desc">Automated FOIA intake, routing, redaction, and response workflows with full audit trails and response tracking.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">✅</div>
+        <div class="feature-name">Compliance Auditing</div>
+        <div class="feature-desc">Continuous NIST 800-53 control monitoring, POA&M management, and ATO documentation generation.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📩</div>
+        <div class="feature-name">FOIA Response</div>
+        <div class="feature-desc">Intelligent FOIA request classification, automated search, AI-assisted redaction, and response drafting.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🏛️</div>
+        <div class="feature-name">Benefits Processing</div>
+        <div class="feature-desc">Eligibility determination, application routing, and case management for benefit programs at scale.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">💬</div>
+        <div class="feature-name">Constituent Communications</div>
+        <div class="feature-desc">Automated multi-channel constituent response with human-in-the-loop escalation and audit trail.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="compliance" class="compliance-section">
+  <div class="wrap">
+    <div class="section-label">Security & Compliance</div>
+    <h2 class="section-title">Government-Grade Security</h2>
+    <p class="section-sub">Actively pursuing FedRAMP Moderate. Currently FISMA-compliant with NIST 800-53 Rev 5 controls.</p>
+    <div class="badges-row">
+      <div class="badge-item"><div class="badge-dot in-progress"></div><div><div class="badge-name">FedRAMP (Pathway)</div><div class="badge-desc">Moderate authorization — Q4 2026</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">FISMA</div><div class="badge-desc">Federal security modernization</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">NIST 800-53 Rev 5</div><div class="badge-desc">Moderate baseline controls</div></div></div>
+      <div class="badge-item"><div class="badge-dot planned"></div><div><div class="badge-name">IL-4 (Planned)</div><div class="badge-desc">DoD Impact Level 4 planned</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">SOC 2 Type II</div><div class="badge-desc">Annual third-party audit</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">Section 508</div><div class="badge-desc">WCAG 2.1 AA accessibility</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="agents">
+  <div class="wrap">
+    <div class="section-label">Agent Templates</div>
+    <h2 class="section-title">Government Agent Library</h2>
+    <p class="section-sub">Mission-ready agent templates for the most common public sector workflows.</p>
+    <div class="agents-grid">
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Grant Processor</div><div class="agent-latency">&lt;1s</div></div>
+        <div class="agent-desc">Validates grant applications, checks eligibility, routes for review, and generates award packages with full audit trail.</div>
+        <div class="agent-integrations"><span class="integration-tag">Grants.gov</span><span class="integration-tag">SAM.gov</span><span class="integration-tag">eCivis</span><span class="integration-tag">Fluxx</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Records Manager</div><div class="agent-latency">&lt;500ms</div></div>
+        <div class="agent-desc">Classifies, indexes, and routes public records requests with retention policy enforcement and disposition tracking.</div>
+        <div class="agent-integrations"><span class="integration-tag">GovQA</span><span class="integration-tag">NextRequest</span><span class="integration-tag">Laserfiche</span><span class="integration-tag">OpenGov</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Compliance Auditor</div><div class="agent-latency">&lt;2s</div></div>
+        <div class="agent-desc">Monitors NIST 800-53 controls, generates audit evidence packages, and tracks POA&M remediation timelines.</div>
+        <div class="agent-integrations"><span class="integration-tag">ServiceNow GRC</span><span class="integration-tag">XACTA 360</span><span class="integration-tag">AWS GovCloud</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">FOIA Responder</div><div class="agent-latency">&lt;3s</div></div>
+        <div class="agent-desc">Classifies FOIA requests, searches records, assists with Exemption 5/6/7 redactions, and drafts responses.</div>
+        <div class="agent-integrations"><span class="integration-tag">GovQA</span><span class="integration-tag">FOIAXpress</span><span class="integration-tag">Relativity</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="case-study">
+  <div class="wrap">
+    <div class="section-label">Case Study</div>
+    <h2 class="section-title">State Department of Health Services</h2>
+    <div class="case-study">
+      <div>
+        <div class="cs-label">Challenge</div>
+        <div class="cs-value" style="margin-bottom:1.25rem;">FOIA backlog of 3,400 overdue requests. Average response time of 89 days, risking litigation and public trust.</div>
+        <div class="cs-label">Solution</div>
+        <div class="cs-value">Deployed FOIA Responder + Records Manager with GovQA integration. Records Manager indexed 2.3M legacy documents in 72 hours.</div>
+        <div class="metrics-row">
+          <div class="metric"><div class="metric-value">87%</div><div class="metric-label">Response time reduction</div></div>
+          <div class="metric"><div class="metric-value">3,400</div><div class="metric-label">Backlog cleared</div></div>
+          <div class="metric"><div class="metric-value">80 hrs</div><div class="metric-label">Staff time recaptured/week</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="testimonial">
+          <div class="testimonial-quote">"We went from a three-month FOIA backlog to next-day responses. Heady Government transformed how we serve our constituents."</div>
+          <div class="testimonial-author">— Records Officer, State Agency (placeholder)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Municipal to Federal</h2>
+    <p class="section-sub">Procurement-friendly pricing with GSA Schedule support available.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Municipal</div>
+        <div class="pricing-price">$199<span style="font-size:1rem;font-weight:400;color:var(--text-muted)">/mo</span></div>
+        <div class="pricing-billing">Per workspace · Month-to-month</div>
+        <ul class="pricing-features">
+          <li>10 agent workflows</li>
+          <li>FOIA Responder included</li>
+          <li>Basic records management</li>
+          <li>Section 508 compliant</li>
+          <li>Email support</li>
+        </ul>
+        <button class="pricing-cta">Start Municipal Trial</button>
+      </div>
+      <div class="pricing-card highlighted">
+        <div class="pricing-tier">State Agency</div>
+        <div class="pricing-price">$799<span style="font-size:1rem;font-weight:400;color:var(--text-muted)">/mo</span></div>
+        <div class="pricing-billing">Annual · FISMA compliance package</div>
+        <ul class="pricing-features">
+          <li>Unlimited workflows</li>
+          <li>All 4 agent templates</li>
+          <li>FISMA compliance package</li>
+          <li>Grant management module</li>
+          <li>Audit trail & reporting</li>
+          <li>Priority support</li>
+          <li>FedRAMP pathway docs</li>
+        </ul>
+        <button class="pricing-cta">Start State Agency Trial</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Federal</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-billing">Annual · GovCloud deployment</div>
+        <ul class="pricing-features">
+          <li>FedRAMP Moderate ATO support</li>
+          <li>GovCloud deployment</li>
+          <li>IL-4 pathway</li>
+          <li>Dedicated ISSO support</li>
+          <li>Custom security controls</li>
+          <li>24/7 SOC support</li>
+          <li>Air-gap option</li>
+        </ul>
+        <button class="pricing-cta">Federal Procurement</button>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem;padding:1rem 1.5rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:var(--radius);font-size:0.875rem;color:var(--text-muted);">
+      GSA Schedule vehicles supported. SAM.gov registered. DUNS/UEI available upon request.
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="wrap">
+    <div class="cta-section">
+      <div class="section-label">Get Started</div>
+      <div class="cta-title">Request FedRAMP Briefing</div>
+      <div class="cta-sub">60-minute technical briefing covering our FedRAMP authorization roadmap, current NIST 800-53 controls, and agency-specific deployment options.</div>
+      <div class="hero-actions" style="justify-content:center;">
+        <a href="mailto:government@headyme.com?subject=FedRAMP Briefing Request" class="btn-primary">Request FedRAMP Briefing</a>
+        <a href="https://headyme.com" class="btn-secondary">← Back to HeadySystems</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">© 2026 HeadySystems Inc. · Heady Government</div>
+    <ul class="footer-links">
+      <li><a href="https://headyme.com/privacy">Privacy</a></li>
+      <li><a href="https://headyme.com/terms">Terms</a></li>
+      <li><a href="https://headyme.com/security">Security</a></li>
+      <li><a href="https://headyme.com/fedramp">FedRAMP</a></li>
+    </ul>
+    <div class="footer-pplx"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a></div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const canvas = document.getElementById('sacred-bg');
+  const ctx = canvas.getContext('2d');
+  const ACCENT = '#3b82f6';
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; draw(); }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width/2, cy = canvas.height/2;
+    const r = Math.min(canvas.width, canvas.height)*0.4;
+    ctx.strokeStyle = ACCENT; ctx.lineWidth = 0.4;
+    // Pentagon / government star
+    for (let n = 0; n < 4; n++) {
+      const nr = r * (0.4 + n * 0.2);
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const a = (i * Math.PI * 2) / 5 - Math.PI / 2;
+        if (i === 0) ctx.moveTo(cx + Math.cos(a) * nr, cy + Math.sin(a) * nr);
+        else ctx.lineTo(cx + Math.cos(a) * nr, cy + Math.sin(a) * nr);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+    // Star pentagram
+    ctx.lineWidth = 0.6;
+    const pts = [];
+    for (let i = 0; i < 5; i++) {
+      const a = (i * Math.PI * 2) / 5 - Math.PI / 2;
+      pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]);
+    }
+    ctx.beginPath();
+    [0,2,4,1,3,0].forEach((i,j) => {
+      if(j===0) ctx.moveTo(...pts[i]); else ctx.lineTo(...pts[i]);
+    });
+    ctx.stroke();
+    // Outer decorative rings
+    ctx.lineWidth = 0.3;
+    for (let i = 1; i <= 5; i++) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.08 * i, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+})();
+const observer = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
+document.querySelectorAll('.card,.agent-card,.pricing-card,.badge-item').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(16px)';el.style.transition='opacity 0.5s ease, transform 0.5s ease';observer.observe(el);});
+</script>
+</body>
+</html>

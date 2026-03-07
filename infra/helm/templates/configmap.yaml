@@ -1,0 +1,94 @@
+{{/*
+=============================================================================
+HeadySystems Inc. — Helm Template: ConfigMap
+heady-platform v3.2.2
+=============================================================================
+φ = 1.618033988749895 — All values derive from φ or Fibonacci
+=============================================================================
+*/}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: heady-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: heady-config
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    headysystems.com/phi: "1.618033988749895"
+    helm.sh/chart: {{ include "heady-platform.chart" . }}
+  annotations:
+    headysystems.com/phi: "1.618033988749895"
+data:
+  # Runtime
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  HEADY_VERSION: {{ .Chart.AppVersion | quote }}
+
+  # φ constant
+  PHI: "1.618033988749895"
+  PHI_SQUARED: "2.618033988749895"
+  PHI_CUBED: "4.23606797749979"
+  PHI_INVERSE: "0.6180339887498949"
+
+  # Fibonacci sequence (first 17 numbers)
+  FIBONACCI_SEQUENCE: "[1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597]"
+
+  # Alert thresholds (φ-derived)
+  ALERT_THRESHOLD_WARNING: "0.618"   # 1/φ
+  ALERT_THRESHOLD_CAUTION: "0.764"
+  ALERT_THRESHOLD_CRITICAL: "0.854"
+  ALERT_THRESHOLD_EXCEEDED: "0.910"
+
+  # Connection pool sizes (Fibonacci)
+  REDIS_POOL_SIZE: "13"        # fib(7)=13
+  POSTGRES_POOL_SIZE: "34"     # fib(9)=34
+  HTTP_POOL_SIZE: "21"         # fib(8)=21
+
+  # Timeout values (φ^n × 1000ms)
+  TIMEOUT_BASE_MS: "1000"
+  TIMEOUT_FAST_MS: "1618"      # φ^1
+  TIMEOUT_NORMAL_MS: "2618"    # φ^2
+  TIMEOUT_SLOW_MS: "4236"      # φ^3
+  TIMEOUT_AGENT_MS: "6854"     # φ^4
+  TIMEOUT_UPSTREAM_MS: "11090" # φ^5
+  TIMEOUT_ORCHESTRATION_MS: "17944" # φ^6
+
+  # Rate limits (Fibonacci)
+  RATE_LIMIT_PILOT_RPS: "89"         # fib(11)=89
+  RATE_LIMIT_PRO_RPS: "144"          # fib(12)=144
+  RATE_LIMIT_ENTERPRISE_RPS: "233"   # fib(13)=233
+
+  # Cache
+  CACHE_MAX_ENTRIES: "987"           # fib(16)=987
+  CACHE_TTL_S: "5340"                # fib(11)=89 × 60s
+
+  # Concurrency
+  WORKER_CONCURRENCY: "13"           # fib(7)=13
+  QUEUE_MAX_DEPTH: "55"              # fib(10)=55
+  MAX_CONCURRENT_AGENTS: "55"        # fib(10)=55
+
+  # OTEL
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.global.otel.endpoint | quote }}
+  OTEL_TRACES_SAMPLER: "parentbased_traceidratio"
+  OTEL_TRACES_SAMPLER_ARG: {{ .Values.global.otel.sampleRate | quote }}
+  METRICS_EXPORT_INTERVAL_MS: {{ .Values.global.otel.metricsIntervalMs | quote }}
+
+  # Service discovery
+  HEADY_BRAIN_URL: {{ printf "http://heady-brain.%s.svc.cluster.local:8080" .Values.global.namespace | quote }}
+  HEADY_CONDUCTOR_URL: {{ printf "http://heady-conductor.%s.svc.cluster.local:8080" .Values.global.namespace | quote }}
+  HEADY_MCP_URL: {{ printf "http://heady-mcp.%s.svc.cluster.local:8080" .Values.global.namespace | quote }}
+  HEADY_WEB_URL: {{ printf "http://heady-web.%s.svc.cluster.local:8080" .Values.global.namespace | quote }}
+
+  # Security
+  JWT_ALGORITHM: "RS256"
+  JWT_EXPIRY_S: "43200"              # fib(12)=144 × 300s = 43200s (12h)
+  SESSION_TIMEOUT_S: "37800"         # fib(8)=21 × 1800s
+
+  # Domains
+  PRIMARY_DOMAIN: {{ .Values.global.domains.primary | quote }}
+  DOMAIN_COUNT: {{ len .Values.global.domains.all | quote }}
+  ALLOWED_ORIGINS: {{ join "," .Values.global.domains.all | quote }}

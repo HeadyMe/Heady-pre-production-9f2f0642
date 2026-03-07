@@ -1,0 +1,417 @@
+# HeadySystems v3.2.2 — Kubernetes NetworkPolicy: Egress Filtering
+# ================================================================
+# Zero-trust egress: allow only explicitly required external destinations.
+# Deny all other egress by default.
+#
+# Philosophy: HeadySystems runs 9 domains from 1 container. Egress filtering
+# prevents data exfiltration, SSRF abuse, and supply chain backdoor calls.
+# All Fibonacci-derived parameters: φ=1.618033988749895.
+#
+# Apply: kubectl apply -f egress-filtering.yaml -n [namespace]
+#
+# IMPORTANT: Apply in stages — verify service-by-service before full enforcement.
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# DEFAULT DENY: Block all ingress and egress for heady-* pods
+# Must be applied FIRST, then allow-rules are additive.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-default-deny-all
+  namespace: heady-production
+  labels:
+    app.kubernetes.io/name: heady-systems
+    app.kubernetes.io/version: "3.2.2"
+    security.heady.io/policy-type: default-deny
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: heady-systems
+  policyTypes:
+    - Ingress
+    - Egress
+  # Empty ingress/egress = deny all
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: Internal cluster traffic (pod-to-pod)
+# All 21 heady-* microservices must communicate freely within namespace.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-internal
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: internal-allow
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: heady-systems
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: heady-systems
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: heady-production
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: heady-systems
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: heady-production
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: DNS resolution (CoreDNS)
+# Required for all external hostname resolution.
+# UDP/TCP port 53.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-dns
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: dns-allow
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: heady-systems
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: Cloud SQL (PostgreSQL via Cloud SQL Auth Proxy)
+# Primary: 127.0.0.1:5432 via sidecar proxy
+# Also allow: Cloud SQL Auth Proxy port 5432 within cluster
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-cloud-sql
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: database-allow
+spec:
+  podSelector:
+    matchExpressions:
+      - key: heady.io/needs-database
+        operator: In
+        values: ["true"]
+  policyTypes:
+    - Egress
+  egress:
+    # Cloud SQL Auth Proxy sidecar (localhost)
+    - to:
+        - podSelector:
+            matchLabels:
+              app: cloudsql-proxy
+      ports:
+        - protocol: TCP
+          port: 5432  # PostgreSQL
+    # Cloud SQL API (for Auth Proxy → Google Cloud SQL API)
+    # Cloud SQL public IP ranges (34.x.x.x) — handled via Google's published CIDR
+    - to:
+        - ipBlock:
+            cidr: 34.0.0.0/8  # Google Cloud SQL IPs (broad; restrict to specific instance IP in prod)
+      ports:
+        - protocol: TCP
+          port: 3307  # Cloud SQL Auth Proxy external port
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: Memorystore Redis (Google Managed Redis)
+# Port 6379 (or 6380 for TLS-enabled Redis)
+# Redis max connections: fib(7)=13 (enforced at application level)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-redis
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: redis-allow
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: heady-systems
+  policyTypes:
+    - Egress
+  egress:
+    # Memorystore Redis (private IP in VPC — typically 10.x.x.x or 172.16.x.x)
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/8  # GCP VPC private range — restrict to specific /32 in production
+      ports:
+        - protocol: TCP
+          port: 6379   # Standard Redis
+        - protocol: TCP
+          port: 6380   # Redis TLS
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: Cloudflare APIs (CDN management, DNS, WAF rules)
+# Cloudflare API IPs: 103.21.244.0/22, 103.22.200.0/22, 103.31.4.0/22
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-cloudflare
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: cloudflare-allow
+spec:
+  podSelector:
+    matchLabels:
+      heady.io/cloudflare-access: "true"
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        # Cloudflare API endpoints (api.cloudflare.com)
+        - ipBlock:
+            cidr: 103.21.244.0/22   # Cloudflare
+        - ipBlock:
+            cidr: 103.22.200.0/22   # Cloudflare
+        - ipBlock:
+            cidr: 103.31.4.0/22     # Cloudflare
+        - ipBlock:
+            cidr: 141.101.64.0/18   # Cloudflare
+        - ipBlock:
+            cidr: 108.162.192.0/18  # Cloudflare
+        - ipBlock:
+            cidr: 190.93.240.0/20   # Cloudflare
+        - ipBlock:
+            cidr: 188.114.96.0/20   # Cloudflare
+        - ipBlock:
+            cidr: 197.234.240.0/22  # Cloudflare
+        - ipBlock:
+            cidr: 198.41.128.0/17   # Cloudflare
+        - ipBlock:
+            cidr: 162.158.0.0/15    # Cloudflare
+        - ipBlock:
+            cidr: 104.16.0.0/13     # Cloudflare
+        - ipBlock:
+            cidr: 172.64.0.0/13     # Cloudflare
+        - ipBlock:
+            cidr: 131.0.72.0/22     # Cloudflare
+      ports:
+        - protocol: TCP
+          port: 443  # HTTPS only
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: Google APIs (GCP services: Pub/Sub, Storage, Logging, Monitoring, IAM)
+# Google's published IP ranges: 34.x, 35.x, 66.249.x, 172.217.x
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-google-apis
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: google-apis-allow
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: heady-systems
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        # Google Cloud API IPs (googleapis.com, *.google.com)
+        - ipBlock:
+            cidr: 34.0.0.0/8      # Google Cloud
+        - ipBlock:
+            cidr: 35.0.0.0/8      # Google Cloud
+        - ipBlock:
+            cidr: 130.211.0.0/16  # Google Cloud Load Balancers
+        - ipBlock:
+            cidr: 35.191.0.0/16   # Google Cloud Health Checks
+        - ipBlock:
+            cidr: 66.249.64.0/19  # Google Crawlers
+        - ipBlock:
+            cidr: 172.217.0.0/16  # Google services
+        - ipBlock:
+            cidr: 142.250.0.0/15  # Google services
+      ports:
+        - protocol: TCP
+          port: 443  # HTTPS only for all Google APIs
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: AI Provider APIs (OpenAI, Anthropic, Mistral, Cohere, etc.)
+# Only heady-infer and heady-brain pods need AI API access.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-ai-apis
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: ai-api-allow
+spec:
+  podSelector:
+    matchExpressions:
+      - key: heady.io/ai-api-access
+        operator: In
+        values: ["true"]
+  policyTypes:
+    - Egress
+  egress:
+    # OpenAI (api.openai.com) — resolves to 104.18.x.x, 104.19.x.x (Cloudflare CDN)
+    - to:
+        - ipBlock:
+            cidr: 104.18.0.0/16   # OpenAI via Cloudflare
+        - ipBlock:
+            cidr: 104.19.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+    # Anthropic (api.anthropic.com) — resolves to 65.x.x.x
+    - to:
+        - ipBlock:
+            cidr: 65.0.0.0/8      # Anthropic (approximate; use FQDN egress-gateway in production)
+      ports:
+        - protocol: TCP
+          port: 443
+    # Use Kubernetes NodeLocal DNSCache + Egress Gateway for production
+    # This CIDR-based approach is a fallback; prefer IP-based allowlisting per vendor
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: OpenTelemetry Collector (OTLP egress to observability backend)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-otel
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: otel-allow
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: heady-systems
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app: otel-collector
+      ports:
+        - protocol: TCP
+          port: 4317   # OTLP gRPC
+        - protocol: TCP
+          port: 4318   # OTLP HTTP
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: Prometheus scraping (monitoring namespace → heady-production)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-allow-prometheus-scrape
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: monitoring-allow
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: heady-systems
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+          podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 8080   # App metrics endpoint
+        - protocol: TCP
+          port: 8889   # Sacred Geometry metrics (φ-exporter)
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ALLOW: MCP Sandbox — DENY ALL NETWORK EGRESS (zero-trust isolation)
+# MCP sandbox pods must never make external network calls.
+# This is the most restrictive policy.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-mcp-sandbox-deny-egress
+  namespace: heady-production
+  labels:
+    security.heady.io/policy-type: sandbox-isolation
+spec:
+  podSelector:
+    matchLabels:
+      heady.io/zero-trust-sandbox: "true"
+  policyTypes:
+    - Egress
+  # Empty egress = deny all external network calls from sandbox pods
+  # Sandbox pods may only communicate with heady-mcp coordinator (internal only)
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: heady-mcp
+      ports:
+        - protocol: TCP
+          port: 8080
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# NOTES ON PRODUCTION ENFORCEMENT
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. Use Cilium NetworkPolicy (extends K8s NetworkPolicy) for FQDN-based rules
+#    in production. CIDR-based rules are fallbacks.
+#    Example (Cilium):
+#      apiVersion: cilium.io/v2
+#      kind: CiliumNetworkPolicy
+#      spec:
+#        egressDeny:
+#          - toFQDNs:
+#              - matchPattern: "*.malicious.io"
+#
+# 2. Fibonacci-derived port ranges:
+#    - fib(10)=55 connections max per destination (enforced at app level)
+#    - fib(7)=13 concurrent outbound connections per pod (HPA + VPA scaling)
+#
+# 3. φ=1.618 — all connection pool maxima follow Fibonacci (2, 3, 5, 8, 13, 21...)
+#
+# 4. Audit: All egress connections logged via Cilium + Falco for security review

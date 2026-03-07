@@ -1,0 +1,1376 @@
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeadyOS — The AI Operating System for Developers</title>
+  <meta name="description" content="Build, deploy, and orchestrate autonomous AI agents with production-grade infrastructure. 21 microservices. 100+ API endpoints. 51+ patents.">
+  <meta name="keywords" content="HeadyOS, AI platform, developer API, agent framework, MCP tools, autonomous agents, AI orchestration">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://headyos.com/">
+
+  <!-- OpenGraph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://headyos.com/">
+  <meta property="og:title" content="HeadyOS — The AI Operating System for Developers">
+  <meta property="og:description" content="Build, deploy, and orchestrate autonomous AI agents with production-grade infrastructure.">
+  <meta property="og:image" content="https://headyos.com/og-image.jpg">
+  <meta property="og:site_name" content="HeadyOS">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@headyos">
+  <meta name="twitter:title" content="HeadyOS — The AI Operating System for Developers">
+  <meta name="twitter:description" content="Build, deploy, and orchestrate autonomous AI agents with production-grade infrastructure.">
+  <meta name="twitter:image" content="https://headyos.com/og-image.jpg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Berkeley+Mono&display=swap" rel="stylesheet">
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "HeadyOS",
+    "url": "https://headyos.com",
+    "description": "The AI Operating System for Developers. Build, deploy, and orchestrate autonomous AI agents.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web, Linux, macOS, Windows",
+    "programmingLanguage": ["JavaScript", "TypeScript", "Python"],
+    "creator": {
+      "@type": "Organization",
+      "name": "HeadySystems Inc.",
+      "founder": {"@type": "Person", "name": "Eric Haywood"}
+    },
+    "maintainer": {
+      "@type": "SoftwareApplication",
+      "name": "Perplexity Computer",
+      "url": "https://www.perplexity.ai/computer"
+    }
+  }
+  </script>
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --phi: 1.6180339887;
+      --bg-base:    #0a0e17;
+      --bg-surface: #0d1221;
+      --bg-card:    #111827;
+      --bg-glass:   rgba(13, 18, 33, 0.72);
+      --border:     rgba(255,255,255,0.08);
+      --border-glow:rgba(0,212,170,0.3);
+
+      --teal:       #00d4aa;
+      --teal-dim:   #00b891;
+      --teal-glow:  rgba(0,212,170,0.12);
+      --gold:       #f5c842;
+      --gold-glow:  rgba(245,200,66,0.1);
+      --purple:     #8b5cf6;
+      --purple-glow:rgba(139,92,246,0.12);
+
+      --text-primary:   #f0f4ff;
+      --text-secondary: #8b98b8;
+      --text-muted:     #4a5568;
+
+      --font-display: 'Outfit', sans-serif;
+      --font-body:    'Inter', sans-serif;
+      --font-mono:    'Berkeley Mono', 'Fira Code', monospace;
+
+      --sp-1:4px; --sp-2:8px; --sp-3:13px; --sp-4:21px;
+      --sp-5:34px; --sp-6:55px; --sp-7:89px; --sp-8:144px;
+
+      --text-xs:0.75rem; --text-sm:0.875rem; --text-base:1rem;
+      --text-lg:1.125rem; --text-xl:1.25rem; --text-2xl:1.5rem;
+      --text-3xl:1.875rem; --text-4xl:2.25rem; --text-5xl:3rem;
+      --text-6xl:3.75rem; --text-7xl:4.5rem;
+
+      --radius-sm:8px; --radius-md:13px; --radius-lg:21px; --radius-xl:34px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.618;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--teal-glow); color: var(--teal); }
+    a { color: inherit; text-decoration: none; }
+
+    .skip-link {
+      position: absolute; top: -40px; left: 0;
+      background: var(--teal); color: var(--bg-base);
+      padding: 8px 21px; font-weight: 600; z-index: 1000;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ============================================================
+       NAV
+    ============================================================ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: var(--sp-4) var(--sp-6);
+      display: flex; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(10, 14, 23, 0.8);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: var(--sp-3);
+      font-family: var(--font-display); font-weight: 700;
+      font-size: var(--text-xl); color: var(--text-primary);
+    }
+
+    .nav-links {
+      display: flex; align-items: center; gap: var(--sp-6); list-style: none;
+    }
+    .nav-links a {
+      font-size: var(--text-sm); font-weight: 500;
+      color: var(--text-secondary); transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .nav-cta { display: flex; align-items: center; gap: var(--sp-3); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-5);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.2s ease; text-decoration: none;
+    }
+    .btn-primary { background: var(--teal); color: var(--bg-base); }
+    .btn-primary:hover {
+      background: var(--teal-dim); transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,212,170,0.3);
+    }
+    .btn-primary:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+    .btn-ghost {
+      background: transparent; color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      color: var(--text-primary); border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.04);
+    }
+    .btn-ghost:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 8px;
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--text-primary); border-radius: 2px; transition: all 0.3s;
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; padding: var(--sp-8) var(--sp-6) var(--sp-7);
+    }
+
+    #hero-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; z-index: 0;
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center; max-width: 900px; margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border: 1px solid var(--border-glow);
+      border-radius: 100px; background: var(--teal-glow);
+      font-size: var(--text-sm); font-weight: 500; color: var(--teal);
+      margin-bottom: var(--sp-5); backdrop-filter: blur(10px);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(var(--text-4xl), 8vw, var(--text-7xl));
+      font-weight: 800; line-height: 1.05; letter-spacing: -0.03em;
+      margin-bottom: var(--sp-5);
+    }
+
+    .hero-title .accent-teal { color: var(--teal); }
+
+    .hero-subtitle {
+      font-size: clamp(var(--text-lg), 2.5vw, var(--text-2xl));
+      color: var(--text-secondary); line-height: 1.618;
+      margin-bottom: var(--sp-6); max-width: 640px;
+      margin-left: auto; margin-right: auto;
+    }
+
+    .hero-cta {
+      display: flex; align-items: center; justify-content: center;
+      gap: var(--sp-4); flex-wrap: wrap;
+    }
+
+    .hero-cta .btn { padding: var(--sp-4) var(--sp-6); font-size: var(--text-base); }
+
+    .hero::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 200px; background: linear-gradient(to bottom, transparent, var(--bg-base));
+      z-index: 1;
+    }
+
+    /* ============================================================
+       SECTION COMMON
+    ============================================================ */
+    .section {
+      padding: var(--sp-8) var(--sp-6);
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .section-header { text-align: center; margin-bottom: var(--sp-7); }
+
+    .section-label {
+      font-size: var(--text-sm); font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: var(--sp-3);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(var(--text-3xl), 4vw, var(--text-5xl));
+      font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
+      margin-bottom: var(--sp-4);
+    }
+
+    .section-desc {
+      font-size: var(--text-lg); color: var(--text-secondary);
+      max-width: 560px; margin: 0 auto; line-height: 1.618;
+    }
+
+    /* ============================================================
+       ARCHITECTURE VISUALIZATION
+    ============================================================ */
+    .arch-container {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      aspect-ratio: 16/7;
+      position: relative;
+    }
+
+    #arch-canvas {
+      width: 100%; height: 100%;
+    }
+
+    .arch-legend {
+      display: flex; justify-content: center; gap: var(--sp-5);
+      margin-top: var(--sp-4); flex-wrap: wrap;
+    }
+
+    .arch-legend-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: var(--text-sm); color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+
+    /* ============================================================
+       DOCS GRID
+    ============================================================ */
+    .docs-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4);
+    }
+
+    .doc-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-5);
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+      position: relative; overflow: hidden;
+    }
+
+    .doc-card::after {
+      content: '→';
+      position: absolute; bottom: var(--sp-4); right: var(--sp-5);
+      color: var(--teal); opacity: 0; transition: opacity 0.2s;
+      font-size: var(--text-lg);
+    }
+
+    .doc-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,212,170,0.08);
+    }
+    .doc-card:hover::after { opacity: 1; }
+
+    .doc-card-icon {
+      width: 44px; height: 44px;
+      background: var(--teal-glow);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: var(--sp-4);
+    }
+
+    .doc-card-title {
+      font-family: var(--font-display); font-size: var(--text-lg);
+      font-weight: 600; margin-bottom: var(--sp-2);
+    }
+
+    .doc-card-desc {
+      font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.618;
+    }
+
+    /* ============================================================
+       PLAYGROUND
+    ============================================================ */
+    .playground-window {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      max-width: 800px; margin: 0 auto;
+    }
+
+    .pw-header {
+      display: flex; align-items: center;
+      padding: 12px 16px; background: #161b22;
+      border-bottom: 1px solid var(--border); gap: 8px;
+    }
+
+    .pw-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .pw-dot.r { background: #ff5f57; }
+    .pw-dot.y { background: #febc2e; }
+    .pw-dot.g { background: #28c840; }
+
+    .pw-title {
+      font-size: var(--text-xs); color: var(--text-muted);
+      font-family: var(--font-mono); margin-left: 8px;
+    }
+
+    .pw-tabs {
+      display: flex; gap: 0; margin-left: auto;
+    }
+
+    .pw-tab {
+      padding: 4px 12px; border-radius: 4px;
+      font-size: 11px; font-family: var(--font-mono);
+      color: var(--text-muted); cursor: pointer;
+      border: none; background: none; transition: all 0.2s;
+    }
+    .pw-tab.active {
+      background: var(--teal-glow); color: var(--teal);
+    }
+
+    .pw-body {
+      padding: var(--sp-5); font-family: var(--font-mono);
+      font-size: var(--text-sm); line-height: 1.8; min-height: 280px;
+    }
+
+    .pw-line { display: flex; align-items: flex-start; gap: 8px; }
+    .pw-prompt { color: var(--teal); flex-shrink: 0; }
+    .pw-cmd { color: #a5d6ff; }
+    .pw-output { color: var(--gold); padding-left: 16px; }
+    .pw-comment { color: #6e7681; }
+    .pw-success { color: #56d364; }
+    .pw-cursor {
+      display: inline-block; width: 8px; height: 16px;
+      background: var(--teal); animation: blink 1s infinite;
+      vertical-align: text-bottom;
+    }
+    @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+
+    /* ============================================================
+       OPEN SOURCE
+    ============================================================ */
+    .oss-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-6);
+      align-items: center;
+    }
+
+    .commit-chart {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: var(--sp-5);
+    }
+
+    .commit-chart h4 {
+      font-size: var(--text-sm); font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: var(--sp-4);
+    }
+
+    .commit-bars {
+      display: flex; align-items: flex-end;
+      gap: 4px; height: 80px;
+    }
+
+    .commit-bar {
+      flex: 1; background: var(--teal-glow);
+      border-radius: 3px 3px 0 0;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .commit-bar:hover { background: rgba(0,212,170,0.4); }
+
+    .commit-labels {
+      display: flex; gap: 4px; margin-top: 6px;
+    }
+
+    .commit-label {
+      flex: 1; text-align: center;
+      font-size: 10px; color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .pkg-list {
+      display: flex; flex-direction: column; gap: var(--sp-3);
+    }
+
+    .pkg-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--bg-glass); border: 1px solid var(--border);
+      border-radius: var(--radius-md); backdrop-filter: blur(12px);
+      transition: border-color 0.2s;
+    }
+    .pkg-item:hover { border-color: var(--border-glow); }
+
+    .pkg-name {
+      font-family: var(--font-mono); font-size: var(--text-sm);
+      color: var(--teal);
+    }
+    .pkg-version {
+      font-size: var(--text-xs); color: var(--text-muted);
+      background: var(--bg-card); padding: 2px 8px;
+      border-radius: 100px;
+    }
+
+    /* ============================================================
+       TECH STACK
+    ============================================================ */
+    .tech-stack {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: var(--sp-7) var(--sp-6);
+    }
+
+    .tech-grid {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: var(--sp-4); max-width: 1000px; margin: 0 auto;
+    }
+
+    .tech-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: var(--sp-2); padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-glass); border: 1px solid var(--border);
+      border-radius: var(--radius-md); backdrop-filter: blur(12px);
+      min-width: 100px; transition: all 0.2s;
+    }
+    .tech-item:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-3px);
+    }
+
+    .tech-icon { font-size: 28px; }
+    .tech-name { font-size: var(--text-xs); color: var(--text-muted); font-weight: 500; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      padding: var(--sp-7) var(--sp-6) var(--sp-5);
+    }
+
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: var(--sp-7); max-width: 1200px; margin: 0 auto;
+      margin-bottom: var(--sp-7);
+    }
+
+    .footer-brand p {
+      font-size: var(--text-sm); color: var(--text-muted);
+      margin-top: var(--sp-3); line-height: 1.618; max-width: 280px;
+    }
+
+    .footer-col h4 {
+      font-size: var(--text-sm); font-weight: 600;
+      color: var(--text-primary); margin-bottom: var(--sp-4);
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); }
+    .footer-col ul li a {
+      font-size: var(--text-sm); color: var(--text-muted); transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--teal); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      padding-top: var(--sp-5); border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: var(--sp-3);
+    }
+    .footer-bottom p { font-size: var(--text-xs); color: var(--text-muted); }
+    .footer-bottom a { color: var(--teal); font-size: var(--text-xs); }
+    .footer-bottom a:hover { color: var(--teal-dim); }
+
+    /* ============================================================
+       SCROLL ANIMATIONS
+    ============================================================ */
+    .fade-up {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .stagger-1{transition-delay:0.1s;} .stagger-2{transition-delay:0.2s;}
+    .stagger-3{transition-delay:0.3s;} .stagger-4{transition-delay:0.4s;}
+    .stagger-5{transition-delay:0.5s;} .stagger-6{transition-delay:0.6s;}
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,14,23,0.96); backdrop-filter: blur(20px);
+      z-index: 99; flex-direction: column;
+      align-items: center; justify-content: center; gap: var(--sp-5);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-display); font-size: var(--text-3xl);
+      font-weight: 600; color: var(--text-primary); transition: color 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--teal); }
+
+    /* Focus */
+    :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 4px; }
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1024px) {
+      .docs-grid { grid-template-columns: repeat(2, 1fr); }
+      .oss-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta { display: none; }
+      .nav-hamburger { display: flex; }
+      .docs-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .hero-cta { flex-direction: column; align-items: center; }
+      .nav { padding: var(--sp-3) var(--sp-4); }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="/" class="nav-logo" aria-label="HeadyOS Home">
+      <!-- Logo: hexagonal grid mark -->
+      <svg viewBox="0 0 32 32" fill="none" width="32" height="32" aria-hidden="true">
+        <polygon points="16,1 28,8.5 28,23.5 16,31 4,23.5 4,8.5" stroke="#00d4aa" stroke-width="1.5" fill="none"/>
+        <polygon points="16,7 23,11 23,19 16,23 9,19 9,11" stroke="#00d4aa" stroke-width="0.7" fill="rgba(0,212,170,0.07)"/>
+        <circle cx="16" cy="15" r="3" fill="#00d4aa"/>
+        <circle cx="16" cy="8" r="1.2" fill="#f5c842"/>
+        <circle cx="16" cy="22" r="1.2" fill="#f5c842"/>
+      </svg>
+      HeadyOS
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#docs">Docs</a></li>
+      <li><a href="#playground">Playground</a></li>
+      <li><a href="#open-source">Open Source</a></li>
+      <li><a href="https://headyme.com">HeadyMe</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="#docs" class="btn btn-ghost">View Docs</a>
+      <a href="#playground" class="btn btn-primary">Try Playground</a>
+    </div>
+
+    <button class="nav-hamburger" aria-label="Toggle mobile menu" aria-expanded="false" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+    <a href="#architecture" class="mobile-nav-link">Architecture</a>
+    <a href="#docs" class="mobile-nav-link">Docs</a>
+    <a href="#playground" class="mobile-nav-link">Playground</a>
+    <a href="#open-source" class="mobile-nav-link">Open Source</a>
+    <a href="#playground" class="btn btn-primary" style="margin-top:16px; font-size:1.125rem; padding:16px 40px;">Try Playground</a>
+  </div>
+
+  <main id="main-content">
+    <!-- Hero -->
+    <section class="hero" aria-label="Hero">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="6" stroke="#00d4aa" stroke-width="1.2"/>
+            <path d="M4 7l2 2 4-4" stroke="#00d4aa" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Production-Ready · 21 Microservices Online
+        </div>
+
+        <h1 class="hero-title">
+          The <span class="accent-teal">AI OS</span><br>
+          for Developers
+        </h1>
+
+        <p class="hero-subtitle">
+          Build, deploy, and orchestrate autonomous AI agents with production-grade infrastructure.
+          100+ API endpoints. Full OpenAPI spec. φ-derived architecture.
+        </p>
+
+        <div class="hero-cta">
+          <a href="#docs" class="btn btn-primary" aria-label="Read the documentation">
+            Read the Docs
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="#playground" class="btn btn-ghost" aria-label="Try the interactive playground">
+            Try the Playground
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture Visualization -->
+    <section id="architecture" class="section" aria-label="System architecture">
+      <div class="section-header">
+        <p class="section-label fade-up">System Architecture</p>
+        <h2 class="section-title fade-up">21 Microservices. One Coherent System.</h2>
+        <p class="section-desc fade-up">
+          Real-time visualization of the HeadyOS service mesh. Each node represents a running microservice.
+        </p>
+      </div>
+
+      <div class="arch-container fade-up" aria-label="Interactive microservices visualization">
+        <canvas id="arch-canvas" aria-label="Animated microservices graph"></canvas>
+      </div>
+
+      <div class="arch-legend fade-up">
+        <div class="arch-legend-item">
+          <span class="legend-dot" style="background:#00d4aa;" aria-hidden="true"></span>
+          Core Services
+        </div>
+        <div class="arch-legend-item">
+          <span class="legend-dot" style="background:#f5c842;" aria-hidden="true"></span>
+          Gateway / Auth
+        </div>
+        <div class="arch-legend-item">
+          <span class="legend-dot" style="background:#8b5cf6;" aria-hidden="true"></span>
+          AI / Inference
+        </div>
+        <div class="arch-legend-item">
+          <span class="legend-dot" style="background:#60a5fa;" aria-hidden="true"></span>
+          Storage / Memory
+        </div>
+      </div>
+    </section>
+
+    <!-- Documentation Hub -->
+    <section id="docs" class="section" aria-label="Documentation hub">
+      <div class="section-header">
+        <p class="section-label fade-up">Documentation</p>
+        <h2 class="section-title fade-up">Everything You Need to Build</h2>
+        <p class="section-desc fade-up">
+          From quick start to advanced orchestration patterns — comprehensive references for every level.
+        </p>
+      </div>
+
+      <div class="docs-grid">
+        <a href="#" class="doc-card fade-up stagger-1" aria-label="Getting Started guide">
+          <div class="doc-card-icon" aria-hidden="true">🚀</div>
+          <h3 class="doc-card-title">Getting Started</h3>
+          <p class="doc-card-desc">Quick setup, first agent in 5 minutes. Install the CLI, connect to the API, and deploy your first intelligent agent.</p>
+        </a>
+
+        <a href="#" class="doc-card fade-up stagger-2" aria-label="API Reference">
+          <div class="doc-card-icon" aria-hidden="true">⚡</div>
+          <h3 class="doc-card-title">API Reference</h3>
+          <p class="doc-card-desc">100+ endpoints with full OpenAPI 3.1 specification. Authentication, rate limits, pagination, and error handling.</p>
+        </a>
+
+        <a href="#" class="doc-card fade-up stagger-3" aria-label="SDK Guide">
+          <div class="doc-card-icon" aria-hidden="true">📦</div>
+          <h3 class="doc-card-title">SDK Guide</h3>
+          <p class="doc-card-desc">First-class JavaScript and Python client libraries. Type-safe, tree-shakeable, with automatic retry and streaming support.</p>
+        </a>
+
+        <a href="#" class="doc-card fade-up stagger-4" aria-label="MCP Tools guide">
+          <div class="doc-card-icon" aria-hidden="true">🔧</div>
+          <h3 class="doc-card-title">MCP Tools</h3>
+          <p class="doc-card-desc">Create and register Model Context Protocol-compatible tools. Extend agent capabilities with custom integrations.</p>
+        </a>
+
+        <a href="#" class="doc-card fade-up stagger-5" aria-label="Agent Development guide">
+          <div class="doc-card-icon" aria-hidden="true">🤖</div>
+          <h3 class="doc-card-title">Agent Development</h3>
+          <p class="doc-card-desc">Build custom agents with the Bee framework. Task planning, tool use, memory integration, and multi-agent coordination.</p>
+        </a>
+
+        <a href="#" class="doc-card fade-up stagger-6" aria-label="Orchestration patterns">
+          <div class="doc-card-icon" aria-hidden="true">⬡</div>
+          <h3 class="doc-card-title">Orchestration</h3>
+          <p class="doc-card-desc">Multi-agent workflows and conductor patterns. Parallel execution, dependency graphs, failure recovery, and observability.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Interactive Playground -->
+    <section id="playground" class="section" aria-label="Interactive playground">
+      <div class="section-header">
+        <p class="section-label fade-up">Interactive Playground</p>
+        <h2 class="section-title fade-up">Try HeadyOS in Your Browser</h2>
+        <p class="section-desc fade-up">
+          Real CLI commands. Simulated environment. No installation required.
+        </p>
+      </div>
+
+      <div class="playground-window fade-up" aria-label="Terminal playground">
+        <div class="pw-header">
+          <span class="pw-dot r" aria-hidden="true"></span>
+          <span class="pw-dot y" aria-hidden="true"></span>
+          <span class="pw-dot g" aria-hidden="true"></span>
+          <span class="pw-title">heady — playground</span>
+          <div class="pw-tabs">
+            <button class="pw-tab active" data-tab="doctor" aria-pressed="true">heady doctor</button>
+            <button class="pw-tab" data-tab="status" aria-pressed="false">heady status</button>
+            <button class="pw-tab" data-tab="deploy" aria-pressed="false">heady deploy</button>
+          </div>
+        </div>
+        <div class="pw-body" id="pw-body" aria-live="polite" aria-label="Terminal output">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Open Source -->
+    <section id="open-source" class="section" aria-label="Open source">
+      <div class="section-header">
+        <p class="section-label fade-up">Open Source</p>
+        <h2 class="section-title fade-up">Built in Public</h2>
+        <p class="section-desc fade-up">
+          Core packages are open source. Contribute, extend, and build on the HeadyOS ecosystem.
+        </p>
+      </div>
+
+      <div class="oss-grid">
+        <div class="fade-up">
+          <div class="commit-chart">
+            <h4>Commit Activity (last 12 weeks)</h4>
+            <div class="commit-bars" id="commit-bars" aria-label="Commit frequency chart"></div>
+            <div class="commit-labels" id="commit-labels"></div>
+          </div>
+
+          <div style="margin-top: var(--sp-5);">
+            <a href="https://github.com/headysystems" class="btn btn-ghost" style="gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.74-1.33-1.74-1.08-.74.08-.73.08-.73 1.2.09 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48 1 .11-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.23-3.22-.12-.31-.53-1.52.12-3.17 0 0 1-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02.01 2.04.14 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.65.24 2.86.12 3.17.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              View on GitHub
+            </a>
+          </div>
+        </div>
+
+        <div class="pkg-list fade-up stagger-2">
+          <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 600; margin-bottom: var(--sp-4);">
+            Package Ecosystem
+          </h3>
+          <div class="pkg-item">
+            <span class="pkg-name">@headyos/core</span>
+            <span class="pkg-version">v2.4.1</span>
+          </div>
+          <div class="pkg-item">
+            <span class="pkg-name">@headyos/sdk-js</span>
+            <span class="pkg-version">v1.8.0</span>
+          </div>
+          <div class="pkg-item">
+            <span class="pkg-name">@headyos/sdk-python</span>
+            <span class="pkg-version">v1.6.3</span>
+          </div>
+          <div class="pkg-item">
+            <span class="pkg-name">@headyos/cli</span>
+            <span class="pkg-version">v3.1.2</span>
+          </div>
+          <div class="pkg-item">
+            <span class="pkg-name">@headyos/mcp-tools</span>
+            <span class="pkg-version">v0.9.4</span>
+          </div>
+          <div class="pkg-item">
+            <span class="pkg-name">@headyos/bee-agent</span>
+            <span class="pkg-version">v1.2.0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="tech-stack" aria-label="Technology stack">
+      <div class="section-header" style="margin-bottom: var(--sp-6);">
+        <p class="section-label fade-up">Technology Stack</p>
+        <h2 class="section-title fade-up">Production Infrastructure</h2>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-item fade-up stagger-1">
+          <span class="tech-icon" aria-hidden="true">⬡</span>
+          <span class="tech-name">Node.js</span>
+        </div>
+        <div class="tech-item fade-up stagger-2">
+          <span class="tech-icon" aria-hidden="true">🔷</span>
+          <span class="tech-name">TypeScript</span>
+        </div>
+        <div class="tech-item fade-up stagger-3">
+          <span class="tech-icon" aria-hidden="true">🐍</span>
+          <span class="tech-name">Python</span>
+        </div>
+        <div class="tech-item fade-up stagger-4">
+          <span class="tech-icon" aria-hidden="true">🔴</span>
+          <span class="tech-name">Redis</span>
+        </div>
+        <div class="tech-item fade-up stagger-5">
+          <span class="tech-icon" aria-hidden="true">🐘</span>
+          <span class="tech-name">PostgreSQL</span>
+        </div>
+        <div class="tech-item fade-up stagger-6">
+          <span class="tech-icon" aria-hidden="true">🌐</span>
+          <span class="tech-name">Cloudflare</span>
+        </div>
+        <div class="tech-item fade-up">
+          <span class="tech-icon" aria-hidden="true">☁️</span>
+          <span class="tech-name">GCP</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo" aria-label="HeadyOS Home">
+          <svg viewBox="0 0 32 32" fill="none" style="width:28px;height:28px;" aria-hidden="true">
+            <polygon points="16,1 28,8.5 28,23.5 16,31 4,23.5 4,8.5" stroke="#00d4aa" stroke-width="1.5" fill="none"/>
+            <circle cx="16" cy="15" r="3" fill="#00d4aa"/>
+            <circle cx="16" cy="8" r="1.2" fill="#f5c842"/>
+            <circle cx="16" cy="22" r="1.2" fill="#f5c842"/>
+          </svg>
+          HeadyOS
+        </a>
+        <p>The AI Operating System. Built by HeadySystems Inc., founded by Eric Haywood.</p>
+        <p style="margin-top:8px; font-size:0.75rem;">© 2026 HeadySystems Inc. · 51+ Patents</p>
+      </div>
+      <div class="footer-col">
+        <h4>Developers</h4>
+        <ul role="list">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">SDK</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <ul role="list">
+          <li><a href="https://github.com/headysystems">GitHub</a></li>
+          <li><a href="#">Discord</a></li>
+          <li><a href="#">Forum</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul role="list">
+          <li><a href="https://headyme.com">HeadyMe</a></li>
+          <li><a href="https://headysystems.com">Enterprise</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>φ-derived precision · HeadySystems Inc.</p>
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">
+        Created with Perplexity Computer
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    const PHI = 1.6180339887;
+
+    // ============================================================
+    // HERO CANVAS — Sacred Geometry
+    // ============================================================
+    (function() {
+      const canvas = document.getElementById('hero-canvas');
+      const ctx = canvas.getContext('2d');
+      let W, H, nodes = [], frame = 0;
+
+      function resize() {
+        W = canvas.width = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Hexagonal grid nodes
+      class HexNode {
+        constructor(x, y) {
+          this.bx = x; this.by = y;
+          this.x = x + (Math.random()-0.5)*30;
+          this.y = y + (Math.random()-0.5)*30;
+          this.tx = x; this.ty = y;
+          this.alpha = Math.random()*0.5+0.1;
+          this.r = Math.random()*1.5+0.5;
+          this.phase = Math.random()*Math.PI*2;
+          this.speed = 0.005 + Math.random()*0.01;
+        }
+        update(t) {
+          this.x = this.bx + Math.cos(this.phase + t*this.speed) * 8;
+          this.y = this.by + Math.sin(this.phase*1.3 + t*this.speed) * 8;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+          ctx.fillStyle = `rgba(0,212,170,${this.alpha})`;
+          ctx.fill();
+        }
+      }
+
+      // Build hex grid
+      const size = 60;
+      for (let row = -1; row < H/size + 2; row++) {
+        for (let col = -1; col < W/(size*0.866) + 2; col++) {
+          const x = col * size * 0.866 + (row % 2 === 0 ? 0 : size * 0.433);
+          const y = row * size * 0.75;
+          nodes.push(new HexNode(x, y));
+        }
+      }
+
+      // Draw central Metatron's Cube outline
+      function drawMetatron(cx, cy, r, t, alpha) {
+        const angles = Array.from({length: 6}, (_, i) => (i/6)*Math.PI*2 + t*0.05);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = '#00d4aa';
+        ctx.lineWidth = 0.4;
+
+        // Inner hexagon
+        ctx.beginPath();
+        angles.forEach((a, i) => {
+          const x = cx + r * Math.cos(a);
+          const y = cy + r * Math.sin(a);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.closePath(); ctx.stroke();
+
+        // Connect all vertices
+        for (let i = 0; i < 6; i++) {
+          for (let j = i+1; j < 6; j++) {
+            ctx.beginPath();
+            ctx.moveTo(cx + r*Math.cos(angles[i]), cy + r*Math.sin(angles[i]));
+            ctx.lineTo(cx + r*Math.cos(angles[j]), cy + r*Math.sin(angles[j]));
+            ctx.stroke();
+          }
+        }
+
+        // Outer ring
+        ctx.strokeStyle = 'rgba(245,200,66,0.5)';
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * PHI, 0, Math.PI*2);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, W, H);
+
+        const t = frame;
+
+        // Radial gradient bg
+        const grad = ctx.createRadialGradient(W/2, H*0.45, 0, W/2, H*0.45, W*0.6);
+        grad.addColorStop(0, 'rgba(0,70,55,0.1)');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Update and draw nodes
+        nodes.forEach(n => { n.update(t); n.draw(); });
+
+        // Connections
+        for (let i = 0; i < nodes.length; i++) {
+          const ni = nodes[i];
+          for (let j = i+1; j < nodes.length; j++) {
+            const nj = nodes[j];
+            const d = Math.hypot(ni.x-nj.x, ni.y-nj.y);
+            if (d < size * 1.2) {
+              const a = (1 - d/(size*1.2)) * 0.08;
+              ctx.save();
+              ctx.globalAlpha = a;
+              ctx.strokeStyle = '#00d4aa';
+              ctx.lineWidth = 0.4;
+              ctx.beginPath();
+              ctx.moveTo(ni.x, ni.y);
+              ctx.lineTo(nj.x, nj.y);
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+
+        // Central geometry
+        drawMetatron(W/2, H*0.42, Math.min(W,H)*0.15, t, 0.05);
+
+        frame++;
+        requestAnimationFrame(animate);
+      }
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        animate();
+      }
+    })();
+
+    // ============================================================
+    // ARCHITECTURE CANVAS
+    // ============================================================
+    (function() {
+      const canvas = document.getElementById('arch-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let W, H, services = [], frame = 0;
+
+      const serviceColors = ['#00d4aa', '#00d4aa', '#f5c842', '#8b5cf6', '#60a5fa'];
+      const serviceNames = [
+        'conductor', 'gateway', 'auth', 'vector-store', 'llm-proxy',
+        'agent-runner', 'memory', 'scheduler', 'webhook', 'metrics',
+        'buddy', 'sync', 'embedding', 'cache', 'queue',
+        'audit', 'notify', 'file-store', 'search', 'stream', 'csl-engine'
+      ];
+
+      function resize() {
+        W = canvas.width = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+        initServices();
+      }
+
+      function initServices() {
+        services = [];
+        const cx = W / 2, cy = H / 2;
+        const rings = [1, 6, 8, 6]; // center, ring1, ring2, ring3
+        let idx = 0;
+        rings.forEach((count, ri) => {
+          const r = ri === 0 ? 0 : ri * (Math.min(W, H) * 0.16);
+          for (let i = 0; i < count; i++) {
+            const angle = (i / count) * Math.PI * 2 - Math.PI/2;
+            services.push({
+              x: cx + r * Math.cos(angle),
+              y: cy + r * Math.sin(angle),
+              vx: (Math.random()-0.5)*0.3,
+              vy: (Math.random()-0.5)*0.3,
+              r: ri === 0 ? 10 : ri === 1 ? 7 : 5,
+              color: serviceColors[Math.floor(Math.random()*serviceColors.length)],
+              name: serviceNames[idx % serviceNames.length],
+              phase: Math.random()*Math.PI*2,
+              ring: ri,
+              angle: angle,
+              baseAngle: angle,
+              orbitR: r
+            });
+            idx++;
+          }
+        });
+      }
+
+      resize();
+      window.addEventListener('resize', () => { resize(); });
+
+      function animate() {
+        ctx.clearRect(0, 0, W, H);
+        frame++;
+        const t = frame * 0.005;
+        const cx = W/2, cy = H/2;
+
+        // Update orbital positions
+        services.forEach(s => {
+          if (s.ring > 0) {
+            s.angle = s.baseAngle + t * (0.05 / s.ring);
+            s.x = cx + s.orbitR * Math.cos(s.angle);
+            s.y = cy + s.orbitR * Math.sin(s.angle);
+          } else {
+            s.x = cx + Math.sin(t*0.3) * 3;
+            s.y = cy + Math.cos(t*0.2) * 3;
+          }
+        });
+
+        // Draw orbit rings
+        services.forEach(s => {
+          if (s.ring > 0 && s === services.find(ss => ss.ring === s.ring)) {
+            ctx.save();
+            ctx.globalAlpha = 0.06;
+            ctx.strokeStyle = '#00d4aa';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 8]);
+            ctx.beginPath();
+            ctx.arc(cx, cy, s.orbitR, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.restore();
+          }
+        });
+
+        // Draw connections (nearby services + to center)
+        for (let i = 0; i < services.length; i++) {
+          const a = services[i];
+          for (let j = i+1; j < services.length; j++) {
+            const b = services[j];
+            const d = Math.hypot(a.x-b.x, a.y-b.y);
+            if (d < Math.min(W,H) * 0.22) {
+              const alpha = (1 - d/(Math.min(W,H)*0.22)) * 0.2;
+              ctx.save();
+              ctx.globalAlpha = alpha;
+              ctx.strokeStyle = a.ring === 0 ? '#f5c842' : '#00d4aa';
+              ctx.lineWidth = 0.5;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+
+        // Draw nodes
+        services.forEach(s => {
+          const pulse = 0.7 + 0.3 * Math.sin(s.phase + frame * 0.04);
+          ctx.save();
+          // Glow
+          ctx.globalAlpha = 0.15 * pulse;
+          ctx.fillStyle = s.color;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r * 3, 0, Math.PI*2);
+          ctx.fill();
+          // Core
+          ctx.globalAlpha = pulse;
+          ctx.fillStyle = s.color;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+
+          // Label for larger nodes
+          if (s.r >= 7) {
+            ctx.save();
+            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = '#8b98b8';
+            ctx.font = `10px 'Berkeley Mono', monospace`;
+            ctx.textAlign = 'center';
+            ctx.fillText(s.name, s.x, s.y + s.r + 14);
+            ctx.restore();
+          }
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        animate();
+      }
+    })();
+
+    // ============================================================
+    // PLAYGROUND TERMINAL
+    // ============================================================
+    const playgroundData = {
+      doctor: [
+        { type: 'prompt', text: '$ heady doctor' },
+        { type: 'output', text: '' },
+        { type: 'success', text: '✓ CLI version 3.1.2 — up to date' },
+        { type: 'success', text: '✓ API connection — OK (42ms)' },
+        { type: 'success', text: '✓ Authentication — valid token' },
+        { type: 'success', text: '✓ 21/21 microservices — HEALTHY' },
+        { type: 'success', text: '✓ Vector store — 2.1M vectors indexed' },
+        { type: 'success', text: '✓ Conductor — ORCHESTRATING' },
+        { type: 'output', text: '' },
+        { type: 'comment', text: '# All systems operational' },
+      ],
+      status: [
+        { type: 'prompt', text: '$ heady status' },
+        { type: 'output', text: '' },
+        { type: 'output', text: 'HeadyOS Platform Status' },
+        { type: 'output', text: '────────────────────────' },
+        { type: 'success', text: '● conductor         RUNNING   port 4001' },
+        { type: 'success', text: '● gateway           RUNNING   port 4000' },
+        { type: 'success', text: '● auth-service      RUNNING   port 4002' },
+        { type: 'success', text: '● vector-store      RUNNING   port 4003' },
+        { type: 'success', text: '● llm-proxy         RUNNING   port 4004' },
+        { type: 'success', text: '● agent-runner      RUNNING   port 4005' },
+        { type: 'output', text: '  + 15 more services RUNNING' },
+      ],
+      deploy: [
+        { type: 'prompt', text: '$ heady deploy --env production' },
+        { type: 'output', text: '' },
+        { type: 'comment', text: '# Building agent bundle...' },
+        { type: 'output', text: '→ Compiling TypeScript (0.8s)' },
+        { type: 'output', text: '→ Bundling MCP tools (0.3s)' },
+        { type: 'output', text: '→ Uploading to conductor' },
+        { type: 'success', text: '✓ Agent registered: agent_7f3a2b' },
+        { type: 'success', text: '✓ Routes configured' },
+        { type: 'success', text: '✓ Health check passed' },
+        { type: 'output', text: '' },
+        { type: 'success', text: '✓ Deployed → https://hdy.me/a/7f3a2b' },
+      ]
+    };
+
+    function renderPlayground(tab) {
+      const body = document.getElementById('pw-body');
+      const lines = playgroundData[tab];
+      body.innerHTML = '';
+      lines.forEach((line, i) => {
+        const div = document.createElement('div');
+        div.className = 'pw-line';
+        if (line.type === 'prompt') {
+          div.innerHTML = `<span class="pw-prompt">$</span><span class="pw-cmd">${line.text.slice(2)}</span>`;
+        } else if (line.type === 'success') {
+          div.innerHTML = `<span class="pw-success">${line.text}</span>`;
+        } else if (line.type === 'comment') {
+          div.innerHTML = `<span class="pw-comment">${line.text}</span>`;
+        } else {
+          div.innerHTML = `<span class="pw-output">${line.text}</span>`;
+        }
+        body.appendChild(div);
+      });
+      // Add cursor
+      const cursor = document.createElement('div');
+      cursor.className = 'pw-line';
+      cursor.innerHTML = `<span class="pw-prompt">$</span><span class="pw-cursor"></span>`;
+      body.appendChild(cursor);
+    }
+
+    renderPlayground('doctor');
+
+    document.querySelectorAll('.pw-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.pw-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-pressed', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-pressed', 'true');
+        renderPlayground(tab.dataset.tab);
+      });
+    });
+
+    // ============================================================
+    // COMMIT CHART
+    // ============================================================
+    const commitData = [14, 22, 18, 31, 27, 19, 35, 28, 42, 38, 51, 44];
+    const weekLabels = ['w1','w2','w3','w4','w5','w6','w7','w8','w9','w10','w11','w12'];
+    const maxC = Math.max(...commitData);
+    const barsEl = document.getElementById('commit-bars');
+    const labelsEl = document.getElementById('commit-labels');
+    if (barsEl) {
+      commitData.forEach((v, i) => {
+        const bar = document.createElement('div');
+        bar.className = 'commit-bar';
+        bar.style.height = `${(v/maxC)*100}%`;
+        bar.style.opacity = 0.4 + (v/maxC)*0.6;
+        bar.setAttribute('aria-label', `Week ${i+1}: ${v} commits`);
+        bar.title = `${v} commits`;
+        barsEl.appendChild(bar);
+
+        const label = document.createElement('div');
+        label.className = 'commit-label';
+        label.textContent = weekLabels[i];
+        labelsEl.appendChild(label);
+      });
+    }
+
+    // ============================================================
+    // SCROLL ANIMATIONS
+    // ============================================================
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ============================================================
+    // MOBILE MENU
+    // ============================================================
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    let menuOpen = false;
+
+    function toggleMenu() {
+      menuOpen = !menuOpen;
+      mobileMenu.classList.toggle('open', menuOpen);
+      hamburger.setAttribute('aria-expanded', menuOpen);
+      document.body.style.overflow = menuOpen ? 'hidden' : '';
+    }
+
+    hamburger.addEventListener('click', toggleMenu);
+    document.querySelectorAll('.mobile-nav-link, .mobile-menu .btn').forEach(l => {
+      l.addEventListener('click', () => {
+        menuOpen = false;
+        mobileMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      });
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen) toggleMenu(); });
+  </script>
+</body>
+</html>

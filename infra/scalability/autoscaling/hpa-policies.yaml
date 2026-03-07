@@ -1,0 +1,837 @@
+# =============================================================================
+# HeadySystems — Horizontal Pod Autoscaling Policies
+# φ-scaled thresholds: CPU=61.8% (1/φ), Memory=76.4% (1-1/φ²)
+# Scale-up stabilization: fib(5)=5s | Scale-down stabilization: fib(9)=34s
+# =============================================================================
+
+# ──────────────────────────────────────────────────────────────────────────────
+# SHARED HPA BEHAVIOR TEMPLATE
+# φ constant = 1.618033988749895
+# CPU threshold  = 61.8%  (= 1/φ × 100)
+# Mem threshold  = 76.4%  (= (1 - 1/φ²) × 100)
+# Scale-up stabilization:   fib(5) =  5 seconds
+# Scale-down stabilization: fib(9) = 34 seconds
+# ──────────────────────────────────────────────────────────────────────────────
+
+# =============================================================================
+# 1. heady-brain — Core AI reasoning service
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-brain-hpa
+  namespace: heady-production
+  labels:
+    app: heady-brain
+    component: core
+    phi-scaled: "true"
+  annotations:
+    heady.ai/phi: "1.618033988749895"
+    heady.ai/fib-series: "1,1,2,3,5,8,13,21,34,55,89"
+    heady.ai/cpu-threshold: "61.8% (1/φ)"
+    heady.ai/mem-threshold: "76.4% (1-1/φ²)"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-brain
+  minReplicas: 2          # fib(3) = 2
+  maxReplicas: 21         # fib(8) = 21
+  metrics:
+    # CPU — threshold = 61.8% (inverse golden ratio)
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62  # ≈ 1/φ × 100 = 61.8%
+    # Memory — threshold = 76.4% (1 - 1/φ²)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76  # ≈ (1 - 1/φ²) × 100 = 76.4%
+    # Custom: requests per second
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "55"      # fib(10) = 55 RPS per pod
+    # Custom: queue depth
+    - type: Pods
+      pods:
+        metric:
+          name: queue_depth
+        target:
+          type: AverageValue
+          averageValue: "21"      # fib(8) = 21 items per pod
+    # Custom: active agents
+    - type: Pods
+      pods:
+        metric:
+          name: active_agents
+        target:
+          type: AverageValue
+          averageValue: "13"      # fib(7) = 13 agents per pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5    # fib(5) = 5s — respond fast
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 3                     # fib(4) = 3 pods per step
+          periodSeconds: 8             # fib(6) = 8s
+        - type: Percent
+          value: 62                    # 1/φ × 100 ≈ 62% increase
+          periodSeconds: 13            # fib(7) = 13s
+    scaleDown:
+      stabilizationWindowSeconds: 34   # fib(9) = 34s — conservative teardown
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1                     # remove 1 pod per step
+          periodSeconds: 34            # fib(9) = 34s
+        - type: Percent
+          value: 38                    # 38.2% = 1/φ² reduction
+          periodSeconds: 55            # fib(10) = 55s
+
+---
+# =============================================================================
+# 2. heady-conductor — Orchestration service
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-conductor-hpa
+  namespace: heady-production
+  labels:
+    app: heady-conductor
+    component: orchestration
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-conductor
+  minReplicas: 2          # fib(3) = 2
+  maxReplicas: 13         # fib(7) = 13
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: active_agents
+        target:
+          type: AverageValue
+          averageValue: "8"       # fib(6) = 8 concurrent agents per pod
+    - type: Pods
+      pods:
+        metric:
+          name: queue_depth
+        target:
+          type: AverageValue
+          averageValue: "13"      # fib(7) = 13 tasks in queue
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 8
+        - type: Percent
+          value: 62
+          periodSeconds: 13
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 34
+
+---
+# =============================================================================
+# 3. heady-cache — Distributed cache service
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-cache-hpa
+  namespace: heady-production
+  labels:
+    app: heady-cache
+    component: cache
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-cache
+  minReplicas: 3          # fib(4) = 3 — minimum for quorum
+  maxReplicas: 8          # fib(6) = 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "89"      # fib(11) = 89 RPS per cache pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 8
+    scaleDown:
+      stabilizationWindowSeconds: 55  # fib(10) = 55s — cache eviction is expensive
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 55
+
+---
+# =============================================================================
+# 4. heady-gateway — API gateway / request router
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-gateway-hpa
+  namespace: heady-production
+  labels:
+    app: heady-gateway
+    component: gateway
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-gateway
+  minReplicas: 3          # fib(4) = 3 — HA minimum
+  maxReplicas: 34         # fib(9) = 34
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "144"     # fib(12) = 144 RPS per gateway pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5   # aggressive scale-up for gateway
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 5                    # fib(5) = 5 pods per step
+          periodSeconds: 5            # fib(5) = 5s
+        - type: Percent
+          value: 62
+          periodSeconds: 8            # fib(6) = 8s
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 34
+
+---
+# =============================================================================
+# 5. heady-vector — Vector memory service
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-vector-hpa
+  namespace: heady-production
+  labels:
+    app: heady-vector
+    component: memory
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-vector
+  minReplicas: 2
+  maxReplicas: 13         # fib(7) = 13
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "34"      # fib(9) = 34 search RPS per pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 8
+        - type: Percent
+          value: 62
+          periodSeconds: 13
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 34
+
+---
+# =============================================================================
+# 6. heady-embed — Embedding service
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-embed-hpa
+  namespace: heady-production
+  labels:
+    app: heady-embed
+    component: ml
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-embed
+  minReplicas: 2
+  maxReplicas: 8          # fib(6) = 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: queue_depth
+        target:
+          type: AverageValue
+          averageValue: "8"       # fib(6) = 8 embed jobs per pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 13
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 55
+
+---
+# =============================================================================
+# 7. heady-mcp — Model Context Protocol server
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-mcp-hpa
+  namespace: heady-production
+  labels:
+    app: heady-mcp
+    component: protocol
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-mcp
+  minReplicas: 2
+  maxReplicas: 21         # fib(8) = 21
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: active_agents
+        target:
+          type: AverageValue
+          averageValue: "13"      # fib(7) = 13 agent sessions per pod
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "34"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 3
+          periodSeconds: 8
+        - type: Percent
+          value: 62
+          periodSeconds: 13
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 34
+
+---
+# =============================================================================
+# 8. heady-security — Security enforcement layer
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-security-hpa
+  namespace: heady-production
+  labels:
+    app: heady-security
+    component: security
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-security
+  minReplicas: 3          # fib(4) = 3 — security cannot go below quorum
+  maxReplicas: 13         # fib(7) = 13
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "89"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 5
+    scaleDown:
+      stabilizationWindowSeconds: 55  # fib(10) — security: conservative teardown
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 55
+
+---
+# =============================================================================
+# 9. heady-orchestration — Multi-agent orchestration
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-orchestration-hpa
+  namespace: heady-production
+  labels:
+    app: heady-orchestration
+    component: orchestration
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-orchestration
+  minReplicas: 2
+  maxReplicas: 21         # fib(8) = 21
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: active_agents
+        target:
+          type: AverageValue
+          averageValue: "21"      # fib(8) = 21 orchestration contexts per pod
+    - type: Pods
+      pods:
+        metric:
+          name: queue_depth
+        target:
+          type: AverageValue
+          averageValue: "13"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 3
+          periodSeconds: 8
+        - type: Percent
+          value: 62
+          periodSeconds: 13
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 34
+
+---
+# =============================================================================
+# 10. heady-web — Frontend / web server
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-web-hpa
+  namespace: heady-production
+  labels:
+    app: heady-web
+    component: frontend
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-web
+  minReplicas: 2
+  maxReplicas: 34         # fib(9) = 34
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "233"     # fib(13) = 233 HTTP RPS per web pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 5
+          periodSeconds: 5
+        - type: Percent
+          value: 62
+          periodSeconds: 8
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 34
+
+---
+# =============================================================================
+# 11. heady-infer — Inference / LLM proxy service
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-infer-hpa
+  namespace: heady-production
+  labels:
+    app: heady-infer
+    component: inference
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-infer
+  minReplicas: 2
+  maxReplicas: 13         # fib(7) = 13
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "13"      # LLM inference is heavy; 13 RPS per pod
+    - type: Pods
+      pods:
+        metric:
+          name: queue_depth
+        target:
+          type: AverageValue
+          averageValue: "5"       # fib(5) = 5 queued inference requests
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 8
+    scaleDown:
+      stabilizationWindowSeconds: 55  # inference pods are expensive to spin up
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 55
+
+---
+# =============================================================================
+# 12. heady-ui — UI server (SSR / Next.js / static)
+# =============================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: heady-ui-hpa
+  namespace: heady-production
+  labels:
+    app: heady-ui
+    component: frontend
+    phi-scaled: "true"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: heady-ui
+  minReplicas: 2
+  maxReplicas: 21         # fib(8) = 21
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 62
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 76
+    - type: Pods
+      pods:
+        metric:
+          name: requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "144"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 5
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 3
+          periodSeconds: 8
+    scaleDown:
+      stabilizationWindowSeconds: 34
+      selectPolicy: Min
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 34
+
+---
+# =============================================================================
+# Custom Metrics API — PodMonitor for all phi-scaled services
+# Exposes: requests_per_second, queue_depth, active_agents
+# =============================================================================
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: heady-phi-metrics
+  namespace: heady-production
+  labels:
+    phi-scaled: "true"
+spec:
+  selector:
+    matchLabels:
+      phi-scaled: "true"
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 5s    # fib(5) = 5s scrape interval — aligns with scale-up window
+      scrapeTimeout: 3s
+  namespaceSelector:
+    matchNames:
+      - heady-production
+      - heady-staging
+
+---
+# =============================================================================
+# KEDA ScaledObject — queue-depth driven autoscaling via Redis
+# Supplements HPA for queue-based workloads
+# =============================================================================
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: heady-orchestration-keda
+  namespace: heady-production
+spec:
+  scaleTargetRef:
+    name: heady-orchestration
+  minReplicaCount: 2      # fib(3) = 2
+  maxReplicaCount: 21     # fib(8) = 21
+  pollingInterval: 5      # fib(5) = 5s
+  cooldownPeriod: 34      # fib(9) = 34s
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 5
+          policies:
+            - type: Pods
+              value: 3
+              periodSeconds: 8
+        scaleDown:
+          stabilizationWindowSeconds: 34
+          policies:
+            - type: Pods
+              value: 1
+              periodSeconds: 34
+  triggers:
+    - type: redis
+      metadata:
+        address: redis-primary.heady-production.svc.cluster.local:6379
+        listName: heady:task:queue:high
+        listLength: "8"         # fib(6) = 8 — scale when queue > 8 tasks per pod
+    - type: redis
+      metadata:
+        address: redis-primary.heady-production.svc.cluster.local:6379
+        listName: heady:task:queue:normal
+        listLength: "21"        # fib(8) = 21
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+        metricName: heady_active_agents_total
+        query: sum(heady_active_agents_total{app="heady-orchestration"})
+        threshold: "13"         # fib(7) = 13

@@ -1,0 +1,323 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "Prometheus datasource",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" },
+    { "type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0" },
+    { "type": "panel", "id": "stat", "name": "Stat", "version": "" },
+    { "type": "panel", "id": "timeseries", "name": "Time series", "version": "" },
+    { "type": "panel", "id": "gauge", "name": "Gauge", "version": "" },
+    { "type": "panel", "id": "bargauge", "name": "Bar gauge", "version": "" },
+    { "type": "panel", "id": "table", "name": "Table", "version": "" }
+  ],
+  "description": "HeadySystems SLO Burn Rate Dashboard — error budget remaining for 99.9%/99.95%/99.99% SLO tiers, burn rates at 1h/6h/24h windows, time-to-exhaustion. Alert: burn > fib(7)=13x at 1h window.",
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 500,
+      "title": "Error Budget Remaining",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 10 },
+              { "color": "yellow", "value": 25 },
+              { "color": "green", "value": 50 }
+            ]
+          },
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 1 },
+      "id": 501,
+      "options": { "minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": true, "showThresholdMarkers": true },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "1 - (sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[$__range])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[$__range]))) / (1 - 0.999)",
+          "legendFormat": "99.9% SLO Budget",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Budget Remaining — 99.9% SLO",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 10 },
+              { "color": "yellow", "value": 25 },
+              { "color": "green", "value": 50 }
+            ]
+          },
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 1 },
+      "id": 502,
+      "options": { "minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": true, "showThresholdMarkers": true },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "1 - (sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[$__range])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[$__range]))) / (1 - 0.9995)",
+          "legendFormat": "99.95% SLO Budget",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Budget Remaining — 99.95% SLO",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 10 },
+              { "color": "yellow", "value": 25 },
+              { "color": "green", "value": 50 }
+            ]
+          },
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 1 },
+      "id": 503,
+      "options": { "minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": true, "showThresholdMarkers": true },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "1 - (sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[$__range])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[$__range]))) / (1 - 0.9999)",
+          "legendFormat": "99.99% SLO Budget",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Budget Remaining — 99.99% SLO",
+      "type": "gauge"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 510,
+      "title": "Burn Rate by Window",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "orange", "value": 8 },
+              { "color": "red", "value": 13 }
+            ]
+          },
+          "unit": "short",
+          "min": 0,
+          "displayName": "1h Burn Rate"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+      "id": 511,
+      "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[1h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[1h]))) / (1 - 0.999)",
+          "legendFormat": "Burn Rate 1h",
+          "refId": "A"
+        }
+      ],
+      "title": "Burn Rate — 1h Window (alert > fib(7)=13x)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 3 },
+              { "color": "orange", "value": 5 },
+              { "color": "red", "value": 8 }
+            ]
+          },
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+      "id": 512,
+      "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[6h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[6h]))) / (1 - 0.999)",
+          "legendFormat": "Burn Rate 6h",
+          "refId": "A"
+        }
+      ],
+      "title": "Burn Rate — 6h Window",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 2 },
+              { "color": "orange", "value": 3 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "unit": "short",
+          "min": 0
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+      "id": 513,
+      "options": { "colorMode": "background", "graphMode": "area", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[24h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[24h]))) / (1 - 0.999)",
+          "legendFormat": "Burn Rate 24h",
+          "refId": "A"
+        }
+      ],
+      "title": "Burn Rate — 24h Window",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 168 }, { "color": "orange", "value": 72 }, { "color": "red", "value": 24 }] },
+          "unit": "h",
+          "min": 0
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+      "id": 514,
+      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "expr": "(1 - (sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[1h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[1h]))) / (1 - 0.999)) * 720 / ((sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[1h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[1h]))) / (1 - 0.999))",
+          "legendFormat": "Hours Until Exhaustion",
+          "refId": "A"
+        }
+      ],
+      "title": "Time Until Budget Exhaustion (hours)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2, "showPoints": "never" },
+          "unit": "short"
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "Alert Threshold (fib(7)=13x)" }, "properties": [{ "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } }, { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 12 },
+      "id": 520,
+      "options": { "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "(sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[1h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[1h]))) / (1 - 0.999)", "legendFormat": "Burn Rate 1h", "refId": "A" },
+        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "(sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[6h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[6h]))) / (1 - 0.999)", "legendFormat": "Burn Rate 6h", "refId": "B" },
+        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "(sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[24h])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[24h]))) / (1 - 0.999)", "legendFormat": "Burn Rate 24h", "refId": "C" },
+        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "vector(13)", "legendFormat": "Alert Threshold (fib(7)=13x)", "refId": "D" },
+        { "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" }, "expr": "vector(1)", "legendFormat": "Nominal (1x)", "refId": "E" }
+      ],
+      "title": "SLO Burn Rate Trend — All Windows (alert fires at fib(7)=13x for 1h)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "60s",
+  "schemaVersion": 38,
+  "tags": ["heady", "slo", "burn-rate", "error-budget"],
+  "templating": {
+    "list": [
+      {
+        "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+        "definition": "label_values(up, namespace)",
+        "hide": 0,
+        "label": "Namespace",
+        "multi": false,
+        "name": "namespace",
+        "query": { "query": "label_values(up, namespace)", "refId": "StandardVariableQuery" },
+        "refresh": 2,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "hide": 0,
+        "includeAll": false,
+        "label": "SLO Tier",
+        "multi": false,
+        "name": "slo_tier",
+        "options": [
+          { "selected": false, "text": "99.9%", "value": "0.001" },
+          { "selected": true, "text": "99.95%", "value": "0.0005" },
+          { "selected": false, "text": "99.99%", "value": "0.0001" }
+        ],
+        "query": "0.001,0.0005,0.0001",
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-7d", "to": "now" },
+  "timezone": "browser",
+  "title": "HeadySystems — SLO Burn Rate",
+  "uid": "heady-slo-burn-rate",
+  "version": 1
+}

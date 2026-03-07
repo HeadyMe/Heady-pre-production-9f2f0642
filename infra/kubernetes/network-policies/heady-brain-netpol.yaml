@@ -1,0 +1,129 @@
+# =============================================================================
+# HeadySystems Inc. — NetworkPolicy: heady-brain
+# heady-systems v3.2.2
+# =============================================================================
+# Allow ingress from: heady-web and heady-conductor ONLY
+# Allow egress to: redis, postgres/pgbouncer, otel-collector
+# φ-derived port choices map to service port numbers
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: heady-brain-netpol
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-brain
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/security-model: zero-trust
+  annotations:
+    headysystems.com/description: "Allow ingress to heady-brain from heady-web and heady-conductor only"
+spec:
+  # Apply to heady-brain pods
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: heady-brain
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # Allow from heady-web
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-web
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 9090   # metrics (Prometheus scrape)
+
+    # Allow from heady-conductor
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-conductor
+      ports:
+        - protocol: TCP
+          port: 8080
+        - protocol: TCP
+          port: 9000   # gRPC
+
+    # Allow from Prometheus (monitoring)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 9090
+
+    # Allow from ingress-nginx (direct API calls through ingress)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+
+  egress:
+    # Allow to Redis
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow to pgbouncer (connection pooler)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pgbouncer
+      ports:
+        - protocol: TCP
+          port: 5432
+
+    # Allow to PostgreSQL directly (for migrations)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+
+    # Allow to OTEL collector
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: otel-collector
+      ports:
+        - protocol: TCP
+          port: 4317   # gRPC OTEL
+        - protocol: TCP
+          port: 4318   # HTTP OTEL
+
+    # Allow DNS
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+
+    # Allow to heady-mcp (brain calls MCP tools)
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-mcp
+      ports:
+        - protocol: TCP
+          port: 8080

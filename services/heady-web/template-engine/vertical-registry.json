@@ -1,0 +1,367 @@
+{
+  "$schema": "https://headysystems.com/schemas/vertical-registry/v1.0.0",
+  "version": "1.0.0",
+  "updated_at": "2026-03-07T00:00:00Z",
+  "organization": "HeadySystems Inc.",
+  "description": "Master registry of all HeadySystems brand verticals, their domains, and routing configuration.",
+
+  "verticals": [
+
+    {
+      "vertical_id":   "headyme",
+      "domain":        "headyme.com",
+      "aliases":       ["www.headyme.com", "app.headyme.com"],
+      "config_path":   "headyme/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-06-01T00:00:00Z",
+      "description":   "Personal AI OS — productivity, health, wellness, and life orchestration",
+      "category":      "consumer",
+      "design": {
+        "accent_variant": "teal",
+        "data_vertical":  "headyme"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-headyme-prod",
+        "kv_prefix": "vertical:headyme",
+        "analytics": "G-HME000001"
+      }
+    },
+
+    {
+      "vertical_id":   "headyos",
+      "domain":        "headyos.com",
+      "aliases":       ["www.headyos.com", "os.headyme.com", "app.headyos.com"],
+      "config_path":   "headyos/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-08-15T00:00:00Z",
+      "description":   "AI-native operating system — core platform, kernel, process orchestration",
+      "category":      "platform",
+      "design": {
+        "accent_variant": "violet",
+        "data_vertical":  "headyos"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-headyos-prod",
+        "kv_prefix": "vertical:headyos",
+        "analytics": "G-HOS000002"
+      }
+    },
+
+    {
+      "vertical_id":   "headysystems",
+      "domain":        "headysystems.com",
+      "aliases":       ["www.headysystems.com", "enterprise.headysystems.com"],
+      "config_path":   "headysystems/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-01-01T00:00:00Z",
+      "description":   "Enterprise platform — B2B infrastructure, APIs, white-label, compliance",
+      "category":      "enterprise",
+      "design": {
+        "accent_variant": "gold",
+        "data_vertical":  "headysystems"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-systems-prod",
+        "kv_prefix": "vertical:headysystems",
+        "analytics": "G-HSY000003"
+      }
+    },
+
+    {
+      "vertical_id":   "headyai",
+      "domain":        "headyai.com",
+      "aliases":       ["www.headyai.com", "ai.headyme.com"],
+      "config_path":   "headyai/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-09-01T00:00:00Z",
+      "description":   "AI services — model API, embeddings, inference, AI developer tools",
+      "category":      "ai-services",
+      "design": {
+        "accent_variant": "violet",
+        "data_vertical":  "headyai"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-ai-prod",
+        "kv_prefix": "vertical:headyai",
+        "analytics": "G-HAI000004"
+      }
+    },
+
+    {
+      "vertical_id":   "headyconnection",
+      "domain":        "headyconnection.com",
+      "aliases":       [
+        "www.headyconnection.com",
+        "headyconnection.org",
+        "www.headyconnection.org",
+        "connect.headyme.com"
+      ],
+      "config_path":   "headyconnection/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-03-15T00:00:00Z",
+      "description":   "Community and network — social graph, connections, events, marketplace",
+      "category":      "community",
+      "design": {
+        "accent_variant": "teal",
+        "data_vertical":  "headyconnection"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-connection-prod",
+        "kv_prefix": "vertical:headyconnection",
+        "analytics": "G-HCN000005"
+      }
+    },
+
+    {
+      "vertical_id":   "exchange",
+      "domain":        "heady.exchange",
+      "aliases":       ["www.heady.exchange", "exchange.headyme.com"],
+      "config_path":   "exchange/config.json",
+      "status":        "planned",
+      "deployed_at":   null,
+      "description":   "Digital asset exchange — crypto, tokens, DeFi, trading platform",
+      "category":      "fintech",
+      "design": {
+        "accent_variant": "gold",
+        "data_vertical":  "exchange"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-exchange-prod",
+        "kv_prefix": "vertical:exchange",
+        "analytics": null
+      }
+    },
+
+    {
+      "vertical_id":   "investments",
+      "domain":        "heady.investments",
+      "aliases":       ["www.heady.investments", "invest.headyme.com"],
+      "config_path":   "investments/config.json",
+      "status":        "planned",
+      "deployed_at":   null,
+      "description":   "Investment platform — portfolio management, wealth tech, equity tracking",
+      "category":      "wealth",
+      "design": {
+        "accent_variant": "gold",
+        "data_vertical":  "investments"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-investments-prod",
+        "kv_prefix": "vertical:investments",
+        "analytics": null
+      }
+    },
+
+    {
+      "vertical_id":   "health",
+      "domain":        "health.headyme.com",
+      "aliases":       ["wellness.headyme.com"],
+      "config_path":   "health/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-10-01T00:00:00Z",
+      "description":   "Health & wellness vertical — fitness tracking, nutrition, mental health AI",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "teal",
+        "data_vertical":  "health"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-health-prod",
+        "kv_prefix": "vertical:health",
+        "analytics": "G-HHE000006"
+      },
+      "compliance": {
+        "certifications": ["HIPAA", "SOC 2 Type II"]
+      }
+    },
+
+    {
+      "vertical_id":   "legal",
+      "domain":        "legal.headyme.com",
+      "aliases":       ["law.headyme.com"],
+      "config_path":   "legal/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-11-01T00:00:00Z",
+      "description":   "Legal vertical — contract analysis, document review, legal AI assistant",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "silver",
+        "data_vertical":  "legal"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-legal-prod",
+        "kv_prefix": "vertical:legal",
+        "analytics": "G-HLE000007"
+      },
+      "compliance": {
+        "certifications": ["SOC 2 Type II", "GDPR", "CCPA"]
+      }
+    },
+
+    {
+      "vertical_id":   "finance",
+      "domain":        "finance.headyme.com",
+      "aliases":       ["financial.headyme.com"],
+      "config_path":   "finance/config.json",
+      "status":        "active",
+      "deployed_at":   "2025-11-15T00:00:00Z",
+      "description":   "Finance vertical — expense tracking, tax AI, financial planning",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "gold",
+        "data_vertical":  "finance"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-finance-prod",
+        "kv_prefix": "vertical:finance",
+        "analytics": "G-HFI000008"
+      },
+      "compliance": {
+        "certifications": ["SOC 2 Type II", "PCI DSS Level 2"]
+      }
+    },
+
+    {
+      "vertical_id":   "realestate",
+      "domain":        "realestate.headyme.com",
+      "aliases":       ["property.headyme.com"],
+      "config_path":   "realestate/config.json",
+      "status":        "planned",
+      "deployed_at":   null,
+      "description":   "Real estate vertical — property search, mortgage AI, market analysis",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "teal",
+        "data_vertical":  "realestate"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-realestate-prod",
+        "kv_prefix": "vertical:realestate",
+        "analytics": null
+      }
+    },
+
+    {
+      "vertical_id":   "education",
+      "domain":        "education.headyme.com",
+      "aliases":       ["learn.headyme.com", "edu.headyme.com"],
+      "config_path":   "education/config.json",
+      "status":        "planned",
+      "deployed_at":   null,
+      "description":   "Education vertical — AI tutoring, curriculum planning, skill development",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "violet",
+        "data_vertical":  "education"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-education-prod",
+        "kv_prefix": "vertical:education",
+        "analytics": null
+      },
+      "compliance": {
+        "certifications": ["FERPA", "COPPA"]
+      }
+    },
+
+    {
+      "vertical_id":   "wellness",
+      "domain":        "wellness.headyme.com",
+      "aliases":       [],
+      "config_path":   "wellness/config.json",
+      "status":        "planned",
+      "deployed_at":   null,
+      "description":   "Wellness vertical — mindfulness, meditation, sleep tracking, mental health",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "teal",
+        "data_vertical":  "wellness"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-wellness-prod",
+        "kv_prefix": "vertical:wellness",
+        "analytics": null
+      }
+    },
+
+    {
+      "vertical_id":   "hr",
+      "domain":        "hr.headyme.com",
+      "aliases":       ["people.headyme.com"],
+      "config_path":   "hr/config.json",
+      "status":        "planned",
+      "deployed_at":   null,
+      "description":   "HR & people operations vertical — recruiting AI, performance reviews, onboarding",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "violet",
+        "data_vertical":  "hr"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-hr-prod",
+        "kv_prefix": "vertical:hr",
+        "analytics": null
+      }
+    },
+
+    {
+      "vertical_id":   "logistics",
+      "domain":        "logistics.headyme.com",
+      "aliases":       ["supply.headyme.com"],
+      "config_path":   "logistics/config.json",
+      "status":        "planned",
+      "deployed_at":   null,
+      "description":   "Logistics & supply chain vertical — route optimization, inventory AI",
+      "category":      "industry-vertical",
+      "parent_vertical": "headyme",
+      "design": {
+        "accent_variant": "teal",
+        "data_vertical":  "logistics"
+      },
+      "infrastructure": {
+        "cdn":       "cloudflare",
+        "r2_bucket": "heady-logistics-prod",
+        "kv_prefix": "vertical:logistics",
+        "analytics": null
+      }
+    }
+  ],
+
+  "routing": {
+    "default_vertical": "headyme",
+    "fallback_strategy": "default",
+    "unknown_domain_behavior": "serve_default",
+    "www_redirect": true,
+    "force_https": true
+  },
+
+  "global_config": {
+    "organization_name":   "HeadySystems Inc.",
+    "support_email":       "support@headysystems.com",
+    "copyright_template":  "© {year} HeadySystems Inc. All rights reserved.",
+    "twitter_org":         "@headysystems",
+    "github_org":          "headysystems",
+    "design_system_version": "1.0.0"
+  }
+}

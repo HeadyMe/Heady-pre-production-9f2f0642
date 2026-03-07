@@ -1,0 +1,302 @@
+# HeadySystems v3.2.2 — Status Page Configuration
+# Covers all 9 domains served from a single container.
+# Component groups: Core Platform, AI Services, Infrastructure.
+# All numeric parameters derived from φ=1.618033988749895 and Fibonacci sequences.
+
+# Status page metadata
+page:
+  name: "HeadySystems Status"
+  url: "https://status.headysystems.com"
+  support_email: "support@headysystems.com"
+  logo_url: "https://headyme.com/assets/heady-logo.svg"
+  favicon_url: "https://headyme.com/favicon.ico"
+  twitter_handle: "@headysystems"
+  # Time zone for incident timestamps
+  timezone: "UTC"
+  # History depth: fib(9)=34 days of incident history
+  history_days: 34
+  # Uptime calculation window: fib(10)=55 days
+  uptime_window_days: 55
+  # Refresh interval: fib(5)=5 seconds for status updates
+  refresh_interval_seconds: 5
+  # fib(7)=13 incidents shown on main page
+  incidents_on_main_page: 13
+
+# ─────────────────────────────────────────────────────────────────────────────
+# COMPONENT GROUPS
+# ─────────────────────────────────────────────────────────────────────────────
+component_groups:
+
+  - id: core-platform
+    name: "Core Platform"
+    description: "Primary API gateway, authentication, and request routing services."
+    order: 1
+    collapse: false
+
+  - id: ai-services
+    name: "AI Services"
+    description: "Inference, orchestration, MCP tool execution, and vector memory."
+    order: 2
+    collapse: false
+
+  - id: infrastructure
+    name: "Infrastructure"
+    description: "Databases, caching, CDN, and underlying compute resources."
+    order: 3
+    collapse: true
+
+  - id: domain-services
+    name: "Domain Services"
+    description: "All 9 public-facing domains served from the HeadySystems container."
+    order: 4
+    collapse: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────────────────────
+components:
+
+  # ── Core Platform ──────────────────────────────────────────────────────────
+  - id: headyos-api
+    name: "HeadyOS API"
+    description: "Primary REST and WebSocket API gateway. Routes all authenticated requests."
+    group: core-platform
+    order: 1
+    synthetic_check_id: health-live
+    slo_target_percentage: 99.95
+    showcase: true
+    # Latency SLA: p95 < fib(10)=55×9ms = 495ms ≈ 500ms
+    latency_sla_p95_ms: 500
+    status_indicators:
+      - metric: "http_requests_total"
+        error_rate_threshold: 0.01    # 1% error budget
+        latency_p99_threshold_ms: 1000
+
+  - id: authentication
+    name: "Authentication"
+    description: "WebAuthn, JWT (RBAC capability bitmask), and session management."
+    group: core-platform
+    order: 2
+    synthetic_check_id: health-ready
+    slo_target_percentage: 99.99
+    showcase: true
+    latency_sla_p95_ms: 200
+    status_indicators:
+      - metric: "heady_auth_success_total"
+        error_rate_threshold: 0.001   # 0.1% auth error budget
+
+  - id: heady-brain-service
+    name: "HeadyBrain"
+    description: "Core AI reasoning engine. Processes chat requests and manages agent state."
+    group: ai-services
+    order: 1
+    synthetic_check_id: api-brain-status
+    slo_target_percentage: 99.9
+    showcase: true
+    latency_sla_p95_ms: 800
+    status_indicators:
+      - metric: "heady_active_agents"
+        min_agents: 3     # fib(4)=3 minimum agents
+
+  - id: heady-conductor
+    name: "HeadyConductor"
+    description: "Multi-agent orchestration layer. Coordinates bee swarm task distribution."
+    group: ai-services
+    order: 2
+    slo_target_percentage: 99.9
+    showcase: true
+    latency_sla_p95_ms: 1000
+    status_indicators:
+      - metric: "heady_bulkhead_utilization"
+        saturation_threshold: 0.854   # CSL CRITICAL
+
+  - id: heady-mcp
+    name: "HeadyMCP"
+    description: "Model Context Protocol gateway. Tool execution and sandbox management."
+    group: ai-services
+    order: 3
+    synthetic_check_id: api-mcp-health
+    slo_target_percentage: 99.9
+    showcase: true
+    latency_sla_p95_ms: 500
+    status_indicators:
+      - metric: "heady_mcp_active_connections"
+        max_connections: 13    # fib(7)=13
+
+  - id: vector-memory
+    name: "Vector Memory"
+    description: "φ-optimized vector store with octree spatial indexing and pgvector."
+    group: ai-services
+    order: 4
+    slo_target_percentage: 99.5
+    showcase: false
+    latency_sla_p95_ms: 200
+    status_indicators:
+      - metric: "heady_phi_drift"
+        drift_alert_threshold: 0.618   # CSL HIGH = 1/φ
+
+  - id: redis-cache
+    name: "Distributed Cache (Redis)"
+    description: "Redis 7 primary datastore. Connection pool min=fib(3)=2, max=fib(7)=13."
+    group: infrastructure
+    order: 1
+    slo_target_percentage: 99.95
+    showcase: false
+    status_indicators:
+      - metric: "heady_redis_pool_active_connections"
+        pool_max: 13    # fib(7)=13
+
+  - id: postgres-db
+    name: "PostgreSQL / pgvector"
+    description: "Postgres 16 with pgvector extension for vector projection storage."
+    group: infrastructure
+    order: 2
+    slo_target_percentage: 99.95
+    showcase: false
+
+  - id: cdn-cloudflare
+    name: "CDN (Cloudflare)"
+    description: "Cloudflare edge network for all 9 domains. DDoS protection and WAF."
+    group: infrastructure
+    order: 3
+    slo_target_percentage: 99.99
+    showcase: false
+
+  # ── Domain Services ────────────────────────────────────────────────────────
+  - id: domain-headyme
+    name: "headyme.com"
+    description: "Primary HeadyOS consumer and enterprise interface."
+    group: domain-services
+    order: 1
+    synthetic_check_id: domain-headyme
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-headyconnection-com
+    name: "headyconnection.com"
+    description: "Community connection portal."
+    group: domain-services
+    order: 2
+    synthetic_check_id: domain-headyconnection-com
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-headyconnection-org
+    name: "headyconnection.org"
+    description: "Organization portal for HeadyConnection."
+    group: domain-services
+    order: 3
+    synthetic_check_id: domain-headyconnection-org
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-headyos
+    name: "headyos.com"
+    description: "HeadyOS operating system platform site."
+    group: domain-services
+    order: 4
+    synthetic_check_id: domain-headyos
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-heady-exchange
+    name: "heady.exchange"
+    description: "Heady Exchange platform."
+    group: domain-services
+    order: 5
+    synthetic_check_id: domain-heady-exchange
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-heady-investments
+    name: "heady.investments"
+    description: "Heady Investments platform."
+    group: domain-services
+    order: 6
+    synthetic_check_id: domain-heady-investments
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-headysystems
+    name: "headysystems.com"
+    description: "HeadySystems corporate site."
+    group: domain-services
+    order: 7
+    synthetic_check_id: domain-headysystems
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-headyai
+    name: "headyai.com"
+    description: "HeadyAI platform and documentation."
+    group: domain-services
+    order: 8
+    synthetic_check_id: domain-headyai
+    slo_target_percentage: 99.9
+    showcase: true
+
+  - id: domain-admin-portal
+    name: "Admin Portal"
+    description: "Internal admin console. Requires authentication."
+    group: domain-services
+    order: 9
+    synthetic_check_id: domain-admin-portal
+    slo_target_percentage: 99.5
+    showcase: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NOTIFICATION SUBSCRIPTIONS
+# ─────────────────────────────────────────────────────────────────────────────
+subscriptions:
+  # Allow subscribers to choose components
+  allow_component_selection: true
+  # Notification channels
+  channels:
+    - type: email
+      enabled: true
+    - type: webhook
+      enabled: true
+    - type: slack
+      enabled: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INCIDENT SETTINGS
+# ─────────────────────────────────────────────────────────────────────────────
+incidents:
+  # Auto-create incident when component has been failing for fib(3)=2 minutes
+  auto_create_after_minutes: 2
+  # Auto-resolve when component has been passing for fib(5)=5 minutes
+  auto_resolve_after_minutes: 5
+  # Severity levels tied to CSL gates
+  severity_levels:
+    - name: "P1 - Critical"
+      description: "Complete service outage affecting all users. CSL CRITICAL gate."
+      csl_gate: CRITICAL
+      color: "#DC2626"
+    - name: "P2 - High"
+      description: "Significant degradation affecting most users. CSL HIGH gate."
+      csl_gate: HIGH
+      color: "#EA580C"
+    - name: "P3 - Medium"
+      description: "Partial degradation with workaround available. CSL MODERATE gate."
+      csl_gate: MODERATE
+      color: "#CA8A04"
+    - name: "P4 - Low"
+      description: "Minor issue with minimal user impact. CSL LOW gate."
+      csl_gate: LOW
+      color: "#16A34A"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MAINTENANCE WINDOWS
+# ─────────────────────────────────────────────────────────────────────────────
+maintenance:
+  # Preferred maintenance window: Sundays 02:00-04:00 UTC
+  preferred_window:
+    day_of_week: "Sunday"
+    start_time: "02:00"
+    end_time: "04:00"
+    timezone: "UTC"
+  # Minimum notice: fib(8)=21 hours before scheduled maintenance
+  minimum_notice_hours: 21
+  # Max duration: fib(7)=13 hours (for major migrations)
+  maximum_duration_hours: 13

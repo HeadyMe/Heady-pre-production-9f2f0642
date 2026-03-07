@@ -1,0 +1,129 @@
+# =============================================================================
+# HeadySystems Inc. — Helm Values: Staging Overrides
+# heady-platform v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 — Fibonacci-scaled staging resources
+# Staging uses lower replica counts (previous Fibonacci number)
+# and relaxed rate limits for testing
+# =============================================================================
+
+global:
+  environment: "staging"
+  imageTag: "3.2.2-staging"
+  imagePullPolicy: IfNotPresent
+  otel:
+    # Higher sampling in staging for debugging: 61.8% (1/φ)
+    sampleRate: "0.618"
+
+# heady-brain staging: fib(3)=2 replicas (one below production fib(4)=3)
+headyBrain:
+  replicaCount: 2   # fib(3)=2
+  resources:
+    requests:
+      cpu: "100m"   # fib(2)=1 × 100m (half production)
+      memory: "128Mi"
+    limits:
+      cpu: "300m"   # fib(4)=3 × 100m
+      memory: "256Mi"  # half production
+  autoscaling:
+    minReplicas: 2    # fib(3)=2
+    maxReplicas: 8    # fib(6)=8 (less than production fib(7)=13)
+    # More aggressive scale-down in staging: fib(8)=21s
+    scaleDownStabilizationWindow: 21
+  env:
+    WORKER_CONCURRENCY: "8"      # fib(6)=8 (less than production 13)
+    QUEUE_MAX_DEPTH: "21"        # fib(8)=21 (less than production 55)
+    RATE_LIMIT_RPS: "89"         # fib(11)=89 (less than production 144)
+    LOG_LEVEL: "debug"           # Debug logging in staging
+
+# heady-conductor staging: fib(2)=1 replica
+headyConductor:
+  replicaCount: 1   # fib(2)=1 — single replica for staging
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  autoscaling:
+    enabled: false   # No autoscaling in staging (save costs)
+  env:
+    MAX_CONCURRENT_AGENTS: "21"   # fib(8)=21
+    LOG_LEVEL: "debug"
+
+# heady-mcp staging: fib(3)=2 replicas
+headyMcp:
+  replicaCount: 2   # fib(3)=2
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "64Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  autoscaling:
+    minReplicas: 2   # fib(3)=2
+    maxReplicas: 5   # fib(5)=5
+    scaleDownStabilizationWindow: 21
+  env:
+    MAX_ACTIVE_SESSIONS: "21"    # fib(8)=21 (less than production 89)
+    LOG_LEVEL: "debug"
+
+# heady-web staging: fib(3)=2 replicas
+headyWeb:
+  replicaCount: 2   # fib(3)=2
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+  autoscaling:
+    minReplicas: 2   # fib(3)=2
+    maxReplicas: 8   # fib(6)=8
+    scaleDownStabilizationWindow: 21
+  env:
+    RATE_LIMIT_PER_POD: "55"     # fib(10)=55 (less than production 144)
+
+# Staging database: use bundled postgresql (no Cloud SQL)
+database:
+  external: false
+  host: "heady-platform-postgres"
+  name: "heady_staging"
+  postgresql:
+    enabled: true
+    auth:
+      postgresPassword: "REPLACE_IN_CI_SECRETS"
+      database: heady_staging
+
+# Staging Redis: use bundled redis
+redis:
+  external: false
+  redis:
+    enabled: true
+    auth:
+      enabled: true
+      password: "REPLACE_IN_CI_SECRETS"
+
+# Staging ingress: staging domains only
+ingress:
+  rateLimitRps: 34    # fib(9)=34 (relaxed for testing)
+  rateLimitBurst: 55  # fib(10)=55
+  proxyReadTimeout: 89
+
+# Reduced monitoring in staging
+monitoring:
+  serviceMonitor:
+    # fib(8)=21s scrape interval (less frequent than production)
+    interval: "21s"
+
+# Network policies relaxed for staging debugging
+networkPolicies:
+  defaultDenyEgress: false   # Allow egress in staging for debugging
+
+# Alert thresholds relaxed for staging
+alertThresholds:
+  warning: 0.764    # caution level in production (allow more headroom in staging)
+  critical: 0.910   # exceeded level in production

@@ -1,0 +1,418 @@
+# HeadySystems v3.2.2 — OpenTelemetry Collector Configuration
+# Complements existing docker-compose.yml otel-collector and src/telemetry/ (16 files).
+# All numeric parameters derive from φ=1.618033988749895 and Fibonacci sequences.
+#
+# Fibonacci reference used in this file:
+#   fib(3)=2, fib(4)=3, fib(5)=5, fib(6)=8, fib(7)=13, fib(8)=21,
+#   fib(9)=34, fib(10)=55, fib(12)=144, fib(13)=233, fib(14)=377
+
+# ─────────────────────────────────────────────────────────────────────────────
+# EXTENSIONS
+# ─────────────────────────────────────────────────────────────────────────────
+extensions:
+  # Health check endpoint — used by K8s liveness/readiness probes
+  health_check:
+    endpoint: 0.0.0.0:13133  # fib(7)=13 prefix repeated × 133
+
+  # pprof profiling endpoint for the collector itself
+  pprof:
+    endpoint: 0.0.0.0:1777  # φ×1000 ≈ 1618 → rounded for port convention
+
+  # zPages for live collector diagnostics (traces/pipeline view)
+  zpages:
+    endpoint: 0.0.0.0:55679  # standard zpages port
+
+  # Memory ballast: fib(10)=55 MiB ballast reduces GC pressure
+  memory_ballast:
+    size_mib: 55  # fib(10)=55 MiB
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RECEIVERS
+# ─────────────────────────────────────────────────────────────────────────────
+receivers:
+  # OTLP receiver — primary ingestion point for all HeadySystems telemetry
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+        # Max receive message size: fib(12)=144 MiB (handles large trace batches)
+        max_recv_msg_size_mib: 144
+        # gRPC connection params using Fibonacci/φ-derived values
+        keepalive:
+          server_parameters:
+            # Max connection age: fib(14)=377 seconds before graceful restart
+            max_connection_age: 377s
+            # Max connection age grace: fib(9)=34 seconds for cleanup
+            max_connection_age_grace: 34s
+            # Time interval: fib(8)=21 seconds for keepalive pings
+            time: 21s
+            # Timeout: fib(5)=5 seconds for keepalive timeout
+            timeout: 5s
+          enforcement_policy:
+            # Minimum interval: fib(7)=13 seconds between pings
+            min_time: 13s
+            permit_without_stream: true
+      http:
+        endpoint: 0.0.0.0:4318
+        # CORS configuration for browser-based instrumentation
+        cors:
+          allowed_origins:
+            - "https://headyme.com"
+            - "https://headyos.com"
+            - "https://headysystems.com"
+            - "https://headyai.com"
+            - "https://headyconnection.com"
+            - "https://headyconnection.org"
+            - "https://heady.exchange"
+            - "https://heady.investments"
+          allowed_headers:
+            - "Content-Type"
+            - "traceparent"
+            - "tracestate"
+            - "X-Correlation-ID"
+          max_age: 34  # fib(9)=34 seconds — CORS preflight cache
+
+  # Prometheus receiver — scrape internal Prometheus metrics from services
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: heady-brain
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["heady-brain:8080"]
+        - job_name: heady-conductor
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["heady-conductor:8080"]
+        - job_name: heady-mcp
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["heady-mcp:8080"]
+        - job_name: heady-web
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["heady-web:8080"]
+        - job_name: heady-vector
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["heady-vector:8080"]
+        - job_name: heady-guard
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["heady-guard:8080"]
+        - job_name: heady-hive
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["heady-hive:8080"]
+        - job_name: sacred-geometry-metrics
+          scrape_interval: 30s
+          static_configs:
+            - targets: ["heady-brain:8889"]  # φ-metrics exporter port
+        - job_name: otel-collector
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["localhost:8888"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PROCESSORS
+# ─────────────────────────────────────────────────────────────────────────────
+processors:
+  # Memory limiter — prevent OOM in the collector itself
+  # Soft limit triggers GC; hard limit drops data to protect collector health.
+  memory_limiter:
+    # Check interval: fib(4)=3 seconds
+    check_interval: 3s
+    # Hard limit: fib(11)=89×10 = 890 MiB (≈ 0.854 × 1042 MiB = CSL CRITICAL threshold)
+    limit_mib: 890
+    # Spike limit: fib(9)=34×5 = 170 MiB headroom above limit
+    spike_limit_mib: 170
+    # Percentage-based soft limit: 85.4% of container memory (CSL CRITICAL)
+    limit_percentage: 85
+    spike_limit_percentage: 13  # fib(7)=13%
+
+  # Batch processor — aggregate spans/metrics/logs before export
+  # Reduces export overhead significantly.
+  batch:
+    # Send batch when this many items accumulated: fib(12)=144
+    send_batch_size: 144
+    # Maximum batch size (hard cap): fib(13)=233
+    send_batch_max_size: 233
+    # Timeout: fib(5)=5 seconds — ensures data freshness
+    timeout: 5s
+
+  # Attributes processor — enrich all telemetry with deployment context
+  attributes:
+    actions:
+      # Add service version from environment
+      - key: service.version
+        value: "3.2.2"
+        action: upsert
+      # Add environment
+      - key: deployment.environment
+        from_attribute: ENVIRONMENT
+        action: upsert
+      # Add phi constant for sacred-geometry validation
+      - key: heady.phi
+        value: "1.618033988749895"
+        action: insert
+      # Add Fibonacci alignment tag
+      - key: heady.fibonacci.sequence
+        value: "1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987"
+        action: insert
+      # Add CSL gate thresholds for downstream consumers
+      - key: heady.csl.thresholds
+        value: "DORMANT:0-0.236,LOW:0.236-0.382,MODERATE:0.382-0.618,HIGH:0.618-0.854,CRITICAL:0.854-1.0"
+        action: insert
+
+  # Resource processor — add Kubernetes/GCP resource attributes
+  resource:
+    attributes:
+      - key: cloud.provider
+        value: "gcp"
+        action: upsert
+      - key: cloud.platform
+        value: "gcp_cloud_run"
+        action: upsert
+      - key: k8s.cluster.name
+        from_attribute: K8S_CLUSTER
+        action: upsert
+
+  # Filter processor — drop health check noise from traces
+  filter/drop_health_checks:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["http.target"] == "/health/live"'
+        - 'attributes["http.target"] == "/health/ready"'
+        - 'attributes["http.target"] == "/metrics"'
+    logs:
+      log_record:
+        - 'body == "health check ok"'
+
+  # Sampling processor — tail-based sampling
+  # Keep all error traces, sample success traces at φ-derived rates.
+  tail_sampling:
+    # Decision wait: fib(5)=5 seconds after span completion
+    decision_wait: 5s
+    # Number of trace decisions to hold: fib(12)=144
+    num_traces: 144
+    expected_new_traces_per_sec: 89  # fib(11)=89 new traces/second
+    policies:
+      - name: errors-policy
+        type: status_code
+        status_code: { status_codes: [ERROR] }
+      - name: high-latency-policy
+        type: latency
+        latency:
+          # Sample all traces > φ×618ms = 999ms ≈ 1000ms
+          threshold_ms: 1000
+      - name: probabilistic-sample
+        type: probabilistic
+        probabilistic:
+          # Sample 61.8% of remaining traces (= 1/φ)
+          sampling_percentage: 61.8
+      - name: security-events
+        type: string_attribute
+        string_attribute:
+          key: "heady.security_event"
+          values: ["true"]
+          enabled_regex_matching: false
+
+  # Transform processor — compute φ-derived metrics from raw data
+  transform/phi_metrics:
+    error_mode: ignore
+    metric_statements:
+      - context: datapoint
+        statements:
+          # Annotate metrics exceeding CSL thresholds
+          - set(attributes["csl_gate"],
+              "CRITICAL") where value > 0.854
+          - set(attributes["csl_gate"],
+              "HIGH") where value > 0.618 and value <= 0.854
+          - set(attributes["csl_gate"],
+              "MODERATE") where value > 0.382 and value <= 0.618
+          - set(attributes["csl_gate"],
+              "LOW") where value > 0.236 and value <= 0.382
+          - set(attributes["csl_gate"],
+              "DORMANT") where value <= 0.236
+
+# ─────────────────────────────────────────────────────────────────────────────
+# EXPORTERS
+# ─────────────────────────────────────────────────────────────────────────────
+exporters:
+  # Prometheus exporter — expose metrics for Prometheus scraping
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: heady
+    # Send timestamps for all metrics
+    send_timestamps: true
+    metric_expiration: 5m  # fib(5)=5 minutes
+    enable_open_metrics: true
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  # Jaeger exporter — distributed tracing backend
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: false
+      ca_file: /etc/ssl/certs/ca-certificates.crt
+    retry_on_failure:
+      enabled: true
+      # Initial interval: fib(5)=5 seconds
+      initial_interval: 5s
+      # Max interval: fib(9)=34 seconds
+      max_interval: 34s
+      # Max elapsed time: fib(11)=89 seconds
+      max_elapsed_time: 89s
+    sending_queue:
+      enabled: true
+      num_consumers: 8  # fib(6)=8 consumers
+      queue_size: 1597   # fib(17)=1597
+
+  # OTLP exporter — forward to Grafana Tempo or another OTLP backend
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+    compression: gzip
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s   # fib(5)=5s
+      max_interval: 34s      # fib(9)=34s
+      max_elapsed_time: 89s  # fib(11)=89s
+    sending_queue:
+      enabled: true
+      num_consumers: 8   # fib(6)=8
+      queue_size: 1597   # fib(17)=1597
+
+  # Logging exporter — structured JSON logs for debugging
+  # Production: set verbosity to normal; development: detailed
+  logging:
+    verbosity: normal
+    sampling_initial: 5    # fib(5)=5 — first N logs at full rate
+    sampling_thereafter: 34  # fib(9)=34 — sample every Nth log after initial
+
+  # Loki exporter — push logs to Grafana Loki
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    default_labels_enabled:
+      exporter: false
+      job: true
+    labels:
+      resource:
+        service.name: "service_name"
+        service.version: "service_version"
+        deployment.environment: "environment"
+      attributes:
+        level: "level"
+        heady.csl_gate: "csl_gate"
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s   # fib(5)=5s
+      max_interval: 34s      # fib(9)=34s
+      max_elapsed_time: 89s  # fib(11)=89s
+
+  # Google Cloud Monitoring exporter (for Cloud Run production)
+  googlecloud:
+    project: heady-systems-prod
+    log:
+      default_log_name: heady-systems
+    metric:
+      prefix: custom.googleapis.com/heady/
+    trace:
+      # Batch size: fib(12)=144
+      bundle_count_threshold: 144
+      # Bundle delay: fib(5)=5 seconds
+      bundle_delay_threshold: 5s
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONNECTORS
+# ─────────────────────────────────────────────────────────────────────────────
+connectors:
+  # Span-to-metrics connector — generate RED metrics from traces automatically
+  spanmetrics:
+    histogram:
+      explicit:
+        # Buckets at Fibonacci millisecond values: 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987
+        buckets:
+          [2ms, 3ms, 5ms, 8ms, 13ms, 21ms, 34ms, 55ms, 89ms, 144ms, 233ms, 377ms, 610ms, 987ms]
+    dimensions:
+      - name: http.method
+      - name: http.status_code
+      - name: service.name
+      - name: heady.csl_gate
+      - name: heady.tool_name
+    # Aggregation temporality: delta for streaming metrics
+    aggregation_temporality: AGGREGATION_TEMPORALITY_DELTA
+    # Namespace for generated metrics
+    namespace: heady.spanmetrics
+    # Dimensions cache size: fib(12)=144
+    dimensions_cache_size: 144
+    # Metrics flush interval: fib(5)=5 seconds
+    metrics_flush_interval: 5s
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SERVICE
+# ─────────────────────────────────────────────────────────────────────────────
+service:
+  # Extensions active for this collector instance
+  extensions:
+    - health_check
+    - pprof
+    - zpages
+    - memory_ballast
+
+  # Named pipelines
+  pipelines:
+
+    # ── TRACES ──────────────────────────────────────────────────────────────
+    traces:
+      receivers: [otlp]
+      processors:
+        - memory_limiter
+        - filter/drop_health_checks
+        - attributes
+        - resource
+        - tail_sampling
+        - batch
+      exporters: [otlp/tempo, spanmetrics, logging]
+
+    # ── METRICS ─────────────────────────────────────────────────────────────
+    metrics:
+      receivers: [otlp, prometheus, spanmetrics]
+      processors:
+        - memory_limiter
+        - transform/phi_metrics
+        - attributes
+        - resource
+        - batch
+      exporters: [prometheus, googlecloud, logging]
+
+    # ── LOGS ─────────────────────────────────────────────────────────────────
+    logs:
+      receivers: [otlp]
+      processors:
+        - memory_limiter
+        - filter/drop_health_checks
+        - attributes
+        - resource
+        - batch
+      exporters: [loki, googlecloud, logging]
+
+  # Collector-level telemetry (telemetry about the telemetry)
+  telemetry:
+    logs:
+      level: info
+      encoding: json
+      output_paths: ["stdout"]
+      error_output_paths: ["stderr"]
+    metrics:
+      level: detailed
+      address: 0.0.0.0:8888
+    traces:
+      propagators: [tracecontext, baggage, b3]
+      sampler:
+        # Sample 61.8% of collector's own traces (= 1/φ)
+        initial_sampler: parentbased_traceidratio
+        params: "0.618"

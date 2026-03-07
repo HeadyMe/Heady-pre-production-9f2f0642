@@ -1,0 +1,382 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Ingress
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# TLS for all 9 domains, path-based routing
+# Domains: headyme.com, headyconnection.com, headyconnection.org,
+#          headyos.com, heady.exchange, heady.investments,
+#          headysystems.com, headyai.com, [admin portal]
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: heady-ingress
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-ingress
+    app.kubernetes.io/component: ingress
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    # TLS / cert-manager
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+    cert-manager.io/acme-challenge-type: "http01"
+
+    # NGINX tuning — φ-scaled values
+    # proxy read timeout: fib(11)=89s (for long AI completions)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "89"
+    # proxy send timeout: fib(8)=21s
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "21"
+    # proxy connect timeout: fib(6)=8s
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "8"
+    # body size: fib(9)=34 × 1MB = 34MB (for MCP payloads)
+    nginx.ingress.kubernetes.io/proxy-body-size: "34m"
+    # Buffer size: fib(8)=21k
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "21k"
+    # Number of buffers: fib(4)=3
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "3"
+
+    # Rate limiting — φ-scaled Fibonacci burst
+    # fib(11)=89 req/s per IP, burst=fib(12)=144
+    nginx.ingress.kubernetes.io/limit-rps: "89"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "2"
+    nginx.ingress.kubernetes.io/limit-connections: "13"  # fib(7)=13
+
+    # Security headers
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "Permissions-Policy: camera=(), microphone=(), geolocation=()";
+      more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.headyme.com wss://api.headyme.com;";
+      more_set_headers "X-Heady-Version: 3.2.2";
+      more_set_headers "X-Heady-Phi: 1.618033988749895";
+
+    # CORS for API paths
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://headyme.com,https://headyconnection.com,https://headyconnection.org,https://headyos.com,https://heady.exchange,https://heady.investments,https://headysystems.com,https://headyai.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Heady-Version,X-Trace-Id"
+    # cors max age: fib(11)=89 × 100 = 8900s ≈ 2.47h
+    nginx.ingress.kubernetes.io/cors-max-age: "8900"
+
+    # Upstream keepalive: fib(6)=8 connections
+    nginx.ingress.kubernetes.io/upstream-keepalive-connections: "8"
+    # Keepalive timeout: fib(7)=13s
+    nginx.ingress.kubernetes.io/upstream-keepalive-time: "13s"
+
+    headysystems.com/description: "Ingress for all 9 HeadySystems domains with TLS"
+spec:
+  ingressClassName: nginx
+  # TLS — all 9 domains
+  tls:
+    - hosts:
+        - headyme.com
+        - www.headyme.com
+        - api.headyme.com
+      secretName: tls-headyme-com
+    - hosts:
+        - headyconnection.com
+        - www.headyconnection.com
+      secretName: tls-headyconnection-com
+    - hosts:
+        - headyconnection.org
+        - www.headyconnection.org
+      secretName: tls-headyconnection-org
+    - hosts:
+        - headyos.com
+        - www.headyos.com
+      secretName: tls-headyos-com
+    - hosts:
+        - heady.exchange
+        - www.heady.exchange
+      secretName: tls-heady-exchange
+    - hosts:
+        - heady.investments
+        - www.heady.investments
+      secretName: tls-heady-investments
+    - hosts:
+        - headysystems.com
+        - www.headysystems.com
+      secretName: tls-headysystems-com
+    - hosts:
+        - headyai.com
+        - www.headyai.com
+      secretName: tls-headyai-com
+    - hosts:
+        - admin.headyme.com
+      secretName: tls-admin-headyme-com
+
+  rules:
+    # ---------------------------------------------------------------------------
+    # headyme.com — primary domain
+    # ---------------------------------------------------------------------------
+    - host: headyme.com
+      http:
+        paths:
+          # API routes → heady-brain
+          - path: /api/v1/brain
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-brain
+                port:
+                  name: http
+          # MCP routes → heady-mcp
+          - path: /api/v1/mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-mcp
+                port:
+                  name: http
+          # Orchestration routes → heady-conductor
+          - path: /api/v1/conductor
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-conductor
+                port:
+                  name: http
+          # All other routes → heady-web
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    - host: www.headyme.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    - host: api.headyme.com
+      http:
+        paths:
+          - path: /brain
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-brain
+                port:
+                  name: http
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-mcp
+                port:
+                  name: http
+          - path: /conductor
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-conductor
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # headyconnection.com
+    # ---------------------------------------------------------------------------
+    - host: headyconnection.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: www.headyconnection.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # headyconnection.org
+    # ---------------------------------------------------------------------------
+    - host: headyconnection.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: www.headyconnection.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # headyos.com
+    # ---------------------------------------------------------------------------
+    - host: headyos.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: www.headyos.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # heady.exchange
+    # ---------------------------------------------------------------------------
+    - host: heady.exchange
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: www.heady.exchange
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # heady.investments
+    # ---------------------------------------------------------------------------
+    - host: heady.investments
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: www.heady.investments
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # headysystems.com
+    # ---------------------------------------------------------------------------
+    - host: headysystems.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: www.headysystems.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # headyai.com
+    # ---------------------------------------------------------------------------
+    - host: headyai.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+    - host: www.headyai.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http
+
+    # ---------------------------------------------------------------------------
+    # admin.headyme.com — Admin portal (restricted)
+    # ---------------------------------------------------------------------------
+    - host: admin.headyme.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: heady-web
+                port:
+                  name: http

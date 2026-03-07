@@ -1,0 +1,29 @@
+# =============================================================================
+# HeadySystems Inc. — PodDisruptionBudget: heady-brain
+# heady-systems v3.2.2
+# =============================================================================
+# maxUnavailable: fib(2)=1 — never lose more than 1 brain pod during disruption
+# With fib(4)=3 replicas, this guarantees fib(3)=2 always available
+# =============================================================================
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: heady-brain-pdb
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-brain
+    app.kubernetes.io/component: pdb
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    headysystems.com/description: "PDB for heady-brain — maxUnavailable=fib(2)=1"
+    headysystems.com/derivation: "maxUnavailable=1: fib(2)=1, ensures fib(4)-fib(2)=fib(3)=2 always running"
+spec:
+  # maxUnavailable: fib(2)=1 — the second Fibonacci number
+  # With 3 replicas: at least 2 always available during disruptions
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: heady-brain
+      app.kubernetes.io/instance: heady-brain-production

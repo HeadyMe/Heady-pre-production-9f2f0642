@@ -1,0 +1,364 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Deployment: heady-brain
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# replicas: fib(4) = 3
+# memory limit: 512Mi  (fib(12)=144 × ~3.5Mi)
+# cpu limit: 500m      (fib(5)=5 × 100m)
+# Probes: /health/ready, /health/live
+# Anti-affinity: spread across nodes
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heady-brain
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-brain
+    app.kubernetes.io/instance: heady-brain-production
+    app.kubernetes.io/version: "3.2.2"
+    app.kubernetes.io/component: brain
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: core
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    headysystems.com/description: "Core AI reasoning service — φ-governed concurrency"
+    headysystems.com/replicas-derivation: "fib(4)=3 — fourth Fibonacci number"
+spec:
+  # replicas: fib(4) = 3
+  replicas: 3
+  # revisionHistoryLimit: fib(5)=5 — keep 5 old ReplicaSets
+  revisionHistoryLimit: 5
+  # progressDeadlineSeconds: fib(11)=89 × 10 = 890s
+  progressDeadlineSeconds: 890
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: heady-brain
+      app.kubernetes.io/instance: heady-brain-production
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # maxSurge: fib(3)=2 — allow 2 extra pods during update
+      maxSurge: 2
+      # maxUnavailable: fib(2)=1 — never lose more than 1 pod
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: heady-brain
+        app.kubernetes.io/instance: heady-brain-production
+        app.kubernetes.io/version: "3.2.2"
+        app.kubernetes.io/component: brain
+        headysystems.com/tier: core
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        headysystems.com/phi: "1.618033988749895"
+        # Force rolling update on config change
+        checksum/config: "{{ include (print $.Template.BasePath \"/configmap.yaml\") . | sha256sum }}"
+    spec:
+      # -----------------------------------------------------------------------
+      # Scheduling: topology spread + pod anti-affinity
+      # -----------------------------------------------------------------------
+      topologySpreadConstraints:
+        # Spread across zones — max skew: fib(2)=1
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-brain
+        # Spread across nodes — max skew: fib(2)=1
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-brain
+
+      affinity:
+        podAntiAffinity:
+          # Required: no two heady-brain pods on same node
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - heady-brain
+              topologyKey: kubernetes.io/hostname
+          # Preferred: spread across availability zones
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 89   # fib(11)=89 — high preference weight
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - heady-brain
+                topologyKey: topology.kubernetes.io/zone
+        # Prefer nodes with SSD storage for brain workloads
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 55   # fib(10)=55
+              preference:
+                matchExpressions:
+                  - key: cloud.google.com/machine-family
+                    operator: In
+                    values:
+                      - n2
+                      - n2d
+
+      # serviceAccount for RBAC
+      serviceAccountName: heady-brain
+      automountServiceAccountToken: false
+
+      # terminationGracePeriodSeconds: fib(8)=21 × 2 = 42s (allows in-flight requests to drain)
+      terminationGracePeriodSeconds: 42
+
+      # Security context — non-root
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # -----------------------------------------------------------------------
+      # Init containers
+      # -----------------------------------------------------------------------
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              # Retry up to fib(7)=13 times with φ^n backoff
+              n=0
+              until pg_isready -h pgbouncer -p 5432 -U heady_prod; do
+                n=$((n+1))
+                if [ $n -ge 13 ]; then
+                  echo "Database not ready after fib(7)=13 attempts, exiting"
+                  exit 1
+                fi
+                echo "Waiting for database... attempt $n/13"
+                sleep 5
+              done
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+        - name: wait-for-redis
+          image: redis:7-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              n=0
+              until redis-cli -h redis -p 6379 -a "$REDIS_PASSWORD" ping; do
+                n=$((n+1))
+                if [ $n -ge 13 ]; then
+                  echo "Redis not ready after fib(7)=13 attempts, exiting"
+                  exit 1
+                fi
+                echo "Waiting for redis... attempt $n/13"
+                sleep 3
+              done
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: heady-secrets
+                  key: REDIS_PASSWORD
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+      # -----------------------------------------------------------------------
+      # Main container
+      # -----------------------------------------------------------------------
+      containers:
+        - name: heady-brain
+          image: gcr.io/heady-systems/heady-brain:3.2.2
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+            - name: grpc
+              containerPort: 9000
+              protocol: TCP
+
+          # ------------------------------------------------------------------
+          # Environment — from ConfigMap and Secret refs
+          # ------------------------------------------------------------------
+          envFrom:
+            - configMapRef:
+                name: heady-config
+            - secretRef:
+                name: heady-secrets
+          env:
+            - name: SERVICE_NAME
+              value: "heady-brain"
+            - name: SERVICE_VERSION
+              value: "3.2.2"
+            - name: PORT
+              value: "8080"
+            - name: METRICS_PORT
+              value: "9090"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: CONTAINER_CPU_REQUEST
+              valueFrom:
+                resourceFieldRef:
+                  resource: requests.cpu
+            - name: CONTAINER_MEMORY_LIMIT
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.memory
+
+          # ------------------------------------------------------------------
+          # Resource limits — φ-scaled
+          # ------------------------------------------------------------------
+          resources:
+            requests:
+              # fib(3)=2 × 100m = 200m request
+              cpu: "200m"
+              # fib(7)=13 × ~10Mi = 128Mi request
+              memory: "256Mi"
+            limits:
+              # fib(5)=5 × 100m = 500m limit
+              cpu: "500m"
+              # fib(12)=144 × ~3.5Mi ≈ 512Mi limit
+              memory: "512Mi"
+
+          # ------------------------------------------------------------------
+          # Probes — φ-scaled timing
+          # ------------------------------------------------------------------
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+              scheme: HTTP
+            # initialDelaySeconds: fib(7)=13
+            initialDelaySeconds: 13
+            # periodSeconds: fib(6)=8
+            periodSeconds: 8
+            # timeoutSeconds: fib(4)=3
+            timeoutSeconds: 3
+            # failureThreshold: fib(4)=3
+            failureThreshold: 3
+            # successThreshold: fib(2)=1
+            successThreshold: 1
+
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+              scheme: HTTP
+            # initialDelaySeconds: fib(5)=5
+            initialDelaySeconds: 5
+            # periodSeconds: fib(4)=3
+            periodSeconds: 3
+            # timeoutSeconds: fib(3)=2
+            timeoutSeconds: 2
+            # failureThreshold: fib(4)=3
+            failureThreshold: 3
+            # successThreshold: fib(2)=1
+            successThreshold: 1
+
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+              scheme: HTTP
+            # initialDelaySeconds: fib(6)=8
+            initialDelaySeconds: 8
+            # periodSeconds: fib(4)=3
+            periodSeconds: 3
+            # failureThreshold: fib(8)=21 — allow up to 63s startup
+            failureThreshold: 21
+            timeoutSeconds: 5
+
+          lifecycle:
+            preStop:
+              exec:
+                # Sleep fib(6)=8s before termination to drain connections
+                command: ["/bin/sh", "-c", "sleep 8"]
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /app/cache
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            # fib(8)=21 × ~5Mi ≈ 100Mi temp storage
+            sizeLimit: "100Mi"
+        - name: cache
+          emptyDir:
+            # fib(9)=34 × ~5Mi ≈ 170Mi cache storage
+            sizeLimit: "170Mi"
+
+      imagePullSecrets:
+        - name: gcr-credentials
+
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "2"
+          - name: edns0

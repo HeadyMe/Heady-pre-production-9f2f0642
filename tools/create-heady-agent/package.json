@@ -1,0 +1,39 @@
+{
+  "name": "create-heady-agent",
+  "version": "1.0.0",
+  "description": "Scaffold a new HeadyBee agent for the Heady™ ecosystem",
+  "main": "src/cli.js",
+  "bin": {
+    "create-heady-agent": "src/cli.js"
+  },
+  "scripts": {
+    "test": "jest --coverage",
+    "lint": "eslint src/"
+  },
+  "keywords": ["heady", "headybee", "agent", "scaffold", "cli", "mcp", "sacred-geometry"],
+  "author": "HeadySystems Inc.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HeadyMe/create-heady-agent.git"
+  },
+  "homepage": "https://headyio.com/docs/create-agent",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^8.2.6"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "eslint": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "heady": {
+    "phi": 1.6180339887,
+    "type": "cli-tool",
+    "ecosystem": "heady-3.1"
+  }
+}

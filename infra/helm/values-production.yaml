@@ -1,0 +1,179 @@
+# =============================================================================
+# HeadySystems Inc. — Helm Values: Production Overrides
+# heady-platform v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 — Full φ-governed production deployment
+# All values use maximum Fibonacci tier for each parameter
+# =============================================================================
+
+global:
+  environment: "production"
+  imageTag: "3.2.2"
+  imagePullPolicy: Always
+  otel:
+    # Production sampling: 23.6% (1/φ^3 ≈ 0.236)
+    sampleRate: "0.236"
+    # fib(7)=13 × 1000ms = 13s metrics interval
+    metricsIntervalMs: "13000"
+
+# heady-brain production: fib(4)=3 replicas (base values.yaml)
+headyBrain:
+  replicaCount: 3   # fib(4)=3
+  resources:
+    requests:
+      cpu: "200m"     # fib(3)=2 × 100m
+      memory: "256Mi"
+    limits:
+      cpu: "500m"     # fib(5)=5 × 100m
+      memory: "512Mi"
+  autoscaling:
+    enabled: true
+    minReplicas: 3    # fib(4)=3
+    maxReplicas: 13   # fib(7)=13
+    targetCPUUtilizationPercentage: 62    # φ-1 = 61.8%
+    targetMemoryUtilizationPercentage: 76 # caution threshold
+    scaleUpStabilizationWindow: 34        # fib(9)=34s
+    scaleDownStabilizationWindow: 144     # fib(12)=144s
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1   # fib(2)=1
+  env:
+    WORKER_CONCURRENCY: "13"
+    QUEUE_MAX_DEPTH: "55"
+    REQUEST_TIMEOUT_MS: "4236"
+    UPSTREAM_TIMEOUT_MS: "11090"
+    CONNECTION_POOL_SIZE: "34"
+    RATE_LIMIT_RPS: "144"       # fib(12)=144
+    RATE_LIMIT_BURST: "233"     # fib(13)=233
+    LOG_LEVEL: "info"
+
+headyConductor:
+  replicaCount: 2   # fib(3)=2
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  autoscaling:
+    enabled: true
+    minReplicas: 2   # fib(3)=2
+    maxReplicas: 8   # fib(6)=8
+    scaleUpStabilizationWindow: 34
+    scaleDownStabilizationWindow: 144
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+  env:
+    ORCHESTRATION_WORKERS: "8"
+    MAX_CONCURRENT_AGENTS: "55"
+    AGENT_TIMEOUT_MS: "6854"
+    ORCHESTRATION_TIMEOUT_MS: "17944"
+    LOG_LEVEL: "info"
+
+headyMcp:
+  replicaCount: 3   # fib(4)=3
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  autoscaling:
+    enabled: true
+    minReplicas: 3   # fib(4)=3
+    maxReplicas: 13  # fib(7)=13
+    scaleUpStabilizationWindow: 34
+    scaleDownStabilizationWindow: 144
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+  env:
+    MCP_TOOL_SLOTS: "13"
+    MAX_TOOL_CALLS_PER_SESSION: "21"
+    TOOL_EXECUTION_TIMEOUT_MS: "4236"
+    MAX_ACTIVE_SESSIONS: "89"
+    LOG_LEVEL: "info"
+
+headyWeb:
+  replicaCount: 5   # fib(5)=5
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  autoscaling:
+    enabled: true
+    minReplicas: 5    # fib(5)=5
+    maxReplicas: 21   # fib(8)=21
+    scaleUpStabilizationWindow: 21      # fib(8)=21s (fast scale-up for web)
+    scaleDownStabilizationWindow: 233   # fib(13)=233s (very conservative)
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+  env:
+    RATE_LIMIT_PER_POD: "144"
+    STATIC_CACHE_TTL_S: "5340"    # fib(11)=89 × 60s
+    LOG_LEVEL: "warn"              # Reduced logging in production for web
+
+# Production database: external Cloud SQL
+database:
+  external: true
+  host: "10.0.1.5"    # Cloud SQL private IP — set per environment
+  sslMode: "require"
+  pgvectorEnabled: true
+  pgbouncer:
+    enabled: true
+    defaultPoolSize: 13   # fib(7)=13
+    maxClientConn: 55     # fib(10)=55
+    reservePoolSize: 8    # fib(6)=8
+
+# Production Redis: external Memorystore
+redis:
+  external: true
+  host: "10.0.1.10"   # Memorystore private IP — set per environment
+  maxmemory: "512mb"
+  # AOF persistence enabled in production
+  aofEnabled: true
+
+# Production ingress: full TLS + strict rate limiting
+ingress:
+  enabled: true
+  tls: true
+  certIssuer: "letsencrypt-production"
+  rateLimitRps: 89       # fib(11)=89
+  rateLimitBurst: 144    # fib(12)=144
+  rateLimitConnections: 13  # fib(7)=13
+  proxyReadTimeout: 89   # fib(11)=89s
+  proxySendTimeout: 21   # fib(8)=21s
+  proxyConnectTimeout: 8 # fib(6)=8s
+  proxyBodySize: "34m"   # fib(9)=34
+
+# Full monitoring in production
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: "13s"     # fib(7)=13s
+    scrapeTimeout: "3s" # fib(4)=3s
+  prometheusRule:
+    enabled: true
+  grafana:
+    enabled: true
+
+# Strict network policies in production
+networkPolicies:
+  enabled: true
+  defaultDenyIngress: true
+  defaultDenyEgress: true
+
+# Production alert thresholds (strictest)
+alertThresholds:
+  warning: 0.618    # 1/φ — trigger at golden ratio threshold
+  caution: 0.764
+  critical: 0.854
+  exceeded: 0.910

@@ -1,0 +1,618 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://headysystems.com/schemas/vertical-config/v1.0.0",
+  "title": "HeadySystems Vertical Configuration",
+  "description": "Schema defining the full configuration object for a HeadySystems brand vertical. Loaded by site-router.js and passed to the template engine.",
+  "type": "object",
+  "required": ["vertical_id", "domain", "brand", "content", "meta", "navigation", "footer"],
+
+  "properties": {
+
+    "vertical_id": {
+      "type": "string",
+      "description": "Unique identifier for this vertical (kebab-case). Must match an entry in vertical-registry.json.",
+      "pattern": "^[a-z][a-z0-9-]{0,63}$",
+      "examples": ["headyme", "headyos", "health", "legal", "exchange"]
+    },
+
+    "domain": {
+      "type": "string",
+      "description": "Primary domain for this vertical (without protocol).",
+      "format": "hostname",
+      "examples": ["headyme.com", "headyos.com", "heady.exchange"]
+    },
+
+    "status": {
+      "type": "string",
+      "description": "Deployment status of this vertical.",
+      "enum": ["active", "planned", "maintenance", "deprecated"],
+      "default": "planned"
+    },
+
+    "deployed_at": {
+      "type": ["string", "null"],
+      "description": "ISO 8601 datetime when this vertical was last deployed.",
+      "format": "date-time",
+      "examples": ["2025-01-15T00:00:00Z", null]
+    },
+
+    "brand": {
+      "type": "object",
+      "description": "Brand identity configuration for this vertical.",
+      "required": ["name", "colors"],
+      "properties": {
+
+        "name": {
+          "type": "string",
+          "description": "Display name of the brand/vertical.",
+          "minLength": 1,
+          "maxLength": 80,
+          "examples": ["HeadyMe", "HeadyOS", "Heady Health"]
+        },
+
+        "tagline": {
+          "type": "string",
+          "description": "Short tagline shown beneath the brand name.",
+          "maxLength": 120,
+          "examples": ["AI-native productivity for everyone"]
+        },
+
+        "logo": {
+          "type": ["string", "null"],
+          "description": "URL or path to the SVG/PNG logo file. Null uses the generated inline SVG.",
+          "examples": ["/assets/logos/headyme.svg", null]
+        },
+
+        "logo_dark": {
+          "type": ["string", "null"],
+          "description": "Dark-theme variant of the logo. Falls back to `logo` if not set.",
+          "examples": ["/assets/logos/headyme-dark.svg", null]
+        },
+
+        "favicon": {
+          "type": "string",
+          "description": "Path to the favicon (ICO or PNG).",
+          "default": "/favicon.ico",
+          "examples": ["/favicon.ico", "/favicons/health-32.png"]
+        },
+
+        "apple_touch_icon": {
+          "type": ["string", "null"],
+          "description": "180x180 PNG for Apple touch icon.",
+          "examples": ["/apple-touch-icon.png", null]
+        },
+
+        "colors": {
+          "type": "object",
+          "description": "Brand color palette. All values should be valid CSS color strings.",
+          "required": ["primary", "accent"],
+          "properties": {
+            "primary": {
+              "type": "string",
+              "description": "Primary background color (darkest surface).",
+              "examples": ["#0a0e17", "#080c14"]
+            },
+            "secondary": {
+              "type": "string",
+              "description": "Secondary/surface color.",
+              "examples": ["#0d1321"]
+            },
+            "accent": {
+              "type": "string",
+              "description": "Primary accent color for interactive elements.",
+              "examples": ["#20808d", "#8b5cf6", "#d4a843"]
+            },
+            "accent_light": {
+              "type": "string",
+              "description": "Lighter variant of the accent color.",
+              "examples": ["#2dd4bf", "#a78bfa", "#fbbf24"]
+            },
+            "accent_glow": {
+              "type": "string",
+              "description": "Glow/shadow color derived from accent (use rgba).",
+              "examples": ["rgba(45,212,191,0.18)"]
+            }
+          },
+          "additionalProperties": {
+            "type": "string",
+            "description": "Any additional named color token."
+          }
+        },
+
+        "font_overrides": {
+          "type": "object",
+          "description": "Optional font family overrides for this vertical. Falls back to design system defaults.",
+          "properties": {
+            "body":    { "type": "string", "examples": ["Inter"] },
+            "heading": { "type": "string", "examples": ["Outfit"] },
+            "code":    { "type": "string", "examples": ["Berkeley Mono"] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "content": {
+      "type": "object",
+      "description": "Page content configuration — hero, features, pricing, testimonials, metrics.",
+      "required": ["hero"],
+      "properties": {
+
+        "hero": {
+          "type": "object",
+          "description": "Hero section configuration.",
+          "required": ["title"],
+          "properties": {
+
+            "title": {
+              "type": "string",
+              "description": "Main headline. HTML is allowed for accent spans.",
+              "minLength": 1,
+              "examples": ["The AI Operating System for Your Life"]
+            },
+
+            "subtitle": {
+              "type": "string",
+              "description": "Supporting subheadline or value proposition statement.",
+              "examples": ["HeadyOS orchestrates your digital life with sacred geometry intelligence."]
+            },
+
+            "eyebrow": {
+              "type": "string",
+              "description": "Small label above the title (e.g., version, product name).",
+              "examples": ["Now in Public Beta", "HeadyOS v2.0"]
+            },
+
+            "cta_text": {
+              "type": "string",
+              "description": "Primary call-to-action button text.",
+              "default": "Get Started",
+              "examples": ["Get Started Free", "Start Building", "Join the Waitlist"]
+            },
+
+            "cta_url": {
+              "type": "string",
+              "description": "Primary CTA button URL.",
+              "default": "/signup",
+              "examples": ["/signup", "https://app.headyme.com/register"]
+            },
+
+            "secondary_cta_text": {
+              "type": ["string", "null"],
+              "description": "Secondary CTA button text.",
+              "examples": ["Watch Demo", "Learn More", null]
+            },
+
+            "secondary_cta_url": {
+              "type": ["string", "null"],
+              "description": "Secondary CTA URL.",
+              "examples": ["/demo", null]
+            },
+
+            "background_type": {
+              "type": "string",
+              "description": "Hero background rendering mode.",
+              "enum": ["sacred-geometry", "gradient", "image", "video", "none"],
+              "default": "sacred-geometry"
+            },
+
+            "background_src": {
+              "type": ["string", "null"],
+              "description": "URL for image or video background (only used when background_type is 'image' or 'video').",
+              "examples": ["/hero-bg.mp4", "/hero-bg.jpg", null]
+            },
+
+            "metrics": {
+              "type": "array",
+              "description": "Key metrics displayed below the hero CTA.",
+              "items": {
+                "type": "object",
+                "required": ["value", "label"],
+                "properties": {
+                  "value":  { "type": "string", "examples": ["10K+", "99.9%"] },
+                  "label":  { "type": "string", "examples": ["Active Users", "Uptime SLA"] },
+                  "prefix": { "type": "string", "examples": ["$", ""] },
+                  "suffix": { "type": "string", "examples": ["+", "%"] }
+                }
+              },
+              "maxItems": 5
+            }
+          },
+          "additionalProperties": false
+        },
+
+        "features": {
+          "type": "array",
+          "description": "Feature cards displayed in the features grid section.",
+          "items": {
+            "type": "object",
+            "required": ["title", "body"],
+            "properties": {
+              "id":       { "type": "string" },
+              "title":    { "type": "string", "description": "Feature card heading." },
+              "body":     { "type": "string", "description": "Feature card description." },
+              "icon":     { "type": "string", "description": "Icon name or inline SVG string." },
+              "link":     { "type": "string", "description": "Optional 'Learn more' URL." },
+              "link_text":{ "type": "string", "default": "Learn more" },
+              "featured": { "type": "boolean", "default": false, "description": "Highlight this card." },
+              "badge":    { "type": "string", "description": "Optional badge label (e.g., 'New', 'Beta')." }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 13
+        },
+
+        "pricing": {
+          "type": "object",
+          "description": "Pricing section configuration.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show or hide the pricing section."
+            },
+            "title": {
+              "type": "string",
+              "default": "Simple, transparent pricing"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "billing_toggle": {
+              "type": "boolean",
+              "default": true,
+              "description": "Show monthly/annual billing toggle."
+            },
+            "annual_discount_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "default": 20,
+              "description": "Percentage discount for annual billing."
+            },
+            "tiers": {
+              "type": "array",
+              "description": "Pricing tier definitions.",
+              "minItems": 1,
+              "maxItems": 5,
+              "items": {
+                "type": "object",
+                "required": ["name", "price_monthly"],
+                "properties": {
+                  "id":              { "type": "string" },
+                  "name":            { "type": "string", "examples": ["Starter", "Pro", "Enterprise"] },
+                  "tier_label":      { "type": "string", "description": "Small eyebrow label above tier name." },
+                  "price_monthly":   { "type": "number", "minimum": 0, "description": "Price in USD per month." },
+                  "price_annual":    { "type": "number", "minimum": 0, "description": "Price in USD per month when billed annually." },
+                  "price_note":      { "type": "string", "examples": ["billed annually", "per user/mo"] },
+                  "description":     { "type": "string" },
+                  "cta_text":        { "type": "string", "default": "Get Started" },
+                  "cta_url":         { "type": "string" },
+                  "featured":        { "type": "boolean", "default": false },
+                  "badge":           { "type": "string", "examples": ["Most Popular", "Best Value"] },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["text"],
+                      "properties": {
+                        "text":     { "type": "string" },
+                        "included": { "type": "boolean", "default": true },
+                        "note":     { "type": "string" }
+                      }
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+
+        "testimonials": {
+          "type": "array",
+          "description": "Social proof testimonials.",
+          "items": {
+            "type": "object",
+            "required": ["quote", "name"],
+            "properties": {
+              "id":          { "type": "string" },
+              "quote":       { "type": "string" },
+              "name":        { "type": "string" },
+              "role":        { "type": "string", "examples": ["CTO at Acme Corp"] },
+              "company":     { "type": "string" },
+              "avatar_url":  { "type": ["string", "null"] },
+              "rating":      { "type": "integer", "minimum": 1, "maximum": 5, "default": 5 }
+            },
+            "additionalProperties": false
+          }
+        },
+
+        "metrics": {
+          "type": "array",
+          "description": "Animated stat counters for the metrics section.",
+          "items": {
+            "type": "object",
+            "required": ["count", "label"],
+            "properties": {
+              "count":    { "type": "number", "description": "Target counter value." },
+              "label":    { "type": "string" },
+              "prefix":   { "type": "string", "default": "" },
+              "suffix":   { "type": "string", "default": "" },
+              "decimals": { "type": "integer", "minimum": 0, "maximum": 4, "default": 0 },
+              "trend":    { "type": "string", "description": "Trend label, e.g. '+12% this month'." }
+            },
+            "additionalProperties": false
+          },
+          "maxItems": 8
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "meta": {
+      "type": "object",
+      "description": "SEO and social meta tag configuration.",
+      "required": ["title", "description"],
+      "properties": {
+        "title":           { "type": "string", "description": "HTML <title> tag content.", "maxLength": 70 },
+        "description":     { "type": "string", "description": "Meta description.", "maxLength": 160 },
+        "keywords":        { "type": "string", "description": "Comma-separated meta keywords." },
+        "og_title":        { "type": "string", "description": "OpenGraph title. Falls back to title." },
+        "og_description":  { "type": "string", "description": "OpenGraph description. Falls back to description." },
+        "og_image":        { "type": "string", "description": "URL to OpenGraph image (1200×630 recommended)." },
+        "og_type":         { "type": "string", "default": "website", "enum": ["website", "article", "product"] },
+        "twitter_handle":  { "type": "string", "description": "Twitter/X handle including @.", "examples": ["@headyme"] },
+        "twitter_card":    { "type": "string", "default": "summary_large_image", "enum": ["summary", "summary_large_image"] },
+        "canonical_url":   { "type": "string", "description": "Canonical URL for this page/domain." },
+        "analytics_id":    { "type": ["string", "null"], "description": "Google Analytics or Plausible site ID.", "examples": ["G-XXXXXXXXXX", null] },
+        "robots":          { "type": "string", "default": "index, follow" },
+        "theme_color":     { "type": "string", "description": "Browser theme color meta.", "examples": ["#0a0e17"] }
+      },
+      "additionalProperties": false
+    },
+
+    "navigation": {
+      "type": "object",
+      "description": "Navigation bar configuration.",
+      "properties": {
+        "items": {
+          "type": "array",
+          "description": "Top-level navigation items.",
+          "items": {
+            "type": "object",
+            "required": ["label", "url"],
+            "properties": {
+              "label":    { "type": "string" },
+              "url":      { "type": "string" },
+              "target":   { "type": "string", "enum": ["_self", "_blank"], "default": "_self" },
+              "badge":    { "type": "string", "description": "Optional badge (e.g., 'New')." },
+              "children": {
+                "type": "array",
+                "description": "Dropdown sub-items.",
+                "items": {
+                  "type": "object",
+                  "required": ["label", "url"],
+                  "properties": {
+                    "label":       { "type": "string" },
+                    "url":         { "type": "string" },
+                    "description": { "type": "string" },
+                    "icon":        { "type": "string" }
+                  }
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "cta": {
+          "type": "object",
+          "description": "Navigation bar primary CTA button.",
+          "properties": {
+            "text": { "type": "string" },
+            "url":  { "type": "string" }
+          }
+        },
+        "show_login": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a Login link in the navigation."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "footer": {
+      "type": "object",
+      "description": "Footer configuration.",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "description": "Footer link columns.",
+          "items": {
+            "type": "object",
+            "required": ["title", "links"],
+            "properties": {
+              "title": { "type": "string" },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["label", "url"],
+                  "properties": {
+                    "label":  { "type": "string" },
+                    "url":    { "type": "string" },
+                    "badge":  { "type": "string" },
+                    "target": { "type": "string", "enum": ["_self", "_blank"], "default": "_self" }
+                  }
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "maxItems": 6
+        },
+        "social_links": {
+          "type": "array",
+          "description": "Social media icon links.",
+          "items": {
+            "type": "object",
+            "required": ["platform", "url"],
+            "properties": {
+              "platform": {
+                "type": "string",
+                "enum": ["twitter", "github", "linkedin", "discord", "youtube", "instagram", "tiktok", "email"]
+              },
+              "url":   { "type": "string" },
+              "label": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "legal_links": {
+          "type": "array",
+          "description": "Bottom row legal/policy links.",
+          "items": {
+            "type": "object",
+            "required": ["label", "url"],
+            "properties": {
+              "label": { "type": "string" },
+              "url":   { "type": "string" }
+            }
+          }
+        },
+        "copyright": {
+          "type": "string",
+          "description": "Copyright line. Supports {year} placeholder.",
+          "examples": ["© {year} HeadySystems Inc. All rights reserved."]
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "compliance": {
+      "type": "object",
+      "description": "Compliance certifications and regulatory badges.",
+      "properties": {
+        "badges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label"],
+            "properties": {
+              "label":    { "type": "string", "examples": ["SOC 2 Type II", "HIPAA", "GDPR", "ISO 27001"] },
+              "icon":     { "type": "string", "description": "Badge icon URL or name." },
+              "url":      { "type": "string", "description": "Link to compliance certificate." },
+              "variant":  { "type": "string", "enum": ["teal", "gold", "violet", "default"], "default": "teal" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "custom_css": {
+      "type": "string",
+      "description": "Vertical-specific CSS injected into the page <head> inside a <style> tag. Use for minor overrides only — prefer design token overrides.",
+      "maxLength": 10000
+    },
+
+    "design": {
+      "type": "object",
+      "description": "Design system configuration hints passed to the template.",
+      "properties": {
+        "theme": {
+          "type": "string",
+          "enum": ["dark", "light"],
+          "default": "dark"
+        },
+        "accent_variant": {
+          "type": "string",
+          "enum": ["teal", "gold", "violet", "silver", "custom"],
+          "default": "teal",
+          "description": "Which accent color group to activate in the design system."
+        },
+        "data_vertical": {
+          "type": "string",
+          "description": "Value for the data-vertical HTML attribute (enables CSS accent overrides).",
+          "examples": ["headyme", "headyos", "health", "exchange"]
+        },
+        "sacred_geometry": {
+          "type": "object",
+          "description": "Sacred geometry background configuration.",
+          "properties": {
+            "enabled":         { "type": "boolean", "default": true },
+            "node_count":      { "type": "integer", "minimum": 13, "maximum": 233, "default": 89 },
+            "speed":           { "type": "number", "minimum": 0, "maximum": 5, "default": 1.0 },
+            "opacity":         { "type": "number", "minimum": 0, "maximum": 1, "default": 0.75 },
+            "show_spirals":    { "type": "boolean", "default": true },
+            "show_geometry":   { "type": "boolean", "default": true },
+            "show_nodes":      { "type": "boolean", "default": true },
+            "show_metatron":   { "type": "boolean", "default": false }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+
+  "additionalProperties": false,
+
+  "examples": [
+    {
+      "vertical_id": "headyme",
+      "domain": "headyme.com",
+      "status": "active",
+      "brand": {
+        "name": "HeadyMe",
+        "tagline": "Your AI-native personal operating system",
+        "colors": {
+          "primary": "#0a0e17",
+          "secondary": "#0d1321",
+          "accent": "#20808d",
+          "accent_light": "#2dd4bf"
+        }
+      },
+      "content": {
+        "hero": {
+          "title": "The AI OS Built for <span class=\"accent\">You</span>",
+          "subtitle": "HeadyMe orchestrates your productivity with sacred geometry intelligence.",
+          "cta_text": "Start Free",
+          "cta_url": "/signup",
+          "background_type": "sacred-geometry"
+        },
+        "features": [],
+        "pricing": { "enabled": true, "tiers": [] }
+      },
+      "meta": {
+        "title": "HeadyMe — AI-Native Personal OS",
+        "description": "HeadyMe is your personal AI operating system, built on sacred geometry principles.",
+        "og_image": "/og/headyme.png",
+        "analytics_id": "G-XXXXXXXXXX"
+      },
+      "navigation": {
+        "items": [
+          { "label": "Features", "url": "/#features" },
+          { "label": "Pricing",  "url": "/#pricing" },
+          { "label": "Docs",     "url": "/docs" }
+        ],
+        "cta": { "text": "Get Started", "url": "/signup" }
+      },
+      "footer": {
+        "columns": [],
+        "social_links": [
+          { "platform": "twitter", "url": "https://x.com/headyme" }
+        ],
+        "legal_links": [
+          { "label": "Privacy", "url": "/privacy" },
+          { "label": "Terms",   "url": "/terms" }
+        ]
+      }
+    }
+  ]
+}

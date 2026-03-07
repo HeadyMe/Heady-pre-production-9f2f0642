@@ -1,0 +1,158 @@
+# =============================================================================
+# HeadySystems Vertical Config — Healthcare
+# Domain: health.headyme.com
+# =============================================================================
+
+vertical_id: healthcare
+domain: health.headyme.com
+fallback_path: /healthcare
+routing:
+  type: subdomain
+  aliases:
+    - healthcare.headyme.com
+    - hipaa.headyme.com
+
+brand:
+  name: "Heady Healthcare"
+  tagline: "HIPAA-Compliant AI Orchestration for Healthcare"
+  accent_color: "#06b6d4"
+  logo_variant: healthcare
+  font_family: "Inter, sans-serif"
+  icon: "⚕"
+
+content:
+  hero:
+    title: "AI Orchestration for Healthcare"
+    subtitle: "HIPAA-compliant, self-healing agent workflows for clinical operations"
+    cta_primary: "Request HIPAA Compliance Package"
+    cta_secondary: "View Clinical Demos"
+
+  features:
+    - name: "Patient Data Orchestration"
+      description: "Securely route patient records across EHR systems with end-to-end encryption and full audit trails."
+      icon: "patient"
+    - name: "Clinical Workflow Automation"
+      description: "Automate intake, triage, scheduling, and discharge workflows with configurable agent pipelines."
+      icon: "workflow"
+    - name: "EHR Integration"
+      description: "Native connectors for Epic, Cerner, Meditech, and HL7/FHIR REST APIs."
+      icon: "ehr"
+    - name: "Compliance Monitoring"
+      description: "Real-time HIPAA violation detection, automated audit log generation, and BAA management."
+      icon: "compliance"
+    - name: "Lab Results Routing"
+      description: "Intelligent routing of lab results to the appropriate clinical staff with priority escalation."
+      icon: "lab"
+    - name: "Claims Processing"
+      description: "Automated claims validation, ICD-10 coding assistance, and payer submission workflows."
+      icon: "claims"
+
+  agent_templates:
+    - name: "Patient Intake Agent"
+      description: "Collects and validates patient demographics, insurance, and consent forms"
+      latency: "<200ms"
+      integrations: ["Epic", "Salesforce Health Cloud", "Twilio"]
+    - name: "Claims Processor"
+      description: "Validates CPT/ICD codes, scrubs claims, and submits to payers"
+      latency: "<500ms"
+      integrations: ["Availity", "Change Healthcare", "Waystar"]
+    - name: "Clinical Notes Agent"
+      description: "Transcribes and structures clinical notes from voice or text into FHIR R4 format"
+      latency: "<1s"
+      integrations: ["Nuance DAX", "AWS HealthLake", "Azure Health Bot"]
+    - name: "Lab Results Router"
+      description: "Classifies lab results by urgency and routes to on-call clinicians"
+      latency: "<100ms"
+      integrations: ["LabCorp", "Quest", "Epic Lab"]
+
+  ehr_integrations:
+    - Epic (FHIR R4)
+    - Cerner Millennium
+    - Meditech Expanse
+    - Allscripts
+    - athenahealth
+    - HL7 v2 / FHIR R4 / SMART on FHIR
+
+  compliance_badges:
+    - name: HIPAA
+      status: certified
+      description: "Full HIPAA compliance with Business Associate Agreement (BAA)"
+    - name: SOC 2 Type II
+      status: certified
+      description: "Annual third-party security audit"
+    - name: HITRUST
+      status: planned
+      description: "HITRUST CSF certification in progress"
+    - name: HL7 FHIR R4
+      status: certified
+      description: "FHIR R4 compliant data exchange"
+
+  pricing:
+    tiers:
+      - name: Clinical
+        price: "$69/mo"
+        billing: monthly
+        features:
+          - "Up to 5 agent workflows"
+          - "50K API calls/month"
+          - "HIPAA BAA included"
+          - "3 EHR integrations"
+          - "Email support"
+          - "Basic audit logging"
+      - name: Hospital Network
+        price: "Custom"
+        billing: annual
+        highlighted: true
+        features:
+          - "Unlimited agent workflows"
+          - "Unlimited API calls"
+          - "Dedicated HIPAA infrastructure"
+          - "All EHR integrations"
+          - "24/7 clinical support"
+          - "Custom SLA"
+          - "Advanced audit & reporting"
+          - "On-premise deployment option"
+
+  case_study:
+    client: "Regional Hospital Network (placeholder)"
+    challenge: "Manual patient intake causing 45-minute delays in ED triage"
+    solution: "Deployed Patient Intake Agent with Epic FHIR integration"
+    result: "Reduced intake time to under 8 minutes. 94% staff satisfaction."
+    metrics:
+      - label: "Intake time reduction"
+        value: "82%"
+      - label: "Claims accuracy"
+        value: "99.3%"
+      - label: "Staff satisfaction"
+        value: "94%"
+
+  testimonial:
+    quote: "Heady's HIPAA-compliant agents handle our entire patient intake workflow. What used to take 45 minutes now takes under 8."
+    author: "CIO, Regional Hospital Network (placeholder)"
+
+meta:
+  title: "Heady Healthcare — HIPAA-Compliant AI Platform"
+  description: "HIPAA-compliant AI agent orchestration for healthcare. Automate patient intake, claims processing, clinical workflows, and EHR integration."
+  keywords:
+    - "HIPAA AI platform"
+    - "healthcare AI agents"
+    - "EHR automation"
+    - "clinical workflow AI"
+    - "patient intake automation"
+    - "medical AI orchestration"
+  og_image: "/assets/healthcare-og.png"
+  analytics_id: "G-HEALTHCARE"
+  canonical_url: "https://health.headyme.com"
+  schema_type: "SoftwareApplication"
+
+server:
+  cache_ttl: 3600
+  rate_limit: 100
+  cors_origins:
+    - "https://headyme.com"
+    - "https://health.headyme.com"
+  health_check: "/_health"
+  csp_extra: "connect-src https://*.epic.com https://*.cerner.com"
+
+created_at: "2026-03-07T00:00:00Z"
+updated_at: "2026-03-07T00:00:00Z"

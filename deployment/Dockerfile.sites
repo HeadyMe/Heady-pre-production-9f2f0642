@@ -1,0 +1,110 @@
+# =============================================================================
+# HeadySystems Multi-Domain Container
+# Serves 9+ domains from a single Cloud Run instance
+# hostname-based routing via services/heady-web/
+# =============================================================================
+
+# ── Stage 1: Dependency installer ────────────────────────────────────────────
+FROM node:20-alpine AS deps
+
+LABEL stage="deps"
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copy workspace manifests first (better layer caching)
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY turbo.json ./
+
+# Copy service package files (only package.json for install step)
+COPY services/heady-web/package.json ./services/heady-web/
+COPY services/heady-api/package.json ./services/heady-api/
+COPY packages/ ./packages/
+
+# Install all dependencies (including devDependencies needed for build)
+RUN pnpm install --frozen-lockfile
+
+
+# ── Stage 2: Builder ──────────────────────────────────────────────────────────
+FROM deps AS builder
+
+LABEL stage="builder"
+
+# Copy all source files
+COPY services/ ./services/
+COPY packages/ ./packages/
+
+# Copy A2-websites (existing domain sites)
+COPY A2-websites/ ./sites/A2-websites/
+
+# Copy A3-verticals (new industry verticals)
+COPY A3-verticals/ ./sites/A3-verticals/
+
+# Copy shared assets / templates
+COPY shared/ ./shared/ 2>/dev/null || true
+
+# Load vertical registry into build context
+COPY vertical-registry.json ./vertical-registry.json 2>/dev/null || echo '{"verticals":[]}' > ./vertical-registry.json
+
+# Run Turborepo build pipeline (builds all services in dependency order)
+RUN pnpm turbo run build --filter=heady-web...
+
+# Prune dev dependencies for production image
+RUN pnpm prune --prod
+
+
+# ── Stage 3: Production runtime ───────────────────────────────────────────────
+FROM node:20-alpine AS production
+
+# Metadata labels
+LABEL maintainer="eric@headyconnection.org"
+LABEL org.opencontainers.image.title="HeadySystems Multi-Domain Server"
+LABEL org.opencontainers.image.description="Single Cloud Run container serving all HeadySystems domains"
+LABEL org.opencontainers.image.vendor="HeadySystems Inc."
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.source="https://github.com/headysystems/heady-monorepo"
+
+# Security: run as non-root
+RUN addgroup --system --gid 1001 nodejs \
+  && adduser --system --uid 1001 headyweb
+
+# Install only what's needed at runtime
+RUN apk add --no-cache \
+  curl \
+  tini
+
+WORKDIR /app
+
+# Copy production node_modules from builder
+COPY --from=builder --chown=headyweb:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=headyweb:nodejs /app/services/heady-web ./services/heady-web
+COPY --from=builder --chown=headyweb:nodejs /app/packages ./packages
+
+# Copy compiled site assets
+COPY --from=builder --chown=headyweb:nodejs /app/sites ./sites
+
+# Copy vertical registry
+COPY --from=builder --chown=headyweb:nodejs /app/vertical-registry.json ./vertical-registry.json
+
+# Copy deployment site-router middleware
+COPY --chown=headyweb:nodejs deployment/site-router.js ./deployment/site-router.js
+
+# Cloud Run listens on PORT env var (default 8080)
+ENV PORT=8080
+ENV NODE_ENV=production
+ENV SITES_DIR=/app/sites
+
+EXPOSE 8080
+
+# Use tini as PID 1 for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Health check — Cloud Run will probe /_health
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/_health || exit 1
+
+USER headyweb
+
+CMD ["node", "services/heady-web/server.js"]

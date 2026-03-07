@@ -1,0 +1,1539 @@
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HeadyMe — Your AI Operating System</title>
+  <meta name="description" content="The autonomous intelligence platform that thinks, orchestrates, and evolves. 51+ patents. 21 microservices. One unified experience.">
+  <meta name="keywords" content="AI operating system, autonomous agents, AI orchestration, HeadyMe, HeadySystems">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://headyme.com/">
+
+  <!-- OpenGraph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://headyme.com/">
+  <meta property="og:title" content="HeadyMe — Your AI Operating System">
+  <meta property="og:description" content="The autonomous intelligence platform that thinks, orchestrates, and evolves. 51+ patents. 21 microservices. One unified experience.">
+  <meta property="og:image" content="https://headyme.com/og-image.jpg">
+  <meta property="og:site_name" content="HeadyMe">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@headyme">
+  <meta name="twitter:title" content="HeadyMe — Your AI Operating System">
+  <meta name="twitter:description" content="The autonomous intelligence platform that thinks, orchestrates, and evolves. 51+ patents. 21 microservices. One unified experience.">
+  <meta name="twitter:image" content="https://headyme.com/og-image.jpg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Berkeley+Mono&display=swap" rel="stylesheet">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "HeadyMe",
+    "url": "https://headyme.com",
+    "description": "The autonomous intelligence platform that thinks, orchestrates, and evolves.",
+    "applicationCategory": "ArtificialIntelligenceApplication",
+    "operatingSystem": "Web",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Pilot",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro",
+        "price": "49",
+        "priceCurrency": "USD",
+        "billingPeriod": "P1M"
+      }
+    ],
+    "creator": {
+      "@type": "Organization",
+      "name": "HeadySystems Inc.",
+      "founder": {
+        "@type": "Person",
+        "name": "Eric Haywood"
+      }
+    },
+    "maintainer": {
+      "@type": "SoftwareApplication",
+      "name": "Perplexity Computer",
+      "url": "https://www.perplexity.ai/computer"
+    }
+  }
+  </script>
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --phi: 1.6180339887;
+      --phi-inv: 0.6180339887;
+
+      /* Colors */
+      --bg-base:    #0a0e17;
+      --bg-surface: #0d1221;
+      --bg-card:    #111827;
+      --bg-glass:   rgba(13, 18, 33, 0.7);
+      --border:     rgba(255,255,255,0.08);
+      --border-glow:rgba(0,212,170,0.3);
+
+      --teal:       #00d4aa;
+      --teal-dim:   #00b891;
+      --teal-glow:  rgba(0,212,170,0.15);
+      --gold:       #f5c842;
+      --gold-dim:   #d4a827;
+      --gold-glow:  rgba(245,200,66,0.12);
+
+      --text-primary:   #f0f4ff;
+      --text-secondary: #8b98b8;
+      --text-muted:     #4a5568;
+
+      /* Typography */
+      --font-display: 'Outfit', sans-serif;
+      --font-body:    'Inter', sans-serif;
+      --font-mono:    'Berkeley Mono', 'Fira Code', monospace;
+
+      /* Spacing (φ-derived) */
+      --sp-1:  4px;
+      --sp-2:  8px;
+      --sp-3:  13px;
+      --sp-4:  21px;
+      --sp-5:  34px;
+      --sp-6:  55px;
+      --sp-7:  89px;
+      --sp-8:  144px;
+
+      /* Type scale */
+      --text-xs:  0.75rem;
+      --text-sm:  0.875rem;
+      --text-base:1rem;
+      --text-lg:  1.125rem;
+      --text-xl:  1.25rem;
+      --text-2xl: 1.5rem;
+      --text-3xl: 1.875rem;
+      --text-4xl: 2.25rem;
+      --text-5xl: 3rem;
+      --text-6xl: 3.75rem;
+      --text-7xl: 4.5rem;
+
+      --radius-sm: 8px;
+      --radius-md: 13px;
+      --radius-lg: 21px;
+      --radius-xl: 34px;
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.618;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--teal-glow); color: var(--teal); }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; }
+
+    /* Skip link */
+    .skip-link {
+      position: absolute; top: -40px; left: 0;
+      background: var(--teal); color: var(--bg-base);
+      padding: var(--sp-2) var(--sp-4);
+      font-weight: 600; z-index: 1000;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ============================================================
+       NAVIGATION
+    ============================================================ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: var(--sp-4) var(--sp-6);
+      display: flex; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(10, 14, 23, 0.75);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: var(--sp-3);
+      font-family: var(--font-display);
+      font-weight: 700; font-size: var(--text-xl);
+      color: var(--text-primary);
+    }
+
+    .nav-logo svg { width: 32px; height: 32px; }
+
+    .nav-links {
+      display: flex; align-items: center; gap: var(--sp-6);
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: var(--text-sm); font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .nav-cta {
+      display: flex; align-items: center; gap: var(--sp-3);
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-5);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: var(--text-sm); font-weight: 600;
+      cursor: pointer; border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--teal);
+      color: var(--bg-base);
+    }
+    .btn-primary:hover {
+      background: var(--teal-dim);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,212,170,0.3);
+    }
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      color: var(--text-primary);
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.04);
+    }
+    .btn-ghost:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+    }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer;
+      padding: var(--sp-2);
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      padding: var(--sp-8) var(--sp-6) var(--sp-7);
+    }
+
+    #hero-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      text-align: center; max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-4);
+      border: 1px solid var(--border-glow);
+      border-radius: 100px;
+      background: var(--teal-glow);
+      font-size: var(--text-sm); font-weight: 500;
+      color: var(--teal);
+      margin-bottom: var(--sp-5);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%; background: var(--teal);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(var(--text-4xl), 8vw, var(--text-7xl));
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--sp-5);
+    }
+
+    .hero-title .accent-teal { color: var(--teal); }
+    .hero-title .accent-gold { color: var(--gold); }
+
+    .hero-subtitle {
+      font-size: clamp(var(--text-lg), 2.5vw, var(--text-2xl));
+      color: var(--text-secondary);
+      line-height: 1.618;
+      margin-bottom: var(--sp-6);
+      max-width: 640px; margin-left: auto; margin-right: auto;
+    }
+
+    .hero-cta {
+      display: flex; align-items: center; justify-content: center;
+      gap: var(--sp-4); flex-wrap: wrap;
+      margin-bottom: var(--sp-7);
+    }
+
+    .hero-cta .btn {
+      padding: var(--sp-4) var(--sp-6);
+      font-size: var(--text-base);
+    }
+
+    .hero-stats {
+      display: flex; justify-content: center;
+      gap: var(--sp-7); flex-wrap: wrap;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-value {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl); font-weight: 700;
+      color: var(--teal);
+      line-height: 1;
+    }
+
+    .hero-stat-label {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-top: var(--sp-1);
+    }
+
+    /* Gradient fade at bottom of hero */
+    .hero::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 200px;
+      background: linear-gradient(to bottom, transparent, var(--bg-base));
+      z-index: 1;
+    }
+
+    /* ============================================================
+       SECTIONS COMMON
+    ============================================================ */
+    .section {
+      padding: var(--sp-8) var(--sp-6);
+      max-width: 1200px; margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: var(--sp-7);
+    }
+
+    .section-label {
+      font-size: var(--text-sm); font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: var(--sp-3);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(var(--text-3xl), 4vw, var(--text-5xl));
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--sp-4);
+    }
+
+    .section-desc {
+      font-size: var(--text-lg);
+      color: var(--text-secondary);
+      max-width: 560px; margin: 0 auto;
+      line-height: 1.618;
+    }
+
+    /* ============================================================
+       FEATURES GRID
+    ============================================================ */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-4);
+    }
+
+    .feature-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--teal-glow), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,212,170,0.08);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-sm);
+      background: var(--teal-glow);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: var(--sp-4);
+      font-size: 22px;
+    }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: var(--text-xl); font-weight: 600;
+      margin-bottom: var(--sp-3);
+      color: var(--text-primary);
+    }
+
+    .feature-desc {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.618;
+    }
+
+    /* ============================================================
+       SOCIAL PROOF / STATS
+    ============================================================ */
+    .stats-section {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: var(--sp-7) var(--sp-6);
+    }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: var(--sp-4); max-width: 1000px; margin: 0 auto;
+    }
+
+    .stat-item {
+      text-align: center; padding: var(--sp-5);
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: clamp(var(--text-3xl), 4vw, var(--text-5xl));
+      font-weight: 800;
+      color: var(--teal);
+      line-height: 1;
+      display: block;
+    }
+
+    .stat-suffix {
+      color: var(--gold);
+    }
+
+    .stat-label {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-top: var(--sp-2);
+    }
+
+    /* ============================================================
+       PRICING
+    ============================================================ */
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-4); align-items: start;
+    }
+
+    .pricing-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--sp-6);
+      backdrop-filter: blur(16px);
+      transition: all 0.3s ease;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--teal);
+      background: linear-gradient(180deg, rgba(0,212,170,0.05), var(--bg-glass));
+      transform: scale(1.03);
+      box-shadow: 0 0 60px rgba(0,212,170,0.12);
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      background: var(--teal);
+      color: var(--bg-base);
+      font-size: var(--text-xs); font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
+      margin-bottom: var(--sp-4);
+    }
+
+    .pricing-name {
+      font-family: var(--font-display);
+      font-size: var(--text-xl); font-weight: 600;
+      margin-bottom: var(--sp-2);
+    }
+
+    .pricing-price {
+      font-family: var(--font-display);
+      font-size: var(--text-4xl); font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: var(--sp-2);
+    }
+
+    .pricing-price span {
+      font-size: var(--text-lg); font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .pricing-desc {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--sp-5);
+      padding-bottom: var(--sp-5);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex; flex-direction: column; gap: var(--sp-3);
+      margin-bottom: var(--sp-6);
+    }
+
+    .pricing-features li {
+      display: flex; align-items: flex-start; gap: var(--sp-3);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--teal);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ============================================================
+       DEVELOPER SECTION
+    ============================================================ */
+    .dev-section {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: var(--sp-7); align-items: center;
+    }
+
+    .code-window {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .code-window-header {
+      display: flex; align-items: center;
+      padding: var(--sp-3) var(--sp-4);
+      background: #161b22;
+      border-bottom: 1px solid var(--border);
+      gap: var(--sp-2);
+    }
+
+    .code-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .code-dot.red { background: #ff5f57; }
+    .code-dot.yellow { background: #febc2e; }
+    .code-dot.green { background: #28c840; }
+
+    .code-title {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-left: var(--sp-2);
+      font-family: var(--font-mono);
+    }
+
+    .code-body {
+      padding: var(--sp-5);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+
+    .code-comment { color: #6e7681; }
+    .code-cmd { color: var(--teal); }
+    .code-string { color: #a5d6ff; }
+    .code-output { color: var(--gold); }
+    .code-prompt { color: #ff7b72; }
+
+    .dev-links {
+      display: flex; flex-direction: column; gap: var(--sp-3);
+    }
+
+    .dev-link {
+      display: flex; align-items: center; gap: var(--sp-4);
+      padding: var(--sp-4) var(--sp-5);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      backdrop-filter: blur(12px);
+      transition: all 0.2s;
+    }
+    .dev-link:hover {
+      border-color: var(--border-glow);
+      transform: translateX(4px);
+    }
+
+    .dev-link-icon {
+      font-size: 24px;
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--teal-glow);
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+
+    .dev-link-text strong {
+      display: block;
+      font-size: var(--text-sm); font-weight: 600;
+      color: var(--text-primary);
+    }
+    .dev-link-text span {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    /* ============================================================
+       NEWSLETTER
+    ============================================================ */
+    .newsletter-section {
+      background: linear-gradient(135deg,
+        rgba(0,212,170,0.08) 0%,
+        var(--bg-surface) 50%,
+        rgba(245,200,66,0.05) 100%
+      );
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: var(--sp-8) var(--sp-6);
+    }
+
+    .newsletter-inner {
+      max-width: 560px; margin: 0 auto;
+      text-align: center;
+    }
+
+    .newsletter-form {
+      display: flex; gap: var(--sp-3);
+      margin-top: var(--sp-5);
+    }
+
+    .input-field {
+      flex: 1;
+      padding: var(--sp-3) var(--sp-4);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      transition: border-color 0.2s;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-glow);
+    }
+    .input-field::placeholder { color: var(--text-muted); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      padding: var(--sp-7) var(--sp-6) var(--sp-5);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: var(--sp-7);
+      max-width: 1200px; margin: 0 auto;
+      margin-bottom: var(--sp-7);
+    }
+
+    .footer-brand p {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-top: var(--sp-3);
+      line-height: 1.618;
+      max-width: 280px;
+    }
+
+    .footer-col h4 {
+      font-size: var(--text-sm); font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--sp-4);
+      letter-spacing: 0.05em;
+    }
+
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: var(--sp-2); }
+    .footer-col ul li a {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--teal); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      padding-top: var(--sp-5);
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: var(--sp-3);
+    }
+
+    .footer-bottom p {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .footer-bottom a {
+      color: var(--teal);
+      font-size: var(--text-xs);
+      transition: color 0.2s;
+    }
+    .footer-bottom a:hover { color: var(--teal-dim); }
+
+    /* ============================================================
+       SCROLL ANIMATIONS
+    ============================================================ */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+    .stagger-5 { transition-delay: 0.5s; }
+    .stagger-6 { transition-delay: 0.6s; }
+
+    /* ============================================================
+       MOBILE MENU
+    ============================================================ */
+    .mobile-menu {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(10,14,23,0.95);
+      backdrop-filter: blur(20px);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: var(--sp-5);
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: var(--text-3xl); font-weight: 600;
+      color: var(--text-primary);
+      transition: color 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--teal); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1024px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+      .dev-section { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta { display: none; }
+      .nav-hamburger { display: flex; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .pricing-card.featured { transform: scale(1); }
+      .footer-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .newsletter-form { flex-direction: column; }
+      .hero-stats { gap: var(--sp-5); }
+      .nav { padding: var(--sp-3) var(--sp-4); }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .hero-cta { flex-direction: column; align-items: stretch; }
+      .hero-cta .btn { justify-content: center; }
+    }
+
+    /* ============================================================
+       FOCUS / ACCESSIBILITY
+    ============================================================ */
+    :focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="/" class="nav-logo" aria-label="HeadyMe Home">
+      <!-- Sacred Geometry Logo Mark -->
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polygon points="16,2 30,25 2,25" stroke="#00d4aa" stroke-width="1.5" fill="none"/>
+        <polygon points="16,7 26,23 6,23" stroke="#00d4aa" stroke-width="0.8" fill="rgba(0,212,170,0.08)"/>
+        <circle cx="16" cy="17" r="4" stroke="#f5c842" stroke-width="1" fill="none"/>
+        <circle cx="16" cy="17" r="1.5" fill="#00d4aa"/>
+      </svg>
+      HeadyMe
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#developers">Developers</a></li>
+      <li><a href="https://headyos.com">HeadyOS</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="#pricing" class="btn btn-ghost">Sign In</a>
+      <a href="#pricing" class="btn btn-primary">Join Pilot</a>
+    </div>
+
+    <button class="nav-hamburger" aria-label="Toggle mobile menu" aria-expanded="false" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+    <a href="#features" class="mobile-nav-link">Features</a>
+    <a href="#pricing" class="mobile-nav-link">Pricing</a>
+    <a href="#developers" class="mobile-nav-link">Developers</a>
+    <a href="https://headyos.com" class="mobile-nav-link">HeadyOS</a>
+    <a href="#pricing" class="btn btn-primary" style="margin-top: 16px; font-size: 1.125rem; padding: 16px 40px;">Join Pilot</a>
+  </div>
+
+  <main id="main-content">
+    <!-- Hero Section -->
+    <section class="hero" aria-label="Hero">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+
+      <div class="hero-content">
+        <div class="hero-badge" role="status">
+          <span class="hero-badge-dot" aria-hidden="true"></span>
+          Now in Founder Pilot · 51+ Patents Filed
+        </div>
+
+        <h1 class="hero-title">
+          Your <span class="accent-teal">AI</span><br>
+          Operating System
+        </h1>
+
+        <p class="hero-subtitle">
+          The autonomous intelligence platform that thinks, orchestrates, and evolves.
+          51+ patents. 21 microservices. One unified experience.
+        </p>
+
+        <div class="hero-cta">
+          <a href="#pricing" class="btn btn-primary" aria-label="Join the Founder Pilot program">
+            Join the Founder Pilot
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a href="#features" class="btn btn-ghost" aria-label="Explore the platform features">
+            Explore the Platform
+          </a>
+        </div>
+
+        <div class="hero-stats" role="list" aria-label="Platform statistics">
+          <div class="hero-stat" role="listitem">
+            <div class="hero-stat-value" data-count="51" data-suffix="+">51+</div>
+            <div class="hero-stat-label">Patents Filed</div>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <div class="hero-stat-value" data-count="5381">5,381</div>
+            <div class="hero-stat-label">Production Files</div>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <div class="hero-stat-value" data-count="21">21</div>
+            <div class="hero-stat-label">Microservices</div>
+          </div>
+          <div class="hero-stat" role="listitem">
+            <div class="hero-stat-value" data-count="100" data-suffix="+">100+</div>
+            <div class="hero-stat-label">API Endpoints</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof Stats -->
+    <section class="stats-section" aria-label="Platform statistics">
+      <div class="stats-grid">
+        <div class="stat-item fade-up">
+          <span class="stat-number" data-target="51">0<span class="stat-suffix">+</span></span>
+          <p class="stat-label">USPTO Patent Filings</p>
+        </div>
+        <div class="stat-item fade-up stagger-2">
+          <span class="stat-number" data-target="5381">0</span>
+          <p class="stat-label">Production Files</p>
+        </div>
+        <div class="stat-item fade-up stagger-3">
+          <span class="stat-number" data-target="21">0</span>
+          <p class="stat-label">Active Microservices</p>
+        </div>
+        <div class="stat-item fade-up stagger-4">
+          <span class="stat-number" data-target="100">0<span class="stat-suffix">+</span></span>
+          <p class="stat-label">API Endpoints</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section" aria-label="Platform features">
+      <div class="section-header">
+        <p class="section-label fade-up">Platform Capabilities</p>
+        <h2 class="section-title fade-up">Intelligence at Every Layer</h2>
+        <p class="section-desc fade-up">
+          Every component engineered from first principles.
+          No magic numbers — every parameter derived from φ.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card fade-up stagger-1" tabindex="0">
+          <div class="feature-icon" aria-hidden="true">⬡</div>
+          <h3 class="feature-title">Multi-Agent Orchestration</h3>
+          <p class="feature-desc">20 specialized AI nodes working in concert. The HeadyConductor coordinates task distribution, handles failures, and optimizes execution paths in real time.</p>
+        </div>
+
+        <div class="feature-card fade-up stagger-2" tabindex="0">
+          <div class="feature-icon" aria-hidden="true">◎</div>
+          <h3 class="feature-title">HeadyBuddy Companion</h3>
+          <p class="feature-desc">Your persistent AI companion that learns and remembers. Continuous context across conversations, devices, and sessions. It gets smarter the more you use it.</p>
+        </div>
+
+        <div class="feature-card fade-up stagger-3" tabindex="0">
+          <div class="feature-icon" aria-hidden="true">⟳</div>
+          <h3 class="feature-title">Cross-Device Sync</h3>
+          <p class="feature-desc">Seamless state transfer across all your devices. Start a task on mobile, continue on desktop. Your AI context travels with you — always available, always current.</p>
+        </div>
+
+        <div class="feature-card fade-up stagger-4" tabindex="0">
+          <div class="feature-icon" aria-hidden="true">∞</div>
+          <h3 class="feature-title">Continuous Semantic Logic</h3>
+          <p class="feature-desc">Beyond boolean. Geometric reasoning for nuanced decisions. Our CSL engine represents knowledge as continuous vectors, enabling probabilistic, context-aware judgment.</p>
+        </div>
+
+        <div class="feature-card fade-up stagger-5" tabindex="0">
+          <div class="feature-icon" aria-hidden="true">◈</div>
+          <h3 class="feature-title">3D Vector Memory</h3>
+          <p class="feature-desc">Spatial memory that organizes knowledge geometrically. Retrieve relevant context with sub-millisecond latency. Memory that mirrors how intelligence naturally works.</p>
+        </div>
+
+        <div class="feature-card fade-up stagger-6" tabindex="0">
+          <div class="feature-icon" aria-hidden="true">✦</div>
+          <h3 class="feature-title">Sacred Geometry Foundation</h3>
+          <p class="feature-desc">Every parameter derived from φ. No magic numbers. The golden ratio governs our architecture — from token limits to timeout thresholds to memory depth calculations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section" aria-label="Pricing plans">
+      <div class="section-header">
+        <p class="section-label fade-up">Simple Pricing</p>
+        <h2 class="section-title fade-up">Start Free. Scale When Ready.</h2>
+        <p class="section-desc fade-up">
+          No hidden fees. No lock-in. Cancel anytime.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Pilot -->
+        <div class="pricing-card fade-up stagger-1">
+          <p class="pricing-name">Pilot</p>
+          <div class="pricing-price">Free<span></span></div>
+          <p class="pricing-desc">Get started with the HeadyMe platform. Perfect for early exploration and personal use.</p>
+          <ul class="pricing-features" aria-label="Pilot plan features">
+            <li>5 AI agents</li>
+            <li>1,000 API calls / month</li>
+            <li>Community support</li>
+            <li>Basic orchestration</li>
+            <li>HeadyBuddy companion</li>
+          </ul>
+          <a href="#" class="btn btn-ghost" style="width:100%; justify-content:center;" aria-label="Start with Pilot plan for free">Get Started Free</a>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card featured fade-up stagger-2" aria-label="Recommended plan">
+          <span class="pricing-badge">Most Popular</span>
+          <p class="pricing-name">Pro</p>
+          <div class="pricing-price">$49<span>/mo</span></div>
+          <p class="pricing-desc">For power users and indie developers building with AI orchestration at scale.</p>
+          <ul class="pricing-features" aria-label="Pro plan features">
+            <li>50 AI agents</li>
+            <li>50,000 API calls / month</li>
+            <li>Priority support</li>
+            <li>Full orchestration pipeline</li>
+            <li>3D vector memory</li>
+            <li>Cross-device sync</li>
+          </ul>
+          <a href="#" class="btn btn-primary" style="width:100%; justify-content:center;" aria-label="Start Pro plan at $49 per month">Start Pro Trial</a>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="pricing-card fade-up stagger-3">
+          <p class="pricing-name">Enterprise</p>
+          <div class="pricing-price">Custom<span></span></div>
+          <p class="pricing-desc">For organizations that need compliance, dedicated infrastructure, and guaranteed SLAs.</p>
+          <ul class="pricing-features" aria-label="Enterprise plan features">
+            <li>Unlimited agents</li>
+            <li>SLA guarantee</li>
+            <li>Dedicated support</li>
+            <li>Compliance (SOC2, HIPAA)</li>
+            <li>Custom agent development</li>
+            <li>On-premises deployment</li>
+          </ul>
+          <a href="https://headysystems.com" class="btn btn-ghost" style="width:100%; justify-content:center;" aria-label="Contact sales for Enterprise pricing">Contact Sales</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Developer Section -->
+    <section id="developers" class="section" aria-label="Developer tools">
+      <div class="section-header">
+        <p class="section-label fade-up">Developer Experience</p>
+        <h2 class="section-title fade-up">Built for Builders</h2>
+        <p class="section-desc fade-up">
+          Production-grade tooling, comprehensive docs, and a CLI that gets out of your way.
+        </p>
+      </div>
+
+      <div class="dev-section">
+        <div class="code-window fade-up" aria-label="Code example">
+          <div class="code-window-header">
+            <span class="code-dot red" aria-hidden="true"></span>
+            <span class="code-dot yellow" aria-hidden="true"></span>
+            <span class="code-dot green" aria-hidden="true"></span>
+            <span class="code-title">terminal — heady CLI</span>
+          </div>
+          <div class="code-body" role="code" aria-label="Heady CLI commands">
+            <div><span class="code-prompt">$</span> <span class="code-cmd">npm install -g @headyme/cli</span></div>
+            <div>&nbsp;</div>
+            <div><span class="code-comment"># Initialize a new HeadyMe project</span></div>
+            <div><span class="code-prompt">$</span> <span class="code-cmd">heady init</span> <span class="code-string">my-agent-app</span></div>
+            <div><span class="code-output">✓ Initialized HeadyOS project</span></div>
+            <div><span class="code-output">✓ Connected to orchestration layer</span></div>
+            <div>&nbsp;</div>
+            <div><span class="code-comment"># Check platform status</span></div>
+            <div><span class="code-prompt">$</span> <span class="code-cmd">heady doctor</span></div>
+            <div><span class="code-output">✓ API connection · OK</span></div>
+            <div><span class="code-output">✓ 21 microservices · HEALTHY</span></div>
+            <div><span class="code-output">✓ Vector memory · READY</span></div>
+            <div>&nbsp;</div>
+            <div><span class="code-comment"># Deploy your first agent</span></div>
+            <div><span class="code-prompt">$</span> <span class="code-cmd">heady deploy</span> <span class="code-string">--env production</span></div>
+            <div><span class="code-output">✓ Agent deployed · https://hdy.me/a/xyz</span></div>
+          </div>
+        </div>
+
+        <div class="fade-up stagger-2">
+          <h3 style="font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 700; margin-bottom: var(--sp-5);">
+            Everything you need to build
+          </h3>
+          <p style="color: var(--text-secondary); margin-bottom: var(--sp-6); line-height: 1.618;">
+            Comprehensive documentation, SDK support for JavaScript and Python, and a growing ecosystem of MCP-compatible tools.
+          </p>
+          <div class="dev-links">
+            <a href="https://headyos.com/docs" class="dev-link" aria-label="Read the documentation">
+              <span class="dev-link-icon">📖</span>
+              <div class="dev-link-text">
+                <strong>Documentation</strong>
+                <span>Full API reference and guides</span>
+              </div>
+            </a>
+            <a href="https://headyos.com/api" class="dev-link" aria-label="View API reference">
+              <span class="dev-link-icon">⚡</span>
+              <div class="dev-link-text">
+                <strong>API Reference</strong>
+                <span>100+ endpoints, OpenAPI spec</span>
+              </div>
+            </a>
+            <a href="https://github.com/headysystems" class="dev-link" aria-label="View GitHub repository">
+              <span class="dev-link-icon">⬡</span>
+              <div class="dev-link-text">
+                <strong>GitHub</strong>
+                <span>Open source packages and SDKs</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section" aria-label="Newsletter signup">
+      <div class="newsletter-inner">
+        <p class="section-label">Stay Updated</p>
+        <h2 class="section-title" style="font-size: var(--text-3xl);">Launch Updates &amp; Early Access</h2>
+        <p style="color: var(--text-secondary); font-size: var(--text-base); margin-top: var(--sp-3);">
+          Get notified when new features ship. No spam. Unsubscribe anytime.
+        </p>
+        <form class="newsletter-form" action="#" method="post" aria-label="Email newsletter signup">
+          <label for="email-input" class="visually-hidden">Email address</label>
+          <input
+            type="email"
+            id="email-input"
+            name="email"
+            class="input-field"
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+            aria-required="true"
+          >
+          <button type="submit" class="btn btn-primary" aria-label="Subscribe to newsletter">
+            Subscribe
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo" aria-label="HeadyMe Home">
+          <svg viewBox="0 0 32 32" fill="none" style="width:28px;height:28px;" aria-hidden="true">
+            <polygon points="16,2 30,25 2,25" stroke="#00d4aa" stroke-width="1.5" fill="none"/>
+            <polygon points="16,7 26,23 6,23" stroke="#00d4aa" stroke-width="0.8" fill="rgba(0,212,170,0.08)"/>
+            <circle cx="16" cy="17" r="4" stroke="#f5c842" stroke-width="1" fill="none"/>
+            <circle cx="16" cy="17" r="1.5" fill="#00d4aa"/>
+          </svg>
+          HeadyMe
+        </a>
+        <p>The autonomous intelligence platform for the next generation of human-AI collaboration.</p>
+        <p style="margin-top: 8px; font-size: 0.75rem;">© 2026 HeadySystems Inc. · Founded by Eric Haywood</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul role="list">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#developers">Developers</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul role="list">
+          <li><a href="https://headyos.com/docs">Documentation</a></li>
+          <li><a href="https://headyos.com/api">API Reference</a></li>
+          <li><a href="https://github.com/headysystems">GitHub</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul role="list">
+          <li><a href="https://headysystems.com">HeadySystems</a></li>
+          <li><a href="https://headyos.com">HeadyOS</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>Built with φ-derived precision by HeadySystems Inc.</p>
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">
+        Created with Perplexity Computer
+      </a>
+    </div>
+  </footer>
+
+  <!-- Visually hidden class for screen readers -->
+  <style>
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
+
+  <script>
+    // ============================================================
+    // SACRED GEOMETRY CANVAS BACKGROUND
+    // ============================================================
+    (function() {
+      const canvas = document.getElementById('hero-canvas');
+      const ctx = canvas.getContext('2d');
+      const PHI = 1.6180339887;
+
+      let W, H, particles = [], frame = 0;
+
+      function resize() {
+        W = canvas.width = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Sacred geometry node class
+      class Node {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * W;
+          this.y = Math.random() * H;
+          this.vx = (Math.random() - 0.5) * 0.3;
+          this.vy = (Math.random() - 0.5) * 0.3;
+          this.radius = (Math.random() * 2 + 1) * PHI;
+          this.alpha = Math.random() * 0.6 + 0.2;
+          this.hue = Math.random() > 0.7 ? 'gold' : 'teal';
+          this.pulse = Math.random() * Math.PI * 2;
+        }
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.pulse += 0.02;
+          if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+        }
+        draw() {
+          const a = this.alpha * (0.8 + 0.2 * Math.sin(this.pulse));
+          const color = this.hue === 'teal' ? `rgba(0,212,170,${a})` : `rgba(245,200,66,${a * 0.7})`;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+        }
+      }
+
+      // Initialize nodes
+      const count = Math.min(120, Math.floor((W * H) / 8000));
+      for (let i = 0; i < count; i++) particles.push(new Node());
+
+      // Draw golden ratio spiral segments
+      function drawSpiralArc(cx, cy, r, startAngle, color, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, startAngle, startAngle + Math.PI / 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw icosahedron-like polygon
+      function drawPoly(cx, cy, r, sides, rotation, color, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        for (let i = 0; i < sides; i++) {
+          const angle = rotation + (i / sides) * Math.PI * 2;
+          const x = cx + r * Math.cos(angle);
+          const y = cy + r * Math.sin(angle);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw Flower of Life circle cluster
+      function drawFlowerCircles(cx, cy, r, alpha) {
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2;
+          const ox = cx + r * Math.cos(angle);
+          const oy = cy + r * Math.sin(angle);
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.strokeStyle = 'rgba(0,212,170,1)';
+          ctx.lineWidth = 0.4;
+          ctx.beginPath();
+          ctx.arc(ox, oy, r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = 'rgba(0,212,170,1)';
+        ctx.lineWidth = 0.4;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Background gradient
+        const grad = ctx.createRadialGradient(W/2, H*0.4, 0, W/2, H*0.4, W*0.7);
+        grad.addColorStop(0, 'rgba(0,80,60,0.12)');
+        grad.addColorStop(0.5, 'rgba(0,40,80,0.06)');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        const t = frame * 0.003;
+
+        // Central Flower of Life (slowly rotating)
+        const fR = Math.min(W, H) * 0.12;
+        drawFlowerCircles(W/2, H*0.45, fR, 0.07 + 0.02 * Math.sin(t));
+
+        // Outer polygons (φ-spaced radii)
+        [3, 4, 6].forEach((sides, i) => {
+          const r = fR * Math.pow(PHI, i + 1);
+          drawPoly(W/2, H*0.45, r, sides, t * (0.2 + i * 0.1), '#00d4aa', 0.04);
+        });
+
+        // Golden ratio spiral (4 quadrants)
+        let sr = fR;
+        for (let q = 0; q < 16; q++) {
+          const qt = Math.floor(q / 4);
+          const angle = (qt * Math.PI / 2) + t * 0.1;
+          drawSpiralArc(W/2, H*0.45, sr, angle, q % 4 < 2 ? '#00d4aa' : '#f5c842', 0.06);
+          sr *= PHI;
+          if (sr > Math.max(W, H)) break;
+        }
+
+        // Connection lines between close particles
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const threshold = 120;
+            if (dist < threshold) {
+              const a = (1 - dist/threshold) * 0.15;
+              ctx.save();
+              ctx.globalAlpha = a;
+              ctx.strokeStyle = '#00d4aa';
+              ctx.lineWidth = 0.5;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+              ctx.restore();
+            }
+          }
+        }
+
+        // Draw and update particles
+        particles.forEach(p => { p.update(); p.draw(); });
+
+        frame++;
+        requestAnimationFrame(animate);
+      }
+
+      // Only run animation if reduced motion is not preferred
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        animate();
+      }
+    })();
+
+    // ============================================================
+    // SCROLL ANIMATIONS
+    // ============================================================
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ============================================================
+    // ANIMATED COUNTERS
+    // ============================================================
+    function animateCounter(el, target, suffix = '') {
+      const duration = 1800;
+      const start = performance.now();
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = Math.floor(eased * target);
+        // Preserve suffix span
+        const suffixSpan = el.querySelector('.stat-suffix');
+        if (suffixSpan) {
+          el.firstChild.textContent = value.toLocaleString();
+        } else {
+          el.textContent = value.toLocaleString();
+        }
+        if (progress < 1) requestAnimationFrame(update);
+      }
+      requestAnimationFrame(update);
+    }
+
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.target);
+          animateCounter(el, target);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-target]').forEach(el => counterObserver.observe(el));
+
+    // ============================================================
+    // MOBILE MENU
+    // ============================================================
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    let menuOpen = false;
+
+    function toggleMenu() {
+      menuOpen = !menuOpen;
+      mobileMenu.classList.toggle('open', menuOpen);
+      hamburger.setAttribute('aria-expanded', menuOpen);
+      document.body.style.overflow = menuOpen ? 'hidden' : '';
+    }
+
+    hamburger.addEventListener('click', toggleMenu);
+    hamburger.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMenu(); }
+    });
+
+    document.querySelectorAll('.mobile-nav-link, .mobile-menu .btn').forEach(link => {
+      link.addEventListener('click', () => {
+        menuOpen = false;
+        mobileMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && menuOpen) toggleMenu();
+    });
+
+    // ============================================================
+    // NEWSLETTER FORM
+    // ============================================================
+    document.querySelector('.newsletter-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.textContent = '✓ Subscribed!';
+      btn.disabled = true;
+      btn.style.background = 'var(--teal-dim)';
+    });
+  </script>
+</body>
+</html>

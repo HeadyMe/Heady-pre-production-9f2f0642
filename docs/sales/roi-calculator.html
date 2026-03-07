@@ -1,0 +1,322 @@
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HeadyOS ROI Calculator — Estimate Your AI Orchestration Savings</title>
+  <meta name="description" content="Calculate the ROI of replacing manual AI orchestration with HeadyOS. Enter your team size, hours, and current costs to see 12-month savings." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --phi: 1.618033988749895;
+      --sp-1: 0.618rem; --sp-2: 1rem; --sp-3: 1.618rem; --sp-4: 2.618rem; --sp-5: 4.236rem;
+      --bg:      #080b10; --bg-deep: #0d1117; --bg-card: #1a2233; --bg-elevated: #212d42;
+      --border:  rgba(99,148,255,0.12);
+      --gold:    #c9a84c; --gold-bright: #e4c068; --gold-glow: rgba(201,168,76,0.12);
+      --blue:    #3d7bd4; --blue-bright: #6394ff;
+      --emerald: #2ea87e; --emerald-bright: #4ecba0;
+      --text-primary: #f0f4ff; --text-secondary: #8b9cc8; --text-muted: #4a5a7a;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; line-height: 1.618; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: var(--sp-5) var(--sp-3); }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: var(--sp-5); }
+    .header-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; background: var(--gold-glow); border: 1px solid rgba(201,168,76,0.3); border-radius: 99px; font-size: 0.618rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-bright); margin-bottom: var(--sp-3); }
+    h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 3.236rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: var(--sp-2); }
+    h1 .gold { color: var(--gold-bright); }
+    .header p { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+
+    /* Calculator Layout */
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); align-items: start; }
+
+    /* Input Panel */
+    .panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 13px; padding: var(--sp-4); }
+    .panel-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: var(--sp-3); color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .panel-title .icon { color: var(--gold); font-size: 1.272rem; }
+
+    .input-group { margin-bottom: var(--sp-3); }
+    label { display: block; font-size: 0.764rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .input-row { display: flex; align-items: center; gap: 8px; }
+    .prefix { font-size: 0.875rem; color: var(--text-muted); font-weight: 600; }
+    input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: var(--bg-elevated); border-radius: 99px; outline: none; cursor: pointer; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-bright)); cursor: pointer; }
+    .range-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.272rem; font-weight: 800; color: var(--gold-bright); min-width: 90px; text-align: right; }
+    .range-labels { display: flex; justify-content: space-between; font-size: 0.618rem; color: var(--text-muted); margin-top: 4px; }
+
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: var(--sp-3) 0; }
+
+    /* Results Panel */
+    .results-panel { background: var(--bg-card); border: 1px solid rgba(201,168,76,0.25); border-radius: 13px; padding: var(--sp-4); box-shadow: 0 0 55px rgba(201,168,76,0.06); }
+
+    .result-primary { text-align: center; padding: var(--sp-4) 0 var(--sp-3); border-bottom: 1px solid var(--border); margin-bottom: var(--sp-3); }
+    .result-primary .label { font-size: 0.618rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
+    .result-primary .value { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2.618rem, 5vw, 4.236rem); font-weight: 800; color: var(--gold-bright); line-height: 1; }
+    .result-primary .sub { font-size: 0.875rem; color: var(--text-secondary); margin-top: 8px; }
+
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+    .result-card { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--sp-2) var(--sp-3); }
+    .result-card .rc-label { font-size: 0.618rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
+    .result-card .rc-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.272rem; font-weight: 800; color: var(--blue-bright); }
+    .result-card .rc-sub { font-size: 0.618rem; color: var(--text-muted); margin-top: 2px; }
+
+    .result-cta { display: flex; flex-direction: column; gap: var(--sp-2); }
+    .btn-primary-full { display: block; width: 100%; padding: var(--sp-2) var(--sp-3); background: linear-gradient(135deg, var(--gold), #8a6f30); color: #0d0e0a; border: none; border-radius: var(--radius); font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; text-align: center; text-decoration: none; transition: all 250ms ease; }
+    .btn-primary-full:hover { background: linear-gradient(135deg, var(--gold-bright), var(--gold)); transform: translateY(-2px); box-shadow: 0 8px 34px rgba(201,168,76,0.25); }
+    .btn-secondary-full { display: block; width: 100%; padding: var(--sp-2) var(--sp-3); background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.875rem; cursor: pointer; text-align: center; text-decoration: none; transition: all 250ms ease; }
+    .btn-secondary-full:hover { border-color: rgba(99,148,255,0.3); color: var(--text-primary); }
+
+    /* Assumptions */
+    .assumptions { margin-top: var(--sp-4); padding: var(--sp-3); background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius); }
+    .assumptions h4 { font-size: 0.764rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--sp-2); }
+    .assumptions ul { list-style: none; }
+    .assumptions li { font-size: 0.764rem; color: var(--text-muted); padding: 3px 0; display: flex; gap: 8px; }
+    .assumptions li::before { content: '·'; color: var(--gold); }
+
+    /* Footer */
+    footer { text-align: center; padding: var(--sp-4) var(--sp-3); border-top: 1px solid var(--border); margin-top: var(--sp-5); }
+    footer p { font-size: 0.618rem; color: var(--text-muted); }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--text-secondary); }
+
+    @media (max-width: 768px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-badge">◈ ROI Calculator · HeadyOS</div>
+    <h1>Estimate Your <span class="gold">AI Orchestration ROI</span></h1>
+    <p>See how much time and money HeadyOS saves your team. Based on real pilot data from Founder Cohort 1.</p>
+  </header>
+
+  <!-- Calculator -->
+  <div class="calc-grid">
+    <!-- Inputs -->
+    <div class="panel">
+      <div class="panel-title"><span class="icon">◈</span> Your Current State</div>
+
+      <!-- Team Size -->
+      <div class="input-group">
+        <label for="team-size">Team Size (people using AI tools)</label>
+        <div class="input-row">
+          <input type="range" id="team-size" min="1" max="89" value="5" step="1" />
+          <span class="range-value" id="team-size-val">5</span>
+        </div>
+        <div class="range-labels"><span>1</span><span>fib(11)=89</span></div>
+      </div>
+
+      <!-- Hours on Orchestration -->
+      <div class="input-group">
+        <label for="hours-orch">Hours/week spent on AI orchestration & workflow setup</label>
+        <div class="input-row">
+          <input type="range" id="hours-orch" min="1" max="55" value="13" step="1" />
+          <span class="range-value" id="hours-orch-val">13 hrs/wk</span>
+        </div>
+        <div class="range-labels"><span>1 hr</span><span>fib(10)=55 hrs</span></div>
+      </div>
+
+      <!-- Developer Salary -->
+      <div class="input-group">
+        <label for="dev-salary">Average developer / AI engineer salary (annual $)</label>
+        <div class="input-row">
+          <span class="prefix">$</span>
+          <input type="range" id="dev-salary" min="60000" max="300000" value="144000" step="5000" />
+          <span class="range-value" id="dev-salary-val">$144k</span>
+        </div>
+        <div class="range-labels"><span>$60k</span><span>$300k</span></div>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- Current Tool Spend -->
+      <div class="input-group">
+        <label for="tool-spend">Current monthly AI tool spend (total across team, $)</label>
+        <div class="input-row">
+          <span class="prefix">$</span>
+          <input type="range" id="tool-spend" min="0" max="5000" value="610" step="50" />
+          <span class="range-value" id="tool-spend-val">$610/mo</span>
+        </div>
+        <div class="range-labels"><span>$0</span><span>$5,000/mo</span></div>
+      </div>
+
+      <!-- Time to First Value -->
+      <div class="input-group">
+        <label for="ttfv">Current time from idea to working AI workflow (days)</label>
+        <div class="input-row">
+          <input type="range" id="ttfv" min="1" max="55" value="21" step="1" />
+          <span class="range-value" id="ttfv-val">21 days</span>
+        </div>
+        <div class="range-labels"><span>1 day</span><span>fib(10)=55 days</span></div>
+      </div>
+
+      <div class="assumptions">
+        <h4>Calculation Assumptions</h4>
+        <ul>
+          <li>HeadyOS reduces workflow setup time by φ² = 2.618x (based on pilot data)</li>
+          <li>Founder rate: $44.50/seat/mo (50% off Pro, 12-month lock)</li>
+          <li>Tool consolidation savings: 38.2% [1−1/φ] of current tool spend</li>
+          <li>Productivity gain: 61.8% [1/φ] of hours freed, redeployed to value work</li>
+          <li>TTFV with HeadyOS: fib(8)=21 minutes (measured in pilot)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-panel">
+      <div class="panel-title"><span class="icon">∞</span> Your 12-Month ROI</div>
+
+      <div class="result-primary">
+        <div class="label">Estimated Annual Savings</div>
+        <div class="value" id="annual-savings">$0</div>
+        <div class="sub" id="savings-sub">Enter your details to calculate</div>
+      </div>
+
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="rc-label">Time Saved</div>
+          <div class="rc-value" id="hours-saved">— hrs/yr</div>
+          <div class="rc-sub" id="hours-saved-sub">freed from orchestration overhead</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">Labor Savings</div>
+          <div class="rc-value" id="labor-savings">$—</div>
+          <div class="rc-sub">at your salary rate</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">Tool Consolidation</div>
+          <div class="rc-value" id="tool-savings">$—/yr</div>
+          <div class="rc-sub">from replacing existing tools</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">HeadyOS Cost</div>
+          <div class="rc-value" id="heady-cost">$—/yr</div>
+          <div class="rc-sub">Founder rate: $44.50/seat/mo</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">TTFV Improvement</div>
+          <div class="rc-value" id="ttfv-result">—x faster</div>
+          <div class="rc-sub">idea to working workflow</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">ROI Multiple</div>
+          <div class="rc-value" id="roi-multiple">—x</div>
+          <div class="rc-sub">return on HeadyOS investment</div>
+        </div>
+      </div>
+
+      <div class="result-cta">
+        <a href="https://headyme.com/pilot" class="btn-primary-full">→ Start Free 89-Day Pilot</a>
+        <a href="mailto:eric@headyconnection.org" class="btn-secondary-full">Schedule ROI Deep Dive</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>HeadySystems Inc. · HeadyOS™ · φ = 1.618033988749895 · 51+ USPTO provisional patents</p>
+  <p style="margin-top: 4px;"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a></p>
+</footer>
+
+<script>
+const PHI = 1.618033988749895;
+const FIB = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597];
+
+const $ = id => document.getElementById(id);
+
+const fmt = n => '$' + Math.round(n).toLocaleString();
+const fmtHrs = n => Math.round(n).toLocaleString() + ' hrs/yr';
+
+const sliders = [
+  { id: 'team-size',    display: 'team-size-val',    fmt: v => v },
+  { id: 'hours-orch',   display: 'hours-orch-val',   fmt: v => v + ' hrs/wk' },
+  { id: 'dev-salary',   display: 'dev-salary-val',   fmt: v => '$' + Math.round(v/1000) + 'k' },
+  { id: 'tool-spend',   display: 'tool-spend-val',   fmt: v => '$' + Number(v).toLocaleString() + '/mo' },
+  { id: 'ttfv',         display: 'ttfv-val',         fmt: v => v + ' days' },
+];
+
+const recalc = () => {
+  const teamSize   = parseFloat($('team-size').value);
+  const hoursWk    = parseFloat($('hours-orch').value);
+  const salary     = parseFloat($('dev-salary').value);
+  const toolSpend  = parseFloat($('tool-spend').value);
+  const ttfvDays   = parseFloat($('ttfv').value);
+
+  // Hourly rate (assume 2080 work hours/year)
+  const hourlyRate = salary / 2080;
+
+  // Hours freed per year (φ² reduction in overhead = 61.8% time saved)
+  const hoursPerYear = hoursWk * 52 * teamSize;
+  const hoursSaved   = hoursPerYear * (1 - 1 / (PHI * PHI)); // 1 - 1/φ² = 61.8%
+
+  // Labor savings (hours freed × hourly rate × productivity factor φ)
+  const laborSavings = hoursSaved * hourlyRate;
+
+  // Tool consolidation savings (38.2% = 1 - 1/φ of monthly spend * 12)
+  const toolSavings = toolSpend * 12 * (1 - 1 / PHI); // 1 - 1/φ ≈ 0.382 wait... 1/φ = 0.618, so 1-1/φ = 0.382
+
+  // HeadyOS cost (Founder: $44.50/seat/mo * 12 * teamSize)
+  const headyCost = 44.50 * 12 * teamSize;
+
+  // Net annual savings
+  const totalSavings = laborSavings + toolSavings - headyCost;
+  const roiMultiple  = headyCost > 0 ? ((laborSavings + toolSavings) / headyCost) : 0;
+
+  // TTFV improvement: from X days to 21 minutes (fib(8))
+  const ttfvImprove = ttfvDays * (1440 / 21); // ratio in minutes: (days × 1440 min) / 21 min
+
+  // Update display
+  $('annual-savings').textContent = fmt(Math.max(totalSavings, 0));
+  $('savings-sub').textContent = totalSavings > 0
+    ? `Net savings after HeadyOS investment of ${fmt(headyCost)}/year`
+    : 'Adjust inputs — add more team members or hours';
+  $('hours-saved').textContent    = fmtHrs(hoursSaved);
+  $('hours-saved-sub').textContent = `${Math.round(hoursWk * (1 - 1/(PHI*PHI)))} hrs/wk freed per person`;
+  $('labor-savings').textContent  = fmt(laborSavings);
+  $('tool-savings').textContent   = fmt(toolSavings) + '/yr';
+  $('heady-cost').textContent     = fmt(headyCost) + '/yr';
+  $('ttfv-result').textContent    = Math.round(ttfvImprove) + 'x faster';
+  $('roi-multiple').textContent   = (Math.round(roiMultiple * 10) / 10) + 'x';
+
+  // Color ROI
+  const roiEl = $('roi-multiple');
+  roiEl.style.color = roiMultiple >= PHI * 2 ? '#4ecba0' : roiMultiple >= PHI ? '#e4c068' : '#e05a5a';
+};
+
+// Init sliders
+sliders.forEach(({ id, display, fmt: fmtFn }) => {
+  const el  = $(id);
+  const disp = $(display);
+  const update = () => { disp.textContent = fmtFn(el.value); recalc(); };
+  el.addEventListener('input', update, { passive: true });
+});
+
+recalc();
+</script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+# =============================================================================
+# HeadySystems Inc. — Helm Values (Base)
+# heady-platform v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# Fibonacci: 1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597
+#
+# ALL numeric parameters derive from φ or Fibonacci:
+#   replicas:     fib(n) values
+#   resources:    fib-scaled CPU/memory
+#   timeouts:     φ^n × base_ms
+#   rate limits:  Fibonacci burst rates
+#   thresholds:   φ-derived percentages (38.2%, 61.8%, 76.4%, 85.4%)
+# =============================================================================
+
+global:
+  # φ constant — available to all templates
+  phi: "1.618033988749895"
+  fibonacciSequence: [1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597]
+
+  imageRegistry: "gcr.io/heady-systems"
+  imagePullSecrets:
+    - name: gcr-credentials
+  imageTag: "3.2.2"
+  imagePullPolicy: Always
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  # Environment (dev | staging | production)
+  environment: "production"
+
+  # Namespace
+  namespace: "heady-system"
+
+  # Labels applied to all resources
+  commonLabels:
+    app.kubernetes.io/version: "3.2.2"
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/phi: "1.618033988749895"
+    headysystems.com/version: "3.2.2"
+
+  # Annotations applied to all resources
+  commonAnnotations:
+    headysystems.com/version: "3.2.2"
+    headysystems.com/phi: "1.618033988749895"
+
+  # Security context applied to all pods
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    capabilities:
+      drop: ["ALL"]
+
+  # Observability
+  otel:
+    endpoint: "http://otel-collector.heady-system.svc.cluster.local:4318"
+    # Sample rate: 1/φ^3 ≈ 0.236 (23.6% production sampling)
+    sampleRate: "0.236"
+    metricsIntervalMs: "13000"  # fib(7)=13 × 1000ms
+
+  # Domains
+  domains:
+    primary: "headyme.com"
+    all:
+      - headyme.com
+      - headyconnection.com
+      - headyconnection.org
+      - headyos.com
+      - heady.exchange
+      - heady.investments
+      - headysystems.com
+      - headyai.com
+      - admin.headyme.com
+
+# =============================================================================
+# heady-brain service
+# =============================================================================
+headyBrain:
+  enabled: true
+  name: heady-brain
+  image:
+    repository: gcr.io/heady-systems/heady-brain
+    tag: "3.2.2"
+    pullPolicy: Always
+
+  # replicas: fib(4)=3
+  replicaCount: 3
+
+  # Resource limits — φ-scaled
+  resources:
+    requests:
+      cpu: "200m"       # fib(3)=2 × 100m
+      memory: "256Mi"   # fib(8)=21 × ~12Mi
+    limits:
+      cpu: "500m"       # fib(5)=5 × 100m
+      memory: "512Mi"   # fib(12)=144 × ~3.5Mi
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 8080
+    metricsPort: 9090
+    grpcPort: 9000
+    sessionAffinity: ClientIP
+    # fib(11)=89 × 10s = 890s session timeout
+    sessionAffinityTimeout: 890
+
+  # HPA
+  autoscaling:
+    enabled: true
+    minReplicas: 3    # fib(4)=3
+    maxReplicas: 13   # fib(7)=13
+    # CPU target: (φ-1)×100 = 61.8% ≈ 62
+    targetCPUUtilizationPercentage: 62
+    # Memory target: 76.4% (caution threshold)
+    targetMemoryUtilizationPercentage: 76
+    # Scale up stabilization: fib(9)=34s
+    scaleUpStabilizationWindow: 34
+    # Scale down stabilization: fib(12)=144s
+    scaleDownStabilizationWindow: 144
+
+  # PDB
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1   # fib(2)=1
+
+  # Probes — φ-scaled timing
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: 8080
+    initialDelaySeconds: 13   # fib(7)=13
+    periodSeconds: 8          # fib(6)=8
+    timeoutSeconds: 3         # fib(4)=3
+    failureThreshold: 3
+    successThreshold: 1
+
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: 8080
+    initialDelaySeconds: 5    # fib(5)=5
+    periodSeconds: 3
+    timeoutSeconds: 2
+    failureThreshold: 3
+    successThreshold: 1
+
+  startupProbe:
+    httpGet:
+      path: /health/live
+      port: 8080
+    initialDelaySeconds: 8
+    periodSeconds: 3
+    failureThreshold: 21      # fib(8)=21
+    timeoutSeconds: 5
+
+  # terminationGracePeriodSeconds: fib(8)=21 × 2 = 42
+  terminationGracePeriodSeconds: 42
+
+  # Rolling update strategy
+  rollingUpdate:
+    maxSurge: 2       # fib(3)=2
+    maxUnavailable: 1 # fib(2)=1
+
+  # Environment-specific overrides
+  env:
+    WORKER_CONCURRENCY: "13"       # fib(7)=13
+    QUEUE_MAX_DEPTH: "55"          # fib(10)=55
+    REQUEST_TIMEOUT_MS: "4236"     # φ^3
+    UPSTREAM_TIMEOUT_MS: "11090"   # φ^5
+    CONNECTION_POOL_SIZE: "34"     # fib(9)=34
+    RATE_LIMIT_RPS: "144"          # fib(12)=144
+    RATE_LIMIT_BURST: "233"        # fib(13)=233
+
+  # Topology spread — distribute across zones and nodes
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
+
+# =============================================================================
+# heady-conductor service
+# =============================================================================
+headyConductor:
+  enabled: true
+  name: heady-conductor
+  image:
+    repository: gcr.io/heady-systems/heady-conductor
+    tag: "3.2.2"
+    pullPolicy: Always
+
+  # replicas: fib(3)=2
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  service:
+    type: ClusterIP
+    port: 8080
+    metricsPort: 9090
+    # fib(12)=144 × 10s = 1440s (long orchestration sessions)
+    sessionAffinityTimeout: 1440
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2     # fib(3)=2
+    maxReplicas: 8     # fib(6)=8
+    targetCPUUtilizationPercentage: 62
+    targetMemoryUtilizationPercentage: 76
+    scaleUpStabilizationWindow: 34    # fib(9)=34
+    scaleDownStabilizationWindow: 144 # fib(12)=144
+
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: 8080
+    initialDelaySeconds: 13
+    periodSeconds: 8
+    timeoutSeconds: 3
+    failureThreshold: 3
+    successThreshold: 1
+
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 3
+    timeoutSeconds: 2
+    failureThreshold: 3
+    successThreshold: 1
+
+  # terminationGracePeriodSeconds: fib(8)=21 × 3 = 63s (extra drain time)
+  terminationGracePeriodSeconds: 63
+
+  env:
+    ORCHESTRATION_WORKERS: "8"          # fib(6)=8
+    MAX_CONCURRENT_AGENTS: "55"         # fib(10)=55
+    AGENT_TIMEOUT_MS: "6854"            # φ^4
+    ORCHESTRATION_TIMEOUT_MS: "17944"   # φ^6
+    MAX_RETRIES: "13"                   # fib(7)=13
+    DEADLOCK_DETECTION_WINDOW_S: "34"   # fib(9)=34
+
+# =============================================================================
+# heady-mcp service
+# =============================================================================
+headyMcp:
+  enabled: true
+  name: heady-mcp
+  image:
+    repository: gcr.io/heady-systems/heady-mcp
+    tag: "3.2.2"
+    pullPolicy: Always
+
+  # replicas: fib(4)=3
+  replicaCount: 3
+
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  service:
+    type: ClusterIP
+    port: 8080
+    metricsPort: 9090
+    mcpSsePort: 3000
+    # fib(11)=89 × 10s = 890s
+    sessionAffinityTimeout: 890
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3    # fib(4)=3
+    maxReplicas: 13   # fib(7)=13
+    targetCPUUtilizationPercentage: 62
+    targetMemoryUtilizationPercentage: 76
+    scaleUpStabilizationWindow: 34
+    scaleDownStabilizationWindow: 144
+
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+
+  terminationGracePeriodSeconds: 42
+
+  env:
+    MCP_TOOL_SLOTS: "13"               # fib(7)=13
+    MAX_TOOL_CALLS_PER_SESSION: "21"   # fib(8)=21
+    TOOL_EXECUTION_TIMEOUT_MS: "4236"  # φ^3
+    MAX_ACTIVE_SESSIONS: "89"          # fib(11)=89
+
+# =============================================================================
+# heady-web service
+# =============================================================================
+headyWeb:
+  enabled: true
+  name: heady-web
+  image:
+    repository: gcr.io/heady-systems/heady-web
+    tag: "3.2.2"
+    pullPolicy: Always
+
+  # replicas: fib(5)=5
+  replicaCount: 5
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  service:
+    type: ClusterIP
+    port: 8080
+    metricsPort: 9090
+    sessionAffinity: None
+
+  autoscaling:
+    enabled: true
+    minReplicas: 5    # fib(5)=5
+    maxReplicas: 21   # fib(8)=21
+    targetCPUUtilizationPercentage: 62
+    targetMemoryUtilizationPercentage: 76
+    scaleUpStabilizationWindow: 21      # fib(8)=21 (aggressive scale-up for web)
+    scaleDownStabilizationWindow: 233   # fib(13)=233s (very conservative)
+
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
+
+  # terminationGracePeriodSeconds: fib(7)=13 × 2 = 26s
+  terminationGracePeriodSeconds: 26
+
+  env:
+    RATE_LIMIT_PER_POD: "144"    # fib(12)=144 req/s
+    STATIC_CACHE_TTL_S: "5340"   # fib(11)=89 × 60s
+    SESSION_TIMEOUT_MS: "13000"  # fib(7)=13 × 1000ms
+
+# =============================================================================
+# Database — PostgreSQL / Cloud SQL
+# =============================================================================
+database:
+  # Production: use Cloud SQL (managed by Terraform)
+  # Staging/Dev: use bundled postgresql chart
+  external: true
+  host: "postgres.heady-system.svc.cluster.local"
+  port: 5432
+  name: "heady_production"
+  user: "heady_prod"
+  # SSL mode for production
+  sslMode: "require"
+  pgvectorEnabled: true
+
+  # pgbouncer connection pool
+  pgbouncer:
+    enabled: true
+    # Pool size: fib(7)=13
+    defaultPoolSize: 13
+    # Max connections: fib(10)=55
+    maxClientConn: 55
+    # Reserve pool: fib(6)=8
+    reservePoolSize: 8
+    # Min pool: fib(5)=5
+    minPoolSize: 5
+    poolMode: transaction
+
+  # Bundled chart (dev/staging only)
+  postgresql:
+    enabled: false
+    auth:
+      postgresPassword: "REPLACE_IN_VALUES_OVERRIDE"
+      database: heady_development
+
+# =============================================================================
+# Redis / Memorystore
+# =============================================================================
+redis:
+  # Production: use GCP Memorystore (managed by Terraform)
+  # Staging/Dev: use bundled redis chart
+  external: true
+  host: "redis.heady-system.svc.cluster.local"
+  port: 6379
+  # Redis databases:
+  # 0 — heady-brain (primary cache)
+  # 1 — heady-conductor (orchestration state)
+  # 2 — heady-mcp (session state)
+  # 3 — heady-web (sessions, rate limiting)
+  databases: 8
+  # Max memory: fib(9)=34 × 15Mi ≈ 512Mi
+  maxmemory: "512mb"
+  maxmemoryPolicy: "allkeys-lru"
+
+  # Bundled chart (dev/staging only)
+  redis:
+    enabled: false
+    auth:
+      enabled: true
+      password: "REPLACE_IN_VALUES_OVERRIDE"
+
+# =============================================================================
+# Ingress
+# =============================================================================
+ingress:
+  enabled: true
+  className: nginx
+  # TLS — cert-manager issues certificates
+  tls: true
+  certIssuer: "letsencrypt-production"
+  # fib(11)=89s proxy read timeout (for AI completions)
+  proxyReadTimeout: 89
+  # fib(8)=21s proxy send timeout
+  proxySendTimeout: 21
+  # fib(6)=8s connect timeout
+  proxyConnectTimeout: 8
+  # fib(9)=34MB body size
+  proxyBodySize: "34m"
+  # fib(11)=89 req/s rate limit
+  rateLimitRps: 89
+  # fib(12)=144 burst
+  rateLimitBurst: 144
+  # fib(7)=13 max connections per IP
+  rateLimitConnections: 13
+
+# =============================================================================
+# Monitoring
+# =============================================================================
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    # fib(7)=13s scrape interval
+    interval: "13s"
+    # fib(4)=3s scrape timeout
+    scrapeTimeout: "3s"
+    path: /metrics
+  prometheusRule:
+    enabled: true
+  grafana:
+    enabled: true
+    dashboards: true
+
+# =============================================================================
+# φ-Scaled Alert Thresholds (shared across all services)
+# =============================================================================
+alertThresholds:
+  # CSL thresholds
+  cslDormantMax: 0.236
+  cslLowMax: 0.382
+  cslModerateMax: 0.618
+  cslHighMax: 0.854
+  # Alert levels
+  warning: 0.618    # 1/φ
+  caution: 0.764
+  critical: 0.854
+  exceeded: 0.910
+  # Pressure levels
+  pressureNominalMax: 0.382
+  pressureElevatedMax: 0.618
+  pressureHighMax: 0.854
+  pressureCriticalMin: 0.910
+
+# =============================================================================
+# Network Policies
+# =============================================================================
+networkPolicies:
+  enabled: true
+  defaultDenyIngress: true
+  defaultDenyEgress: true
+
+# =============================================================================
+# Service Accounts
+# =============================================================================
+serviceAccounts:
+  create: true
+  # GCP Workload Identity annotation
+  gcpServiceAccountAnnotation: "heady-k8s-sa@heady-systems.iam.gserviceaccount.com"
+
+# =============================================================================
+# cert-manager
+# =============================================================================
+certManager:
+  enabled: false   # Use existing cert-manager installation
+  email: "eric@headyconnection.org"
+
+# =============================================================================
+# ingress-nginx
+# =============================================================================
+ingressNginx:
+  enabled: false   # Use existing installation
+
+# =============================================================================
+# Dependency toggles
+# =============================================================================
+postgresql:
+  enabled: false   # Use Cloud SQL in production
+
+redis:
+  enabled: false   # Use Memorystore in production

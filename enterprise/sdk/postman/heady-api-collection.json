@@ -1,0 +1,552 @@
+{
+  "info": {
+    "_postman_id": "heady-api-collection-v1",
+    "name": "HeadyOS API Collection",
+    "description": "Official Postman collection for the HeadyOS Platform API (headyme.com).\n\nHeadySystems Inc. (DBA Heady™)\n\n## Setup\n1. Import this collection into Postman\n2. Create an environment with:\n   - `base_url`: https://api.headyme.com/v1\n   - `api_key`: Your API key from headyme.com/settings/api-keys\n   - `tenant_id`: Your organization tenant ID (optional)\n3. Run 'Auth > Create Token' to populate the `access_token` variable automatically\n\n## φ (Golden Ratio) Defaults\nAll rate limits and numeric parameters derive from φ = 1.618033988749895 and Fibonacci sequences.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-refresh token if expired",
+          "const tokenExpiry = pm.environment.get('token_expires_at');",
+          "if (tokenExpiry && new Date(tokenExpiry) < new Date()) {",
+          "  console.log('[HeadyOS] Token expired — refreshing...');",
+          "  const refreshToken = pm.environment.get('refresh_token');",
+          "  if (refreshToken) {",
+          "    pm.sendRequest({",
+          "      url: pm.environment.get('base_url') + '/auth/token/refresh',",
+          "      method: 'POST',",
+          "      header: { 'Content-Type': 'application/json' },",
+          "      body: { mode: 'raw', raw: JSON.stringify({ refreshToken }) }",
+          "    }, (err, res) => {",
+          "      if (!err && res.code === 200) {",
+          "        const data = res.json();",
+          "        pm.environment.set('access_token', data.accessToken);",
+          "        pm.environment.set('token_expires_at', data.expiresAt);",
+          "        if (data.refreshToken) pm.environment.set('refresh_token', data.refreshToken);",
+          "        console.log('[HeadyOS] Token refreshed successfully');",
+          "      }",
+          "    });",
+          "  }",
+          "}",
+          "",
+          "// Inject X-Heady-Tenant header if tenant_id set",
+          "const tenantId = pm.environment.get('tenant_id');",
+          "if (tenantId) {",
+          "  pm.request.headers.add({ key: 'X-Heady-Tenant', value: tenantId });",
+          "}",
+          "",
+          "// Generate request ID",
+          "pm.request.headers.add({",
+          "  key: 'X-Heady-Request-Id',",
+          "  value: 'postman-' + Date.now() + '-' + Math.random().toString(36).slice(2,9)",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "https://api.headyme.com/v1", "type": "string" },
+    { "key": "api_key", "value": "", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "refresh_token", "value": "", "type": "string" },
+    { "key": "token_expires_at", "value": "", "type": "string" },
+    { "key": "tenant_id", "value": "", "type": "string" },
+    { "key": "agent_id", "value": "", "type": "string" },
+    { "key": "task_id", "value": "", "type": "string" },
+    { "key": "memory_key", "value": "test-memory", "type": "string" },
+    { "key": "memory_namespace", "value": "default", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Service is healthy', () => {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.status).to.equal('healthy');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Detailed Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/health/detailed"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Create Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const data = pm.response.json();",
+                  "if (data.accessToken) {",
+                  "  pm.environment.set('access_token', data.accessToken);",
+                  "  pm.environment.set('refresh_token', data.refreshToken);",
+                  "  pm.environment.set('token_expires_at', data.expiresAt);",
+                  "  console.log('[HeadyOS] Token stored. Expires:', data.expiresAt);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": "{{base_url}}/auth/token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"apiKey\": \"{{api_key}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.accessToken) {",
+                  "  pm.environment.set('access_token', data.accessToken);",
+                  "  pm.environment.set('token_expires_at', data.expiresAt);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "url": "{{base_url}}/auth/token/refresh",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "List API Keys",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/keys"
+          }
+        },
+        {
+          "name": "Create API Key",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.key) {",
+                  "  console.log('NEW API KEY (save this — shown only once!):', data.key);",
+                  "  pm.environment.set('api_key', data.key);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/keys",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My API Key\",\n  \"scopes\": [\"brain:read\", \"agents:write\", \"memory:write\"]\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Brain",
+      "item": [
+        {
+          "name": "Chat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has message', () => {",
+                  "  const data = pm.response.json();",
+                  "  pm.expect(data.message).to.have.property('content');",
+                  "});",
+                  "console.log('[Brain] Response:', pm.response.json().message?.content?.substring(0, 100));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/brain/chat",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a helpful AI assistant powered by HeadyOS.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"What is multi-agent orchestration and how does HeadyOS implement it?\"\n    }\n  ],\n  \"temperature\": 0.618,\n  \"maxTokens\": 1440\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Analyze",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/brain/analyze",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"input\": \"HeadyOS is a revolutionary multi-agent orchestration platform.\",\n  \"analysisType\": \"sentiment\",\n  \"outputFormat\": \"json\",\n  \"confidence\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Chat with Agent",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/brain/chat",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    { \"role\": \"user\", \"content\": \"Analyze the latest enterprise AI trends.\" }\n  ],\n  \"agentId\": \"{{agent_id}}\",\n  \"memoryNamespace\": \"{{memory_namespace}}\",\n  \"temperature\": 0.618\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agents",
+      "item": [
+        {
+          "name": "Create Agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "if (data.id) {",
+                  "  pm.environment.set('agent_id', data.id);",
+                  "  console.log('[Agents] Created agent ID:', data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/agents",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"research-agent\",\n  \"description\": \"Specialized research and analysis agent\",\n  \"systemPrompt\": \"You are a professional research analyst. Provide detailed, evidence-based analysis.\",\n  \"capabilities\": [\"mcp_tools\", \"memory_read\", \"memory_write\", \"web_search\"],\n  \"tools\": [\"web_search\", \"code_interpreter\"],\n  \"memoryNamespace\": \"research-context\",\n  \"maxIterations\": 13,\n  \"temperature\": 0.618\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "List Agents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/agents?page=1&pageSize=13",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "13" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Agent",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/agents/{{agent_id}}"
+          }
+        },
+        {
+          "name": "Update Agent",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/agents/{{agent_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated research agent with broader capabilities\",\n  \"status\": \"active\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Agent",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/agents/{{agent_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Memory",
+      "item": [
+        {
+          "name": "Store Memory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "console.log('[Memory] Stored key:', data.key, '| Namespace:', data.namespace);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/memory",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"{{memory_key}}\",\n  \"value\": \"HeadyOS is a multi-agent AI orchestration platform built by HeadySystems Inc. It features a Cognitive Stability Layer (CSL) based on the golden ratio φ.\",\n  \"namespace\": \"{{memory_namespace}}\",\n  \"ttlDays\": 233,\n  \"metadata\": {\n    \"source\": \"documentation\",\n    \"confidence\": 0.854\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Search Memory",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/memory/search",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"multi-agent orchestration platform capabilities\",\n  \"namespace\": \"{{memory_namespace}}\",\n  \"topK\": 5,\n  \"minScore\": 0.382,\n  \"includeMetadata\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get Memory by Key",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/memory/get?key={{memory_key}}&namespace={{memory_namespace}}",
+              "query": [
+                { "key": "key", "value": "{{memory_key}}" },
+                { "key": "namespace", "value": "{{memory_namespace}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Memory Entries",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/memory?namespace={{memory_namespace}}&page=1&pageSize=13",
+              "query": [
+                { "key": "namespace", "value": "{{memory_namespace}}" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "13" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Memory",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/memory/{{memory_key}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "MCP Tools",
+      "item": [
+        {
+          "name": "List MCP Tools",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/mcp/tools"
+          }
+        },
+        {
+          "name": "Execute Tool — Web Search",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/mcp/tools/execute",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"web_search\",\n  \"arguments\": {\n    \"query\": \"HeadyOS multi-agent AI platform\",\n    \"maxResults\": 5\n  },\n  \"timeout\": 6.854,\n  \"retries\": 3\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Execute Tool — Code Interpreter",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/mcp/tools/execute",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"code_interpreter\",\n  \"arguments\": {\n    \"language\": \"python\",\n    \"code\": \"phi = 1.618033988749895\\nfib = [0, 1]\\nfor i in range(13): fib.append(fib[-1] + fib[-2])\\nprint(f'phi={phi}, fib={fib}')\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conductor",
+      "item": [
+        {
+          "name": "Submit Task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "const data = pm.response.json();",
+                  "if (data.taskId) {",
+                  "  pm.environment.set('task_id', data.taskId);",
+                  "  console.log('[Conductor] Task submitted:', data.taskId, '| Status:', data.status);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/conductor/tasks",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"research_report\",\n  \"title\": \"Enterprise AI Market Analysis Q1 2026\",\n  \"input\": {\n    \"topic\": \"Multi-agent AI orchestration platforms\",\n    \"competitors\": [\"OpenAI\", \"Anthropic\", \"LangChain\"],\n    \"depth\": \"comprehensive\",\n    \"outputFormat\": \"markdown_report\"\n  },\n  \"agentId\": \"{{agent_id}}\",\n  \"priority\": \"high\",\n  \"maxSteps\": 21\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get Task Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/conductor/tasks/{{task_id}}"
+          }
+        },
+        {
+          "name": "List Tasks",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/conductor/tasks?page=1&pageSize=13",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "13" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Task",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/conductor/tasks/{{task_id}}/cancel",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Privacy & Compliance",
+      "item": [
+        {
+          "name": "Submit DSAR",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/dsar",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subjectId\": \"user@example.com\",\n  \"requestType\": \"access\",\n  \"email\": \"user@example.com\",\n  \"name\": \"Jane Doe\",\n  \"exportFormat\": \"json\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Record Consent",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/consent",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"user-123\",\n  \"purposes\": [\"analytics\", \"personalization\"],\n  \"source\": \"settings_page\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get Consent Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/consent/user-123"
+          }
+        }
+      ]
+    }
+  ]
+}

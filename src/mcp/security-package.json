@@ -1,0 +1,46 @@
+{
+  "name": "@heady/mcp-security",
+  "version": "1.0.0",
+  "description": "Heady MCP-I Security Gap Closure — Zero-Trust Gateway, Audit, RBAC, Rate Limiting",
+  "main": "src/index.js",
+  "author": "HeadySystems Inc.",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "jest --verbose --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --ci --coverage --reporters=default --reporters=jest-junit",
+    "lint": "eslint src/ shared/ tests/",
+    "audit:verify": "node -e \"const {AuditLogger}=require('./src/security/audit-logger'); new AuditLogger().verifyChain().then(r=>console.log(r))\"",
+    "rotate:all": "node -e \"const {SecretRotationManager}=require('./src/security/secret-rotation'); const m=new SecretRotationManager(); m.rotateAll().then(console.log)\""
+  },
+  "dependencies": {
+    "ws": "^8.16.0",
+    "eventsource": "^2.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "eslint": "^8.56.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["<rootDir>/tests/**/*.test.js"],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "shared/**/*.js",
+      "!src/index.js"
+    ],
+    "coverageThresholds": {
+      "global": {
+        "branches": 70,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
+  }
+}

@@ -1,18 +1,9 @@
-export const HEADY_VERSION = '3.2.0';
+/**
+ * @headysystems/core
+ * Core utilities and base classes
+ */
 
-export interface HeadyConfig {
-  userId: string;
-  domain: string;
-  vectorDimension: number;
-}
-
-export class HeadyError extends Error {
-  constructor(message: string, public code: string) {
-    super(message);
-    this.name = 'HeadyError';
-  }
-}
-
-export function validateUserId(userId: string): boolean {
-  return userId.length > 0 && /^[a-zA-Z0-9_-]+$/.test(userId);
-}
+export * from './logger';
+export * from './errors';
+export * from './config';
+export * from './validation';

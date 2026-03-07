@@ -4,21 +4,37 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", ".next/**", "build/**"],
+      "cache": true
     },
     "test": {
       "dependsOn": ["build"],
-      "outputs": []
+      "outputs": ["coverage/**"],
+      "cache": true
     },
     "lint": {
-      "outputs": []
+      "outputs": [],
+      "cache": true
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "cache": true
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
+    "deploy": {
+      "dependsOn": ["build", "test", "lint"],
+      "outputs": [],
+      "cache": false
+    },
     "clean": {
       "cache": false
     }
+  },
+  "remoteCache": {
+    "signature": true
   }
 }

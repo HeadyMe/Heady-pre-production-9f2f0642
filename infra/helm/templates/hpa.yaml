@@ -1,0 +1,90 @@
+{{/*
+=============================================================================
+HeadySystems Inc. — Helm Template: HorizontalPodAutoscaler
+heady-platform v3.2.2
+=============================================================================
+φ = 1.618033988749895 (Golden Ratio)
+CPU target: 61.8% (φ-1 × 100)
+Memory target: 76.4% (caution threshold)
+=============================================================================
+*/}}
+
+{{- $services := list
+  (dict "name" "heady-brain"     "values" .Values.headyBrain)
+  (dict "name" "heady-conductor" "values" .Values.headyConductor)
+  (dict "name" "heady-mcp"       "values" .Values.headyMcp)
+  (dict "name" "heady-web"       "values" .Values.headyWeb)
+-}}
+
+{{- range $svc := $services }}
+{{- if and $svc.values.enabled $svc.values.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ printf "%s-hpa" $svc.name }}
+  namespace: {{ $.Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/component: hpa
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    headysystems.com/phi: "1.618033988749895"
+    helm.sh/chart: {{ include "heady-platform.chart" $ }}
+  annotations:
+    headysystems.com/phi: "1.618033988749895"
+    headysystems.com/min-replicas: {{ $svc.values.autoscaling.minReplicas | quote }}
+    headysystems.com/max-replicas: {{ $svc.values.autoscaling.maxReplicas | quote }}
+    headysystems.com/cpu-target: {{ $svc.values.autoscaling.targetCPUUtilizationPercentage | default 62 | quote }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $svc.name }}
+  # φ-Fibonacci replica bounds
+  minReplicas: {{ $svc.values.autoscaling.minReplicas }}
+  maxReplicas: {{ $svc.values.autoscaling.maxReplicas }}
+  metrics:
+    # CPU: (φ-1)×100 = 61.8% ≈ 62
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $svc.values.autoscaling.targetCPUUtilizationPercentage | default 62 }}
+    # Memory: 76.4% (caution threshold)
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $svc.values.autoscaling.targetMemoryUtilizationPercentage | default 76 }}
+  behavior:
+    scaleUp:
+      # Stabilization: from values (fib-scaled seconds)
+      stabilizationWindowSeconds: {{ $svc.values.autoscaling.scaleUpStabilizationWindow | default 34 }}
+      policies:
+        # Scale up by fib(4)=3 pods
+        - type: Pods
+          value: 3
+          periodSeconds: 15
+        # Or 38.2% (1-1/φ^2=0.382) at a time
+        - type: Percent
+          value: 38
+          periodSeconds: 15
+      selectPolicy: Max
+    scaleDown:
+      # Stabilization: from values (conservative)
+      stabilizationWindowSeconds: {{ $svc.values.autoscaling.scaleDownStabilizationWindow | default 144 }}
+      policies:
+        # Scale down by fib(3)=2 pods
+        - type: Pods
+          value: 2
+          periodSeconds: 63
+        # Or 23.6% (φ-1-0.382=0.236) at a time
+        - type: Percent
+          value: 23
+          periodSeconds: 63
+      selectPolicy: Min
+{{- end }}
+{{- end }}

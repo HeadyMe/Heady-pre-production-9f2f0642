@@ -1,55 +1,52 @@
-/*
- * © 2026 HeadySystems Inc..
- * PROPRIETARY AND CONFIDENTIAL.
- * Unauthorized copying, modification, or distribution is strictly prohibited.
- */
+'use strict';
+
 /**
- * Heady Security Headers Middleware
- * Sets security headers on every response to prevent common web attacks.
+ * Heady™ Security Headers Middleware
+ * Drop into: src/middleware/security-headers.js
+ * Usage: app.use(securityHeaders())
  */
+
+const helmet = require('helmet');
 
 function securityHeaders() {
-    return (req, res, next) => {
-        // Prevent MIME type sniffing
-        res.setHeader('X-Content-Type-Options', 'nosniff');
-
-        // Prevent clickjacking
-        res.setHeader('X-Frame-Options', 'DENY');
-
-        // Enable XSS filter
-        res.setHeader('X-XSS-Protection', '1; mode=block');
-
-        // Control referrer info
-        res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-
-        // Prevent caching of API responses
-        if (req.path.startsWith('/api/')) {
-            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-            res.setHeader('Pragma', 'no-cache');
-        }
-
-        // CSP for HTML responses
-        if (req.accepts('html')) {
-            res.setHeader('Content-Security-Policy',
-                "default-src 'self'; " +
-                "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-                "font-src 'self' https://fonts.gstatic.com; " +
-                "img-src 'self' data: https:; " +
-                "connect-src 'self' https://*.headysystems.com https://*.headyme.com https://*.headymcp.com;"
-            );
-        }
-
-        // Strict Transport Security (1 year)
-        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-
-        // Permissions Policy
-        res.setHeader('Permissions-Policy',
-            'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
-        );
-
-        next();
-    };
+  return helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: [
+          "'self'",
+          "https://*.headysystems.com",
+          "https://*.headyme.com",
+          "https://*.headyconnection.org",
+          "https://*.headymcp.com",
+          "https://*.headybuddy.org",
+          "https://*.headyio.com",
+          "https://*.headyapi.com",
+          "https://*.headybot.com",
+          "https://*.headyos.com",
+        ],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
+    crossOriginEmbedderPolicy: true,
+    crossOriginOpenerPolicy: true,
+    crossOriginResourcePolicy: { policy: "same-site" },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    noSniff: true,
+    xssFilter: true,
+    hidePoweredBy: true,
+  });
 }
 
 module.exports = { securityHeaders };

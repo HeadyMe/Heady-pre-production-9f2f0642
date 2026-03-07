@@ -1,0 +1,29 @@
+# =============================================================================
+# HeadySystems Inc. — PodDisruptionBudget: heady-web
+# heady-systems v3.2.2
+# =============================================================================
+# maxUnavailable: fib(2)=1 — never lose more than 1 web pod during disruption
+# With fib(5)=5 replicas, at least fib(4)=3+1=4 always available
+# minAvailable: fib(4)=3 — using minAvailable for web for stricter guarantee
+# =============================================================================
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: heady-web-pdb
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-web
+    app.kubernetes.io/component: pdb
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    headysystems.com/description: "PDB for heady-web — maxUnavailable=1, minAvailable=fib(4)=3"
+    headysystems.com/derivation: "minAvailable=fib(4)=3: guarantees 60%+ uptime with fib(5)=5 base replicas"
+spec:
+  # maxUnavailable: fib(2)=1
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: heady-web
+      app.kubernetes.io/instance: heady-web-production

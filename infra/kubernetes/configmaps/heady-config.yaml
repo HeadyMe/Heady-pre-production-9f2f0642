@@ -1,0 +1,186 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes ConfigMap: heady-config
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# All numeric parameters derive from φ or Fibonacci sequences
+# Fibonacci: 1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: heady-config
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-config
+    app.kubernetes.io/component: configuration
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/version: "3.2.2"
+  annotations:
+    headysystems.com/description: "Shared configuration for all heady-* services"
+    headysystems.com/phi: "1.618033988749895"
+data:
+  # ---------------------------------------------------------------------------
+  # Runtime
+  # ---------------------------------------------------------------------------
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  HEADY_VERSION: "3.2.2"
+
+  # ---------------------------------------------------------------------------
+  # φ (Golden Ratio) — exported for runtime use
+  # ---------------------------------------------------------------------------
+  # φ = 1.618033988749895
+  PHI: "1.618033988749895"
+  # φ² = 2.618033988749895
+  PHI_SQUARED: "2.618033988749895"
+  # φ³ = 4.23606797749979
+  PHI_CUBED: "4.23606797749979"
+  # 1/φ = 0.6180339887498949 (used for thresholds)
+  PHI_INVERSE: "0.6180339887498949"
+
+  # Fibonacci sequence as JSON array (first 17 numbers)
+  # 1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597
+  FIBONACCI_SEQUENCE: "[1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597]"
+
+  # ---------------------------------------------------------------------------
+  # Alert Thresholds (from context brief)
+  # ---------------------------------------------------------------------------
+  # CSL (Cognitive Stress Level) thresholds
+  CSL_DORMANT_MIN: "0.0"
+  CSL_DORMANT_MAX: "0.236"     # 1-φ+1 / approximation: 0.236 ≈ 2/φ^3
+  CSL_LOW_MIN: "0.236"
+  CSL_LOW_MAX: "0.382"         # 1-1/φ^2 = 0.382
+  CSL_MODERATE_MIN: "0.382"
+  CSL_MODERATE_MAX: "0.618"    # 1/φ = 0.618
+  CSL_HIGH_MIN: "0.618"
+  CSL_HIGH_MAX: "0.854"        # φ^2/φ^2+1 ≈ 0.854
+  CSL_CRITICAL_MIN: "0.854"
+  CSL_CRITICAL_MAX: "1.0"
+
+  # Alert thresholds
+  ALERT_THRESHOLD_WARNING: "0.618"   # 1/φ
+  ALERT_THRESHOLD_CAUTION: "0.764"   # intermediate
+  ALERT_THRESHOLD_CRITICAL: "0.854"  # high
+  ALERT_THRESHOLD_EXCEEDED: "0.910"  # near-max
+
+  # Pressure levels
+  PRESSURE_NOMINAL_MAX: "0.382"      # 1-1/φ^2
+  PRESSURE_ELEVATED_MAX: "0.618"     # 1/φ
+  PRESSURE_HIGH_MAX: "0.854"         # critical onset
+  PRESSURE_CRITICAL_MIN: "0.910"     # exceeded
+
+  # ---------------------------------------------------------------------------
+  # Connection Pool Sizes (Fibonacci)
+  # ---------------------------------------------------------------------------
+  # Redis pool: fib(7)=13 connections
+  REDIS_POOL_SIZE: "13"
+  # Postgres pool: fib(9)=34 connections (via pgbouncer)
+  POSTGRES_POOL_SIZE: "34"
+  # pgbouncer max: fib(10)=55 connections
+  PGBOUNCER_MAX_CONNECTIONS: "55"
+  # HTTP client pool: fib(8)=21 connections
+  HTTP_POOL_SIZE: "21"
+
+  # ---------------------------------------------------------------------------
+  # Timeout Values — φ^n × base_ms
+  # base = 1000ms
+  # φ^0 = 1000ms, φ^1 = 1618ms, φ^2 = 2618ms, φ^3 = 4236ms
+  # φ^4 = 6854ms, φ^5 = 11090ms, φ^6 = 17944ms, φ^7 = 29034ms
+  # ---------------------------------------------------------------------------
+  TIMEOUT_BASE_MS: "1000"
+  # φ^1 = 1618ms (fast operation timeout)
+  TIMEOUT_FAST_MS: "1618"
+  # φ^2 = 2618ms (normal operation timeout)
+  TIMEOUT_NORMAL_MS: "2618"
+  # φ^3 = 4236ms (slow operation timeout)
+  TIMEOUT_SLOW_MS: "4236"
+  # φ^4 = 6854ms (agent operation timeout)
+  TIMEOUT_AGENT_MS: "6854"
+  # φ^5 = 11090ms (upstream timeout)
+  TIMEOUT_UPSTREAM_MS: "11090"
+  # φ^6 = 17944ms (orchestration timeout)
+  TIMEOUT_ORCHESTRATION_MS: "17944"
+  # φ^7 = 29034ms (maximum single-operation timeout)
+  TIMEOUT_MAX_MS: "29034"
+
+  # Retry backoff: φ^n milliseconds
+  RETRY_BACKOFF_1_MS: "1618"    # φ^1
+  RETRY_BACKOFF_2_MS: "2618"    # φ^2
+  RETRY_BACKOFF_3_MS: "4236"    # φ^3
+  RETRY_BACKOFF_4_MS: "6854"    # φ^4
+  RETRY_MAX_ATTEMPTS: "5"       # fib(5)=5 max retries
+
+  # ---------------------------------------------------------------------------
+  # Rate Limits (Fibonacci burst rates)
+  # ---------------------------------------------------------------------------
+  # Per-service rate limits
+  RATE_LIMIT_PILOT_RPS: "89"        # fib(11)=89 req/s for Pilot tier
+  RATE_LIMIT_PRO_RPS: "144"         # fib(12)=144 req/s for Pro tier
+  RATE_LIMIT_ENTERPRISE_RPS: "233"  # fib(13)=233 req/s for Enterprise tier
+
+  # Burst limits (next Fibonacci)
+  RATE_LIMIT_PILOT_BURST: "144"     # fib(12)=144
+  RATE_LIMIT_PRO_BURST: "233"       # fib(13)=233
+  RATE_LIMIT_ENTERPRISE_BURST: "377" # fib(14)=377
+
+  # ---------------------------------------------------------------------------
+  # Cache Configuration
+  # ---------------------------------------------------------------------------
+  # Cache size: fib(16)=987 entries (per context brief)
+  CACHE_MAX_ENTRIES: "987"
+  # Cache TTL: fib(11)=89 × 60s = 5340s ≈ 89 minutes
+  CACHE_TTL_S: "5340"
+  # Cache warm-up: fib(7)=13s
+  CACHE_WARMUP_S: "13"
+
+  # ---------------------------------------------------------------------------
+  # Concurrency & Worker Settings
+  # ---------------------------------------------------------------------------
+  # Workers: fib(7)=13
+  WORKER_CONCURRENCY: "13"
+  # Queue depth: fib(10)=55
+  QUEUE_MAX_DEPTH: "55"
+  # Max concurrent agents: fib(10)=55
+  MAX_CONCURRENT_AGENTS: "55"
+  # MCP tool slots: fib(7)=13
+  MCP_TOOL_SLOTS: "13"
+  # Max tool calls per session: fib(8)=21
+  MAX_TOOL_CALLS_PER_SESSION: "21"
+
+  # ---------------------------------------------------------------------------
+  # Observability
+  # ---------------------------------------------------------------------------
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.heady-system.svc.cluster.local:4318"
+  OTEL_TRACES_SAMPLER: "parentbased_traceidratio"
+  # Sample rate: 1/φ^3 ≈ 0.236 (23.6% sampling in production)
+  OTEL_TRACES_SAMPLER_ARG: "0.236"
+  METRICS_EXPORT_INTERVAL_MS: "13000"  # fib(7)=13 × 1000ms
+
+  # ---------------------------------------------------------------------------
+  # Service Discovery
+  # ---------------------------------------------------------------------------
+  HEADY_BRAIN_URL: "http://heady-brain.heady-system.svc.cluster.local:8080"
+  HEADY_CONDUCTOR_URL: "http://heady-conductor.heady-system.svc.cluster.local:8080"
+  HEADY_MCP_URL: "http://heady-mcp.heady-system.svc.cluster.local:8080"
+  HEADY_WEB_URL: "http://heady-web.heady-system.svc.cluster.local:8080"
+
+  # ---------------------------------------------------------------------------
+  # Security
+  # ---------------------------------------------------------------------------
+  JWT_ALGORITHM: "RS256"
+  # JWT expiry: fib(12)=144 × 5 minutes = 720 minutes = 12 hours
+  JWT_EXPIRY_S: "43200"
+  # Refresh token expiry: fib(13)=233 × 1 hour ≈ 9.7 days
+  REFRESH_TOKEN_EXPIRY_S: "838800"
+  # Session timeout: fib(8)=21 × 1800s = 37800s ≈ 10.5 hours
+  SESSION_TIMEOUT_S: "37800"
+
+  # ---------------------------------------------------------------------------
+  # Domains
+  # ---------------------------------------------------------------------------
+  PRIMARY_DOMAIN: "headyme.com"
+  DOMAIN_COUNT: "9"
+  ALLOWED_ORIGINS: "https://headyme.com,https://headyconnection.com,https://headyconnection.org,https://headyos.com,https://heady.exchange,https://heady.investments,https://headysystems.com,https://headyai.com,https://admin.headyme.com"

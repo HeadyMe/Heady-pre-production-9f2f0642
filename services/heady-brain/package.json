@@ -1,0 +1,32 @@
+{
+  "name": "@headysystems/heady-brain",
+  "version": "2.0.0",
+  "description": "HeadyBrain - Cognitive core service for chat, analysis, and semantic reasoning",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && echo 'Deploy to Cloud Run'",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@headysystems/core": "workspace:*",
+    "@headysystems/types": "workspace:*",
+    "@headysystems/redis": "workspace:*",
+    "@headysystems/semantic-logic": "workspace:*",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heady Creative — MIDI Agent Control & Creative AI</title>
+<meta name="description" content="Sub-millisecond MIDI agent control via heady-midi. AI orchestration for creative workflows: content generation, DAW integration, design tools, and asset management.">
+<meta name="keywords" content="MIDI AI agents, creative AI platform, heady-midi, DAW AI integration, content generation AI, creative workflow automation">
+<meta property="og:title" content="Heady Creative — MIDI Agent Control & Creative AI">
+<meta property="og:description" content="Sub-millisecond MIDI agent control and creative workflow orchestration.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://creative.headyme.com">
+<link rel="canonical" href="https://creative.headyme.com">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Heady Creative",
+  "description": "MIDI agent control and creative AI orchestration platform",
+  "url": "https://creative.headyme.com",
+  "applicationCategory": "MultimediaApplication",
+  "creator": {"@type": "SoftwareApplication", "name": "Perplexity Computer", "url": "https://www.perplexity.ai/computer"}
+}
+</script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --accent: #ec4899;
+    --accent-dim: rgba(236,72,153,0.12);
+    --accent-border: rgba(236,72,153,0.28);
+    --bg: #0a0e17;
+    --bg-card: rgba(255,255,255,0.04);
+    --bg-card-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --text-xs: #64748b;
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 16px; line-height: 1.6; overflow-x: hidden; }
+  #sacred-bg { position: fixed; inset: 0; z-index: 0; opacity: 0.18; pointer-events: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,14,23,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 1.5rem; }
+  .nav-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1rem; color: var(--text); text-decoration: none; }
+  .nav-logo-mark { width: 32px; height: 32px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-cta { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: opacity 0.2s; }
+  .nav-cta:hover { opacity: 0.85; }
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 1.5rem 4rem; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); border: 1px solid var(--accent-border); color: var(--accent); padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; color: #fff; }
+  h1 span { color: var(--accent); }
+  .hero-sub { font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-muted); max-width: 620px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--accent); color: #fff; border: none; padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); padding: 0.875rem 2rem; border-radius: 10px; font-size: 1rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-block; backdrop-filter: blur(8px); }
+  .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--accent-border); }
+  section { padding: 5rem 0; position: relative; z-index: 1; }
+  .section-label { color: var(--accent); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .section-title { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; color: #fff; margin-bottom: 1rem; }
+  .section-sub { color: var(--text-muted); font-size: 1.1rem; max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; backdrop-filter: blur(12px); transition: all 0.3s; }
+  .card:hover { background: var(--bg-card-hover); border-color: var(--accent-border); transform: translateY(-2px); }
+  .card.midi-card { border-color: rgba(236,72,153,0.22); }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+  .feature-icon { width: 44px; height: 44px; background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; margin-bottom: 1rem; }
+  .feature-name { font-size: 1.05rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; }
+  .feature-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+  .midi-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(236,72,153,0.12); border: 1px solid rgba(236,72,153,0.25); color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 5px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-left: 0.5rem; }
+  /* MIDI visualizer */
+  .midi-viz { display: flex; align-items: flex-end; gap: 3px; height: 48px; }
+  .midi-bar { width: 6px; border-radius: 3px; background: var(--accent); animation: midi-bounce 0.8s ease-in-out infinite; }
+  @keyframes midi-bounce { 0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);} }
+  .agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+  .agent-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; transition: all 0.3s; }
+  .agent-card:hover { border-color: var(--accent-border); background: var(--bg-card-hover); }
+  .agent-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .agent-name { font-weight: 600; font-size: 1rem; color: #fff; }
+  .agent-latency { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; color: var(--accent); background: var(--accent-dim); border: 1px solid var(--accent-border); padding: 0.2rem 0.5rem; border-radius: 6px; }
+  .agent-latency.ultra { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .agent-desc { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+  .agent-integrations { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .integration-tag { font-size: 0.7rem; color: var(--text-xs); background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; padding: 0.2rem 0.5rem; }
+  /* DAW pills */
+  .daw-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .daw-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.875rem; color: var(--text-muted); transition: all 0.2s; }
+  .daw-pill:hover { border-color: var(--accent-border); color: var(--accent); }
+  .compliance-section { background: rgba(236,72,153,0.03); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .badges-row { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .badge-item { display: flex; align-items: center; gap: 0.75rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1.25rem; transition: border-color 0.2s; }
+  .badge-item:hover { border-color: var(--accent-border); }
+  .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+  .badge-name { font-weight: 600; font-size: 0.875rem; color: #fff; }
+  .badge-desc { font-size: 0.75rem; color: var(--text-muted); }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+  .pricing-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; transition: all 0.3s; }
+  .pricing-card.highlighted { border-color: var(--accent); background: rgba(236,72,153,0.05); }
+  .pricing-card:hover { transform: translateY(-2px); }
+  .pricing-tier { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .pricing-price { font-size: 2.25rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+  .pricing-billing { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .pricing-features { list-style: none; }
+  .pricing-features li { font-size: 0.875rem; color: var(--text-muted); padding: 0.4rem 0; display: flex; align-items: center; gap: 0.6rem; }
+  .pricing-features li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .pricing-cta { margin-top: 1.75rem; width: 100%; padding: 0.875rem; background: transparent; border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .pricing-card.highlighted .pricing-cta { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .pricing-cta:hover { border-color: var(--accent); color: var(--accent); }
+  .pricing-card.highlighted .pricing-cta:hover { opacity: 0.85; }
+  .case-study { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  @media (max-width: 720px) { .case-study { grid-template-columns: 1fr; } }
+  .cs-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .cs-value { font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; }
+  .metrics-row { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .metric { text-align: center; }
+  .metric-value { font-size: 2rem; font-weight: 700; color: var(--accent); line-height: 1; }
+  .metric-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+  .testimonial { background: var(--accent-dim); border: 1px solid var(--accent-border); border-radius: var(--radius-lg); padding: 2.5rem; text-align: center; margin-top: 1.5rem; }
+  .testimonial-quote { font-size: 1.1rem; color: var(--text); line-height: 1.7; margin-bottom: 1rem; font-style: italic; }
+  .testimonial-author { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+  .cta-section { text-align: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 4rem 2rem; margin: 2rem 0; }
+  .cta-title { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; color: #fff; margin-bottom: 0.75rem; }
+  .cta-sub { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; }
+  footer { border-top: 1px solid var(--border); padding: 2rem 1.5rem; position: relative; z-index: 1; }
+  .footer-inner { max-width: 1120px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-brand { font-weight: 600; color: var(--text-muted); font-size: 0.875rem; }
+  .footer-links { display: flex; gap: 1.5rem; list-style: none; }
+  .footer-links a { color: var(--text-xs); text-decoration: none; font-size: 0.8rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--accent); }
+  .footer-pplx a { color: var(--accent); text-decoration: none; font-size: 0.75rem; }
+  @media (max-width: 640px) { .nav-links { display: none; } h1 { font-size: 2.25rem; } }
+</style>
+</head>
+<body>
+<canvas id="sacred-bg"></canvas>
+<nav>
+  <div class="nav-inner">
+    <a href="https://headyme.com" class="nav-logo">
+      <div class="nav-logo-mark">♪</div>
+      <span>Heady <strong>Creative</strong></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#midi">heady-midi</a></li>
+      <li><a href="#agents">Agents</a></li>
+      <li><a href="#daw">DAW</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">Try MIDI Agent Free</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap" style="max-width:820px">
+    <div class="hero-badge">♪ heady-midi · Sub-ms Agent Control</div>
+    <h1>AI Orchestration for<br><span>Creative Workflows</span></h1>
+    <p class="hero-sub">Sub-millisecond MIDI agent control via heady-midi, plus generative content pipelines and creative automation for artists, studios, and agencies. Plug in and create.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">Try MIDI Agent Free</a>
+      <a href="#daw" class="btn-secondary">View Creative Studio</a>
+    </div>
+    <!-- MIDI visualizer -->
+    <div style="margin-top:3rem;display:flex;justify-content:center;align-items:center;gap:1.5rem;">
+      <div style="font-size:0.8rem;color:var(--text-muted);">heady-midi latency</div>
+      <div class="midi-viz">
+        <div class="midi-bar" style="height:60%;animation-delay:0s;"></div>
+        <div class="midi-bar" style="height:80%;animation-delay:0.1s;"></div>
+        <div class="midi-bar" style="height:45%;animation-delay:0.2s;"></div>
+        <div class="midi-bar" style="height:95%;animation-delay:0.15s;"></div>
+        <div class="midi-bar" style="height:55%;animation-delay:0.05s;"></div>
+        <div class="midi-bar" style="height:75%;animation-delay:0.25s;"></div>
+        <div class="midi-bar" style="height:40%;animation-delay:0.3s;"></div>
+        <div class="midi-bar" style="height:85%;animation-delay:0.08s;"></div>
+        <div class="midi-bar" style="height:60%;animation-delay:0.18s;"></div>
+        <div class="midi-bar" style="height:70%;animation-delay:0.12s;"></div>
+      </div>
+      <div style="font-size:1.25rem;font-weight:700;color:var(--accent);">&lt;1ms</div>
+    </div>
+  </div>
+</section>
+
+<!-- heady-midi spotlight -->
+<section id="midi" style="padding-top:2rem;">
+  <div class="wrap">
+    <div style="background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.25);border-radius:var(--radius-lg);padding:2.5rem;display:flex;align-items:flex-start;gap:2rem;flex-wrap:wrap;">
+      <div style="flex:0 0 auto;width:64px;height:64px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">♪</div>
+      <div style="flex:1;min-width:240px;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+          <span style="font-size:1.25rem;font-weight:700;color:#fff;">heady-midi</span>
+          <span class="midi-badge">Service</span>
+        </div>
+        <div style="color:var(--text-muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.25rem;">A dedicated microservice for sub-millisecond MIDI 2.0 agent control. Connect natural-language prompts to hardware synths, DAWs, and Eurorack modules. MIDI clock sync with &lt;0.1ms jitter. Supports USB MIDI, hardware controllers, and MIDI-CV for modular systems.</div>
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+          <div><div style="font-size:1.5rem;font-weight:700;color:var(--accent);">&lt;1ms</div><div style="font-size:0.75rem;color:var(--text-muted);">Message latency</div></div>
+          <div><div style="font-size:1.5rem;font-weight:700;color:var(--accent);">&lt;0.1ms</div><div style="font-size:0.75rem;color:var(--text-muted);">Clock jitter</div></div>
+          <div><div style="font-size:1.5rem;font-weight:700;color:var(--accent);">MIDI 2.0</div><div style="font-size:0.75rem;color:var(--text-muted);">UMP protocol</div></div>
+          <div><div style="font-size:1.5rem;font-weight:700;color:var(--accent);">6 DAWs</div><div style="font-size:0.75rem;color:var(--text-muted);">Native support</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-label">Platform</div>
+    <h2 class="section-title">Creative AI Stack</h2>
+    <p class="section-sub">Six capabilities for musicians, designers, studios, and agencies.</p>
+    <div class="features-grid">
+      <div class="card midi-card">
+        <div class="feature-icon">🎹</div>
+        <div class="feature-name">MIDI Agent Control <span class="midi-badge">heady-midi</span></div>
+        <div class="feature-desc">heady-midi delivers sub-millisecond agent control over hardware and software instruments via MIDI 2.0 Universal MIDI Packet.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🎨</div>
+        <div class="feature-name">Content Generation</div>
+        <div class="feature-desc">Multi-modal content pipelines: text, image, audio, and video generation orchestrated through agent workflows.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🎬</div>
+        <div class="feature-name">Creative Direction</div>
+        <div class="feature-desc">AI Creative Director agents that maintain brand consistency, style guidelines, and content calendars across all outputs.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">📦</div>
+        <div class="feature-name">Asset Management</div>
+        <div class="feature-desc">Intelligent DAM with auto-tagging, version control, rights tracking, and format conversion pipelines.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🎚️</div>
+        <div class="feature-name">DAW Integration</div>
+        <div class="feature-desc">Native VST3/AU plugin for Ableton, Logic Pro, Pro Tools, Cubase, FL Studio, and Bitwig Studio.</div>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🖌️</div>
+        <div class="feature-name">Design Tool Integration</div>
+        <div class="feature-desc">Figma, Adobe Creative Suite, and Canva integrations for automated asset generation and variant creation at scale.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="agents">
+  <div class="wrap">
+    <div class="section-label">Agent Templates</div>
+    <h2 class="section-title">Creative Agent Library</h2>
+    <p class="section-sub">Pre-built agent templates for musicians, content creators, and creative teams.</p>
+    <div class="agents-grid">
+      <div class="agent-card" style="border-color:rgba(236,72,153,0.25);">
+        <div class="agent-header"><div class="agent-name">MIDI Controller</div><div class="agent-latency ultra">&lt;1ms</div></div>
+        <div class="agent-desc">Maps natural-language prompts to MIDI 2.0 messages with sub-millisecond latency via heady-midi. Control any hardware or software instrument.</div>
+        <div class="agent-integrations"><span class="integration-tag">Ableton Live</span><span class="integration-tag">Logic Pro</span><span class="integration-tag">Pro Tools</span><span class="integration-tag">Eurorack</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Content Generator</div><div class="agent-latency">&lt;2s</div></div>
+        <div class="agent-desc">Orchestrates multi-modal content creation across text, image, audio, and video from a single prompt.</div>
+        <div class="agent-integrations"><span class="integration-tag">Adobe Firefly</span><span class="integration-tag">Midjourney</span><span class="integration-tag">ElevenLabs</span><span class="integration-tag">Runway ML</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Creative Director</div><div class="agent-latency">&lt;1s</div></div>
+        <div class="agent-desc">Maintains brand voice, visual identity, and style guidelines across all generated content and campaigns.</div>
+        <div class="agent-integrations"><span class="integration-tag">Figma</span><span class="integration-tag">Adobe CC</span><span class="integration-tag">Canva</span><span class="integration-tag">Contentful</span></div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-header"><div class="agent-name">Asset Manager</div><div class="agent-latency">&lt;500ms</div></div>
+        <div class="agent-desc">Auto-tags, versions, formats, and distributes creative assets across channels with rights tracking.</div>
+        <div class="agent-integrations"><span class="integration-tag">Bynder</span><span class="integration-tag">Canto</span><span class="integration-tag">Cloudinary</span><span class="integration-tag">Brandfolder</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DAW Support -->
+<section id="daw" style="background:rgba(236,72,153,0.03);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="wrap">
+    <div class="section-label">DAW Support</div>
+    <h2 class="section-title">Works with Your Studio</h2>
+    <p class="section-sub">heady-midi ships as a VST3 and AU plugin. Works with any MIDI 2.0 capable DAW and hardware controller.</p>
+    <div class="daw-grid">
+      <div class="daw-pill">Ableton Live 11/12</div>
+      <div class="daw-pill">Logic Pro X/11</div>
+      <div class="daw-pill">Pro Tools 2024</div>
+      <div class="daw-pill">Cubase 13</div>
+      <div class="daw-pill">FL Studio 21</div>
+      <div class="daw-pill">Bitwig Studio 5</div>
+      <div class="daw-pill">Eurorack (MIDI-CV)</div>
+      <div class="daw-pill">Hardware Synths</div>
+      <div class="daw-pill">Akai MPC</div>
+      <div class="daw-pill">Ableton Push</div>
+    </div>
+    <div style="margin-top:2rem;padding:1.25rem 1.5rem;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:var(--radius);max-width:680px;">
+      <div style="font-weight:600;color:#fff;margin-bottom:0.4rem;">Eurorack & Modular Synthesis</div>
+      <div style="font-size:0.875rem;color:var(--text-muted);">heady-midi supports MIDI-CV conversion for Eurorack modular systems. Control CV, gate, velocity, and clock signals from your agent prompts with hardware-class timing precision.</div>
+    </div>
+  </div>
+</section>
+
+<section id="compliance" class="compliance-section" style="border-top:none;">
+  <div class="wrap">
+    <div class="section-label">Licensing & Compliance</div>
+    <h2 class="section-title">Create Without Restrictions</h2>
+    <p class="section-sub">All generated content is licensed for commercial use. No royalty claims, ever.</p>
+    <div class="badges-row">
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">SOC 2 Type II</div><div class="badge-desc">Annual third-party audit</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">GDPR</div><div class="badge-desc">EU data processing compliance</div></div></div>
+      <div class="badge-item"><div class="badge-dot"></div><div><div class="badge-name">Commercial License</div><div class="badge-desc">All outputs licensed for commercial use</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="case-study">
+  <div class="wrap">
+    <div class="section-label">Case Study</div>
+    <h2 class="section-title">Electronic Music Producer</h2>
+    <div class="case-study">
+      <div>
+        <div class="cs-label">Challenge</div>
+        <div class="cs-value" style="margin-bottom:1.25rem;">Manual MIDI sequencing limiting generative composition experiments. Producer wanted to explore AI-generated arrangements at scale.</div>
+        <div class="cs-label">Solution</div>
+        <div class="cs-value">Deployed heady-midi with natural language prompt-to-MIDI pipeline integrated with Ableton Live 12. Produced and released EP using agent-generated MIDI arrangements.</div>
+        <div class="metrics-row">
+          <div class="metric"><div class="metric-value">75%</div><div class="metric-label">Production time reduction</div></div>
+          <div class="metric"><div class="metric-value">&lt;1ms</div><div class="metric-label">MIDI latency</div></div>
+          <div class="metric"><div class="metric-value">2,400+</div><div class="metric-label">Patterns generated</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="testimonial">
+          <div class="testimonial-quote">"heady-midi is the most exciting thing to happen to electronic music production since VST plugins. I'm composing things I couldn't imagine doing manually."</div>
+          <div class="testimonial-author">— Electronic Music Producer (placeholder)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">From Bedroom Producer to Agency</h2>
+    <p class="section-sub">Free for individual artists. Studio and Agency plans for professional workflows.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Artist</div>
+        <div class="pricing-price">Free</div>
+        <div class="pricing-billing">Forever · No credit card</div>
+        <ul class="pricing-features">
+          <li>MIDI Controller agent</li>
+          <li>2 DAW integrations</li>
+          <li>1K content generations/mo</li>
+          <li>Community support</li>
+        </ul>
+        <button class="pricing-cta">Start Free</button>
+      </div>
+      <div class="pricing-card highlighted">
+        <div class="pricing-tier">Studio</div>
+        <div class="pricing-price">$59<span style="font-size:1rem;font-weight:400;color:var(--text-muted)">/mo</span></div>
+        <div class="pricing-billing">Month-to-month · Commercial license</div>
+        <ul class="pricing-features">
+          <li>All 4 agent templates</li>
+          <li>heady-midi Pro (all DAWs)</li>
+          <li>50K content generations/mo</li>
+          <li>All design tool integrations</li>
+          <li>Asset manager</li>
+          <li>Priority support</li>
+          <li>Commercial license</li>
+        </ul>
+        <button class="pricing-cta">Start Studio Trial</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Agency</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-billing">Annual · Multi-seat</div>
+        <ul class="pricing-features">
+          <li>Unlimited generations</li>
+          <li>Multi-seat licensing</li>
+          <li>Custom agent workflows</li>
+          <li>White-label option</li>
+          <li>Dedicated success manager</li>
+          <li>SLA guarantee</li>
+        </ul>
+        <button class="pricing-cta">Contact Agency Team</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="wrap">
+    <div class="cta-section">
+      <div class="section-label">Get Started</div>
+      <div class="cta-title">Try the MIDI Agent for Free</div>
+      <div class="cta-sub">Connect your DAW, send a natural language prompt, and hear heady-midi respond in under a millisecond. No credit card required.</div>
+      <div class="hero-actions" style="justify-content:center;">
+        <a href="mailto:creative@headyme.com?subject=MIDI Agent Trial" class="btn-primary">Try MIDI Agent Free</a>
+        <a href="https://headyme.com" class="btn-secondary">← Back to HeadySystems</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">© 2026 HeadySystems Inc. · Heady Creative · heady-midi</div>
+    <ul class="footer-links">
+      <li><a href="https://headyme.com/privacy">Privacy</a></li>
+      <li><a href="https://headyme.com/terms">Terms</a></li>
+      <li><a href="https://headyme.com/license">License</a></li>
+      <li><a href="https://headyme.com/security">Security</a></li>
+    </ul>
+    <div class="footer-pplx"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a></div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  const canvas = document.getElementById('sacred-bg');
+  const ctx = canvas.getContext('2d');
+  const ACCENT = '#ec4899';
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; draw(); }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = canvas.width/2, cy = canvas.height/2;
+    const r = Math.min(canvas.width, canvas.height)*0.38;
+    ctx.strokeStyle = ACCENT; ctx.lineWidth = 0.4;
+    // Sri Yantra inspired - concentric triangles
+    for (let i = 1; i <= 9; i++) {
+      const nr = r * (i/9);
+      if (i % 2 === 0) {
+        // Upward triangle
+        ctx.beginPath();
+        for (let j=0;j<3;j++){
+          const a=(j*Math.PI*2/3)-Math.PI/2;
+          if(j===0) ctx.moveTo(cx+Math.cos(a)*nr, cy+Math.sin(a)*nr);
+          else ctx.lineTo(cx+Math.cos(a)*nr, cy+Math.sin(a)*nr);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      } else {
+        // Downward triangle
+        ctx.beginPath();
+        for (let j=0;j<3;j++){
+          const a=(j*Math.PI*2/3)+Math.PI/2;
+          if(j===0) ctx.moveTo(cx+Math.cos(a)*nr, cy+Math.sin(a)*nr);
+          else ctx.lineTo(cx+Math.cos(a)*nr, cy+Math.sin(a)*nr);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+    // Circles
+    ctx.lineWidth = 0.3;
+    for (let i = 1; i <= 4; i++) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * (i/4), 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Sound wave ripples
+    ctx.lineWidth = 0.25;
+    for (let i = 1; i <= 8; i++) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r * 0.1 * i, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Randomize MIDI bar heights
+  const bars = document.querySelectorAll('.midi-bar');
+  setInterval(() => {
+    bars.forEach(bar => {
+      bar.style.height = (Math.random() * 70 + 20) + '%';
+    });
+  }, 200);
+})();
+const observer = new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)';}});},{threshold:0.1});
+document.querySelectorAll('.card,.agent-card,.pricing-card,.badge-item').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(16px)';el.style.transition='opacity 0.5s ease, transform 0.5s ease';observer.observe(el);});
+</script>
+</body>
+</html>

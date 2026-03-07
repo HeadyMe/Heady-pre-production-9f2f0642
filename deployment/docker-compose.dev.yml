@@ -1,0 +1,250 @@
+# =============================================================================
+# HeadySystems — Local Development Stack
+# Maps localhost subdomains to each domain via Traefik reverse proxy
+#
+# Prerequisites:
+#   1. Add to /etc/hosts:
+#      127.0.0.1  headyme.com health.headyme.com legal.headyme.com
+#      127.0.0.1  finance.headyme.com education.headyme.com
+#      127.0.0.1  government.headyme.com creative.headyme.com
+#      127.0.0.1  traefik.localhost
+#   2. Copy .env.example → .env and fill in values
+#
+# Usage:
+#   docker-compose -f deployment/docker-compose.dev.yml up
+#   docker-compose -f deployment/docker-compose.dev.yml up heady-web redis
+# =============================================================================
+
+version: "3.9"
+
+# ── Shared network ─────────────────────────────────────────────────────────────
+networks:
+  heady-net:
+    name: heady-net
+    driver: bridge
+
+# ── Named volumes ──────────────────────────────────────────────────────────────
+volumes:
+  postgres-data:
+    name: heady-postgres-data
+  redis-data:
+    name: heady-redis-data
+  pgvector-extensions:
+    name: heady-pgvector
+
+services:
+
+  # ── Traefik: Reverse Proxy ─────────────────────────────────────────────────
+  traefik:
+    image: traefik:v3.1
+    container_name: heady-traefik
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"                       # Dashboard at :8080
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=heady-net"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      # Local dev cert (mkcert recommended for HTTPS)
+      - "--providers.file.filename=/etc/traefik/dynamic.yml"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8090:8080"    # Traefik dashboard (distinct from app port)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik-dynamic.yml:/etc/traefik/dynamic.yml:ro
+      # Mount local certs if using mkcert: mkcert headyme.com "*.headyme.com"
+      - ${CERT_DIR:-./certs}:/certs:ro
+    networks:
+      - heady-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+
+  # ── heady-web: Multi-domain site server ───────────────────────────────────
+  heady-web:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.sites
+      target: production
+    container_name: heady-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      SITES_DIR: /app/sites
+      VERTICAL_REGISTRY: /app/vertical-registry.json
+
+      # Database
+      DATABASE_URL: postgresql://${POSTGRES_USER:-heady}:${POSTGRES_PASSWORD:-heady_dev_pw}@postgres:5432/${POSTGRES_DB:-heady_dev}
+      REDIS_URL: redis://redis:6379/0
+
+      # Auth / API keys (override in .env)
+      HEADY_API_SECRET: ${HEADY_API_SECRET:-dev-secret-change-me}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+      # Feature flags
+      ENABLE_VERTICALS: "true"
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      CACHE_TTL: 60
+
+    volumes:
+      # Hot reload: mount source files
+      - ../services/heady-web:/app/services/heady-web:delegated
+      - ../packages:/app/packages:delegated
+      # Mount vertical sites for live editing
+      - ../A2-websites:/app/sites/A2-websites:delegated
+      - ../A3-verticals:/app/sites/A3-verticals:delegated
+      # Mount vertical registry
+      - ../vertical-registry.json:/app/vertical-registry.json:delegated
+      # Exclude node_modules from host
+      - /app/node_modules
+      - /app/services/heady-web/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - heady-net
+    labels:
+      - "traefik.enable=true"
+
+      # ── Main domain ──────────────────────────────────────────────────────
+      - "traefik.http.routers.heady-main.rule=Host(`headyme.com`)"
+      - "traefik.http.routers.heady-main.entrypoints=web"
+      - "traefik.http.services.heady-web.loadbalancer.server.port=8080"
+
+      # ── Healthcare vertical ───────────────────────────────────────────────
+      - "traefik.http.routers.heady-healthcare.rule=Host(`health.headyme.com`)"
+      - "traefik.http.routers.heady-healthcare.entrypoints=web"
+      - "traefik.http.routers.heady-healthcare.service=heady-web"
+
+      # ── Legal vertical ────────────────────────────────────────────────────
+      - "traefik.http.routers.heady-legal.rule=Host(`legal.headyme.com`)"
+      - "traefik.http.routers.heady-legal.entrypoints=web"
+      - "traefik.http.routers.heady-legal.service=heady-web"
+
+      # ── Finance vertical ──────────────────────────────────────────────────
+      - "traefik.http.routers.heady-finance.rule=Host(`finance.headyme.com`)"
+      - "traefik.http.routers.heady-finance.entrypoints=web"
+      - "traefik.http.routers.heady-finance.service=heady-web"
+
+      # ── Education vertical ────────────────────────────────────────────────
+      - "traefik.http.routers.heady-education.rule=Host(`education.headyme.com`)"
+      - "traefik.http.routers.heady-education.entrypoints=web"
+      - "traefik.http.routers.heady-education.service=heady-web"
+
+      # ── Government vertical ───────────────────────────────────────────────
+      - "traefik.http.routers.heady-gov.rule=Host(`gov.headyme.com`)"
+      - "traefik.http.routers.heady-gov.entrypoints=web"
+      - "traefik.http.routers.heady-gov.service=heady-web"
+
+      # ── Creative vertical ─────────────────────────────────────────────────
+      - "traefik.http.routers.heady-creative.rule=Host(`creative.headyme.com`)"
+      - "traefik.http.routers.heady-creative.entrypoints=web"
+      - "traefik.http.routers.heady-creative.service=heady-web"
+
+      # ── Path-based fallback for all verticals ─────────────────────────────
+      - "traefik.http.routers.heady-paths.rule=Host(`headyme.com`) && PathPrefix(`/healthcare`, `/legal`, `/finance`, `/education`, `/government`, `/creative`)"
+      - "traefik.http.routers.heady-paths.entrypoints=web"
+      - "traefik.http.routers.heady-paths.service=heady-web"
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/_health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Redis 7: Caching + Sessions ────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: heady-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - heady-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    labels:
+      - "traefik.enable=false"
+
+  # ── Postgres 15 + pgvector: Primary database ────────────────────────────────
+  postgres:
+    image: ankane/pgvector:latest   # postgres:15 + pgvector extension
+    container_name: heady-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-heady}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-heady_dev_pw}
+      POSTGRES_DB: ${POSTGRES_DB:-heady_dev}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro  # Optional: seed scripts
+    networks:
+      - heady-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-heady} -d ${POSTGRES_DB:-heady_dev}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    labels:
+      - "traefik.enable=false"
+
+  # ── pgAdmin: Database GUI (optional, dev only) ─────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: heady-pgadmin
+    restart: unless-stopped
+    profiles: ["debug"]   # Only starts with: docker-compose --profile debug up
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-eric@headyconnection.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - heady-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.localhost`)"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+
+  # ── Redis Commander: Redis GUI (optional, dev only) ───────────────────────
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: heady-redis-commander
+    restart: unless-stopped
+    profiles: ["debug"]
+    environment:
+      REDIS_HOSTS: "local:redis:6379"
+    ports:
+      - "8091:8081"
+    depends_on:
+      - redis
+    networks:
+      - heady-net
+    labels:
+      - "traefik.enable=false"

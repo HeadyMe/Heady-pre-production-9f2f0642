@@ -1,0 +1,155 @@
+# =============================================================================
+# HeadySystems Vertical Config — Legal
+# Domain: legal.headyme.com
+# =============================================================================
+
+vertical_id: legal
+domain: legal.headyme.com
+fallback_path: /legal
+routing:
+  type: subdomain
+  aliases:
+    - law.headyme.com
+
+brand:
+  name: "Heady Legal"
+  tagline: "AI Orchestration for Legal Practice"
+  accent_color: "#a855f7"
+  logo_variant: legal
+  font_family: "Inter, sans-serif"
+  icon: "⚖"
+
+content:
+  hero:
+    title: "AI Orchestration for Legal Practice"
+    subtitle: "Contract analysis, case law research, and compliance monitoring — automated and auditable"
+    cta_primary: "Schedule Legal Demo"
+    cta_secondary: "View Agent Library"
+
+  features:
+    - name: "Contract Analysis"
+      description: "Automated review of contracts for risk clauses, missing provisions, and non-standard terms."
+      icon: "contract"
+    - name: "Legal Research"
+      description: "Multi-source case law research across Westlaw, LexisNexis, and public court databases."
+      icon: "research"
+    - name: "Compliance Monitoring"
+      description: "Continuous regulatory change detection across jurisdictions with attorney-reviewed summaries."
+      icon: "compliance"
+    - name: "Document Processing"
+      description: "Bulk ingestion, OCR, classification, and metadata extraction for legal document libraries."
+      icon: "documents"
+    - name: "Due Diligence Automation"
+      description: "M&A due diligence workflows with entity extraction, risk scoring, and audit trails."
+      icon: "diligence"
+    - name: "Billing & Matter Management"
+      description: "Time entry automation, matter lifecycle tracking, and billing narrative generation."
+      icon: "billing"
+
+  agent_templates:
+    - name: "Contract Analyzer"
+      description: "Identifies risky clauses, missing terms, and non-standard provisions across any contract type"
+      latency: "<2s"
+      integrations: ["iManage", "NetDocuments", "Salesforce Legal", "DocuSign"]
+    - name: "Case Law Researcher"
+      description: "Searches and synthesizes relevant precedents across jurisdictions"
+      latency: "<5s"
+      integrations: ["Westlaw", "LexisNexis", "CourtListener", "PACER"]
+    - name: "Compliance Monitor"
+      description: "Tracks regulatory changes and maps impact to existing client matters"
+      latency: "<1s"
+      integrations: ["Thomson Reuters Regulatory Intelligence", "Compliance.ai"]
+    - name: "Document Processor"
+      description: "OCRs, classifies, and extracts entities from uploaded legal documents at scale"
+      latency: "<3s"
+      integrations: ["iManage", "Box", "SharePoint", "Relativity"]
+
+  compliance_badges:
+    - name: SOC 2 Type II
+      status: certified
+      description: "Annual third-party security audit"
+    - name: ABA Ethics
+      status: planned
+      description: "ABA Model Rules compliance review in progress"
+    - name: GDPR
+      status: certified
+      description: "Full GDPR data processing compliance"
+    - name: Attorney-Client Privilege
+      status: certified
+      description: "Infrastructure designed to preserve privilege"
+
+  pricing:
+    tiers:
+      - name: Solo Practice
+        price: "$49/mo"
+        billing: monthly
+        features:
+          - "5 agent workflows"
+          - "25K document pages/mo"
+          - "Contract analysis"
+          - "Basic case law search"
+          - "Email support"
+      - name: Firm
+        price: "$149/mo"
+        billing: monthly
+        highlighted: true
+        features:
+          - "Unlimited workflows"
+          - "500K document pages/mo"
+          - "All agent templates"
+          - "Full case law access"
+          - "Compliance monitoring"
+          - "Priority support"
+          - "Custom matter workflows"
+      - name: Enterprise
+        price: "Custom"
+        billing: annual
+        features:
+          - "Dedicated infrastructure"
+          - "Unlimited pages"
+          - "Custom integrations"
+          - "SLA guarantee"
+          - "On-premise option"
+          - "Privilege-aware deployment"
+
+  case_study:
+    client: "AmLaw 200 Firm (placeholder)"
+    challenge: "Associates spending 60% of time on manual contract review"
+    solution: "Deployed Contract Analyzer + Document Processor across 3 practice groups"
+    result: "Contract review time reduced from 4 hours to 25 minutes. Associates redirected to higher-value work."
+    metrics:
+      - label: "Review time reduction"
+        value: "89%"
+      - label: "Clause detection accuracy"
+        value: "97.8%"
+      - label: "Associate hours recaptured/week"
+        value: "120+"
+
+  testimonial:
+    quote: "The Contract Analyzer caught a missing indemnification clause in a $40M deal that our team had missed after three manual passes."
+    author: "Managing Partner, AmLaw 200 Firm (placeholder)"
+
+meta:
+  title: "Heady Legal — AI Orchestration for Law Firms"
+  description: "AI agent workflows for legal practice. Contract analysis, case law research, compliance monitoring, and document processing — automated and auditable."
+  keywords:
+    - "legal AI platform"
+    - "contract analysis AI"
+    - "legal research automation"
+    - "law firm AI"
+    - "compliance monitoring"
+    - "legal document processing"
+  og_image: "/assets/legal-og.png"
+  analytics_id: "G-LEGAL"
+  canonical_url: "https://legal.headyme.com"
+
+server:
+  cache_ttl: 3600
+  rate_limit: 80
+  cors_origins:
+    - "https://headyme.com"
+    - "https://legal.headyme.com"
+  health_check: "/_health"
+
+created_at: "2026-03-07T00:00:00Z"
+updated_at: "2026-03-07T00:00:00Z"

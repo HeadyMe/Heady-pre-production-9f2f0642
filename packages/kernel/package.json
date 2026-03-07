@@ -1,0 +1,28 @@
+{
+  "name": "@heady-ai/kernel",
+  "version": "0.1.0",
+  "description": "Unified latent runtime kernel for lifecycle, orchestration, and execution loops.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "UNLICENSED",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@heady-ai/phi-math": "../phi-math",
+    "@heady-ai/csl-router": "../csl-router",
+    "@heady-ai/agent-identity": "../agent-identity",
+    "@heady-ai/memory-stream": "../memory-stream",
+    "@heady-ai/spatial-events": "../spatial-events",
+    "@heady-ai/observability-kernel": "../observability-kernel",
+    "@heady-ai/latent-boundary": "../latent-boundary"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

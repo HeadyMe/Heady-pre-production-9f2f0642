@@ -1,0 +1,40 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Service: heady-web
+# heady-systems v3.2.2 — ClusterIP service (fronted by Ingress)
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: heady-web
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-web
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: frontend
+  annotations:
+    headysystems.com/description: "ClusterIP service for heady-web — serves all 9 domains"
+    # Short timeout for web requests — fib(5)=5 × 13s = 65s
+    service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "65"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    # Cloud Load Balancer backend config (GCP)
+    cloud.google.com/backend-config: '{"default": "heady-web-backend-config"}'
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP
+  # No session affinity for web — distribute evenly
+  sessionAffinity: None
+  selector:
+    app.kubernetes.io/name: heady-web
+    app.kubernetes.io/instance: heady-web-production
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http
+    - name: metrics
+      protocol: TCP
+      port: 9090
+      targetPort: metrics

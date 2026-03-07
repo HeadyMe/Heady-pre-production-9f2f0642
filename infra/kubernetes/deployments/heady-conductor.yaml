@@ -1,0 +1,259 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Deployment: heady-conductor
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# replicas: fib(3) = 2
+# memory limit: 512Mi
+# cpu limit: 500m
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heady-conductor
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-conductor
+    app.kubernetes.io/instance: heady-conductor-production
+    app.kubernetes.io/version: "3.2.2"
+    app.kubernetes.io/component: conductor
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: orchestration
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    headysystems.com/description: "Multi-agent orchestration conductor — fib(3)=2 replicas"
+    headysystems.com/replicas-derivation: "fib(3)=2 — third Fibonacci number"
+spec:
+  # replicas: fib(3) = 2
+  replicas: 2
+  # revisionHistoryLimit: fib(5)=5
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 890
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: heady-conductor
+      app.kubernetes.io/instance: heady-conductor-production
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # maxSurge: fib(3)=2
+      maxSurge: 2
+      # maxUnavailable: fib(2)=1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: heady-conductor
+        app.kubernetes.io/instance: heady-conductor-production
+        app.kubernetes.io/version: "3.2.2"
+        app.kubernetes.io/component: conductor
+        headysystems.com/tier: orchestration
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        headysystems.com/phi: "1.618033988749895"
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-conductor
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-conductor
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 89   # fib(11)=89
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - heady-conductor
+                topologyKey: kubernetes.io/hostname
+        # Prefer co-location with heady-brain for low-latency orchestration
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 55   # fib(10)=55
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - heady-brain
+                topologyKey: topology.kubernetes.io/zone
+
+      serviceAccountName: heady-conductor
+      automountServiceAccountToken: false
+      # terminationGracePeriodSeconds: fib(8)=21 × 3 = 63s
+      # (conductor needs extra time to finish orchestration cycles)
+      terminationGracePeriodSeconds: 63
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+
+      initContainers:
+        - name: wait-for-brain
+          image: curlimages/curl:8.5.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              # Retry fib(7)=13 times with fib(5)=5s delay
+              n=0
+              until curl -sf http://heady-brain:8080/health/ready; do
+                n=$((n+1))
+                if [ $n -ge 13 ]; then
+                  echo "heady-brain not ready after fib(7)=13 attempts"
+                  exit 1
+                fi
+                echo "Waiting for heady-brain... $n/13"
+                sleep 5
+              done
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+      containers:
+        - name: heady-conductor
+          image: gcr.io/heady-systems/heady-conductor:3.2.2
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: heady-config
+            - secretRef:
+                name: heady-secrets
+          env:
+            - name: SERVICE_NAME
+              value: "heady-conductor"
+            - name: SERVICE_VERSION
+              value: "3.2.2"
+            - name: PORT
+              value: "8080"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            # Orchestration-specific: fib(10)=55 max concurrent agents
+            - name: MAX_CONCURRENT_AGENTS
+              valueFrom:
+                configMapKeyRef:
+                  name: heady-config
+                  key: MAX_CONCURRENT_AGENTS
+            # φ^6=17944ms orchestration timeout
+            - name: ORCHESTRATION_TIMEOUT_MS
+              value: "17944"
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 13   # fib(7)=13
+            periodSeconds: 8          # fib(6)=8
+            timeoutSeconds: 3         # fib(4)=3
+            failureThreshold: 3       # fib(4)=3
+            successThreshold: 1
+
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5    # fib(5)=5
+            periodSeconds: 3          # fib(4)=3
+            timeoutSeconds: 2         # fib(3)=2
+            failureThreshold: 3       # fib(4)=3
+            successThreshold: 1
+
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 8    # fib(6)=8
+            periodSeconds: 3
+            failureThreshold: 21      # fib(8)=21
+            timeoutSeconds: 5
+
+          lifecycle:
+            preStop:
+              exec:
+                # fib(6)=8s drain
+                command: ["/bin/sh", "-c", "sleep 8"]
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: orchestration-state
+              mountPath: /app/state
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: "100Mi"
+        - name: orchestration-state
+          emptyDir:
+            sizeLimit: "256Mi"
+
+      imagePullSecrets:
+        - name: gcr-credentials

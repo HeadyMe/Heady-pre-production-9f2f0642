@@ -1,0 +1,50 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: heady-latent-kernel
+  annotations:
+    run.googleapis.com/launch-stage: GA
+    autoscaling.knative.dev/minScale: '1'
+    autoscaling.knative.dev/maxScale: '21'
+    run.googleapis.com/cpu-throttling: 'false'
+    run.googleapis.com/startup-cpu-boost: 'true'
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: '55'
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containerConcurrency: 89
+      timeoutSeconds: 233
+      containers:
+        - image: gcr.io/PROJECT_ID/heady-latent-kernel:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: HEADY_RUNTIME_MODE
+              value: latent-os
+            - name: HEADY_BOUNDARY_OPENAPI_PATH
+              value: /app/infra/openapi/heady-latent-boundary.openapi.yaml
+          resources:
+            limits:
+              cpu: '2'
+              memory: 2048Mi
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 13
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            periodSeconds: 34
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            periodSeconds: 21

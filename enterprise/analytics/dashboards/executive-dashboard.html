@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeadySystems — Executive Dashboard</title>
+
+<style>
+  /* ────────────────────────────────────────
+   φ-derived spacing system
+   φ = 1.618033988749895
+   Base: 8px
+   Levels: 5px, 8px, 13px, 21px, 34px, 55px
+  ──────────────────────────────────────── */
+  :root {
+    --phi:        1.618033988749895;
+    --sp-1:       5px;
+    --sp-2:       8px;
+    --sp-3:       13px;
+    --sp-4:       21px;
+    --sp-5:       34px;
+    --sp-6:       55px;
+
+    /* Color palette — dark theme */
+    --bg-base:    #0a0a0c;
+    --bg-surface: #111116;
+    --bg-card:    #16161d;
+    --bg-hover:   #1e1e28;
+    --border:     #2a2a38;
+
+    --text-primary:   #f0f0f5;
+    --text-secondary: #9090a8;
+    --text-muted:     #5a5a72;
+
+    /* CSL accent palette */
+    --csl-dormant:   #4a4a5a;
+    --csl-low:       #3b82f6;
+    --csl-moderate:  #8b5cf6;
+    --csl-high:      #f59e0b;
+    --csl-critical:  #ef4444;
+    --csl-excellent: #22c55e;
+
+    /* Brand */
+    --accent:     #7c3aed;
+    --accent-glow: rgba(124, 58, 237, 0.15);
+
+    /* Segment colors */
+    --champion: #22c55e;
+    --active:   #3b82f6;
+    --slipping: #f59e0b;
+    --at-risk:  #ef4444;
+    --churned:  #6b7280;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', 'SF Pro Display', system-ui, sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.618;  /* φ line-height */
+  }
+
+  /* Layout */
+  .dashboard {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: var(--sp-4);
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--sp-4) 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: var(--sp-5);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+
+  .logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .header-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  .header-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--csl-excellent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Grid layouts */
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-4);
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-4);
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-4);
+  }
+
+  .grid-span-2 { grid-column: span 2; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--sp-3);
+    padding: var(--sp-4);
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: #3a3a50; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--sp-3);
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .card-badge {
+    font-size: 10px;
+    padding: 2px var(--sp-2);
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* KPI cards */
+  .kpi-value {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-bottom: var(--sp-2);
+    font-feature-settings: "tnum";
+  }
+
+  .kpi-delta {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .kpi-delta.positive { color: var(--csl-excellent); }
+  .kpi-delta.negative { color: var(--csl-critical); }
+  .kpi-delta.neutral  { color: var(--text-muted); }
+
+  /* Chart containers */
+  .chart-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .chart-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: var(--sp-3);
+    color: var(--text-primary);
+  }
+
+  /* Funnel */
+  .funnel-step {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .funnel-step:last-child { border-bottom: none; }
+
+  .funnel-label {
+    width: 120px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .funnel-bar-container {
+    flex: 1;
+    height: var(--sp-3);
+    background: var(--bg-surface);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .funnel-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), #a855f7);
+    transition: width 0.8s cubic-bezier(0.618, 0, 0.382, 1);
+  }
+
+  .funnel-count {
+    width: 80px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+    color: var(--text-primary);
+  }
+
+  .funnel-rate {
+    width: 50px;
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Segment distribution */
+  .segment-row {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .segment-row:last-child { border-bottom: none; }
+
+  .segment-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .segment-name {
+    width: 100px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .segment-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-surface);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .segment-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  .segment-pct {
+    width: 50px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+  }
+
+  /* Health heatmap */
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+  }
+
+  .heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+
+  .heatmap-cell:hover { transform: scale(1.2); }
+
+  .heatmap-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--sp-2);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* Footer */
+  .dashboard-footer {
+    border-top: 1px solid var(--border);
+    margin-top: var(--sp-5);
+    padding-top: var(--sp-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .dashboard-footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .dashboard-footer a:hover { color: var(--text-secondary); }
+
+  /* Refresh badge */
+  .refresh-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 11px;
+    color: var(--text-muted);
+    padding: 4px var(--sp-2);
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .phi-badge {
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 600;
+    padding: 2px 6px;
+    background: var(--accent-glow);
+    border-radius: 4px;
+  }
+
+  /* NPS Gauge */
+  .nps-gauge {
+    display: flex;
+    align-items: baseline;
+    gap: var(--sp-2);
+    margin-top: var(--sp-2);
+  }
+
+  .nps-value {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    color: var(--csl-excellent);
+    line-height: 1;
+  }
+
+  .nps-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .grid-span-2 { grid-column: span 1; }
+    .kpi-value { font-size: 24px; }
+  }
+</style>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+<div class="dashboard">
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-left">
+      <svg class="logo-mark" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="HeadySystems">
+        <rect width="34" height="34" rx="8" fill="#7c3aed"/>
+        <path d="M8 9h4v6.5h10V9h4v16h-4v-6.5H12V25H8V9z" fill="white"/>
+        <circle cx="26" cy="11" r="2.5" fill="#a855f7"/>
+      </svg>
+      <div>
+        <div class="header-title">HeadySystems</div>
+        <div class="header-subtitle">Executive Dashboard · φ = 1.618</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <span class="phi-badge">φ-scaled</span>
+      <div class="refresh-badge">
+        <div class="status-dot"></div>
+        <span id="refresh-label">Refreshing in 55s</span>
+      </div>
+      <span id="last-updated">Updated now</span>
+    </div>
+  </header>
+
+  <!-- ── KPI Row ── -->
+  <div class="grid-4">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">MRR</span>
+        <span class="card-badge" style="background:#7c3aed22;color:#a855f7">Revenue</span>
+      </div>
+      <div class="kpi-value" id="kpi-mrr">$0</div>
+      <div class="kpi-delta positive" id="kpi-mrr-delta">+0% MoM</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">Monthly Active Users</span>
+        <span class="card-badge" style="background:#3b82f622;color:#60a5fa">Engagement</span>
+      </div>
+      <div class="kpi-value" id="kpi-mau">0</div>
+      <div class="kpi-delta positive" id="kpi-mau-delta">+0% MoM</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">Churn Rate</span>
+        <span class="card-badge" style="background:#ef444422;color:#f87171">Health</span>
+      </div>
+      <div class="kpi-value" id="kpi-churn">0%</div>
+      <div class="kpi-delta" id="kpi-churn-delta">Monthly</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">NPS Score</span>
+        <span class="card-badge" style="background:#22c55e22;color:#4ade80">Satisfaction</span>
+      </div>
+      <div class="nps-gauge">
+        <span class="nps-value" id="kpi-nps">0</span>
+        <div>
+          <div class="nps-label">Net Promoter</div>
+          <div class="kpi-delta positive" id="kpi-nps-delta">↑ 0 pts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Secondary KPIs ── -->
+  <div class="grid-4">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">ARR</span>
+      </div>
+      <div class="kpi-value" style="font-size:24px" id="kpi-arr">$0</div>
+      <div class="kpi-delta neutral">Annual Run Rate</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">LTV:CAC</span>
+      </div>
+      <div class="kpi-value" style="font-size:24px" id="kpi-ltvcac">0.0x</div>
+      <div class="kpi-delta" id="kpi-ltvcac-health">Target: φ = 1.618x</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">NRR</span>
+      </div>
+      <div class="kpi-value" style="font-size:24px" id="kpi-nrr">0%</div>
+      <div class="kpi-delta" id="kpi-nrr-health">Target: &gt;115%</div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">Daily Active Users</span>
+      </div>
+      <div class="kpi-value" style="font-size:24px" id="kpi-dau">0</div>
+      <div class="kpi-delta" id="kpi-stickiness">DAU/MAU: 0%</div>
+    </div>
+  </div>
+
+  <!-- ── Charts Row 1 ── -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="chart-title">MRR Growth (12 months)</div>
+      <div class="chart-container" style="height:220px">
+        <canvas id="chart-mrr"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="chart-title">User Growth — DAU / WAU / MAU</div>
+      <div class="chart-container" style="height:220px">
+        <canvas id="chart-users"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Charts Row 2 ── -->
+  <div class="grid-2">
+    <!-- Pilot Conversion Funnel -->
+    <div class="card">
+      <div class="chart-title">Pilot Conversion Funnel</div>
+      <div id="funnel-container">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Churn Rate Trend -->
+    <div class="card">
+      <div class="chart-title">Monthly Churn Rate (%)</div>
+      <div class="chart-container" style="height:220px">
+        <canvas id="chart-churn"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Feature Adoption Heatmap + Segment Distribution ── -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="chart-title">Feature Adoption Heatmap (90 days)</div>
+      <div id="heatmap-container"></div>
+      <div class="heatmap-labels">
+        <span>Less</span>
+        <span>More</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chart-title">Customer Health Distribution</div>
+      <div id="segment-container"></div>
+      <div style="margin-top:var(--sp-3); height:160px">
+        <canvas id="chart-segments"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.dashboard -->
+
+<!-- Footer -->
+<footer class="dashboard-footer" style="max-width:1440px;margin:0 auto;padding:0 var(--sp-4) var(--sp-4)">
+  <span>HeadySystems Executive Dashboard · φ = 1.618033988749895 · Auto-refresh: fib(10)=55s</span>
+  <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">
+    Created with Perplexity Computer
+  </a>
+</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// φ constants
+// ─────────────────────────────────────────────────────────────────────────────
+const PHI       = 1.618033988749895;
+const FIB       = [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987];
+const REFRESH_S = FIB[10]; // 55s
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mock data generator (replace with real API calls in production)
+// ─────────────────────────────────────────────────────────────────────────────
+function generateMockData() {
+  const months = ['Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'];
+
+  // MRR growth with φ-ish compounding
+  const mrrBase = 12400;
+  const mrrData = months.map((_, i) => Math.round(mrrBase * Math.pow(1 + 0.08, i)));
+
+  // User data
+  const mauBase  = 890;
+  const mauData  = months.map((_, i) => Math.round(mauBase  * Math.pow(1 + 0.062, i)));
+  const wauData  = mauData.map(v => Math.round(v * 0.618));
+  const dauData  = mauData.map(v => Math.round(v * 0.382));
+
+  // Churn
+  const churnData = months.map(() => +(Math.random() * 0.02 + 0.01).toFixed(3));
+
+  return {
+    months,
+    mrr:    mrrData,
+    mau:    mauData,
+    wau:    wauData,
+    dau:    dauData,
+    churn:  churnData,
+    currentMRR: mrrData[mrrData.length - 1],
+    currentMAU: mauData[mauData.length - 1],
+    currentDAU: dauData[dauData.length - 1],
+    mrrGrowth:  ((mrrData[mrrData.length-1] / mrrData[mrrData.length-2] - 1) * 100).toFixed(1),
+    mauGrowth:  ((mauData[mauData.length-1] / mauData[mauData.length-2] - 1) * 100).toFixed(1),
+    churnRate:  (churnData[churnData.length-1] * 100).toFixed(2),
+    nps:        67,
+    npsDelta:   +4,
+    arr:        mrrData[mrrData.length-1] * 12,
+    ltvCac:     (PHI * 1.21).toFixed(2),
+    nrr:        121.4,
+    stickiness: (dauData[dauData.length-1] / mauData[mauData.length-1] * 100).toFixed(1),
+    funnel: [
+      { label: 'Signed Up',       count: 1597, pct: 100 },
+      { label: 'Created Agent',   count: 987,  pct: 61.8 },
+      { label: 'Completed Task',  count: 610,  pct: 38.2 },
+      { label: 'Converted',       count: 233,  pct: 14.6 },
+    ],
+    segments: [
+      { id: 'champion', label: 'Champion', pct: 21, color: '#22c55e' },
+      { id: 'active',   label: 'Active',   pct: 34, color: '#3b82f6' },
+      { id: 'slipping', label: 'Slipping', pct: 21, color: '#f59e0b' },
+      { id: 'at_risk',  label: 'At-Risk',  pct: 13, color: '#ef4444' },
+      { id: 'churned',  label: 'Churned',  pct: 11, color: '#6b7280' },
+    ],
+    features: [
+      { name: 'Agent Create',    adoption: 0.618 },
+      { name: 'Task Complete',   adoption: 0.854 },
+      { name: 'MCP Tools',       adoption: 0.382 },
+      { name: 'Vector Memory',   adoption: 0.472 },
+      { name: 'Billing Upgrade', adoption: 0.236 },
+      { name: 'Feedback',        adoption: 0.291 },
+    ],
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chart defaults
+// ─────────────────────────────────────────────────────────────────────────────
+Chart.defaults.color = '#9090a8';
+Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+Chart.defaults.font.size   = 11;
+
+const GRID_COLOR = 'rgba(255,255,255,0.04)';
+const ACCENT     = '#7c3aed';
+
+function baseOptions(opts = {}) {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        display: opts.legend ?? false,
+        position: 'top',
+        labels: { boxWidth: 10, padding: 15 },
+      },
+      tooltip: {
+        backgroundColor: '#16161d',
+        borderColor: '#2a2a38',
+        borderWidth: 1,
+        padding: 10,
+        titleColor: '#f0f0f5',
+        bodyColor:  '#9090a8',
+      },
+    },
+    scales: opts.noScales ? {} : {
+      x: {
+        grid: { color: GRID_COLOR },
+        ticks: { maxRotation: 0 },
+      },
+      y: {
+        grid: { color: GRID_COLOR },
+        beginAtZero: true,
+        ...opts.yAxis,
+      },
+    },
+    animation: {
+      duration: Math.round(1000 / PHI),  // φ-derived animation duration ≈ 618ms
+    },
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Render functions
+// ─────────────────────────────────────────────────────────────────────────────
+let charts = {};
+
+function renderKPIs(data) {
+  const fmt  = (n) => n >= 1e6 ? '$' + (n/1e6).toFixed(2) + 'M' : '$' + n.toLocaleString();
+  document.getElementById('kpi-mrr').textContent         = fmt(data.currentMRR);
+  document.getElementById('kpi-mrr-delta').textContent   = `+${data.mrrGrowth}% MoM`;
+  document.getElementById('kpi-mau').textContent         = data.currentMAU.toLocaleString();
+  document.getElementById('kpi-mau-delta').textContent   = `+${data.mauGrowth}% MoM`;
+  document.getElementById('kpi-churn').textContent       = data.churnRate + '%';
+  document.getElementById('kpi-churn-delta').textContent = data.churnRate < 2 ? '✓ Healthy (<2%)' : '⚠ Elevated';
+  document.getElementById('kpi-churn-delta').className   = 'kpi-delta ' + (data.churnRate < 2 ? 'positive' : 'negative');
+  document.getElementById('kpi-nps').textContent         = data.nps;
+  document.getElementById('kpi-nps-delta').textContent   = (data.npsDelta > 0 ? '↑ +' : '↓ ') + data.npsDelta + ' pts';
+  document.getElementById('kpi-arr').textContent         = fmt(data.arr);
+  document.getElementById('kpi-ltvcac').textContent      = data.ltvCac + 'x';
+  const ltvHealth = document.getElementById('kpi-ltvcac-health');
+  ltvHealth.textContent  = data.ltvCac >= PHI ? `✓ Above φ (${PHI.toFixed(3)})` : `✗ Below φ threshold`;
+  ltvHealth.className    = 'kpi-delta ' + (data.ltvCac >= PHI ? 'positive' : 'negative');
+  document.getElementById('kpi-nrr').textContent         = data.nrr.toFixed(1) + '%';
+  const nrrHealth = document.getElementById('kpi-nrr-health');
+  nrrHealth.textContent  = data.nrr >= 115 ? '✓ Above 115% target' : '✗ Below 115% target';
+  nrrHealth.className    = 'kpi-delta ' + (data.nrr >= 115 ? 'positive' : 'negative');
+  document.getElementById('kpi-dau').textContent         = data.currentDAU.toLocaleString();
+  document.getElementById('kpi-stickiness').textContent  = `DAU/MAU: ${data.stickiness}% (1/φ = ${(100/PHI).toFixed(1)}%)`;
+}
+
+function renderMRRChart(data) {
+  const ctx = document.getElementById('chart-mrr').getContext('2d');
+  if (charts.mrr) charts.mrr.destroy();
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0,   'rgba(124,58,237,0.3)');
+  gradient.addColorStop(1,   'rgba(124,58,237,0.0)');
+
+  charts.mrr = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.months,
+      datasets: [{
+        label: 'MRR',
+        data:  data.mrr,
+        borderColor:  ACCENT,
+        backgroundColor: gradient,
+        fill: true,
+        tension: 0.382,    // 1/φ²
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      ...baseOptions(),
+      scales: {
+        x: { grid: { color: GRID_COLOR } },
+        y: { grid: { color: GRID_COLOR }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } },
+      },
+    },
+  });
+}
+
+function renderUsersChart(data) {
+  const ctx = document.getElementById('chart-users').getContext('2d');
+  if (charts.users) charts.users.destroy();
+
+  charts.users = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.months,
+      datasets: [
+        { label: 'MAU', data: data.mau, borderColor: '#3b82f6', fill: false, tension: 0.382, pointRadius: 2, borderWidth: 2 },
+        { label: 'WAU', data: data.wau, borderColor: '#8b5cf6', fill: false, tension: 0.382, pointRadius: 2, borderWidth: 1.5, borderDash: [4, 3] },
+        { label: 'DAU', data: data.dau, borderColor: '#f59e0b', fill: false, tension: 0.382, pointRadius: 2, borderWidth: 1.5, borderDash: [2, 3] },
+      ],
+    },
+    options: baseOptions({ legend: true }),
+  });
+}
+
+function renderChurnChart(data) {
+  const ctx = document.getElementById('chart-churn').getContext('2d');
+  if (charts.churn) charts.churn.destroy();
+
+  const colors = data.churn.map(v => v > 0.02 ? '#ef444488' : '#22c55e66');
+  charts.churn = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.months,
+      datasets: [{
+        label: 'Churn %',
+        data:  data.churn.map(v => +(v * 100).toFixed(2)),
+        backgroundColor: colors,
+        borderColor:     colors.map(c => c.slice(0, 7)),
+        borderWidth: 1,
+        borderRadius: 4,
+      }],
+    },
+    options: {
+      ...baseOptions(),
+      plugins: {
+        ...baseOptions().plugins,
+        annotation: {
+          annotations: {
+            threshold: {
+              type: 'line',
+              yMin: 2,
+              yMax: 2,
+              borderColor: '#ef444477',
+              borderWidth: 1,
+              borderDash: [4, 4],
+              label: { content: '2% threshold', display: true },
+            },
+          },
+        },
+      },
+      scales: {
+        x: { grid: { color: GRID_COLOR } },
+        y: { grid: { color: GRID_COLOR }, ticks: { callback: v => v + '%' } },
+      },
+    },
+  });
+}
+
+function renderFunnel(data) {
+  const container = document.getElementById('funnel-container');
+  const maxCount  = data.funnel[0].count;
+
+  container.innerHTML = data.funnel.map(step => `
+    <div class="funnel-step">
+      <span class="funnel-label">${step.label}</span>
+      <div class="funnel-bar-container">
+        <div class="funnel-bar" style="width: ${step.pct}%"></div>
+      </div>
+      <span class="funnel-count">${step.count.toLocaleString()}</span>
+      <span class="funnel-rate">${step.pct.toFixed(1)}%</span>
+    </div>
+  `).join('');
+}
+
+function renderHeatmap(data) {
+  const container = document.getElementById('heatmap-container');
+
+  // Generate 84 cells (12 weeks × 7 days)
+  const cells = Array.from({ length: 84 }, (_, i) => {
+    const intensity = Math.random();  // Replace with real data
+    const alpha     = 0.1 + intensity * 0.9;
+    return `<div class="heatmap-cell"
+      style="background: rgba(124,58,237,${alpha.toFixed(2)})"
+      title="Intensity: ${(intensity * 100).toFixed(0)}%"></div>`;
+  });
+
+  container.innerHTML = `<div class="heatmap-grid">${cells.join('')}</div>`;
+
+  // Feature adoption bars below heatmap
+  const featuresHtml = data.features.map(f => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:11px;color:var(--text-secondary);width:110px;flex-shrink:0">${f.name}</span>
+      <div style="flex:1;height:6px;background:var(--bg-surface);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${(f.adoption * 100).toFixed(1)}%;background:var(--accent);border-radius:3px;opacity:0.8"></div>
+      </div>
+      <span style="font-size:11px;font-weight:600;width:38px;text-align:right;color:var(--text-primary)">
+        ${(f.adoption * 100).toFixed(0)}%
+      </span>
+    </div>
+  `).join('');
+
+  container.innerHTML += `<div style="margin-top:var(--sp-4)">${featuresHtml}</div>`;
+}
+
+function renderSegments(data) {
+  const container = document.getElementById('segment-container');
+  container.innerHTML = data.segments.map(s => `
+    <div class="segment-row">
+      <div class="segment-dot" style="background:${s.color}"></div>
+      <span class="segment-name">${s.label}</span>
+      <div class="segment-bar-wrap">
+        <div class="segment-bar-fill" style="width:${s.pct}%;background:${s.color};opacity:0.7"></div>
+      </div>
+      <span class="segment-pct" style="color:${s.color}">${s.pct}%</span>
+    </div>
+  `).join('');
+
+  const ctx = document.getElementById('chart-segments').getContext('2d');
+  if (charts.segments) charts.segments.destroy();
+
+  charts.segments = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.segments.map(s => s.label),
+      datasets: [{
+        data:            data.segments.map(s => s.pct),
+        backgroundColor: data.segments.map(s => s.color + 'cc'),
+        borderColor:     data.segments.map(s => s.color),
+        borderWidth:     1,
+        hoverOffset:     4,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '61.8%',   // φ-derived cutout
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#16161d',
+          borderColor: '#2a2a38',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` },
+        },
+      },
+      animation: { duration: Math.round(1000 / PHI) },
+    },
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Auto-refresh (fib(10)=55s)
+// ─────────────────────────────────────────────────────────────────────────────
+let countdown = REFRESH_S;
+
+function tick() {
+  countdown--;
+  document.getElementById('refresh-label').textContent = `Refreshing in ${countdown}s`;
+
+  if (countdown <= 0) {
+    countdown = REFRESH_S;
+    loadAndRender();
+    document.getElementById('last-updated').textContent =
+      'Updated ' + new Date().toLocaleTimeString();
+  }
+}
+
+function loadAndRender() {
+  const data = generateMockData();
+  renderKPIs(data);
+  renderMRRChart(data);
+  renderUsersChart(data);
+  renderChurnChart(data);
+  renderFunnel(data);
+  renderHeatmap(data);
+  renderSegments(data);
+}
+
+// Initialize
+loadAndRender();
+setInterval(tick, 1000);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HeadyOS Pilot — Usage Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── φ tokens ── */
+    :root {
+      --phi: 1.618033988749895;
+      --sp-1: 0.618rem; --sp-2: 1rem; --sp-3: 1.618rem;
+      --sp-4: 2.618rem; --sp-5: 4.236rem;
+      --bg-void:    #080b10; --bg-deep:   #0d1117;
+      --bg-surface: #131924; --bg-card:   #1a2233;
+      --bg-elevated:#212d42;
+      --border:     rgba(99,148,255,0.12);
+      --gold:       #c9a84c; --gold-bright: #e4c068;
+      --blue:       #3d7bd4; --blue-bright: #6394ff;
+      --emerald:    #2ea87e; --emerald-bright: #4ecba0;
+      --red:        #e05a5a;
+      --text-primary: #f0f4ff; --text-secondary: #8b9cc8; --text-muted: #4a5a7a;
+      --radius: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg-void); color: var(--text-primary); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* ── Layout ── */
+    .dash-layout { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      background: var(--bg-deep);
+      border-right: 1px solid var(--border);
+      padding: var(--sp-3) 0;
+      display: flex; flex-direction: column;
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3) var(--sp-4);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem; font-weight: 700; color: var(--text-primary);
+      border-bottom: 1px solid var(--border); margin-bottom: var(--sp-3);
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-1) var(--sp-3); font-size: 0.875rem;
+      color: var(--text-secondary); cursor: pointer; border-radius: 0;
+      transition: all 150ms ease; text-decoration: none;
+    }
+    .nav-item:hover { background: rgba(99,148,255,0.05); color: var(--text-primary); }
+    .nav-item.active { background: rgba(201,168,76,0.08); color: var(--gold); border-left: 2px solid var(--gold); }
+    .nav-section { font-size: 0.618rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: var(--sp-3) var(--sp-3) var(--sp-1); }
+    .sidebar-footer { margin-top: auto; padding: var(--sp-3); border-top: 1px solid var(--border); }
+    .pilot-progress { background: var(--bg-elevated); border-radius: 8px; padding: var(--sp-2); }
+    .pilot-progress-label { font-size: 0.618rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .progress-bar { background: var(--bg-card); border-radius: 99px; height: 5px; overflow: hidden; margin-bottom: 6px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-bright)); border-radius: 99px; transition: width 1s ease; }
+    .progress-text { font-size: 0.764rem; color: var(--text-secondary); }
+
+    /* ── Main content ── */
+    .main { overflow-y: auto; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-3) var(--sp-4);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-deep);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.272rem; font-weight: 700; }
+    .topbar-meta { font-size: 0.764rem; color: var(--text-muted); margin-top: 2px; }
+    .topbar-actions { display: flex; align-items: center; gap: var(--sp-2); }
+    .badge { padding: 4px 10px; border-radius: 99px; font-size: 0.618rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .badge-gold { background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.3); color: var(--gold-bright); }
+    .badge-green { background: rgba(46,168,126,0.12); border: 1px solid rgba(46,168,126,0.3); color: var(--emerald-bright); }
+    .badge-red { background: rgba(224,90,90,0.12); border: 1px solid rgba(224,90,90,0.3); color: var(--red); }
+    .time-select { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; color: var(--text-secondary); font-size: 0.764rem; padding: 6px 10px; cursor: pointer; outline: none; }
+
+    .content { padding: var(--sp-4); }
+
+    /* ── KPI Grid ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); margin-bottom: var(--sp-4); }
+
+    .kpi-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: var(--sp-3);
+      transition: border-color 200ms ease, box-shadow 200ms ease;
+    }
+    .kpi-card:hover { border-color: rgba(99,148,255,0.25); box-shadow: 0 4px 21px rgba(0,0,0,0.3); }
+    .kpi-label { font-size: 0.618rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
+    .kpi-value { font-family: 'Space Grotesk', sans-serif; font-size: 2.618rem; font-weight: 800; line-height: 1; color: var(--gold-bright); }
+    .kpi-sub { font-size: 0.764rem; color: var(--text-muted); margin-top: 6px; }
+    .kpi-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 0.764rem; font-weight: 600; margin-top: 6px; }
+    .kpi-trend.up { color: var(--emerald-bright); }
+    .kpi-trend.down { color: var(--red); }
+    .kpi-trend.neutral { color: var(--text-muted); }
+
+    /* ── Chart Sections ── */
+    .charts-grid { display: grid; grid-template-columns: 1.618fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+    .chart-full { grid-column: 1 / -1; }
+
+    .chart-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: var(--sp-3);
+    }
+    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-3); }
+    .chart-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.875rem; font-weight: 600; }
+    .chart-meta { font-size: 0.618rem; color: var(--text-muted); }
+    .chart-wrap { position: relative; }
+
+    /* ── Gauge ── */
+    .gauge-wrap { position: relative; width: 160px; height: 100px; margin: 0 auto var(--sp-2); }
+    .gauge-value { text-align: center; font-family: 'Space Grotesk', sans-serif; font-size: 1.618rem; font-weight: 800; color: var(--gold-bright); }
+    .gauge-label { text-align: center; font-size: 0.618rem; color: var(--text-muted); }
+
+    /* ── Success Metrics ── */
+    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); margin-bottom: var(--sp-3); }
+    .metric-row {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: var(--sp-2) var(--sp-3);
+      display: flex; align-items: center; gap: var(--sp-2);
+    }
+    .metric-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .metric-status.met { background: var(--emerald-bright); box-shadow: 0 0 8px rgba(78,203,160,0.5); }
+    .metric-status.unmet { background: var(--red); }
+    .metric-status.unknown { background: var(--text-muted); }
+    .metric-body { flex: 1; }
+    .metric-name { font-size: 0.764rem; font-weight: 600; color: var(--text-primary); }
+    .metric-detail { font-size: 0.618rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── Agents Table ── */
+    .agents-table { width: 100%; border-collapse: collapse; }
+    .agents-table th { font-size: 0.618rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+    .agents-table td { font-size: 0.764rem; color: var(--text-secondary); padding: 10px 12px; border-bottom: 1px solid rgba(99,148,255,0.05); vertical-align: middle; }
+    .agents-table tr:hover td { background: rgba(99,148,255,0.03); }
+    .agent-name { color: var(--text-primary); font-weight: 500; }
+    .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
+    .status-ready { background: var(--emerald-bright); }
+    .status-running { background: var(--gold-bright); }
+    .status-idle { background: var(--text-muted); }
+
+    /* ── Footer ── */
+    footer { padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--border); font-size: 0.618rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--text-secondary); }
+
+    @media (max-width: 1024px) {
+      .dash-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="dash-layout">
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar" role="navigation">
+    <div class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="11" stroke="#c9a84c" stroke-width="1.2" opacity="0.7"/>
+        <circle cx="12" cy="12" r="6.854" stroke="#3d7bd4" stroke-width="0.8" opacity="0.5"/>
+        <circle cx="12" cy="12" r="2" fill="#c9a84c"/>
+      </svg>
+      HeadyOS Dashboard
+    </div>
+
+    <span class="nav-section">Overview</span>
+    <a href="#" class="nav-item active">◈ Usage Overview</a>
+    <a href="#" class="nav-item">⟁ Agent Performance</a>
+    <a href="#" class="nav-item">∞ API Usage</a>
+
+    <span class="nav-section">Pilot</span>
+    <a href="#" class="nav-item">◎ Success Metrics</a>
+    <a href="#" class="nav-item">⬡ Vector Memory</a>
+    <a href="#" class="nav-item">⊕ MCP Tools</a>
+
+    <span class="nav-section">Team</span>
+    <a href="#" class="nav-item">◇ Costs & Estimates</a>
+    <a href="#" class="nav-item">↗ Upgrade to Pro</a>
+
+    <div class="sidebar-footer">
+      <div class="pilot-progress">
+        <div class="pilot-progress-label">Pilot Progress</div>
+        <div class="progress-bar"><div class="progress-fill" id="pilot-progress-fill" style="width: 14.6%;"></div></div>
+        <div class="progress-text" id="pilot-progress-text">Day 13 of 89 · 76 days remaining</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main" role="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Usage Dashboard</div>
+        <div class="topbar-meta" id="dash-meta">Founder Tier · Cohort 1 · Loading…</div>
+      </div>
+      <div class="topbar-actions">
+        <span class="badge badge-gold" id="health-badge">HEALTHY</span>
+        <select class="time-select" id="time-range" aria-label="Time range">
+          <option value="8">Last 8 days (fib(6))</option>
+          <option value="13" selected>Last 13 days (fib(7))</option>
+          <option value="21">Last 21 days (fib(8))</option>
+          <option value="34">Last 34 days (fib(9))</option>
+          <option value="55">Last 55 days (fib(10))</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Pilot Success Metrics -->
+      <div id="success-metrics" style="margin-bottom: var(--sp-3);">
+        <h2 style="font-family:'Space Grotesk',sans-serif; font-size:0.875rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:var(--sp-2);">Pilot Success Criteria</h2>
+        <div class="metrics-grid" id="metrics-grid"><!-- populated by JS --></div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid" id="kpi-grid"><!-- populated by JS --></div>
+
+      <!-- Charts Row 1 -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Agent Invocations</div>
+            <span class="chart-meta">Last 13 days [fib(7)]</span>
+          </div>
+          <div class="chart-wrap" style="height:220px;">
+            <canvas id="invocations-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Avg Latency</div>
+            <span class="chart-meta">p95 target: 5s</span>
+          </div>
+          <div>
+            <div class="gauge-wrap"><canvas id="latency-gauge"></canvas></div>
+            <div class="gauge-value" id="latency-value">—</div>
+            <div class="gauge-label">p95 ms</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 2 -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">API Calls Per Day</div>
+            <span class="chart-meta">Limit: 1,597 [fib(17)] / day</span>
+          </div>
+          <div class="chart-wrap" style="height:200px;">
+            <canvas id="apicalls-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Error Rate</div>
+            <span class="chart-meta">Target: &lt;1%</span>
+          </div>
+          <div class="chart-wrap" style="height:200px;">
+            <canvas id="error-chart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agents Table -->
+      <div class="chart-card" style="margin-bottom: var(--sp-3);">
+        <div class="chart-header">
+          <div class="chart-title">Active Agents</div>
+          <span class="chart-meta" id="agents-count">0 / 13 active [fib(7)]</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="agents-table" id="agents-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Template</th>
+                <th>Status</th>
+                <th>Invocations</th>
+                <th>Success Rate</th>
+                <th>Avg Latency</th>
+                <th>CSL Level</th>
+              </tr>
+            </thead>
+            <tbody id="agents-tbody"><!-- populated by JS --></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cost Estimate -->
+      <div class="chart-card" style="margin-bottom: var(--sp-3);">
+        <div class="chart-header">
+          <div class="chart-title">Cost Estimate (Pilot is Free)</div>
+          <span class="chart-meta">Market value of your usage</span>
+        </div>
+        <div class="kpi-grid" id="cost-grid" style="margin-bottom:0;"><!-- populated by JS --></div>
+      </div>
+
+    </div>
+
+    <footer>
+      <span>HeadySystems Inc. · HeadyOS™ Pilot Dashboard · φ = 1.618033988749895</span>
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
+    </footer>
+  </main>
+</div>
+
+<script>
+/* ── φ Constants ── */
+const PHI = 1.618033988749895;
+const FIB = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597];
+const TENANT_ID = 'demo-tenant-founder-1';
+
+/* ── Chart.js Theme ── */
+Chart.defaults.color = '#8b9cc8';
+Chart.defaults.borderColor = 'rgba(99,148,255,0.08)';
+Chart.defaults.font.family = 'Inter, sans-serif';
+Chart.defaults.font.size = 11;
+
+const GOLD_GRADIENT = (ctx) => {
+  const g = ctx.createLinearGradient(0, 0, 0, 220);
+  g.addColorStop(0, 'rgba(201,168,76,0.4)');
+  g.addColorStop(1, 'rgba(201,168,76,0.02)');
+  return g;
+};
+
+const BLUE_GRADIENT = (ctx) => {
+  const g = ctx.createLinearGradient(0, 0, 0, 200);
+  g.addColorStop(0, 'rgba(61,123,212,0.35)');
+  g.addColorStop(1, 'rgba(61,123,212,0.02)');
+  return g;
+};
+
+/* ── Mock API ── */
+const generateSeries = (days, base, variance = 0.3) =>
+  Array.from({ length: days }, (_, i) => {
+    const progress = i / days;
+    const growth = (Math.pow(PHI, progress * 2) - 1) * 0.5;
+    return Math.max(0, Math.round(base * (1 + growth + (Math.random() - 0.5) * variance)));
+  });
+
+const getDateLabels = (days) => {
+  const labels = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('en', { month: 'short', day: 'numeric' }));
+  }
+  return labels;
+};
+
+const mockOverview = () => ({
+  totalInvocations:  FIB[9] + Math.floor(Math.random() * FIB[9]),
+  totalApiCalls:     (FIB[9] + Math.floor(Math.random() * FIB[9])) * FIB[6],
+  avgLatencyMs:      Math.round(1618 + Math.random() * 800),
+  p95LatencyMs:      Math.round(2618 + Math.random() * 1618),
+  errorRatePct:      Math.round(Math.random() * 150) / 100,
+  storageUsedMB:     FIB[8] + Math.floor(Math.random() * FIB[8]),
+  vectorSlotsUsed:   FIB[5] + Math.floor(Math.random() * FIB[8]),
+  criticalFailures:  0,
+  grantsSubmitted:   FIB[2] + Math.floor(Math.random() * FIB[3]),
+  approvalRatePct:   Math.round(PHI / (1 + PHI) * 100 * 1.38),
+  npsScore:          FIB[8] + Math.floor(Math.random() * FIB[4]),
+  maxRecoverySec:    Math.round(Math.random() * 18),
+});
+
+const mockAgents = () =>
+  Array.from({ length: FIB[3] + Math.floor(Math.random() * FIB[3]) }, (_, i) => ({
+    name: ['Grant Writer', 'Doc Analyzer', 'Research Synth', 'Code Reviewer', 'Assistant'][i % 5] + ` v${i + 1}`,
+    template: ['grant-writer', 'document-analyzer', 'research-synthesizer', 'code-reviewer', 'general'][i % 5],
+    status: ['READY', 'RUNNING', 'IDLE'][Math.floor(Math.random() * 3)],
+    invocations: FIB[5] + Math.floor(Math.random() * FIB[8]),
+    successRate: Math.round((94 + Math.random() * 6) * 10) / 10,
+    avgLatencyMs: Math.round(1200 + Math.random() * 2000),
+    cslLevel: ['LOW', 'MODERATE', 'HIGH'][Math.floor(Math.random() * 3)],
+  }));
+
+const mockCosts = () => ({
+  agentInvocations: (Math.round((FIB[9] + Math.random() * FIB[8]) * 1.618 / 1000 * 10000) / 10000),
+  apiCalls: (Math.round(Math.random() * 0.01 * 10000) / 10000),
+  storage: (Math.round(Math.random() * 0.5 * 10000) / 10000),
+  total: 0,
+  monthlyProjected: 0,
+  founderSaving: 0,
+});
+
+/* ── Render Functions ── */
+const renderSuccessMetrics = (data) => {
+  const criteria = [
+    { name: 'Critical Failures', actual: data.criticalFailures, target: 0, comparison: 'EQ', unit: '' },
+    { name: 'Grants Drafted', actual: data.grantsSubmitted, target: 3, comparison: 'GTE', unit: '' },
+    { name: 'p95 Latency', actual: data.p95LatencyMs, target: 5000, comparison: 'LTE', unit: 'ms' },
+    { name: 'Approval Rate', actual: data.approvalRatePct, target: 85, comparison: 'GTE', unit: '%' },
+    { name: 'Recovery Time', actual: data.maxRecoverySec, target: 30, comparison: 'LTE', unit: 's' },
+    { name: 'NPS Score', actual: data.npsScore, target: 40, comparison: 'GTE', unit: '' },
+  ];
+
+  const grid = document.getElementById('metrics-grid');
+  grid.innerHTML = criteria.map(c => {
+    const met = c.comparison === 'EQ'  ? c.actual === c.target
+              : c.comparison === 'GTE' ? c.actual >= c.target
+              : c.actual <= c.target;
+    const statusClass = met ? 'met' : 'unmet';
+    return `
+      <div class="metric-row">
+        <div class="metric-status ${statusClass}"></div>
+        <div class="metric-body">
+          <div class="metric-name">${c.name}</div>
+          <div class="metric-detail">${c.actual}${c.unit} · target: ${c.comparison === 'EQ' ? '' : c.comparison === 'GTE' ? '≥' : '≤'}${c.target}${c.unit}</div>
+        </div>
+      </div>`;
+  }).join('');
+};
+
+const renderKPIs = (data) => {
+  const kpis = [
+    { label: 'Total Agent Invocations', value: data.totalInvocations, sub: 'Across all agents', trend: '+' + Math.round(Math.random() * 30) + '% this week', trendDir: 'up' },
+    { label: 'Total API Calls', value: data.totalApiCalls.toLocaleString(), sub: `of ${FIB[16].toLocaleString()} [fib(17)] daily limit`, trend: 'Rate: 144/min [fib(12)]', trendDir: 'neutral' },
+    { label: 'Avg Response Time', value: data.avgLatencyMs + 'ms', sub: 'p95: ' + data.p95LatencyMs + 'ms', trend: data.p95LatencyMs < 5000 ? '✓ Under 5s target' : '⚠ Over 5s target', trendDir: data.p95LatencyMs < 5000 ? 'up' : 'down' },
+    { label: 'Error Rate', value: data.errorRatePct + '%', sub: 'Target: <1%', trend: data.errorRatePct < 1 ? '✓ Within target' : '⚠ Over target', trendDir: data.errorRatePct < 1 ? 'up' : 'down' },
+    { label: 'Storage Used', value: data.storageUsedMB + ' MB', sub: `of 987 MB [fib(16)] capacity`, trend: Math.round(data.storageUsedMB / FIB[15] * 100) + '% utilized', trendDir: 'neutral' },
+    { label: 'Vector Memory', value: data.vectorSlotsUsed, sub: `of 987 [fib(16)] slots used`, trend: Math.round(data.vectorSlotsUsed / FIB[15] * 100) + '% capacity', trendDir: 'neutral' },
+  ];
+
+  document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      <div class="kpi-trend ${k.trendDir}">${k.trend}</div>
+    </div>`).join('');
+};
+
+const renderCosts = () => {
+  const c = mockCosts();
+  c.total = parseFloat((c.agentInvocations + c.apiCalls + c.storage).toFixed(4));
+  c.monthlyProjected = parseFloat((c.total * 30 / 13).toFixed(2));
+  c.founderSaving = parseFloat((c.monthlyProjected * 0.5 * 12).toFixed(2));
+
+  document.getElementById('cost-grid').innerHTML = [
+    { label: 'Billed This Pilot', value: '$0.00', sub: 'Free — Founder Tier', trend: '✓ $0 billed', trendDir: 'up' },
+    { label: 'Est. Market Value', value: '$' + c.total, sub: 'Invocations + storage + vectors', trend: 'vs $' + c.monthlyProjected + '/mo projected', trendDir: 'neutral' },
+    { label: 'Pro Tier (Founder)', value: '$44.50', sub: 'per seat/month (50% off)', trend: 'Save $' + c.founderSaving + ' vs standard over 12mo', trendDir: 'up' },
+  ].map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      <div class="kpi-trend ${k.trendDir}">${k.trend}</div>
+    </div>`).join('');
+};
+
+let invocationsChart, apicallsChart, errorChart, latencyGauge;
+
+const renderCharts = (days) => {
+  const labels = getDateLabels(days);
+  const invData = generateSeries(days, FIB[5], 0.4);
+  const apiData = generateSeries(days, FIB[8], 0.35);
+  const errData = generateSeries(days, 0.8, 0.5);
+
+  /* Agent Invocations */
+  const invCtx = document.getElementById('invocations-chart');
+  if (invocationsChart) invocationsChart.destroy();
+  invocationsChart = new Chart(invCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: invData,
+        borderColor: '#c9a84c',
+        backgroundColor: GOLD_GRADIENT(invCtx.getContext('2d')),
+        borderWidth: 2, tension: 0.4, fill: true, pointRadius: 3,
+        pointBackgroundColor: '#c9a84c',
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(99,148,255,0.06)' } },
+        y: { grid: { color: 'rgba(99,148,255,0.06)' }, beginAtZero: true },
+      }
+    }
+  });
+
+  /* API Calls Bar */
+  const apiCtx = document.getElementById('apicalls-chart');
+  if (apicallsChart) apicallsChart.destroy();
+  apicallsChart = new Chart(apiCtx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: apiData,
+        backgroundColor: 'rgba(61,123,212,0.5)',
+        borderColor: '#3d7bd4', borderWidth: 1, borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(99,148,255,0.06)' }, beginAtZero: true },
+      }
+    }
+  });
+
+  /* Error Rate Line */
+  const errCtx = document.getElementById('error-chart');
+  if (errorChart) errorChart.destroy();
+  errorChart = new Chart(errCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { data: errData, borderColor: '#e05a5a', backgroundColor: 'rgba(224,90,90,0.1)', borderWidth: 2, tension: 0.4, fill: true, label: 'Error %' },
+        { data: Array(days).fill(1), borderColor: 'rgba(201,168,76,0.4)', borderWidth: 1, borderDash: [5, 3], pointRadius: 0, label: 'Target 1%' },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, labels: { boxWidth: 8, padding: 12 } } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { grid: { color: 'rgba(99,148,255,0.06)' }, beginAtZero: true },
+      }
+    }
+  });
+};
+
+const renderLatencyGauge = (p95) => {
+  const gCtx = document.getElementById('latency-gauge').getContext('2d');
+  if (latencyGauge) latencyGauge.destroy();
+
+  const pct = Math.min(p95 / 8000, 1); // 8000ms = full scale
+  const target = 5000 / 8000;
+  const color = p95 <= 5000 ? '#2ea87e' : '#e05a5a';
+
+  latencyGauge = new Chart(gCtx, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [pct, 1 - pct],
+        backgroundColor: [color, 'rgba(99,148,255,0.08)'],
+        borderWidth: 0, circumference: 180, rotation: -90,
+      }]
+    },
+    options: { plugins: { legend: { display: false } }, cutout: '72%' }
+  });
+
+  document.getElementById('latency-value').textContent = p95.toLocaleString();
+  document.getElementById('latency-value').style.color = color;
+};
+
+const renderAgentsTable = (agents) => {
+  document.getElementById('agents-count').textContent = `${agents.length} / 13 active [fib(7)]`;
+  document.getElementById('agents-tbody').innerHTML = agents.map(a => `
+    <tr>
+      <td class="agent-name">${a.name}</td>
+      <td>${a.template}</td>
+      <td><span class="status-dot status-${a.status.toLowerCase()}"></span>${a.status}</td>
+      <td>${a.invocations}</td>
+      <td>${a.successRate}%</td>
+      <td>${a.avgLatencyMs.toLocaleString()}ms</td>
+      <td>${a.cslLevel}</td>
+    </tr>`).join('');
+};
+
+/* ── Main Init ── */
+const init = async () => {
+  const days = parseInt(document.getElementById('time-range').value);
+  const overview = mockOverview();
+  const agents = mockAgents();
+
+  document.getElementById('dash-meta').textContent =
+    `Founder Tier · Cohort 1 · Pilot Day ${Math.floor(Math.random() * FIB[6] + 1)} of ${FIB[10]}`;
+
+  renderSuccessMetrics(overview);
+  renderKPIs(overview);
+  renderCosts();
+  renderCharts(days);
+  renderLatencyGauge(overview.p95LatencyMs);
+  renderAgentsTable(agents);
+};
+
+document.getElementById('time-range').addEventListener('change', (e) => {
+  renderCharts(parseInt(e.target.value));
+});
+
+init();
+</script>
+</body>
+</html>

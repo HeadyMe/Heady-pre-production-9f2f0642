@@ -1,0 +1,224 @@
+# =============================================================================
+# HeadySystems Inc. — Kubernetes Deployment: heady-web
+# heady-systems v3.2.2
+# =============================================================================
+# φ = 1.618033988749895 (Golden Ratio)
+# replicas: fib(5) = 5
+# Serves all 9 domains from single container
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heady-web
+  namespace: heady-system
+  labels:
+    app.kubernetes.io/name: heady-web
+    app.kubernetes.io/instance: heady-web-production
+    app.kubernetes.io/version: "3.2.2"
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: heady-platform
+    app.kubernetes.io/managed-by: helm
+    headysystems.com/tier: frontend
+    headysystems.com/phi: "1.618033988749895"
+  annotations:
+    headysystems.com/description: "Web frontend serving 9 domains — fib(5)=5 replicas"
+    headysystems.com/replicas-derivation: "fib(5)=5 — fifth Fibonacci number"
+    headysystems.com/domains: "headyme.com,headyconnection.com,headyconnection.org,headyos.com,heady.exchange,heady.investments,headysystems.com,headyai.com"
+spec:
+  # replicas: fib(5) = 5
+  replicas: 5
+  revisionHistoryLimit: 5    # fib(5)=5
+  progressDeadlineSeconds: 890
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: heady-web
+      app.kubernetes.io/instance: heady-web-production
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 3       # fib(4)=3
+      maxUnavailable: 1 # fib(2)=1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: heady-web
+        app.kubernetes.io/instance: heady-web-production
+        app.kubernetes.io/version: "3.2.2"
+        app.kubernetes.io/component: web
+        headysystems.com/tier: frontend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        headysystems.com/phi: "1.618033988749895"
+        # CSP configuration hash
+        checksum/config: "{{ include (print $.Template.BasePath \"/configmap.yaml\") . | sha256sum }}"
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-web
+        - maxSkew: 2    # fib(3)=2 — looser spread for 5 replicas
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: heady-web
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 89   # fib(11)=89
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - heady-web
+                topologyKey: kubernetes.io/hostname
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - heady-web
+              topologyKey: topology.kubernetes.io/zone
+              namespaces:
+                - heady-system
+
+      serviceAccountName: heady-web
+      automountServiceAccountToken: false
+      # terminationGracePeriodSeconds: fib(7)=13 × 2 = 26s (web requests are short-lived)
+      terminationGracePeriodSeconds: 26
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: heady-web
+          image: gcr.io/heady-systems/heady-web:3.2.2
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: heady-config
+            - secretRef:
+                name: heady-secrets
+          env:
+            - name: SERVICE_NAME
+              value: "heady-web"
+            - name: SERVICE_VERSION
+              value: "3.2.2"
+            - name: PORT
+              value: "8080"
+            - name: NODE_ENV
+              value: "production"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            # fib(12)=144 → 144 req/s rate limit per pod
+            - name: RATE_LIMIT_PER_POD
+              value: "144"
+            # fib(7)=13 × 1000ms = 13000ms session timeout
+            - name: SESSION_TIMEOUT_MS
+              value: "13000"
+            # 9 domains served
+            - name: DOMAIN_COUNT
+              value: "9"
+            # Cache TTL: fib(11)=89 × 60s = 5340s ≈ 89 minutes
+            - name: STATIC_CACHE_TTL_S
+              value: "5340"
+
+          resources:
+            requests:
+              cpu: "100m"   # fib(2)=1 × 100m
+              memory: "128Mi"
+            limits:
+              cpu: "500m"   # fib(5)=5 × 100m
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 8    # fib(6)=8
+            periodSeconds: 8          # fib(6)=8
+            timeoutSeconds: 3         # fib(4)=3
+            failureThreshold: 3
+            successThreshold: 1
+
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 3    # fib(4)=3
+            periodSeconds: 3
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 5    # fib(5)=5
+            periodSeconds: 3
+            failureThreshold: 13      # fib(7)=13
+            timeoutSeconds: 5
+
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"]  # fib(5)=5s drain
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop: ["ALL"]
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: nginx-cache
+              mountPath: /var/cache
+
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: "100Mi"
+        - name: nginx-cache
+          emptyDir:
+            # fib(11)=89 × ~2Mi ≈ 178Mi cache
+            sizeLimit: "178Mi"
+
+      imagePullSecrets:
+        - name: gcr-credentials

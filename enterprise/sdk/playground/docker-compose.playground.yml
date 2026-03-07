@@ -1,0 +1,309 @@
+version: "3.8"
+
+# ---------------------------------------------------------------------------
+# HeadyOS SDK Playground Environment
+# Docker-based code sandbox for trying the @heady-ai/sdk
+#
+# Usage:
+#   1. Copy .env.example to .env and add your HEADY_API_KEY
+#   2. docker-compose -f docker-compose.playground.yml up
+#   3. Open http://localhost:3000 for the playground UI
+#   4. Open http://localhost:8888 for Jupyter notebook (Python SDK)
+#   5. Use the VS Code extension: Remote-Containers to connect
+#
+# φ-based port assignments:
+#   - Playground UI:       3000 (≈ 1000 × φ^1.9...)
+#   - API proxy:          8080 (Cloud Run standard)
+#   - Jupyter notebook:   8888
+#   - Redis:              6379
+#   - PostgreSQL/pgvector: 5432
+#   - MCP custom tools:   3003 (fib(14)/10... nearest round)
+#   - Webhook listener:   3001
+#
+# All service limits derived from φ and Fibonacci sequences
+# ---------------------------------------------------------------------------
+
+x-common-env: &common-env
+  NODE_ENV: development
+  HEADY_API_KEY: ${HEADY_API_KEY:?Please set HEADY_API_KEY in .env file}
+  HEADY_BASE_URL: ${HEADY_BASE_URL:-https://api.headyme.com/v1}
+  HEADY_TENANT_ID: ${HEADY_TENANT_ID:-playground}
+  LOG_LEVEL: ${LOG_LEVEL:-debug}
+  PHI: "1.618033988749895"
+
+x-health-check: &default-healthcheck
+  interval: ${HEALTHCHECK_INTERVAL:-21s}   # fib(8)=21 seconds
+  timeout: ${HEALTHCHECK_TIMEOUT:-13s}     # fib(7)=13 seconds
+  retries: ${HEALTHCHECK_RETRIES:-5}       # fib(5)=5 retries
+  start_period: ${START_PERIOD:-34s}       # fib(9)=34 seconds
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Playground UI — Interactive SDK explorer
+  # ---------------------------------------------------------------------------
+  playground-ui:
+    image: node:20-alpine
+    container_name: heady-playground-ui
+    working_dir: /app
+    volumes:
+      - ./playground-ui:/app
+      - playground-node-modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      <<: *common-env
+      PORT: "3000"
+      REDIS_URL: redis://redis:6379
+      POSTGRES_URL: postgresql://heady:heady_playground_pass@postgres:5432/heady_playground
+    command: >
+      sh -c "
+        npm install --prefer-offline 2>/dev/null || true &&
+        cat > server.js << 'EOF'
+        const express = require('express');
+        const app = express();
+        app.use(express.json());
+        app.use(express.static('public'));
+
+        // Proxy to HeadyOS API
+        app.all('/api/*', async (req, res) => {
+          try {
+            const url = process.env.HEADY_BASE_URL + req.path.replace('/api', '');
+            const response = await fetch(url, {
+              method: req.method,
+              headers: { 'Authorization': 'Bearer ' + process.env.HEADY_API_KEY, 'Content-Type': 'application/json' },
+              body: ['POST','PUT','PATCH'].includes(req.method) ? JSON.stringify(req.body) : undefined,
+            });
+            res.status(response.status).json(await response.json().catch(() => response.text()));
+          } catch (e) { res.status(500).json({ error: e.message }); }
+        });
+
+        // Simple playground page
+        app.get('/', (req, res) => res.send('<html><body><h1>HeadyOS SDK Playground</h1><p>Use the API at /api/*</p><p>API Key: ' + (process.env.HEADY_API_KEY ? '✓ Set' : '✗ Not set') + '</p><ul><li><a href=\"/api/health\">/api/health</a></li><li><a href=\"/api/agents\">/api/agents</a></li><li><a href=\"/api/mcp/tools\">/api/mcp/tools</a></li></ul></body></html>'));
+
+        app.listen(3000, () => console.log('HeadyOS Playground running on http://localhost:3000'));
+        EOF
+        node server.js
+      "
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+    restart: unless-stopped
+    networks:
+      - heady-playground
+
+  # ---------------------------------------------------------------------------
+  # Jupyter Notebook — Python SDK exploration
+  # ---------------------------------------------------------------------------
+  jupyter:
+    image: jupyter/scipy-notebook:python-3.11
+    container_name: heady-jupyter
+    volumes:
+      - ./notebooks:/home/jovyan/notebooks
+      - ../python:/home/jovyan/heady-python-sdk
+    ports:
+      - "8888:8888"
+    environment:
+      <<: *common-env
+      JUPYTER_ENABLE_LAB: "yes"
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:-heady-playground-token}
+    command: >
+      bash -c "
+        pip install httpx pydantic websockets 2>/dev/null &&
+        pip install -e /home/jovyan/heady-python-sdk 2>/dev/null || true &&
+        jupyter lab --ip=0.0.0.0 --port=8888 --no-browser
+      "
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "curl", "-f", "http://localhost:8888/api"]
+    restart: unless-stopped
+    networks:
+      - heady-playground
+
+  # ---------------------------------------------------------------------------
+  # Custom MCP Tool Server — Example custom tools
+  # ---------------------------------------------------------------------------
+  mcp-server:
+    image: node:20-alpine
+    container_name: heady-mcp-server
+    working_dir: /app
+    volumes:
+      - ../examples:/app/examples
+    ports:
+      - "3003:3003"
+    environment:
+      <<: *common-env
+      PORT: "3003"
+      MCP_SERVER_NAME: playground-mcp-server
+      MCP_SERVER_URL: http://mcp-server:3003
+    command: >
+      sh -c "
+        cd /app/examples &&
+        npm install express zod 2>/dev/null || true &&
+        node custom-mcp-tool.js
+      "
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3003/health"]
+    restart: unless-stopped
+    networks:
+      - heady-playground
+
+  # ---------------------------------------------------------------------------
+  # Webhook Listener — Receive HeadyOS webhook deliveries
+  # ---------------------------------------------------------------------------
+  webhook-listener:
+    image: node:20-alpine
+    container_name: heady-webhook-listener
+    working_dir: /app
+    volumes:
+      - ../webhooks:/app/webhooks
+    ports:
+      - "3001:3001"
+    environment:
+      <<: *common-env
+      PORT: "3001"
+      POSTGRES_URL: postgresql://heady:heady_playground_pass@postgres:5432/heady_playground
+      REDIS_URL: redis://redis:6379
+    command: >
+      sh -c "
+        npm install express zod 2>/dev/null || true &&
+        cat > server.js << 'EOF'
+        const express = require('express');
+        const app = express();
+        app.use(express.json());
+        const deliveries = [];
+
+        app.post('/webhooks/*', (req, res) => {
+          const event = { path: req.path, event: req.headers['x-heady-event'], delivery: req.headers['x-heady-delivery'], timestamp: new Date().toISOString(), body: req.body };
+          deliveries.unshift(event);
+          if (deliveries.length > 21) deliveries.pop(); // fib(8)=21 max
+          console.log('[Webhook]', event.event, '|', event.delivery);
+          res.status(200).json({ success: true });
+        });
+
+        app.get('/deliveries', (req, res) => res.json(deliveries));
+        app.get('/health', (req, res) => res.json({ status: 'healthy', deliveryCount: deliveries.length }));
+        app.listen(3001, () => console.log('Webhook listener on http://localhost:3001'));
+        app.listen(3001, () => console.log('View deliveries: http://localhost:3001/deliveries'));
+        EOF
+        node server.js
+      "
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
+    restart: unless-stopped
+    networks:
+      - heady-playground
+
+  # ---------------------------------------------------------------------------
+  # Redis — For local caching and session simulation
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: heady-playground-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: >
+      redis-server
+        --maxmemory 144mb
+        --maxmemory-policy allkeys-lru
+        --save 89 1
+        --loglevel notice
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "redis-cli", "ping"]
+    restart: unless-stopped
+    networks:
+      - heady-playground
+    # fib(12)=144 MB max memory, save every fib(11)=89 seconds if 1 change
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL with pgvector — Local vector memory simulation
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: heady-playground-postgres
+    environment:
+      POSTGRES_DB: heady_playground
+      POSTGRES_USER: heady
+      POSTGRES_PASSWORD: heady_playground_pass
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: >
+      postgres
+        -c max_connections=89
+        -c shared_buffers=144MB
+        -c work_mem=8MB
+        -c maintenance_work_mem=55MB
+        -c effective_cache_size=233MB
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "pg_isready -U heady -d heady_playground"]
+    restart: unless-stopped
+    networks:
+      - heady-playground
+    # All postgres params derived from Fibonacci: 89 connections, 144MB shared_buffers, 55MB maintenance, 233MB cache
+
+  # ---------------------------------------------------------------------------
+  # SDK Test Runner — Run JavaScript SDK examples
+  # ---------------------------------------------------------------------------
+  sdk-examples:
+    image: node:20-alpine
+    container_name: heady-sdk-examples
+    working_dir: /app
+    volumes:
+      - ../javascript:/app/sdk
+      - ../examples:/app/examples
+      - sdk-node-modules:/app/sdk/node_modules
+    environment:
+      <<: *common-env
+      HEADY_WS_URL: wss://ws.headyme.com
+    command: >
+      sh -c "
+        cd /app/sdk &&
+        npm install 2>/dev/null || true &&
+        echo 'SDK examples ready. Exec into this container to run:' &&
+        echo '  docker exec -it heady-sdk-examples sh' &&
+        echo '  node examples/slack-bot.js (requires Slack token)' &&
+        echo '  node examples/custom-mcp-tool.js' &&
+        tail -f /dev/null
+      "
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - heady-playground
+
+# ---------------------------------------------------------------------------
+# Networks
+# ---------------------------------------------------------------------------
+networks:
+  heady-playground:
+    name: heady-playground
+    driver: bridge
+
+# ---------------------------------------------------------------------------
+# Volumes
+# ---------------------------------------------------------------------------
+volumes:
+  redis-data:
+    name: heady-playground-redis-data
+  postgres-data:
+    name: heady-playground-postgres-data
+  playground-node-modules:
+    name: heady-playground-node-modules
+  sdk-node-modules:
+    name: heady-sdk-node-modules
