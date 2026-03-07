@@ -1,0 +1,17 @@
+{
+  "name": "@heady/headysystems-core",
+  "version": "1.0.0",
+  "description": "Heady™ AI Infrastructure Engine — self-healing infrastructure, Sacred Geometry orchestration.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "echo \"Tests coming soon\" && exit 0"
+  },
+  "engines": { "node": ">=20.0.0" },
+  "dependencies": { "express": "^4.21.0" },
+  "author": "Heady Systems LLC <eric@headysystems.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": { "type": "git", "url": "git+https://github.com/HeadyMe/headysystems-core.git" },
+  "homepage": "https://headysystems.com"
+}

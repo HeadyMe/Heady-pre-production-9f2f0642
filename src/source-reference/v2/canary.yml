@@ -1,0 +1,55 @@
+# E10: Canary Deployment Configuration
+# Progressive rollout: 1% → 5% → 20% → 100%
+
+deployment:
+  strategy: canary
+  name: heady-canary
+
+stages:
+  - name: canary-1pct
+    weight: 1
+    duration: 10m
+    analysis:
+      metrics:
+        - error_rate < 1%
+        - p99_latency < 5000ms
+        - eval_score > 0.7
+    rollback_on_failure: true
+
+  - name: canary-5pct
+    weight: 5
+    duration: 30m
+    analysis:
+      metrics:
+        - error_rate < 2%
+        - p99_latency < 5000ms
+        - eval_score > 0.7
+    rollback_on_failure: true
+
+  - name: canary-20pct
+    weight: 20
+    duration: 1h
+    analysis:
+      metrics:
+        - error_rate < 2%
+        - p99_latency < 5000ms
+        - token_cost_delta < 10%
+    rollback_on_failure: true
+
+  - name: full-rollout
+    weight: 100
+    notify: [slack, email]
+
+rollback:
+  automatic: true
+  triggers:
+    - error_rate > 5%
+    - p99_latency > 10000ms
+    - eval_score < 0.5
+    - crash_rate > 0.1%
+  strategy: instant
+  notify: [pagerduty, slack]
+
+feature_flags:
+  integration: heady-feature-flags
+  auto_disable_on_rollback: true

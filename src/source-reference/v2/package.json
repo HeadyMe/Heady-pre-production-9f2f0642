@@ -1,0 +1,176 @@
+{
+  "name": "heady-systems",
+  "version": "3.1.0",
+  "description": "Heady\u2122 AI Platform \u2014 Autonomous multi-agent AI operating system with 20 specialized intelligence nodes, federated liquid routing, and post-quantum security.",
+  "main": "heady-manager.js",
+  "license": "UNLICENSED",
+  "author": {
+    "name": "HeadyMe",
+    "email": "eric@headyconnection.org",
+    "url": "https://headyme.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642.git"
+  },
+  "homepage": "https://headysystems.com",
+  "bugs": {
+    "url": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642/issues",
+    "email": "eric@headyconnection.org"
+  },
+  "keywords": [
+    "ai",
+    "multi-agent",
+    "mcp",
+    "post-quantum",
+    "arena-mode",
+    "headybrain",
+    "headyswarm",
+    "liquid-routing",
+    "sacred-geometry"
+  ],
+  "scripts": {
+    "start:mcp": "node heady-manager.js --mcp",
+    "cli": "python scripts/heady_cli.py",
+    "start": "node heady-manager.js",
+    "dev": "nodemon heady-manager.js",
+    "build": "node scripts/generate-sites.js && echo 'Build complete'",
+    "test": "fuser -k 3300/tcp 2>/dev/null; jest",
+    "lint": "eslint . --fix",
+    "lint:fix": "eslint . --fix",
+    "pipeline": "node -e \"const {pipeline}=require('./src/hc_pipeline');pipeline.run().then(s=>console.log(JSON.stringify({runId:s.runId,status:s.status},null,2))).catch(e=>console.error(e.message))\"",
+    "pipeline:config": "node -e \"const {pipeline}=require('./src/hc_pipeline');console.log(JSON.stringify(pipeline.getConfigSummary(),null,2))\"",
+    "sync": "echo 'Sync migrated to Linux \u2014 use npm run system:sync'",
+    "brand:check": "node scripts/brand_headers.js --check",
+    "brand:fix": "node scripts/brand_headers.js --fix",
+    "test:domains": "node scripts/domain-connectivity-test.js",
+    "test:branding": "node scripts/validate-branding.js",
+    "build-all": "npm run build && npm run deploy:hf:dry",
+    "deploy": "node scripts/deploy.js",
+    "deploy:auto": "node scripts/deploy.js --auto",
+    "services:start": "node src/services/service-manager.js",
+    "services:status": "node -e \"const {getServiceManager}=require('./src/services/service-manager');const mgr=getServiceManager();mgr.start().then(()=>console.log(JSON.stringify(mgr.getStatus(),null,2)))\"",
+    "hcfp": "node -e \"const {pipeline}=require('./src/hc_pipeline');pipeline.run({fullAuto:true}).then(console.log).catch(console.error)\"",
+    "hcfp:full-auto": "npm run hcfp",
+    "branch:sync": "node scripts/branch-sync.js",
+    "branch:dev-to-staging": "node scripts/branch-sync.js --dev-to-staging",
+    "branch:staging-to-main": "node scripts/branch-sync.js --staging-to-main",
+    "branch:continuous": "node scripts/branch-sync.js --continuous",
+    "sites:generate": "node scripts/generate-sites.js",
+    "health": "curl -s http://localhost:3301/health/live",
+    "status": "pm2 list",
+    "manager:restart": "pm2 restart heady-manager",
+    "healthcheck": "node scripts/healthcheck.js",
+    "scan:stale": "node scripts/stale-scanner.js",
+    "scan:seo": "node scripts/seo-batch-improve.js",
+    "scan:quality": "node scripts/code-quality-batch.js",
+    "logs:setup": "node scripts/setup-log-rotation.js",
+    "vector:project": "node scripts/autonomous/vector-projection-orchestrator.js",
+    "vector:autopilot": "node scripts/autonomous/vector-projection-orchestrator.js --watch",
+    "vector:bootstrap": "node scripts/autonomous/deterministic-embedding-bootstrap.js",
+    "vector:bootstrap:apply": "node scripts/autonomous/deterministic-embedding-bootstrap.js --apply",
+    "ops:projection-maintenance": "node scripts/ops/projection-maintenance-ops.js",
+    "ops:projection-maintenance:apply": "node scripts/ops/projection-maintenance-ops.js --apply",
+    "ops:projection-maintenance:apply:unsafe": "node scripts/ops/projection-maintenance-ops.js --apply --no-strict",
+    "buddy:status": "node -e \"const {BuddySystem}=require('./src/services/buddy-system');const b=new BuddySystem();console.log(JSON.stringify(b.status(),null,2))\"",
+    "spatial:embed": "node -e \"const {embed}=require('./src/services/spatial-embedder');const r=embed(process.argv[1]||'test',{});console.log(JSON.stringify(r,null,2))\"",
+    "spatial:reindex": "node scripts/autonomous/deterministic-embedding-bootstrap.js --spatial",
+    "deploy:hf": "node scripts/deploy-hf-spaces.js",
+    "deploy:hf:dry": "node scripts/deploy-hf-spaces.js --dry-run",
+    "maintenance:ops": "node scripts/maintenance/heady-maintenance-ops.js",
+    "maintenance:ops:apply": "node scripts/maintenance/heady-maintenance-ops.js --apply",
+    "headybee:optimize": "node scripts/autonomous/headybee-registry-optimizer.js",
+    "antigravity:sync": "node scripts/autonomous/antigravity-heady-sync.js",
+    "system:sync": "node scripts/autonomous/unified-system-sync.js",
+    "unified:runtime": "node scripts/autonomous/unified-runtime-orchestrator.js",
+    "rebuild:unified": "node scripts/autonomous/rebuild-heady-unified.js",
+    "rebuild:autonomy": "node scripts/autonomous/rebuild-unified-autonomy.js",
+    "battle": "node scripts/battle.js",
+    "battle:status": "node scripts/battle.js --status",
+    "battle:blueprint": "node scripts/battle.js --blueprint",
+    "battle:repos": "node scripts/battle.js --repos",
+    "battle:build": "node scripts/battle-build.js",
+    "battle:extract": "node scripts/battle-extract.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "@octokit/auth-app": "^8.2.0",
+    "@octokit/rest": "^21.0.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@typescript-eslint/parser": "^8.55.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^10.0.1",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.2.2",
+    "yaml-jest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "offline": {
+    "nodeModulesPath": "./offline-packages/node_modules",
+    "pythonPackagesPath": "./offline-packages/python-libs"
+  },
+  "overrides": {
+    "glob": {
+      "minimatch": ">=10.2.1"
+    },
+    "test-exclude": {
+      "minimatch": ">=10.2.1"
+    },
+    "rimraf": {
+      "glob": ">=11.0.0"
+    },
+    "tar": ">=7.5.8"
+  },
+  "headyCore": {
+    "version": "1.0.0",
+    "modules": [
+      "heady-fetch",
+      "heady-env",
+      "heady-yaml",
+      "heady-jwt",
+      "heady-crypt",
+      "heady-scheduler",
+      "heady-model-bridge",
+      "heady-kv",
+      "heady-neon",
+      "heady-server",
+      "heady-duck"
+    ],
+    "replacedPackages": [
+      "node-fetch",
+      "dotenv",
+      "js-yaml",
+      "yaml",
+      "replace-in-file",
+      "minimatch",
+      "jsonwebtoken",
+      "bcrypt",
+      "node-cron",
+      "commander",
+      "openai",
+      "@anthropic-ai/sdk",
+      "@google/genai",
+      "@google/generative-ai",
+      "groq-sdk",
+      "@huggingface/inference",
+      "redis",
+      "pg",
+      "express",
+      "cors",
+      "helmet",
+      "express-rate-limit",
+      "compression",
+      "swagger-ui-express",
+      "ws",
+      "duckdb",
+      "axios",
+      "tinyliquid",
+      "electron"
+    ]
+  }
+}

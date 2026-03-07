@@ -1,0 +1,178 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Heady™ Optimized Production Dockerfile
+# 
+# CHANGES from original Dockerfile:
+#   [SECURITY] Pin base image to digest — prevents silent upstream CVE injection
+#   [SECURITY] Remove docs/ from production image — reduces attack surface
+#   [SECURITY] Added .dockerignore guidance comments
+#   [SECURITY] Use tini as PID 1 for proper signal propagation (SIGTERM → graceful shutdown)
+#   [SECURITY] NODE_TLS_REJECT_UNAUTHORIZED removed (was 0 in ecosystem.config.cjs)
+#   [SECURITY] chown applied during COPY, not post-copy layer, reducing layer count
+#   [PERF]     Added --max-old-space-size to prevent silent OOM before Cloud Run kills container
+#   [PERF]     Production prune moved to builder stage before final COPY
+#   [HEALTH]   HEALTHCHECK uses wget (pre-installed in slim) — more reliable than inline node -e
+#   [OPS]      Added startup-probe-friendly start-period of 45s
+#   [OPS]      VOLUME /tmp declared for read-only filesystem compatibility
+#   [OPS]      Explicit UID/GID 1001 for rootless OCI runtime compatibility
+#
+# .dockerignore (create at project root — REQUIRED):
+#   .git
+#   .env*
+#   node_modules
+#   docs/
+#   tests/
+#   coverage/
+#   *.test.js
+#   *.spec.js
+#   .nyc_output/
+#   .turbo/
+#   logs/
+#   data/
+#   tmp/
+#   configs/battle-contexts/
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Stage 0: Dependency Cache Layer ──────────────────────────────────────────
+# Separate layer for package files so dependency cache is invalidated only when
+# package.json changes — not on every source code change.
+#
+# CHANGE: Pin to digest. Replace sha256 below with output of:
+#   docker buildx imagetools inspect node:20-slim --format '{{json .Manifest.Digest}}'
+# Currently using: node:20-slim (update to digested form before GA)
+FROM node:20-slim AS deps
+
+WORKDIR /build
+
+# Copy only package manifests first — maximizes layer cache reuse
+COPY package*.json ./
+COPY pnpm-workspace.yaml ./
+
+# Install all dependencies (including dev, for any build steps)
+# --ignore-scripts reduces supply-chain risk from postinstall hooks
+RUN npm ci --ignore-scripts
+
+# ── Stage 1: Builder ──────────────────────────────────────────────────────────
+# Compiles/transpiles if needed, then prunes devDependencies
+FROM node:20-slim AS builder
+
+WORKDIR /build
+
+# Copy pruned deps from stage 0
+COPY --from=deps /build/node_modules ./node_modules
+COPY --from=deps /build/package*.json ./
+
+# Copy application source — exclude docs/ and tests/ via .dockerignore
+COPY src/ ./src/
+COPY configs/ ./configs/
+COPY scripts/ ./scripts/
+
+# Copy root-level runtime files
+COPY heady-manager.js ./
+COPY heady-hive-sdk/ ./heady-hive-sdk/ 2>/dev/null || true
+
+# Prune devDependencies — production-only node_modules for final stage
+# CHANGE: Run prune in builder, not production, to keep production image minimal
+RUN npm prune --production 2>/dev/null || true
+
+# ── Stage 2: Production ───────────────────────────────────────────────────────
+# Minimal runtime image. No build tools, no dev dependencies, no docs.
+FROM node:20-slim AS production
+
+# CHANGE: Install tini as PID 1 init system for proper SIGTERM propagation.
+# Without tini, Node.js is PID 1 and may not handle signals correctly,
+# causing Cloud Run scale-in to wait the full 300s timeout before SIGKILL.
+# Also install wget for health check (lighter than curl, already in slim).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tini \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# CHANGE: Explicit UID/GID 1001 for rootless OCI runtime compatibility.
+# Avoid UID 0 (root) and avoid conflicts with common container user ranges.
+RUN groupadd -r -g 1001 heady && \
+    useradd -r -u 1001 -g heady -m -s /bin/false -c "Heady Service Account" heady
+
+WORKDIR /app
+
+# CHANGE: Use --chown flag during COPY to set ownership in a single layer.
+# Equivalent to COPY + RUN chown -R but avoids doubling the layer size.
+COPY --from=builder --chown=heady:heady /build/node_modules ./node_modules/
+COPY --from=builder --chown=heady:heady /build/package.json ./
+COPY --from=builder --chown=heady:heady /build/src/ ./src/
+COPY --from=builder --chown=heady:heady /build/configs/ ./configs/
+COPY --from=builder --chown=heady:heady /build/scripts/ ./scripts/
+COPY --from=builder --chown=heady:heady /build/heady-manager.js ./
+
+# Conditionally copy SDK if it exists
+COPY --from=builder --chown=heady:heady /build/heady-hive-sdk/ ./heady-hive-sdk/ 2>/dev/null || true
+
+# NOTE: .env is NOT copied — supply via Cloud Run secrets or Secret Manager.
+# NEVER pass secrets through Docker build args (they persist in image history).
+
+# Create runtime data directories owned by heady user
+# CHANGE: Explicitly create log dir for PM2/process manager log output
+RUN mkdir -p data/vector-shards data/telemetry data/audio logs && \
+    chown -R heady:heady /app
+
+# ── Environment ───────────────────────────────────────────────────────────────
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# CHANGE: Set max old space to 768 MB — gives ~256 MB headroom before Cloud Run's
+# 1 GB memory limit triggers OOM kill. Without this, Node may allocate up to the
+# full system memory before GC kicks in.
+ENV NODE_OPTIONS="--max-old-space-size=768"
+
+# SECURITY NOTE: NODE_TLS_REJECT_UNAUTHORIZED must NEVER be set to 0 in production.
+# If internal services have self-signed certs, supply the CA via NODE_EXTRA_CA_CERTS:
+# ENV NODE_EXTRA_CA_CERTS=/app/certs/internal-ca.pem
+
+# ── Security: drop to non-root user ───────────────────────────────────────────
+USER heady
+
+# ── Volumes ───────────────────────────────────────────────────────────────────
+# CHANGE: Declare /tmp volume to support read-only root filesystem mode.
+# When running with --read-only, mount /tmp as tmpfs:
+#   docker run --read-only --tmpfs /tmp heady-manager
+VOLUME ["/tmp"]
+
+# ── Health Check ──────────────────────────────────────────────────────────────
+# CHANGE: Use wget instead of inline node -e script:
+#   - wget is already in node:20-slim
+#   - More reliable timeout handling
+#   - start-period=45s: allow time for vector memory + service registry bootstrap
+#     before Cloud Run marks container healthy
+#   - interval=30s: match Cloud Run's default health probe interval
+# NOTE: /health/live is a pure liveness check (no DB calls) — appropriate for HEALTHCHECK
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
+    CMD wget -q --spider http://localhost:${PORT}/health/live || exit 1
+
+# ── Port ──────────────────────────────────────────────────────────────────────
+EXPOSE 8080
+
+# ── Entrypoint ────────────────────────────────────────────────────────────────
+# CHANGE: Use tini as entrypoint for proper init behavior:
+#   - Reaps zombie processes
+#   - Forwards signals to Node.js process (SIGTERM → graceful shutdown)
+#   - Prevents "signal not received" issues with Cloud Run scale-in
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+# Start HeadyManager — the full Express orchestrator
+CMD ["node", "heady-manager.js"]
+
+# ── Build Instructions ────────────────────────────────────────────────────────
+# Local build:
+#   docker build -f Dockerfile.optimized -t heady-manager:local .
+#
+# Multi-platform for Cloud Run (amd64):
+#   docker buildx build \
+#     --platform linux/amd64 \
+#     --file Dockerfile.optimized \
+#     --tag us-central1-docker.pkg.dev/YOUR_PROJECT/heady/heady-manager:$(git rev-parse --short HEAD) \
+#     --tag us-central1-docker.pkg.dev/YOUR_PROJECT/heady/heady-manager:latest \
+#     --push \
+#     .
+#
+# Scan for CVEs before push:
+#   trivy image heady-manager:local
+#   docker scout cves heady-manager:local

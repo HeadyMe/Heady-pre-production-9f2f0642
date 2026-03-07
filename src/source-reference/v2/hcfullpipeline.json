@@ -1,0 +1,321 @@
+{
+  "_meta": {
+    "name": "HCFullPipeline",
+    "version": "3.1.0",
+    "description": "Heady™ AI Platform Full Pipeline — stage definitions, pool allocations, and execution config",
+    "copyright": "© 2024-2026 HeadySystems Inc. All Rights Reserved.",
+    "updatedAt": "2025-01-01T00:00:00Z"
+  },
+
+  "pipeline": {
+    "id": "hcfullpipeline",
+    "displayName": "HCFullPipeline",
+    "mode": "sequential_with_parallel_stages",
+    "maxDuration": 300000,
+    "defaultTimeout": 30000,
+    "retryPolicy": {
+      "maxRetries": 3,
+      "backoffMs": 1000,
+      "backoffMultiplier": 2,
+      "maxBackoffMs": 10000
+    }
+  },
+
+  "fullAutoMode": {
+    "enabled": false,
+    "description": "When enabled, pipeline executes all stages autonomously without human checkpoints",
+    "envOverride": "PIPELINE_FULL_AUTO",
+    "requiresGovernancePass": true,
+    "maxBudgetUSD": 5.00,
+    "allowedScopes": ["read", "analyze", "generate"],
+    "prohibitedScopes": ["deploy", "delete", "external_write"],
+    "confirmationBypass": false
+  },
+
+  "stages": [
+    {
+      "id": "stage_intake",
+      "name": "Task Intake & Classification",
+      "order": 1,
+      "required": true,
+      "timeout": 5000,
+      "parallel": false,
+      "steps": [
+        {
+          "id": "parse_task",
+          "name": "Parse and normalize task input",
+          "node": "HeadyConductor",
+          "action": "parse",
+          "failFast": true
+        },
+        {
+          "id": "classify_intent",
+          "name": "Classify intent and domain",
+          "node": "HeadySoul",
+          "action": "analyze",
+          "params": { "depth": "shallow" }
+        },
+        {
+          "id": "governance_pre",
+          "name": "Pre-execution governance check",
+          "node": "HeadyGovernance",
+          "action": "validate",
+          "failFast": true,
+          "params": { "phase": "pre" }
+        }
+      ]
+    },
+    {
+      "id": "stage_memory",
+      "name": "Memory & Context Retrieval",
+      "order": 2,
+      "required": true,
+      "timeout": 10000,
+      "parallel": true,
+      "steps": [
+        {
+          "id": "vector_search",
+          "name": "Semantic memory search",
+          "node": "HeadyMemory",
+          "action": "search",
+          "params": { "limit": 10, "minScore": 0.7 }
+        },
+        {
+          "id": "pattern_lookup",
+          "name": "Pattern recognition lookup",
+          "node": "HeadyVinci",
+          "action": "recognize",
+          "params": { "mode": "fast" }
+        },
+        {
+          "id": "story_context",
+          "name": "Retrieve narrative context",
+          "node": "HeadyAutobiographer",
+          "action": "getStory",
+          "params": { "limit": 20 }
+        }
+      ]
+    },
+    {
+      "id": "stage_routing",
+      "name": "Conductor Routing & Planning",
+      "order": 3,
+      "required": true,
+      "timeout": 10000,
+      "parallel": false,
+      "steps": [
+        {
+          "id": "route",
+          "name": "Route to optimal execution path",
+          "node": "HeadyConductor",
+          "action": "route",
+          "params": { "strategy": "best-of-n" }
+        },
+        {
+          "id": "plan",
+          "name": "Generate execution plan",
+          "node": "HeadyBrains",
+          "action": "plan",
+          "params": { "maxSteps": 10 }
+        }
+      ]
+    },
+    {
+      "id": "stage_execution",
+      "name": "Primary Execution",
+      "order": 4,
+      "required": true,
+      "timeout": 120000,
+      "parallel": false,
+      "steps": [
+        {
+          "id": "execute",
+          "name": "Execute primary task with Soul",
+          "node": "HeadySoul",
+          "action": "execute",
+          "params": { "maxTokens": 16000 }
+        },
+        {
+          "id": "bee_spawn_if_needed",
+          "name": "Spawn bee workers if parallel subtasks exist",
+          "node": "HeadyBee",
+          "action": "spawn",
+          "conditional": "plan.parallelSubtasks.length > 0",
+          "params": { "maxBees": 5 }
+        }
+      ]
+    },
+    {
+      "id": "stage_evaluation",
+      "name": "Arena Evaluation & Quality Gate",
+      "order": 5,
+      "required": false,
+      "timeout": 60000,
+      "parallel": false,
+      "enabledWhen": "task.requiresEvaluation === true || task.type === 'generation'",
+      "steps": [
+        {
+          "id": "arena_battle",
+          "name": "Run arena battle for quality selection",
+          "node": "HeadyArena",
+          "action": "battle",
+          "params": {
+            "rounds": 3,
+            "criteria": ["accuracy", "quality", "efficiency", "safety"]
+          }
+        },
+        {
+          "id": "monte_carlo",
+          "name": "Monte Carlo confidence estimation",
+          "node": "HeadyConductor",
+          "action": "monteCarlo",
+          "conditional": "task.requiresConfidence === true",
+          "params": { "iterations": 500 }
+        }
+      ]
+    },
+    {
+      "id": "stage_learning",
+      "name": "Learning & Memory Update",
+      "order": 6,
+      "required": true,
+      "timeout": 15000,
+      "parallel": true,
+      "steps": [
+        {
+          "id": "embed_result",
+          "name": "Embed and store result in vector memory",
+          "node": "HeadyMemory",
+          "action": "store",
+          "params": { "namespace": "pipeline_results" }
+        },
+        {
+          "id": "vinci_learn",
+          "name": "Update Vinci pattern model",
+          "node": "HeadyVinci",
+          "action": "learn",
+          "params": { "updateBaseline": true }
+        },
+        {
+          "id": "corrections_check",
+          "name": "Check for behavioral corrections",
+          "node": "HeadyConductor",
+          "action": "corrections",
+          "params": { "subtle": true }
+        }
+      ]
+    },
+    {
+      "id": "stage_governance_post",
+      "name": "Post-Execution Governance",
+      "order": 7,
+      "required": true,
+      "timeout": 5000,
+      "parallel": false,
+      "steps": [
+        {
+          "id": "governance_post",
+          "name": "Post-execution governance audit",
+          "node": "HeadyGovernance",
+          "action": "audit",
+          "params": { "phase": "post" }
+        },
+        {
+          "id": "drift_check",
+          "name": "Check semantic drift",
+          "node": "HeadyConductor",
+          "action": "driftCheck"
+        }
+      ]
+    },
+    {
+      "id": "stage_story",
+      "name": "Narrative Recording",
+      "order": 8,
+      "required": true,
+      "timeout": 3000,
+      "parallel": false,
+      "steps": [
+        {
+          "id": "record_story",
+          "name": "Log execution to autobiographer",
+          "node": "HeadyAutobiographer",
+          "action": "record",
+          "params": {
+            "events": ["pipeline_run", "decision_made", "learning_captured"]
+          }
+        }
+      ]
+    }
+  ],
+
+  "pools": {
+    "llm_tokens": {
+      "description": "LLM token budget per pipeline run",
+      "default": 50000,
+      "max": 200000,
+      "warningThreshold": 40000,
+      "byStage": {
+        "stage_intake":      2000,
+        "stage_routing":     3000,
+        "stage_execution":   30000,
+        "stage_evaluation":  10000,
+        "stage_learning":    5000
+      }
+    },
+    "concurrent_requests": {
+      "description": "Max concurrent LLM/API requests",
+      "default": 5,
+      "max": 20,
+      "perNode": {
+        "HeadySoul":      3,
+        "HeadyBrains":    2,
+        "HeadyVinci":     5,
+        "HeadyArena":     4,
+        "HeadyBee":       10
+      }
+    },
+    "bee_workers": {
+      "description": "Max bee worker agents per pipeline run",
+      "default": 3,
+      "max": 10,
+      "ttl": 300
+    },
+    "cost_usd": {
+      "description": "Max cost per pipeline run in USD",
+      "default": 1.00,
+      "max": 10.00,
+      "fullAutoMax": 5.00,
+      "trackingEnabled": true
+    }
+  },
+
+  "timeouts": {
+    "total_pipeline": 300000,
+    "per_stage_default": 30000,
+    "per_step_default": 15000,
+    "llm_call": 60000,
+    "embedding": 10000,
+    "db_query": 5000,
+    "governance_check": 5000,
+    "bee_spawn": 10000,
+    "bee_task": 120000
+  },
+
+  "errorHandling": {
+    "onStageFailure": "skip_optional_continue_required",
+    "onStepFailure": "retry_then_skip",
+    "onGovernanceDeny": "halt_immediately",
+    "onBudgetExceeded": "halt_and_alert",
+    "alertChannels": ["story_driver", "log", "webhook"],
+    "webhookUrl": "${ALERT_WEBHOOK_URL}"
+  },
+
+  "hooks": {
+    "onPipelineStart":    ["story_driver.record", "budget.checkpoint"],
+    "onStageStart":       ["budget.checkpoint"],
+    "onStageComplete":    ["story_driver.record"],
+    "onPipelineComplete": ["story_driver.record", "budget.finalize", "coherence.update"],
+    "onPipelineError":    ["story_driver.record", "budget.finalize", "alert.send"]
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "version": "3.0.1-OMEGA",
+  "generated": "2026-03-06T21:05:26.986Z",
+  "project": {
+    "name": "Heady™ Latent Operating System",
+    "vision": "A 46-year autonomous AI operating system that stores executable potential as AST nodes in pgvector, materializes code on-demand, and operates as a self-healing multi-swarm civilization.",
+    "architecture": "Zero-Repo Liquid Architecture — code only exists during compilation. 18 swarms, 31+ bees, 742 aspirational tasks.",
+    "domains": [
+      "headymcp.com",
+      "headyapi.com",
+      "headyio.com",
+      "headyme.com",
+      "headytrader.com",
+      "headymusic.com",
+      "headyfoundation.org",
+      "headysystems.com",
+      "myheady.ai"
+    ]
+  },
+  "coreModules": {
+    "heady-manager": "Express.js server — entry point, bootstraps all services, serves all 9 domains via domain routing",
+    "vector-memory": "pgvector-backed 3D vector memory with PCA-lite projection, 8-octant zone mapping, Fibonacci sharding",
+    "domain-router": "Maps hostnames to UI modules — 22 hostname entries, 12 unique UI modules",
+    "site-renderer": "Dynamic HTML generation with Sacred Geometry animations and chat widgets",
+    "auto-projection": "Pre-renders all 9 sites on boot, caches in RAM, pushes to Cloudflare KV edge",
+    "vault-boot": "Encrypted credential vault — AES-256-GCM, decrypts at boot, projects into process.env",
+    "swarm-matrix": "18-swarm, 31-bee runtime registry with status tracking and activation APIs",
+    "aspirational-registry": "742 unified aspirational tasks from 14 sources, mapped to swarms",
+    "ast-schema": "4 pgvector tables (ast_nodes, ast_edges, ast_projections, ast_governance)",
+    "hologram-bee": "On-demand AST-to-edge compiler — replaces CI/CD entirely",
+    "context-weaver-bee": "Zero-file memory assembler — builds ephemeral LLM context from AST nodes",
+    "projection-engine": "Manages deployment targets: Cloud Run, Cloudflare Edge, Colab GPU, HuggingFace",
+    "governance": "Perfect Governance — cryptographic stamping, proof chains, immutable audit trail",
+    "structured-logger": "Pino-based JSON logging with OpenTelemetry correlation IDs",
+    "health-registry": "Service health monitoring with circuit breakers",
+    "self-healing-mesh": "Auto-recovery grid for service failures",
+    "unified-enterprise-autonomy": "Enterprise autonomy engine — auto-success pipeline",
+    "continuous-embedder": "Auto-embeds all project data into 3D vector memory"
+  },
+  "beeSystem": {
+    "description": "Bees are autonomous micro-services that perform specific tasks. Each bee has a class, role, status (ACTIVE/STANDBY/SLEEPER), and swarm assignment.",
+    "templateSystem": "bees/bee-factory.js + bees/registry.js + bees/headybee-template-registry.js",
+    "totalBees": 31,
+    "categories": [
+      "Infrastructure (VectorWeaverBee, PrunerBee, GovernanceGatekeeperBee, ChaosTesterBee)",
+      "Engineering (ASTMutatorBee, UICompilerBee, DependencySniperBee, HologramBee, ContextWeaverBee)",
+      "Finance (MarketStreamBee, BacktestBee)",
+      "Creative (AbletonSysExBee, MelodicAnalysisBee)",
+      "Observability (CostOptimizationBee, TelemetryAggregatorBee)",
+      "Security (PenTestBee, ZeroDayPatchBee)",
+      "Deep-Time (GlacierBee, TemporalRollbackBee)",
+      "Federation (FederationHandshakeBee)",
+      "Quantum (LatticeCryptographyBee)"
+    ]
+  },
+  "stack": {
+    "runtime": "Node.js 20/22",
+    "framework": "Express.js",
+    "database": "Neon Postgres + pgvector (1536-dim embeddings)",
+    "cache": "Upstash Redis + RAM (auto-projection)",
+    "edge": "Cloudflare Workers + KV + R2",
+    "compute": "Google Cloud Run (heady-manager service)",
+    "gpu": "Google Colab Pro+ (ML training, batch inference)",
+    "cicd": "GitHub Actions (5-phase: security → validate → Cloud Run → HF → Edge)",
+    "containerization": "Docker multi-stage (node:20-slim)",
+    "ai": "Multi-model: Claude, GPT-5.4, Gemini, Groq, Perplexity, HuggingFace",
+    "protocols": "MCP (Model Context Protocol) for tool exposure"
+  },
+  "fileStructure": {
+    "src/core/": "Core modules (heady.js, audio-overview.js, auth-page-server.js)",
+    "src/services/": "Service layer (vault-boot, domain-router, projection-engine, etc.)",
+    "src/bees/": "Autonomous bee agents (one file per bee)",
+    "src/mcp/": "MCP bridge and tools (colab-mcp-bridge.js)",
+    "src/shell/": "HeadyWeb Universal Shell (Module Federation)",
+    "src/utils/": "Utilities (logger.js, redis-pool.js)",
+    "src/bootstrap/": "Service registration (service-routes.js)",
+    "configs/": "YAML/JSON configs (resources, autonomy, branding, governance)",
+    "scripts/": "CLI tools (vault-seed.js, deploy.js)",
+    "docs/": "Documentation and roadmaps"
+  },
+  "patterns": [
+    "Zero-Repo Architecture — code stored as AST JSON in pgvector, materialized on-demand",
+    "Liquid Architecture — every service is a projection that can be materialized anywhere",
+    "RAM-First Operations — all ops in vector space, external stores are projections",
+    "Perfect Governance — every mutation is cryptographically stamped and auditable",
+    "Auto-Success Pipeline — all deployments self-verify and never fail the CI/CD",
+    "Sacred Geometry — UI design system based on golden ratio, Fibonacci sequences",
+    "Swarm Intelligence — 18 swarms collaborate autonomously via orchestration protocol",
+    "Remote-Only Backups — no local storage, backups in Cloudflare R2 / GCS Coldline"
+  ],
+  "dependencies": {
+    "production": [
+      "express",
+      "@anthropic-ai/sdk",
+      "openai",
+      "@google-cloud/vertexai",
+      "groq-sdk",
+      "pg",
+      "pgvector",
+      "ioredis",
+      "@sentry/node",
+      "pino",
+      "dotenv",
+      "cors",
+      "helmet",
+      "express-rate-limit",
+      "node-cron",
+      "uuid",
+      "jsonwebtoken",
+      "bcryptjs",
+      "marked",
+      "ws",
+      "@modelcontextprotocol/sdk"
+    ],
+    "dev": [
+      "jest",
+      "eslint",
+      "nodemon",
+      "prettier"
+    ]
+  },
+  "rebuildInstructions": "\nYou are rebuilding the Heady™ Latent OS from scratch.\n\nCRITICAL REQUIREMENTS:\n1. Each module must be its own file — NO monolithic files\n2. Every bee gets its own file in src/bees/\n3. Every service gets its own file in src/services/\n4. Use the EXACT same API endpoints and route structure\n5. Implement proper error handling with structured logging\n6. Use pgvector for vector memory (1536-dim embeddings)\n7. Implement the vault system (AES-256-GCM encrypted credentials)\n8. Build the domain router to serve all 9 domains from one Express server\n9. Implement the swarm matrix with all 18 swarms and 31 bees\n10. Build the HologramBee (AST-to-edge compiler) and ContextWeaverBee (memory assembler)\n11. Sacred Geometry CSS animations on all site renders\n12. Health checks on every service with circuit breaker pattern\n13. Dockerfile must be multi-stage with non-root user\n14. GitHub Actions CI/CD with security scanning\n\nOUTPUT FORMAT:\n- Create a complete, runnable Node.js project\n- Include package.json with all dependencies\n- Include Dockerfile\n- Include .github/workflows/deploy.yml\n- Include README.md with architecture documentation\n- Every file should be production-quality with JSDoc comments\n"
+}

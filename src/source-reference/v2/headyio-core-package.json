@@ -1,0 +1,11 @@
+{
+  "name": "@heady/headyio-core",
+  "version": "1.0.0",
+  "description": "Heady™ Developer SDK & IO — the official SDK for building on the Heady platform.",
+  "main": "index.js",
+  "scripts": { "start": "node index.js", "test": "echo \"Tests coming soon\" && exit 0" },
+  "engines": { "node": ">=20.0.0" },
+  "dependencies": { "express": "^4.21.0" },
+  "author": "Heady Systems LLC <eric@headysystems.com>",
+  "homepage": "https://headyio.com"
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@heady/headybuddy-core",
+  "version": "1.0.0",
+  "description": "Heady™ AI Companion — personal AI buddy with persistent memory, chat, and creative tools.",
+  "main": "index.js",
+  "scripts": { "start": "node index.js", "test": "echo \"Tests coming soon\" && exit 0" },
+  "engines": { "node": ">=20.0.0" },
+  "dependencies": { "express": "^4.21.0" },
+  "author": "Heady Systems LLC <eric@headysystems.com>",
+  "homepage": "https://headybuddy.org"
+}

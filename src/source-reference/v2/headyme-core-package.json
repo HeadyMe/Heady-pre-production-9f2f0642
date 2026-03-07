@@ -1,0 +1,24 @@
+{
+  "name": "@heady/headyme-core",
+  "version": "1.0.0",
+  "description": "Your AI-powered personal cloud hub — the command center for your entire digital life.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "echo \"Tests coming soon\" && exit 0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "author": "Heady Systems LLC <eric@headysystems.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HeadyMe/headyme-core.git"
+  },
+  "homepage": "https://headyme.com"
+}

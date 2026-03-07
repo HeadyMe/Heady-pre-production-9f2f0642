@@ -1,0 +1,11 @@
+{
+  "name": "@heady/headybot-core",
+  "version": "1.0.0",
+  "description": "Heady™ Bot Framework — autonomous bot orchestration with swarm intelligence.",
+  "main": "index.js",
+  "scripts": { "start": "node index.js", "test": "echo \"Tests coming soon\" && exit 0" },
+  "engines": { "node": ">=20.0.0" },
+  "dependencies": { "express": "^4.21.0" },
+  "author": "Heady Systems LLC <eric@headysystems.com>",
+  "homepage": "https://headybot.com"
+}

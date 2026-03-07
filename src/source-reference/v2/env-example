@@ -1,0 +1,73 @@
+# Heady Environment Variables
+# Copy this file to .env and fill in your values
+# NEVER commit .env to version control
+
+# === Server ===
+PORT=3000
+NODE_ENV=production
+HEADY_SERVICE_NAME=heady-manager
+HEADY_VERSION=3.1.0
+
+# === Database (PostgreSQL 16 + pgvector) ===
+DATABASE_URL=postgresql://heady:your_password@localhost:5432/heady_production
+PGBOUNCER_URL=postgresql://heady:your_password@localhost:6432/heady_production
+
+# === Redis ===
+REDIS_URL=redis://localhost:6379
+UPSTASH_REDIS_URL=
+UPSTASH_REDIS_TOKEN=
+
+# === AI Providers ===
+OPENAI_API_KEY=sk-your-key
+ANTHROPIC_API_KEY=sk-ant-your-key
+GOOGLE_AI_KEY=your-gemini-key
+GROQ_API_KEY=gsk_your-key
+PERPLEXITY_API_KEY=pplx-your-key
+
+# === Authentication ===
+JWT_SECRET=your-jwt-secret-min-32-chars
+SESSION_SECRET=your-session-secret
+OAUTH_CLIENT_ID=
+OAUTH_CLIENT_SECRET=
+
+# === Google Cloud ===
+GCP_PROJECT_ID=your-gcp-project
+GCP_REGION=us-central1
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+
+# === Cloudflare ===
+CLOUDFLARE_API_TOKEN=
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_ZONE_ID=
+
+# === Observability ===
+OTEL_EXPORTER_ENDPOINT=http://localhost:4318
+SENTRY_DSN=
+LOG_LEVEL=info
+
+# === Feature Flags ===
+HEADY_FLAG_OTEL_TRACES=true
+HEADY_FLAG_AUDIT_LOGGING=true
+HEADY_FLAG_PROMPT_GUARD=true
+HEADY_FLAG_CANARY_DEPLOY=false
+HEADY_FLAG_EVAL_PIPELINE=false
+
+# === MCP Gateway ===
+MCP_SERVER_ID=heady-mcp-gateway
+MCP_RATE_LIMIT=100
+
+# === Failover ===
+PRIMARY_BACKEND_URL=https://heady-manager-xxxxx.run.app
+FALLBACK_BACKEND_URL=
+
+# === Key Rotation ===
+KEY_TTL_MS=86400000
+
+# === Shutdown ===
+SHUTDOWN_TIMEOUT_MS=15000
+
+# === Prompt Guard ===
+PROMPT_MAX_LENGTH=50000
+
+# === Worker Pool ===
+WORKER_POOL_SIZE=4
