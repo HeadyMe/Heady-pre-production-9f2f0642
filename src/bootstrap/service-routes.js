@@ -531,6 +531,329 @@ function registerServiceRoutes(app, deps = {}) {
     });
 
     logger.logNodeActivity("CONDUCTOR", "  📋 Config API + Auto-Success API: LOADED → /api/config/*, /api/auto-success/*");
+
+    // ─── PHASE 3: Wired Orphan Services ──────────────────────────────────
+    // Services previously scaffolded but never connected. Wired March 6, 2026.
+
+    // ─── Infrastructure Layer ──────────────────────────────────────────────
+
+    // Redis Connection Pool — shared pool for all Redis consumers
+    try {
+        const { getPool } = require("../services/redis-connection-pool");
+        const pool = getPool();
+        global.__redisPool = pool;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Redis Connection Pool: INITIALIZED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Redis Connection Pool not loaded: ${err.message}`);
+    }
+
+    // OpenTelemetry Tracing — observability three pillars
+    try {
+        const otel = require("../services/opentelemetry-tracing");
+        if (otel.init) otel.init();
+        if (otel.registerRoutes) otel.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ OpenTelemetry Tracing: INITIALIZED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ OpenTelemetry not loaded: ${err.message}`);
+    }
+
+    // Resilience Patterns — circuit breakers, bulkheads, retry policies
+    try {
+        const resilience = require("../services/resilience-patterns");
+        if (resilience.boot) resilience.boot();
+        if (resilience.registerRoutes) resilience.registerRoutes(app);
+        global.__resiliencePatterns = resilience;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Resilience Patterns: LOADED (circuit breakers + bulkheads)");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Resilience Patterns not loaded: ${err.message}`);
+    }
+
+    // Secure Key Vault — encrypted credential management
+    try {
+        const vault = require("../services/secure-key-vault");
+        if (vault.boot) vault.boot();
+        if (vault.registerRoutes) vault.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  🔐 Secure Key Vault: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Secure Key Vault not loaded: ${err.message}`);
+    }
+
+    // Health Registry — centralized health check aggregation
+    try {
+        const { healthRegistry } = require("../services/health-registry");
+        if (healthRegistry.registerRoutes) healthRegistry.registerRoutes(app);
+        global.__healthRegistry = healthRegistry;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Health Registry: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Health Registry not loaded: ${err.message}`);
+    }
+
+    // ─── Intelligence Layer ────────────────────────────────────────────────
+
+    // Model Router — intelligent LLM model selection
+    try {
+        const modelRouter = require("../services/model-router");
+        if (modelRouter.registerRoutes) modelRouter.registerRoutes(app);
+        else if (modelRouter.router) app.use("/api/model-router", modelRouter.router);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Model Router: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Model Router not loaded: ${err.message}`);
+    }
+
+    // OpenAI Business — enterprise OpenAI integration
+    try {
+        const openai = require("../services/openai-business");
+        if (openai.registerRoutes) openai.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ OpenAI Business: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ OpenAI Business not loaded: ${err.message}`);
+    }
+
+    // Monte Carlo Service — probabilistic simulation engine
+    try {
+        const monteCarlo = require("../services/monte-carlo-service");
+        if (monteCarlo.registerRoutes) monteCarlo.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Monte Carlo Service: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Monte Carlo Service not loaded: ${err.message}`);
+    }
+
+    // Logic Orchestrator — ternary reasoning coordination
+    try {
+        const { LogicOrchestrator } = require("../services/logic-orchestrator");
+        const logicOrch = new LogicOrchestrator();
+        global.__logicOrchestrator = logicOrch;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Logic Orchestrator: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Logic Orchestrator not loaded: ${err.message}`);
+    }
+
+    // Socratic Service — HeadyBattle dialectic evaluation
+    try {
+        const socratic = require("../services/socratic-service");
+        if (socratic.registerRoutes) socratic.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Socratic Service: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Socratic Service not loaded: ${err.message}`);
+    }
+
+    // ─── Memory & Spatial Layer ────────────────────────────────────────────
+
+    // Continuous Embedder — persistent auto-embedding engine
+    try {
+        const embedder = require("../services/continuous-embedder");
+        if (embedder.boot) embedder.boot();
+        if (embedder.registerRoutes) embedder.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Continuous Embedder: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Continuous Embedder not loaded: ${err.message}`);
+    }
+
+    // Spatial Registry — 3D octant zone management
+    try {
+        const { SpatialRegistry } = require("../services/spatial-registry");
+        const spatialReg = new SpatialRegistry();
+        global.__spatialRegistry = spatialReg;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Spatial Registry: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Spatial Registry not loaded: ${err.message}`);
+    }
+
+    // ─── Projection & Deployment Layer ─────────────────────────────────────
+
+    // Projection Dispatcher — coordinate projection operations
+    try {
+        const { ProjectionDispatcher } = require("../services/projection-dispatcher");
+        const dispatcher = new ProjectionDispatcher();
+        global.__projectionDispatcher = dispatcher;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Projection Dispatcher: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Projection Dispatcher not loaded: ${err.message}`);
+    }
+
+    // Projection Sync — automated projection synchronization
+    try {
+        const { ProjectionSyncAutomation } = require("../services/projection-sync");
+        const projSync = new ProjectionSyncAutomation();
+        global.__projectionSync = projSync;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Projection Sync: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Projection Sync not loaded: ${err.message}`);
+    }
+
+    // Liquid Deploy — liquid architecture deployment engine
+    try {
+        const liquidDeploy = require("../services/liquid-deploy");
+        if (liquidDeploy.registerRoutes) liquidDeploy.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Liquid Deploy: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Liquid Deploy not loaded: ${err.message}`);
+    }
+
+    // ─── Service Layer (Express Routes) ────────────────────────────────────
+
+    // Decentralized Governance — DAO-style governance module
+    try {
+        const { registerGovernanceRoutes } = require("../services/decentralized-governance");
+        registerGovernanceRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Decentralized Governance: LOADED → /api/governance/*");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Decentralized Governance not loaded: ${err.message}`);
+    }
+
+    // Global Node Network — distributed node mesh
+    try {
+        const { registerGlobalNodeRoutes } = require("../services/global-node-network");
+        registerGlobalNodeRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Global Node Network: LOADED → /api/nodes/global/*");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Global Node Network not loaded: ${err.message}`);
+    }
+
+    // Self-Healing Mesh — autonomous mesh recovery
+    try {
+        const { registerSelfHealingRoutes, mesh } = require("../services/self-healing-mesh");
+        registerSelfHealingRoutes(app);
+        global.__selfHealingMesh = mesh;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Self-Healing Mesh: LOADED → /api/mesh/*");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Self-Healing Mesh not loaded: ${err.message}`);
+    }
+
+    // Dynamic Weight Manager — Sacred Geometry v2.5 dynamic weighting
+    try {
+        const { registerDynamicWeightRoutes, dynamicWeights } = require("../services/dynamic-weight-manager");
+        registerDynamicWeightRoutes(app);
+        global.__dynamicWeights = dynamicWeights;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Dynamic Weight Manager: LOADED → /api/weights/*");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Dynamic Weight Manager not loaded: ${err.message}`);
+    }
+
+    // HeadyMe Helper — user helper service
+    try {
+        const { registerHelperRoutes } = require("../services/headyme-helper");
+        registerHelperRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ HeadyMe Helper: LOADED → /api/helper/*");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ HeadyMe Helper not loaded: ${err.message}`);
+    }
+
+    // Budget Service — cost tracking and budget management
+    try {
+        const { budgetRoutes } = require("../services/budget-service");
+        budgetRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Budget Service: LOADED → /api/budget/*");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Budget Service not loaded: ${err.message}`);
+    }
+
+    // Budget Tracker — granular cost tracking
+    try {
+        const budgetTracker = require("../services/budget-tracker");
+        if (budgetTracker.registerRoutes) budgetTracker.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Budget Tracker: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Budget Tracker not loaded: ${err.message}`);
+    }
+
+    // SDK Quickstart — platform onboarding SDK
+    try {
+        const sdk = require("../services/sdk-quickstart");
+        if (sdk.registerRoutes) sdk.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ SDK Quickstart: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ SDK Quickstart not loaded: ${err.message}`);
+    }
+
+    // SDK Registration — developer SDK registration portal
+    try {
+        const sdkReg = require("../services/sdk-registration");
+        if (sdkReg.registerRoutes) sdkReg.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ SDK Registration: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ SDK Registration not loaded: ${err.message}`);
+    }
+
+    // Template Registry Service — template lifecycle management
+    try {
+        const templateReg = require("../services/template-registry-service");
+        if (templateReg.registerRoutes) templateReg.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Template Registry: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Template Registry Service not loaded: ${err.message}`);
+    }
+
+    // ─── Specialized Services ──────────────────────────────────────────────
+
+    // AI DVR — agentic session replay engine
+    try {
+        const { AIDVRService } = require("../services/ai-dvr");
+        const dvr = new AIDVRService();
+        global.__aiDVR = dvr;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ AI DVR: LOADED (session replay engine)");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ AI DVR not loaded: ${err.message}`);
+    }
+
+    // Arena Mode Service — competitive model selection
+    try {
+        const { getArenaModeService } = require("../services/arena-mode-service");
+        global.__arenaModeService = getArenaModeService;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Arena Mode Service: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Arena Mode Service not loaded: ${err.message}`);
+    }
+
+    // Branch Automation — git branch lifecycle management
+    try {
+        const { getBranchAutomationService } = require("../services/branch-automation-service");
+        global.__branchAutomation = getBranchAutomationService;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Branch Automation: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Branch Automation not loaded: ${err.message}`);
+    }
+
+    // Cross-Device FS — distributed filesystem sync
+    try {
+        const crossDeviceFs = require("../services/cross-device-fs");
+        if (crossDeviceFs.registerRoutes) crossDeviceFs.registerRoutes(app);
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Cross-Device FS: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Cross-Device FS not loaded: ${err.message}`);
+    }
+
+    // Quantum Bridge — post-quantum cryptographic bridge
+    try {
+        const { QuantumBridge } = require("../services/quantum-bridge");
+        const qBridge = new QuantumBridge();
+        global.__quantumBridge = qBridge;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Quantum Bridge: LOADED (post-quantum crypto)");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Quantum Bridge not loaded: ${err.message}`);
+    }
+
+    // Trader Widget — Apex trading UI widget backend
+    try {
+        const { TraderWidgetService } = require("../services/trader-widget");
+        const traderWidget = new TraderWidgetService();
+        global.__traderWidget = traderWidget;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Trader Widget: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Trader Widget not loaded: ${err.message}`);
+    }
+
+    // Heady Branded Output — consistent branded CLI output
+    try {
+        const branded = require("../services/heady-branded-output");
+        global.__brandedOutput = branded;
+        logger.logNodeActivity("CONDUCTOR", "  ∞ Branded Output: LOADED");
+    } catch (err) {
+        logger.logNodeActivity("CONDUCTOR", `  ⚠ Branded Output not loaded: ${err.message}`);
+    }
+
+    logger.logNodeActivity("CONDUCTOR", "  ═══════════════════════════════════════════════");
+    logger.logNodeActivity("CONDUCTOR", "  ✅ All service routes registered (Phase 1-3 complete)");
 }
 
 module.exports = { registerServiceRoutes };
