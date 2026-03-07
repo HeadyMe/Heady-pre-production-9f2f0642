@@ -1,6 +1,6 @@
 {
   "name": "@heady-ai/gateway",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "API gateway with cross-domain auth, token-bucket rate limiting, and domain-to-service routing for the Heady AI Platform.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,7 +22,7 @@
     "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
-    "@heady-ai/core": "^3.2.1"
+    "@heady-ai/core": "^3.2.2"
   },
   "license": "UNLICENSED",
   "author": {
