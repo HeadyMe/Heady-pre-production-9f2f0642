@@ -1,0 +1,280 @@
+# ═══════════════════════════════════════════════════════════════════
+# Heady Phi Scales Configuration
+# ═══════════════════════════════════════════════════════════════════
+#
+# Maps every dynamic parameter to its PhiScale bounds, adjustment 
+# sensitivity, telemetry source, and default phi-normalized starting position.
+#
+# All scales use the golden ratio (φ = 1.618...) as their fundamental
+# geometric coordinate system instead of arbitrary 0-1 or 0-100 ranges.
+# ═══════════════════════════════════════════════════════════════════
+
+# Global settings
+global:
+  phi: 1.618033988749895
+  phi_inverse: 0.618033988749895
+  adjustment_interval_ms: 5000
+  telemetry_interval_ms: 1000
+  max_history_size: 1000
+
+# ═══════════════════════════════════════════════════════════════════
+# TIMEOUT PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+timeout:
+  name: "Dynamic Timeout"
+  base_value: 5000
+  min: 1000
+  max: 30000
+  unit: "milliseconds"
+  phi_normalized: false
+  sensitivity: 0.15
+  telemetry_source: "latencyP99"
+  adjustment_formula: "phi * latencyP99"
+  description: "Request timeout adjusts based on p99 latency, targeting φ × p99"
+
+# ═══════════════════════════════════════════════════════════════════
+# RETRY PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+retry_count:
+  name: "Dynamic Retry Count"
+  base_value: 3
+  min: 1
+  max: 8
+  unit: "count"
+  phi_normalized: false
+  sensitivity: 0.2
+  telemetry_source: "errorRate"
+  adjustment_formula: "increase if errorRate > 0.1, decrease if < 0.01"
+  description: "Retry attempts adjust based on current error rate"
+
+backoff_interval:
+  name: "Dynamic Backoff Interval"
+  base_value: 1000
+  min: 100
+  max: 10000
+  unit: "milliseconds"
+  phi_normalized: false
+  sensitivity: 0.12
+  telemetry_source: "retrySuccessRate"
+  phi_backoff: true
+  description: "Backoff uses phi-exponential sequence (φ, φ², φ³...)"
+
+# ═══════════════════════════════════════════════════════════════════
+# BATCH PROCESSING PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+batch_size:
+  name: "Dynamic Batch Size"
+  base_value: 21  # Fibonacci number
+  min: 5
+  max: 144  # Fibonacci number
+  unit: "items"
+  phi_normalized: false
+  sensitivity: 0.1
+  telemetry_source: "throughput, cpuUsage"
+  fibonacci_partition: true
+  description: "Batch size uses Fibonacci partitioning for optimal bin-packing"
+
+# ═══════════════════════════════════════════════════════════════════
+# CONFIDENCE & THRESHOLD PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+confidence_threshold:
+  name: "Dynamic Confidence Threshold"
+  base_value: 0.618  # φ⁻¹ - natural phi-point
+  min: 0.3
+  max: 0.95
+  unit: "probability"
+  phi_normalized: true
+  sensitivity: 0.08
+  telemetry_source: "accuracy"
+  description: "Confidence threshold naturally positioned at golden ratio equilibrium"
+
+resonance_threshold:
+  name: "Dynamic Resonance Threshold"
+  base_value: 0.95
+  min: 0.7
+  max: 0.99
+  unit: "similarity"
+  phi_normalized: true
+  sensitivity: 0.05
+  telemetry_source: "accuracy"
+  csl_gate: "resonance_gate"
+  description: "CSL resonance gate activation threshold"
+
+ternary_positive:
+  name: "Dynamic Ternary Positive Threshold"
+  base_value: 0.72
+  min: 0.6
+  max: 0.85
+  unit: "similarity"
+  phi_normalized: true
+  sensitivity: 0.06
+  csl_gate: "ternary_gate"
+  description: "CSL ternary gate positive boundary"
+
+ternary_negative:
+  name: "Dynamic Ternary Negative Threshold"
+  base_value: 0.35
+  min: 0.2
+  max: 0.5
+  unit: "similarity"
+  phi_normalized: true
+  sensitivity: 0.06
+  csl_gate: "ternary_gate"
+  description: "CSL ternary gate negative boundary"
+
+# ═══════════════════════════════════════════════════════════════════
+# PRIORITY & SCHEDULING PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+priority:
+  name: "Dynamic Priority"
+  base_value: 0.618  # φ⁻¹
+  min: 0
+  max: 1.618  # φ
+  unit: "phi-normalized"
+  phi_normalized: true
+  sensitivity: 0.12
+  telemetry_source: "queueDepth, avgWaitTime"
+  description: "Priority scale from 0 to φ with equilibrium at φ⁻¹"
+
+# ═══════════════════════════════════════════════════════════════════
+# LLM PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+temperature:
+  name: "Dynamic Temperature"
+  base_value: 0.7
+  min: 0.0
+  max: 1.5
+  unit: "temperature"
+  phi_normalized: true
+  sensitivity: 0.05
+  telemetry_source: "responseDiversity"
+  description: "LLM temperature adjusts based on response diversity needs"
+
+# ═══════════════════════════════════════════════════════════════════
+# CACHING PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+cache_ttl:
+  name: "Dynamic Cache TTL"
+  base_value: 3600000  # 1 hour
+  min: 60000  # 1 minute
+  max: 86400000  # 24 hours
+  unit: "milliseconds"
+  phi_normalized: false
+  sensitivity: 0.1
+  telemetry_source: "cacheHitRate, memoryUsage"
+  phi_decay: true
+  decay_half_life: 3600000
+  description: "Cache TTL with golden spiral decay, preserves hot data longer"
+
+# ═══════════════════════════════════════════════════════════════════
+# RATE LIMITING PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+rate_limit:
+  name: "Dynamic Rate Limit"
+  base_value: 100
+  min: 10
+  max: 1000
+  unit: "requests/minute"
+  phi_normalized: false
+  sensitivity: 0.15
+  telemetry_source: "cpuUsage, memoryUsage"
+  description: "Rate limit adjusts based on system load"
+
+concurrency:
+  name: "Dynamic Concurrency"
+  base_value: 8  # Fibonacci number
+  min: 2
+  max: 55  # Fibonacci number
+  unit: "concurrent requests"
+  phi_normalized: false
+  sensitivity: 0.18
+  telemetry_source: "avgResponseTime, cpuUsage"
+  fibonacci_values: [2, 3, 5, 8, 13, 21, 34, 55]
+  description: "Concurrency uses Fibonacci numbers for optimal resource distribution"
+
+# ═══════════════════════════════════════════════════════════════════
+# RISK & TRADING PARAMETERS
+# ═══════════════════════════════════════════════════════════════════
+
+risk_sensitivity:
+  name: "Dynamic Risk Sensitivity"
+  base_value: 0.8
+  min: 0.5
+  max: 0.95
+  unit: "sensitivity"
+  phi_normalized: true
+  sensitivity: 0.08
+  csl_gate: "risk_gate"
+  description: "Risk gate activation sensitivity for trading systems"
+
+soft_gate_steepness:
+  name: "Dynamic Soft Gate Steepness"
+  base_value: 20
+  min: 5
+  max: 50
+  unit: "steepness"
+  phi_normalized: false
+  sensitivity: 0.1
+  csl_gate: "soft_gate"
+  description: "Sigmoid steepness for continuous gate activation"
+
+# ═══════════════════════════════════════════════════════════════════
+# TELEMETRY METRICS
+# ═══════════════════════════════════════════════════════════════════
+
+telemetry_metrics:
+  - name: "cpuUsage"
+    description: "CPU utilization (0.0 - 1.0)"
+    unit: "percentage"
+
+  - name: "memoryUsage"
+    description: "Memory utilization (0.0 - 1.0)"
+    unit: "percentage"
+
+  - name: "latencyP99"
+    description: "99th percentile response latency"
+    unit: "milliseconds"
+
+  - name: "throughput"
+    description: "Requests per second"
+    unit: "requests/second"
+
+  - name: "errorRate"
+    description: "Error rate (0.0 - 1.0)"
+    unit: "percentage"
+
+  - name: "queueDepth"
+    description: "Number of queued requests"
+    unit: "count"
+
+  - name: "avgWaitTime"
+    description: "Average queue wait time"
+    unit: "milliseconds"
+
+  - name: "cacheHitRate"
+    description: "Cache hit rate (0.0 - 1.0)"
+    unit: "percentage"
+
+  - name: "avgResponseTime"
+    description: "Average response time"
+    unit: "milliseconds"
+
+  - name: "retrySuccessRate"
+    description: "Retry success rate (0.0 - 1.0)"
+    unit: "percentage"
+
+  - name: "accuracy"
+    description: "System accuracy (0.0 - 1.0)"
+    unit: "percentage"
+
+  - name: "responseDiversity"
+    description: "Response diversity metric (0.0 - 1.0)"
+    unit: "percentage"
