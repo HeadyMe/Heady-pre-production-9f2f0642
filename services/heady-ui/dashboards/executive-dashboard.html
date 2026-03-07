@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" data-heady-ui="executive-dashboard">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Heady Executive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --sf: #111827;
+            --bd: #1e293b;
+            --tx: #e2e8f0;
+            --mt: #94a3b8;
+            --ac: #00d4aa;
+            --gd: #f59e0b
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--tx)
+        }
+
+        .hd {
+            padding: 20px 32px;
+            background: rgba(17, 24, 39, .95);
+            border-bottom: 1px solid var(--bd);
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .hd h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--ac), var(--gd));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .ms {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
+            padding: 24px 32px
+        }
+
+        .m {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 18px
+        }
+
+        .m .v {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--ac)
+        }
+
+        .m .l {
+            font-size: 11px;
+            color: var(--mt);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px
+        }
+
+        .m .c {
+            font-size: 11px;
+            margin-top: 6px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            background: rgba(16, 185, 129, .12);
+            color: #10b981
+        }
+
+        .rw {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 0 32px 24px
+        }
+
+        .cd {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 20px
+        }
+
+        .cd h3 {
+            font-size: 13px;
+            color: var(--mt);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px
+        }
+
+        .fn-s {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px
+        }
+
+        .fn-b {
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff
+        }
+
+        .hm {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px
+        }
+
+        .hc {
+            aspect-ratio: 1;
+            border-radius: 3px
+        }
+
+        .ip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            padding: 0 32px 32px
+        }
+
+        .ip .b {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 18px
+        }
+
+        .ip .n {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gd)
+        }
+
+        .ip .t {
+            font-size: 11px;
+            color: var(--mt);
+            text-transform: uppercase;
+            margin-top: 4px;
+            letter-spacing: 1px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hd">
+        <h1>⚡ Heady Executive Dashboard</h1>
+        <div style="font-size:13px;color:var(--mt)">March 2026 — Pilot</div>
+    </div>
+    <div class="ms">
+        <div class="m">
+            <div class="v">$3.5M</div>
+            <div class="l">Valuation</div>
+            <div class="c">↑ Strategic</div>
+        </div>
+        <div class="m">
+            <div class="v">47</div>
+            <div class="l">Pilot Users</div>
+            <div class="c">↑ 34%</div>
+        </div>
+        <div class="m">
+            <div class="v">42</div>
+            <div class="l">MCP Services</div>
+            <div class="c">↑ 6 new</div>
+        </div>
+        <div class="m">
+            <div class="v">64K+</div>
+            <div class="l">Files</div>
+            <div class="c">↑ 12%</div>
+        </div>
+        <div class="m">
+            <div class="v">99.7%</div>
+            <div class="l">Uptime</div>
+            <div class="c">SLO Met</div>
+        </div>
+        <div class="m">
+            <div class="v" style="color:var(--gd)">51+</div>
+            <div class="l">Patents</div>
+            <div class="c">↑ 9 new</div>
+        </div>
+    </div>
+    <div class="rw">
+        <div class="cd">
+            <h3>Growth Trajectory</h3><canvas id="gc" height="120"></canvas>
+        </div>
+        <div class="cd">
+            <h3>Onboarding Funnel</h3>
+            <div id="fn"></div>
+        </div>
+    </div>
+    <div class="rw">
+        <div class="cd">
+            <h3>Activity Heatmap (28 Days)</h3>
+            <div class="hm" id="hm"></div>
+        </div>
+        <div class="cd">
+            <h3>Service Categories</h3><canvas id="cc" height="140"></canvas>
+        </div>
+    </div>
+    <div class="ip">
+        <div class="b">
+            <div class="n">51+</div>
+            <div class="t">Patents</div>
+        </div>
+        <div class="b">
+            <div class="n">20</div>
+            <div class="t">AI Nodes</div>
+        </div>
+        <div class="b">
+            <div class="n">9</div>
+            <div class="t">Live Domains</div>
+        </div>
+        <div class="b">
+            <div class="n">12</div>
+            <div class="t">Verticals</div>
+        </div>
+    </div>
+    <script>
+        new Chart(document.getElementById('gc'), { type: 'line', data: { labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'], datasets: [{ label: 'Users', data: [2, 5, 12, 22, 35, 47], borderColor: '#00d4aa', backgroundColor: 'rgba(0,212,170,.1)', fill: true, tension: .4 }, { label: 'Services', data: [18, 24, 28, 34, 38, 42], borderColor: '#3b82f6', tension: .4 }] }, options: { responsive: true, plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,41,59,.3)' } }, y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,41,59,.3)' } } } } });
+        const steps = [{ n: 'Visit', p: 100, c: '#3b82f6' }, { n: 'Sign Up', p: 68, c: '#06b6d4' }, { n: 'Onboarding', p: 52, c: '#00d4aa' }, { n: 'Active', p: 41, c: '#10b981' }, { n: 'Power User', p: 23, c: '#f59e0b' }];
+        document.getElementById('fn').innerHTML = steps.map(s => `<div class="fn-s"><div class="fn-b" style="width:${s.p}%;background:${s.c}">${s.n} — ${s.p}%</div></div>`).join('');
+        const hm = document.getElementById('hm'); for (let i = 0; i < 28; i++) { const v = Math.random(); hm.innerHTML += `<div class="hc" style="background:rgba(0,212,170,${v > .7 ? 1 : v > .4 ? .6 : v > .15 ? .3 : .1})"></div>` }
+        new Chart(document.getElementById('cc'), { type: 'bar', data: { labels: ['AI/ML', 'Orchestration', 'Security', 'Memory', 'DevOps', 'UI'], datasets: [{ data: [8, 6, 5, 4, 3, 3], backgroundColor: ['#00d4aa', '#3b82f6', '#ef4444', '#a855f7', '#f59e0b', '#06b6d4'] }] }, options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,41,59,.3)' } }, y: { ticks: { color: '#94a3b8' }, grid: { display: false } } } } });
+    </script>
+</body>
+
+</html>

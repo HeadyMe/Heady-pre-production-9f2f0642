@@ -1,5 +1,5 @@
 /*
- * © 2026 HeadySystems Inc..
+ * © 2026 Heady Systems LLC.
  * PROPRIETARY AND CONFIDENTIAL.
  * Heady Chrome Extension — Content Script
  * Captures page context for context-aware AI queries.

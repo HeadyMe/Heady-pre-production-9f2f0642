@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<!--
+  AUTO-GENERATED — Heady Pilot Usage Dashboard
+  Source: docs/ENTERPRISE-MANIFEST.md → pilot/dashboard/usage-dashboard.html
+  Chart.js usage dashboard: invocations, latency, errors, costs
+-->
+<html lang="en" data-heady-ui="pilot-usage">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady Pilot — Usage Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --surface: #111827;
+            --border: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #00d4aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .header {
+            padding: 20px 32px;
+            background: rgba(17, 24, 39, .9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header .badge {
+            background: rgba(0, 212, 170, .15);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            padding: 24px 32px;
+        }
+
+        .kpi {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .kpi .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .kpi .label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .kpi .delta {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .kpi .delta.up {
+            color: #10b981;
+        }
+
+        .kpi .delta.down {
+            color: #ef4444;
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 0 32px 32px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-card h3 {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .table th,
+        .table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .table th {
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            font-size: 11px;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .pill.green {
+            background: rgba(16, 185, 129, .15);
+            color: #10b981;
+        }
+
+        .pill.yellow {
+            background: rgba(245, 158, 11, .15);
+            color: #f59e0b;
+        }
+
+        .pill.red {
+            background: rgba(239, 68, 68, .15);
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>📊 Pilot Usage Dashboard</h1>
+        <span class="badge">PILOT PHASE — March 2026</span>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi">
+            <div class="value" id="k-invocations">12,847</div>
+            <div class="label">API Invocations</div>
+            <div class="delta up">↑ 23% vs last week</div>
+        </div>
+        <div class="kpi">
+            <div class="value" id="k-latency">42ms</div>
+            <div class="label">Avg Latency</div>
+            <div class="delta up">↓ 15% improved</div>
+        </div>
+        <div class="kpi">
+            <div class="value" id="k-errors">0.02%</div>
+            <div class="label">Error Rate</div>
+            <div class="delta up">↓ below SLO</div>
+        </div>
+        <div class="kpi">
+            <div class="value" id="k-users">47</div>
+            <div class="label">Active Pilots</div>
+            <div class="delta up">↑ 12 new this week</div>
+        </div>
+        <div class="kpi">
+            <div class="value" id="k-cost">$18.42</div>
+            <div class="label">Daily Cost</div>
+            <div class="delta down">↑ 8% (scale)</div>
+        </div>
+    </div>
+
+    <div class="charts">
+        <div class="chart-card">
+            <h3>Invocations Over Time</h3>
+            <canvas id="invChart" height="100"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Tool Usage Distribution</h3>
+            <canvas id="toolChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <div style="padding:0 32px 32px;">
+        <div class="chart-card">
+            <h3>Service Health Matrix</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Latency</th>
+                        <th>Invocations</th>
+                        <th>Errors</th>
+                    </tr>
+                </thead>
+                <tbody id="serviceTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const PHI = 1.618033988749895;
+        // Invocations chart
+        const days = Array.from({ length: 14 }, (_, i) => `Mar ${i + 1}`);
+        const inv = days.map(() => Math.floor(Math.random() * 2000 + 500));
+        new Chart(document.getElementById('invChart'), {
+            type: 'line',
+            data: { labels: days, datasets: [{ label: 'Invocations', data: inv, borderColor: '#00d4aa', backgroundColor: 'rgba(0,212,170,.1)', fill: true, tension: .4 }] },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,41,59,.5)' } }, y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(30,41,59,.5)' } } } }
+        });
+
+        // Tool chart
+        const tools = ['HeadyResearch', 'HeadyCoder', 'HeadyMemory', 'HeadyBattle', 'HeadyDeploy', 'HeadyBuddy'];
+        new Chart(document.getElementById('toolChart'), {
+            type: 'doughnut',
+            data: { labels: tools, datasets: [{ data: tools.map(() => Math.floor(Math.random() * 500 + 100)), backgroundColor: ['#00d4aa', '#3b82f6', '#a855f7', '#f59e0b', '#ef4444', '#06b6d4'] }] },
+            options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } } }
+        });
+
+        // Services
+        const services = [
+            { name: 'heady-api-gateway', domain: 'headyapi.com' },
+            { name: 'heady-mcp-server', domain: 'headymcp.com' },
+            { name: 'heady-ai-router', domain: 'headyai.com' },
+            { name: 'heady-cloud', domain: 'headycloud.com' },
+            { name: 'heady-me-web', domain: 'headyme.com' },
+            { name: 'heady-buddy', domain: 'headybuddy.org' },
+            { name: 'heady-os-kernel', domain: 'headyos.com' },
+            { name: 'heady-io', domain: 'headyio.com' },
+            { name: 'heady-systems-hub', domain: 'headysystems.com' },
+            { name: 'heady-connection', domain: 'headyconnection.org' },
+        ];
+        document.getElementById('serviceTable').innerHTML = services.map(s => {
+            const ok = Math.random() > .05;
+            const lat = (Math.random() * 80 + 10).toFixed(0);
+            const inv = Math.floor(Math.random() * 3000 + 100);
+            const err = Math.floor(Math.random() * (ok ? 5 : 50));
+            return `<tr><td><strong>${s.name}</strong><br><span style="color:#94a3b8;font-size:11px">${s.domain}</span></td><td><span class="pill ${ok ? 'green' : 'red'}">${ok ? 'HEALTHY' : 'DEGRADED'}</span></td><td>${lat}ms</td><td>${inv.toLocaleString()}</td><td>${err}</td></tr>`;
+        }).join('');
+    </script>
+</body>
+
+</html>

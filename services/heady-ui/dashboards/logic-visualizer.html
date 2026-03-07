@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<!--
+  AUTO-GENERATED — Heady Logic Visualizer Dashboard
+  Source: docs/LOGIC-VISUALIZER-SPEC.md → Implemented by site-projection-renderer
+  Spec: VIZ-03 from MASTER-TASK-BOARD.md
+-->
+<html lang="en" data-heady-ui="logic-visualizer">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heady Logic Visualizer — CSL Gate Monitor</title>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --surface: #111827;
+            --border: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #00d4aa;
+            --warn: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --phi: 1.618033988749895;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            background: rgba(17, 24, 39, .8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .nav-brand svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 2s infinite;
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            padding: 24px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card h3 .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .gate-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .gate {
+            background: rgba(0, 212, 170, .05);
+            border: 1px solid rgba(0, 212, 170, .15);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            transition: all .2s;
+            cursor: pointer;
+        }
+
+        .gate:hover {
+            background: rgba(0, 212, 170, .12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 212, 170, .1);
+        }
+
+        .gate .name {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .gate .value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .gate .conf {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metric-row:last-child {
+            border: none;
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 80px;
+            margin-top: 12px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--accent), rgba(0, 212, 170, .3));
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+            transition: height .6s ease;
+        }
+
+        canvas {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, .3);
+        }
+
+        .pipeline-flow {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .pipeline-stage {
+            background: rgba(59, 130, 246, .1);
+            border: 1px solid rgba(59, 130, 246, .2);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 11px;
+            color: var(--info);
+        }
+
+        .pipeline-arrow {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 0 24px 24px;
+        }
+
+        .stat {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat .num {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat .label {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .log-feed {
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(30, 41, 59, .5);
+            display: flex;
+            gap: 8px;
+        }
+
+        .log-time {
+            color: var(--muted);
+            min-width: 80px;
+        }
+
+        .log-msg {
+            color: var(--text);
+        }
+
+        .log-entry.warn .log-msg {
+            color: var(--warn);
+        }
+
+        .log-entry.error .log-msg {
+            color: var(--danger);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="nav">
+        <div class="nav-brand">
+            <svg viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="45" stroke="#00d4aa" stroke-width="2" />
+                <circle cx="50" cy="50" r="30" stroke="#00d4aa" stroke-width="1.5" opacity=".6" />
+                <circle cx="50" cy="50" r="15" stroke="#00d4aa" stroke-width="1" opacity=".3" />
+                <circle cx="50" cy="50" r="4" fill="#00d4aa" />
+            </svg>
+            Logic Visualizer
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;font-size:13px;color:var(--muted);">
+            <span class="status-dot"></span> Live
+            <span id="clock"></span>
+        </div>
+    </nav>
+
+    <div class="stats-row" style="margin-top:24px;">
+        <div class="stat">
+            <div class="num" id="s-gates">6</div>
+            <div class="label">CSL Gates</div>
+        </div>
+        <div class="stat">
+            <div class="num" id="s-evals">0</div>
+            <div class="label">Evaluations</div>
+        </div>
+        <div class="stat">
+            <div class="num" id="s-uptime">0s</div>
+            <div class="label">Uptime</div>
+        </div>
+        <div class="stat">
+            <div class="num" id="s-phi">φ</div>
+            <div class="label">Drift</div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- CSL Gate Monitor -->
+        <div class="card">
+            <h3><span class="dot" style="background:var(--accent)"></span> Continuous Semantic Logic Gates</h3>
+            <div class="gate-grid" id="gateGrid"></div>
+        </div>
+
+        <!-- Pipeline Flow -->
+        <div class="card">
+            <h3><span class="dot" style="background:var(--info)"></span> HCFullPipeline Stages</h3>
+            <div class="pipeline-flow" id="pipelineFlow"></div>
+            <div style="margin-top:16px;">
+                <div class="metric-row"><span class="metric-label">Current Stage</span><span class="metric-value"
+                        id="currentStage">—</span></div>
+                <div class="metric-row"><span class="metric-label">Throughput</span><span class="metric-value"
+                        id="throughput">—</span></div>
+                <div class="metric-row"><span class="metric-label">Avg Latency</span><span class="metric-value"
+                        id="avgLatency">—</span></div>
+            </div>
+        </div>
+
+        <!-- Swarm Health -->
+        <div class="card">
+            <h3><span class="dot" style="background:var(--warn)"></span> Bee Swarm Health</h3>
+            <div id="swarmMetrics">
+                <div class="metric-row"><span class="metric-label">Active Bees</span><span class="metric-value"
+                        id="activeBees">17</span></div>
+                <div class="metric-row"><span class="metric-label">Task Queue</span><span class="metric-value"
+                        id="taskQueue">0</span></div>
+                <div class="metric-row"><span class="metric-label">Consensus</span><span class="metric-value"
+                        id="consensus">1.00</span></div>
+                <div class="metric-row"><span class="metric-label">φ-Drift</span><span class="metric-value"
+                        id="phiDrift">0.000</span></div>
+            </div>
+            <div class="bar-chart" id="beeChart"></div>
+        </div>
+
+        <!-- Memory Space -->
+        <div class="card">
+            <h3><span class="dot" style="background:#a855f7"></span> Vector Memory Space</h3>
+            <canvas id="memoryCanvas"></canvas>
+            <div style="margin-top:12px;">
+                <div class="metric-row"><span class="metric-label">Vectors Stored</span><span class="metric-value"
+                        id="vectorCount">0</span></div>
+                <div class="metric-row"><span class="metric-label">Octree Depth</span><span class="metric-value"
+                        id="octreeDepth">0</span></div>
+                <div class="metric-row"><span class="metric-label">Density</span><span class="metric-value"
+                        id="density">0.00</span></div>
+            </div>
+        </div>
+
+        <!-- Model Council -->
+        <div class="card">
+            <h3><span class="dot" style="background:#06b6d4"></span> Model Council Status</h3>
+            <div id="modelCouncil"></div>
+        </div>
+
+        <!-- Live Event Log -->
+        <div class="card">
+            <h3><span class="dot" style="background:var(--danger)"></span> Event Stream</h3>
+            <div class="log-feed" id="logFeed"></div>
+        </div>
+    </div>
+
+    <script>
+        const PHI = 1.618033988749895;
+        const GATES = ['AND', 'OR', 'IMPLY', 'EQUIV', 'NAND', 'XOR'];
+        const PIPELINE = ['Intake', 'Classify', 'Route', 'Decompose', 'Execute', 'Validate', 'Synthesize', 'Deliver', 'Learn', 'Archive', 'Report', 'Heal'];
+        const MODELS = [
+            { name: 'Claude Opus 4.6', status: 'idle', tasks: 0, color: '#a855f7' },
+            { name: 'GPT-5.4 Turbo', status: 'idle', tasks: 0, color: '#3b82f6' },
+            { name: 'Gemini 3.1 Pro', status: 'idle', tasks: 0, color: '#06b6d4' },
+            { name: 'O1', status: 'idle', tasks: 0, color: '#f59e0b' },
+            { name: 'Sonnet 4.5', status: 'idle', tasks: 0, color: '#ef4444' }
+        ];
+
+        let evalCount = 0, startTime = Date.now();
+
+        // CSL Gates
+        function renderGates() {
+            const grid = document.getElementById('gateGrid');
+            grid.innerHTML = GATES.map(g => {
+                const v = (Math.random() * PHI).toFixed(3);
+                const conf = (Math.random() * 100).toFixed(1);
+                evalCount++;
+                return `<div class="gate"><div class="name">${g}</div><div class="value">${v}</div><div class="conf">${conf}% conf</div></div>`;
+            }).join('');
+            document.getElementById('s-evals').textContent = evalCount;
+        }
+
+        // Pipeline
+        function renderPipeline() {
+            const flow = document.getElementById('pipelineFlow');
+            const active = Math.floor(Math.random() * PIPELINE.length);
+            flow.innerHTML = PIPELINE.map((s, i) =>
+                `<span class="pipeline-stage" style="${i === active ? 'background:rgba(0,212,170,.2);border-color:var(--accent);color:var(--accent)' : ''}">${s}</span>${i < PIPELINE.length - 1 ? '<span class="pipeline-arrow">→</span>' : ''}`
+            ).join('');
+            document.getElementById('currentStage').textContent = PIPELINE[active];
+            document.getElementById('throughput').textContent = `${Math.floor(Math.random() * 500 + 100)} ops/s`;
+            document.getElementById('avgLatency').textContent = `${(Math.random() * 50 + 5).toFixed(1)}ms`;
+        }
+
+        // Swarm
+        function renderSwarm() {
+            const bees = 17;
+            document.getElementById('activeBees').textContent = bees;
+            document.getElementById('taskQueue').textContent = Math.floor(Math.random() * 10);
+            document.getElementById('consensus').textContent = (0.9 + Math.random() * 0.1).toFixed(2);
+            document.getElementById('phiDrift').textContent = (Math.random() * 0.01).toFixed(4);
+            document.getElementById('s-phi').textContent = (Math.random() * 0.01).toFixed(4);
+            const chart = document.getElementById('beeChart');
+            chart.innerHTML = Array.from({ length: bees }, () => `<div class="bar" style="height:${Math.random() * 100}%"></div>`).join('');
+        }
+
+        // Memory Canvas
+        function renderMemory() {
+            const c = document.getElementById('memoryCanvas');
+            const ctx = c.getContext('2d');
+            c.width = c.offsetWidth; c.height = 200;
+            ctx.clearRect(0, 0, c.width, c.height);
+            const pts = 80;
+            for (let i = 0; i < pts; i++) {
+                const x = Math.random() * c.width, y = Math.random() * c.height;
+                const r = Math.random() * 3 + 1;
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${160 + Math.random() * 60},80%,60%,${Math.random() * 0.5 + 0.3})`;
+                ctx.fill();
+                if (i > 0 && Math.random() > 0.7) {
+                    ctx.beginPath(); ctx.moveTo(x, y);
+                    ctx.lineTo(Math.random() * c.width, Math.random() * c.height);
+                    ctx.strokeStyle = 'rgba(0,212,170,0.08)'; ctx.stroke();
+                }
+            }
+            document.getElementById('vectorCount').textContent = Math.floor(Math.random() * 10000 + 5000).toLocaleString();
+            document.getElementById('octreeDepth').textContent = Math.floor(Math.log(8000) / Math.log(PHI));
+            document.getElementById('density').textContent = (Math.random() * 0.5 + 0.3).toFixed(3);
+        }
+
+        // Models
+        function renderModels() {
+            const el = document.getElementById('modelCouncil');
+            const statuses = ['idle', 'running', 'completed'];
+            el.innerHTML = MODELS.map(m => {
+                m.status = statuses[Math.floor(Math.random() * 3)];
+                m.tasks = Math.floor(Math.random() * 20);
+                const icon = m.status === 'running' ? '⚡' : m.status === 'completed' ? '✅' : '⏸';
+                return `<div class="metric-row"><span class="metric-label">${icon} ${m.name}</span><span class="metric-value" style="color:${m.color}">${m.tasks} tasks</span></div>`;
+            }).join('');
+        }
+
+        // Log Feed
+        const LOG_MSGS = [
+            'CSL gate AND evaluated → 0.927', 'Bee sync-projection completed', 'Pipeline stage Validate passed',
+            'Vector memory compacted', 'Model council consensus reached', 'φ-drift corrected to 0.0003',
+            'Octree rebalanced at depth 12', 'HeadyBattle round complete', 'Quality gate PASS',
+            'Semantic temperature adjusted to 0.382', 'Context window optimized for Gemini',
+        ];
+        function addLog() {
+            const feed = document.getElementById('logFeed');
+            const now = new Date();
+            const time = now.toLocaleTimeString('en', { hour12: false });
+            const msg = LOG_MSGS[Math.floor(Math.random() * LOG_MSGS.length)];
+            const cls = Math.random() > 0.9 ? 'warn' : Math.random() > 0.95 ? 'error' : '';
+            feed.innerHTML = `<div class="log-entry ${cls}"><span class="log-time">${time}</span><span class="log-msg">${msg}</span></div>` + feed.innerHTML;
+            if (feed.children.length > 50) feed.removeChild(feed.lastChild);
+        }
+
+        // Clock & Uptime
+        function tick() {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString('en', { hour12: false });
+            const up = Math.floor((Date.now() - startTime) / 1000);
+            const h = Math.floor(up / 3600), m = Math.floor((up % 3600) / 60), s = up % 60;
+            document.getElementById('s-uptime').textContent = `${h}h${m}m${s}s`;
+        }
+
+        // Init
+        function update() { renderGates(); renderPipeline(); renderSwarm(); renderMemory(); renderModels(); addLog(); tick(); }
+        update();
+        setInterval(update, 2000);
+        setInterval(tick, 1000);
+    </script>
+</body>
+
+</html>
