@@ -17,4 +17,8 @@ module.exports = {
     info: (...a) => root.info(a.join(' ')),
     warn: (...a) => root.warn(a.join(' ')),
     error: (...a) => root.error(a.join(' ')),
+    // Shimmed: used by 60+ files across the codebase
+    logNodeActivity: (node, ...msg) => root.info(`[${node}] ${msg.join(' ')}`),
+    logError: (node, ...msg) => root.error(`[${node}] ${msg.join(' ')}`),
+    logSystem: (...msg) => root.info(msg.join(' ')),
 };
