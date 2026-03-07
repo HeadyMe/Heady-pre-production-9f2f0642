@@ -1506,7 +1506,7 @@ class AutoSuccessEngine extends EventEmitter {
 
 // ─── ROUTE REGISTRATION ─────────────────────────────────────────────────────
 function registerAutoSuccessRoutes(app, engine) {
-    const express = require("express");
+    const express = require('core/heady-server');
     const router = express.Router();
 
     router.get("/health", (req, res) => {

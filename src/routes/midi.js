@@ -11,7 +11,7 @@
  * These routes provide observability and manual trigger capabilities.
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const router = express.Router();
 const { midiBus, CHANNELS, MSG, METRICS, NOTES } = require('../engines/midi-event-bus');
 

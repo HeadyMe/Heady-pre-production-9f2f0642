@@ -719,7 +719,7 @@ class HeadyCloudOrchestrator extends EventEmitter {
 
 // ─── ROUTE REGISTRATION ────────────────────────────────────────────────────
 function registerOrchestratorRoutes(app, orchestrator) {
-    const express = require("express");
+    const express = require('../core/heady-server');
     const router = express.Router();
 
     router.get("/health", (req, res) => {

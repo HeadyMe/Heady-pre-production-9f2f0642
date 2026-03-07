@@ -7,7 +7,7 @@
  * Heady Patterns API — Exposes circuit breaker, auto-tuning pool,
  * and hot/cold cache status + management endpoints.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 const { getAllBreakers: getCBStatus, getBreaker } = require("../resilience/circuit-breaker");

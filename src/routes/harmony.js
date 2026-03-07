@@ -3,7 +3,7 @@
  * PROPRIETARY AND CONFIDENTIAL.
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 
 module.exports = function createHarmonyRouter(deps = {}) {
     const router = express.Router();

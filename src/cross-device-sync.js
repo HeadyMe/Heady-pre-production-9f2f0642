@@ -55,7 +55,7 @@ class CrossDeviceSyncHub extends EventEmitter {
     attachToServer(server) {
         let WebSocketServer;
         try {
-            WebSocketServer = require("ws").Server;
+            // HeadyServer handles WebSocket upgrades natively
         } catch {
             logger.info("⚠ [SyncHub] ws module not available — WebSocket sync disabled");
             return;

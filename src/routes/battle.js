@@ -11,7 +11,7 @@
  * scores them, and maintains a cumulative leaderboard — similar to
  * HeadyAI-IDE-Next arena but using the Heady AI node roster.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 // ── Persistent state (in-memory, survives restarts via manager) ──────────────

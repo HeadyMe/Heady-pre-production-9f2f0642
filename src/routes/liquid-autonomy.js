@@ -4,7 +4,7 @@
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const liquidAutonomyController = require("../services/liquid-autonomy-controller");
 
 const router = express.Router();

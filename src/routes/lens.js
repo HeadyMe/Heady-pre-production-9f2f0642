@@ -12,7 +12,7 @@
  * Architecture: Lens taps into all services, captures snapshots,
  * computes deltas, stores in vector-ready format for Qdrant.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const fs = require("fs");
 const path = require("path");

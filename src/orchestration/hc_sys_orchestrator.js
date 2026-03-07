@@ -2,7 +2,7 @@
  * HCSysOrchestrator — Multi-Brain Task Router
  * Routes tasks across brain layers and manages orchestration.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 router.get("/health", (req, res) => {

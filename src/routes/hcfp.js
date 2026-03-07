@@ -7,7 +7,7 @@
  * HeadyHCFP — Auto-Success Pipeline (100% Success Guarantee)
  * Real service router replacing stub.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 const pipelineStartTime = Date.now();

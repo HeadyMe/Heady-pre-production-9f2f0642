@@ -337,7 +337,7 @@ class DeepIntelEngine extends EventEmitter {
 
 // ─── EXPRESS ROUTES ─────────────────────────────────────────────────────
 function registerDeepIntelRoutes(app, engine) {
-    const router = require("express").Router();
+    const router = require('core/heady-server').Router();
 
     router.get("/status", (req, res) => res.json({ ok: true, ...engine.getStatus() }));
     router.get("/vectors", (req, res) => res.json({ ok: true, ...engine.vectorStore.getStats() }));

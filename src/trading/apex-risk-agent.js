@@ -241,7 +241,7 @@ class ApexRiskAgent extends EventEmitter {
 
 // ─── ROUTE REGISTRATION ─────────────────────────────────────────────────────
 function registerApexRoutes(app, agent) {
-    const express = require('express');
+    const express = require('../core/heady-server');
     const router = express.Router();
 
     router.get('/status', (req, res) => {

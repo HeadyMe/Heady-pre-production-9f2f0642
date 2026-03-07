@@ -10,7 +10,7 @@
 
 'use strict';
 
-const WebSocket = require('ws');
+const { HeadyWebSocket: WebSocket } = require('../core/heady-server'); // HeadyServer built-in WS
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 

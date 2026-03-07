@@ -14,7 +14,7 @@
  * remotely over HTTPS instead of requiring local stdio transport.
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const crypto = require('crypto');
 const fetch = require('../core/heady-fetch');
 const logger = require('../utils/logger');

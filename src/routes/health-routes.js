@@ -7,7 +7,7 @@
  * Heady Health Routes — Production health and readiness endpoints
  * Provides /health/live, /health/ready, and /health/full for Kubernetes-style probes.
  */
-const express = require('express');
+const express = require('../core/heady-server');
 const router = express.Router();
 
 const startTime = Date.now();

@@ -12,7 +12,7 @@
  *
  * Sessions persist in-memory and emit SSE events for real-time canvas updates.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const path = require("path");
 const fs = require("fs");

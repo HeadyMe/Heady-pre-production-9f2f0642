@@ -8,7 +8,7 @@
  * Phase 5: Crypto-stamped audit trail for Proof-of-Inference.
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const router = express.Router();
 const { headyPQC, PQC_CONFIG, getStatus } = require('../security/pqc');
 

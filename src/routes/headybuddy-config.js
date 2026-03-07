@@ -8,7 +8,7 @@
  * Serves runtime configuration to HeadyBuddy clients (web, mobile, widget)
  * Endpoint: /api/headybuddy-config
  */
-const router = require('express').Router();
+const router = require('../core/heady-server').Router();
 
 // Runtime config served to HeadyBuddy clients
 router.get('/', (req, res) => {

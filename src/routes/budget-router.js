@@ -14,7 +14,7 @@
  * Transforms OpEx liability into a competitive differentiator.
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const router = express.Router();
 
 // ── Model Cost Matrix (per 1K tokens, USD) ──────────────────────────

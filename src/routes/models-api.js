@@ -6,7 +6,7 @@
  * Extracted from heady-manager.js monolith — Phase 2 Liquid Architecture.
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const fetch = require('../core/heady-fetch');
 const router = express.Router();
 const logger = require('../utils/logger');

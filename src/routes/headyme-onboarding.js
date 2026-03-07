@@ -14,7 +14,7 @@
  *   GET    /api/headyme-onboarding/health        — Health check
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const crypto = require("crypto");
 

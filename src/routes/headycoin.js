@@ -19,7 +19,7 @@
  * Heady AI Nodes: CONDUCTOR, ATLAS, SENTINEL
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 const { headyCoin, TOKEN, MINING_REWARDS } = require("../headycoin/headycoin-core");

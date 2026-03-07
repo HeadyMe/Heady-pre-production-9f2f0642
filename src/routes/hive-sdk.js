@@ -16,7 +16,7 @@
  * ──────────────────────────────────────────────────────────────────
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const EventEmitter = require("events");
 const sseEmitter = new EventEmitter();

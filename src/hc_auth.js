@@ -578,7 +578,7 @@ class HeadyAuth extends EventEmitter {
 // ─── EXPRESS ROUTES ─────────────────────────────────────────────────
 
 function registerAuthRoutes(app, authEngine) {
-    const express = require("express");
+    const express = require('core/heady-server');
     const router = express.Router();
 
     // Health

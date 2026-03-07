@@ -7,7 +7,7 @@
  * HeadySoul — Consciousness/Optimization Layer
  * Real service router replacing stub.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 const soulLog = [];

@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('../core/heady-server');
 const router = express.Router();
 const redisPool = require('../utils/redis-pool');
 

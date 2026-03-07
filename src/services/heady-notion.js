@@ -610,7 +610,7 @@ async function syncToNotion() {
 // ─── Express Route Registration ─────────────────────────────────────
 
 function registerNotionRoutes(app) {
-    const express = require("express");
+    const express = require('../core/heady-server');
     const router = express.Router();
 
     router.get("/health", (req, res) => {

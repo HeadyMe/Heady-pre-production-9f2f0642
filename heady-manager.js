@@ -38,8 +38,8 @@ const yaml = require('./src/core/heady-yaml');
 const path = require("path");
 const fetch = require('./src/core/heady-fetch').heady_fetch;
 const { createAppAuth } = require('@octokit/auth-app');
-const swaggerUi = require('swagger-ui-express');
-const WebSocket = require('ws');
+// swagger replaced by HeadyServer API docs
+const { HeadyWebSocket: WebSocket } = require('./src/core/heady-server');
 const { renderSite, resolveSite } = require("./src/sites/site-renderer");
 
 /**
@@ -66,11 +66,11 @@ global.eventBus = eventBus;
 
 require('./src/core/heady-env').loadEnv();
 
-const express = require("express");
-const cors = require("cors");
-const compression = require("compression");
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
+const express = require('./src/core/heady-server');
+// cors built into HeadyServer
+// compression built into HeadyServer
+// helmet (security headers) built into HeadyServer
+// rate limiting built into HeadyServer
 
 // Load remote resources config (graceful — don't crash if missing)
 let remoteConfig = { services: {} };
@@ -164,7 +164,7 @@ app.use(helmet({
   xContentTypeOptions: true,
   referrerPolicy: { policy: "strict-origin-when-cross-origin" },
 }));
-app.use(compression());
+// Compression built into HeadyServer
 app.use(express.json({ limit: "5mb" }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : "*",

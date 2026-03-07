@@ -16,7 +16,7 @@
  * Lens = HOW the system is changing (micro)
  * Comparison = value in seeing both perspectives
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const http = require("http");
 const https = require("https");

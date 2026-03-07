@@ -14,7 +14,7 @@
  *   4. Action Controls → Transaction limits + scope boundaries
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const router = express.Router();
 const PolicyEngine = require('../policy-engine');
 const { getApprovalGates } = require('../governance/approval-gates');

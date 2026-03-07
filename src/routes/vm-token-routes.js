@@ -11,7 +11,7 @@
  * Heady AI Nodes: SENTINEL, CONDUCTOR
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const { createAppAuth } = require("@octokit/auth-app");
 
 function createVmTokenRoutes(secretsManager) {

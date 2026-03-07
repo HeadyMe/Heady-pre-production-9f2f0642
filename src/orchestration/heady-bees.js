@@ -541,7 +541,7 @@ class HeadyBees extends EventEmitter {
 
 // ─── ROUTE REGISTRATION ────────────────────────────────────────────────────
 function registerBeesRoutes(app, bees) {
-    const express = require("express");
+    const express = require('../core/heady-server');
     const router = express.Router();
 
     router.get("/health", (req, res) => {

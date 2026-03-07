@@ -6,7 +6,7 @@
  * HeadyBuddy API Routes — Extracted from heady-manager.js (HeadySupervisor Decomposition)
  * Handles: /api/buddy/health, /chat, /suggestions, /orchestrator, /pipeline/continuous, /state, /sync-events
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const path = require("path");
 const fs = require("fs");
 const logger = require("../utils/logger");

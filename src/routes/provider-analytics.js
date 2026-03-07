@@ -12,7 +12,7 @@
  * Heady AI Nodes: OBSERVER, SENTINEL
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const tracker = require("../telemetry/provider-usage-tracker");
 

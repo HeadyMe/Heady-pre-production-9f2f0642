@@ -357,7 +357,7 @@ function contextualize(rawMessages, opts = {}) {
 }
 
 // ─── Express Router (mount on /api/contextualizer) ──────────
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 router.post("/process", (req, res) => {

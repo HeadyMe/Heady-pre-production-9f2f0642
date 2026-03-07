@@ -7,7 +7,7 @@
  * Creates stub endpoints for MCP tools that don't yet have full implementations.
  * Also includes connectivity pattern logging.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const fs = require("fs");
 const path = require("path");
 const logger = require("../utils/logger");

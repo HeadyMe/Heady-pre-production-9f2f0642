@@ -10,7 +10,7 @@
  *
  * Adding a new provider = add an entry to provider-registry.js. Done.
  */
-const router = require('express').Router();
+const router = require('../core/heady-server').Router();
 const registry = require('./provider-registry');
 const logger = require('../utils/logger');
 

@@ -6,7 +6,7 @@
  * This establishes the "Trust & Proof" UX Paradigm.
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const { getConductor } = require('../heady-conductor');
 const path = require('path');
 const fs = require('fs');

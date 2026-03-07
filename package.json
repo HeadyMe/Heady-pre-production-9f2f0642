@@ -95,17 +95,6 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.1",
     "@octokit/auth-app": "^8.2.0",
-    "axios": "^1.13.6",
-    "compression": "^1.8.1",
-    "cors": "^2.8.5",
-    "duckdb": "^1.4.4",
-    "electron": "^40.6.1",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.2.1",
-    "helmet": "^8.1.0",
-    "swagger-ui-express": "^5.0.1",
-    "tinyliquid": "^0.2.34",
-    "ws": "^8.19.0",
     "@octokit/rest": "^21.0.0"
   },
   "devDependencies": {
@@ -148,7 +137,9 @@
       "heady-scheduler",
       "heady-model-bridge",
       "heady-kv",
-      "heady-neon"
+      "heady-neon",
+      "heady-server",
+      "heady-duck"
     ],
     "replacedPackages": [
       "node-fetch",
@@ -168,7 +159,18 @@
       "groq-sdk",
       "@huggingface/inference",
       "redis",
-      "pg"
+      "pg",
+      "express",
+      "cors",
+      "helmet",
+      "express-rate-limit",
+      "compression",
+      "swagger-ui-express",
+      "ws",
+      "duckdb",
+      "axios",
+      "tinyliquid",
+      "electron"
     ]
   }
 }

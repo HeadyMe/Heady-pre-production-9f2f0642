@@ -4,7 +4,7 @@
  * Unauthorized copying, modification, or distribution is strictly prohibited.
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const registryService = require("../services/headybee-template-registry");
 
 const router = express.Router();

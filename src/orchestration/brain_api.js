@@ -2,7 +2,7 @@
  * HeadyBrain API — Per-Layer Intelligence Routes
  * Provides /plan, /feedback, /status endpoints for the brain orchestration layer.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 router.get("/health", (req, res) => {

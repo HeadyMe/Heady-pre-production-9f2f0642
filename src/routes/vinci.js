@@ -6,7 +6,7 @@
 /**
  * HeadyVinci — Learning & Prediction Router
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 
 const vinciLog = [];

@@ -10,7 +10,7 @@
  * Handles: /api/system/status, /api/system/production
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const { loadRegistry, saveRegistry } = require("./registry");
 
 const router = express.Router();

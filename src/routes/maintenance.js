@@ -6,7 +6,7 @@
 /**
  * HeadyMaintenance — System Health, Backup, and File Hygiene Router
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const fs = require("fs");
 const path = require("path");
 const logger = require("../utils/logger");

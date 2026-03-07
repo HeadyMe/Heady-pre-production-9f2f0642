@@ -11,7 +11,7 @@
  * Heady AI Nodes: JULES, CONDUCTOR
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const fetch = require('../core/heady-fetch');
 

@@ -7,7 +7,7 @@
  * Heady Resilience Routes — /api/resilience
  * Exposes circuit breaker, cache, and pool status for HeadyLens and the Admin UI.
  */
-const express = require('express');
+const express = require('../core/heady-server');
 const router = express.Router();
 const { getResilienceStatus, getAllBreakers, getAllCacheMetrics, getAllPoolStatus, getBreaker } = require('../resilience');
 

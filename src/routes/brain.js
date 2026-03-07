@@ -18,7 +18,7 @@
  * Storage: All interactions stored in persistent memory
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const fs = require("fs");
 const path = require("path");

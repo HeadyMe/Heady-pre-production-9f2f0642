@@ -6,7 +6,7 @@
  * Extracted from heady-manager.js — Phase 2 Liquid Architecture.
  */
 
-const express = require('express');
+const express = require('../core/heady-server');
 const path = require('path');
 const fs = require('fs');
 const yaml = require('../core/heady-yaml');

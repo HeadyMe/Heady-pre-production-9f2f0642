@@ -6,7 +6,7 @@
 /**
  * Heady Systems - Auth & Billing API Routes
  */
-const express = require('express');
+const express = require('../core/heady-server');
 const { PaymentGateway, AuthMiddleware } = require('../api/payment-gateway');
 const logger = require('../utils/logger');
 

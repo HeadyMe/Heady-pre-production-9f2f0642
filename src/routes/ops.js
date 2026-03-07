@@ -7,7 +7,7 @@
  * HeadyOps — Infrastructure & Deployment Router
  * Manages container, service, and deployment operations.
  */
-const express = require("express");
+const express = require('../core/heady-server');
 const router = express.Router();
 const { execSync } = require("child_process");
 

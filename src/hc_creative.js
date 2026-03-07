@@ -23,7 +23,7 @@
  */
 
 const { EventEmitter } = require("events");
-const express = require("express");
+const express = require('core/heady-server');
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");

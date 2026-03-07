@@ -11,7 +11,7 @@
  * /api/manifest, /api/public-domain
  */
 
-const express = require("express");
+const express = require('../core/heady-server');
 const yaml = require('../core/heady-yaml');
 const fs = require("fs");
 const path = require("path");

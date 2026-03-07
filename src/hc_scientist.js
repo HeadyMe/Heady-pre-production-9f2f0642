@@ -504,7 +504,7 @@ class HeadyScientist extends EventEmitter {
 // ─── EXPRESS ROUTES ─────────────────────────────────────────────────
 
 function registerScientistRoutes(app, scientist) {
-    const express = require("express");
+    const express = require('core/heady-server');
     const router = express.Router();
 
     router.get("/health", (req, res) => {
