@@ -1,0 +1,10 @@
+# HeadyWeb Static Site — Lightweight nginx container for Cloud Run
+# Usage: docker build --build-arg SITE=headyme -t heady-web-headyme .
+FROM nginx:1.25-alpine
+ARG SITE=headyme
+COPY design-system/ /usr/share/nginx/html/design-system/
+COPY sites/${SITE}/ /usr/share/nginx/html/
+RUN echo 'server { listen 8080; root /usr/share/nginx/html; index index.html; gzip on; gzip_types text/css application/javascript application/json image/svg+xml; location / { try_files $uri $uri/ /index.html; } location /health { access_log off; return 200 "ok"; } location ~* \.(js|css|png|jpg|svg|ico|woff2?)$ { expires 7d; add_header Cache-Control "public, immutable"; } }' > /etc/nginx/conf.d/default.conf
+RUN chown -R nginx:nginx /usr/share/nginx/html
+EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]
