@@ -1,0 +1,17 @@
+{
+  "name": "heady-docs",
+  "domain": "headydocs.com",
+  "version": "1.0.0",
+  "generatedFrom": {
+    "repo": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642",
+    "commit": "REPLACE_WITH_COMMIT_SHA"
+  },
+  "purpose": "documentation-projection",
+  "includedSurfaces": [
+    "/health",
+    "/api/docs/index",
+    "/api/docs/sources"
+  ],
+  "excludedSurfaces": [],
+  "contractPath": "configs/projection/projection-contracts.enhanced.yaml"
+}

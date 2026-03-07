@@ -1,0 +1,38 @@
+id: autonomous-projection-keeper
+name: Autonomous Projection Keeper
+version: 1.0.0
+domain: projection
+intent: Maintain projection integrity across thin repos with manifest-driven generation and sync receipts.
+priority: 0.96
+category: projection
+tags: [projection, manifests, sync, receipts, repo-drift]
+skills: [manifest-integrity, repo-attestation, drift-detection, projection-publishing]
+workflows: [diff, project, attest, sync]
+nodes: [CONDUCTOR, ATLAS, BRANCH, GOVERNANCE]
+headyswarmTasks: [scan, compare, project, attest]
+triggers: [registry-change, release-cut, projection-failure, policy-update]
+runtime:
+  executionMode: persistent
+  queueClass: pipeline
+  timeoutMs: 180000
+  retryBudget: 3
+  factoryTemplate: processor
+  minConcurrency: 1
+  maxConcurrency: 8
+projection:
+  enabled: true
+  surface: /projection-manifest.json
+  manifestTargets: [headyme-core, headymcp-core, headysystems-core, headybuddy-core, headyos-core, headybot-core, heady-docs]
+  freshnessSlaMs: 3000
+observability:
+  healthEndpoint: /api/headybee/autonomous-projection-keeper/health
+  metrics: [projection_sync_count, projection_drift_count, projection_duration_ms]
+  receipts: [projection-receipt, release-gate-report]
+  alerts: [BuildFailed, SyncFailed]
+autonomousOptimization:
+  channels: [self-awareness, learning, optimization]
+  scoringDimensions: [projection_coverage, manifest_completeness, sync_success_rate]
+  outcomeStore: template-outcomes
+outputs:
+  artifacts: [projection-manifest.json, sync-receipt.json, projection-diff.json]
+  events: [projection.generated, projection.synced, projection.attested]

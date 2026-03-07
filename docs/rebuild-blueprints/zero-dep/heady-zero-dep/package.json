@@ -1,0 +1,80 @@
+{
+  "name": "heady-zero-dep",
+  "version": "1.0.0",
+  "description": "Heady AI Platform — 3-node Colab cluster with zero external dependencies",
+  "type": "module",
+  "main": "heady-system.js",
+  "exports": {
+    ".": "./heady-system.js",
+    "./core": "./core/index.js",
+    "./memory": "./memory/index.js",
+    "./orchestration": "./orchestration/index.js",
+    "./pipeline": "./pipeline/index.js",
+    "./bees": "./bees/index.js",
+    "./resilience": "./resilience/index.js",
+    "./security": "./security/index.js",
+    "./intelligence": "./intelligence/index.js",
+    "./governance": "./governance/index.js",
+    "./services": "./services/index.js",
+    "./telemetry": "./telemetry/index.js",
+    "./runtime": "./runtime/index.js",
+    "./config": "./config/index.js",
+    "./utils": "./utils/index.js",
+    "./providers": "./providers/index.js"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "start": "HEADY_NODE_ROLE=${HEADY_NODE_ROLE:-standalone} node --experimental-vm-modules heady-system.js",
+    "start:brain": "HEADY_NODE_ROLE=brain node --experimental-vm-modules heady-system.js",
+    "start:conductor": "HEADY_NODE_ROLE=conductor node --experimental-vm-modules heady-system.js",
+    "start:sentinel": "HEADY_NODE_ROLE=sentinel node --experimental-vm-modules heady-system.js",
+    "start:standalone": "HEADY_NODE_ROLE=standalone node --experimental-vm-modules heady-system.js",
+    "test": "node --experimental-vm-modules --test",
+    "check": "node --check heady-system.js && echo 'syntax OK'"
+  },
+  "keywords": [
+    "heady",
+    "ai",
+    "colab",
+    "zero-dependency",
+    "mcp",
+    "vector-database",
+    "llm-router",
+    "sacred-geometry",
+    "phi",
+    "fibonacci",
+    "cluster",
+    "orchestration"
+  ],
+  "author": "Heady Connection <eric@headyconnection.org>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/headyconnection/heady-zero-dep.git"
+  },
+  "files": [
+    "heady-system.js",
+    "package.json",
+    "README.md",
+    "colab/",
+    "core/",
+    "memory/",
+    "orchestration/",
+    "pipeline/",
+    "bees/",
+    "resilience/",
+    "security/",
+    "intelligence/",
+    "governance/",
+    "services/",
+    "telemetry/",
+    "runtime/",
+    "config/",
+    "utils/",
+    "providers/"
+  ]
+}

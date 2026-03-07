@@ -1,0 +1,36 @@
+version: 1
+observability_stack:
+  metrics: prometheus
+  logs: loki
+  traces: jaeger
+  dashboard: grafana
+required_template_metrics:
+  bee:
+    - execution_count
+    - execution_latency_ms
+    - execution_failures
+    - outcome_score
+  swarm:
+    - queue_depth
+    - swarm_concurrency
+    - route_selection_ms
+    - projection_sync_count
+alerts:
+  critical:
+    - HeadyManagerDown
+    - HighErrorRate
+  warning:
+    - HighLatency
+    - BuildFailed
+    - SyncFailed
+required_endpoints:
+  - /api/templates/health
+  - /api/templates/recommend
+  - /api/templates/report
+receipts:
+  store_all: true
+  required:
+    - execution-receipt
+    - projection-receipt
+    - critique-report
+    - release-gate-report

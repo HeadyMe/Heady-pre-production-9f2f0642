@@ -1,0 +1,24 @@
+version: 1
+policy_name: heady-template-optimization
+weights:
+  priority: 0.45
+  skills: 0.15
+  workflows: 0.15
+  nodes: 0.10
+  swarmTasks: 0.15
+defaults:
+  templatesPerRecommendation: 3
+  require_projection_hooks: true
+  require_observability_hooks: true
+  require_autonomy_channels: true
+thresholds:
+  minimum_bee_score: 1.2
+  minimum_swarm_weight: 8
+outcome_feedback:
+  enabled: true
+  store: template-outcomes
+  update_on:
+    - execution-receipt
+    - projection-receipt
+    - critique-report
+    - release-gate-report

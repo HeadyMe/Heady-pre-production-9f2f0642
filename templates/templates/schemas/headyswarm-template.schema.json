@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://headysystems.com/schemas/headyswarm-template.schema.json",
+  "title": "HeadySwarm Template",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "role",
+    "allocation",
+    "includedBeeTemplates",
+    "workerAssignments",
+    "communication",
+    "scaling",
+    "healthChecks",
+    "projection",
+    "observability",
+    "governance"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "allocation": {
+      "type": "object",
+      "required": [
+        "strategy",
+        "weight"
+      ],
+      "properties": {
+        "strategy": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "priorityLevel": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "includedBeeTemplates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "workerAssignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "beeTemplateId",
+          "role",
+          "instances"
+        ],
+        "properties": {
+          "beeTemplateId": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "instances": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "communication": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "target",
+          "channelType",
+          "topic"
+        ],
+        "properties": {
+          "target": {
+            "type": "string"
+          },
+          "channelType": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "scaling": {
+      "type": "object",
+      "required": [
+        "rules"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "trigger",
+              "threshold",
+              "direction"
+            ],
+            "properties": {
+              "trigger": {
+                "type": "string"
+              },
+              "threshold": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "up",
+                  "down"
+                ]
+              },
+              "minInstances": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "maxInstances": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "healthChecks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "protocol",
+          "endpoint"
+        ],
+        "properties": {
+          "protocol": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": "string"
+          },
+          "intervalSeconds": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "timeoutSeconds": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "projection": {
+      "type": "object",
+      "required": [
+        "enabled",
+        "uiRegion",
+        "apiSurface"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "uiRegion": {
+          "type": "string"
+        },
+        "apiSurface": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "projectionTargets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "observability": {
+      "type": "object",
+      "required": [
+        "metrics",
+        "alerts"
+      ],
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "alerts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "receipts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "governance": {
+      "type": "object",
+      "required": [
+        "ownerNode",
+        "releaseGate"
+      ],
+      "properties": {
+        "ownerNode": {
+          "type": "string"
+        },
+        "releaseGate": {
+          "type": "string"
+        },
+        "requiredReceipts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

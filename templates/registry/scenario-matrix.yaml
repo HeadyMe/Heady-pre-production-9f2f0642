@@ -1,0 +1,50 @@
+version: 1
+source_of_truth_repo: https://github.com/HeadyMe/Heady-pre-production-9f2f0642
+default_bee_template: swarm-routing-optimizer
+default_swarm_template: operations-autonomy-swarm
+scenarios:
+  - id: incident-recovery
+    description: Production outage, degraded availability, or failed release recovery.
+    keywords: [incident, outage, degraded, failure, remediation, rollback]
+    required_capabilities: [triage, health-synthesis, rollback-planning, release-gate]
+    preferred_bee_templates: [incident-response-sentinel, swarm-routing-optimizer]
+    preferred_swarm_templates: [operations-autonomy-swarm, security-compliance-swarm]
+    projection_targets: [headysystems-core, headyme-core]
+    deployment_mode: emergency-rebalance
+    governance_owner: projection-governance
+  - id: rapid-launch
+    description: New capability or domain launch with projection and deployment requirements.
+    keywords: [launch, domain, site, deploy, publish, rollout]
+    required_capabilities: [site-build, projection-publishing, verify, sync]
+    preferred_bee_templates: [deployment-launch-builder, autonomous-projection-keeper]
+    preferred_swarm_templates: [projection-deployment-swarm, operations-autonomy-swarm]
+    projection_targets: [headyme-core, headysystems-core, headymcp-core]
+    deployment_mode: cloud-first
+    governance_owner: projection-governance
+  - id: compliance-hardening
+    description: Governance and security hardening before release or after policy change.
+    keywords: [security, hardening, policy, governance, vulnerability, audit]
+    required_capabilities: [security-sweep, release-gate, drift-detection]
+    preferred_bee_templates: [incident-response-sentinel, autonomous-projection-keeper]
+    preferred_swarm_templates: [security-compliance-swarm]
+    projection_targets: [headysystems-core, headymcp-core]
+    deployment_mode: gated
+    governance_owner: projection-governance
+  - id: projection-optimization
+    description: Improve thin projected repos and align them to manifest contracts.
+    keywords: [projection, manifest, sync, repo, thin, wrapper, surface]
+    required_capabilities: [manifest-integrity, repo-attestation, sync, publish]
+    preferred_bee_templates: [autonomous-projection-keeper, swarm-routing-optimizer]
+    preferred_swarm_templates: [projection-deployment-swarm]
+    projection_targets: [headyme-core, headymcp-core, headysystems-core, headybuddy-core, headyos-core, headybot-core, heady-docs]
+    deployment_mode: manifest-driven
+    governance_owner: projection-engine
+  - id: autonomous-maintenance
+    description: Continuous optimization, drift cleanup, and performance upkeep.
+    keywords: [maintenance, cleanup, optimize, drift, telemetry, upkeep]
+    required_capabilities: [drift-detection, telemetry, budget-check, sync]
+    preferred_bee_templates: [swarm-routing-optimizer, autonomous-projection-keeper]
+    preferred_swarm_templates: [operations-autonomy-swarm, projection-deployment-swarm]
+    projection_targets: [headysystems-core, headyme-core]
+    deployment_mode: continuous
+    governance_owner: control-plane-dispatch

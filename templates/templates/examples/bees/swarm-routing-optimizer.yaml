@@ -1,0 +1,38 @@
+id: swarm-routing-optimizer
+name: Swarm Routing Optimizer
+version: 1.0.0
+domain: orchestration
+intent: Rank candidate templates and route workloads across the correct bee and swarm combinations.
+priority: 0.93
+category: orchestration
+tags: [routing, optimization, latency, budget, parallelism]
+skills: [candidate-ranking, latency-shaping, cost-optimization, provider-fallback]
+workflows: [budget-check, rank, route, record]
+nodes: [CONDUCTOR, ARENA, JULES, OBSERVER]
+headyswarmTasks: [rank, route, execute, record]
+triggers: [queue-pressure, budget-threshold, provider-failure, scenario-change]
+runtime:
+  executionMode: persistent
+  queueClass: interactive
+  timeoutMs: 60000
+  retryBudget: 1
+  factoryTemplate: monitor
+  minConcurrency: 1
+  maxConcurrency: 21
+projection:
+  enabled: true
+  surface: /api/routing/*
+  manifestTargets: [headymcp-core, headysystems-core]
+  freshnessSlaMs: 1500
+observability:
+  healthEndpoint: /api/headybee/swarm-routing-optimizer/health
+  metrics: [route_selection_ms, queue_depth, provider_failover_count]
+  receipts: [execution-receipt, critique-report]
+  alerts: [HighLatency, HighErrorRate]
+autonomousOptimization:
+  channels: [learning, optimization]
+  scoringDimensions: [route_success_rate, api_p95, budget_efficiency]
+  outcomeStore: template-outcomes
+outputs:
+  artifacts: [route-decision.json, candidate-scores.json]
+  events: [route.selected, route.failed_over]

@@ -1,0 +1,64 @@
+{
+    "env": {
+        "node": true,
+        "es2024": true,
+        "jest": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2024,
+        "sourceType": "module"
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "rules": {
+        "no-unused-vars": [
+            "warn",
+            {
+                "argsIgnorePattern": "^_"
+            }
+        ],
+        "no-console": [
+            "warn",
+            {
+                "allow": [
+                    "warn",
+                    "error",
+                    "info"
+                ]
+            }
+        ],
+        "prefer-const": "error",
+        "no-var": "error",
+        "eqeqeq": [
+            "error",
+            "always"
+        ],
+        "curly": [
+            "error",
+            "multi-line"
+        ],
+        "no-throw-literal": "error",
+        "no-eval": "error",
+        "no-implied-eval": "error",
+        "strict": [
+            "error",
+            "global"
+        ],
+        "no-process-exit": "warn"
+    },
+    "overrides": [
+        {
+            "files": [
+                "tests/**/*.js",
+                "**/*.test.js"
+            ],
+            "env": {
+                "jest": true
+            },
+            "rules": {
+                "no-console": "off"
+            }
+        }
+    ]
+}

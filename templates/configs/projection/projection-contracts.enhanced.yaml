@@ -1,0 +1,75 @@
+version: 1
+source_of_truth_repo: https://github.com/HeadyMe/Heady-pre-production-9f2f0642
+contracts:
+  shared_requirements:
+    require_health_endpoint: true
+    require_projection_manifest: true
+    require_domain_specific_api_surface: true
+    forbid_empty_wrapper_only_projection: true
+    require_template_registry_endpoint: true
+  headyme-core:
+    domain: headyme.com
+    purpose: personal-command-center
+    minimum_surface:
+      - /health
+      - /api/session
+      - /api/memory/summary
+      - /api/workspace/context
+      - /api/templates/recommend
+      - /projection-manifest.json
+  headymcp-core:
+    domain: headymcp.com
+    purpose: mcp-control-plane
+    minimum_surface:
+      - /health
+      - /api/tools
+      - /api/transports
+      - /api/capabilities
+      - /api/templates/recommend
+      - /projection-manifest.json
+  headysystems-core:
+    domain: headysystems.com
+    purpose: core-platform-projection
+    minimum_surface:
+      - /health
+      - /api/ops/health
+      - /api/projection/status
+      - /api/templates/health
+      - /api/templates/recommend
+      - /projection-manifest.json
+  headybuddy-core:
+    domain: headybuddy.org
+    purpose: companion-runtime
+    minimum_surface:
+      - /health
+      - /api/chat
+      - /api/memory/profile
+      - /api/channels
+      - /api/templates/recommend
+      - /projection-manifest.json
+  headyos-core:
+    domain: headyos.com
+    purpose: operating-system-shell
+    minimum_surface:
+      - /health
+      - /api/runtime/status
+      - /api/tasks/route
+      - /api/templates/recommend
+      - /projection-manifest.json
+  headybot-core:
+    domain: headybot.com
+    purpose: automation-runtime
+    minimum_surface:
+      - /health
+      - /api/automation/jobs
+      - /api/automation/status
+      - /api/templates/recommend
+      - /projection-manifest.json
+  heady-docs:
+    domain: headydocs.com
+    purpose: documentation-projection
+    minimum_surface:
+      - /health
+      - /api/docs/index
+      - /api/docs/sources
+      - /projection-manifest.json

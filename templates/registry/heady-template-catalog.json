@@ -1,0 +1,821 @@
+{
+  "version": 1,
+  "generatedFor": "Heady optimized template integration pack",
+  "sourceOfTruthRepo": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642",
+  "beeTemplates": [
+    {
+      "id": "incident-response-sentinel",
+      "name": "Incident Response Sentinel",
+      "version": "1.0.0",
+      "domain": "reliability",
+      "intent": "Rapid triage, containment, recovery, and hardening for production incidents.",
+      "priority": 0.98,
+      "category": "operations",
+      "tags": [
+        "incident",
+        "recovery",
+        "rollback",
+        "health",
+        "governance"
+      ],
+      "skills": [
+        "root-cause-analysis",
+        "rollback-planning",
+        "blast-radius-analysis",
+        "health-synthesis"
+      ],
+      "workflows": [
+        "triage",
+        "contain",
+        "recover",
+        "postmortem"
+      ],
+      "nodes": [
+        "OBSERVER",
+        "CONDUCTOR",
+        "BATTLE",
+        "GOVERNANCE"
+      ],
+      "headyswarmTasks": [
+        "detect",
+        "contain",
+        "recover",
+        "harden"
+      ],
+      "triggers": [
+        "error-spike",
+        "latency-regression",
+        "service-down",
+        "projection-drift"
+      ],
+      "dependencies": {
+        "services": [
+          "projection-engine",
+          "service-registry",
+          "observability"
+        ],
+        "configs": [
+          "configs/observability/observability.yaml",
+          "configs/pipeline/dynamic-parallel-resource-allocation.yaml"
+        ],
+        "receipts": [
+          "execution-receipt",
+          "critique-report",
+          "release-gate-report"
+        ]
+      },
+      "runtime": {
+        "executionMode": "hybrid",
+        "queueClass": "interactive",
+        "timeoutMs": 120000,
+        "retryBudget": 2,
+        "factoryTemplate": "health-check",
+        "minConcurrency": 1,
+        "maxConcurrency": 13
+      },
+      "projection": {
+        "enabled": true,
+        "surface": "/api/incidents/*",
+        "manifestTargets": [
+          "headysystems-core",
+          "headyme-core"
+        ],
+        "freshnessSlaMs": 3000
+      },
+      "observability": {
+        "healthEndpoint": "/api/headybee/incident-response-sentinel/health",
+        "metrics": [
+          "incident_count",
+          "triage_latency_ms",
+          "rollback_success_rate"
+        ],
+        "receipts": [
+          "execution-receipt",
+          "projection-receipt",
+          "critique-report"
+        ],
+        "alerts": [
+          "HeadyManagerDown",
+          "HighErrorRate",
+          "HighLatency"
+        ]
+      },
+      "autonomousOptimization": {
+        "channels": [
+          "self-awareness",
+          "healing",
+          "optimization"
+        ],
+        "scoringDimensions": [
+          "success_rate",
+          "mean_time_to_recover",
+          "blast_efficiency"
+        ],
+        "outcomeStore": "template-outcomes"
+      },
+      "outputs": {
+        "artifacts": [
+          "incident-report.json",
+          "rollback-plan.json",
+          "postmortem.md"
+        ],
+        "events": [
+          "incident.detected",
+          "incident.recovered",
+          "incident.hardened"
+        ]
+      }
+    },
+    {
+      "id": "autonomous-projection-keeper",
+      "name": "Autonomous Projection Keeper",
+      "version": "1.0.0",
+      "domain": "projection",
+      "intent": "Maintain projection integrity across thin repos with manifest-driven generation and sync receipts.",
+      "priority": 0.96,
+      "category": "projection",
+      "tags": [
+        "projection",
+        "manifests",
+        "sync",
+        "receipts",
+        "repo-drift"
+      ],
+      "skills": [
+        "manifest-integrity",
+        "repo-attestation",
+        "drift-detection",
+        "projection-publishing"
+      ],
+      "workflows": [
+        "diff",
+        "project",
+        "attest",
+        "sync"
+      ],
+      "nodes": [
+        "CONDUCTOR",
+        "ATLAS",
+        "BRANCH",
+        "GOVERNANCE"
+      ],
+      "headyswarmTasks": [
+        "scan",
+        "compare",
+        "project",
+        "attest"
+      ],
+      "triggers": [
+        "registry-change",
+        "release-cut",
+        "projection-failure",
+        "policy-update"
+      ],
+      "dependencies": {
+        "services": [
+          "projection-engine",
+          "projection-governance"
+        ],
+        "configs": [
+          "configs/projection/projection-contracts.yaml",
+          "configs/governance/workflow-ownership.yaml"
+        ],
+        "receipts": [
+          "projection-receipt",
+          "release-gate-report"
+        ]
+      },
+      "runtime": {
+        "executionMode": "persistent",
+        "queueClass": "pipeline",
+        "timeoutMs": 180000,
+        "retryBudget": 3,
+        "factoryTemplate": "processor",
+        "minConcurrency": 1,
+        "maxConcurrency": 8
+      },
+      "projection": {
+        "enabled": true,
+        "surface": "/projection-manifest.json",
+        "manifestTargets": [
+          "headyme-core",
+          "headymcp-core",
+          "headysystems-core",
+          "headybuddy-core",
+          "headyos-core",
+          "headybot-core",
+          "heady-docs"
+        ],
+        "freshnessSlaMs": 3000
+      },
+      "observability": {
+        "healthEndpoint": "/api/headybee/autonomous-projection-keeper/health",
+        "metrics": [
+          "projection_sync_count",
+          "projection_drift_count",
+          "projection_duration_ms"
+        ],
+        "receipts": [
+          "projection-receipt",
+          "release-gate-report"
+        ],
+        "alerts": [
+          "BuildFailed",
+          "SyncFailed"
+        ]
+      },
+      "autonomousOptimization": {
+        "channels": [
+          "self-awareness",
+          "learning",
+          "optimization"
+        ],
+        "scoringDimensions": [
+          "projection_coverage",
+          "manifest_completeness",
+          "sync_success_rate"
+        ],
+        "outcomeStore": "template-outcomes"
+      },
+      "outputs": {
+        "artifacts": [
+          "projection-manifest.json",
+          "sync-receipt.json",
+          "projection-diff.json"
+        ],
+        "events": [
+          "projection.generated",
+          "projection.synced",
+          "projection.attested"
+        ]
+      }
+    },
+    {
+      "id": "swarm-routing-optimizer",
+      "name": "Swarm Routing Optimizer",
+      "version": "1.0.0",
+      "domain": "orchestration",
+      "intent": "Rank candidate templates and route workloads across the correct bee and swarm combinations.",
+      "priority": 0.93,
+      "category": "orchestration",
+      "tags": [
+        "routing",
+        "optimization",
+        "latency",
+        "budget",
+        "parallelism"
+      ],
+      "skills": [
+        "candidate-ranking",
+        "latency-shaping",
+        "cost-optimization",
+        "provider-fallback"
+      ],
+      "workflows": [
+        "budget-check",
+        "rank",
+        "route",
+        "record"
+      ],
+      "nodes": [
+        "CONDUCTOR",
+        "ARENA",
+        "JULES",
+        "OBSERVER"
+      ],
+      "headyswarmTasks": [
+        "rank",
+        "route",
+        "execute",
+        "record"
+      ],
+      "triggers": [
+        "queue-pressure",
+        "budget-threshold",
+        "provider-failure",
+        "scenario-change"
+      ],
+      "dependencies": {
+        "services": [
+          "control-plane-dispatch",
+          "vector-runtime"
+        ],
+        "configs": [
+          "configs/pipeline/dynamic-parallel-resource-allocation.yaml",
+          "configs/resources/performance-budgets.yaml"
+        ],
+        "receipts": [
+          "execution-receipt"
+        ]
+      },
+      "runtime": {
+        "executionMode": "persistent",
+        "queueClass": "interactive",
+        "timeoutMs": 60000,
+        "retryBudget": 1,
+        "factoryTemplate": "monitor",
+        "minConcurrency": 1,
+        "maxConcurrency": 21
+      },
+      "projection": {
+        "enabled": true,
+        "surface": "/api/routing/*",
+        "manifestTargets": [
+          "headymcp-core",
+          "headysystems-core"
+        ],
+        "freshnessSlaMs": 1500
+      },
+      "observability": {
+        "healthEndpoint": "/api/headybee/swarm-routing-optimizer/health",
+        "metrics": [
+          "route_selection_ms",
+          "queue_depth",
+          "provider_failover_count"
+        ],
+        "receipts": [
+          "execution-receipt",
+          "critique-report"
+        ],
+        "alerts": [
+          "HighLatency",
+          "HighErrorRate"
+        ]
+      },
+      "autonomousOptimization": {
+        "channels": [
+          "learning",
+          "optimization"
+        ],
+        "scoringDimensions": [
+          "route_success_rate",
+          "api_p95",
+          "budget_efficiency"
+        ],
+        "outcomeStore": "template-outcomes"
+      },
+      "outputs": {
+        "artifacts": [
+          "route-decision.json",
+          "candidate-scores.json"
+        ],
+        "events": [
+          "route.selected",
+          "route.failed_over"
+        ]
+      }
+    },
+    {
+      "id": "deployment-launch-builder",
+      "name": "Deployment Launch Builder",
+      "version": "1.0.0",
+      "domain": "deployment",
+      "intent": "Build, validate, and launch new domain or product surfaces with deployment-aware templates.",
+      "priority": 0.9,
+      "category": "deployment",
+      "tags": [
+        "launch",
+        "deploy",
+        "site",
+        "api",
+        "projection"
+      ],
+      "skills": [
+        "site-build",
+        "deploy-validation",
+        "projection-publishing",
+        "config-injection"
+      ],
+      "workflows": [
+        "compose",
+        "validate",
+        "publish",
+        "verify"
+      ],
+      "nodes": [
+        "BUILDER",
+        "CONDUCTOR",
+        "PATTERNS"
+      ],
+      "headyswarmTasks": [
+        "research",
+        "compose",
+        "publish",
+        "verify"
+      ],
+      "triggers": [
+        "new-campaign",
+        "new-domain",
+        "launch-request",
+        "site-refresh"
+      ],
+      "dependencies": {
+        "services": [
+          "service-registry",
+          "projection-engine"
+        ],
+        "configs": [
+          "configs/projection/projection-contracts.yaml",
+          "configs/heady.config.yaml"
+        ],
+        "receipts": [
+          "execution-receipt",
+          "projection-receipt"
+        ]
+      },
+      "runtime": {
+        "executionMode": "hybrid",
+        "queueClass": "pipeline",
+        "timeoutMs": 180000,
+        "retryBudget": 2,
+        "factoryTemplate": "processor",
+        "minConcurrency": 1,
+        "maxConcurrency": 8
+      },
+      "projection": {
+        "enabled": true,
+        "surface": "/api/launch/*",
+        "manifestTargets": [
+          "headyme-core",
+          "headysystems-core",
+          "headyapi-core"
+        ],
+        "freshnessSlaMs": 5000
+      },
+      "observability": {
+        "healthEndpoint": "/api/headybee/deployment-launch-builder/health",
+        "metrics": [
+          "launch_count",
+          "deploy_duration_ms",
+          "verification_failures"
+        ],
+        "receipts": [
+          "execution-receipt",
+          "projection-receipt"
+        ],
+        "alerts": [
+          "BuildFailed",
+          "HighLatency"
+        ]
+      },
+      "autonomousOptimization": {
+        "channels": [
+          "learning",
+          "projection-sync"
+        ],
+        "scoringDimensions": [
+          "deployment_success_rate",
+          "tti",
+          "verification_pass_rate"
+        ],
+        "outcomeStore": "template-outcomes"
+      },
+      "outputs": {
+        "artifacts": [
+          "launch-plan.json",
+          "deployment-receipt.json",
+          "verification-report.json"
+        ],
+        "events": [
+          "launch.started",
+          "launch.published",
+          "launch.verified"
+        ]
+      }
+    }
+  ],
+  "swarmTemplates": [
+    {
+      "id": "operations-autonomy-swarm",
+      "name": "Operations Autonomy Swarm",
+      "version": "1.0.0",
+      "role": "Keep critical Heady services healthy while coordinating response and scaling.",
+      "allocation": {
+        "strategy": "fibonacci-weighted",
+        "weight": 34,
+        "priorityLevel": 1
+      },
+      "includedBeeTemplates": [
+        "incident-response-sentinel",
+        "swarm-routing-optimizer",
+        "autonomous-projection-keeper"
+      ],
+      "workerAssignments": [
+        {
+          "beeTemplateId": "incident-response-sentinel",
+          "role": "lead",
+          "instances": 3
+        },
+        {
+          "beeTemplateId": "swarm-routing-optimizer",
+          "role": "primary",
+          "instances": 2
+        },
+        {
+          "beeTemplateId": "autonomous-projection-keeper",
+          "role": "support",
+          "instances": 1
+        }
+      ],
+      "communication": [
+        {
+          "target": "security-compliance-swarm",
+          "channelType": "rpc",
+          "topic": "heady.ops.security",
+          "priority": 9
+        },
+        {
+          "target": "projection-deployment-swarm",
+          "channelType": "event-bus",
+          "topic": "heady.ops.projection",
+          "priority": 8
+        }
+      ],
+      "scaling": {
+        "rules": [
+          {
+            "trigger": "cpu_utilization",
+            "threshold": 75,
+            "direction": "up",
+            "minInstances": 2,
+            "maxInstances": 21
+          },
+          {
+            "trigger": "queue_depth",
+            "threshold": 100,
+            "direction": "up",
+            "minInstances": 2,
+            "maxInstances": 21
+          },
+          {
+            "trigger": "cpu_utilization",
+            "threshold": 20,
+            "direction": "down",
+            "minInstances": 2,
+            "maxInstances": 21
+          }
+        ]
+      },
+      "healthChecks": [
+        {
+          "protocol": "http",
+          "endpoint": "/ops/health",
+          "intervalSeconds": 15,
+          "timeoutSeconds": 5
+        },
+        {
+          "protocol": "grpc",
+          "endpoint": "ops.HealthCheck",
+          "intervalSeconds": 20,
+          "timeoutSeconds": 8
+        }
+      ],
+      "projection": {
+        "enabled": true,
+        "uiRegion": "main-content",
+        "apiSurface": [
+          "/api/ops/health",
+          "/api/ops/incidents",
+          "/api/ops/scaling"
+        ],
+        "projectionTargets": [
+          "headysystems-core",
+          "headyme-core"
+        ]
+      },
+      "observability": {
+        "metrics": [
+          "incident_count",
+          "avg_recovery_ms",
+          "queue_depth",
+          "api_p95"
+        ],
+        "alerts": [
+          "HeadyManagerDown",
+          "HighErrorRate",
+          "HighLatency"
+        ],
+        "receipts": [
+          "execution-receipt",
+          "critique-report"
+        ]
+      },
+      "governance": {
+        "ownerNode": "control-plane-dispatch",
+        "releaseGate": "projection-release-gate",
+        "requiredReceipts": [
+          "execution-receipt",
+          "critique-report",
+          "release-gate-report"
+        ]
+      }
+    },
+    {
+      "id": "projection-deployment-swarm",
+      "name": "Projection Deployment Swarm",
+      "version": "1.0.0",
+      "role": "Generate and sync projected repos with domain-specific API surfaces and deployment manifests.",
+      "allocation": {
+        "strategy": "fibonacci-weighted",
+        "weight": 21,
+        "priorityLevel": 2
+      },
+      "includedBeeTemplates": [
+        "autonomous-projection-keeper",
+        "deployment-launch-builder",
+        "swarm-routing-optimizer"
+      ],
+      "workerAssignments": [
+        {
+          "beeTemplateId": "autonomous-projection-keeper",
+          "role": "lead",
+          "instances": 2
+        },
+        {
+          "beeTemplateId": "deployment-launch-builder",
+          "role": "primary",
+          "instances": 2
+        },
+        {
+          "beeTemplateId": "swarm-routing-optimizer",
+          "role": "support",
+          "instances": 1
+        }
+      ],
+      "communication": [
+        {
+          "target": "operations-autonomy-swarm",
+          "channelType": "state-sync",
+          "topic": "heady.projection.state",
+          "priority": 8
+        },
+        {
+          "target": "security-compliance-swarm",
+          "channelType": "rpc",
+          "topic": "heady.projection.governance",
+          "priority": 9
+        }
+      ],
+      "scaling": {
+        "rules": [
+          {
+            "trigger": "queue_depth",
+            "threshold": 30,
+            "direction": "up",
+            "minInstances": 1,
+            "maxInstances": 13
+          },
+          {
+            "trigger": "p95_latency_ms",
+            "threshold": 1000,
+            "direction": "up",
+            "minInstances": 1,
+            "maxInstances": 13
+          }
+        ]
+      },
+      "healthChecks": [
+        {
+          "protocol": "http",
+          "endpoint": "/projection/health",
+          "intervalSeconds": 20,
+          "timeoutSeconds": 8
+        }
+      ],
+      "projection": {
+        "enabled": true,
+        "uiRegion": "panel-top",
+        "apiSurface": [
+          "/api/projection/status",
+          "/api/projection/manifest",
+          "/api/projection/sync"
+        ],
+        "projectionTargets": [
+          "headyme-core",
+          "headymcp-core",
+          "headysystems-core",
+          "headybuddy-core",
+          "headyos-core",
+          "headybot-core",
+          "heady-docs"
+        ]
+      },
+      "observability": {
+        "metrics": [
+          "projection_sync_count",
+          "projection_drift_count",
+          "tti",
+          "sync_rtt"
+        ],
+        "alerts": [
+          "BuildFailed",
+          "SyncFailed"
+        ],
+        "receipts": [
+          "projection-receipt",
+          "release-gate-report"
+        ]
+      },
+      "governance": {
+        "ownerNode": "projection-engine",
+        "releaseGate": "projection-release-gate",
+        "requiredReceipts": [
+          "projection-receipt",
+          "release-gate-report"
+        ]
+      }
+    },
+    {
+      "id": "security-compliance-swarm",
+      "name": "Security Compliance Swarm",
+      "version": "1.0.0",
+      "role": "Validate security, governance, and release gates for template-driven deployment and projection.",
+      "allocation": {
+        "strategy": "fibonacci-weighted",
+        "weight": 13,
+        "priorityLevel": 2
+      },
+      "includedBeeTemplates": [
+        "incident-response-sentinel",
+        "autonomous-projection-keeper"
+      ],
+      "workerAssignments": [
+        {
+          "beeTemplateId": "incident-response-sentinel",
+          "role": "primary",
+          "instances": 1
+        },
+        {
+          "beeTemplateId": "autonomous-projection-keeper",
+          "role": "support",
+          "instances": 1
+        }
+      ],
+      "communication": [
+        {
+          "target": "operations-autonomy-swarm",
+          "channelType": "rpc",
+          "topic": "heady.security.ops",
+          "priority": 9
+        },
+        {
+          "target": "projection-deployment-swarm",
+          "channelType": "rpc",
+          "topic": "heady.security.projection",
+          "priority": 9
+        }
+      ],
+      "scaling": {
+        "rules": [
+          {
+            "trigger": "error_rate_percent",
+            "threshold": 5,
+            "direction": "up",
+            "minInstances": 1,
+            "maxInstances": 8
+          }
+        ]
+      },
+      "healthChecks": [
+        {
+          "protocol": "http",
+          "endpoint": "/security/health",
+          "intervalSeconds": 20,
+          "timeoutSeconds": 5
+        }
+      ],
+      "projection": {
+        "enabled": true,
+        "uiRegion": "sidebar-right",
+        "apiSurface": [
+          "/api/security/status",
+          "/api/security/release-gate"
+        ],
+        "projectionTargets": [
+          "headysystems-core",
+          "headymcp-core"
+        ]
+      },
+      "observability": {
+        "metrics": [
+          "release_gate_failures",
+          "security_scan_latency_ms"
+        ],
+        "alerts": [
+          "HighErrorRate"
+        ],
+        "receipts": [
+          "release-gate-report",
+          "critique-report"
+        ]
+      },
+      "governance": {
+        "ownerNode": "projection-governance",
+        "releaseGate": "projection-release-gate",
+        "requiredReceipts": [
+          "release-gate-report"
+        ]
+      }
+    }
+  ]
+}

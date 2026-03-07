@@ -1,0 +1,38 @@
+id: deployment-launch-builder
+name: Deployment Launch Builder
+version: 1.0.0
+domain: deployment
+intent: Build, validate, and launch new domain or product surfaces with deployment-aware templates.
+priority: 0.90
+category: deployment
+tags: [launch, deploy, site, api, projection]
+skills: [site-build, deploy-validation, projection-publishing, config-injection]
+workflows: [compose, validate, publish, verify]
+nodes: [BUILDER, CONDUCTOR, PATTERNS]
+headyswarmTasks: [research, compose, publish, verify]
+triggers: [new-campaign, new-domain, launch-request, site-refresh]
+runtime:
+  executionMode: hybrid
+  queueClass: pipeline
+  timeoutMs: 180000
+  retryBudget: 2
+  factoryTemplate: processor
+  minConcurrency: 1
+  maxConcurrency: 8
+projection:
+  enabled: true
+  surface: /api/launch/*
+  manifestTargets: [headyme-core, headysystems-core, headyapi-core]
+  freshnessSlaMs: 5000
+observability:
+  healthEndpoint: /api/headybee/deployment-launch-builder/health
+  metrics: [launch_count, deploy_duration_ms, verification_failures]
+  receipts: [execution-receipt, projection-receipt]
+  alerts: [BuildFailed, HighLatency]
+autonomousOptimization:
+  channels: [learning, projection-sync]
+  scoringDimensions: [deployment_success_rate, tti, verification_pass_rate]
+  outcomeStore: template-outcomes
+outputs:
+  artifacts: [launch-plan.json, deployment-receipt.json, verification-report.json]
+  events: [launch.started, launch.published, launch.verified]

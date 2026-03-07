@@ -1,0 +1,19 @@
+{
+  "name": "headybuddy-core",
+  "domain": "headybuddy.org",
+  "version": "1.0.0",
+  "generatedFrom": {
+    "repo": "https://github.com/HeadyMe/Heady-pre-production-9f2f0642",
+    "commit": "REPLACE_WITH_COMMIT_SHA"
+  },
+  "purpose": "companion-runtime",
+  "includedSurfaces": [
+    "/health",
+    "/api/chat",
+    "/api/memory/profile",
+    "/api/channels",
+    "/api/templates/recommend"
+  ],
+  "excludedSurfaces": [],
+  "contractPath": "configs/projection/projection-contracts.enhanced.yaml"
+}
