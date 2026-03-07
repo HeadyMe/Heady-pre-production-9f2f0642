@@ -387,6 +387,7 @@
     </div>
   </section>
 
+  <section id="vector-space" style="padding:89px 34px;background:var(--bg-surface,#0d1221)"><div class="container"><div class="section-header fade-up" style="text-align:center;margin-bottom:34px"><span class="section-label">Vector Space</span><h2 class="section-title">3D Vector Space Activity</h2><p class="section-desc">Real-time activity across 8 octants — drag to rotate</p></div><div id="vectorSpaceContainer" style="width:100%;height:420px;max-width:800px;margin:0 auto"></div></div></section>
   <section class="cta-section" id="cta" aria-labelledby="cta-heading">
     <div class="container">
       <div class="section-header fade-up">
@@ -514,8 +515,9 @@
     document.querySelectorAll('.fade-up').forEach(function(el) { obs.observe(el); });
   })();
   </script>
+  <script src="../../design-system/vector-space-3d.js"></script>
   <script src="../../design-system/sacred-geometry-bg.js"></script>
-  <script>if(typeof SacredGeometryBG!=="undefined")SacredGeometryBG.init("heroCanvas");</script>
+  <script>if(typeof SacredGeometryBG!=="undefined")SacredGeometryBG.init("heroCanvas");if(typeof HeadyVectorSpace!=="undefined")HeadyVectorSpace.init("vectorSpaceContainer");</script>
   <script src="../../design-system/live-monitor.js"></script>
   <script>if(typeof HeadyMonitor!=="undefined")HeadyMonitor.init();</script>
   <script>

@@ -500,8 +500,9 @@
     document.querySelectorAll('.fade-up').forEach(function(el) { obs.observe(el); });
   })();
   </script>
+  <script src="../../design-system/vector-space-3d.js"></script>
   <script src="../../design-system/sacred-geometry-bg.js"></script>
-  <script>if(typeof SacredGeometryBG!=="undefined")SacredGeometryBG.init("heroCanvas");</script>
+  <script>if(typeof SacredGeometryBG!=="undefined")SacredGeometryBG.init("heroCanvas");if(typeof HeadyVectorSpace!=="undefined")HeadyVectorSpace.init("vectorSpaceContainer");</script>
   <script src="../../design-system/live-monitor.js"></script>
   <script>if(typeof HeadyMonitor!=="undefined")HeadyMonitor.init();</script>
   <script>
