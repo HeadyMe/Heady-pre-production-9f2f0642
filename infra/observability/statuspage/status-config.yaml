@@ -226,12 +226,12 @@ components:
     slo_target_percentage: 99.9
     showcase: true
 
-  - id: domain-headyai
-    name: "headyai.com"
+  - id: domain-heady-ai
+    name: "heady-ai.com"
     description: "HeadyAI platform and documentation."
     group: domain-services
     order: 8
-    synthetic_check_id: domain-headyai
+    synthetic_check_id: domain-heady-ai
     slo_target_percentage: 99.9
     showcase: true
 

@@ -62,7 +62,7 @@ const SacredGeometryBG = (() => {
   const SITE_SHAPES = {
     headyme: { name: 'Flower of Life', type: 'flower', rings: 4, hueBase: 170 },
     headyos: { name: 'Metatron Cube', type: 'metatron', hueBase: 270 },
-    headyai: { name: 'Torus Knot 2,3', type: 'torus', p: 2, q: 3, hueBase: 0 },
+    heady-ai: { name: 'Torus Knot 2,3', type: 'torus', p: 2, q: 3, hueBase: 0 },
     headysystems: { name: 'Torus Knot 3,5', type: 'torus', p: 3, q: 5, hueBase: 45 },
     headyex: { name: 'Sri Yantra', type: 'sri', hueBase: 320 },
     headyfinance: { name: 'Torus Knot 5,8', type: 'torus', p: 5, q: 8, hueBase: 200 },

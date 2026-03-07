@@ -45,10 +45,10 @@ spec:
         memory: 8Gi
         gpu: 1
       domains:
-        - headyai.com
-        - router.headyai.com
-        - inference.headyai.com
-        - models.headyai.com
+        - heady-ai.com
+        - router.heady-ai.com
+        - inference.heady-ai.com
+        - models.heady-ai.com
 
     # OS Runtime Layer
     - name: heady-os-kernel
@@ -144,7 +144,7 @@ spec:
       url: https://headybuddy.org/remoteEntry.js
       version: 3.2.0
     - name: headyAiUI
-      url: https://headyai.com/remoteEntry.js
+      url: https://heady-ai.com/remoteEntry.js
       version: 3.2.0
     - name: headyOsUI
       url: https://headyos.com/remoteEntry.js

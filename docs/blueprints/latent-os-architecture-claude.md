@@ -268,7 +268,7 @@ applications:
     domains: ["headysystems.com", "headyconnection.org"]
   heady-ide:
     enabled: true
-    domain: "headyai-ide.com"
+    domain: "heady-ai-ide.com"
     arena_mode: true
   heady-lens:
     enabled: true

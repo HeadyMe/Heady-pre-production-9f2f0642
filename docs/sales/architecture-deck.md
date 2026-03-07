@@ -327,7 +327,7 @@ graph TB
     D1[headyme.com]
     D2[headyos.com]
     D3[headysystems.com]
-    D4[headyai.com]
+    D4[heady-ai.com]
     D5[headyconnection.org]
     D6[headyex.com]
     D7[headyfinance.com]

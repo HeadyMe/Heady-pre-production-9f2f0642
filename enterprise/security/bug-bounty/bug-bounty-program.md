@@ -31,7 +31,7 @@ HeadySystems welcomes security researchers who identify vulnerabilities in our p
 | headyex.com | Web application | P1 |
 | headyfinance.com | Web application | P1 |
 | headysystems.com | Web application | P2 |
-| headyai.com | Web application | P2 |
+| heady-ai.com | Web application | P2 |
 | api.headyme.com | REST API | P1 |
 | wss://headyme.com/ws | WebSocket | P1 |
 | MCP Gateway (/api/mcp) | AI tool gateway | P1 |

@@ -314,7 +314,7 @@ ingress:
     service: https://heady-production-uc.a.run.app
   - hostname: headybot.com
     service: https://heady-production-uc.a.run.app
-  - hostname: headyai.com
+  - hostname: heady-ai.com
     service: https://heady-production-uc.a.run.app
   - service: http_status:404
 EOF
@@ -757,7 +757,7 @@ All 9 domains are routed through the Cloudflare Worker (`cloudflare/worker.js`) 
 | `headymcp.com` | Model Context Protocol endpoint | `/mcp`, `/mcp/tools`, `/mcp/resources` |
 | `headyio.com` | I/O integrations hub (connectors) | `/integrations/*`, `/webhooks/*`, `/sync/*` |
 | `headybot.com` | Chatbot / messaging channel integrations | `/bot/*`, `/slack`, `/discord`, `/telegram` |
-| `headyai.com` | AI model gateway + inference proxy | `/inference/*`, `/embeddings`, `/completions` |
+| `heady-ai.com` | AI model gateway + inference proxy | `/inference/*`, `/embeddings`, `/completions` |
 
 ### Edge Routing Logic (cloudflare/worker.js)
 

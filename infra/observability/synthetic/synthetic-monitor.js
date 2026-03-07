@@ -169,8 +169,8 @@ const ENDPOINTS = [
     slaMs: LATENCY_THRESHOLDS.WARNING,
   },
   {
-    id: 'domain-headyai',
-    url: 'https://headyai.com',
+    id: 'domain-heady-ai',
+    url: 'https://heady-ai.com',
     method: 'GET',
     expectedStatus: 200,
     group: 'domains',

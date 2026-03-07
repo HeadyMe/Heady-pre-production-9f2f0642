@@ -9,7 +9,7 @@
  *
  * Domains served:
  *   headyme.com, headysystems.com, headyconnection.org, headybuddy.org,
- *   headymcp.com, headyio.com, headybot.com, headyapi.com, headyai.com
+ *   headymcp.com, headyio.com, headybot.com, headyapi.com, heady-ai.com
  *
  * Deploy:
  *   wrangler deploy infra/cloudflare/heady-edge-worker.js --name heady-edge
@@ -33,7 +33,7 @@ const DOMAIN_ROUTES = {
   'headyio.com':           { service: 'heady-manager', pathPrefix: '/io' },
   'headybot.com':          { service: 'heady-manager', pathPrefix: '/bot' },
   'headyapi.com':          { service: 'heady-manager', pathPrefix: '/api' },
-  'headyai.com':           { service: 'heady-manager', pathPrefix: '/ai' },
+  'heady-ai.com':           { service: 'heady-manager', pathPrefix: '/ai' },
 };
 
 // Rate limiting config (per IP, per minute)
@@ -106,7 +106,7 @@ const ALLOWED_ORIGINS = new Set([
   'https://headyio.com',
   'https://headybot.com',
   'https://headyapi.com',
-  'https://headyai.com',
+  'https://heady-ai.com',
 ]);
 
 function getCorsHeaders(request) {

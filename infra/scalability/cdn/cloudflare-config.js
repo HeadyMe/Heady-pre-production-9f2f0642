@@ -31,7 +31,7 @@ const DOMAINS = {
   exchange:    'headyex.com',
   investments: 'headyfinance.com',
   systems:     'headysystems.com',
-  ai:          'headyai.com',
+  ai:          'heady-ai.com',
   admin:       'admin.headyme.com',
 };
 

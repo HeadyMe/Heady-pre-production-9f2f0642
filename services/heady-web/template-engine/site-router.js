@@ -13,7 +13,7 @@
  *   headyme.com                   → vertical: "headyme"       (personal productivity)
  *   headyos.com                   → vertical: "headyos"       (AI operating system)
  *   headysystems.com              → vertical: "headysystems"  (enterprise platform)
- *   headyai.com                   → vertical: "headyai"       (AI services)
+ *   heady-ai.com                   → vertical: "heady-ai"       (AI services)
  *   headyconnection.com           → vertical: "headyconnection"
  *   headyconnection.org           → vertical: "headyconnection" (alias)
  *   headyex.com                → vertical: "exchange"

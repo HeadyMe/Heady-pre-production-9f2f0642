@@ -387,7 +387,7 @@ domains=(
   "headyconnection.com"
   "headyos.com"
   "headyex.com"
-  "headyai.com"
+  "heady-ai.com"
 )
 
 for domain in "${domains[@]}"; do

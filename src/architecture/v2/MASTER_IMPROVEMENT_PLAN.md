@@ -265,12 +265,12 @@ The pipeline emits stage events via EventEmitter, but there's no Server-Sent Eve
 
 **Fix:** Add `/api/pipeline/stream/:runId` SSE endpoint that subscribes to HCFullPipeline events for a specific run.
 
-### 3.3 headyai.com Has No Inference Implementation
+### 3.3 heady-ai.com Has No Inference Implementation
 
 **From PRODUCTION_DEPLOYMENT_GUIDE.md line 760:**
-> `headyai.com` — AI model gateway + inference proxy — `/inference/*`, `/embeddings`, `/completions`
+> `heady-ai.com` — AI model gateway + inference proxy — `/inference/*`, `/embeddings`, `/completions`
 
-The inference gateway routes exist in the domain routing table but `inference-gateway.js` in the scan is not wired to `headyai.com` responses. The LLM router (`src/services/llm-router.js`) handles model selection but doesn't expose a public completions API.
+The inference gateway routes exist in the domain routing table but `inference-gateway.js` in the scan is not wired to `heady-ai.com` responses. The LLM router (`src/services/llm-router.js`) handles model selection but doesn't expose a public completions API.
 
 ### 3.4 No Cross-Core Authentication Federation
 

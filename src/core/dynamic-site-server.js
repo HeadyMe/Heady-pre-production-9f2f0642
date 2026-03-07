@@ -159,7 +159,7 @@ const SITES = {
     ],
     showAuth: false,
   },
-  'headyai.com': {
+  'heady-ai.com': {
     brand: 'HeadyAI',
     tagline: 'The Intelligence Hub',
     subtitle: 'Multi-model AI playground — route tasks to Claude, Gemini, GPT-4o, Groq, and Perplexity through one unified interface.',

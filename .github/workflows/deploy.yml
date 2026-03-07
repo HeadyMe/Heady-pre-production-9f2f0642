@@ -275,7 +275,7 @@ jobs:
     steps:
       - name: Verify All Domains
         run: |
-          DOMAINS="headyme.com headysystems.com headyconnection.org headybuddy.org headymcp.com headyio.com headybot.com headyapi.com headyai.com"
+          DOMAINS="headyme.com headysystems.com headyconnection.org headybuddy.org headymcp.com headyio.com headybot.com headyapi.com heady-ai.com"
           FAILED=0
 
           for domain in $DOMAINS; do

@@ -67,7 +67,7 @@ const SERVICES = {
       'headymcp.com',
       'headyio.com',
       'headybot.com',
-      'headyai.com',
+      'heady-ai.com',
     ],
     cloudRunEndpoint: 'https://heady-manager-609590223909.us-central1.run.app',
     status: 'active',
@@ -838,7 +838,7 @@ const DOMAIN_MAP = {
   'headymcp.com':        { service: 'headymcp-core',         primaryPurpose: 'Model Context Protocol endpoint' },
   'headyio.com':         { service: 'headyio-core',          primaryPurpose: 'I/O integrations hub (connectors)' },
   'headybot.com':        { service: 'headybot-core',         primaryPurpose: 'Chatbot / messaging channel integrations' },
-  'headyai.com':         { service: 'heady-pre-production',  primaryPurpose: 'AI model gateway + inference proxy' },
+  'heady-ai.com':         { service: 'heady-pre-production',  primaryPurpose: 'AI model gateway + inference proxy' },
 };
 
 // ─── GCP Pub/Sub Topics ─────────────────────────────────────────────────────

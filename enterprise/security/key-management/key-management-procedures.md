@@ -232,7 +232,7 @@ spec:
     - headyex.com
     - headyfinance.com
     - headysystems.com
-    - headyai.com
+    - heady-ai.com
 ```
 
 **Alert trigger:** `CertificateExpiringSoon` Prometheus alert fires at fib(8)=21 days.  

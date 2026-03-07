@@ -37,7 +37,7 @@
   - Other: _______________
 - [ ] Which of the 9 domains are down/degraded?
   - headyme.com / headyos.com / headyconnection.com/org?
-  - headyex.com / headyfinance.com / headysystems.com / headyai.com?
+  - headyex.com / headyfinance.com / headysystems.com / heady-ai.com?
 - [ ] Is user data potentially exposed? → If YES: notify Legal immediately
 - [ ] Is the attack **ongoing** (active threat actor) or **past** (already happened)?
 - [ ] Any signs of lateral movement or persistence mechanisms?

@@ -38,7 +38,7 @@
  * Nine Heady domains handled
  * ───────────────────────────
  *   headyme.com, headysystems.com, headyapi.com, headyconnection.org,
- *   headybuddy.org, headymcp.com, headyio.com, headybot.com, headyai.com
+ *   headybuddy.org, headymcp.com, headyio.com, headybot.com, heady-ai.com
  *
  * Auth schemes
  * ─────────────
@@ -93,7 +93,7 @@ const HEADY_DOMAINS = Object.freeze([
   'headymcp.com',      'www.headymcp.com',
   'headyio.com',       'www.headyio.com',
   'headybot.com',      'www.headybot.com',
-  'headyai.com',       'www.headyai.com',
+  'heady-ai.com',       'www.heady-ai.com',
   // Dev / local
   'localhost',
   '127.0.0.1',
@@ -739,7 +739,7 @@ class HeadyApiGatewayV2 extends EventEmitter {
     router.get('/creative/styles',    async (req, res) => this._proxyToService(req, res, 'headyapi', '/api/v2/creative/styles'));
 
     // ── Edge diffusion (image generation) ────────────────────────────────
-    router.post('/image/generate', async (req, res) => this._proxyToService(req, res, 'headyai', '/api/v2/image/generate'));
+    router.post('/image/generate', async (req, res) => this._proxyToService(req, res, 'heady-ai', '/api/v2/image/generate'));
 
     // ── MCP tools ────────────────────────────────────────────────────────
     router.get('/mcp/tools',               async (req, res) => this._proxyToService(req, res, 'headymcp', '/api/v2/mcp/tools'));
@@ -923,7 +923,7 @@ class HeadyApiGatewayV2 extends EventEmitter {
       headyapi:     process.env.HEADY_API_URL     || 'https://heady-manager-609590223909.us-central1.run.app',
       headymcp:     process.env.HEADY_MCP_URL     || 'https://headymcp.com',
       headybuddy:   process.env.HEADY_BUDDY_URL   || 'https://headybuddy.org',
-      headyai:      process.env.HEADY_AI_URL      || 'https://headyai.com',
+      heady-ai:      process.env.HEADY_AI_URL      || 'https://heady-ai.com',
       headyio:      process.env.HEADY_IO_URL      || 'https://headyio.com',
       headybot:     process.env.HEADY_BOT_URL     || 'https://headybot.com',
       headysystems: process.env.HEADY_SYSTEMS_URL || 'https://headysystems.com',

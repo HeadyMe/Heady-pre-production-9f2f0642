@@ -36,7 +36,7 @@ const HeadyBrand = (() => {
     const SITES = {
         headyme: { name: 'HeadyMe', tagline: 'Your AI Operating System', domain: 'headyme.com', accent: 'teal', vertical: 'headyme' },
         headyos: { name: 'HeadyOS', tagline: 'The Latent Operating System', domain: 'headyos.com', accent: 'violet', vertical: 'headyos' },
-        headyai: { name: 'HeadyAI', tagline: 'Intelligence Without Limits', domain: 'headyai.com', accent: 'violet', vertical: 'ai' },
+        heady-ai: { name: 'HeadyAI', tagline: 'Intelligence Without Limits', domain: 'heady-ai.com', accent: 'violet', vertical: 'ai' },
         headysystems: { name: 'HeadySystems', tagline: 'Enterprise AI Infrastructure', domain: 'headysystems.com', accent: 'gold', vertical: 'enterprise' },
         'headyconnection-com': { name: 'HeadyConnection', tagline: 'AI-Powered Human Connection', domain: 'headyconnection.com', accent: 'teal', vertical: 'community' },
         'headyconnection-org': { name: 'HeadyConnection.org', tagline: 'Open Source AI Community', domain: 'headyconnection.org', accent: 'teal', vertical: 'community' },
@@ -47,7 +47,7 @@ const HeadyBrand = (() => {
 
     const NAV_LINKS = [
         { label: 'Platform', href: 'https://headyos.com' },
-        { label: 'AI', href: 'https://headyai.com' },
+        { label: 'AI', href: 'https://heady-ai.com' },
         { label: 'Enterprise', href: 'https://headysystems.com' },
         { label: 'Community', href: 'https://headyconnection.com' },
         { label: 'Invest', href: 'https://headyfinance.com' },

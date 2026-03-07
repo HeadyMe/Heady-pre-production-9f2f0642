@@ -21,7 +21,7 @@
 | headyio.com | `headyio` | ✅ Live |
 | headybot.com | `headybot` | ✅ Live |
 | headyapi.com | `headyapi` | ✅ Live |
-| headyai.com | `headyai` | ⚠️ DNS not on Cloudflare |
+| heady-ai.com | `heady-ai` | ⚠️ DNS not on Cloudflare |
 
 ## Hugging Face Spaces
 

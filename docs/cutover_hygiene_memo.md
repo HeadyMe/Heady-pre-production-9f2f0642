@@ -54,7 +54,7 @@ All items below must be green before the `heady-production` repo goes live.
 
 - [ ] **Git-history scan** — Run `trufflehog filesystem --only-verified` on the full 9f2f0642 commit history. Rotate any discovered credentials before promotion. The value-assessment doc estimates this debt at –$750k in due-diligence risk.
 - [ ] **Dead Cloudflare tunnel retired** — Tunnel `4a9d0759` identified in `DEPRECATIONS.md` must be revoked in the Cloudflare dashboard; confirm all 9 domains resolve via Pages, not the tunnel.
-- [ ] **`headyai.com` DNS** — Currently not on Cloudflare (`LIVE_SURFACES.md`: ⚠️ DNS not on Cloudflare). Transfer NS records before cutover so the domain gets full Cloudflare proxy coverage.
+- [ ] **`heady-ai.com` DNS** — Currently not on Cloudflare (`LIVE_SURFACES.md`: ⚠️ DNS not on Cloudflare). Transfer NS records before cutover so the domain gets full Cloudflare proxy coverage.
 - [ ] **Secret Manager** — Canonical `.env.production` must exist in GCP Secret Manager as `heady-env-production` and bound to the Cloud Run service account before first deploy. No secrets should be committed to any repo.
 - [ ] **`api-keys-reference.md` purged** — `DEPRECATIONS.md` flags key prefixes in this file as a security risk. Replace with env-var names only; do not commit any actual key values.
 
@@ -262,7 +262,7 @@ A version mismatch currently exists across workflow files:
 |---|---|---|---|
 | P0 | Git-history secret scan + rotation | eric | Before any promotion |
 | P0 | Retire Cloudflare tunnel `4a9d0759` | eric | Before cutover |
-| P0 | Transfer `headyai.com` DNS to Cloudflare | eric | Before cutover |
+| P0 | Transfer `heady-ai.com` DNS to Cloudflare | eric | Before cutover |
 | P0 | Purge key values from `api-keys-reference.md` | eric | Before cutover |
 | P1 | Apply HNSW migration (`003-hnsw-index.sql`) | eric | Before first production traffic |
 | P1 | Standardize Node 22 + pnpm across all workflows | eric | Before cutover |

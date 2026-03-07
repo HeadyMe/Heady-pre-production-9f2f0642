@@ -38,7 +38,7 @@
  * Deployment:
  *   npx wrangler publish
  *   Routes: *headyme.com/*, *headyos.com/*, *headysystems.com/*,
- *           *headyai.com/*, *headyconnection.com/*, *headyconnection.org/*,
+ *           *heady-ai.com/*, *headyconnection.com/*, *headyconnection.org/*,
  *           *headyex.com/*, *headyfinance.com/*,
  *           *.headyme.com/*, *.headyos.com/*
  *
@@ -67,8 +67,8 @@ const HOSTNAME_VERTICAL_MAP = {
   'os.headyme.com':        'headyos',
   'headysystems.com':      'headysystems',
   'enterprise.headysystems.com': 'headysystems',
-  'headyai.com':           'headyai',
-  'ai.headyme.com':        'headyai',
+  'heady-ai.com':           'heady-ai',
+  'ai.headyme.com':        'heady-ai',
   'headyconnection.com':   'headyconnection',
   'headyconnection.org':   'headyconnection',
   'connect.headyme.com':   'headyconnection',
@@ -137,15 +137,15 @@ const VERTICAL_EDGE_CONFIGS = {
     analyticsId:    'G-HSY000003',
     gaEnabled:      true,
   },
-  headyai: {
+  heady-ai: {
     accentVariant:  'violet',
     accentColor:    '#8b5cf6',
     accentLight:    '#c4b5fd',
-    dataVertical:   'headyai',
+    dataVertical:   'heady-ai',
     themeColor:     '#0a0814',
     ogTitle:        'HeadyAI — AI Services & APIs',
     ogDescription:  'State-of-the-art AI models and inference APIs for developers.',
-    twitterHandle:  '@headyai',
+    twitterHandle:  '@heady-ai',
     analyticsId:    'G-HAI000004',
     gaEnabled:      true,
   },

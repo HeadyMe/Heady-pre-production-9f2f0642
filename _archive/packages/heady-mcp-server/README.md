@@ -9,7 +9,7 @@
 npx heady-mcp-server
 
 # Docker (SSE — for web clients, Docker Desktop MCP)
-docker run -d -p 3302:3302 headyai/mcp-server
+docker run -d -p 3302:3302 heady-ai/mcp-server
 
 # Add to your MCP config (HeadyJules Desktop, Cursor, etc.)
 ```
@@ -37,7 +37,7 @@ Add to `~/.config/headyjules/claude_desktop_config.json`:
   "mcpServers": {
     "heady": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "headyai/mcp-server"]
+      "args": ["run", "-i", "--rm", "heady-ai/mcp-server"]
     }
   }
 }

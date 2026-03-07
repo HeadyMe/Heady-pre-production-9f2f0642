@@ -16,7 +16,7 @@
 const REMOTE_REGISTRY = {
     antigravity: {
         name: 'Antigravity IDE',
-        url: 'https://headyai.com/remotes/antigravity/remoteEntry.js',
+        url: 'https://heady-ai.com/remotes/antigravity/remoteEntry.js',
         scope: 'antigravity',
         module: './App',
     },

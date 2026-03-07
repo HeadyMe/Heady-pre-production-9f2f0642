@@ -165,11 +165,11 @@ const SEED_SERVICES = [
     tier: 'bot',
   },
   {
-    name: 'headyai',
-    domain: 'headyai.com',
+    name: 'heady-ai',
+    domain: 'heady-ai.com',
     instances: [
       { url: 'http://localhost:3309', weight: 1.0, tags: ['local'] },
-      { url: 'https://headyai.com', weight: PHI, tags: ['production'] },
+      { url: 'https://heady-ai.com', weight: PHI, tags: ['production'] },
     ],
     healthPath: '/healthz',
     version: '1.0.0',

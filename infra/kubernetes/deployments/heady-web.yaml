@@ -23,7 +23,7 @@ metadata:
   annotations:
     headysystems.com/description: "Web frontend serving 9 domains — fib(5)=5 replicas"
     headysystems.com/replicas-derivation: "fib(5)=5 — fifth Fibonacci number"
-    headysystems.com/domains: "headyme.com,headyconnection.com,headyconnection.org,headyos.com,headyex.com,headyfinance.com,headysystems.com,headyai.com"
+    headysystems.com/domains: "headyme.com,headyconnection.com,headyconnection.org,headyos.com,headyex.com,headyfinance.com,headysystems.com,heady-ai.com"
 spec:
   # replicas: fib(5) = 5
   replicas: 5

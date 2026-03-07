@@ -71,22 +71,22 @@
     },
 
     {
-      "vertical_id":   "headyai",
-      "domain":        "headyai.com",
-      "aliases":       ["www.headyai.com", "ai.headyme.com"],
-      "config_path":   "headyai/config.json",
+      "vertical_id":   "heady-ai",
+      "domain":        "heady-ai.com",
+      "aliases":       ["www.heady-ai.com", "ai.headyme.com"],
+      "config_path":   "heady-ai/config.json",
       "status":        "active",
       "deployed_at":   "2025-09-01T00:00:00Z",
       "description":   "AI services — model API, embeddings, inference, AI developer tools",
       "category":      "ai-services",
       "design": {
         "accent_variant": "violet",
-        "data_vertical":  "headyai"
+        "data_vertical":  "heady-ai"
       },
       "infrastructure": {
         "cdn":       "cloudflare",
         "r2_bucket": "heady-ai-prod",
-        "kv_prefix": "vertical:headyai",
+        "kv_prefix": "vertical:heady-ai",
         "analytics": "G-HAI000004"
       }
     },

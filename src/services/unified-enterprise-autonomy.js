@@ -34,7 +34,7 @@ const STALE_SCAN_DIRECTORIES = [
 ];
 const STALE_MIN_AGE_HOURS = 24;
 const ORPHAN_FILE_PATTERNS = [
-    'server.pid', '.autoflow.pid', '.headyai.pid', '.headybuddy.pid',
+    'server.pid', '.autoflow.pid', '.heady-ai.pid', '.headybuddy.pid',
     'heady-manager.pid', 'python-worker.pid', 'admin-ui.pid',
     'npm-debug.log', 'test.txt',
 ];

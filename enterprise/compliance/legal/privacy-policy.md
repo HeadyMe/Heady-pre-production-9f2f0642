@@ -12,7 +12,7 @@ Last Updated: 2026-03-07
 HeadySystems Inc. ("Heady", "we", "us", or "our"), operating headyme.com, is committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your data when you use our HeadyOS platform, HeadyMe AI services, APIs, and related services (collectively, "Services").
 
 This Policy applies to:
-- Visitors to headyme.com and all Heady-operated domains (headyconnection.com, headyos.com, headyai.com, headysystems.com)
+- Visitors to headyme.com and all Heady-operated domains (headyconnection.com, headyos.com, heady-ai.com, headysystems.com)
 - Registered users and account holders
 - Enterprise customers and their authorized users
 - API developers and SDK users

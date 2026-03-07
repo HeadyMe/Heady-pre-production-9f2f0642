@@ -69,7 +69,7 @@ export default {
             'headybuddy.org': 'https://heady-buddy-xxxxx.run.app',
             'headyio.com': 'https://heady-web-xxxxx.run.app',
             'headybot.com': 'https://heady-web-xxxxx.run.app',
-            'headyai.com': 'https://heady-web-xxxxx.run.app',
+            'heady-ai.com': 'https://heady-web-xxxxx.run.app',
         };
 
         const origin = ORIGINS[hostname];

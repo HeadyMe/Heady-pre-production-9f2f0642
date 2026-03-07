@@ -42,7 +42,7 @@
 | `A2-websites/headyme/index.html` | A2 | headyme.com | Consumer portal. Hero, features, pricing, developer section, newsletter. |
 | `A2-websites/headyos/index.html` | A2 | headyos.com | Developer platform. Architecture viz, docs hub, interactive playground, tech stack. |
 | `A2-websites/headysystems/index.html` | A2 | headysystems.com | Enterprise B2B. Value proposition, ROI calculator, security posture, case studies, contact form. |
-| `A2-websites/headyai/index.html` | A2 | headyai.com | AI research showcase. Research papers, patent timeline, 20 AI nodes, technical blog. |
+| `A2-websites/heady-ai/index.html` | A2 | heady-ai.com | AI research showcase. Research papers, patent timeline, 20 AI nodes, technical blog. |
 | `A2-websites/headyconnection-com/index.html` | A2 | headyconnection.com | Community portal. Forum, events, marketplace, HeadyCoin tokenomics, partners. |
 | `A2-websites/headyconnection-org/index.html` | A2 | headyconnection.org | Non-profit. Mission, grant writing pilot, impact metrics, partner application, success stories. |
 | `A2-websites/headyex/index.html` | A2 | headyex.com | Token/marketplace. HeadyCoin dashboard, agent marketplace, data marketplace, wallet. |

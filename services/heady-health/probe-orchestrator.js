@@ -16,7 +16,7 @@ const https = require('https');
 const DOMAINS = [
     'headyme.com', 'headyapi.com', 'headysystems.com',
     'headyconnection.org', 'headybuddy.org', 'headymcp.com',
-    'headyio.com', 'headybot.com', 'headyai.com',
+    'headyio.com', 'headybot.com', 'heady-ai.com',
 ];
 
 class ProbeOrchestrator {

@@ -14,7 +14,7 @@ Complete step-by-step guide for deploying the Heady platform to production on Go
                         │  headyme.com    headysystems.com         │
                         │  headymcp.com   headyconnection.org      │
                         │  headybuddy.org headyio.com              │
-                        │  headybot.com   headyapi.com headyai.com │
+                        │  headybot.com   headyapi.com heady-ai.com │
                         └────────────────┬────────────────────────┘
                                          │ HTTPS
                                          ▼
@@ -272,7 +272,7 @@ wrangler secret put ORIGIN_AUTH_HEADER
 curl https://headyme.com/health/edge
 
 # Test each domain
-for domain in headyme.com headysystems.com headyconnection.org headybuddy.org headymcp.com headyio.com headybot.com headyapi.com headyai.com; do
+for domain in headyme.com headysystems.com headyconnection.org headybuddy.org headymcp.com headyio.com headybot.com headyapi.com heady-ai.com; do
   echo -n "${domain}: "
   curl -sf -o /dev/null -w "%{http_code}" "https://${domain}/health/edge"
   echo ""

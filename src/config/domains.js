@@ -234,15 +234,15 @@ const HEADY_DOMAINS = [
 
   {
     name: 'HeadyAI',
-    domain: 'headyai.com',
-    baseUrl: 'https://headyai.com',
+    domain: 'heady-ai.com',
+    baseUrl: 'https://heady-ai.com',
     role: 'ai-research',
     description: 'Heady AI research portal and model experimentation hub',
     allowedOrigins: [
-      'https://headyai.com',
-      'https://www.headyai.com',
-      'https://research.headyai.com',
-      'https://lab.headyai.com',
+      'https://heady-ai.com',
+      'https://www.heady-ai.com',
+      'https://research.heady-ai.com',
+      'https://lab.heady-ai.com',
     ],
     healthEndpoint: '/health/live',
     statusEndpoint: '/api/status',
@@ -250,7 +250,7 @@ const HEADY_DOMAINS = [
     mcpEnabled: true,
     tunnel: {
       enabled: true,
-      hostname: 'headyai.com',
+      hostname: 'heady-ai.com',
       service: 'http://localhost:3301',
       tunnelId: process.env.HEADY_TUNNEL_ID_HEADYAI || '',
       protocol: 'https',

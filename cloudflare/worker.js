@@ -20,7 +20,7 @@
  *  headyio.com            → /io
  *  headybot.com           → /bot
  *  headyapi.com           → /api
- *  headyai.com            → /ai
+ *  heady-ai.com            → /ai
  *
  * Environment variables (set in wrangler.toml or Cloudflare dashboard):
  *  CLOUD_RUN_ORIGIN    — Full Cloud Run service URL (https://heady-production-uc.a.run.app)
@@ -53,8 +53,8 @@ const DOMAIN_ROUTES = new Map([
   ['www.headybot.com',    '/bot'],
   ['headyapi.com',        '/api'],
   ['www.headyapi.com',    '/api'],
-  ['headyai.com',         '/ai'],
-  ['www.headyai.com',     '/ai'],
+  ['heady-ai.com',         '/ai'],
+  ['www.heady-ai.com',     '/ai'],
 ]);
 
 // =============================================================================
